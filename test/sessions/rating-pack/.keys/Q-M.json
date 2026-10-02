@@ -1,0 +1,14 @@
+{
+  "gate": "Q-M",
+  "key": [
+    {
+      "id": "Q-M-c7942060d4",
+      "left": "chaptered",
+      "right": "plain",
+      "sources": {
+        "left": "test/sessions/T2/T2-1-2/turns.jsonl:57",
+        "right": "test/sessions/T2/T2-1-2/turns.jsonl:60"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2046 @@
+{
+  "storyId": "adolion-saga",
+  "activeCheckpointId": "nightriver-house",
+  "boundary": 83,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global",
+      "Adolion Academy Checkpoints": "global",
+      "Adolion - Aegis City Noble Life": "global",
+      "Adolion Aegis Checkpoints": "global",
+      "Adolion Deep Checkpoints": "global",
+      "Adolion East Checkpoints": "global",
+      "Adolion - The Third Kingdom": "global",
+      "Adolion - Tiunhime Village": "global",
+      "Adolion Night Checkpoints": "global",
+      "Adolion Eshalanore Checkpoints": "global",
+      "Adolion - Eshalanore": "global",
+      "Adolion War Checkpoints": "global",
+      "Adolion Saga Checkpoints": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "aegis_examiner_watching": false,
+    "deep_swarm": false,
+    "east_upset": false,
+    "night_moon": false,
+    "esha_her_gaze": true,
+    "war_turn": false,
+    "location": "javon_study",
+    "entered_mines": true,
+    "party_injuries": 0,
+    "tension_current": 0.40326088061421883,
+    "descent": 5,
+    "progress_toward_the-changed-deep": 1,
+    "knows_devourer": true,
+    "past_the_seal": true,
+    "turned_back": false,
+    "progress_toward_what-filwern-left": 7,
+    "devourer_outcome": "slain",
+    "back_in_driftmere": true,
+    "saga_called_home": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "6ff62ebc-2913-4022-b0b4-9ad42da74408",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 56,
+        "boundary": 38,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "intends",
+      "content": "To hold the line and burn the creature to ash with Nispelheim.",
+      "createdAt": 38,
+      "messageId": 56
+    },
+    {
+      "id": "378b5f16-ecce-448c-a0eb-37213f84fdce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 58,
+        "boundary": 39,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "knows",
+      "content": "The scrap-and-bone creature's core light has been destroyed but it keeps attacking.",
+      "createdAt": 39,
+      "messageId": 58
+    },
+    {
+      "id": "f4e8d09b-2656-400a-9ecd-7b0ebf9622f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 58,
+        "boundary": 39,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "intends",
+      "content": "To finish the scrap-and-bone creature with her Crescent Slash.",
+      "createdAt": 39,
+      "messageId": 58
+    },
+    {
+      "id": "ed249d14-4146-4a69-af0c-1b2c3c27c765",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 82,
+        "boundary": 52,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "knows",
+      "content": "The scrap-and-bone creature is made of metal and bones.",
+      "createdAt": 52,
+      "messageId": 82
+    },
+    {
+      "id": "7b9ba790-df65-4844-adb5-3213e2fb66f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 82,
+        "boundary": 52,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "knows",
+      "content": "Her Crescent Slash burned the scrap-and-bone creature into a blackened, twitching ruin.",
+      "createdAt": 52,
+      "messageId": 82
+    },
+    {
+      "id": "20dbeac0-68d8-44b3-96e7-81d8311398e9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 111,
+        "boundary": 69,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "House Nightriver",
+      "tag": "hiding",
+      "content": "what became of the three letters Serenola sent",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 69,
+      "messageId": 111,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "7feba062-8d87-4938-b7a6-0bfd1a5807e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "House Nightriver",
+      "tag": "hiding",
+      "content": "the fate of Serenola's three letters",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "c0c4e49e-a134-4473-abf7-e3981bcd74b8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "suspects",
+      "content": "The letters may have been thrown away rather than lost, meaning House Nightriver knew of the Devourer and did nothing.",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "f4b1d621-9cc4-4396-8aad-f268ae632074",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "hiding",
+      "content": "That she suspects House Nightriver deliberately ignored her letters, concealing her accusation behind a question.",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "ec0dcf35-b165-4f48-9158-af072a7767cc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "believes",
+      "content": "That the one who returned said the party would be mad.",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "60eed238-e0fd-47d8-a9aa-35a4d053b683",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "A townsfolk woman's son did not come back from the mine, a different shift from Garreth's crew.",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "929c6a18-d0ca-4138-95ea-0fa22c42236d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 113,
+        "boundary": 70,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "unaware",
+      "content": "That Riyo's '-nya' tic slipped out when she spoke of the breathing stopping.",
+      "createdAt": 70,
+      "messageId": 113,
+      "supersededBy": "retired@73",
+      "retiredAt": {
+        "messageId": 117,
+        "boundary": 73
+      }
+    },
+    {
+      "id": "66697eb2-911b-4ead-98c6-4a3de3672122",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "Max Nightriver is a Nightriver who never saw the three letters she sent.",
+      "createdAt": 73,
+      "messageId": 117
+    },
+    {
+      "id": "709b784b-e6bc-4f10-b299-4b26ab684895",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "suspects",
+      "content": "The letters may have been thrown away rather than lost, meaning House Nightriver knew of the Devourer and did nothing.",
+      "createdAt": 73,
+      "messageId": 117
+    },
+    {
+      "id": "dceacd63-b6b9-4266-b9f6-6198b450fff1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "hiding",
+      "content": "That she suspects House Nightriver deliberately ignored her letters, concealing her accusation behind a question.",
+      "createdAt": 73,
+      "messageId": 117
+    },
+    {
+      "id": "742c97ff-e188-4e24-9c1d-0610a14a1a79",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "believes",
+      "content": "That the one who returned said the party would be mad.",
+      "createdAt": 73,
+      "messageId": 117
+    },
+    {
+      "id": "3d41de4b-f9e2-41d3-9ffc-ff122291604d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "A townsfolk woman's son did not come back from the mine, a different shift from Garreth's crew.",
+      "createdAt": 73,
+      "messageId": 117,
+      "supersededBy": "retired@75",
+      "retiredAt": {
+        "messageId": 120,
+        "boundary": 75
+      }
+    },
+    {
+      "id": "29f5346c-e3fc-4fe6-abb3-f9b6d3973ba0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 117,
+        "boundary": 73,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "unaware",
+      "content": "That Riyo's '-nya' tic slipped out when she spoke of the breathing stopping.",
+      "createdAt": 73,
+      "messageId": 117
+    },
+    {
+      "id": "d27b8b04-d2b3-4f72-859d-ca4488a015f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 120,
+        "boundary": 75,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "That the missing miners dissolved into glittering dust rather than simply dying.",
+      "hiddenFrom": "The grieving townsfolk woman",
+      "createdAt": 75,
+      "messageId": 120,
+      "supersededBy": "retired@76",
+      "retiredAt": {
+        "messageId": 121,
+        "boundary": 76
+      }
+    },
+    {
+      "id": "0b7b2db7-e4e9-4ca0-ab87-dba2c4d5c85c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 120,
+        "boundary": 75,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party is heading to Aegis City and the Nightriver estate.",
+      "createdAt": 75,
+      "messageId": 120,
+      "supersededBy": "retired@76",
+      "retiredAt": {
+        "messageId": 121,
+        "boundary": 76
+      }
+    },
+    {
+      "id": "4da07d4c-492c-4cd3-b279-55caec386fba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 120,
+        "boundary": 75,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max has invited him to be a guest at the Nightriver estate.",
+      "createdAt": 75,
+      "messageId": 120,
+      "supersededBy": "retired@76",
+      "retiredAt": {
+        "messageId": 121,
+        "boundary": 76
+      }
+    },
+    {
+      "id": "199e9def-124b-4b7b-b642-d864a5371089",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 120,
+        "boundary": 75,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "A townsfolk woman's son did not come back from the mine, a different shift from Garreth's crew.",
+      "createdAt": 75,
+      "messageId": 120
+    },
+    {
+      "id": "117621b4-7739-470a-86fb-829839d7f5eb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The people taken in the mine dissolved into glittering dust when the monster fell.",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "bed3d262-cbb2-4d9a-b54e-4a53ea3512c1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "That the lost miners dissolved into glittering dust rather than simply dying.",
+      "hiddenFrom": "The grieving mother",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "93baddec-8159-47fc-bc73-a163229fd311",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party is heading to Aegis City and the Nightriver estate.",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "8f783071-3117-45b9-9236-cfbbf86c613f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party is heading to Aegis City and the Nightriver estate.",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "802c0e98-a166-45dc-abe8-3e66a310e8a0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max has invited her to be a guest at the Nightriver estate.",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "ca525a35-9038-4261-9ab6-3b3cd744ecf0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 121,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max has invited him to be a guest at the Nightriver estate.",
+      "createdAt": 76,
+      "messageId": 121
+    },
+    {
+      "id": "e828ba73-cc7b-4cc8-b603-717a0c0c2192",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 76,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party broke the healed seal with Max's fire and killed Tzarak, freeing the frozen dead.",
+      "createdAt": 76,
+      "messageId": 123
+    },
+    {
+      "id": "7d2d0cf3-d2f7-4dc5-bb6d-bd5085cf34b3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max has invited her to stay at the Nightriver estate as a guest.",
+      "createdAt": 78,
+      "messageId": 124
+    },
+    {
+      "id": "2ed9e857-4fcc-4308-98fd-ec0b37d8ab6e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max has invited him to stay at the Nightriver estate as a guest.",
+      "createdAt": 78,
+      "messageId": 124
+    },
+    {
+      "id": "8508d65b-a2f9-4100-93f5-5f3b1b66d475",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 123
+    },
+    {
+      "id": "339098ba-f674-4c04-be79-177d0d878c73",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "unaware",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 123
+    },
+    {
+      "id": "f6718e72-7626-4ab1-b80d-03440c77804b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "unaware",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 123
+    },
+    {
+      "id": "76115281-565f-44cd-a84a-5482cf0991c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "unaware",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 123
+    },
+    {
+      "id": "34474aec-de53-43ae-abdd-e2294d752d95",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 123,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Leila",
+      "tag": "unaware",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 123
+    },
+    {
+      "id": "7e49a202-2ba3-49f5-bb33-34c496ae787d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 78,
+      "messageId": 124,
+      "supersededBy": "retired@79",
+      "retiredAt": {
+        "messageId": 126,
+        "boundary": 79
+      }
+    },
+    {
+      "id": "2443a21b-ddf4-4f53-9932-74021e44aad5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "suspects",
+      "content": "That the estate and its servants warrant wary watching, keeping her gaze on the butler's movements.",
+      "createdAt": 78,
+      "messageId": 124,
+      "supersededBy": "retired@79",
+      "retiredAt": {
+        "messageId": 126,
+        "boundary": 79
+      }
+    },
+    {
+      "id": "80526d79-536d-44c1-b3b6-22f7e6c131f5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "That he does not belong in a place like the Nightriver estate.",
+      "createdAt": 78,
+      "messageId": 124,
+      "supersededBy": "retired@79",
+      "retiredAt": {
+        "messageId": 126,
+        "boundary": 79
+      }
+    },
+    {
+      "id": "b38556dc-374b-4037-82fb-9858a51099f0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "His fear that he is out of place and will be asked to leave.",
+      "hiddenFrom": "The Estate",
+      "createdAt": 78,
+      "messageId": 124,
+      "supersededBy": "retired@79",
+      "retiredAt": {
+        "messageId": 126,
+        "boundary": 79
+      }
+    },
+    {
+      "id": "2dde1460-2105-4dfc-83f2-c51b7d385b7c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 124,
+        "boundary": 78,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "That Welden has turned up in the library and will not say why.",
+      "createdAt": 78,
+      "messageId": 124,
+      "supersededBy": "retired@79",
+      "retiredAt": {
+        "messageId": 126,
+        "boundary": 79
+      }
+    },
+    {
+      "id": "1f98df6f-a16e-4f0c-85be-7dc7045661fd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "what he knows about the letters sent to the house",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "8f2b6dae-7664-4fdd-8828-f916c59869b7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "knows",
+      "content": "The party cleared the Driftmere Mines, per the Guild's report.",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "6c8bc16c-5793-4552-b0ef-560ba6ec9867",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Garreth's account of the mines and the party's actions at the seal.",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "e052e596-6cdc-4fa6-9a32-ef21e4cd4a2a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "believes",
+      "content": "That she is a guest at the Nightriver estate.",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "e88c9b42-a865-40ed-9904-c190fe113bcf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "That he does not belong in a place like the Nightriver estate.",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "f69b13f3-84ec-4c92-86c3-1cb7447b63ae",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "His fear that he is out of place and will be asked to leave.",
+      "hiddenFrom": "The Estate",
+      "createdAt": 79,
+      "messageId": 126
+    },
+    {
+      "id": "706b0e2f-4bc3-4cc1-a2b0-088a2b2792f8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "Her '-nya' tic slipped out again when she said she didn't need a room.",
+      "hiddenFrom": "The Party",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "eaba5616-8bba-479d-a3ba-4122f464dad5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "believes",
+      "content": "That she successfully concealed her '-nya' tic from the party.",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "489f2b25-153f-4a3e-b738-7c0ad90c9f32",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "intends",
+      "content": "To wait by the door rather than take a room in the estate.",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "1153e4d2-5a24-48a7-abbc-9e67f9a796e4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "Why she refuses a room and keeps her left arm hidden while standing guard by the door.",
+      "hiddenFrom": "The Party",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "b72d6c2f-337c-43d7-a4c5-c009a8fdefe5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "intends",
+      "content": "To stay by the estate door and keep herself between Max and the rest of the estate.",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "e57672cc-7af2-41a0-a47c-be0bd95d64ff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "suspects",
+      "content": "That the estate and its servants warrant wary watching, keeping her gaze on the butler's movements.",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "e100c9ae-68ba-4ea1-97c0-9b39a617f3c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 126,
+        "boundary": 79,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "That Welden has turned up in the library and will not say why.",
+      "createdAt": 79,
+      "messageId": 126,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "4001c395-bace-458f-8211-0a1070a90f69",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the purpose behind intercepting Serenola's letters and what 'handled' means",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 80,
+      "messageId": 128,
+      "supersededBy": "retired@80",
+      "retiredAt": {
+        "messageId": 128,
+        "boundary": 80
+      }
+    },
+    {
+      "id": "37c4aff4-4149-4d23-acfe-e61eed7dd4ff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the purpose behind intercepting Serenola's letters and what 'handled' means",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 80,
+      "messageId": 128,
+      "supersededBy": "retired@81",
+      "retiredAt": {
+        "messageId": 130,
+        "boundary": 81
+      }
+    },
+    {
+      "id": "5e3b6092-da2c-4f03-940a-90f9b1b2013f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "That Welden has turned up in the library and will not say why.",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "e130feeb-c593-4219-92c3-0d86908bf711",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "believes",
+      "content": "That she successfully concealed her '-nya' tic from the party.",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "e57ee147-8688-41db-9107-cf70b3e31489",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "Her '-nya' tic slipped out again when she said she didn't need a room.",
+      "hiddenFrom": "The Party",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "0d257653-feda-48d5-8ed4-d7d6ea558929",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "Why she refuses a room and keeps her left arm hidden while standing guard by the door.",
+      "hiddenFrom": "The Party",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "67ea1318-e33d-4dc9-8967-df697f5e8205",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "intends",
+      "content": "To stay by the estate door and keep herself between Max and the rest of the estate.",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "0cda81e1-63ea-48dc-92d1-e7a928ba333c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 128,
+        "boundary": 80,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "suspects",
+      "content": "That the estate and its servants warrant wary watching, keeping her gaze on the butler's movements.",
+      "createdAt": 80,
+      "messageId": 128
+    },
+    {
+      "id": "ee7bc463-36b4-494b-a8f9-384e2d516293",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the true purpose behind handling Serenola's letters",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 81,
+      "messageId": 130,
+      "supersededBy": "retired@81",
+      "retiredAt": {
+        "messageId": 130,
+        "boundary": 81
+      }
+    },
+    {
+      "id": "3f5db5f3-708d-4175-ab9a-d293c5d6de69",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "suspects",
+      "content": "that Max has been receiving letters he knows nothing about",
+      "createdAt": 81,
+      "messageId": 130,
+      "supersededBy": "retired@81",
+      "retiredAt": {
+        "messageId": 130,
+        "boundary": 81
+      }
+    },
+    {
+      "id": "72fb947c-00bf-4f67-a50b-a5f9aa3b8a15",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon holds a grain-stalk-sealed letter and suspects Max receives letters he knows nothing about",
+      "createdAt": 81,
+      "messageId": 130,
+      "supersededBy": "retired@81",
+      "retiredAt": {
+        "messageId": 130,
+        "boundary": 81
+      }
+    },
+    {
+      "id": "a6a9125e-8017-4596-b471-a66bf5d29b9a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the purpose behind handling Serenola's letters and who ordered it",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 81,
+      "messageId": 130,
+      "supersededBy": "retired@81",
+      "retiredAt": {
+        "messageId": 130,
+        "boundary": 81
+      }
+    },
+    {
+      "id": "613e80ab-afbf-48a8-a85b-8c9a8bc2f4a6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon admits Serenola's letters reached the estate and were handled, not lost.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "cf99a688-378d-45b1-b8b4-db4763278bc0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon holds a grain-stalk-sealed letter and suspects Max receives letters he knows nothing about.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "3f404aa8-5d5d-4da6-922b-05ebecd1756d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "The purpose behind handling Serenola's letters and who ordered it.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "9af44dfc-e466-4df2-adfa-13f4e921bc36",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "suspects",
+      "content": "That Max has been receiving letters he knows nothing about.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "2ba190f5-4698-47ef-96f9-6840736b5260",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "That Javon's handling of the letters was a failure rather than deliberate policy.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "671a5a3d-c476-4b2b-a2da-fdf1b6dbc067",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon summoned him over his conduct: going to the mines, signing the Guild register, and inviting outsiders into the house.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "cd11e2c8-67d1-4dfb-9846-d6fa1ed6ae67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 130,
+        "boundary": 81,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "unaware",
+      "content": "That Javon's suspicion about hidden letters is connected to the grain-stalk-sealed letter he holds.",
+      "createdAt": 81,
+      "messageId": 130
+    },
+    {
+      "id": "71551cc2-2009-46e9-8c18-dd9cda63b611",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 132,
+        "boundary": 82,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon admits the estate deliberately handled Serenola's letters",
+      "createdAt": 82,
+      "messageId": 132
+    },
+    {
+      "id": "04981a1f-ccec-402b-b6b4-a9f6132e1add",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 132,
+        "boundary": 82,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon suspects Max has been receiving letters he knows nothing about",
+      "createdAt": 82,
+      "messageId": 132
+    },
+    {
+      "id": "17fc07f9-4890-4783-aaca-5e5f6a8104c7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 132,
+        "boundary": 82,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the purpose behind handling Serenola's letters and the truth of the house's seals",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 82,
+      "messageId": 132
+    },
+    {
+      "id": "2fe4ec63-d8f8-4257-adc2-ee0f32566ab9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 132,
+        "boundary": 82,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon admits the estate deliberately 'handled' Serenola's letters and that nothing in the house is done without purpose",
+      "createdAt": 82,
+      "messageId": 132
+    },
+    {
+      "id": "338f6c9d-eb3a-44db-8604-fb4241861da7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 132,
+        "boundary": 82,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon will reveal the truth of the seals and marriages only if Max meets three conditions",
+      "createdAt": 82,
+      "messageId": 132
+    },
+    {
+      "id": "639245fd-3513-44fa-bf58-4e27cdb9ab9e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 134,
+        "boundary": 83,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Nightriver bloodline carries the seals that keep the Witch King dormant, and the marriages exist to strengthen the line.",
+      "createdAt": 83,
+      "messageId": 134
+    },
+    {
+      "id": "f65f0628-2fcc-4228-a5f8-f01294465c82",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 134,
+        "boundary": 83,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Javon deliberately had Serenola's letters handled.",
+      "createdAt": 83,
+      "messageId": 134
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 4,
+      "name": "Akari",
+      "avatar": "Akari.png"
+    },
+    {
+      "index": 5,
+      "name": "Akito",
+      "avatar": "Akito.png"
+    },
+    {
+      "index": 6,
+      "name": "Alarise",
+      "avatar": "Alarise.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 8,
+      "name": "Alexander",
+      "avatar": "Alexander.png"
+    },
+    {
+      "index": 9,
+      "name": "Alice",
+      "avatar": "Alice.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 11,
+      "name": "Amthir",
+      "avatar": "Amthir.png"
+    },
+    {
+      "index": 12,
+      "name": "Anax",
+      "avatar": "Anax.png"
+    },
+    {
+      "index": 14,
+      "name": "Arryn",
+      "avatar": "Arryn.png"
+    },
+    {
+      "index": 15,
+      "name": "Ashleigh",
+      "avatar": "Ashleigh.png"
+    },
+    {
+      "index": 16,
+      "name": "Ashliel",
+      "avatar": "Ashliel.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 22,
+      "name": "Caelia",
+      "avatar": "Caelia.png"
+    },
+    {
+      "index": 23,
+      "name": "Caetus",
+      "avatar": "Caetus.png"
+    },
+    {
+      "index": 24,
+      "name": "Calithra",
+      "avatar": "Calithra.png"
+    },
+    {
+      "index": 25,
+      "name": "Camilla",
+      "avatar": "Camilla.png"
+    },
+    {
+      "index": 26,
+      "name": "Cassius",
+      "avatar": "Cassius.png"
+    },
+    {
+      "index": 28,
+      "name": "Ced",
+      "avatar": "Ced.png"
+    },
+    {
+      "index": 30,
+      "name": "Celedir",
+      "avatar": "Celedir.png"
+    },
+    {
+      "index": 31,
+      "name": "Celeste",
+      "avatar": "Celeste.png"
+    },
+    {
+      "index": 33,
+      "name": "Dahlia",
+      "avatar": "Dahlia.png"
+    },
+    {
+      "index": 34,
+      "name": "Daigo",
+      "avatar": "Daigo.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 40,
+      "name": "Diosanea",
+      "avatar": "Diosanea.png"
+    },
+    {
+      "index": 41,
+      "name": "Dixton",
+      "avatar": "Dixton.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 44,
+      "name": "Ebisu",
+      "avatar": "Ebisu.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 46,
+      "name": "Elowyn",
+      "avatar": "Elowyn.png"
+    },
+    {
+      "index": 48,
+      "name": "Erevan",
+      "avatar": "Erevan.png"
+    },
+    {
+      "index": 49,
+      "name": "Eriana",
+      "avatar": "Eriana.png"
+    },
+    {
+      "index": 50,
+      "name": "Eunie",
+      "avatar": "Eunie.png"
+    },
+    {
+      "index": 51,
+      "name": "Fael",
+      "avatar": "Fael.png"
+    },
+    {
+      "index": 52,
+      "name": "Felthorn",
+      "avatar": "Felthorn.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 54,
+      "name": "Forre",
+      "avatar": "Forre.png"
+    },
+    {
+      "index": 55,
+      "name": "Fumio",
+      "avatar": "Fumio.png"
+    },
+    {
+      "index": 56,
+      "name": "Gabriel",
+      "avatar": "Gabriel.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 58,
+      "name": "Grant",
+      "avatar": "Grant.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 60,
+      "name": "Haley",
+      "avatar": "Haley.png"
+    },
+    {
+      "index": 61,
+      "name": "Hana",
+      "avatar": "Hana.png"
+    },
+    {
+      "index": 62,
+      "name": "Hanabi",
+      "avatar": "Hanabi.png"
+    },
+    {
+      "index": 63,
+      "name": "Hanzo",
+      "avatar": "Hanzo.png"
+    },
+    {
+      "index": 64,
+      "name": "Himari",
+      "avatar": "Himari.png"
+    },
+    {
+      "index": 65,
+      "name": "Honami",
+      "avatar": "Honami.png"
+    },
+    {
+      "index": 66,
+      "name": "Idira",
+      "avatar": "Idira.png"
+    },
+    {
+      "index": 68,
+      "name": "Jasira",
+      "avatar": "Jasira.png"
+    },
+    {
+      "index": 69,
+      "name": "Javon",
+      "avatar": "Javon.png"
+    },
+    {
+      "index": 72,
+      "name": "Kaian",
+      "avatar": "Kaian.png"
+    },
+    {
+      "index": 73,
+      "name": "Kanai",
+      "avatar": "Kanai.png"
+    },
+    {
+      "index": 74,
+      "name": "Kanami",
+      "avatar": "Kanami.png"
+    },
+    {
+      "index": 75,
+      "name": "Kane",
+      "avatar": "Kane.png"
+    },
+    {
+      "index": 76,
+      "name": "Kanna",
+      "avatar": "Kanna.png"
+    },
+    {
+      "index": 77,
+      "name": "Karia",
+      "avatar": "Karia.png"
+    },
+    {
+      "index": 78,
+      "name": "Karos",
+      "avatar": "Karos.png"
+    },
+    {
+      "index": 79,
+      "name": "Karrus",
+      "avatar": "Karrus.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 81,
+      "name": "Kass",
+      "avatar": "Kass.png"
+    },
+    {
+      "index": 82,
+      "name": "Kayla",
+      "avatar": "Kayla.png"
+    },
+    {
+      "index": 83,
+      "name": "Keder",
+      "avatar": "Keder.png"
+    },
+    {
+      "index": 84,
+      "name": "Kela",
+      "avatar": "Kela.png"
+    },
+    {
+      "index": 85,
+      "name": "Koharu",
+      "avatar": "Koharu.png"
+    },
+    {
+      "index": 86,
+      "name": "Konako",
+      "avatar": "Konako.png"
+    },
+    {
+      "index": 87,
+      "name": "Kuromu",
+      "avatar": "Kuromu.png"
+    },
+    {
+      "index": 88,
+      "name": "Leila",
+      "avatar": "Leila.png"
+    },
+    {
+      "index": 89,
+      "name": "Liora",
+      "avatar": "Liora.png"
+    },
+    {
+      "index": 90,
+      "name": "Lirael",
+      "avatar": "Lirael.png"
+    },
+    {
+      "index": 91,
+      "name": "Lobo",
+      "avatar": "Lobo.png"
+    },
+    {
+      "index": 94,
+      "name": "Malach",
+      "avatar": "Malach.png"
+    },
+    {
+      "index": 95,
+      "name": "Manako",
+      "avatar": "Manako.png"
+    },
+    {
+      "index": 96,
+      "name": "Megumi",
+      "avatar": "Megumi.png"
+    },
+    {
+      "index": 97,
+      "name": "Melisande",
+      "avatar": "Melisande.png"
+    },
+    {
+      "index": 98,
+      "name": "Merryn",
+      "avatar": "Merryn.png"
+    },
+    {
+      "index": 99,
+      "name": "Mina",
+      "avatar": "Mina.png"
+    },
+    {
+      "index": 101,
+      "name": "Miyabi",
+      "avatar": "Miyabi.png"
+    },
+    {
+      "index": 103,
+      "name": "Morrigan",
+      "avatar": "Morrigan.png"
+    },
+    {
+      "index": 105,
+      "name": "Nalea",
+      "avatar": "Nalea.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 107,
+      "name": "Natalia",
+      "avatar": "Natalia.png"
+    },
+    {
+      "index": 108,
+      "name": "Nendira",
+      "avatar": "Nendira.png"
+    },
+    {
+      "index": 110,
+      "name": "Nyl",
+      "avatar": "Nyl.png"
+    },
+    {
+      "index": 111,
+      "name": "Oswyn",
+      "avatar": "Oswyn.png"
+    },
+    {
+      "index": 112,
+      "name": "Panne",
+      "avatar": "Panne.png"
+    },
+    {
+      "index": 116,
+      "name": "Ren",
+      "avatar": "Ren.png"
+    },
+    {
+      "index": 118,
+      "name": "Rikako",
+      "avatar": "Rikako.png"
+    },
+    {
+      "index": 119,
+      "name": "Rinne",
+      "avatar": "Rinne.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 121,
+      "name": "Ronan",
+      "avatar": "Ronan.png"
+    },
+    {
+      "index": 122,
+      "name": "Rosea",
+      "avatar": "Rosea.png"
+    },
+    {
+      "index": 123,
+      "name": "Runo",
+      "avatar": "Runo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 125,
+      "name": "Ryenne",
+      "avatar": "Ryenne.png"
+    },
+    {
+      "index": 126,
+      "name": "Safie",
+      "avatar": "Safie.png"
+    },
+    {
+      "index": 127,
+      "name": "Sali",
+      "avatar": "Sali.png"
+    },
+    {
+      "index": 128,
+      "name": "Sana",
+      "avatar": "Sana.png"
+    },
+    {
+      "index": 129,
+      "name": "Selena",
+      "avatar": "Selena.png"
+    },
+    {
+      "index": 131,
+      "name": "Shadur",
+      "avatar": "Shadur.png"
+    },
+    {
+      "index": 132,
+      "name": "Shelara",
+      "avatar": "Shelara.png"
+    },
+    {
+      "index": 133,
+      "name": "Shelur",
+      "avatar": "Shelur.png"
+    },
+    {
+      "index": 134,
+      "name": "Shiba",
+      "avatar": "Shiba.png"
+    },
+    {
+      "index": 135,
+      "name": "Shinen",
+      "avatar": "Shinen.png"
+    },
+    {
+      "index": 136,
+      "name": "Shiya",
+      "avatar": "Shiya.png"
+    },
+    {
+      "index": 137,
+      "name": "Sophie",
+      "avatar": "Sophie.png"
+    },
+    {
+      "index": 138,
+      "name": "Sota",
+      "avatar": "Sota.png"
+    },
+    {
+      "index": 140,
+      "name": "Tahlia",
+      "avatar": "Tahlia.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 142,
+      "name": "Tanabe",
+      "avatar": "Tanabe.png"
+    },
+    {
+      "index": 143,
+      "name": "Tanya",
+      "avatar": "Tanya.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 148,
+      "name": "The Lady of the Forest",
+      "avatar": "The Lady of the Forest.png"
+    },
+    {
+      "index": 150,
+      "name": "Thorne",
+      "avatar": "Thorne.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 152,
+      "name": "Unira",
+      "avatar": "Unira.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 155,
+      "name": "Vivie",
+      "avatar": "Vivie.png"
+    },
+    {
+      "index": 156,
+      "name": "Watara",
+      "avatar": "Watara.png"
+    },
+    {
+      "index": 157,
+      "name": "Welden",
+      "avatar": "Welden.png"
+    },
+    {
+      "index": 159,
+      "name": "Yrelra",
+      "avatar": "Yrelra.png"
+    },
+    {
+      "index": 160,
+      "name": "Yuna",
+      "avatar": "Yuna.png"
+    },
+    {
+      "index": 161,
+      "name": "Yurine",
+      "avatar": "Yurine.png"
+    },
+    {
+      "index": 162,
+      "name": "Zariah",
+      "avatar": "Zariah.png"
+    }
+  ],
+  "payloadEpoch": "1790884586257-wz7y7u"
+}

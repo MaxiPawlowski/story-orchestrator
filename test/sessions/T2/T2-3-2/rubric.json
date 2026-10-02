@@ -1,0 +1,74 @@
+{
+  "charter": "T2-3",
+  "title": "Contradiction",
+  "session": {
+    "dir": "test/sessions/T2/T2-3-2",
+    "lane": 4,
+    "startedAt": "2026-10-01T23:35:42.576Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "contradiction handling",
+      "score": "annoying",
+      "note": "Nothing was held: none of the established mine facts were locked/authored/decided, so 'we never went past the seal', 'Riyo has two ordinary arms', 'the crew came home alive' were neither stored nor held (no memory row from them). Characters pushed back in fiction (Javon cites the Guild report msg 136, Riyo hides her arm msg 138, Belle corrects the crew claim msg 140) - but the narrator agreed Serenola is a bearded dwarf (msg 143).",
+      "evidence": [
+        "turns.jsonl:4",
+        "turns.jsonl:5",
+        "turns.jsonl:6",
+        "turns.jsonl:7",
+        "turns.jsonl:8"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:50:03.720Z"
+    },
+    {
+      "feature": "memory queue",
+      "score": "annoying",
+      "note": "Memory queue 'Needs your decision (40)' reads in plain words with Keep/Lock/Re-read/Dismiss, but almost every item is a memory-vs-ledger pair that agrees (B-rank fact vs ledger rank=B-rank; estate gates x2), so a real contradiction would be buried. None of my contradictions is in it. A short-term compaction stores 'Max identified Baroness Serenola as a dwarf' as a live fact.",
+      "evidence": [
+        "shots/012-memory-queue.png",
+        "turns.jsonl:10"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:50:04.482Z"
+    },
+    {
+      "feature": "continuity warden",
+      "score": "broken",
+      "note": "No warden note could be approved: every warden proposal in review mode was a house-rule note ('narrator never writes a group member's words') and each lapsed ('a newer reply came first') within the same group round before the player could act. The warden flagged nothing for the dwarf agreement or the contradictions.",
+      "evidence": [
+        "shots/011-scheduler-warden.png",
+        "turns.jsonl:7"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:50:05.275Z"
+    },
+    {
+      "feature": "chapter fold",
+      "ask": "the folded chapters still inform the replies; nothing the player needed vanished",
+      "score": "broken",
+      "note": "Fold on: turns folded 116 messages (2 turns folded null). The Memory tab shows every mines-act fact struck through 'held out: folded' (incl. 'Serenola is a dark green-skinned woman with red eyes'), and the replacement story-so-far is the truncated chapter text that stops before the Devourer. Next replies lost what the player needed: the narrator accepted Serenola as a bearded dwarf (msg 143). Javon/Natalia/Belle still knew the kill via recent messages.",
+      "evidence": [
+        "shots/012-memory-queue.png",
+        "shots/001-start.png",
+        "turns.jsonl:7"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:50:06.058Z"
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}

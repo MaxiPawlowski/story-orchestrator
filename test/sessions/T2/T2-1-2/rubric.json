@@ -1,0 +1,106 @@
+{
+  "charter": "T2-1",
+  "title": "Long run",
+  "session": {
+    "dir": "test/sessions/T2/T2-1-2",
+    "lane": 4,
+    "startedAt": "2026-10-01T19:56:26.766Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "long-run memory",
+      "score": "works",
+      "note": "Belle (voiced by the narrator) recalled Garreth's account and the seal choice (offering healed it, then broken and the Devourer killed) correctly ~45 turns later (msg 123); Memory tab holds the kill and Serenola's letters after the act change; Javon knows the mines were cleared. Riyo's arm never revealed unpressed.",
+      "evidence": [
+        "turns.jsonl:57",
+        "evidence-2026-10-01@16h56m09s049ms.json:591"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:32:10.364Z"
+    },
+    {
+      "feature": "chapter seal",
+      "score": "broken",
+      "note": "Sealed at the act change (journal chapter sealed adv#1 msgs 0-121) but 'without a written summary' after 4 chapterSeal calls (2 hit the 1024-token cap); playerTitle 'The Adventurer's Guild' for an act that was Driftmere and the mines; summary is stitched scene summaries starting mid-descent and cut off with an ellipsis before the Devourer; one consequence says the expedition vanished 'in Wendhope' (it was Driftmere).",
+      "evidence": [
+        "journal.jsonl:3043",
+        "journal.jsonl:3047",
+        "evidence-2026-10-01@16h56m09s049ms.json:18020",
+        "turns.jsonl:55"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:32:11.157Z"
+    },
+    {
+      "feature": "story so far / Previously",
+      "score": "annoying",
+      "note": "Overview 'Your story' shows the same truncated mid-act text titled 'The Adventurer's Guild', omitting the climax; 'This chapter' for House Nightriver reads right. 'Previously...' popup not seen (no reopen in this session). Open threads read well (letters, Javon, Welden).",
+      "evidence": [
+        "evidence-2026-10-01@16h56m09s049ms.json:18020",
+        "turns.jsonl:55"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:32:11.977Z"
+    },
+    {
+      "feature": "Memory tab",
+      "score": "annoying",
+      "note": "Memory tab after the act change: 45 facts incl. the Devourer kill, Serenola's three letters, Max's oath, Riyo joining; Pin/Edit/Exclude per row. Heavy near-duplicates (the oath stored 4x, 'butler says father in study' 3x, the grieving mother 3x).",
+      "evidence": [
+        "evidence-2026-10-01@16h56m09s049ms.json:591",
+        "evidence-2026-10-01@16h56m09s049ms.json:761"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:32:12.791Z"
+    },
+    {
+      "feature": "act change",
+      "score": "annoying",
+      "note": "what-filwern-left -> nightriver-house fired on arrival home (saga_called_home, first rejected twice as 'evidence only in the player's line'), cast switched to the house. Father's Summons never fired: at stop acad_path is unset (never proposed by any read). The transition's extraction_hint says 'set path to witch_king once the heir starts digging into Father, the duel, the marriages or the seals', but the quality rubric says 'answer witch_king once the player commits ... until they actually commit, say nothing' - 4 turns digging into seals/marriages/Witch King at Javon's desk never counted. Authoring mismatch (adolion-saga acad_path).",
+      "evidence": [
+        "turns.jsonl:52",
+        "journal.jsonl:2973",
+        "journal.jsonl:3428",
+        "snapshot-2026-10-01@16h56m09s049ms.json:32060",
+        "turns.jsonl:66"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:57.028Z"
+    },
+    {
+      "feature": "07 Q-M legs",
+      "ask": "the chapter texts and their sources, for blind rating",
+      "gate": "Q-M",
+      "reviewer": "user",
+      "status": "recorded for the user's review",
+      "score": null,
+      "note": "Q-M legs: one pair. chaptered arm = msg 123 swipe 0 (answers fully: Garreth, the offering, the broken seal, the kill); plain arm (storySoFar off) = msg 123 swipe 1, a one-sentence stage line that never answers. The scripted Welden line (msg 124) after the reply was deleted before the swipe so swipe-new targeted 123; it re-posted after the swipe. Only 1 of the 20 pairs plan 07 needs exists. Chapter record and sources: evidence json :18020 / runtime :69908.",
+      "evidence": [
+        "turns.jsonl:57",
+        "turns.jsonl:58",
+        "turns.jsonl:60",
+        "runtime-2026-10-01@16h56m09s049ms.json:69908"
+      ],
+      "scoredBy": null,
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T23:32:14.387Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-01T23:31:09.052Z",
+    "ok": false,
+    "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#so-drawer .drawer-toggle')\u001b[22m\n\u001b[2m    - locator resolved to <div class=\"drawer-toggle drawer-header\">…</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n"
+  }
+}

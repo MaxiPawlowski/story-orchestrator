@@ -1,0 +1,84 @@
+{
+  "charter": "T2-5",
+  "title": "Memory tab",
+  "session": {
+    "dir": "test/sessions/T2/T2-5-1",
+    "lane": 4,
+    "startedAt": "2026-10-01T23:50:36.054Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "pin",
+      "score": "works",
+      "note": "Pinned a Riyo fact from the Memory tab (Find 'Riyo', Pin -> '📌 Unpin'); the pin survived an immediate swipe-new of the last reply and a page reload. The Riyo search returned 7 near-identical 'Riyo panicked about her arms' rows to choose from.",
+      "evidence": [
+        "shots/001-pinned-riyo.png",
+        "turns.jsonl:2"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:18.424Z"
+    },
+    {
+      "feature": "edit",
+      "score": "annoying",
+      "note": "Card's Naomi edit impossible: 0 of 95 visible rows mention Naomi (her 5 rows are all folded into chapter adv#1 and hidden in player view). Edited a Natalia/Serenola fact instead: saved, survived a reload, but the edited text was not in the next prompt (payloads index 0/1), so the reply ('once, years ago, at a council meeting', 'unpleasant') did not use the edit.",
+      "evidence": [
+        "shots/003-edited-natalia.png",
+        "turns.jsonl:4"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:19.183Z"
+    },
+    {
+      "feature": "exclude",
+      "score": "annoying",
+      "note": "Excluded both 'Javon's three conditions' rows: they vanish from the store and from the next prompt's facts, but the same content survives as an [Open threads] line and Natalia's reply uses it (msg 151).",
+      "evidence": [
+        "shots/005-after-exclude.png",
+        "turns.jsonl:6",
+        "turns.jsonl:7"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:19.969Z"
+    },
+    {
+      "feature": "lock as canon",
+      "score": "broken",
+      "note": "Author view: locked 'killing the Devourer released them into dust' as canon (row shows locked, still 'held out: folded'; never in a later prompt). Then 'We left the Devourer alive, didn't we?' was stored live twice ('Max admits the party left the Devourer alive'), nothing held or conflicted, and Natalia replies 'Finally, the truth comes out' (msg 156). The lock did not win.",
+      "evidence": [
+        "shots/008-locked-canon.png",
+        "turns.jsonl:9",
+        "turns.jsonl:10",
+        "turns.jsonl:11"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:20.739Z"
+    },
+    {
+      "feature": "Memory tab usability",
+      "score": "annoying",
+      "note": "Find (#so-memory-search) and the count ('Showing 10 of 74') make rows easy to reach; Pin/Edit/Exclude respond at once and say what they did; player view shows no internal rows. But heavy duplication (Belle's 'crew turned to dust' 11x, Riyo's arms 7x) and folded rows silently missing from player view make curation guesswork.",
+      "evidence": [
+        "shots/001-pinned-riyo.png",
+        "shots/005-after-exclude.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T00:06:21.503Z"
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}

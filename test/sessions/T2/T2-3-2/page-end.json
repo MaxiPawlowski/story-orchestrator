@@ -1,0 +1,38 @@
+{
+  "phase": "end",
+  "problems": [],
+  "chats": [
+    {
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "groupId": "1790884194485",
+      "storyId": "adolion-saga",
+      "activeCheckpointId": "nightriver-house",
+      "requirementsReady": true,
+      "group": "Adolion - The Saga",
+      "primary": true,
+      "continued": true
+    }
+  ],
+  "ends": [
+    {
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "events": 969,
+      "messages": 148,
+      "swipes": 89,
+      "reasoning": 0
+    }
+  ],
+  "files": [
+    "runtime-2026-10-01@16h56m09s049ms.json",
+    "journal-2026-10-01@16h56m09s049ms.json",
+    "chat-2026-10-01@16h56m09s049ms.json",
+    "chat-full-2026-10-01@16h56m09s049ms.json",
+    "state-end-2026-10-01@16h56m09s049ms.json",
+    "snapshot-2026-10-01@16h56m09s049ms.json",
+    "evidence-2026-10-01@16h56m09s049ms.json",
+    "journal-2026-10-01@16h56m09s049ms.md"
+  ],
+  "evidenceProblems": {
+    "2026-10-01@16h56m09s049ms": []
+  }
+}

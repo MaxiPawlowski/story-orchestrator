@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T2\\T2-2-1",
+  "chat": {
+    "chatId": "2026-10-01@16h48m24s730ms",
+    "group": "Adolion - House Nightriver",
+    "groupId": "1790883716733"
+  },
+  "args": {
+    "label": "memory-tab",
+    "seq": 31
+  },
+  "options": {}
+}

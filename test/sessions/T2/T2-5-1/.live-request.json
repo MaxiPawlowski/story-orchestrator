@@ -1,0 +1,10 @@
+{
+  "verb": "flag",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T2\\T2-5-1",
+  "chat": null,
+  "args": {
+    "note": "Locked fact did not win: after Lock as canon on 'killing the Devourer released them into dust' (row still 'held out: folded', not in any later prompt), 'We left the Devourer alive' was stored LIVE twice ('Max admits ... left the Devourer alive and only sealed it back in'), no held/conflict row, and Natalia answers 'Finally, the truth comes out' (msg 156).",
+    "via": "drawer"
+  },
+  "options": {}
+}

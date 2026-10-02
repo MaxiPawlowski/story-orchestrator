@@ -1,0 +1,9 @@
+{
+  "charter": "T2-1",
+  "stage": "pin",
+  "at": "2026-10-01T19:34:43.274Z",
+  "problems": [
+    "the main profile \"Artemis RunPod RP\" did not answer a tiny probe: empty reply"
+  ],
+  "warnings": []
+}

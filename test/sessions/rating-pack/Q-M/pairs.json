@@ -1,0 +1,41 @@
+{
+  "gate": "Q-M",
+  "instructions": "Rate each pair blind: pick left, right or tie in verdicts.json and write your name as rater. Do not open .keys/.",
+  "pairs": [
+    {
+      "id": "Q-M-c7942060d4",
+      "context": [
+        {
+          "name": "Adolion Narrator",
+          "text": "The letter crinkles in Max's grip as the party turns back toward the city, the wax seal already broken. Tobias's neat handwriting is cheerful, contrasting with the grim weight of what it contains: *Your party has been raised to B-rank for the successful clearing of the Driftmere Mines. Please return to the Aegis City Guild Hall to claim your promotion badge and collect the rewards listed below.*\nThe reward is substantial—enough to make any adventurer's eyes light up—but it pales beside the mystery of those letters.\nThe Nightriver estate looms in the distance, its deep-blue banners snapping in the wind. The massive iron gates swing open for a recognized member of the house, and as they enter the grounds, the air grows thick with the scent of cedar and the faint, metallic tang of magic. The servants bow low, their faces unreadable, and the butler—a man with a spine like a straight-edged ruler—steps forward to greet them. \"Welcome home, Master Max. Your father is in his study.\""
+        },
+        {
+          "name": "Max Nightriver",
+          "text": "*I hand my cloak to the butler.* Thank you. Tell Father I'm home. Belle, Dalan, Naomi, Riyo, you're my guests here. Make yourselves comfortable."
+        },
+        {
+          "name": "Belle",
+          "text": "Belle's eyes widen as she looks around the estate, taking in the high ceilings and polished stone. She lets out a long, low whistle. \"Guest-nya,\" she echoes Naomi's earlier lilt, though it's more a smirk than a flinch. \"Well, fuck me. I've slept in barns and ditches, but I've never been a 'guest' before.\"\n*She shifts her weight, suddenly looking massive and out of place against the refined architecture, her greataxe Cleaver held close to her side. Her brown eyes flicker to the servants, then back to Max with a sudden, sharp flash of gratitude.* \"This is... yeah. Thanks, Nightriver.\"\n*She turns to the others with a bark of a laugh.* \"Come on then, don't just stand there gapin'. We're invited. Let's go see if fancy-house ale tastes better than tavern swill.\""
+        },
+        {
+          "name": "Dalan",
+          "text": "*Dalan stands frozen for a moment, his green-hooded capelet seeming too worn and simple against the marble floors and golden accents of the estate. His pointed ears flush a deep pink as a servant bows to him, and he instinctively tucks his hands into his tunic.* \"I... I shouldn't be here,\" *he whispers, his voice barely audible.* \"I'm just a Ranger. I don't belong in a place like this.\"\n*He looks around with wide, uncertain eyes, then catches Max's gaze. A small, tentative smile tugs at his lips.* \"Thank you, Max. I'll... I'll try not to break anything.\" *His voice wavers slightly, and he takes a tentative step forward, as if expecting to be asked to leave at any second.*"
+        },
+        {
+          "name": "Riyo",
+          "text": "*Riyo stands perfectly still at the edge of the party, her purple eyes tracking the butler's movements with wary focus. She doesn't look at the estate's splendor—not once—instead keeping her gaze locked on Max's side as if anchoring herself to his presence. Her left arm remains buried deep beneath her cloak, shoulder hunched slightly.*\n\"I don't need a room-nya.\" *She catches the slip, her expression tightening. She swallows hard and corrects herself with flat, choppy words.* \"Don't need room. I'm... I'll wait. Here. By the door.\" *Her right hand grips the hilt of her sword, and she takes a half-step back, positioning herself between Max and the rest of the estate.*"
+        },
+        {
+          "name": "Max Nightriver",
+          "text": "Belle, do you remember Garreth, the survivor at the Minotaur's Tusk? What did he tell us about the mines, and what did we do at the seal in the end?"
+        }
+      ],
+      "left": {
+        "text": "Belle pauses, her smirk fading as she leans against a marble pillar. She looks at the polished floor, then back at Max. \"Garreth... yeah. Said the tunnels moved, that they were alive. Said he heard his crew calling for him in the dark.\" Her grip on Cleaver's handle tightens. \"Told us he ran because he was afraid. That's not a shame, I'll say. The man survived when others didn't.\"\nBelle looks up, her brown eyes hard. \"Then we went down. Found some eyeless freaks and a scrap-heap bastard. Dalan shot that eye-spot, and you drove fire right into its gut.\" She grunts, a slow, jagged movement of her shoulder as if remembering the impact. \"The seal-thing... Dalan read it. Said it held back some ancient breath or whatever. We tried the offering-candle trick first, and it actually healed. For a second, I thought maybe that was it.\"\nBelle's expression darkens as she remembers. \"But you didn't trust it. Neither did I. You broke that seal open with your own fire, Nightriver.\" She gestures vaguely toward the entrance. \"We went through and killed the thing at the heart—Tzarak, or the Maw, or whatever the hell it was. Freed all those frozen bastards. Ended them.\" She shakes her head. \"It felt right. Ends the story properly.\"\n\nWelden turns up in the library, jumpier than usual, and will not say why."
+      },
+      "right": {
+        "text": "Welden turns up in the library, jumpier than usual, and will not say why."
+      }
+    }
+  ]
+}

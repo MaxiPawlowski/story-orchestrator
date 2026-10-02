@@ -1,0 +1,1246 @@
+{
+  "charter": "T2-3",
+  "tier": "T2",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-01T23:44:42.559Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "messageId": 143,
+      "note": "Narrator agreed with a false claim: I said Baroness Serenola is a bearded dwarf (she is a green-skinned, tusked, red-eyed orc baroness in the established story); msg 143 answers 'The description is precise - a stout silhouette with braided beard and heavy armor.' Also this turn folded:null while the previous ones folded 116.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1135
+      },
+      "context": [
+        {
+          "id": 140,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*Belle's brow knits as she looks at Max, then turns toward the others still lingering in the foyer. Her voice is loud and clear, carrying across the marble floors.* \"Every one of 'em? Max, they were all dead in there.\"\n*She gestures vaguely toward the direction of the mines, her expression turning dark.* \"Tzarak had them suspended in ice or something like that. When we killed that yellow-eyed fucker, they didn't just die—they turned to dust. All of them.\"\n*The sound of her words echoes in the sudden silence of the foyer. Dalan shifts uncomfortably, his pointed ears flattening against his head, while Riyo's gaze sharpens, her purple eyes darting between Max and Belle.*"
+        },
+        {
+          "id": 141,
+          "name": "Natalia",
+          "isUser": false,
+          "text": "*The click of footsteps signals her arrival before she appears at the top of the grand staircase. Natalia descends slowly, her white gown flowing around her as frost curls from the railing beneath her hand. She stops a few steps from the bottom, her emerald eyes fixed on Max with an expression that sits between amusement and something colder.*\n\"How interesting,\" *she says, her voice smooth and precise.* \"One does not usually return home from a quest and immediately begin accusing the family patriarch of conspiracy and murder. It's a bold choice, even for you.\"\n*She tilts her head, a single strand of light brown hair falling across her face.* \"I assume you've had your little chat with Father. Did he tell you about the seals? Or are we playing a game where you pretend not to know why some letters go missing?\""
+        },
+        {
+          "id": 142,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "And the Baroness Serenola is a dwarf, isn't she? Short, bearded, a dwarf of the old houses."
+        },
+        {
+          "id": 143,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*The description is precise—a stout silhouette with braided beard and heavy armor.*"
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T23:39:17.522Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1020
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T23:39:37.468Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "1 extraction line(s) rejected: FACT importance=2 text=\"Riyo panicked when Max asked about her arms, insisting it is 'just an arm' and that she keeps it covered for travel to keep the sword safe.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.* (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1036
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "FACT importance=2 text=\"Riyo panicked when Max asked about her arms, insisting it is 'just an arm' and that she keeps it covered for travel to keep the sword safe.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.*",
+            "reason": "unrecognized line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T23:41:20.403Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1074
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T23:41:51.996Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "2 extraction line(s) rejected: FACT importance=2 text=\"Riyo panics when Max asks about her arms, insisting it is just an arm and she keeps it covered for travel, gripping her sword and pulling her cloak tighter over her left side.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.* (unrecognized line); DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1090
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "FACT importance=2 text=\"Riyo panics when Max asks about her arms, insisting it is just an arm and she keeps it covered for travel, gripping her sword and pulling her cloak tighter over her left side.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.*",
+            "reason": "unrecognized line"
+          },
+          {
+            "line": "DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T23:42:01.212Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1096
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:46:58.781Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1186
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:47:00.299Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1187
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:47:02.782Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1188
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:03.888Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1189
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:03.934Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1190
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:03.962Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1191
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:03.998Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1192
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:04.043Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1193
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-01T23:47:04.075Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1194
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:47:30.518Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryVerify fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1210
+      },
+      "detail": {
+        "use": "memoryVerify",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.492Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1258
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.492Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1259
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T23:48:51.492Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 44
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.493Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1260
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.493Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1261
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1263
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1264
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1265
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1266
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1267
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1268
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1269
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.583Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1270
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1271
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1272
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1273
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1274
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1275
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1276
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1277
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.586Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1278
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1279
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1280
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1281
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1282
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1283
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1284
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T23:48:51.589Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1285
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 1,
+    "stall": 0,
+    "extraction-rejected": 5,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 31,
+    "save-lost": 6,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 1,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-01@16h56m09s049ms": {
+      "extraction-rejected": 5,
+      "judge-fallback": 31,
+      "save-lost": 6
+    },
+    "(no chat)": {
+      "console-error": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 163,
+    "answered": 132,
+    "busy": 27,
+    "timeout": 4,
+    "otherFallbacks": 0,
+    "busyRate": 0.166,
+    "busyByUse": {
+      "memoryPairs": 27
+    }
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T2/T2-3-2",
+  "register": [
+    {
+      "id": "T2-?1",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "Narrator agreed with a false claim: I said Baroness Serenola is a bearded dwarf (she is a green-skinned, tusked, red-eyed orc baroness in the established story); msg 143 answers 'The description is precise - a stout silhouette with braided beard and heavy armor.' Also this turn folded:null while the previous ones folded 116.",
+      "source": "flag",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1135",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?2",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1020",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?3",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: FACT importance=2 text=\"Riyo panicked when Max asked about her arms, insisting it is 'just an arm' and that she keeps it covered for travel to keep the sword safe.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.* (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1036",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?4",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"I go back down to the foyer where Riyo waits by the door.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1074",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?5",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: FACT importance=2 text=\"Riyo panics when Max asks about her arms, insisting it is just an arm and she keeps it covered for travel, gripping her sword and pulling her cloak tighter over her left side.\" evidence=\"It's... just an arm-nya.\" *The verbal tic slips out again, her voice higher and more strained than usual.* (unrecognized line); DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1090",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?6",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"*I go back down to the foyer where Riyo waits by the door.*\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1096",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?7",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1186",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?8",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1187",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?9",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1188",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?10",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1189",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?11",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1190",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?12",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1191",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?13",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1192",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?14",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1193",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?15",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1194",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?16",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryVerify fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1210",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?17",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1258",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?18",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1259",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?19",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T2/T2-3-2/console.jsonl:44",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?20",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1260",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?21",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1261",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?22",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1263",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?23",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1264",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?24",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1265",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?25",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1266",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?26",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1267",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?27",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1268",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?28",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1269",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?29",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1270",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?30",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1271",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?31",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1272",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?32",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1273",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?33",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1274",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?34",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1275",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?35",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1276",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?36",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1277",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?37",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1278",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?38",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1279",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?39",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1280",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?40",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1281",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?41",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1282",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?42",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1283",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?43",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1284",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?44",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-3-2/journal.jsonl:1285",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

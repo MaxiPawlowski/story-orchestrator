@@ -17,7 +17,13 @@ DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by 
 | `test/sessions/T1/T1-5-1` | 5 | 2026-10-01T17:58:44.130Z | 93 | 247987 / 40878 | 91 / 2 | n/a | 240 (7) | 1647776 / 150721 | n/a | 52 |
 | `test/sessions/T1/T1-6-1` | 3 | 2026-10-01T17:38:08.482Z | 101 | 229382 / 52820 | 101 / 0 | n/a | 209 (3) | 1385989 / 126918 | n/a | 43 |
 | `test/sessions/T1/T1-7-1` | 4 | 2026-10-01T18:09:54.304Z | 89 | 244423 / 43545 | 89 / 0 | n/a | 279 (8) | 1682953 / 169117 | n/a | 27 |
-| **Total** | | | 876 | 2228699 / 438268 | | n/a | 2014 | 11727656 / 1134217 | n/a | 319 |
+| `test/sessions/T2/T2-1-2` | 4 | 2026-10-01T23:31:14.925Z | 310 | 1398820 / 134179 | 264 / 46 | n/a | 238 (5) | 1310544 / 145082 | n/a | 89 |
+| `test/sessions/T2/T2-2-1` | 5 | 2026-10-01T22:13:08.985Z | 129 | 196408 / 41637 | 89 / 40 | n/a | 263 (1) | 1301687 / 118667 | n/a | 26 |
+| `test/sessions/T2/T2-3-2` | 4 | 2026-10-01T23:49:48.498Z | 32 | 238947 / 25804 | 31 / 1 | n/a | 130 (2) | 711505 / 80573 | n/a | 8 |
+| `test/sessions/T2/T2-4-1` | 1 | 2026-10-01T22:37:17.670Z | 42 | 108289 / 20531 | 42 / 0 | n/a | 252 (1) | 1245515 / 118154 | n/a | 17 |
+| `test/sessions/T2/T2-5-1` | 4 | 2026-10-02T00:06:03.785Z | 19 | 129271 / 12618 | 19 / 0 | n/a | 70 (1) | 526218 / 64206 | n/a | 8 |
+| `test/sessions/T2/T2-6-1` | 3 | 2026-10-01T22:11:35.643Z | 73 | 145643 / 28052 | 57 / 16 | n/a | 393 (8) | 2450327 / 239419 | n/a | 36 |
+| **Total** | | | 1481 | 4446077 / 701089 | | n/a | 3360 | 19273452 / 1900318 | n/a | 503 |
 <!-- sessions:end -->
 
 ## RunPod pod hours (the lead adds these by hand)
@@ -28,5 +34,6 @@ Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds t
 
 | Date | Pod | GPU | $/h | Hours | Cost | Note |
 |---|---|---|---|---|---|---|
-| 2026-10-01 | 5mmoei8glfi1gu llm-pod-4500-so26 (created this work, started 11:01:27Z) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | | Artemis 31B Q4_K_M, ctx 196608, parallel 4, kv-unified; IDLE_MINUTES 90 |
+| 2026-10-01 | 5mmoei8glfi1gu llm-pod-4500-so26 (created this work, started 11:01:27Z) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | stopped (EXITED, idle auto-stop ~21:27Z during the DeepSeek outage) after 10.44 h | ~$7.52 | Artemis 31B Q4_K_M, ctx 196608, parallel 4, kv-unified; IDLE_MINUTES 90 |
+| 2026-10-01 | m4dmlnzn70qgj2 llm-pod-4500-so26-b (created this work, started 21:32:53Z; replaces 5mmoei8glfi1gu, whose host had no free GPU after the idle stop; the old pod terminated) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | | same env, IDLE_MINUTES 60 |
 | 2026-10-01 | jlur25ufnngbia llm-pod-a100-so26-flags (created this work, started 15:18:15Z) | A100 SXM 80GB, EU-RO-1 | 1.59 | stopped (EXITED) after 129 min | ~$3.42 | server-flag A/B for Artemis loops/word-dropping (no RTX PRO 4500 free); IDLE_MINUTES 45, MAX_UPTIME 6 |

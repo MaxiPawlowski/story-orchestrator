@@ -1,0 +1,234 @@
+{
+  "charter": "T2-5",
+  "tier": "T2",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-01T23:59:35.776Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "messageId": 151,
+      "note": "Excluded both 'Javon's conditions' facts (gone from the memory block of the next prompt, payloads index 3), but the same content still rides in [Open threads] ('Javon demands Max explain his conduct at the mines...') and Natalia's reply (msg 151) uses it.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1156
+      },
+      "context": [
+        {
+          "id": 148,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Natalia, have you ever actually met Baroness Serenola? What did you make of her?"
+        },
+        {
+          "id": 149,
+          "name": "Natalia",
+          "isUser": false,
+          "text": "*Natalia pauses, her expression shifting into something genuinely thoughtful. She looks away from Max for a moment, gazing at the ornate ceiling.* \"Once. Years ago, when Father brought me to a council meeting. She is... unpleasant.\" *The corner of her mouth turns up in a ghost of a smile.* \"Tough as the stone she mines, and twice as stubborn. She has this infuriating way of looking through you, as if you're just another obstacle in her path.\"\n*She brings her gaze back to Max, her green eyes narrowing slightly.* \"But she is honest. In her own blunt, brutish way, she has an integrity that is... rare. In this house, and in the court.\" *The frost on her fingertips crystallizes into a thin pattern, then vanishes.* \"She's not a tool for our family to use, and I suspect Father finds that irritating. It makes her... unpredictable. And dangerous.\""
+        },
+        {
+          "id": 150,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Natalia, Father said he'd only tell me the whole truth on conditions. Do you know what he wants from me first?"
+        },
+        {
+          "id": 151,
+          "name": "Natalia",
+          "isUser": false,
+          "text": "*Natalia lets out a sharp, short laugh that doesn't reach her eyes.* \"Conditions. Father's favorite word for chains.\" *She leans back against the railing, her emerald eyes studying Max with unsettling intensity.* \"He wants to ensure you're broken. That you've learned your place in the family before he trusts you with the truth.\"\n*She pauses, the frost beginning to creep across the marble beneath her feet.* \"He'll demand you admit to everything you've done at Driftmere—the lie about Garreth's crew, the broken seal, the death of the Tzarak. He'll make you confess it all, word by word, until you feel every scrap of failure in your blood.\" *Her expression hardens.* \"And then he'll use it as leverage. He wants you to see that you can't operate independently, that your actions have consequences you can't control. That you *need* him to fix what you've broken.\"\n*She pushes off the railing, taking a slow step toward him.* \"But the real condition? That you accept the marriages without further complaint. That you stop playing the rogue and start acting like the heir he wants.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T00:05:46.273Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "messageId": 156,
+      "note": "Locked fact did not win: after Lock as canon on 'killing the Devourer released them into dust' (row still 'held out: folded', not in any later prompt), 'We left the Devourer alive' was stored LIVE twice ('Max admits ... left the Devourer alive and only sealed it back in'), no held/conflict row, and Natalia answers 'Finally, the truth comes out' (msg 156).",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1244
+      },
+      "context": [
+        {
+          "id": 153,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*The admission hangs in the air, cold and clear. Belle's grip on Cleaver's haft tightens until her knuckles go white, her jaw locking shut.*"
+        },
+        {
+          "id": 154,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Belle? Say something. Is the Devourer still alive down there or not?"
+        },
+        {
+          "id": 155,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*Belle's eyes flash with a mixture of relief and irritation, her shoulders dropping from their tense hunch. She lets out a huff that's half-laugh, half-snarl.*"
+        },
+        {
+          "id": 156,
+          "name": "Natalia",
+          "isUser": false,
+          "text": "*Natalia's frost-dusted hand stills on the railing as she watches the exchange, her head tilting slightly.* \"Finally, the truth comes out.\" *Her voice is dry, almost approving.* \"A much better foundation for a story than the one you were trying to build.\" *She straightens, her gaze flicking between the adventurers in the foyer and her brother.* \"Though I suspect that 'truth' is still incomplete.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "harness-error",
+      "at": null,
+      "chatId": null,
+      "summary": "WARNING: the page restarted 2 time(s); captures between the last drain and each restart are UNKNOWN, not zero.",
+      "evidence": {
+        "path": "payloads.log",
+        "line": 31
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T00:04:15.802Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "judge director fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1227
+      },
+      "detail": {
+        "use": "director",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T00:04:20.706Z",
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"*I turn to Belle and Dalan by the door.*\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1243
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"nightriver_estate\" evidence=\"*I turn to Belle and Dalan by the door.*\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    }
+  ],
+  "counts": {
+    "flags": 2,
+    "stall": 0,
+    "extraction-rejected": 1,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 1,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 1
+  },
+  "countsByChat": {
+    "(no chat)": {
+      "harness-error": 1
+    },
+    "2026-10-01@16h56m09s049ms": {
+      "judge-fallback": 1,
+      "extraction-rejected": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 77,
+    "answered": 76,
+    "busy": 0,
+    "timeout": 1,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T2/T2-5-1",
+  "register": [
+    {
+      "id": "T2-?1",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "Excluded both 'Javon's conditions' facts (gone from the memory block of the next prompt, payloads index 3), but the same content still rides in [Open threads] ('Javon demands Max explain his conduct at the mines...') and Natalia's reply (msg 151) uses it.",
+      "source": "flag",
+      "evidence": "test/sessions/T2/T2-5-1/journal.jsonl:1156",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?2",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "Locked fact did not win: after Lock as canon on 'killing the Devourer released them into dust' (row still 'held out: folded', not in any later prompt), 'We left the Devourer alive' was stored LIVE twice ('Max admits ... left the Devourer alive and only sealed it back in'), no held/conflict row, and Natalia answers 'Finally, the truth comes out' (msg 156).",
+      "source": "flag",
+      "evidence": "test/sessions/T2/T2-5-1/journal.jsonl:1244",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?3",
+      "tier": "T2",
+      "severity": "",
+      "class": "harness",
+      "what": "WARNING: the page restarted 2 time(s); captures between the last drain and each restart are UNKNOWN, not zero.",
+      "source": "harness-error",
+      "evidence": "test/sessions/T2/T2-5-1/payloads.log:31",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?4",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "judge director fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T2/T2-5-1/journal.jsonl:1227",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T2-?5",
+      "tier": "T2",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"nightriver_estate\" evidence=\"*I turn to Belle and Dalan by the door.*\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T2/T2-5-1/journal.jsonl:1243",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "card": "T2-2",
+  "refused": null,
+  "lane": 5,
+  "seed": true,
+  "pin": {
+    "profile": "Artemis RunPod RP",
+    "orchestrator": "deepseek",
+    "judge": "on"
+  },
+  "age": null,
+  "open": {
+    "kind": "adolion",
+    "storyId": "adolion-academy",
+    "group": "Adolion - House Nightriver",
+    "start": "nightriver-house",
+    "select": "auto",
+    "continueChat": null,
+    "startAt": "nightriver-house",
+    "seed": {},
+    "members": null,
+    "chats": 1,
+    "also": null,
+    "authorView": false,
+    "premise": null
+  },
+  "patch": {
+    "image": {
+      "enabled": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true
+    }
+  },
+  "chain": [
+    {
+      "card": "T2-2",
+      "settings": {}
+    }
+  ],
+  "media": "off",
+  "arm": null,
+  "viewport": null,
+  "mediaPlan": {
+    "variant": "full",
+    "images": false,
+    "sprites": false,
+    "unexercised": [],
+    "prerenderedSprites": 0
+  },
+  "expected": {
+    "extraction": {
+      "enabled": true,
+      "cadence": 3,
+      "reconciliationMultiplier": 1.5,
+      "stabilityLag": 0
+    },
+    "pacing": {
+      "alpha": 0.3,
+      "hintEnabled": true
+    },
+    "display": {
+      "announceTransitions": false,
+      "hudEnabled": true,
+      "inline": {
+        "level": 1,
+        "categories": {},
+        "window": 20
+      }
+    },
+    "copilot": {
+      "enabled": true
+    },
+    "memory": {
+      "enabled": true,
+      "epistemicLedgerCapable": true,
+      "injectionDepths": {
+        "facts": 4,
+        "session_details": 3,
+        "short_term": 2,
+        "scene_history": 6
+      },
+      "tierBudgets": {
+        "facts": 50,
+        "session_details": 40,
+        "short_term": 10,
+        "scene_history": 30
+      },
+      "tierTokenBudgets": {
+        "facts": 800,
+        "session_details": 600,
+        "short_term": 300,
+        "scene_history": 500
+      },
+      "chapters": {
+        "seal": false,
+        "storySoFar": false,
+        "fold": false,
+        "chronicleTokens": 700,
+        "chapterTokens": 500,
+        "threadTokens": 150,
+        "recap": true,
+        "dossierWindow": 12,
+        "archiveRecall": false,
+        "recallTokens": 200,
+        "eraSeals": false,
+        "foldEras": false,
+        "eraMessages": 300
+      }
+    },
+    "talk": {
+      "enabled": true,
+      "chain": {
+        "enabled": true,
+        "max": 3,
+        "stopOnTransition": true,
+        "holdExtraction": false
+      }
+    },
+    "stagecraft": {
+      "curatorEnabled": true,
+      "acceptMode": "review",
+      "wardenEnabled": true,
+      "wardenAcceptMode": "review"
+    },
+    "judge": {
+      "enabled": true,
+      "model": "jev-1.13.0",
+      "timeoutMs": 1500,
+      "uses": {
+        "director": true,
+        "memoryVerify": true,
+        "memoryPairs": true,
+        "sceneTrigger": true,
+        "sceneTracker": true,
+        "lookahead": true,
+        "loreSelect": true,
+        "curatorFilter": true,
+        "typedExtraction": true,
+        "stallCheck": true,
+        "expansionCritic": true,
+        "expansionLookahead": true,
+        "agencyCheck": true,
+        "houseRules": true,
+        "wardenLore": true,
+        "loreExclusive": true,
+        "expressions": true
+      },
+      "expansion": {
+        "variants": 1,
+        "temperature": 0.7,
+        "pick": "code"
+      },
+      "provider": {
+        "director": "typesafe",
+        "memoryVerify": "typesafe",
+        "memoryPairs": "typesafe",
+        "sceneTrigger": "typesafe",
+        "sceneTracker": "typesafe",
+        "lookahead": "typesafe",
+        "loreSelect": "typesafe",
+        "curatorFilter": "typesafe",
+        "typedExtraction": "typesafe",
+        "stallCheck": "typesafe",
+        "expansionCritic": "typesafe",
+        "expansionLookahead": "typesafe",
+        "agencyCheck": "typesafe",
+        "houseRules": "typesafe",
+        "wardenLore": "typesafe",
+        "loreExclusive": "typesafe",
+        "expressions": "typesafe",
+        "warden": "typesafe"
+      }
+    },
+    "worldInfo": {
+      "gatingMode": "file",
+      "scanMemory": true
+    },
+    "image": {
+      "enabled": false,
+      "contextMessages": 6,
+      "maxTokens": 900,
+      "useJsonSchema": true,
+      "defaults": {
+        "quality": "base",
+        "seedPolicy": "random",
+        "fixedSeed": 1
+      },
+      "automation": {
+        "mode": "everyN",
+        "everyN": 5
+      },
+      "safeMode": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true,
+      "stage": "vn",
+      "segmentChars": 400,
+      "crossfadeMs": 250,
+      "focus": true,
+      "breathing": true
+    },
+    "spikes": {
+      "swipeBackCache": false,
+      "sp5Scenario": false,
+      "sp6Complications": false,
+      "sp4AppendShortTerm": false,
+      "sp8CuratorTiers": false,
+      "reasoningEffect": false
+    }
+  },
+  "installOwned": [
+    "extraction.profileId",
+    "extraction.profiles",
+    "extraction.routes",
+    "extraction.reasoningBudget",
+    "worldInfo.normalized",
+    "worldInfo.normalizedFrom",
+    "judge.noticesSeen",
+    "image.directorProfileId",
+    "image.comfyUrl",
+    "image.characters",
+    "image.loras",
+    "image.upscalers",
+    "image.purposes",
+    "sprites.profileId"
+  ],
+  "baselineVersion": 1
+}

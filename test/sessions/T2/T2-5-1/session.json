@@ -1,0 +1,1024 @@
+{
+  "charter": "T2-5",
+  "tier": "T2",
+  "title": "Memory tab",
+  "number": 1,
+  "dir": "test/sessions/T2/T2-5-1",
+  "lane": 4,
+  "laneUrl": "http://127.0.0.1:8104/",
+  "story": {
+    "kind": "adolion",
+    "id": "adolion-saga"
+  },
+  "mode": "author",
+  "startedAt": "2026-10-01T23:50:36.054Z",
+  "playFrom": "2026-10-01T23:50:32.448Z",
+  "stoppedAt": "2026-10-02T00:06:03.785Z",
+  "build": {
+    "flavor": "dev",
+    "bundleSha256": "8319f7535e1eb2659c5cd8bee2479542f069dd2384b74b69a04decaaf66a08e3",
+    "version": "2.4.0",
+    "builtAt": "2026-10-01T19:22:03.103Z",
+    "sourceSha256": "cbb9aa7089dc556b99a6822092a8ca5258692af3f3262c34fcc19ab7059124be",
+    "laneCampaign": "884380b627f3a36fd09ab81b0fe8f8c75e03268e",
+    "indexCommit": "884380b627f3a36fd09ab81b0fe8f8c75e03268e"
+  },
+  "pids": {
+    "journal": 85488,
+    "payloads": 85680,
+    "console": 43928
+  },
+  "viewport": null,
+  "settingsPatch": {
+    "image": {
+      "enabled": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true
+    }
+  },
+  "settings": {
+    "baselineVersion": 1,
+    "chain": [
+      "T2-1",
+      "T2-5"
+    ],
+    "effective": "effective-settings.json"
+  },
+  "media": {
+    "variant": "full",
+    "images": false,
+    "sprites": false,
+    "unexercised": [],
+    "prerenderedSprites": 0
+  },
+  "arm": null,
+  "logOffset": 25794863,
+  "host": {
+    "swipes": true
+  },
+  "presetOverlay": {
+    "sha256": "4af4006b7801cf18a349784c42f9653c75ca5acdf3bdceea6954a9f326dc12fe",
+    "applied": true,
+    "reason": null,
+    "seededAt": "2026-10-01T19:48:35.901Z",
+    "edits": [
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "last_output_sequence",
+        "after": "<|turn>model\n<|channel>thought\n<channel|>",
+        "mirrored": true
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "sequences_as_stop_strings",
+        "after": false,
+        "mirrored": true
+      },
+      {
+        "kind": "textgen",
+        "preset": "Artemis v1.1 RP",
+        "key": "samplers",
+        "after": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ],
+        "mirrored": true
+      }
+    ],
+    "live": {
+      "instruct": {
+        "preset": "Gemma 4",
+        "last_output_sequence": "<|turn>model\n<|channel>thought\n<channel|>",
+        "sequences_as_stop_strings": false
+      },
+      "textgen": {
+        "preset": "Artemis v1.1 RP",
+        "samplers": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ]
+      }
+    }
+  },
+  "judgeRate": {
+    "perMinute": 36,
+    "lanes": 5,
+    "running": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "account": 90,
+    "source": "derived",
+    "loaded": 36
+  },
+  "pin": {
+    "profile": "Artemis RunPod RP",
+    "orchestrator": "deepseek",
+    "judge": "on",
+    "verdict": {
+      "ok": true,
+      "problems": []
+    },
+    "probe": {
+      "profile": "Artemis RunPod RP",
+      "ok": true,
+      "ms": 2050,
+      "text": "\nPONG",
+      "error": null
+    },
+    "routing": {
+      "main": {
+        "selectedProfileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+        "selectedProfileName": "Artemis RunPod RP",
+        "mainApi": "textgenerationwebui",
+        "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+      },
+      "profiles": [
+        {
+          "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+          "name": "Artemis Local (Unsloth)",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis Local (Unsloth)",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        },
+        {
+          "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+          "name": "Artemis RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod",
+            "preset": "Artemis v1.1 RP"
+          }
+        },
+        {
+          "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+          "name": "Artemis RunPod RP",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod RP"
+          }
+        },
+        {
+          "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "name": "deepseek 4.1 flash",
+          "api": "deepseek",
+          "model": "deepseek-flash",
+          "url": null,
+          "fields": {
+            "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+            "mode": "cc",
+            "exclude": [],
+            "api": "deepseek",
+            "model": "deepseek-flash",
+            "name": "deepseek 4.1 flash"
+          }
+        },
+        {
+          "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+          "name": "Image Director",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Image Director"
+          }
+        },
+        {
+          "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "name": "Story Orchestrator Memory RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory RunPod"
+          }
+        },
+        {
+          "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+          "name": "Story Orchestrator Memory Unsloth",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory Unsloth",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        }
+      ],
+      "roles": [
+        {
+          "role": "read",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "synthesis",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "authoring",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "director",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "curator",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "inner",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "fallback",
+          "effort": "default",
+          "reasoning": null
+        }
+      ],
+      "judge": {
+        "enabled": true,
+        "uses": {
+          "director": true,
+          "memoryVerify": true,
+          "memoryPairs": true,
+          "sceneTrigger": true,
+          "sceneTracker": true,
+          "lookahead": true,
+          "loreSelect": true,
+          "curatorFilter": true,
+          "typedExtraction": true,
+          "stallCheck": true,
+          "expansionCritic": true,
+          "expansionLookahead": true,
+          "agencyCheck": true,
+          "houseRules": true,
+          "wardenLore": true,
+          "loreExclusive": true,
+          "expressions": true
+        },
+        "provider": {
+          "director": "typesafe",
+          "memoryVerify": "typesafe",
+          "memoryPairs": "typesafe",
+          "sceneTrigger": "typesafe",
+          "sceneTracker": "typesafe",
+          "lookahead": "typesafe",
+          "loreSelect": "typesafe",
+          "curatorFilter": "typesafe",
+          "typedExtraction": "typesafe",
+          "stallCheck": "typesafe",
+          "expansionCritic": "typesafe",
+          "expansionLookahead": "typesafe",
+          "agencyCheck": "typesafe",
+          "houseRules": "typesafe",
+          "wardenLore": "typesafe",
+          "loreExclusive": "typesafe",
+          "expressions": "typesafe",
+          "warden": "typesafe"
+        },
+        "pluginHttp": 200,
+        "keyPresent": true
+      },
+      "reasoning": {
+        "budget": "default",
+        "powerUser": {
+          "name": "Gemma 4",
+          "auto_parse": true,
+          "add_to_prompts": false,
+          "auto_expand": false,
+          "show_hidden": false,
+          "prefix": "<|channel>thought\n",
+          "suffix": "<channel|>",
+          "separator": "\n\n",
+          "max_additions": 1
+        }
+      }
+    }
+  },
+  "age": null,
+  "premise": null,
+  "continuedAtPin": null,
+  "chatsBefore": [
+    {
+      "chatId": "2024-10-27@09h04m05s",
+      "group": "Group: Adventure Awaits!",
+      "groupId": "1703513523027"
+    },
+    {
+      "chatId": "2023-12-30@07h37m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #3 - 2023-12-30@07h49m03s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #4 - 2023-12-30@07h49m58s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #7 - 2023-12-30@08h34m59s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h38m48s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h43m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #10 - 2023-12-30@08h46m02s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #12 - 2023-12-30@09h04m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@07h44m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #38 - 2024-1-7@08h07m14s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@08h07m21s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m07s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m50s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h21m35s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h26m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h50m34s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h54m44s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h57m26s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@09h01m01s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h07m39s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h13m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h14m18s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h21m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m55s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #44 - 2024-1-8@07h46m49s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #35 - 2024-1-11@08h47m04s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2024-10-25@16h35m36s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2025-10-05@06h12m53s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@03h33m31s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #1 - 2025-10-19@03h36m00s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@07h16m29s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@12h14m56s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@17h18m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #5 - 2025-10-24@17h19m22s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-27@20h24m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-02-17@11h42m56s913ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h06m12s510ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h08m16s199ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h24m53s198ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h55m21s034ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-06@05h51m54s748ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h45m42s515ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h48m58s737ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h52m33s971ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h54m33s414ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h31m08s263ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h50m22s390ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h57m58s240ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m15s689ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m40s089ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h54m21s833ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m01s832ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m31s664ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@08h08m11s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@10h03m45s492ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h43m26s486ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h44m44s165ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h49m39s901ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h14m58s603ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h27m07s632ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@05h41m21s356ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h05m16s093ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m05s775ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m19s409ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h14m25s652ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h15m25s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h19m36s454ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h23m47s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m46s401ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m57s965ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h37m51s942ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h54m40s955ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-19@22h52m47s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h36m38s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h37m03s927ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h09m30s254ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m21s482ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m46s225ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h34m19s453ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h40m32s180ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@07h06m38s396ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-10-01@16h49m53s810ms",
+      "group": "Adolion - House Nightriver",
+      "groupId": "1790884193934"
+    },
+    {
+      "chatId": "2026-10-01@16h49m53s941ms",
+      "group": "Adolion - The Adventurer's Road",
+      "groupId": "1790884193976"
+    },
+    {
+      "chatId": "2026-10-01@16h49m53s984ms",
+      "group": "Adolion - Between the Roads",
+      "groupId": "1790884194098"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s106ms",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "groupId": "1790884194134"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s140ms",
+      "group": "Adolion - The Eastern Road",
+      "groupId": "1790884194175"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s182ms",
+      "group": "Adolion - Eshalanore",
+      "groupId": "1790884194302"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s309ms",
+      "group": "Adolion - Night Courts",
+      "groupId": "1790884194353"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s360ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790884194485"
+    },
+    {
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790884194485"
+    },
+    {
+      "chatId": "2026-10-01@16h49m54s494ms",
+      "group": "Adolion - Fire and War",
+      "groupId": "1790884194535"
+    }
+  ],
+  "chats": [
+    {
+      "chatId": "2026-10-01@16h56m09s049ms",
+      "groupId": "1790884194485",
+      "storyId": "adolion-saga",
+      "activeCheckpointId": "nightriver-house",
+      "requirementsReady": true,
+      "group": "Adolion - The Saga",
+      "primary": true,
+      "continued": true
+    }
+  ],
+  "continues": "T2-1",
+  "problems": [],
+  "warnings": [
+    "the repo build moved during the session (build.head) while the served bundle 8319f7535e1eb265 stayed identical: allowed, the code under test did not change"
+  ],
+  "runHeaderDiff": {
+    "exit": 0,
+    "ok": true
+  },
+  "evidence": {
+    "files": [
+      "runtime-2026-10-01@16h56m09s049ms.json",
+      "journal-2026-10-01@16h56m09s049ms.json",
+      "chat-2026-10-01@16h56m09s049ms.json",
+      "chat-full-2026-10-01@16h56m09s049ms.json",
+      "state-end-2026-10-01@16h56m09s049ms.json",
+      "snapshot-2026-10-01@16h56m09s049ms.json",
+      "evidence-2026-10-01@16h56m09s049ms.json",
+      "journal-2026-10-01@16h56m09s049ms.md"
+    ],
+    "problems": {
+      "2026-10-01@16h56m09s049ms": []
+    }
+  },
+  "playerClean": {
+    "skipped": "author-mode card"
+  },
+  "spend": {
+    "orchestrator": {
+      "calls": 19,
+      "input": 129271,
+      "output": 12618,
+      "measuredCalls": 19,
+      "estimatedCalls": 0,
+      "costUsd": null,
+      "ringCalls": 19,
+      "ringCostUsd": null
+    },
+    "judge": {
+      "calls": 70,
+      "cached": 1,
+      "fallbacks": 1,
+      "input": 526218,
+      "output": 64206,
+      "costUsd": null
+    },
+    "main": {
+      "calls": 8
+    },
+    "responsesCaptured": 21
+  },
+  "tails": {
+    "journal": {
+      "ready": {
+        "at": "2026-10-01T23:50:35.595Z",
+        "pid": 85488,
+        "tail": "journal",
+        "chatId": "2026-10-01@16h56m09s049ms",
+        "storyId": "adolion-saga",
+        "boundary": 90
+      },
+      "drained": {
+        "at": "2026-10-02T00:06:02.024Z",
+        "pid": 85488,
+        "tail": "journal",
+        "ok": true,
+        "events": 1213,
+        "audits": 27
+      }
+    },
+    "payloads": {
+      "ready": {
+        "at": "2026-10-01T23:50:35.064Z",
+        "pid": 85680,
+        "tail": "payloads",
+        "epoch": "1790898634966-kxx33x",
+        "nextIndex": 0
+      },
+      "drained": {
+        "at": "2026-10-02T00:06:01.577Z",
+        "pid": 85680,
+        "tail": "payloads",
+        "written": 27,
+        "responses": 21,
+        "dropped": 0,
+        "rearmed": 2,
+        "unknownGaps": 2,
+        "writeErrors": 0,
+        "epoch": "1790898841271-jat2wk",
+        "ok": true
+      }
+    },
+    "console": {
+      "ready": {
+        "at": "2026-10-01T23:50:35.073Z",
+        "pid": 43928,
+        "tail": "console"
+      },
+      "drained": {
+        "at": "2026-10-02T00:06:00.043Z",
+        "pid": 43928,
+        "tail": "console",
+        "ok": true,
+        "rows": 355
+      }
+    }
+  },
+  "valid": true,
+  "invalid": []
+}

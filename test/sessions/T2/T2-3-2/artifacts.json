@@ -1,0 +1,19 @@
+{
+  "required": {
+    "turns": 1,
+    "chats": 1,
+    "chapterRecords": 1,
+    "foldedTurns": 1
+  },
+  "inventory": {
+    "turns": 6,
+    "flags": 1,
+    "shots": 4,
+    "chats": 1,
+    "chapterRecords": 1,
+    "foldedTurns": 4,
+    "harvestedReasoning": 0,
+    "ratingCandidates": 0,
+    "wizardDrafts": 0
+  }
+}

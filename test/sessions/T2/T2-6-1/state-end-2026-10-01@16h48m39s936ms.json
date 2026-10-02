@@ -1,0 +1,702 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "road-to-wendhope",
+  "boundary": 17,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "adv_looking_for_hands": true,
+    "location": "aegis_guild_hall",
+    "guild_reputation": 1,
+    "party_injuries": 0,
+    "party_name": "Starlit Blades",
+    "tension_current": 0.075,
+    "path": "wendhope"
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "247241b2-d979-4d43-bcc6-311fbcaeafa6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Tobias keeps tapping the Wendhope notice",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "41d87c10-8afa-45b2-8f5a-c823ef38498c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "his interest in the Wendhope notice",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "f45827b1-16a1-45f1-a534-8b0a8d142857",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "knows",
+      "content": "Max Nightriver is a new face",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "3f412770-e6a4-432b-b1d5-e95104ccba9b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "suspects",
+      "content": "Max Nightriver may be looking for a party or a drink",
+      "createdAt": 2,
+      "messageId": 2,
+      "supersededBy": "retired@5",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 5
+      }
+    },
+    {
+      "id": "66f9e6d6-105d-4bd8-90ed-ec9e77924ca2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "knows",
+      "content": "the halflings want to set off a \"small experiment\" in the yard",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "37da17be-fe89-423f-a526-b1b49c210c8f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "the silver-haired woman",
+      "tag": "knows",
+      "content": "the room's occupants and their movements",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "765c22c8-2ce6-4e13-b925-07ce9188f16b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 4,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "suspects",
+      "content": "Max Nightriver may be recruiting her for a party",
+      "createdAt": 4,
+      "messageId": 4,
+      "supersededBy": "retired@5",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 5
+      }
+    },
+    {
+      "id": "62aa3b75-7da5-4a45-83bb-f471c38f0b99",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "No carts or letters have come from Wendhope in a fortnight.",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "5abef3b1-4a5f-410c-ac1b-b6ea7f1d3429",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "knows",
+      "content": "Max Nightriver is interested in the north road and the Wendhope posting.",
+      "createdAt": 5,
+      "messageId": 7,
+      "supersededBy": "retired@5",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 5
+      }
+    },
+    {
+      "id": "65ef3523-b92e-4844-b1ee-9fd7cb48510d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "knows",
+      "content": "Max Nightriver asked about the north road and the Wendhope posting",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "034627aa-b0e4-47ba-acba-4fadfea32aac",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "Max Nightriver asked what spells she knows before giving his own name",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "4afc340f-be40-4d9c-9670-0a30936bf9d8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "suspects",
+      "content": "Max Nightriver is angling for the Wendhope job",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "4428f3be-4a12-4085-8cd6-0e10c24b927e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "hiding",
+      "content": "that she is assessing Max Nightriver as a potential party patron",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "9e1c5773-0933-470b-bbec-ce9369bd9994",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 5,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "intends",
+      "content": "to steer Max Nightriver toward the Wendhope posting",
+      "createdAt": 5,
+      "messageId": 7
+    },
+    {
+      "id": "2ca8751c-890b-4be3-b67b-dcd6ac27266c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "Max Nightriver is looking for a mage for a party",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "fe98fa5d-787a-4465-a451-8f18e8a0c9db",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Talis Dacaryn has just returned to Aegis City from the capital",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "1bb4d84e-afdb-4f83-8193-2d9bd7005d14",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "Max Nightriver is forming a party and has invited her as its mage",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "757d9e92-3f28-40dd-b4d7-d8616e309ce9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Talis Dacaryn knows firebolts, frost rays, lightning bolts, grease, summon animal, light, illusions, and a big explosion spell",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "c915a249-3f7a-46d7-948f-6f397906c2a7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Rydel",
+      "tag": "knows",
+      "content": "Max Nightriver is recruiting a mage and eyeing the Wendhope posting",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "4cee6fbc-42ed-469e-b92b-beaf04cb2227",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Talis Dacaryn has accepted joining his party as its mage",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "5e7177b0-64df-4b79-9a6b-33180108c156",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "The party is named the Starlit Blades",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "50fc512f-5e0b-4938-a947-c72a5d07c50c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "intends",
+      "content": "She wants to sign up for a posting, especially the Wendhope one",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "116d5730-ad73-42e1-a9e5-ea06a0cfb4f2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Rydel's report that nothing has come down from Wendhope in a fortnight",
+      "createdAt": 9,
+      "messageId": 14
+    },
+    {
+      "id": "050c7b2f-771c-4971-95aa-7245d4ba1437",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "intends",
+      "content": "to take the Wendhope posting and blast whatever trouble is there",
+      "createdAt": 9,
+      "messageId": 14
+    },
+    {
+      "id": "54ea137c-4ad8-4be9-aead-7bfa4b7b625d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "The Sheridan dwarves' Wendhope mine has sent no ore for weeks, with rumours of haunting or a monster.",
+      "createdAt": 10,
+      "messageId": 16
+    },
+    {
+      "id": "9f47976e-6066-4d4c-a400-6aeecf52a55d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Talis's capital rumours about Wendhope's silent mine.",
+      "createdAt": 10,
+      "messageId": 16
+    },
+    {
+      "id": "85006714-dca9-426c-a36c-cf420b7a9cf5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "intends",
+      "content": "To take the Wendhope posting as the Starlit Blades' first quest.",
+      "createdAt": 10,
+      "messageId": 16,
+      "affirmedAt": [
+        {
+          "messageId": 23,
+          "boundary": 14
+        }
+      ]
+    },
+    {
+      "id": "cde587b6-65ba-4f65-9759-cb3c38650461",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "Max named the party the Starlit Blades and she is its mage.",
+      "createdAt": 12,
+      "messageId": 20
+    },
+    {
+      "id": "4efa9490-84aa-4063-b7cb-4b7eb0785683",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party calls itself the Starlit Blades and wants her axe.",
+      "createdAt": 12,
+      "messageId": 20
+    },
+    {
+      "id": "baf2fd5e-4bdc-4dd7-b083-96a9facd4236",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "She wants to know whether Max will stand in the front line before she joins.",
+      "createdAt": 12,
+      "messageId": 20
+    },
+    {
+      "id": "31023024-3712-4cea-8568-896e9ca43589",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max has signed the Starlit Blades for the Wendhope posting with Talis, while Belle's membership is still pending.",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "32953105-5cf1-4c33-ade2-104a739badc7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Talis",
+      "tag": "knows",
+      "content": "The Starlit Blades are now signed for the Wendhope posting.",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "868069c3-d5c5-4205-8561-04cea446c92e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max signed the party up for Wendhope and she has not yet joined it.",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "4b284233-7592-4d7d-bd82-cd689ec5a958",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "She is testing whether Max will stand up front with her before she commits.",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "b51a4fb8-f901-4020-a4cd-af17d5b341b8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max wants her axe in the Starlit Blades and is willing to sign her on for the Wendhope posting",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "ca825ac0-2235-4cf1-a574-a9d30a2b9e89",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Belle intends to join the Starlit Blades for the fight, not the coin",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "48e83cdf-6b4c-45c9-bcb4-e448bd93d798",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to join the Starlit Blades and get moving to a worthy fight",
+      "createdAt": 15,
+      "messageId": 24
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790884130729-9poy9f"
+}
