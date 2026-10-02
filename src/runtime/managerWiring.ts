@@ -154,7 +154,7 @@ export function wireCoordinators(port: ManagerPort) {
   const copilot: CopilotCoordinator = new CopilotCoordinator({
     ...view,
     getSettings: () => port.extras().copilot,
-    getCanon: () => memory.canon.getCanon(),
+    getCanon: () => memory.canon.getCanonAt(view.getState()?.activeCheckpointId ?? null),
     ...lifecycle,
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),

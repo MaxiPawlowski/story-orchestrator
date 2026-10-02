@@ -14,6 +14,7 @@ import type { MemoryMirrorSummary } from "./memoryMirror";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
+import type { JournalRecordKind } from "./journal";
 
 type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 
@@ -35,8 +36,21 @@ export abstract class CoordinatorDelegates {
   clearWizardSession(key: string) { clearWizardSession(key); }
   getDriverContext(): DriverContext | null { return this.co.copilot.getDriverContext(); }
   async runCopilotSuggest(debugResponse?: string): Promise<Suggestion[]> { return this.co.copilot.runSuggest(debugResponse); }
-  async runCopilotReport(debugResponse?: string): Promise<string> { return this.co.copilot.runReport(debugResponse); }
-  setCopilotNudge(text: string, depth = 1) { this.co.copilot.setNudge(text, depth); }
+  async runCopilotReport(debugResponse?: string): Promise<string> {
+    const report = await this.co.copilot.runReport(debugResponse);
+    if (report) this.noteAuthorMove("Author report", report.slice(0, 600));
+    return report;
+  }
+  setCopilotNudge(text: string, depth = 1) {
+    this.co.copilot.setNudge(text, depth);
+    if (text.trim() && this.co.copilot.getActiveNudge() === text.trim()) this.noteAuthorMove("Author nudge", text.trim());
+  }
+  private noteAuthorMove(move: string, note: string) {
+    this.noteRecap(`${move} at ${this.co.copilot.getDriverContext()?.activeCheckpointName ?? "no checkpoint"}`, note, "author");
+    this.notify();
+  }
+  abstract noteRecap(summary: string, detail: string, kind?: JournalRecordKind): void;
+  abstract notify(): void;
   clearCopilotNudge() { this.co.copilot.clearNudge(); }
   reapplyCopilotNudge() { this.co.copilot.reapplyNudge(); }
   getActiveNudge(): string | null { return this.co.copilot.getActiveNudge(); }

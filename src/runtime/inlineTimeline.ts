@@ -12,6 +12,7 @@ import {
 import { REFUSAL_PLAYER_TEXT } from "./agencyRecovery";
 import { effectiveInlineLevel, PLAYER_LEVEL_CAP, type InlineCategory, type InlineLevel, type InlineSettings } from "./settingsModel";
 import type { EffectLedgerRow, EffectLedgerStatus, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
+import type { JournalRecord } from "./journal";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -68,6 +69,7 @@ export interface InlineSources {
   saveNotice: string | null;
   castNames?: Record<string, string>;
   firstLines?: Record<string, number>;
+  authorMoves?: JournalRecord[];
 }
 
 const RAW_LIMIT = 4000;
@@ -118,7 +120,9 @@ function progressItems(sources: InlineSources): Draft[] {
       });
     }
     return drafts;
-  });
+  }).concat((sources.authorMoves ?? []).map((move): Draft => ({
+    id: `progress:author:${move.at}`, messageId: move.messageId, category: "progress", level: 3, state: "applied", text: move.summary, detail: move.note,
+  })));
 }
 
 const auditState = (audit: SharedReadAudit, sources: InlineSources): InlineState => {

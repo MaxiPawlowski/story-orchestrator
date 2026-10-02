@@ -61,6 +61,21 @@ const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+const AuthorMovesPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
+  <div id="so-author-moves" className="text-xs opacity-80">
+    <div className="font-medium opacity-100">Author moves</div>
+    {(snapshot.authorMoves ?? []).length === 0 ? (
+      <div className="opacity-70">None yet. Advance, Nudge and Report from the driver are listed here.</div>
+    ) : (snapshot.authorMoves ?? []).map((move) => (
+      <div key={`${move.at}-${move.summary}`} data-so="author-move" className="border-t border-solid border-white/10 mt-1 pt-1">
+        <div className="opacity-100">{move.summary}</div>
+        <div><MessageCitation messageId={move.messageId} prefix="msg" /> · boundary {move.boundary}</div>
+        {move.note ? <div className="opacity-70 whitespace-pre-wrap">{move.note.length > 280 ? `${move.note.slice(0, 279)}…` : move.note}</div> : null}
+      </div>
+    ))}
+  </div>
+);
+
 const takeAlternate = (manager: RuntimeManager, alternate: string | null | undefined) => (alternate ? manager.activateCheckpoint(alternate) : undefined);
 
 const percent = (value: number) => Math.round(value * 100);
@@ -71,6 +86,7 @@ const judgeText = (judge: { contradicts: number; advances: number; newCharacter:
 
 export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => (
   <div className="flex flex-col gap-3">
+    <AuthorMovesPanel snapshot={snapshot} />
     <ChaptersPanel snapshot={snapshot} manager={manager} />
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />

@@ -185,6 +185,7 @@ export class CopilotCoordinator {
     return {
       title: story.title,
       activeCheckpointId: active?.id ?? null,
+      activeCheckpointName: active?.name ?? null,
       activeObjective: active?.objective ?? "",
       ownNote: authorsOwnNote(active),
       objectiveLine: objectiveLineApplies(story, active),

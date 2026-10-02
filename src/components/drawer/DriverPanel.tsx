@@ -111,7 +111,8 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
     if (!advanceTarget) return;
     if (!confirmAdvance) { setConfirmAdvance(true); return; }
     setConfirmAdvance(false);
-    void run("advance", async () => { await controller.advance(advanceTarget); setStatus(`Advanced to ${advanceTarget}.`); });
+    const name = checkpoints.find((checkpoint) => checkpoint.id === advanceTarget)?.name ?? advanceTarget;
+    void run("advance", async () => { await controller.advance(advanceTarget); setStatus(`Advanced to ${name}.`); });
   };
   const applyNudge = (text: string) => { controller.nudge(text); setNudgeText(""); };
 
@@ -120,7 +121,7 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
   return (
     <div className="flex flex-col gap-2 text-xs" aria-label="In-play driver">
       <div className="font-medium opacity-100">Driver</div>
-      <div className="opacity-80">Active: {context.activeCheckpointId ?? "—"} — {context.activeObjective || "(no objective)"}</div>
+      <div className="opacity-80">Active: {context.activeCheckpointName ?? context.activeCheckpointId ?? "—"} — {context.activeObjective || "(no objective)"}</div>
       {authorView && context.ownNote === false && (
         <div data-so="driver-objective-line" className="opacity-80">No author note of its own; objective line {context.objectiveLine ? "on" : "off"}</div>
       )}

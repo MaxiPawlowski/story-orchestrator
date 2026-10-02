@@ -7,6 +7,7 @@ import DriverPanel, { type DriverController } from "./DriverPanel";
 const context: DriverContext = {
   title: "The Vault Job",
   activeCheckpointId: "approach",
+  activeCheckpointName: "The Approach",
   activeObjective: "Reach the vault door.",
   unmetGates: ["has_key == true → vault"],
   upcomingAnchors: [{ id: "vault", name: "Vault", progress: 0, threshold: 1 }],
@@ -17,7 +18,7 @@ const context: DriverContext = {
 
 const checkpoints = [
   { id: "approach", name: "Approach", active: true },
-  { id: "vault", name: "Vault", active: false },
+  { id: "vault", name: "The Vault Door", active: false },
 ];
 
 const makeController = (): DriverController => ({
@@ -62,7 +63,8 @@ export const AdvanceRequiresConfirm: Story = {
     await expect(args.controller.advance).not.toHaveBeenCalled();
     await userEvent.click(canvas.getByRole("button", { name: "Confirm advance" }));
     await expect(args.controller.advance).toHaveBeenCalledWith("vault");
-    await expect(await canvas.findByRole("status")).toHaveTextContent("Advanced to vault.");
+    await expect(await canvas.findByRole("status")).toHaveTextContent("Advanced to The Vault Door.");
+    await expect(canvas.getByText(/Active: The Approach/)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Advance" })).toBeEnabled();
     await waitFor(() => expect(canvasElement.getAnimations({ subtree: true })).toHaveLength(0));
   },

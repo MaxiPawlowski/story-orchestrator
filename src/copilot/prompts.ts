@@ -158,10 +158,11 @@ export const renderSuggestPrompt = (context: DriverContext): string =>
 export const renderReportPrompt = (context: DriverContext): string =>
   [
     "You are an in-play story driver. Write a concise world-progression report: where the story stands, what is resolved, what remains open, and momentum toward the next " +
-      "anchor. Ground every claim in the state below.",
-    `Active checkpoint: ${context.activeCheckpointId ?? "(none)"} — ${context.activeObjective || "(no objective)"}`,
+      "anchor. Ground every claim in the state below; the active checkpoint is where the story stands now.",
+    `Active checkpoint: ${context.activeCheckpointName ?? context.activeCheckpointId ?? "(none)"} — ${context.activeObjective || "(no objective)"}`,
     `Upcoming anchors:\n${renderAnchors(context)}`,
     `Blackboard:\n${renderBlackboard(context)}`,
     `Canon:\n${context.canon || "(none)"}`,
+    `Recent chat:\n${context.recentChat || "(none)"}`,
     "Return prose only, 4-8 sentences. No JSON, no lists.",
   ].join("\n\n");

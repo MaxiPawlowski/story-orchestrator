@@ -47,3 +47,19 @@ export const NothingRecorded: Story = {
     await expect(canvasElement.querySelector('[data-so="inspector-empty"]')).not.toBeNull();
   },
 };
+
+export const OpensInViewInAScrolledDrawer: Story = {
+  args: { view, messageId: 4, onClose: fn() },
+  render: (args) => (
+    <div data-so="scroller" ref={(node) => { if (node) node.scrollTop = 3000; }} style={{ height: 200, overflowY: "auto" }}>
+      <MessageInspector {...args} />
+      <div style={{ height: 4000 }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const inspector = canvasElement.querySelector("#so-inspector") as HTMLElement;
+    await expect(document.activeElement).toBe(inspector);
+    const scroller = canvasElement.querySelector('[data-so="scroller"]') as HTMLElement;
+    await expect(Math.abs(inspector.getBoundingClientRect().top - scroller.getBoundingClientRect().top)).toBeLessThan(2);
+  },
+};

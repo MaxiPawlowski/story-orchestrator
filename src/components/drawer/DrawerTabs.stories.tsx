@@ -454,6 +454,48 @@ export const Scheduler: Story = {
   },
 };
 
+const authorSnapshot = (): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as Record<string, unknown>;
+  snapshot.gateQualities = ["has_key", "seal_broken"];
+  snapshot.pendingDeltas = [{ quality: "seal_broken", value: true, source: "extractor" }];
+  snapshot.authorMoves = [
+    { at: "2026-10-02T09:34:24.404Z", boundary: 7, messageId: 8, kind: "author", summary: "Author advance: The Summons → Fort Vicinitas", note: "war-the-summons → war-the-front" },
+    { at: "2026-10-02T09:29:50.000Z", boundary: 4, messageId: 5, kind: "author", summary: "Author nudge at The Summons", note: "A servant of the Queen signals the party." },
+  ];
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const BlackboardGateQualitiesAndPending: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={authorSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    await openTab(canvasElement, "Blackboard");
+    const row = canvasElement.querySelector('[data-so="blackboard-row"][data-key="seal_broken"]');
+    await expect(row?.textContent).toContain("unset");
+    await expect(row?.getAttribute("data-gate")).toBe("true");
+    await expect(row?.querySelector('[data-so="blackboard-pending"]')?.textContent).toBe("→ true");
+    await expect(canvasElement.querySelector('[data-so="blackboard-row"][data-key="has_key"] [data-so="blackboard-pending"]')?.textContent).toBe("");
+  },
+};
+
+export const SchedulerAuthorMoves: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={authorSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openTab(canvasElement, "Scheduler");
+    const moves = [...canvasElement.querySelectorAll('[data-so="author-move"]')].map((node) => node.firstElementChild?.textContent);
+    await expect(moves).toEqual(["Author advance: The Summons → Fort Vicinitas", "Author nudge at The Summons"]);
+    await expect(canvas.queryByText(/war-the-front\.$/)).toBeNull();
+  },
+};
+
 // v2.3 plan 09 fixtures: 64 rows, one of them long enough to need wrapping, all four tiers populated.
 export const CrowdedMemory: Story = {
   render: () => (

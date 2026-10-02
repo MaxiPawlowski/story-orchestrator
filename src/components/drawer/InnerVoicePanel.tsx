@@ -34,12 +34,22 @@ export const innerVoiceRows = (snapshot: Pick<RuntimeSnapshot, "innerCast" | "me
   });
 };
 
+const isQuiet = (row: InnerVoiceRow) => !row.voice.drive && !row.voice.motive && !row.intents.length && !row.beat;
+
 const InnerVoicePanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
-  const rows = innerVoiceRows(snapshot);
+  const all = innerVoiceRows(snapshot);
+  const rows = all.filter((row) => !isQuiet(row));
+  const quiet = all.filter(isQuiet);
   return (
     <div id="so-inner-voice" className="text-xs opacity-80">
       <div className="font-medium opacity-100">Inner voice</div>
-      {!rows.length ? (
+      {quiet.length > 0 && (
+        <details data-so="inner-voice-quiet" className="opacity-70">
+          <summary className="cursor-pointer">{quiet.length} cast member{quiet.length === 1 ? "" : "s"} with no drive, motive, intent or beat</summary>
+          {quiet.map((row) => row.voice.name).join(", ")}
+        </details>
+      )}
+      {!all.length ? (
         <div className="opacity-70">No cast. Drives, motives and intents appear here per character.</div>
       ) : rows.map(({ voice, intents, beat, label }) => (
         <div key={voice.id} data-so="inner-voice-row" className="border-t border-solid border-white/10 mt-1 pt-1">
