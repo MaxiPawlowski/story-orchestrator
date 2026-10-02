@@ -422,6 +422,15 @@ export class StoryEngine {
     return this.queue.peek();
   }
 
+  pendingTransition(): NormalizedTransition | null {
+    if (!this.story || !this.blackboard || !this.queue.size) return null;
+    const preview = new Blackboard(this.story, this.blackboard.snapshot());
+    const queue = new ApplyQueue();
+    this.queue.peek().forEach((entry) => queue.enqueue(entry));
+    queue.drainAtBoundary(preview);
+    return selectFiring(this.story.outgoingByCheckpoint[this.activeCheckpointId] ?? [], preview);
+  }
+
   onAdvance(callback: (transition: NormalizedTransition) => void): () => void {
     this.advanceCallbacks.add(callback);
     return () => this.advanceCallbacks.delete(callback);

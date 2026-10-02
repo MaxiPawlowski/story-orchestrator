@@ -124,7 +124,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
     firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
-    fireSceneBreakReplies: async (breakAt) => { await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", breakAt); },
+    fireSceneBreakReplies: async (breakAt) => { await this.effects.fireActiveReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", this.engine.pendingTransition()?.to ?? null, breakAt); },
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
     journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     announce: (text) => this.effects.announceText(text, this.extras, this.owner.ownsOpenChat()),
@@ -334,7 +334,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     if (!this.loaded) return;
     const run = beginRun(this.owner.ownership);
     const speakerId = this.getActiveSpeakerId();
-    await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak", undefined, speakerId ? namesForRosterId(this.loaded.story, speakerId) : []);
+    const aliases = speakerId ? namesForRosterId(this.loaded.story, speakerId) : [];
+    await this.effects.fireActiveReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak", this.engine.pendingTransition()?.to ?? null, undefined, aliases);
     if (!run.stillOwns()) return;
     await this.persist();
     if (!run.stillOwns()) return;

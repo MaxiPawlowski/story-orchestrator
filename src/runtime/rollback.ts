@@ -10,7 +10,7 @@ import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
-import { rewindNpcReplies, rewindOnEnterPosts, survivingOnEnterPosts } from "./npcReplyRewind";
+import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
@@ -82,7 +82,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.modelCalls) extras.modelCalls = rollbackModelCalls(extras.modelCalls, messageId);
     extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
     const mutation = kind ? { kind, removed } : undefined;
-    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId, survivingOnEnterPosts(extras.onEnterPosts, messageId, mutation), mutation);
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId, mutation);
     if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId, mutation);
     if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);

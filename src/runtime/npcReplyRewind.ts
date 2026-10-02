@@ -9,6 +9,13 @@ export const recordNpcReplyFire = (counts: Record<string, number>, at: Record<st
 
 export const NPC_REPLY_SPACING = 8;
 
+export type ActiveTrigger = "afterSpeak" | "sceneBreak";
+
+export const heldLine = (replies: Array<{ trigger: string; enabled?: boolean }>, trigger: ActiveTrigger, checkpoint: string, leaving: string): [string, string] | null =>
+  replies.some((reply) => reply.trigger === trigger && reply.enabled !== false)
+    ? [`a ${trigger} line of ${checkpoint} was held`, `the writes queued for the next boundary move the story to ${leaving}, so the line would land in the next scene`]
+    : null;
+
 export const npcReplyMayFire = (
   counts: Record<string, number>, at: Record<string, number[]> | undefined, key: string, maxTriggers: number | undefined, trigger: string, messageId: number,
 ): boolean => {
@@ -17,16 +24,25 @@ export const npcReplyMayFire = (
   return trigger === "onEnter" || last === undefined || messageId - last >= NPC_REPLY_SPACING;
 };
 
-export const rewindNpcReplies = (counts: Record<string, number>, at: Record<string, number[]>, messageId: number, surviving: OnEnterPost[] = [], mutation?: PostMutation): void => {
-  const spent = new Set(surviving.map((post) => `${post.checkpointId}:onEnter:`));
+const lineGone = (line: number, messageId: number, mutation: PostMutation): boolean =>
+  mutation.kind === "delete" ? line >= messageId && line < messageId + removedBy(mutation) : mutation.kind === "swipe" && line === messageId;
+
+const rewoundFire = (id: number, messageId: number, mutation?: PostMutation): number | null => {
+  if (!mutation) return id < messageId ? id : null;
+  const line = id + 1;
+  if (line < messageId) return id;
+  if (lineGone(line, messageId, mutation)) return null;
+  return mutation.kind === "delete" ? id - removedBy(mutation) : id;
+};
+
+export const rewindNpcReplies = (counts: Record<string, number>, at: Record<string, number[]>, messageId: number, mutation?: PostMutation): void => {
   for (const key of Object.keys(at)) {
     const ids = at[key];
-    if ([...spent].some((prefix) => key.startsWith(prefix))) {
-      at[key] = ids.map((id) => (id >= messageId && mutation?.kind === "delete" ? Math.max(messageId - 1, id - removedBy(mutation)) : id));
+    const kept = ids.map((id) => rewoundFire(id, messageId, mutation)).filter((id): id is number => id !== null);
+    if (kept.length === ids.length) {
+      at[key] = kept;
       continue;
     }
-    const kept = ids.filter((id) => id < messageId);
-    if (kept.length === ids.length) continue;
     const removed = ids.length - kept.length;
     const next = (counts[key] ?? 0) - removed;
     if (next > 0) counts[key] = next;
