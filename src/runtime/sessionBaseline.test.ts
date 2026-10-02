@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsModel";
 import { DEFAULT_CHAPTER_SETTINGS } from "./chapters";
+import { defaultJudgeUses } from "@judge/settings";
 
 interface Baseline { version: number; installOwned: string[]; settings: Record<string, unknown> }
 
@@ -31,10 +32,10 @@ describe("plan 14 session baseline (AS-26)", () => {
     expect(changed).toEqual([]);
   });
 
-  it("keeps the judge on with every use, and media off", () => {
+  it("keeps the judge on with the product's default uses, and media off", () => {
     const sanitized = sanitizeGlobalSettings(baseline.settings);
     expect(sanitized.judge.enabled).toBe(true);
-    expect(Object.values(sanitized.judge.uses).every(Boolean)).toBe(true);
+    expect(sanitized.judge.uses).toEqual(defaultJudgeUses());
     expect(sanitized.image.enabled).toBe(false);
     expect(sanitized.sprites.enabled).toBe(false);
     expect(baseline.installOwned).toContain("judge.noticesSeen");
