@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  artifactInventory, artifactProblems, comfyCalls, featureProblems, HARVEST_HEADER, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, overlayDisablesThinking, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
 import { findCard, loadCards, loadIndex } from '../so-session.mts';
 
@@ -81,4 +81,41 @@ test('AS-23 chat tracking: visited and created chats join the session, known one
 
 test('AS-27 media guard: any ComfyUI line in the lane log is caught', () => {
   assert.deepEqual(comfyCalls('ok\nPOST http://127.0.0.1:8188/prompt\n/api/sd/comfy/generate 200\nfine'), ['POST http://127.0.0.1:8188/prompt', '/api/sd/comfy/generate 200']);
+});
+
+const overlay = (sequence: string, applied = true) => ({
+  applied,
+  edits: [{ kind: 'instruct', preset: 'Gemma 4', key: 'last_output_sequence', after: sequence, mirrored: true }],
+  live: { instruct: { preset: 'Gemma 4', last_output_sequence: sequence } },
+});
+
+test('T3-1 waiver: an overlay that prefills an empty thought channel turns the harvest requirement into a recorded warning', async () => {
+  const doc = await loadCards();
+  const required = requiredArtifacts(doc, findCard(doc, 'T3-1'));
+  assert.equal(required.harvestedReasoning, 1);
+  const waived = artifactWaivers(required, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>') });
+  assert.equal(waived.required.harvestedReasoning, undefined);
+  assert.equal(waived.required.turns, required.turns);
+  assert.deepEqual(waived.warnings, [HARVEST_WAIVED]);
+  assert.match(HARVEST_WAIVED, /not applicable: the preset overlay disables thinking/);
+  assert.deepEqual(artifactProblems(waived.required, { turns: 5, chats: 1, ratingCandidates: 3, harvestedReasoning: 0 }), []);
+});
+
+test('T3-1 waiver: without the overlay, or with thinking left on, the harvest requirement still fails closed', async () => {
+  const doc = await loadCards();
+  const required = requiredArtifacts(doc, findCard(doc, 'T3-1'));
+  const inventory = { turns: 5, chats: 1, ratingCandidates: 3, harvestedReasoning: 0 };
+  for (const session of [{}, { presetOverlay: null }, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>', false) }, { presetOverlay: overlay('<|turn>model\n') }, { presetOverlay: overlay('<|turn>model\n<|channel>thought\nI think<channel|>') }]) {
+    const waived = artifactWaivers(required, session);
+    assert.equal(waived.required.harvestedReasoning, 1, JSON.stringify(session));
+    assert.deepEqual(waived.warnings, []);
+    assert.ok(artifactProblems(waived.required, inventory).some((line) => line.startsWith('required artifact harvestedReasoning: 0 captured')));
+  }
+  assert.equal(overlayDisablesThinking({ applied: true, edits: [], live: { instruct: { last_output_sequence: '<|channel>thought\r\n<channel|>' } } }), true);
+});
+
+test('T3-1 waiver: a card that never asked for harvest is untouched by the overlay', async () => {
+  const doc = await loadCards();
+  const required = requiredArtifacts(doc, findCard(doc, 'T0-1'));
+  assert.deepEqual(artifactWaivers(required, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>') }), { required, warnings: [] });
 });

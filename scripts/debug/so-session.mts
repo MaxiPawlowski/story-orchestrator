@@ -15,8 +15,9 @@ import {
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
 import {
-  artifactInventory, artifactProblems, comfyCalls, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
+import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
 import { headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
@@ -80,6 +81,7 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
                                required artifacts and the ComfyUI guard, meter the spend, write
                                rubric.json, rebuild the card's blind-rating packs and the lane
                                lease. An invalid session exits 1.
+  reverify <dir>               re-check a stopped session's required artifacts (waivers included) and rewrite valid/invalid
   digest [<dir>]               write findings.md + findings.json (flags with context, anomalies);
                                a missing capture file makes the session invalid (exit 1)
   plan [--lanes 1,2,3,4] [--only T0-1,...] [--write|--check]   lanes from the continuation graph, tier by tier
@@ -460,7 +462,7 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
     const match = /^runtime-(.+)\.json$/.exec(name);
     if (match) runtimes[match[1]] = await readJson(resolve(dir, name));
   }
-  const required = requiredArtifacts(doc, card);
+  const { required, warnings } = artifactWaivers(requiredArtifacts(doc, card), session);
   const playsStory = card.story.kind !== 'wizard';
   for (const chat of session.chats ?? []) {
     if (!(chat.chatId in runtimes)) { invalid.push(`chat ${chat.chatId} was tracked but its persisted runtime was not exported`); continue; }
@@ -476,7 +478,24 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
     wizardDrafts: (drafts?.sessions?.length ?? 0) + (drafts?.openDraft?.checkpoints?.length ? 1 : 0),
   });
   invalid.push(...artifactProblems(required, inventory));
-  return { invalid, inventory, required };
+  return { invalid, inventory, required, warnings };
+}
+
+async function reverify(arg: string | undefined) {
+  const { dir, session } = await openSessionDir(arg, true);
+  if (!session.stoppedAt) throw new Error(`${session.dir} is not stopped; reverify re-checks a stopped session's artifacts`);
+  const doc = await loadCards();
+  const card = findCard(doc, session.charter);
+  const verified = await verifySession(dir, session, doc, card);
+  const kept = (session.invalid ?? []).filter((reason: string) => !reason.startsWith('required artifact ') && !verified.invalid.includes(reason));
+  const invalid = [...new Set([...kept, ...verified.invalid, ...await comfyGuard(session)])];
+  const warnings = [...new Set([...(session.warnings ?? []), ...verified.warnings])];
+  const next = { ...session, valid: invalid.length === 0, invalid, warnings, reverifiedAt: new Date().toISOString(), reverifiedFrom: { valid: session.valid, invalid: session.invalid ?? [] } };
+  await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, warnings: verified.warnings }, null, 2), 'utf-8');
+  await writeFile(resolve(dir, 'session.json'), JSON.stringify(next, null, 2), 'utf-8');
+  console.log(JSON.stringify({ dir: session.dir, valid: next.valid, invalid, warnings: verified.warnings, was: next.reverifiedFrom }, null, 2));
+  if (!next.valid) process.exitCode = 1;
+  return next;
 }
 
 async function comfyGuard(session: any) {
@@ -493,6 +512,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
   let pageEnd: any = {};
   let diffOutput = '';
+  const verifyWarnings: string[] = [];
   const outcome = await stopSequence({
     endPhase: async () => {
       const end = await inLane(session.lane, ['scripts/debug/so-session.mts', '_page', 'end', resolve(dir, 'session.json'), resolve(dir, 'page-end.json')], viewportEnv, true);
@@ -513,7 +533,8 @@ async function stop(arg: string | undefined, stopLane: boolean) {
     verify: async () => {
       const merged = { ...session, chats: pageEnd.chats ?? session.chats };
       const verified = await verifySession(dir, merged, doc, card);
-      await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory }, null, 2), 'utf-8');
+      verifyWarnings.push(...verified.warnings);
+      await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, warnings: verified.warnings }, null, 2), 'utf-8');
       return [...verified.invalid, ...await comfyGuard(session)];
     },
   });
@@ -528,7 +549,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
     evidence: { files: pageEnd.files ?? [], problems: pageEnd.evidenceProblems ?? {} }, playerClean: rubric.playerClean, spend,
     tails: outcome.acks, valid: outcome.valid, invalid: outcome.invalid,
     problems: [...(session.problems ?? []), ...outcome.problems],
-    warnings: [...(session.warnings ?? []), ...outcome.warnings],
+    warnings: [...(session.warnings ?? []), ...outcome.warnings, ...verifyWarnings],
   };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(stopped, null, 2), 'utf-8');
   await writeBudget();
@@ -542,7 +563,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   console.log(JSON.stringify({
     dir: session.dir, stoppedAt: stopped.stoppedAt, valid: outcome.valid, invalid: outcome.invalid, steps: outcome.steps, runHeaderDiff: outcome.runHeaderDiff,
     runHeaderDiffTail: outcome.runHeaderDiff.ok ? undefined : diffOutput.slice(-600), chats: stopped.chats.map((chat: any) => chat.chatId), evidence: stopped.evidence,
-    playerClean: rubric.playerClean?.ok ?? rubric.playerClean, spend, rubric: rel(rubricPath), rubricSummary: rubricSummary(rubric), packs, lease, problems: stopped.problems, warnings: outcome.warnings, laneStopped: stopLane,
+    playerClean: rubric.playerClean?.ok ?? rubric.playerClean, spend, rubric: rel(rubricPath), rubricSummary: rubricSummary(rubric), packs, lease, problems: stopped.problems, warnings: [...outcome.warnings, ...verifyWarnings], laneStopped: stopLane,
   }, null, 2));
   if (!outcome.valid) process.exitCode = 1;
   return stopped;
@@ -875,10 +896,21 @@ async function settingRecord(page: any, path: string, value: unknown) {
     node[keys[keys.length - 1]] = value;
     return previous === undefined ? null : previous;
   }, { path, value });
+  const refresher = refresherFor(path);
+  const refreshed = refresher ? await evaluateInST(page, (name: string) => {
+    const rt = (globalThis as any).storyOrchestratorRuntime;
+    if (typeof rt?.[name] !== 'function') return false;
+    rt[name]({});
+    return true;
+  }, refresher) : false;
   await saveSettingsNow(page);
   const after = await evaluateInST(page, (path: string) => path.split('.').reduce((node: any, key) => (node && typeof node === 'object' ? node[key] : undefined), (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? null) ?? null, path);
-  const landed = JSON.stringify(after) === JSON.stringify(value);
-  return { kind: 'setting', at: new Date().toISOString(), path, before, value, after, ok: landed, ...(landed ? {} : { problems: [`the runtime reads ${JSON.stringify(after)} for ${path}, ${JSON.stringify(value)} was written`] }) };
+  const landed = settingLanded(value, after);
+  const problems = [
+    ...(landed ? [] : [`the runtime reads ${JSON.stringify(after)} for ${path}, ${JSON.stringify(value)} was written`]),
+    ...(refresher && !refreshed ? [`the runtime has no ${refresher}, so its in-memory view of ${path} was not refreshed`] : []),
+  ];
+  return { kind: 'setting', at: new Date().toISOString(), path, before, value, after, refreshed: refreshed ? refresher : null, ok: !problems.length, ...(problems.length ? { problems } : {}) };
 }
 
 async function liveChild(input: string, output: string) {
@@ -1242,6 +1274,7 @@ async function main() {
   else if (command === 'runbook') await runbook(rest.includes('--write') ? 'write' : rest.includes('--check') ? 'check' : 'print');
   else if (command === 'budget') console.log(`Wrote ${rel(BUDGET_PATH)} (${await writeBudget()} session(s))`);
   else if (command === 'stop') await stop(rest.find((arg) => !arg.startsWith('--')), rest.includes('--stop-lane'));
+  else if (command === 'reverify') await reverify(rest.find((arg) => !arg.startsWith('--')));
   else if (command === 'digest') await digest(rest.find((arg) => !arg.startsWith('--')));
   else if (command === 'cards') await cards(rest.includes('--write') ? 'write' : rest.includes('--check') ? 'check' : 'print');
   else if (command === 'validate') await validate();

@@ -64,6 +64,24 @@ export function requiredArtifacts(doc: CardDoc, card: Card): Partial<Record<Arti
   return out;
 }
 
+export const EMPTY_THOUGHT_CHANNEL = /<\|channel>thought\s*<channel\|>\s*$/;
+
+export const HARVEST_WAIVED = 'required artifact harvestedReasoning: not applicable: the preset overlay disables thinking (last_output_sequence prefills an empty thought channel)';
+
+export function overlayDisablesThinking(overlay: any): boolean {
+  if (!overlay || overlay.applied !== true) return false;
+  const live = overlay.live?.instruct?.last_output_sequence;
+  const edited = (Array.isArray(overlay.edits) ? overlay.edits : []).find((edit: any) => edit?.kind === 'instruct' && edit?.key === 'last_output_sequence')?.after;
+  const sequence = typeof live === 'string' ? live : edited;
+  return typeof sequence === 'string' && EMPTY_THOUGHT_CHANNEL.test(sequence);
+}
+
+export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, session: { presetOverlay?: unknown }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[] } {
+  if (!required.harvestedReasoning || !overlayDisablesThinking(session.presetOverlay)) return { required, warnings: [] };
+  const rest = Object.fromEntries(Object.entries(required).filter(([key]) => key !== 'harvestedReasoning')) as Partial<Record<ArtifactKey, number>>;
+  return { required: rest, warnings: [HARVEST_WAIVED] };
+}
+
 export interface ArtifactInventory extends Record<ArtifactKey, number> {}
 
 export function artifactProblems(required: Partial<Record<ArtifactKey, number>>, inventory: Partial<ArtifactInventory>): string[] {
