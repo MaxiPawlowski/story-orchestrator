@@ -460,3 +460,5 @@ Evidence: `test/sessions/T4/SUMMARY.md` and the session dirs `T4-1-1`, `T4-4-1`,
 Budget: the manager stayed within 700 effective lines by moving the talk switches into `SettingsControl` (`talk`, `talkChain`) and the ledger reconcile into `effectHost.reconcileEffectLedgerInto`.
 
 Not done: no live check (real-LLM runs are batched to the final suite, v2.6 rules 13-17). 4b is recorded, not changed. The "night-of-knives opener at the lists in daylight" is story text. A swipe now journals nothing of its own (the no-op rollback is silent); the swipe itself is in `turns.jsonl`.
+
+Gates (2026-10-02, this wave): `npm run gates -- --no-storybook` all green: typecheck, typecheck:test, lint, test (447 suites, 5628 passed, 1 skipped), build (main `dist/index.js` 1,228,352 B, budget 1,250,000), build:dev, test:debug, debug:typecheck, test:release, test:replay (30 of 30 killed), test:plugin (78 pass). test-storybook:ci skipped (run by the lead after merge); `StudioToolbar.stories.tsx` gained `SaveCancelledInThisChat` and `DrawerTabs.stories.tsx` mocks `applyStoryUpdate` as a promise.
