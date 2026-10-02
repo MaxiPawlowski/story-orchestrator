@@ -343,9 +343,9 @@ async function check(n: number, dropBook: string | null) {
 }
 
 async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: string, outFile: string, dropBook: string | null) {
-  const [{ runCli }, { evaluateInST }, { waitForSettledChat }, { snapshotAssets }, { evalInST }, { saveSettingsNow }, { readExtractionSettings, restoreExtractionSettings }, { deleteLorebooksInPage }] = await Promise.all([
+  const [{ runCli }, { evaluateInST }, { waitForSettledChat }, { snapshotAssets }, { evalInST }, { saveSettingsNow }, { readExtractionSettings, restoreExtractionSettings }, { deleteLorebooksInPage }, { waitForAppReady, cardListing }] = await Promise.all([
     import('./lib/cli.mts'), import('./lib/evaluate.mts'), import('./st-navigation.mts'), import('./so-assets.mts'), import('./st-eval.mts'),
-    import('./lib/settingsSave.mts'), import('./lib/extractionSettings.mts'), import('./lib/lorebookDelete.mts'),
+    import('./lib/settingsSave.mts'), import('./lib/extractionSettings.mts'), import('./lib/lorebookDelete.mts'), import('./lib/stAppReady.mts'),
   ]);
   const manifest = await manifestFromExport(exportDir, commit);
   await runCli(async (page) => {
@@ -427,20 +427,16 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
     const extraction = await readExtractionSettings(page);
     await evaluateInST(page, () => { (globalThis as any).storyOrchestratorRuntime?.setExtractionSettings({ enabled: false }); });
     if (mode === 'seed') {
-      const unlisted = await evaluateInST(page, async (avatars: string[]) => {
-        const ctx = SillyTavern.getContext();
-        const started = Date.now();
-        let missing = avatars;
-        while (Date.now() - started < 90000) {
-          await ctx.getCharacters();
-          const have = new Set((ctx.characters ?? []).map((character) => character?.avatar));
-          missing = avatars.filter((avatar) => !have.has(avatar));
-          if (!missing.length) break;
-          await new Promise((done) => setTimeout(done, 2000));
-        }
-        return missing;
-      }, manifest.cards.map((card) => card.avatar));
-      if (unlisted.length) throw new Error(`the page does not list ${unlisted.length} installed card(s): ${unlisted.slice(0, 10).join(', ')}`);
+      await waitForAppReady(page);
+      const avatars = manifest.cards.map((card) => card.avatar);
+      const listedFrom = Date.now();
+      let listing = await evaluateInST(page, cardListing, avatars);
+      while ((!listing.ready || listing.missing.length) && Date.now() - listedFrom < 90000) {
+        await page.waitForTimeout(2000);
+        listing = await evaluateInST(page, cardListing, avatars);
+      }
+      if (!listing.ready) throw new Error('SillyTavern lost APP_READY while the seed listed the cards (the page reloaded under the seed)');
+      if (listing.missing.length) throw new Error(`the page does not list ${listing.missing.length} installed card(s): ${listing.missing.slice(0, 10).join(', ')}`);
       const groups = await evalInST(page, await readFile(join(exportDir, 'build', 'st-groups.js'), 'utf-8'));
       if (!groups.ok) throw new Error(`st-groups.js failed: ${groups.error}`);
       out.groups = groups.value;

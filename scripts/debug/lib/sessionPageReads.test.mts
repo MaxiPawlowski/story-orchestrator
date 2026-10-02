@@ -73,20 +73,21 @@ test('preset overlay: the live instruct and sampler values come from the page co
   assert.deepEqual(await readLivePresets(page), {
     instruct: { preset: 'Gemma 4', last_output_sequence: 'X', sequences_as_stop_strings: null, names_behavior: null, story_string_prefix: null },
     textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] }, context: null,
-    settings: { 'power_user.user_prompt_bias': null, 'power_user.show_user_prompt_bias': null, 'power_user.reasoning.auto_parse': null, 'power_user.reasoning.name': null, 'power_user.reasoning.prefix': null, 'power_user.reasoning.suffix': null, amount_gen: null },
+    settings: { 'power_user.user_prompt_bias': null, 'power_user.show_user_prompt_bias': null, 'power_user.reasoning.auto_parse': null, 'power_user.reasoning.name': null, 'power_user.reasoning.prefix': null, 'power_user.reasoning.suffix': null, amount_gen: null, 'power_user.auto_fix_generated_markdown': null, 'extension_settings.regex': null },
     profile: null,
   });
   (fake.ctx as any).powerUserSettings = {
     instruct: { preset: 'Gemma 4 Thinking', last_output_sequence: '', sequences_as_stop_strings: false, names_behavior: 'force', story_string_prefix: 'P' },
     context: { preset: 'Gemma 4', names_as_stop_strings: false },
     user_prompt_bias: '<|channel>thought\n', show_user_prompt_bias: false, reasoning: { auto_parse: true, name: 'Gemma 4', prefix: '<|channel>thought\n', suffix: '<channel|>' },
+    auto_fix_generated_markdown: false,
   };
-  (fake.ctx as any).extensionSettings = { ...(fake.ctx as any).extensionSettings, connectionManager: { selectedProfile: 'b', profiles: [{ id: 'a', name: 'Memory' }, { id: 'b', name: 'Artemis RunPod RP', instruct: 'Gemma 4 Thinking', 'start-reply-with': '<|channel>thought\n', 'reasoning-template': 'Gemma 4', preset: 'Artemis v1.1 RP' }] } };
+  (fake.ctx as any).extensionSettings = { ...(fake.ctx as any).extensionSettings, regex: [{ id: 'so-thinking-name-echo', findRegex: '/x/g' }], connectionManager: { selectedProfile: 'b', profiles: [{ id: 'a', name: 'Memory' }, { id: 'b', name: 'Artemis RunPod RP', instruct: 'Gemma 4 Thinking', 'start-reply-with': '<|channel>thought\n', 'reasoning-template': 'Gemma 4', preset: 'Artemis v1.1 RP' }] } };
   (globalThis as any).document = { getElementById: (id: string) => (id === 'amount_gen' ? { value: '1400' } : null) };
   try {
     const thinking = await readLivePresets(page);
     assert.deepEqual(thinking.context, { preset: 'Gemma 4', names_as_stop_strings: false });
-    assert.deepEqual(thinking.settings, { 'power_user.user_prompt_bias': '<|channel>thought\n', 'power_user.show_user_prompt_bias': false, 'power_user.reasoning.auto_parse': true, 'power_user.reasoning.name': 'Gemma 4', 'power_user.reasoning.prefix': '<|channel>thought\n', 'power_user.reasoning.suffix': '<channel|>', amount_gen: 1400 });
+    assert.deepEqual(thinking.settings, { 'power_user.user_prompt_bias': '<|channel>thought\n', 'power_user.show_user_prompt_bias': false, 'power_user.reasoning.auto_parse': true, 'power_user.reasoning.name': 'Gemma 4', 'power_user.reasoning.prefix': '<|channel>thought\n', 'power_user.reasoning.suffix': '<channel|>', amount_gen: 1400, 'power_user.auto_fix_generated_markdown': false, 'extension_settings.regex': [{ id: 'so-thinking-name-echo', findRegex: '/x/g' }] });
     assert.deepEqual(thinking.profile, { name: 'Artemis RunPod RP', instruct: 'Gemma 4 Thinking', 'start-reply-with': '<|channel>thought\n', 'reasoning-template': 'Gemma 4', preset: 'Artemis v1.1 RP' });
   } finally { delete (globalThis as any).document; }
   delete (fake.ctx as any).extensionSettings.connectionManager;

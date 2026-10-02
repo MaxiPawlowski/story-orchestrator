@@ -551,7 +551,9 @@ A judge first pass scored all 20 turns blind (`openai/gpt-6-astra` through `open
      - (b) **Start Reply With** = `<|channel>thought\n`;
      - (c) **Names as Stop Strings off** in the context template, or the reasoning is cut at the first character line (4/6);
      - (d) reasoning auto-parse with the `Gemma 4` reasoning template (`<|channel>thought\n` … `<channel|>`);
-     - (e) a response length of at least 1400 tokens (800 reasoning + 600 reply).
+     - (e) a response length of at least 1400 tokens (800 reasoning + 600 reply);
+     - (f) **Auto-fix Markdown off** (`power_user.auto_fix_generated_markdown`), or the start of a reply with `*` narration is eaten (T5-5-1, below);
+     - (g) a global AI-output regex that drops the speaker name the model repeats after `<channel|>` (find `/<channel\|>\s*{{char}}:\s*/g`, replace `<channel|>`, macros escaped), because ST's own name trim never sees the reply start (T5-5-1, below).
    - Putting the opener in `last_output_sequence` (before the name) fails in about a quarter of replies (1/4). Dropping the name lets the model pick the speaker (5/16 wrong).
 3. **The CC switch works on b11046.**
    - `chat_template_kwargs.enable_thinking` true/false renders the two trained shapes, `reasoning_content` is separated, and budget exhaustion gives `content: ""` with `finish_reason: "length"`.
@@ -620,3 +622,34 @@ User decision 2026-10-02: the plan 14 lanes run the `stga` setup now. The blind 
   - Turns 1 and 2: reasoning parsed into `extra.reasoning` (2991 and 1792 chars, `reasoning_type: parsed`). The text was clean, with no channel markers and no repeated `Name:` (0/3).
   - Turn 3: the reasoning was empty (parsed, `""`) and the reply was normal. This is the immediate-close case (4/20 in the A/B).
   - The epistemic pass carried the harvested narrator reasoning (2 passes) and stored its signals.
+
+### T5-5-1: damaged reply starts under thinking (2026-10-02, branch `v26-thinking-nameprefix`)
+
+The first thinking session (T5-5-1) saw every Forre reply start damaged: msg 4 `Forre: *Forre glances…`, msg 6 `rre's eyebrow arches…`, msg 8 `re: "A wise decision."`. Two separate ST mechanisms, neither in the model and neither in our code.
+
+**1. The cut index goes stale (the eaten characters).** ST source, `C:\dev\SillyTavern-MainBranch` at `7c3994196`:
+- Every streaming tick runs `cleanUpMessage` over the WHOLE text, Start Reply With included (`public/script.js:6452-6461` prepends `power_user.user_prompt_bias`), so the reasoning is part of what is cleaned (`StreamingProcessor.onProgressStreaming`, `script.js:3659`).
+- With Auto-fix Markdown on, `cleanUpMessage` calls `fixMarkdown(text, false)` (`script.js:6562-6564`). It pairs `*`/`_` across the whole string with `/([*_]{1,2})([\s\S]*?)\1/gm` and deletes the spaces beside the paired markers (`public/scripts/power-user.js:429-449`). The Gemma reasoning is a `*   ` bullet list, so its spaces are deleted or kept depending on how many `*` follow, and every `*` the reply streams re-pairs them.
+- The reasoning parser fixes the reply's start ONCE, as an index into that cleaned text, on the tick the suffix `<channel|>` first appears, and slices every later tick at the same index (`public/scripts/reasoning.js:493-521`: `#parsingReasoningMesStartIndex`, then `message.mes = trimSpaces(parseTarget.slice(this.#parsingReasoningMesStartIndex))`).
+- So when a reply asterisk changes the pairing before the index, the cleaned prefix shrinks and the slice starts inside the reply: `Forre: "Think…` loses `For`, `*Forre's` loses `*Fo`. The same pass removes the space between a closing quote and `*` (T5-5-1's LOW `market."*He turns`) and collapses the reasoning's `*   ` bullets (`*Prince Forre…`).
+- Why Forre: not the name. Forre's replies carry `*narration*` (4-8 asterisks per reply in 12 raw samples); Alexander's raw replies carried none in 6 of 8, so his pairing never moves. The narrator's msg 11 had the same luck.
+
+**2. The repeated name is never trimmed.** With the opener in Start Reply With, the text ST cleans starts `<|channel>thought\n…`, so `trimNames` (`startsWith(name2 + ':')`, `script.js:6566-6578`), the `allow_name2_display` strip (`(^|\n)Name:`, `script.js:6553-6556`) and `cleanGroupMessage` (`script.js:3171-3201`) never see the reply's first line. The reasoning parser then hands over `Forre: …` as the message. The model repeats the name after `<channel|>` in 4/12 Forre and 1/8 Alexander raw samples (the A/B's 3/20 `Dalan:`).
+
+**Reproduction.** T5-5-1's own prompts (`payloads.jsonl:9` Forre, `:1` Alexander) sent to the pod's `/completion` with the session's sampler body, streamed, 12 + 8 samples. Each stream's real chunks were replayed in a lane 2 page through ST's own `cleanUpMessage`, `ReasoningHandler.process` and `PromptReasoning` (ST's DOM update stubbed, nothing saved), tick per chunk and per 4 chunks, three arms:
+
+| Arm | Forre (10 replies, 2 spent the 1400 tokens inside the thought) | Alexander (8) |
+|---|---|---|
+| T5-5-1 (Auto-fix on, no regex) | 4 starts eaten (`re: "Think…`, `thoughtful heir.…`, `Take your time,"…`, `Forre's…` from `*Forre's`), 3 more show `Forre:` | 0 eaten, 1 `Alexander:` |
+| Auto-fix off | 0 eaten, 4 `Forre:` | 0 eaten, 1 `Alexander:` |
+| Auto-fix off + echo regex (the fix) | 0 eaten, 0 `Forre:` | 0, 0 |
+
+Identical at both tick granularities. No raw sample started with a fragment of the name: the model writes `Forre:` or nothing, ST does the eating.
+
+**Fix (configuration, no ST or extension code).** The `thinking` overlay variant now also writes `power_user.auto_fix_generated_markdown` false and upserts global regex `so-thinking-name-echo` into `extension_settings.regex` (placement AI output, not prompt-only or markdown-only, `substituteRegex` 2). The regex runs inside `cleanUpMessage` before the reasoning split (`script.js:6481`) and changes only text after `<channel|>`, so the cut index stays valid. The overlay gained an `upsert` op (settings lists, matched by `id`: a re-seed replaces the script, the install's own scripts stay), and `so-session start` checks the page runs both (`LIVE_SETTINGS_PATHS`).
+
+**Live (lane 2, re-seeded with the fixed variant, group `Adolion - Fire and War`, Artemis v1.1 on the pod, Start Reply With + auto-parse, streaming, `/trigger` per member).** 15 generated replies: Forre 9, Alexander 4, narrator 2. 13 carry text (Forre 8, Alexander 3, narrator 2): 0 damaged starts (the new `start` defect rule over every reply), 0 `Name:` echoes of the speaker, 0 channel markers in text or reasoning, 0 `."*` glued spaces; 15/15 `reasoning_type: parsed`, 13 with reasoning and the `*   ` bullets intact. The other 2 (Forre, Alexander) spent the whole 1400 tokens inside the thought (5.5k reasoning chars, empty reply), the same 2/12 as the raw samples: a budget question, not a parse one.
+
+Seen, not fixed: the narrator once wrote as another member (`Vallie: *Vallie clears her throat…`). Without the opener `cleanGroupMessage` would have cut that reply at `^Vallie:`; with it the line stays. The new rule catches only the speaker's own name.
+
+ST upstream (not ours to patch): `#parsingReasoningMesStartIndex` should be recomputed per tick (or `fixMarkdown` should not run over the reasoning).

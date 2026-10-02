@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { applyPresetOverlay, overlayProblems, overlaySha256, PRESET_OVERLAY_PATH, presetFile, profileProblems, sessionOverlay, thinkingExpected, THINKING_VARIANT, type OverlayFs, type OverlayRecord } from './presetOverlay.mts';
 
@@ -175,7 +176,7 @@ test('--no-preset-overlay writes nothing and records the old condition with the 
 test('overlay sha is line-ending independent; the shape check names bad variants and edits', () => {
   assert.equal(overlaySha256('a\r\nb\r\n'), overlaySha256('a\nb\n'));
   assert.deepEqual(overlayProblems({ version: 2, default: 'x', variants: { x: { edits: [{ kind: 'kobold', preset: '../x', key: '', op: 'swap' }] } } }), [
-    'variants.x.edits[0].kind must be one of instruct, textgen, context, settings, profile', 'variants.x.edits[0].preset must be a preset name', 'variants.x.edits[0].key must name a key', 'variants.x.edits[0].op must be set, moveToFront or activate',
+    'variants.x.edits[0].kind must be one of instruct, textgen, context, settings, profile', 'variants.x.edits[0].preset must be a preset name', 'variants.x.edits[0].key must name a key', 'variants.x.edits[0].op must be set, moveToFront, upsert or activate',
   ]);
   assert.deepEqual(overlayProblems({ version: 2, default: 'x', variants: { x: { edits: [
     { kind: 'settings', preset: 'p', key: 'a..b', op: 'set', value: 1 },
@@ -221,7 +222,10 @@ test('the checked-in overlay is valid, defaults to thinking, keeps the A100 fix 
     ['profile', 'Artemis RunPod RP', 'instruct', 'set', 'Gemma 4 Thinking'],
     ['profile', 'Artemis RunPod RP', 'start-reply-with', 'set', OPENER],
     ['profile', 'Artemis RunPod RP', 'reasoning-template', 'set', 'Gemma 4'],
+    ['settings', null, 'power_user.auto_fix_generated_markdown', 'set', false],
   ]) assert.ok(thinking.some((entry: unknown[]) => JSON.stringify(entry) === JSON.stringify(row)), JSON.stringify(row));
+  const echo = overlay.variants[THINKING_VARIANT].edits.find((edit: any) => edit.op === 'upsert');
+  assert.deepEqual([echo.key, echo.match, echo.value.id, echo.value.placement, echo.value.substituteRegex, echo.value.replaceString], ['extension_settings.regex', 'id', 'so-thinking-name-echo', [2], 2, '<channel|>']);
   const prefix = overlay.variants[THINKING_VARIANT].edits.find((edit: any) => edit.key === 'story_string_prefix');
   assert.match(prefix.value, /<\|think\|>\nBefore replying, think briefly/);
 });
@@ -289,4 +293,55 @@ test('preset overlay: the shipped overlay turns sequences_as_stop_strings off wi
   const live = (value: unknown) => ({ instruct: { preset: 'Gemma 4', last_output_sequence: '', sequences_as_stop_strings: value }, textgen: null });
   assert.deepEqual(sessionOverlay(record, live(false)).problems, []);
   assert.match(sessionOverlay(record, live(true)).problems.join(), /sequences_as_stop_strings = true/);
+});
+
+test('T5-5-1 overlay: upsert adds a regex script once, replaces it by id on a re-seed, keeps the install\'s own scripts, and the page must run it', async () => {
+  const shipped = JSON.parse(await readFile(PRESET_OVERLAY_PATH, 'utf-8'));
+  const echo = shipped.variants[THINKING_VARIANT].edits.find((edit: any) => edit.op === 'upsert');
+  const markdown = shipped.variants[THINKING_VARIANT].edits.find((edit: any) => edit.key === 'power_user.auto_fix_generated_markdown');
+  const own = { id: 'user-own', scriptName: 'mine', findRegex: '/a/g' };
+  const settings = JSON.parse(lane()[SETTINGS]!);
+  settings.extension_settings.regex = [own];
+  settings.power_user.auto_fix_generated_markdown = true;
+  const text = JSON.stringify({ version: 2, default: 'thinking', variants: { thinking: { edits: [markdown, echo] } } });
+  const fs = fakeFs({ ...lane(), [OVERLAY]: text, [SETTINGS]: JSON.stringify(settings) });
+  const record = await applyPresetOverlay(USER, fs, { overlayPath: OVERLAY, now: at });
+  const written = json(fs, SETTINGS);
+  assert.deepEqual(written.extension_settings.regex, [own, echo.value]);
+  assert.equal(written.power_user.auto_fix_generated_markdown, false);
+  await applyPresetOverlay(USER, fs, { overlayPath: OVERLAY, now: at });
+  assert.deepEqual(json(fs, SETTINGS).extension_settings.regex, [own, echo.value], 'a re-seed replaces the script by id instead of adding a second copy');
+  const live = (regex: unknown, fix = false) => ({ instruct: null, textgen: null, settings: { 'power_user.auto_fix_generated_markdown': fix, 'extension_settings.regex': regex } });
+  assert.deepEqual(sessionOverlay(record, live([{ ...echo.value, extra: 1 }, own])).problems, []);
+  assert.match(sessionOverlay(record, live([own])).problems.join(), /entry "so-thinking-name-echo" is null/);
+  assert.match(sessionOverlay(record, live([{ ...echo.value, disabled: true }])).problems.join(), /so-thinking-name-echo/);
+  assert.match(sessionOverlay(record, live([echo.value], true)).problems.join(), /auto_fix_generated_markdown = true/);
+  assert.deepEqual(overlayProblems({ version: 2, default: 'x', variants: { x: { edits: [
+    { kind: 'instruct', preset: 'p', key: 'k', op: 'upsert', match: 'id', value: { id: 'a' } },
+    { kind: 'settings', key: 'a.b', op: 'upsert', value: { id: 'a' } },
+    { kind: 'settings', key: 'a.b', op: 'upsert', match: 'id', value: { name: 'a' } },
+  ] } } }), [
+    'variants.x.edits[0] (upsert) applies to a settings.json list only',
+    'variants.x.edits[1] (upsert) needs a match field',
+    'variants.x.edits[2] (upsert) needs an object value whose id names it',
+  ]);
+});
+
+test('T5-5-1 overlay: the name-echo regex drops a repeated speaker name after the thought channel and nothing else', () => {
+  const shipped = JSON.parse(readFileSync(PRESET_OVERLAY_PATH, 'utf-8'));
+  const script = shipped.variants[THINKING_VARIANT].edits.find((edit: any) => edit.op === 'upsert').value;
+  const compile = (name: string) => {
+    const source = script.findRegex.replace('{{char}}', name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const parts = /^\/(.*)\/([a-z]*)$/s.exec(source)!;
+    return (text: string) => text.replace(new RegExp(parts[1], parts[2]), script.replaceString);
+  };
+  const forre = compile('Forre');
+  const thought = '<|channel>thought\n*   plan\n*   Forre: smug<channel|>';
+  assert.equal(forre(`${thought}Forre: *Forre glances at the token.*`), `${thought}*Forre glances at the token.*`);
+  assert.equal(forre(`${thought}\n\nForre: "A wise decision."`), `${thought}"A wise decision."`);
+  assert.equal(forre(`${thought}Forre's smile thins.`), `${thought}Forre's smile thins.`);
+  assert.equal(forre(`${thought}"Take your time," *Forre says.*\nForre: again`), `${thought}"Take your time," *Forre says.*\nForre: again`);
+  assert.equal(forre(`${thought}Alexander: "No."`), `${thought}Alexander: "No."`);
+  assert.equal(compile('Adolion Narrator')(`${thought}Adolion Narrator: The tent.`), `${thought}The tent.`);
+  assert.equal(compile('Sir (A.)')(`${thought}Sir (A.): Hello`), `${thought}Hello`);
 });

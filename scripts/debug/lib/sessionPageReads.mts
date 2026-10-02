@@ -104,6 +104,7 @@ export async function readLivePresets(page: any) {
     const settings = power ? Object.fromEntries(paths.map((path) => {
       if (path === 'amount_gen') return [path, slider && slider.value !== '' ? Number(slider.value) : null];
       const [root, ...rest] = path.split('.');
+      if (root === 'extension_settings') return [path, walk(ctx.extensionSettings, rest) ?? null];
       return [path, root === 'power_user' ? walk(power, rest) ?? null : null];
     })) : null;
     const manager = ctx.extensionSettings?.connectionManager;

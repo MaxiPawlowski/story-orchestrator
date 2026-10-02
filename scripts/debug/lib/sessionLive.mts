@@ -724,7 +724,7 @@ export async function runGuardedTurn(page: any, line: string, deps: LiveDeps, op
   }
   const swipe = await runMutation(page, 'swipe-new', {}, deps, options);
   const after = await replyTarget(page);
-  const stillDefective = after.id === target.id ? modelDefects([{ messageId: after.id, text: await messageText(page, after.id) }]) : [];
+  const stillDefective = after.id === target.id ? modelDefects([{ messageId: after.id, speaker: defects.find((defect) => defect.messageId === target.id)?.speaker ?? null, text: await messageText(page, after.id) }]) : [];
   return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: swipe.ok === true, repaired: swipe.ok === true ? [target.id] : [], ...left, swipe, stillDefective } };
 }
 

@@ -8,13 +8,13 @@ export const PRESET_OVERLAY_RECORD = 'preset-overlay.json';
 export const THINKING_VARIANT = 'thinking';
 export const LIVE_SETTINGS_PATHS = [
   'power_user.user_prompt_bias', 'power_user.show_user_prompt_bias', 'power_user.reasoning.auto_parse', 'power_user.reasoning.name',
-  'power_user.reasoning.prefix', 'power_user.reasoning.suffix', 'amount_gen',
+  'power_user.reasoning.prefix', 'power_user.reasoning.suffix', 'amount_gen', 'power_user.auto_fix_generated_markdown', 'extension_settings.regex',
 ] as const;
 
 export type PresetKind = 'instruct' | 'textgen' | 'context';
 export type OverlayKind = PresetKind | 'settings' | 'profile';
-export type OverlayOp = 'set' | 'moveToFront' | 'activate';
-export interface OverlayEdit { kind: OverlayKind; preset?: string; key?: string; op: OverlayOp; value?: unknown; item?: string }
+export type OverlayOp = 'set' | 'moveToFront' | 'activate' | 'upsert';
+export interface OverlayEdit { kind: OverlayKind; preset?: string; key?: string; op: OverlayOp; value?: unknown; item?: string; match?: string }
 export interface OverlayVariant { about?: string; edits: OverlayEdit[] }
 export interface PresetOverlay { version: number; about?: string; default: string; variants: Record<string, OverlayVariant> }
 
@@ -24,7 +24,7 @@ export interface OverlayFs {
 }
 
 export interface MirrorChange { path: string; before: unknown; after: unknown }
-export interface EditChange { kind: OverlayKind; preset: string | null; key: string | null; op: OverlayOp; file: string; before: unknown; after: unknown; changed: boolean; mirror: MirrorChange | null }
+export interface EditChange { kind: OverlayKind; preset: string | null; key: string | null; op: OverlayOp; file: string; before: unknown; after: unknown; changed: boolean; mirror: MirrorChange | null; upsert?: { match: string; value: unknown } }
 export interface OverlayRecord {
   overlay: string; sha256: string; variant: string | null; applied: boolean; reason: string | null; at: string;
   edits: EditChange[]; problems: string[];
@@ -69,7 +69,11 @@ function editProblems(edit: any, at: string): string[] {
   } else if (edit.op === 'activate') {
     if (edit.kind !== 'instruct' && edit.kind !== 'context') problems.push(`${at} (activate) switches an instruct or context preset only`);
     if ('key' in edit) problems.push(`${at} (activate) takes no key`);
-  } else problems.push(`${at}.op must be set, moveToFront or activate`);
+  } else if (edit.op === 'upsert') {
+    if (edit.kind !== 'settings') problems.push(`${at} (upsert) applies to a settings.json list only`);
+    if (typeof edit.match !== 'string' || !edit.match) problems.push(`${at} (upsert) needs a match field`);
+    else if (!isRecord(edit.value) || typeof edit.value[edit.match] !== 'string' || !edit.value[edit.match]) problems.push(`${at} (upsert) needs an object value whose ${edit.match} names it`);
+  } else problems.push(`${at}.op must be set, moveToFront, upsert or activate`);
   return problems;
 }
 
@@ -99,6 +103,12 @@ export function applyEdit(edit: OverlayEdit, current: unknown): { after: unknown
     return { after: edit.value };
   }
   if (!Array.isArray(current)) return { problem: `${editLabel(edit)} is not a list` };
+  if (edit.op === 'upsert') {
+    const key = edit.match!;
+    const name = (edit.value as Record<string, unknown>)[key];
+    const at = current.findIndex((entry) => isRecord(entry) && entry[key] === name);
+    return { after: at < 0 ? [...current, edit.value] : current.map((entry, index) => (index === at ? edit.value : entry)) };
+  }
   if (!current.includes(edit.item)) return { problem: `${editLabel(edit)} does not list ${edit.item}` };
   return { after: [edit.item, ...current.filter((entry) => entry !== edit.item)] };
 }
@@ -121,7 +131,10 @@ export function planOverlay(edits: OverlayEdit[], user: string, files: Record<st
   const changes: EditChange[] = [];
   let settingsChanged = false;
   const record = (edit: OverlayEdit, file: string, before: unknown, after: unknown, mirror: MirrorChange | null) => {
-    changes.push({ kind: edit.kind, preset: edit.preset ?? null, key: edit.key ?? null, op: edit.op, file, before, after, changed: !same(before, after) || Boolean(mirror && !same(mirror.before, mirror.after)), mirror });
+    changes.push({
+      kind: edit.kind, preset: edit.preset ?? null, key: edit.key ?? null, op: edit.op, file, before, after, changed: !same(before, after) || Boolean(mirror && !same(mirror.before, mirror.after)), mirror,
+      ...(edit.op === 'upsert' ? { upsert: { match: edit.match!, value: edit.value } } : {}),
+    });
   };
   for (const edit of edits) {
     if (edit.kind === 'settings' || edit.kind === 'profile') {
@@ -252,6 +265,14 @@ function liveProblem(edit: EditChange, live: LivePresets | null): string | null 
   if (edit.kind === 'settings') {
     if (!live?.settings) return null;
     if (!(edit.key! in live.settings)) return `the page did not report ${edit.key}, which the seed's preset overlay wrote`;
+    if (edit.upsert) {
+      const { match, value } = edit.upsert;
+      const name = isRecord(value) ? value[match] : undefined;
+      const list = live.settings[edit.key!];
+      const found = Array.isArray(list) ? list.find((entry) => isRecord(entry) && entry[match] === name) : undefined;
+      const differs = !isRecord(found) || !isRecord(value) || Object.entries(value).some(([field, wanted]) => !same(found[field], wanted));
+      return differs ? `the page's ${edit.key} entry ${shown(name)} is ${shown(found ?? null)}, the seed's preset overlay wrote ${shown(value)}` : null;
+    }
     return same(live.settings[edit.key!], edit.after) ? null : `the page runs ${edit.key} = ${shown(live.settings[edit.key!])}, the seed's preset overlay wrote ${shown(edit.after)}`;
   }
   if (edit.kind === 'profile') {
