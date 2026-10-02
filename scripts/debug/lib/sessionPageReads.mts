@@ -80,6 +80,7 @@ export async function readWizardDrafts(page: any) {
       sessions: JSON.parse(JSON.stringify(sessions)),
       openDraft: draft ? JSON.parse(JSON.stringify(draft)) : null,
       library: library.map((record: any) => ({ id: record?.id ?? record?.story?.id ?? null, title: record?.title ?? record?.story?.title ?? null, version: record?.version ?? record?.story?.version ?? null })),
+      groups: (ctx.groups ?? []).map((entry: any) => `${entry?.id ?? '?'}@${entry?.name ?? ''}`).sort(),
     };
   });
 }

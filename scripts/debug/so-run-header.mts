@@ -40,7 +40,10 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
         inventory.v2Stories        any change at or under that path
         inventory.v2Stories:+SO-J12   only the addition of that item
         inventory.v2Stories:-SO-J12   only the removal of that item
+        inventory.v2Stories:~SO-J12   only that item's version moving up (one id@old out, one id@new in)
         inventory.characterCount=+9   only a numeric field moving by exactly that much
+      --allow-file <path> reads more entries from a JSON array of strings, so an item may
+      carry a comma (a character or lorebook name).
 
   show
       Capture and print without writing a file.
@@ -51,7 +54,7 @@ bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
 judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
 story.id/playedVersion/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
-lorebooksSelected.`;
+wizardApplied (<session key>/<ledgered name>)/lorebooksSelected/groups (<id>@<name>).`;
 
 const safeName = (value: string) => String(value ?? 'run').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
 
@@ -295,6 +298,11 @@ export async function capturePage(page) {
         wizardSessions: (Array.isArray(root.wizardSessions)
           ? root.wizardSessions.map((session: any, index: number) => (typeof session?.key === 'string' ? session.key : String(index)))
           : Object.keys(root.wizardSessions ?? {})).sort(),
+        wizardApplied: (Array.isArray(root.wizardSessions) ? root.wizardSessions : [])
+          .flatMap((session: any) => (typeof session?.key === 'string' && Array.isArray(session.applied) ? session.applied : [])
+            .filter((name: unknown) => typeof name === 'string' && name.length > 0)
+            .map((name: string) => `${session.key}/${name}`))
+          .sort(),
         debugGlobals: debugGlobals.sort(),
         lorebooksSelected,
         lorebookCount: (ctx.getWorldInfoNames?.() ?? []).length,
@@ -302,6 +310,7 @@ export async function capturePage(page) {
         groupChats: (ctx.groups ?? [])
           .flatMap((entry: any) => (Array.isArray(entry?.chats) ? entry.chats : []).map((chat: unknown) => `${entry?.id ?? '?'}/${String(chat)}`))
           .sort(),
+        groups: (ctx.groups ?? []).map((entry: any) => `${entry?.id ?? '?'}@${entry?.name ?? ''}`).sort(),
       },
     };
   });
@@ -433,10 +442,16 @@ const ALLOW_ALIASES: Record<string, string> = {
   groupChats: 'inventory.groupChats',
 };
 
+export function allowFileEntries(text: string): string[] {
+  const parsed = JSON.parse(text);
+  if (!Array.isArray(parsed) || !parsed.every((entry) => typeof entry === 'string')) throw new Error('--allow-file must hold a JSON array of strings');
+  return parsed.filter((entry: string) => entry.length > 0);
+}
+
 export interface AllowEntry {
   raw: string;
   path: string;
-  sign?: 'added' | 'removed';
+  sign?: 'added' | 'removed' | 'changed';
   item?: string;
   delta?: number;
 }
@@ -471,15 +486,15 @@ export function parseAllow(entries: string[]): { allow: AllowEntry[]; errors: st
       allow.push({ raw, path });
       continue;
     }
-    if (!item.startsWith('+') && !item.startsWith('-')) {
-      errors.push(`--allow entry "${raw}" must name an item as :+added or :-removed`);
+    if (!item.startsWith('+') && !item.startsWith('-') && !item.startsWith('~')) {
+      errors.push(`--allow entry "${raw}" must name an item as :+added, :-removed or :~changed`);
       continue;
     }
     if (item.length < 2) {
       errors.push(`--allow entry "${raw}" names no item after ${item[0]}`);
       continue;
     }
-    allow.push({ raw, path, sign: item.startsWith('+') ? 'added' : 'removed', item: item.slice(1) });
+    allow.push({ raw, path, sign: item.startsWith('+') ? 'added' : item.startsWith('-') ? 'removed' : 'changed', item: item.slice(1) });
   }
   return { allow, errors };
 }
@@ -512,6 +527,20 @@ function matchesPath(allow: string, path: string): boolean {
 }
 
 const matchesItem = (value: string, item: string) => value === item || value.startsWith(`${item}@`);
+
+const versionOf = (value: string) => {
+  const at = value.lastIndexOf('@');
+  const version = at >= 0 ? Number(value.slice(at + 1)) : Number.NaN;
+  return Number.isFinite(version) ? version : null;
+};
+
+export function versionMovedUp(added: string[], removed: string[], item: string): boolean {
+  const into = added.filter((value) => matchesItem(value, item));
+  const out = removed.filter((value) => matchesItem(value, item));
+  if (into.length !== 1 || out.length !== 1) return false;
+  const [after, before] = [versionOf(into[0]), versionOf(out[0])];
+  return after !== null && before !== null && after > before;
+}
 
 export const SERVED_ALLOWANCE = 'served-bundle';
 export const SERVED_IDENTITY_PATHS = ['build.head', 'build.manifest'];
@@ -585,12 +614,15 @@ export function diffHeaders(
           difference.allowedBy = entry.raw;
           break;
         }
-        const list = (difference[entry.sign] ?? []) as string[];
-        if (!list.some((value) => matchesItem(value, entry.item as string))) continue;
+        const moved = (item: string) => versionMovedUp(difference.added ?? [], difference.removed ?? [], item);
+        if (entry.sign === 'changed') {
+          if (!moved(entry.item as string)) continue;
+        } else if (!((difference[entry.sign] ?? []) as string[]).some((value) => matchesItem(value, entry.item as string))) continue;
         // An item allowance covers this difference only when EVERY added and removed item is
         // covered by some allowance — a run that adds the declared story and also drops someone
         // else's is a failure, not a pass (the S12 library-loss case).
-        const covered = (values: string[] | undefined, wanted: 'added' | 'removed') => (values ?? []).every((value) => parsed.some((other) => other.sign === wanted && matchesPath(other.path, path) && matchesItem(value, other.item as string)));
+        const covered = (values: string[] | undefined, wanted: 'added' | 'removed') => (values ?? []).every((value) => parsed.some((other) => matchesPath(other.path, path) && matchesItem(value, other.item as string)
+          && (other.sign === wanted || (other.sign === 'changed' && moved(other.item as string)))));
         if (covered(difference.added, 'added') && covered(difference.removed, 'removed')) {
           difference.allowed = true;
           difference.allowedBy = entry.raw;
@@ -636,7 +668,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   const label = argValue(args, '--label', command === 'diff' ? 'diff-end' : 'run') as string;
   const out = argValue(args, '--out');
-  const allow = (argValue(args, '--allow') ?? '').split(',').map((entry) => entry.trim()).filter(Boolean);
+  const allowFile = argValue(args, '--allow-file');
+  const allow = [
+    ...(argValue(args, '--allow') ?? '').split(',').map((entry) => entry.trim()).filter(Boolean),
+    ...(allowFile ? allowFileEntries(readFileSync(resolve(PROJECT_ROOT, allowFile), 'utf-8')) : []),
+  ];
   const baseline = command === 'diff' ? args[1] : null;
   if (command === 'diff' && (!baseline || baseline.startsWith('--'))) {
     console.log(USAGE);

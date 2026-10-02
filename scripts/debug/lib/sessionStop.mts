@@ -4,11 +4,14 @@ export const HEADER_DIFF_ALLOW = 'chatId,groupId,authorView,story,group,inventor
 
 const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
 
-export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown; groupId?: unknown; deleted?: unknown }>, cardAllow: string[] = []): string[] {
+export const fileAllowances = (cardAllow: string[]): string[] => cardAllow.filter(nonEmpty).filter((entry) => entry.includes(','));
+
+export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown; groupId?: unknown; deleted?: unknown }>, cardAllow: string[] = [], allowFile: string | null = null): string[] {
   const owned = [...new Set(chats.map((chat) => chat.chatId).filter(nonEmpty))];
   const ownedGroupChats = [...new Set(chats.filter((chat) => nonEmpty(chat.chatId) && !chat.chatId.includes(',') && nonEmpty(chat.groupId)).map((chat) => `inventory.groupChats:${chat.deleted === true ? '-' : '+'}${chat.groupId}/${chat.chatId}`))];
-  const allow = [HEADER_DIFF_ALLOW, ...ownedGroupChats, ...cardAllow.filter(nonEmpty)].join(',');
-  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', allow, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out];
+  const allow = [HEADER_DIFF_ALLOW, ...ownedGroupChats, ...cardAllow.filter(nonEmpty).filter((entry) => !entry.includes(','))].join(',');
+  const viaFile = allowFile && fileAllowances(cardAllow).length ? ['--allow-file', allowFile] : [];
+  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', allow, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out, ...viaFile];
 }
 
 const SERVED_LINE = /^ok\s+(\S+)\s.*\(allowed by served-bundle ([0-9a-f]+)\)\s*$/;
