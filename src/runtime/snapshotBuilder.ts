@@ -14,7 +14,7 @@ import { derivePipelineStatus, expansionInFlight, playerPendingCount, type Pipel
 import { playerSaveNotice } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
-import { orphanedLorebooks } from "./mirrorReaper";
+import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
@@ -265,7 +265,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
-    orphanedLorebooks: orphanedLorebooks(),
+    orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(),
     chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,

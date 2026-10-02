@@ -1,7 +1,9 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import type { ChatOwner, ChatPresence, ConfirmAnswer } from "@services/STAPI";
 import { couldNot, wrote } from "@utils/writeResult";
 import {
-  deletedChatLabel, lifetimeOwnership, MirrorReaper, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, reapQuestion, type MirrorReaperDeps,
+  deletedChatLabel, lifetimeOwnership, MirrorReaper, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, reapDecisions, reapQuestion, ReapLog, type MirrorReaperDeps,
 } from "./mirrorReaper";
 import { mirrorLorebookName } from "./memoryMirror";
 import { beginRun } from "./runToken";
@@ -43,7 +45,7 @@ const harness = (world: Partial<World> = {}, patch: Partial<MirrorReaperDeps> = 
       return wrote({ name });
     },
     notify: () => { calls.notified += 1; },
-    journal: (summary) => { calls.journal.push(summary); },
+    record: (decision) => { calls.journal.push(decision.summary); },
     registry,
     ownership: testOwnership(),
     ...patch,
@@ -327,5 +329,39 @@ describe("v2.4 T14: lifetimeOwnership", () => {
     lifetime.end();
     expect(before.stillOwns()).toBe(false);
     expect(beginRun(lifetime.ownership).stillOwns()).toBe(true);
+  });
+});
+
+describe("T4-3 follow-up: the reap names the stored title, and its decision belongs to the deleted chat", () => {
+  const titled = (chatId: string, title: string) => ownerMarkerContent(owner(chatId), "2026-10-02T00:00:00.000Z", title);
+
+  it("asks and records with the story title the mirror stored, colon included, not the one the file name kept", async () => {
+    const book = mirrorLorebookName("Adolion Between the Roads", "2026-10-02@01h58m58s371ms");
+    const titles: Array<string | null> = [];
+    const { reaper, calls } = harness(
+      { books: new Map([[book, titled("2026-10-02@01h58m58s371ms", "Adolion: Between the Roads")]]), presence: new Map([["2026-10-02@01h58m58s371ms", "absent"]]), answer: false },
+      { confirm: async (_book, _chatId, title) => { titles.push(title); return "declined"; } },
+    );
+    await reaper.onChatDeleted("2026-10-02@01h58m58s371ms");
+    expect(titles).toEqual(["Adolion: Between the Roads"]);
+    expect(calls.journal).toEqual(['Kept the story-memory lorebook of the "Adolion: Between the Roads" chat started 2026-10-02 01:58.']);
+    expect(reapQuestion(book, "2026-10-02@01h58m58s371ms", "Adolion: Between the Roads")).toContain('"Adolion: Between the Roads" chat');
+    expect(parseOwnerMarker(titled("chat-a", "Adolion: Between the Roads"))?.title).toBe("Adolion: Between the Roads");
+    expect(parseOwnerMarker(marker("chat-a"))?.title).toBeNull();
+  });
+
+  it("records every decision in the session reap log with the deleted chat's id, and offers no way into a chat's journal", async () => {
+    const book = bookOf("chat-z");
+    const { reaper } = harness({ books: new Map([[book, marker("chat-z")]]), presence: new Map([["chat-z", "absent"]]) }, { record: undefined, now: () => "2026-10-02T09:00:00.000Z" });
+    await reaper.onChatDeleted("chat-z");
+    expect(reapDecisions().at(-1)).toEqual({ at: "2026-10-02T09:00:00.000Z", chatId: "chat-z", book, result: "deleted", summary: 'Deleted the story-memory lorebook of the "Crossing" chat "chat-z".' });
+    expect(readFileSync(join(__dirname, "mirrorReaperHost.ts"), "utf8")).not.toMatch(/journal|noteRecap/);
+    expect(readFileSync(join(__dirname, "index.ts"), "utf8")).toContain("startMirrorReaper(() => runtimeManager.notify())");
+  });
+
+  it("keeps the newest twenty decisions", () => {
+    const log = new ReapLog();
+    for (let index = 0; index < 25; index += 1) log.note({ at: "", chatId: `chat-${index}`, book: "b", result: "declined", summary: "" });
+    expect(log.list().map((row) => row.chatId)).toEqual(Array.from({ length: 20 }, (_, index) => `chat-${index + 5}`));
   });
 });

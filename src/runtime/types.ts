@@ -25,7 +25,7 @@ import type { ModelCallRow } from "./modelCalls";
 import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
-import type { OrphanedLorebook } from "./mirrorReaper";
+import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
 import type { ScanGateView, WiGatingStatus } from "./worldInfoMode";
@@ -437,6 +437,8 @@ export interface RuntimeSnapshot {
   blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
   /** Mirror books of deleted chats this session did not delete (session-scoped). */
   orphanedLorebooks?: OrphanedLorebook[];
+  /** What the reaper decided for deleted chats this session, each naming its deleted chat; never in a chat's journal. */
+  reapDecisions?: ReapDecision[];
   /** Set while no story is loaded and the chat holds a branch's or another chat's state. */
   chatIdentity?: ChatIdentitySnapshot | null;
   storyTitle: string | null;
