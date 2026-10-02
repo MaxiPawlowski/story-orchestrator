@@ -47,7 +47,7 @@ export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> 
   sceneTracker: "efa5d9d5461f",
   director: "d30d38c6ce47",
   agencyCheck: "1a69bad097f7",
-  houseRules: "bcaa55db4856",
+  houseRules: "26340841970d",
   loreSelect: "9711db218ed5",
   wardenLore: "f7e3fb753e56",
 };
@@ -66,7 +66,7 @@ const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
   sceneTracker: "efa5d9d5461f",
   director: "d30d38c6ce47",
   agencyCheck: "1a69bad097f7",
-  houseRules: "bcaa55db4856",
+  houseRules: "26340841970d",
   loreSelect: "9711db218ed5",
   wardenLore: "f7e3fb753e56",
 };
@@ -117,14 +117,16 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     recommendation: "Review mode recommended, as for the warden. Rides the warden's call off the reply path; stands down where a checkpoint allows narrating the player.",
   },
   houseRules: {
-    calibration: 0.935,
-    latencyP50Ms: 257,
+    calibration: 0.965,
+    latencyP50Ms: 235,
     live: "J8.12, J8.13",
     measuredOn: MEASURED_ON,
     passed: false,
     recommendation:
-      "Below its floor on the English re-measure (2026-10-01, the Adolion saga's 8 house rules: broken 12/18 vs 0.85, untouched 165/172 vs 0.966): off by default. " +
-      "Rules it cannot check from the reply alone (world-book consistency, secrets, who voices whom) miss or false-alarm; objective rules alone cleared every floor (0.9875).",
+      "Below its floor on the re-measure with the scene and the fired world-book entries " +
+      "(2026-10-02, the Adolion saga's 8 house rules: broken 18/18, kept 10/10, untouched 165/172 vs 0.966): off by default. " +
+      "Every broken rule is now caught; the false alarms sit on judgement rules that overlap " +
+      "(the player's action read as a group member's, a spent mystery read as a spent secret); objective rules alone cleared every floor (0.9875).",
   },
   loreSelect: {
     calibration: 0.8966,

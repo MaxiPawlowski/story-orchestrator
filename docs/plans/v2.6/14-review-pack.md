@@ -33,7 +33,7 @@ Item 3 is applied with ST stopped by `C:\dev\so-lanes\backups\apply-review-item3
 | 6 | `/cp activate` jumps play the target unstaged | keep (c) or revisit (b) | 2 min |
 | 7 | Campaign rewrites (4 rounds) | skim; veto anything | 15 min |
 | 8 | Judge per-lane rate is built on an assumed 90/min | tell me your real TypeSafe limit, if you know it | 1 min |
-| 9 | House-rules judge off by default | confirm off | 1 min |
+| 9 | House-rules judge off by default; option (c) built and re-measured 2026-10-02: broken 18/18, still below the untouched floor (165/172), stays off | nothing; read the result | 1 min |
 | 10 | Inner voice harvest cannot work with Artemis on this setup | choose a direction; optionally fund a 1 h A/B | 5 min |
 
 ---
@@ -314,6 +314,13 @@ Where the misses come from:
 **Recommendation.** (a) now, (c) later.
 
 **You.** Confirm off.
+
+**Result of (c), 2026-10-02** (`15-judge-remeasure.md` §Design + Gate record, 25 calls): the house-rule question now asks in its own call with the
+scene (speaker's roster role, group members, the player's line, `{{user}}` resolved) and the story-book entries that fired for the reply;
+a paragraph-count rule is decided in code. Broken 18/18 (was 12/18), kept 10/10, **untouched 165/172 = 0.959 vs 0.966: still below
+floor, so `houseRules` stays off**. The 7 false alarms: rule 1 x2 (the reply writes the player's action, read as a group member's),
+rule 7 x2 (a mystery dumped in one paragraph, also read as a spent secret), rule 4 x1 and rule 6 x1 (AH22, a spent secret, also read as
+a mystery and at exactly 0.70 against the world book), rule 2 x1 (AH34). Floors not retuned, labels untouched.
 
 ---
 

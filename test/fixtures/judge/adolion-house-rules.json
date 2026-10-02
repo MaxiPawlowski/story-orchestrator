@@ -34,6 +34,37 @@
       "playerMessage": "I ask the steward why the Sheridans didn't put the caravan on the posting.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I ask the steward why the Sheridans didn't put the caravan on the posting.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Ellie"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "CP the-sheridan-steward - Scene",
+            "text": "[Scene state: the Guild hall, later the same day. Nobody has taken the Wendhope posting, so a Sheridan steward has come down to the counter in person, with the Baron's seal, a purse that doubles the fee, and the one thing the family did not write down: the last ore caravan from Wendhope never reached Raltdorf, and neither did the two riders sent up the road after it.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -62,6 +93,49 @@
       "playerMessage": "I sit down at the end of the bar and watch Naomi's table.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I sit down at the end of the bar and watch Naomi's table.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Kashina",
+            "Naomi",
+            "Kass",
+            "Yrelra"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Naomi Moonlight",
+            "text": "Naomi Moonlight is a Catgirl adventurer, long red hair, red eyes, plate armor, skirt and leggings. Naomi is a master of the Moonlight Blade Style of fighting.\nAppearance: adult catfolk woman, long red hair, red cat ears with white tufts, red cat tail, ruby-red eyes, steel breastplate, pauldrons, gauntlets, red skirt, black leggings, boots, fiery red longsword.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Aegis",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger of the Evergreen tribe with a shortbow; Tobias Eldergreen, the lanky green-haired elf receptionist at the Guild's quest counter, who signs the party's exam posting. At the Guild: Vallie Goredust, the one-eyed minotaur Guildmaster; Domas Syllandri, her elven vice guildmaster; Ellie Sunleaf, the elven Guild Girl. Everyone else joins for their own scene and leaves when the story moves on; each scene names who is present.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Promotion Exam",
+            "text": "[How the Guild promotes a party: an interview with a Guild receptionist, then a real quest of the rank sought, chosen by the Guild and done under the eye of an observer the Guild appoints, usually from a high-ranking party. The observer's verdict is a pass, a pass with honours, or a fail; a party that fails keeps its rank and may sit again next season. A quest above a party's rank is not paid.]",
+            "constant": true
+          },
+          {
+            "comment": "CP aegis-victorys-tusk - Scene",
+            "text": "[Scene state: Victory's Tusk at night, the adventurers' tavern, full to bursting, a centaur at one table. Present: Kass the kitsune bard playing for tips, Yrelra at the edge of the room, Naomi Moonlight with her sword at her hip, Kashina Grystle already drunk.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -90,6 +164,45 @@
       "playerMessage": "I show the Guild seal to the archers on the wall.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I show the Guild seal to the archers on the wall.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Belle the Barbarian - Adventurer",
+            "text": "Belle is a human woman with long black hair, brown eyes, large breasts, and a tall/muscular build. Belle is a fixture in the Adventurers Guild, mostly because she keeps getting into brawls and arguments while drinking, but somehow ends up as everyone's drinking buddy. Belle is registered as a 'barbarian' fighter who wields a massive greataxe called Cleaver.\nAppearance: young woman, human, long black hair, brown eyes, brown leather cuirass and pauldrons over black shirt, black laced corset, leather belts with pouches, brown shorts, massive stone greataxe.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "CP at-the-walls - Scene",
+            "text": "[Scene state: outside Wendhope's eastern gate at midday. Three archers hold the parapet and will not open: Grod, a human with a scar over his left eye and no sleep behind it, and two worse off, a bandaged dwarf in cracked leather and a half-elf with a strapped shoulder. Their line is that Wendhope is not taking visitors and anyone with sense turns back before sundown. They talk about signs on the road that the party never passed. They are frightened, not hostile, and desperately short of arrows.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -118,6 +231,59 @@
       "playerMessage": "I ask Ronan what he knows of Leevon's record.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I ask Ronan what he knows of Leevon's record.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Natalia",
+            "Shiya",
+            "Ronan",
+            "Javon",
+            "Welden",
+            "Leila"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Household",
+            "text": "[Group members, who speak and act for themselves: Natalia, {{story_player_name}}'s sister, a guarded, unsettling young noblewoman with light brown hair and an ice-magic chill; Shiya, a haughty half-demon maid with silver-blonde twintails, red eyes and black horns, a skilled fire mage; Ronan, a stoic young knight with short brown hair, leather armor and a rapier, sworn to {{story_player_name}}. Joining for their scenes: Welden, {{story_player_name}}'s brother, frail and bookish in round glasses, a novice ice mage whose spells fizzle; Leila Rainshadow, {{story_player_name}}'s personal maid, a small, shy elf with long brown hair; and, when she comes home from the Valtaras, Lady Hana, their stepmother, a short white-haired catfolk noblewoman in a black fur coat. Not of the household: Kane Winstonehl and his sister Tahlia, heirs of the rival Winstonehl house and {{story_player_name}}'s peers at the Academy, neither of them anyone's advisor or servant.]",
+            "constant": true
+          },
+          {
+            "comment": "Nightriver - The Seal",
+            "text": "[House Nightriver's secret: the bloodline carries magical seals that keep the Witch King, the Lich Queen's most devoted servant, imprisoned. Each Nightriver child bears a seal, which also gifts them magic. While the bloodline lives, he sleeps. {{story_player_name}}, Natalia and their brother Welden all carry seals.]",
+            "constant": true
+          },
+          {
+            "comment": "CP fathers-summons - Scene",
+            "text": "[Scene state: Lord Javon's study. General Polis Leevon, the decorated general arrested for feeding the Zegallan army troop movements, has demanded Trial by Combat. Javon has offered a Nightriver as the Crown's second and announces that the heir fights in three days, framing it as duty and as proof of the bloodline. Refusing a second's place would shame the house in open court.]",
+            "constant": true
+          },
+          {
+            "comment": "General Leevon",
+            "text": "General Polis Leevon was a famed and highly decorated general of the Darran Kingdom. General Leevon was arrested for treason after it was discovered that he was feeding the Zegallan Army troop movements, leading to hundreds of casualties. General Leevon is a giant of a man who wields a lance said to have been forged from dragon bone and commands lightning magic like an archmage.\nAppearance: giant of a man, heavily built, greying hair, weathered face, Darran general's plate stripped of honours, dragon-bone lance.",
+            "constant": false
+          },
+          {
+            "comment": "Lord Javon Nightriver",
+            "text": "Lord Javon Nightriver is the Patriarch of the Nightriver Great House. Javon is an older man and a respected war hero of the first war against the Zegallan Empire. Javon is renowned for his battlemage fighting style which is said to be emulated by battlemages across the kingdom. Javon has short white hair, a white beard, green eyes, and a tall build with a scar on his cheek. Javon is said to be one of the most powerful mages in the Kingdom and some rumors suggest Javon is the reason the Darran Kingdom didn't lose the last war against the Zegallan Empire.\nAppearance: older human man, tall, short white hair, white beard, green eyes, scar on one cheek, deep-blue Nightriver battlemage robes over light armour.",
+            "constant": false
+          },
+          {
+            "comment": "Ronan the Knight",
+            "text": "Ronan Mavrursk is a knight who serves the Nightriver House. Ronan has short brown hair and light brown eyes. Ronan has exceeded in every course he's taken and was recommended by Archmage Dacaryn. Ronan's best friend is Bryne.\nAppearance: young man, lean human, short brown hair, light brown eyes, dark brown leather armor with pauldrons and vambraces, crossed chest straps, wide leather belt, dark undershirt, swept-hilt steel rapier.",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -146,6 +312,62 @@
       "playerMessage": "I look at the purse on the counter.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I look at the purse on the counter.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Ellie"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Ellie Sunleaf - Guild Girl",
+            "text": "Ellie Sunleaf is a guild receptionist for the Aegis City's Adventurer's Guild. Ellie is regarded as a \"Jewel\" of the guild to the point she has her own fanclub who wants to keep her single. Ellie is a young elven woman with long green hair, blue eyes, a short and curvy body with large breasts, and an impeccable sense of fashion. Ellie's penchant for trying to set up adventurer couples is well-known.\nAppearance: young woman, elf, short green hair in double buns, blue eyes, black halter collar with gold emblem, blue and white strapless dress with gold trim, white off-shoulder sleeves.",
+            "constant": false
+          },
+          {
+            "comment": "The Sheridans (Commoner)",
+            "text": "The Sheridan's are one of the eight Great Houses of the Darran Kingdom and they own swathes of frontier lands. The Sheridan's collect fairly heavy taxes, but many settlers choose to move to Sheridan lands due to the possibility of striking it rich.",
+            "constant": false
+          },
+          {
+            "comment": "Wendhope",
+            "text": "Wendhope is a frontier mining village located in the Sheridan lands of the Darran Kingdom that was settled by veteran frontiersmen, though rumors have floated that they haven't responded to any letters that had been sent their way.\nAppearance: small walled frontier mining village, fifty stone-and-timber buildings, wooden gates on two sides, parapets, pit-heads and ore carts, forest beyond.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "CP the-sheridan-steward - Scene",
+            "text": "[Scene state: the Guild hall, later the same day. Nobody has taken the Wendhope posting, so a Sheridan steward has come down to the counter in person, with the Baron's seal, a purse that doubles the fee, and the one thing the family did not write down: the last ore caravan from Wendhope never reached Raltdorf, and neither did the two riders sent up the road after it.]",
+            "constant": true
+          },
+          {
+            "comment": "Chronicle - The Party",
+            "text": "[{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - Wendhope",
+            "text": "{{// so:auto}}[State of Wendhope in this campaign. The village is cut off and under nightly attack, roughly fifty people behind a stone wall, running out of arrows and food. Nobody outside knows, because every runner it sent was lost. Its mine is still workable.]",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -174,6 +396,63 @@
       "playerMessage": "I listen to both of them pitch the job.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I listen to both of them pitch the job.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Vallie",
+            "Ced",
+            "Kela"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cedoric \"Ced\" Vinasun - Adventurer",
+            "text": "Cedoric \"Ced\" Vinasun is a human man with long black hair, red eyes, and a tall stature. Ced is the party leader for the adventuring party \"Crimsonwing.\" Ced is a reliable adventurer and his reputation with the guild is of stellar standing, showing 'good moral judgement' per reports. Ced is officially listed as a \"Hunter\" and \"Monster Expert\" by the Adventurers Guild.\nAppearance: adult man, human, tall, long black hair, red eyes, pale skin, black tricorn hunter hat, tattered black cape, buttoned black coat, leather bandolier and belts, gloves.",
+            "constant": false
+          },
+          {
+            "comment": "Ebonwing - Adventuring Party",
+            "text": "Ebonwing is a High-Ranking Adventuring Party located in Aegis City's Adventurer's Guild. Ebonwing's party leader is Kelawynn Vinamoon and it's members are: Safie, the Owlkin mage and Panne, the Sheepkin healer. Rumors suggest a failed expedition into the Darklands resulted in Ebonwing kicking a previous member out of the group.\nAppearance: adventuring party of three adult women, Kela an alchemically altered human hunter in a gothic hunter's coat, Safie a magitech wizard, Panne a sheepkin oracle.",
+            "constant": false
+          },
+          {
+            "comment": "Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing",
+            "text": "Kelawynn \"Kela\" Vinamoon is a human woman with long black hair, red eyes, small breasts, and a tall stature. Kela is the party leader for the adventuring party \"Ebonwing.\" Kela is a reliable adventurer and her reputation with the guild is of stellar standing, showing 'good moral judgement' per reports. Kela is officially listed as a \"Hunter\" and \"Monster Expert\" by the Adventurers Guild.\nAppearance: adult woman, human, tall, long black hair, red eyes, pale skin, black tricorn hunter hat, tattered black cape, high-collared black leather bodice, belts.",
+            "constant": false
+          },
+          {
+            "comment": "Vallie Goredust - Guildmaster of the Aegis City Adventurers Guild",
+            "text": "Vallie Goredust or \"Deathaxe\" is the Guildmaster of the Aegis City Adventurers Guild and former Party Leader for \"Will of Steel\", a retired A-rank Adventuring Party. Vallie is a Beastfolk woman with minotaur heritage, with shaggy red hair, a missing eye, a blue eye, huge breasts, a very tall muscular build, and ox horns on her head. Vallie is the one who implemented rank requirements for taking quests, which has drastically reduced casualty rates. Vallie is a good-natured woman, if a bit crass and intimidating.\nAppearance: adult woman, muscular, long red hair in ponytail, curved black horns, blue eye, black eyepatch, scars, sharp teeth, brown leather bustier, spiked black pauldron, leather bracers, dark trousers, brown boots.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - Crimsonwing and Ebonwing",
+            "text": "[State of the Guild's two famous parties in this campaign. {{// so:protect}}Crimsonwing (Ced, Runo, Oswyn) and Ebonwing (Kela, Safie, Panne) are both high-ranked and both lost a member after a failed Darklands expedition.{{// so:end}} Unira Windsor of the Wind Ballad is reported dead. Neither party has worked with this campaign's party.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Crimsonwing & Ebonwing",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver, headstrong and loyal; Dalan Evergreen, a slight blond elf ranger with a shortbow, shy and sharp-eyed. The Guild's two famous high-rank parties, mirror images that hate being compared: Crimsonwing, led by Cedoric 'Ced' Vinasun, a tall human hunter with long black hair and red eyes in a tricorn and black coat, alchemically altered, fast, polite and ruthless, with a saw cleaver, with Runo Firevill, a short owlkin magitech wizard who makes golems and hates mornings; Ebonwing, led by Kelawynn 'Kela' Vinamoon, a tall human huntress with long black hair and red eyes in a tricorn and black leather, altered the same way, fast, polite and ruthless, with a saw cleaver, with Safie Windvill, a short owlkin magitech wizard who makes golems and hates mornings. Their healers, Oswyn and Panne, are laid up in Aegis City. Vallie Goredust, Guildmaster, a one-eyed minotaur woman with red hair and horns, runs the counter today.]",
+            "constant": true
+          },
+          {
+            "comment": "CP deep-kela-and-ced - Scene",
+            "text": "[Scene state: the Guild hall, minutes after the party balked. Ced and Kela are both pitching at once. Vallie has said the posting goes back on the board at sundown.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -204,6 +483,45 @@
       "playerMessage": "I hold my place on the wall and keep firing.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I hold my place on the wall and keep firing.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "CP first-night - Scene",
+            "text": "[Scene state: the first night on Wendhope's wall. A thick red fog rolls out of Needlehaven and closes around the whole village, and the Screechers come through it. The defence is archers on the parapet and nothing else; the conscripts are green and the veterans are all carrying wounds. Arrows that hit are usually lost. By dawn the fog thins and pulls back into the trees.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -232,6 +550,85 @@
       "playerMessage": "I sit down at the long table and listen.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I sit down at the long table and listen.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Rydel",
+            "Fiana",
+            "Kaian",
+            "Jasira"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Adventurer Rank",
+            "text": "Adventurers are ranked by the guild to determine what kind of quests they can handle. An adventurer is ranked from the lowest rank of F to the highest rank of A. The lower the rank of a quest, the lower the rewards and vice versa. In order for an Adventurer to rank up, they must take a promotion exam - usually a quest of the rank they are trying to rank up to. Most Adventurers end up staying at D-Rank, where the quests aren't too difficult and pay well.",
+            "constant": false
+          },
+          {
+            "comment": "Bashima - Goddess of Travelers and the Hearth",
+            "text": "Bashima is the Goddess of Travelers and the Hearth, whose followers explore the world and tend to homes as per Bashima's holy edict that every wanderer should have a proper place to rest their head. Bashima is often depicted as a six-armed woman carrying different tools in her hands. Bashima's symbol is a blazing staff and followers typically carry a wooden token or walking cane as a mark of faith.\nAppearance: depicted as a six-armed woman in travelling robes, each hand holding a different road or household tool, hearth-flame halo.",
+            "constant": false
+          },
+          {
+            "comment": "Dalan Evergreen",
+            "text": "Dalan Evergreen is a short, feminine, male elf adventurer. Dalan is registered at the Aegis City Adventurers Guild as a \"Ranger.\"  Dalan is amazing with a bow, hates being called cute, and has his own 'fan club' which has apparently sworn to protect him. Dalan is friends with Ellie and Jasira. Dalan is a member of the Evergreen Tribe of Elves which are located in Duskwallow Forest.\nAppearance: young adult man, short slender elf, messy blonde hair with side braid, pointed ears, green hooded capelet and tunic, white undershirt, brown leather belts, brown gloves, wooden longbow.",
+            "constant": false
+          },
+          {
+            "comment": "Dwarf",
+            "text": "Dwarves are stout folk, usually only about 4 feet tall. Dwarves tend to live in mountainous areas and are great crafters. Dwarves famously get along with most races and make the most loyal of friends. Dwarves obsess over their honor and are known to keep grudges for life.\nAppearance: Stout humanoids about four feet tall, broad muscular build, thick braided beards, sturdy boots, heavy plate or chain armor, axes and smithing hammers.",
+            "constant": false
+          },
+          {
+            "comment": "Elves",
+            "text": "Elves are a reclusive race who have only recently begun to integrate into human societies. Elves are tall, lithe, beautiful, and able to live hundreds of years. Elves have darkvision.\nAppearance: Tall, lithe, graceful humanoids, long pointed ears, fine elegant features, smooth fair skin, flowing hair, forest-toned leathers or fine robes, longbows common.",
+            "constant": false
+          },
+          {
+            "comment": "Fiana Deulana - Barmaid for the Adventurers Guild",
+            "text": "Fiana Deulana is a young woman who works in the Adventurers Guild's Tavern at Aegis City. Fiana has short, curly red hair, huge breasts, freckles, blue eyes, and is about average height. Fiana is known for being an extrovert, often drinking with adventurers. Fiana is one of the \"Jewels of the Guild\" in Aegis City according to fanclubs.\nAppearance: young woman, human, shoulder-length red hair, white maid headdress, blue eyes, black puff-sleeved bolero, blue and red corset dress with bow and blue gem brooch.",
+            "constant": false
+          },
+          {
+            "comment": "Rydel Deulana - Bartender for the Adventurers Guild",
+            "text": "Rydel Deulana is a male beastfolk with dog heritage, blue hair, green eyes, and a tall build. Rydel is Fiana's adopted brother. Rydel works as the bartender at the Aegis City Adventurers Guild Tavern and is well-liked by the patrons who visit because of his charming and earnest demeanor. Rydel is considered one of the \"Jewels of the Adventurers Guild.\"\nAppearance: adult man, dog beastfolk, floppy blue dog ears, long messy blue hair, green eyes, white open-collar shirt, dark teal vest, silver chain necklace with pendant.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - The Party",
+            "text": "[{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Aegis",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger of the Evergreen tribe with a shortbow; Tobias Eldergreen, the lanky green-haired elf receptionist at the Guild's quest counter, who signs the party's exam posting. At the Guild: Vallie Goredust, the one-eyed minotaur Guildmaster; Domas Syllandri, her elven vice guildmaster; Ellie Sunleaf, the elven Guild Girl. Everyone else joins for their own scene and leaves when the story moves on; each scene names who is present.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Promotion Exam",
+            "text": "[How the Guild promotes a party: an interview with a Guild receptionist, then a real quest of the rank sought, chosen by the Guild and done under the eye of an observer the Guild appoints, usually from a high-ranking party. The observer's verdict is a pass, a pass with honours, or a fail; a party that fails keeps its rank and may sit again next season. A quest above a party's rank is not paid.]",
+            "constant": true
+          },
+          {
+            "comment": "CP aegis-the-tavern - Scene",
+            "text": "[Scene state: the Guild tavern that evening, long timber tables, hearth and lanterns. Present: Fiana and Rydel Deulana working the floor and bar, Kaian the kitsune bard with his lute by the hearth, Jasira Evergreen alone at a table, and Tobias off shift. Everyone knows the party is sitting the exam.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -260,6 +657,71 @@
       "playerMessage": "I watch the old dwarves leave an offering at the mine mouth.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I watch the old dwarves leave an offering at the mine mouth.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Naomi"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Dwarf",
+            "text": "Dwarves are stout folk, usually only about 4 feet tall. Dwarves tend to live in mountainous areas and are great crafters. Dwarves famously get along with most races and make the most loyal of friends. Dwarves obsess over their honor and are known to keep grudges for life.\nAppearance: Stout humanoids about four feet tall, broad muscular build, thick braided beards, sturdy boots, heavy plate or chain armor, axes and smithing hammers.",
+            "constant": false
+          },
+          {
+            "comment": "Filwern - Minor God of Mining",
+            "text": "Filwern is a Dwarven God of Mining, often depicted as a rugged dwarf wielding pickaxe and hammer. Filwern is worshipped by miners who believe Filwern's divine protection protects them from cave-ins and blesses those who work hard.\nAppearance: depicted as a rugged dwarf, broad braided beard, miner's leathers, pickaxe in one hand and hammer in the other.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Clues",
+            "text": "[Things the party can find out, roughly one per scene of real effort. The Screechers always come out of Needlehaven, always behind a thick red fog, and the fog only rises at night and surrounds the whole village. White flowers are the only thing a dead Screecher leaves. Villagers recognise faces among them, including people lost since this started. The weapons lead and the bodies follow. Every runner Wendhope sent was swallowed by the fog, one of them in daylight, which is why Duggy sends no more. Ol' Nan sang about a Lord Spirit of Needlehaven the night before the red fog first came, and she will sing it again for anyone who sits with her.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Truth",
+            "text": "[Secret, revealed only through discovery. Needlehaven has a guardian, the Lord Spirit, and it slept under the Stoneswept roots until Wendhope's mine cut into them. It woke hurt and it does not think the way a person thinks. What it grows now is alabaster heartwood, and each shard of it takes hold of a body the forest has already claimed and walks it back at the cut: that is why the weapon leads, why faces are recognised, why a released body leaves a flower. The red fog is how far the Spirit can reach, and it can only reach that far at night. Destroying the heartwood ends the Screechers and kills Needlehaven with it. Closing the cut and giving back what was taken puts the Spirit back to sleep and releases the dead, and the mine that Wendhope lives on can never reopen.]",
+            "constant": true
+          },
+          {
+            "comment": "Driftmere - The Town",
+            "text": "[Driftmere and its people. Baroness Milina Serenola, a mature orc woman with dark green skin, red eyes, small tusks and a muscular build, rules it for the Nightriver Great House and is genuinely liked, because she spends her time among the commoners and helped build the place with her own hands. She is cunning and runs on wits and reading rather than force. She closed the mines the day a missing miner turned up looking devoured, and she has written to the Nightrivers for aid that has not come. The townsfolk are hardy, worship Filwern the god of mining, and are going quietly mad with nothing to do. The Minotaur's Tusk is the inn, recently expanded on adventurer money.]",
+            "constant": true
+          },
+          {
+            "comment": "CP driftmere - Scene",
+            "text": "[Scene state: Driftmere, a frontier mining town on Nightriver land near the Velniran Mountains. Wooden buildings along a dirt road, a green-shuttered manor on the hill, the Restolan Forest behind. Baroness Milina Serenola has closed the mines, so the miners have nothing to do but gamble, carve stone and get angrier; their savings are going and the Nightriver aid she sent for has not come. The Minotaur's Tusk has expanded to take adventurer money. Offerings to Filwern crumble to dust. At the Tusk a red-haired catfolk swordswoman fresh out of the Mountains of Shadow is asking who the strongest fighter in town is, and the old dwarven miners mutter about the Icesong witch of Eltaronal.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -288,6 +750,59 @@
       "playerMessage": "I look at the tracks by the east fence.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I look at the tracks by the east fence.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Karia",
+            "Mina",
+            "Oswyn",
+            "Panne"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Goblins",
+            "text": "Goblins are short, green creatures with the intelligence of children. Goblins speak undercommon and are vicious, cruel creatures and they often kill for sport. Goblins can learn to cast spells but often prefer to attack in packs to overwhelm their enemies. Goblins are often classified into types similar to adventurer types (wizard, scout, Lord, etc). Some goblin tribes are known to be cultured and pleasant, but goblins like these face intense discrimination due to their more violent kin.\nAppearance: Short green-skinned humanoids about three feet tall, pointed ears, sharp teeth, wiry bodies, crude scavenged leather scraps, rusty knives, spears and shortbows.",
+            "constant": false
+          },
+          {
+            "comment": "Warg",
+            "text": "Wargs are large wolves that are bloodthirsty, vicious creatures. They're often tamed by goblins who keep them as pets.\nAppearance: Oversized wolves, heavy muscular build, shaggy dark fur, massive fanged jaws, sometimes crude goblin-made collars or saddles.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Aegis",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger of the Evergreen tribe with a shortbow; Tobias Eldergreen, the lanky green-haired elf receptionist at the Guild's quest counter, who signs the party's exam posting. At the Guild: Vallie Goredust, the one-eyed minotaur Guildmaster; Domas Syllandri, her elven vice guildmaster; Ellie Sunleaf, the elven Guild Girl. Everyone else joins for their own scene and leaves when the story moves on; each scene names who is present.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Promotion Exam",
+            "text": "[How the Guild promotes a party: an interview with a Guild receptionist, then a real quest of the rank sought, chosen by the Guild and done under the eye of an observer the Guild appoints, usually from a high-ranking party. The observer's verdict is a pass, a pass with honours, or a fail; a party that fails keeps its rank and may sit again next season. A quest above a party's rank is not paid.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Exam Posting",
+            "text": "[Quest, C-rank. Questgiver: Green Meadow Farms, through the Guild. Target: stop whatever is taking the farm's meat wagons on the road to Aegis City; two wagons gone this month, the drivers back on foot. Location: the wagon road between the farm and the city walls. Reward: the Guild's C-rank rate, and promotion if the observers pass the party. Signed by Tobias Eldergreen.]",
+            "constant": true
+          },
+          {
+            "comment": "CP aegis-green-meadow - Scene",
+            "text": "[Scene state: Green Meadow Farms outside the walls, pastures, vegetable fields, Vitbil herds, a big timber farmhouse, staffed by cowgirls and sheepgirls. Present: Karia and Mina, who run it, and the Guild's exam observers Oswyn and Panne. Two meat wagons have vanished on the road to the city this month.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -316,6 +831,45 @@
       "playerMessage": "I keep shooting at the Screechers on the wall.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I keep shooting at the Screechers on the wall.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "CP first-night - Scene",
+            "text": "[Scene state: the first night on Wendhope's wall. A thick red fog rolls out of Needlehaven and closes around the whole village, and the Screechers come through it. The defence is archers on the parapet and nothing else; the conscripts are green and the veterans are all carrying wounds. Arrows that hit are usually lost. By dawn the fog thins and pulls back into the trees.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -344,6 +898,52 @@
       "playerMessage": "I watch Leevon's lance as he circles.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I watch Leevon's lance as he circles.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Natalia",
+            "Shiya",
+            "Ronan",
+            "Merryn"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Household",
+            "text": "[Group members, who speak and act for themselves: Natalia, {{story_player_name}}'s sister, a guarded, unsettling young noblewoman with light brown hair and an ice-magic chill; Shiya, a haughty half-demon maid with silver-blonde twintails, red eyes and black horns, a skilled fire mage; Ronan, a stoic young knight with short brown hair, leather armor and a rapier, sworn to {{story_player_name}}. Joining for their scenes: Welden, {{story_player_name}}'s brother, frail and bookish in round glasses, a novice ice mage whose spells fizzle; Leila Rainshadow, {{story_player_name}}'s personal maid, a small, shy elf with long brown hair; and, when she comes home from the Valtaras, Lady Hana, their stepmother, a short white-haired catfolk noblewoman in a black fur coat. Not of the household: Kane Winstonehl and his sister Tahlia, heirs of the rival Winstonehl house and {{story_player_name}}'s peers at the Academy, neither of them anyone's advisor or servant.]",
+            "constant": true
+          },
+          {
+            "comment": "Nightriver - The Seal",
+            "text": "[House Nightriver's secret: the bloodline carries magical seals that keep the Witch King, the Lich Queen's most devoted servant, imprisoned. Each Nightriver child bears a seal, which also gifts them magic. While the bloodline lives, he sleeps. {{story_player_name}}, Natalia and their brother Welden all carry seals.]",
+            "constant": true
+          },
+          {
+            "comment": "Nightriver - The Conspiracy",
+            "text": "[Secret, revealed only through evidence: Lord Javon has secretly allied with Duchess Eriana Valtara to free the Witch King. Breaking the seals needs Nightriver heirs dead or bled on the seal's anchor stone. Javon arranges ruinous marriages and deadly trials that look like harsh parenting, so his children's deaths would seem like misfortune.]",
+            "constant": true
+          },
+          {
+            "comment": "CP the-duel - Scene",
+            "text": "[Scene state: the Academy dueling ground, packed with students and nobles and cleared for a lawful Trial by Combat. General Leevon is a giant with a dragon-bone lance and lightning magic, fighting for his life and his name because winning the trial clears him of the treason charge. His lance is coated with a slow venom, a violation that voids the trial if anyone can prove it in front of the court. Javon watches without expression; Eriana watches from a veiled box.]",
+            "constant": true
+          },
+          {
+            "comment": "General Leevon",
+            "text": "General Polis Leevon was a famed and highly decorated general of the Darran Kingdom. General Leevon was arrested for treason after it was discovered that he was feeding the Zegallan Army troop movements, leading to hundreds of casualties. General Leevon is a giant of a man who wields a lance said to have been forged from dragon bone and commands lightning magic like an archmage.\nAppearance: giant of a man, heavily built, greying hair, weathered face, Darran general's plate stripped of honours, dragon-bone lance.",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -372,6 +972,58 @@
       "playerMessage": "I look up at the woman watching from the stairs.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I look up at the woman watching from the stairs.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Ellie",
+            "Vallie"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Domas Syllandri - Vice Guildmaster of the Adventurers Guild",
+            "text": "Domas Syllandri is the Vice Guildmaster of the Aegis City Adventurers Guild and former party member of \"Will of Steel\", a retired A-Rank Adventuring Party. Domas is an elven man with blonde hair, red eyes, a tall and well-toned build, and admittedly \"Quite attractive\" according to wistful bards. Domas is the logistical and legislative arm of the Adventurers Guild, keeping things in order and the paperwork filed with ease, though he was known to be quite the powerful spellcaster and a graduate of the Arcane University as well.\nAppearance: adult man, elf, lean build, blond hair with long bangs in a low ponytail, red eyes, white high-collared shirt, green and brown leather vest with toggle clasps, clipboard.",
+            "constant": false
+          },
+          {
+            "comment": "Elves",
+            "text": "Elves are a reclusive race who have only recently begun to integrate into human societies. Elves are tall, lithe, beautiful, and able to live hundreds of years. Elves have darkvision.\nAppearance: Tall, lithe, graceful humanoids, long pointed ears, fine elegant features, smooth fair skin, flowing hair, forest-toned leathers or fine robes, longbows common.",
+            "constant": false
+          },
+          {
+            "comment": "Vallie Goredust - Guildmaster of the Aegis City Adventurers Guild",
+            "text": "Vallie Goredust or \"Deathaxe\" is the Guildmaster of the Aegis City Adventurers Guild and former Party Leader for \"Will of Steel\", a retired A-rank Adventuring Party. Vallie is a Beastfolk woman with minotaur heritage, with shaggy red hair, a missing eye, a blue eye, huge breasts, a very tall muscular build, and ox horns on her head. Vallie is the one who implemented rank requirements for taking quests, which has drastically reduced casualty rates. Vallie is a good-natured woman, if a bit crass and intimidating.\nAppearance: adult woman, muscular, long red hair in ponytail, curved black horns, blue eye, black eyepatch, scars, sharp teeth, brown leather bustier, spiked black pauldron, leather bracers, dark trousers, brown boots.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "CP guild-hall - Scene",
+            "text": "[Scene state: the Adventurer's Guild hall in Aegis City, midday. Tobias works the quest counter with Ellie Sunleaf beside him; Guildmaster Vallie Goredust's office door stands open upstairs, and the Guild tavern is through the arch next door. Belle and Dalan are each looking for a party. The posting that matters is D-rank, Investigate Wendhope: the mining village on Sheridan lands has sent no ore for weeks and neighbouring Raltdorf has heard nothing from it. Go, find out why, fix it if it can be fixed, come back. The Sheridans are funding it, so the pay is above the D-rank standard. Nobody in the hall knows any more than that.]",
+            "constant": true
+          },
+          {
+            "comment": "Chronicle - The Party",
+            "text": "[{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -400,6 +1052,58 @@
       "playerMessage": "I carry the charm-wood into the shrine.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I carry the charm-wood into the shrine.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Manako",
+            "Karrus",
+            "Ryenne"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Dwarf",
+            "text": "Dwarves are stout folk, usually only about 4 feet tall. Dwarves tend to live in mountainous areas and are great crafters. Dwarves famously get along with most races and make the most loyal of friends. Dwarves obsess over their honor and are known to keep grudges for life.\nAppearance: Stout humanoids about four feet tall, broad muscular build, thick braided beards, sturdy boots, heavy plate or chain armor, axes and smithing hammers.",
+            "constant": false
+          },
+          {
+            "comment": "Manako the Shrine Maiden",
+            "text": "Manako Rypanor is a female cow girl shrine maiden in charge of the Rypanor Shrine located in Aegis City's Temple District. Manako has long black hair, blue eyes, cow ears and horns, and a massive bust. Manako worships the flame spirit Furabi. Manako is known in Aegis City for being good with children and people often leave their kids at the shrine for Manako to look after them.\nAppearance: young woman, cow beastfolk, small cow horns, spotted cow ears with ear tag, cow tail, long black hair with blunt bangs, blue eyes, white-and-black cowprint kimono, red sash bow.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - The Party",
+            "text": "[{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Aegis",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger of the Evergreen tribe with a shortbow; Tobias Eldergreen, the lanky green-haired elf receptionist at the Guild's quest counter, who signs the party's exam posting. At the Guild: Vallie Goredust, the one-eyed minotaur Guildmaster; Domas Syllandri, her elven vice guildmaster; Ellie Sunleaf, the elven Guild Girl. Everyone else joins for their own scene and leaves when the story moves on; each scene names who is present.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Promotion Exam",
+            "text": "[How the Guild promotes a party: an interview with a Guild receptionist, then a real quest of the rank sought, chosen by the Guild and done under the eye of an observer the Guild appoints, usually from a high-ranking party. The observer's verdict is a pass, a pass with honours, or a fail; a party that fails keeps its rank and may sit again next season. A quest above a party's rank is not paid.]",
+            "constant": true
+          },
+          {
+            "comment": "CP aegis-the-shrine - Scene",
+            "text": "[Scene state: the Temple District, incense and golden suns, the Grand Temple of Boher above everything. The small Rypanor shrine to Furabi, with Boher's altars beside Furabi's, a fish pond, three children underfoot. Present: Manako the shrine maiden, and Karrus and Ryenne over from the Temple of Boher.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -428,6 +1132,99 @@
       "playerMessage": "I wait for Father to explain himself.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I wait for Father to explain himself.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Natalia",
+            "Shiya",
+            "Ronan",
+            "Javon",
+            "Welden",
+            "Leila"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Nightriver Great House",
+            "text": "Commonfolk view the Nightriver Great House (one of the 8 great noble houses of the Darran Kingdom) as a magically inclined house that produces great mages, especially from the nobles born within it's borders.",
+            "constant": false
+          },
+          {
+            "comment": "The Nightriver Noble Family",
+            "text": "The Nightriver's are one of the 8 Great Houses of the Darran Kingdom and are led by their patriarch: Lord Javon Nightriver. The Nightriver's are known for their cutting edge magical research techniques which allows them to produce some of the finest mages in the Darran Kingdom. The Nightriver's also have several forests and crop fields to produce wood/fruit crops year-round. The Nightriver's have a good relationship with the Delarise house. The Nightriver's motto is \"Defy the Written Ending.\"\nAppearance: noble house, battlemages, deep-blue and silver colours, wolf sigil, mage robes, forests and orchards.",
+            "constant": false
+          },
+          {
+            "comment": "Witch",
+            "text": "A witch is a human woman that signed a deal with a devil to serve in hell after their death in exchange for magical powers. This supernaturally extends the witch's lifespan. Witches are hunted by the Inquisition for heresy. Witches often form covens of multiple witches for safety.\nAppearance: adult woman, human, witch, coven, occult trappings.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - House Nightriver",
+            "text": "[State of House Nightriver in this campaign. Lord Javon rules the house coldly; his heir, Natalia and Welden carry the bloodline's seals without the younger two knowing what they are. The heir has been named the Crown's second against General Leevon, and marriages the children dread are being arranged.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Household",
+            "text": "[Group members, who speak and act for themselves: Natalia, {{story_player_name}}'s sister, a guarded, unsettling young noblewoman with light brown hair and an ice-magic chill; Shiya, a haughty half-demon maid with silver-blonde twintails, red eyes and black horns, a skilled fire mage; Ronan, a stoic young knight with short brown hair, leather armor and a rapier, sworn to {{story_player_name}}. Joining for their scenes: Welden, {{story_player_name}}'s brother, frail and bookish in round glasses, a novice ice mage whose spells fizzle; Leila Rainshadow, {{story_player_name}}'s personal maid, a small, shy elf with long brown hair; and, when she comes home from the Valtaras, Lady Hana, their stepmother, a short white-haired catfolk noblewoman in a black fur coat. Not of the household: Kane Winstonehl and his sister Tahlia, heirs of the rival Winstonehl house and {{story_player_name}}'s peers at the Academy, neither of them anyone's advisor or servant.]",
+            "constant": true
+          },
+          {
+            "comment": "Nightriver - The Seal",
+            "text": "[House Nightriver's secret: the bloodline carries magical seals that keep the Witch King, the Lich Queen's most devoted servant, imprisoned. Each Nightriver child bears a seal, which also gifts them magic. While the bloodline lives, he sleeps. {{story_player_name}}, Natalia and their brother Welden all carry seals.]",
+            "constant": true
+          },
+          {
+            "comment": "CP fathers-summons - Scene",
+            "text": "[Scene state: Lord Javon's study. General Polis Leevon, the decorated general arrested for feeding the Zegallan army troop movements, has demanded Trial by Combat. Javon has offered a Nightriver as the Crown's second and announces that the heir fights in three days, framing it as duty and as proof of the bloodline. Refusing a second's place would shame the house in open court.]",
+            "constant": true
+          },
+          {
+            "comment": "Eriana Valtara",
+            "text": "Lady Eriana Valtara is the Duchess of the Valtara Noble Family, one of the Darran Kingdoms noble families. She is a Beastfolk with Jerboa traits such as rabbit-like ears, golden eyes, and long blonde hair. She's known as one of Aegis City's most accomplished composers and musicians.\nAppearance: adult woman, jerboa-kin beastfolk, large rabbit-like ears, long tufted tail, long straight blonde hair, golden eyes, black lace veil, black corset gown with puffed sleeves, white violin.",
+            "constant": false
+          },
+          {
+            "comment": "Lord Javon Nightriver",
+            "text": "Lord Javon Nightriver is the Patriarch of the Nightriver Great House. Javon is an older man and a respected war hero of the first war against the Zegallan Empire. Javon is renowned for his battlemage fighting style which is said to be emulated by battlemages across the kingdom. Javon has short white hair, a white beard, green eyes, and a tall build with a scar on his cheek. Javon is said to be one of the most powerful mages in the Kingdom and some rumors suggest Javon is the reason the Darran Kingdom didn't lose the last war against the Zegallan Empire.\nAppearance: older human man, tall, short white hair, white beard, green eyes, scar on one cheek, deep-blue Nightriver battlemage robes over light armour.",
+            "constant": false
+          },
+          {
+            "comment": "Natalia Nightriver",
+            "text": "Lady Natalia Nightriver is the daughter of Lord Javon Nightriver. Natalia has Long brown hair, large breasts, a short stature, and green eyes. Natalia is known as a 'weird' and 'unsettling' woman who seems to struggle with her magic. Natalia is supposedly betrothed to the Bertoanal heir: Kippon Bertoanal.\nAppearance: young woman, short human, long light brown hair in high ponytail, small black tiara, green eyes, pale skin, emerald earrings, white gold-trimmed gown, emerald brooch, white fur-collared cape.",
+            "constant": false
+          },
+          {
+            "comment": "The Nightriver's",
+            "text": "The Nightriver's are one of the 8 Great Houses of the Darran Kingdom and are led by their patriarch: Lord Javon Nightriver. The Nightriver's are known for their cutting edge magical research techniques which allows them to produce some of the finest mages in the Darran Kingdom. The Nightriver's also have several forests and crop fields to produce wood/fruit crops year-round. The Nightriver's have a good relationship with the Delarise house. The Nightriver's motto is \"Defy the Written Ending.\"\nAppearance: Dense perilous forest, towering ancient trees, thick undergrowth rich in rare alchemical herbs, monster lairs, deep green gloom, Kazzym's palace of twisted trees.",
+            "constant": false
+          },
+          {
+            "comment": "The Valtara's",
+            "text": "The Valtara's are one of the 8 Great Houses of the Darran Kingdom. The Valtara's are a merchant baron family with their primary contributions being food and artist works. The Valtara's are responsible for most of the Kingdom's food supply. The Valtara's are currently headed up by their matriarch: Eriana Valtara. The Valtara's motto is: \"In Unity, Strength.\"\nAppearance: Dense perilous forest, towering ancient trees, thick undergrowth rich in rare alchemical herbs, monster lairs, deep green gloom, Kazzym's palace of twisted trees.",
+            "constant": false
+          },
+          {
+            "comment": "The Witch King",
+            "text": "The Witch King is a malevolent entity who nearly destroyed Sebela under the command of the Lich Queen before she was defeated. The Witch King's true name was lost to time but he was known as \"He Who Curses.\" Very few people still remember who the Witch King was, but rumors say some noble families have been charged with keeping his seals strong. The Witch King's followers are a cult that swear his return will bring a \"Golden Age\" to the Darran Kingdom.\nAppearance: Dense perilous forest, towering ancient trees, thick undergrowth rich in rare alchemical herbs, monster lairs, deep green gloom, Kazzym's palace of twisted trees.",
+            "constant": false
+          },
+          {
+            "comment": "Welden Nightriver",
+            "text": "Welden Nightriver is the son of Lord Javon Nightriver. Welden has long brown hair, green eyes, and a short, frail stature. Welden is known as a 'weird' and 'unsettling' man who enjoys researching magical theories. Welden is supposedly betrothed to the Bertoanal heiress: Kianala Bertoanal.\nAppearance: young man, human, long straight sandy blond hair loosely tied back, green eyes, round gold-rimmed glasses, teal hooded mantle with gold filigree, black high-collared tunic, leather-bound book.",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -456,6 +1253,57 @@
       "playerMessage": "I ask Sophie what she'd knock off the sword for a delivery.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I ask Sophie what she'd knock off the sword for a delivery.",
+          "speakerRole": "owner of Aegis Delights and Curios: cute, shrewd, sells the party its exam gear",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Sophie",
+            "Calithra"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Dragons",
+            "text": "Dragons are a near-mythical race in Adolion not seen since the Lich Queen Wars. Many believe dragons to be extinct, though every now and then rumors of a Dragon egg appearing cause a stir. Lizardfolk are often confused as part-dragon with some enjoying the comparison.\nAppearance: dragon, scaled, winged, huge, near-mythical creature, lizardfolk are often mistaken for part-dragon.",
+            "constant": false
+          },
+          {
+            "comment": "Sophie the Merchant",
+            "text": "Sophie Tallaboros is a Beastfolk lizardfolk who runs the *Aegis Delights and Curios* shop in Aegis City's Market District. Sophie's a shrewd businesswoman who has connections among many of the Aegis City merchant guilds. Sophie has Light blue hair, red eyes, horns, large breasts, average height, and a blue lizard tail. Sophie is {{user}}'s adopted daughter and Calithra's sister.\nTrue form (hidden): young woman, ice dragon in human form, long light blue twintails, dark blue horns, red eyes, pale skin, scaly blue tail, navy cheongsam-style dress, black lace-top thigh-highs.\nAppearance: young woman, lizardkin beastfolk, long light blue twintails, dark blue horns, red eyes, pale skin, scaly blue tail, navy cheongsam-style dress, black lace-top thigh-highs.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - The Party",
+            "text": "[{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Aegis",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger of the Evergreen tribe with a shortbow; Tobias Eldergreen, the lanky green-haired elf receptionist at the Guild's quest counter, who signs the party's exam posting. At the Guild: Vallie Goredust, the one-eyed minotaur Guildmaster; Domas Syllandri, her elven vice guildmaster; Ellie Sunleaf, the elven Guild Girl. Everyone else joins for their own scene and leaves when the story moves on; each scene names who is present.]",
+            "constant": true
+          },
+          {
+            "comment": "Aegis - The Promotion Exam",
+            "text": "[How the Guild promotes a party: an interview with a Guild receptionist, then a real quest of the rank sought, chosen by the Guild and done under the eye of an observer the Guild appoints, usually from a high-ranking party. The observer's verdict is a pass, a pass with honours, or a fail; a party that fails keeps its rank and may sit again next season. A quest above a party's rank is not paid.]",
+            "constant": true
+          },
+          {
+            "comment": "CP aegis-the-curio-shop - Scene",
+            "text": "[Scene state: Aegis Delights and Curios in the Market District, a timber-framed two-storey shop, cluttered shelves of potions, weapons, armour and gear, a pillowed mezzanine overlooking the floor. Present: Sophie behind the counter, Calithra on the mezzanine. Three undelivered parcels sit on the counter: slates for the Prodyr chapel, bedding for the orphanage, charm-wood for the Rypanor shrine.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -482,6 +1330,58 @@
       "playerMessage": "I ask Tobias what the Wendhope posting pays.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I ask Tobias what the Wendhope posting pays.",
+          "speakerRole": "guild receptionist at the Aegis City quest counter: hands out postings and pays rewards",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Ellie",
+            "Vallie"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "The Sheridans (Commoner)",
+            "text": "The Sheridan's are one of the eight Great Houses of the Darran Kingdom and they own swathes of frontier lands. The Sheridan's collect fairly heavy taxes, but many settlers choose to move to Sheridan lands due to the possibility of striking it rich.",
+            "constant": false
+          },
+          {
+            "comment": "Tobias Eldergreen - Guild Receptionist",
+            "text": "Tobias is an elven man with short green hair, blue eyes, and a tall, toned build. Tobias works for the Adventurers Guild as a Guild Receptionist, where he is viewed as a \"Jewel of the Guild\" much to his displeasure. Tobias' work at the Adventurers Guild is considered above reproach. Tobias' penchant for trying to set up adventurer couples is well-known.\nAppearance: adult man, elf, tall and lanky, short messy light green hair with bangs, ocean blue eyes, long pointed ears, black guild vest, white collared shirt with rolled sleeves, black slacks.",
+            "constant": false
+          },
+          {
+            "comment": "Wendhope",
+            "text": "Wendhope is a frontier mining village located in the Sheridan lands of the Darran Kingdom that was settled by veteran frontiersmen, though rumors have floated that they haven't responded to any letters that had been sent their way.\nAppearance: small walled frontier mining village, fifty stone-and-timber buildings, wooden gates on two sides, parapets, pit-heads and ore carts, forest beyond.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "CP guild-hall - Scene",
+            "text": "[Scene state: the Adventurer's Guild hall in Aegis City, midday. Tobias works the quest counter with Ellie Sunleaf beside him; Guildmaster Vallie Goredust's office door stands open upstairs, and the Guild tavern is through the arch next door. Belle and Dalan are each looking for a party. The posting that matters is D-rank, Investigate Wendhope: the mining village on Sheridan lands has sent no ore for weeks and neighbouring Raltdorf has heard nothing from it. Go, find out why, fix it if it can be fixed, come back. The Sheridans are funding it, so the pay is above the D-rank standard. Nobody in the hall knows any more than that.]",
+            "constant": true
+          },
+          {
+            "comment": "Chronicle - Wendhope",
+            "text": "{{// so:auto}}[State of Wendhope in this campaign. The village is cut off and under nightly attack, roughly fifty people behind a stone wall, running out of arrows and food. Nobody outside knows, because every runner it sent was lost. Its mine is still workable.]",
+            "constant": false
+          }
+        ]
       }
     },
     {
@@ -510,6 +1410,50 @@
       "playerMessage": "I shoot at the Screecher climbing toward Dalan.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I shoot at the Screecher climbing toward Dalan.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Dalan Evergreen",
+            "text": "Dalan Evergreen is a short, feminine, male elf adventurer. Dalan is registered at the Aegis City Adventurers Guild as a \"Ranger.\"  Dalan is amazing with a bow, hates being called cute, and has his own 'fan club' which has apparently sworn to protect him. Dalan is friends with Ellie and Jasira. Dalan is a member of the Evergreen Tribe of Elves which are located in Duskwallow Forest.\nAppearance: young adult man, short slender elf, messy blonde hair with side braid, pointed ears, green hooded capelet and tunic, white undershirt, brown leather belts, brown gloves, wooden longbow.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "CP first-night - Scene",
+            "text": "[Scene state: the first night on Wendhope's wall. A thick red fog rolls out of Needlehaven and closes around the whole village, and the Screechers come through it. The defence is archers on the parapet and nothing else; the conscripts are green and the veterans are all carrying wounds. Arrows that hit are usually lost. By dawn the fog thins and pulls back into the trees.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -539,6 +1483,50 @@
       "playerMessage": "I sit with Qinne while she rolls bandages and ask about the wounded.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I sit with Qinne while she rolls bandages and ask about the wounded.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Clues",
+            "text": "[Things the party can find out, roughly one per scene of real effort. The Screechers always come out of Needlehaven, always behind a thick red fog, and the fog only rises at night and surrounds the whole village. White flowers are the only thing a dead Screecher leaves. Villagers recognise faces among them, including people lost since this started. The weapons lead and the bodies follow. Every runner Wendhope sent was swallowed by the fog, one of them in daylight, which is why Duggy sends no more. Ol' Nan sang about a Lord Spirit of Needlehaven the night before the red fog first came, and she will sing it again for anyone who sits with her.]",
+            "constant": true
+          },
+          {
+            "comment": "CP what-wendhope-knows - Scene",
+            "text": "[Scene state: Wendhope by daylight, the day after. Roughly fifty people, mostly miners and builders, stone houses inside a stone wall, one stubborn vegetable garden. Food and arrows are both running out and everyone knows it. This is when the village can be asked questions and the ground where Screechers fell can be walked.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -568,6 +1556,76 @@
       "playerMessage": "I kneel and set my last ration of bread on the seal as an offering to Filwern.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I kneel and set my last ration of bread on the seal as an offering to Filwern.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Riyo"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Filwern - Minor God of Mining",
+            "text": "Filwern is a Dwarven God of Mining, often depicted as a rugged dwarf wielding pickaxe and hammer. Filwern is worshipped by miners who believe Filwern's divine protection protects them from cave-ins and blesses those who work hard.\nAppearance: depicted as a rugged dwarf, broad braided beard, miner's leathers, pickaxe in one hand and hammer in the other.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Defenders",
+            "text": "[Wendhope's people, about fifty and dwindling. Mayor Douglas 'Duggy' Werschtan, a dwarf with short red hair, a long red beard and a permanent chip on his shoulder, an experienced miner who was sent here to settle a frontier and will not be seen to fail at it. Guard Captain Halena Vivinallo, an orc woman with short black hair, red eyes and small tusks, taller than anyone here, stoic and entirely serious about the job. Qinne Daranpa, a halfling woman with blonde hair and blue eyes, the village's only alchemist, hedge mage and healer, with no formal training and an anxiety complex earned honestly. Grod, a scarred human archer on the gate. Ol' Nan, who everyone calls crazy.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Screechers",
+            "text": "[What the village can tell you about the Screechers, all of it observed. They are tall human men and women with blinding alabaster skin, wearing pieces of forest welded into that skin, sometimes extending a limb to make them taller. They screech as they charge the walls. They feel no pain and keep fighting without limbs, and one guard swears without a head. Their axes, halberds, blades and spears are the same alabaster, and they move as though the weapon is pulling the body rather than the other way around. They jump onto the walls and crack stone. They have never once used a ranged weapon. Killed, they bubble and fade as if the forest is taking the body back, and leave fresh white flowers where they fell. Some villagers swear they recognise faces.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - Clues",
+            "text": "[Things the party can find out, roughly one per scene of real effort. The Screechers always come out of Needlehaven, always behind a thick red fog, and the fog only rises at night and surrounds the whole village. White flowers are the only thing a dead Screecher leaves. Villagers recognise faces among them, including people lost since this started. The weapons lead and the bodies follow. Every runner Wendhope sent was swallowed by the fog, one of them in daylight, which is why Duggy sends no more. Ol' Nan sang about a Lord Spirit of Needlehaven the night before the red fog first came, and she will sing it again for anyone who sits with her.]",
+            "constant": true
+          },
+          {
+            "comment": "Wendhope - The Truth",
+            "text": "[Secret, revealed only through discovery. Needlehaven has a guardian, the Lord Spirit, and it slept under the Stoneswept roots until Wendhope's mine cut into them. It woke hurt and it does not think the way a person thinks. What it grows now is alabaster heartwood, and each shard of it takes hold of a body the forest has already claimed and walks it back at the cut: that is why the weapon leads, why faces are recognised, why a released body leaves a flower. The red fog is how far the Spirit can reach, and it can only reach that far at night. Destroying the heartwood ends the Screechers and kills Needlehaven with it. Closing the cut and giving back what was taken puts the Spirit back to sleep and releases the dead, and the mine that Wendhope lives on can never reopen.]",
+            "constant": true
+          },
+          {
+            "comment": "Driftmere - The Town",
+            "text": "[Driftmere and its people. Baroness Milina Serenola, a mature orc woman with dark green skin, red eyes, small tusks and a muscular build, rules it for the Nightriver Great House and is genuinely liked, because she spends her time among the commoners and helped build the place with her own hands. She is cunning and runs on wits and reading rather than force. She closed the mines the day a missing miner turned up looking devoured, and she has written to the Nightrivers for aid that has not come. The townsfolk are hardy, worship Filwern the god of mining, and are going quietly mad with nothing to do. The Minotaur's Tusk is the inn, recently expanded on adventurer money.]",
+            "constant": true
+          },
+          {
+            "comment": "Driftmere Mines - The Dungeon",
+            "text": "[The mines as they are now. The entrance is cut into a rock face and descends on wooden lifts and pulleys. Every map made before this is worthless: the layout changes, and a tunnel that was one man wide can now be a hall the size of a palace. Each floor has a Floor Boss that has reshaped it into its own domain and holds every advantage there - some are commanders, some puzzle-makers, some simply hunters, and all of them are powerful. Lesser monsters serve under them, from goblins to shadows to undead, and the intelligent floors are full of traps. The bosses talk about the ascension, and about the power they have been promised for holding the line until it happens.]",
+            "constant": true
+          },
+          {
+            "comment": "Driftmere - The Truth",
+            "text": "[Secret, revealed only through discovery. The Devourer eats gods, and the seals at the bottom of the mine are Filwern's own, set when he put it down the first time and held ever since. Driftmere's digging cracked them. Filwern has gone silent because everything he has left is going into the seal, which is why offerings crumble and why the mine itself began to change - the Devourer has been reshaping what it can reach and paying floor bosses to guard the approach. The ascension is the moment it finishes eating him and takes his domain. Killing it frees what remains of Filwern, weakened, and Driftmere can dig again. Restoring the seal instead costs the mine permanently, because the wards have to run through the workings, and it is the only option that leaves the god whole.]",
+            "constant": true
+          },
+          {
+            "comment": "CP the-sealed-wall - Scene",
+            "text": "[Scene state: the bottom of the Driftmere Mines, in front of the seals. Divine wards worked in old dwarven script, cracked where the mining broke into them, and the crack is where everything came through. Whatever is behind them has been waiting a long time and is no longer waiting patiently.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -597,6 +1655,58 @@
       "playerMessage": "I look at the book Ren found in her house.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I look at the book Ren found in her house.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Erevan",
+            "Ren",
+            "Selena"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Erevan the Inquisitor",
+            "text": "Erevan is an Inquisitor working for the Holy Church. Erevan has short black hair and blue eyes. Erevan is constantly wearing a metal facemask that obscures his face.\nAppearance: adult man, short black hair, blue eyes, black face mask, long black coat with blue-lined collar, black shirt with silver filigree, dark vambraces, fingerless gloves, dark trousers, longbow, quiver.",
+            "constant": false
+          },
+          {
+            "comment": "Ren Calwisk",
+            "text": "Ren Calwisk is the bearer of the Umbral Lamp and a Witch Hunter of the Inquisition. Male, Short blue hair, blue eyes, plate armor, surgical facemask, lantern with blue light.\nAppearance: adult man, human, short messy blue hair, blue eyes, metal surgical facemask, steel plate armor over blue collared shirt, black gloves, longsword, iron lantern glowing pale blue.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Night Courts",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver, blunt and loud; Dalan Evergreen, a short slender blond elf ranger of the Evergreen Tribe with a longbow, shy and observant; Kayla Thornwood, a tall pale woman with long straight black hair, sky-blue eyes, red lipstick, raven hair ornaments and a black dress, a potion-seller from a lake cabin in Thornwood Forest, vain and foul-mouthed, who joins in Thornwood; Erevan Rolavo, a tall young Inquisitor of Boher with short black hair, ice-blue eyes and a metal mask over his mouth, in a black blue-lined coat, with a shortbow and a gourd of captured Echoes, who joins in Glasnoa. Cameos join for their scenes: in Aegis City the psychic elves Fael and Nyl and the painter Kuromu; in Glasnoa the Witch Hunter Ren Calwisk and the accused Selena; Kayla's sisters Nalea and Vivie; the blade Felthorn, whom the narrator voices inside his wielder's head once he is carried out of the glade; Zariah of Kelger Falls; and the courts of the night: Camilla and Cassius Dracul, Lobo of the Nightwolves, Alice and Gabriel Malvoraux, and Morrigan the dullahan.]",
+            "constant": true
+          },
+          {
+            "comment": "Night - Dracul's Heresy",
+            "text": "[What the party can learn about the book. Dracul's Heresy is Dracula's own book of heretical rites for dealing with demons for power; copies are extremely rare, and the Inquisition burns any it finds. This winter new copies are turning up, freshly bound, sold by a pedlar called Harl Mott who wears a high collar over a scarred neck. Kuromu's copy is marked up at a rite for binding a soul into a made thing. The copies are not the work of any witch.]",
+            "constant": true
+          },
+          {
+            "comment": "Glasnoa - Selena's Room",
+            "text": "[What happened, for whoever makes Ren look with his lamp or gets Selena to talk. Two Inquisitors came for Selena on the Reeve's word, shut themselves in her room with her and tried to force themselves on her; her wild magic went off in a fireball and killed them both. Reeve Tull had bought a copy of Dracul's Heresy from the pedlar Mott the week before and pushed it under her floorboard to be rid of the half-demon girl the village called a seductress. Selena has never read it.]",
+            "constant": true
+          },
+          {
+            "comment": "CP night-the-accused - Scene",
+            "text": "[Scene state: Glasnoa, a farming village of thatch and timber, on a market day nobody is keeping. Men raise a stake in the square. Selena Forestsong sits chained in the tithe barn; two Inquisitors lie burned under sacking in the chapel. Ren Calwisk, Witch Hunter, holds a copy of the Heresy he says was in her house and means to burn her at dawn. Erevan, masked, watches.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -625,6 +1735,66 @@
       "playerMessage": "I look the city over from the dock.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I look the city over from the dock.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Honami"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Hianxo - Capital of the Third Kingdom",
+            "text": "Hianxo is the Capital of the Third Kingdom\nAppearance: Massive capital city, feudal Japanese-style pagodas and tiled-roof teahouses, timber and stone, pink cherry blossoms and red lacquer, warm lantern glow, Jiansho Academy.",
+            "constant": false
+          },
+          {
+            "comment": "Third Kingdom",
+            "text": "The Third Kingdom is a dynasty ruled by Emperor Zhao who maintains a strict rule over the Third Kingdom located on the eastern continent of Savalon (citizens are called Savalonians). The Third Kingdom maintains peaceful relations with the Darran Kingdom through a military alliance. The Third Kingdom's capital is Hianxo. Savalonian citizens practice a strict \"Warrior Culture\" based on personal honor. Savalonians tend to worship a variety of minor deities. Third Kingdom tea is said to be the best in the world.\nAppearance: eastern realm of Savalon, terraced green hills and tea fields, curved tiled roofs, red lacquer gates, the walled capital of Hianxo.",
+            "constant": false
+          },
+          {
+            "comment": "Warchief Wurgoth",
+            "text": "Warchief Wurgoth Oxtusk is the leader of the Zegallan Empire. Wurgoth is a brute of an Orc with a sadistic streak to match.\nAppearance: massive orc man, grey-green skin, heavy lower tusks, shaved scarred scalp, red eyes, spiked black iron plate, fur mantle, great axe.",
+            "constant": false
+          },
+          {
+            "comment": "Zegallan Empire",
+            "text": "The Zegallan Empire is a warlike empire founded after it's citizens defeated their lizardfolk overlords almost a century ago. The Zegallan's leader is Warchief Wurgoth. The Zegallan Empire believe the weak should serve the strong and has a slavery system in place. Zegallan's capitol is Nuwerth City. The Zegallan Empires primary deity is Prodyr, God of Fire and War.\nAppearance: warlike empire of red rock and ash plains, fortified black-stone holds, banners of flame, forge smoke, the walled capital of Nuwerth.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - The Zegallan War",
+            "text": "[State of the war in this campaign. The Zegallan Empire's surprise attacks have taken footholds in the Darran Kingdom; the Cursefire Regiment holds the western front and the Kelnan survivors are being sold in Nuwerth. The Crown has not yet called a muster.]",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Eastern Road",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver, blunt and loud; Dalan Evergreen, a short slender blond elf ranger with a shortbow, shy and observant; Honami Nemaden, a three-tailed kitsune onmyoji of Jiansho Academy called the Charming Beast, long white hair over her right eye, red eyes, a red, black and white qipao, the party's guide in the Third Kingdom and fixed on {{story_player_name}}; Hanzo Hattaxi, a tall scarred ninja of the Hattaxi Clan in black and red ninja-yoroi with katana and wakizashi, cocky and proud, who ends up escorting the party inland. Cameos join for their scenes: in Hianxo Megumi Xianxu, Tanya Hattaxi and Rikako Kagamihi; on the road the oni Hanabi and Shinen; in Tiunhime the villagers and its three gods, Ebisu, Watara and Yurine.]",
+            "constant": true
+          },
+          {
+            "comment": "CP east-landfall - Scene",
+            "text": "[Scene state: the harbour of Hianxo, capital of the Third Kingdom, late morning. Tall-masted ships from across the Jehopa Ocean, fish markets, teahouses, red lacquer gates climbing toward Jiansho Academy's pagoda roofs, cherry blossom falling. The party has just landed with the Academy's invitation to the Jiansho Tournament. Honami Nemaden is waiting to guide them.]",
+            "constant": true
+          },
+          {
+            "comment": "Traditions and Culture in Savalon",
+            "text": "The citizenry of the Third Kingdom (Savalonians) all serve the Emperor (Emperor Zhao). Many citizens of the Third Kingdom enjoy the native drink of Sake (alcohol produced from fermented rice) and tea culture is prominent in the Third Kingdom, with some of the best tea masters in the world living in Hianxo. The Third Kingdom fosters a \"Warrior Culture\" in it's people where citizens are encouraged to follow an Honor Code that emphasizes personal honor. Wearing masks that represent animal spirits or even yokai is popular in the Third Kingdom as a form of self-expression. Spirituality and reverence to the many spirits (often taking the form of animals) that wander Savalon is an important facet of life in the Third Kingdom. Clothes in the third kingdom are often Haori, Yukata, and Kimono which are layered robes for various occasions originally developed in the Third Kingdom. Many individual villages set up shrines to local Gods and practice unique customs and traditions in their daily lives. Copper, Silver, and Gold coins are used as currency in Savalon. Savalonian homes tend to be made of stone in the city or Wood/Tatami in rural villages. Respect for elders is a big part of Savalonian society.\nAppearance: Vast continent, forested hills and mountain ranges, pagoda shrines and timber villages, pink cherry blossom groves, soft misty light, Guao peaks piercing clouds.",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -653,6 +1823,86 @@
       "playerMessage": "I flatten myself against the tunnel wall while the swarm goes past.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I flatten myself against the tunnel wall while the swarm goes past.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Ced",
+            "Kela",
+            "Runo",
+            "Safie",
+            "Unira",
+            "Amthir",
+            "Nendira",
+            "Anax",
+            "Sana",
+            "Shadur",
+            "Shelur"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing",
+            "text": "Kelawynn \"Kela\" Vinamoon is a human woman with long black hair, red eyes, small breasts, and a tall stature. Kela is the party leader for the adventuring party \"Ebonwing.\" Kela is a reliable adventurer and her reputation with the guild is of stellar standing, showing 'good moral judgement' per reports. Kela is officially listed as a \"Hunter\" and \"Monster Expert\" by the Adventurers Guild.\nAppearance: adult woman, human, tall, long black hair, red eyes, pale skin, black tricorn hunter hat, tattered black cape, high-collared black leather bodice, belts.",
+            "constant": false
+          },
+          {
+            "comment": "Terrorborn",
+            "text": "Terrorborn (or Terrorling) are creatures born from somewhere deep in the Darklands. Massive insectoid creatures with hardened exoskeletons. Known to drag people into hives to harvest them. Seek demon flesh for some unknown reason.\nAppearance: Massive insectoids from the deep Darklands, hardened chitinous exoskeletons, mandibles, many legs, wagon-sized hive drones or tiny choking swarms.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Crimsonwing & Ebonwing",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver, headstrong and loyal; Dalan Evergreen, a slight blond elf ranger with a shortbow, shy and sharp-eyed. The Guild's two famous high-rank parties, mirror images that hate being compared: Crimsonwing, led by Cedoric 'Ced' Vinasun, a tall human hunter with long black hair and red eyes in a tricorn and black coat, alchemically altered, fast, polite and ruthless, with a saw cleaver, with Runo Firevill, a short owlkin magitech wizard who makes golems and hates mornings; Ebonwing, led by Kelawynn 'Kela' Vinamoon, a tall human huntress with long black hair and red eyes in a tricorn and black leather, altered the same way, fast, polite and ruthless, with a saw cleaver, with Safie Windvill, a short owlkin magitech wizard who makes golems and hates mornings. Their healers, Oswyn and Panne, are laid up in Aegis City. Vallie Goredust, Guildmaster, a one-eyed minotaur woman with red hair and horns, runs the counter today.]",
+            "constant": true
+          },
+          {
+            "comment": "Deep - The Tear Over the Altar",
+            "text": "[What happened at Carrow Keep. Lord Aldric Carrow bought branded captives from the Beastmen of Nahalbuk under his keep and bled them on his altar to tear a hole in the planes and call a demon to make him immortal. It came, and ate him. His armoured guards were changed by it: inky tentacles through the joints of their plate, no longer men. The tear above the altar still weeps violet light and demon-reek, and it has been smelled from very far below.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - Unira Windsor",
+            "text": "[Unira Windsor, a short, strong young human woman with long silver hair and dark red eyes, a Fighter of the Aegis City Guild listed as dead. A middle child of the Windsor family, who serve House Nightriver; she ran away to adventure with sword and shield. Reserved, slow to trust, kind, quick to cuss, sure she is never good enough. Terrified of Beastmen since her captivity; a blade scar on her left arm.]",
+            "constant": true
+          },
+          {
+            "comment": "Deep - Nahalbuk and the Brand",
+            "text": "[Dungeon Nahalbuk is a new dungeon under Carrow Keep, home to a Beastmen tribe whose shaman sold captives up the stair. Before a sacrifice, captives receive the Tahanna Brand, a trident with a coiled snake, set on the soul: the branded must stay near the brand's owner and obey their commands, resisting only at great pain, and cannot speak of the brand or harm the owner. It glows purple while a command is working. Removing it usually kills. If the owner is killed, the brand passes to the killer.]",
+            "constant": true
+          },
+          {
+            "comment": "Deep - Unira's Truth",
+            "text": "[What Unira told. Her party, the Wind Ballad (Kallan, a human fighter she had feelings for; Fulanie, a half-elf ice mage; Mallow, a halfling cleric of Boher), took a D-rank scouting job into Nahalbuk when it was new and were overrun by Beastmen. Mallow said to leave her behind, Kallan shoved her into the horde and Fulanie froze her boots to the floor. They reported to the Guild that she volunteered to hold the line and died. She was captured and branded instead.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Draxford Muster",
+            "text": "[At the Draxford mine camp: Amthir and Nendira Draxford, the drow heir and heiress of House Draxford, tall, dark grey skin, black hair over one eye, red eyes, one shoulder bare in the Draxford style, earth mages and longbow archers, blunt, done with court manners. Hired adventurers answering the muster: Anax and Sana, silver-haired elven sorcerers in wide black hats, once middle-rank, now called the Mana-less Mage and the Spell-less Mage; Shadur and Shelur, tall green-skinned orc druids of the Helioth Circle in feathered cloaks, cheerful, who wear no metal.]",
+            "constant": true
+          },
+          {
+            "comment": "Deep - The Terrorborn",
+            "text": "[What the Draxfords know. Terrorborn are massive insectoids out of the deep Darklands with hard chitin: drones the size of wagons and swarms small enough to choke on. They do not crawl out of caves, they burst up out of the rock. They drag people alive into their hives. They seek demon flesh, and nobody knows why. Draxford lands are the only lands in the Kingdom hit by them every year; this breach runs from the lower workings toward Carrow Keep.]",
+            "constant": true
+          },
+          {
+            "comment": "CP deep-the-swarm - Scene",
+            "text": "[Scene state: the lower Draxford workings, the gallery behind the party collapsed, a Terrorborn swarm pouring out of the fall. The only open way is down to the breach.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -681,6 +1931,80 @@
       "playerMessage": "I stay behind the shield wall when the cannons start.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I stay behind the shield wall when the cannons start.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Belle",
+            "Dalan",
+            "Natalia",
+            "Ronan",
+            "Welden",
+            "Forre",
+            "Ced",
+            "Kela",
+            "Honami",
+            "Erevan",
+            "Lobo",
+            "Kanna"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Slave Crest",
+            "text": "A Slave Crest is a magical mark on a slaves body that binds them to their 'Master.' Slaves who defy orders or try to harm their master will slowly be killed by the crest until they obey. Some Masters prefer to use collars instead of a mark.",
+            "constant": false
+          },
+          {
+            "comment": "Slavery in the Zegallan Empire",
+            "text": "The Zegallan Empire has four types of slaves: Indentured Slaves who became slaves to pay off debts, Special Slaves who sell themselves into slavery, Wartime Slaves, and Criminal Slaves. Slavery in Zegallan is seen as a noble undertaking where even the lowest dregs of society can redeem themselves. Everywhere else, it's considered an evil practice.",
+            "constant": false
+          },
+          {
+            "comment": "Zegallan Empire",
+            "text": "The Zegallan Empire is a warlike empire founded after it's citizens defeated their lizardfolk overlords almost a century ago. The Zegallan's leader is Warchief Wurgoth. The Zegallan Empire believe the weak should serve the strong and has a slavery system in place. Zegallan's capitol is Nuwerth City. The Zegallan Empires primary deity is Prodyr, God of Fire and War.\nAppearance: warlike empire of red rock and ash plains, fortified black-stone holds, banners of flame, forge smoke, the walled capital of Nuwerth.",
+            "constant": false
+          },
+          {
+            "comment": "Chronicle - The Zegallan War",
+            "text": "[State of the war in this campaign. The Zegallan Empire's surprise attacks have taken footholds in the Darran Kingdom; the Cursefire Regiment holds the western front and the Kelnan survivors are being sold in Nuwerth. The Crown has not yet called a muster.]",
+            "constant": false
+          },
+          {
+            "comment": "War with the Zegallan Empire",
+            "text": "The War between the Zegallan Empire and the Darran Kingdom is not going well. The Zegallan Empire's might is formidable and the Darran Kingdom is constantly losing ground which is not helped by constant infighting of the noble houses.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - Fire and War",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and a greataxe called Cleaver, headstrong and loyal; Dalan Evergreen, a slight blond elf ranger of the Evergreen Tribe with a shortbow, shy and sharp-eyed. The Darran court, who speak for themselves when present: King Alexander Davolan, the Warrior King, 47, short silver hair and beard, a gold crown with a red gem, formal, cunning and vindictive; Crown Prince Forre, 23, silver hair and green eyes, blademaster and tactician in blue and silver, who commands the field army; Crown Princess Haley, 21, long silver hair and green eyes, a peerless fencer devoted to her mother; Queen Melisande, 42, silver hair in a bun held by a Third Kingdom pin, one yellow eye and one purple, born a Zhao, an exorcist; Vallie Goredust, Guildmaster, a one-eyed minotaur woman with red hair and horns, veteran of the last Zegallan war.]",
+            "constant": true
+          },
+          {
+            "comment": "War - The Darran Front",
+            "text": "[The war as the Darran Kingdom knows it. The Zegallan Empire, fire-worshipping and ruled by Warchief Wurgoth from Nuwerth in western Sebela, resumed the war with surprise attacks that took the border fortress-town of Greywater and the villages of the Ashen March. The Cursefire Regiment holds Greywater under Kanna Helfin, the Blood Saint. Fort Vicinitas, which held in the last war, is the Darran strongpoint on the ridge opposite. Behind the Darran line a winged herald of Prodyr burns villages. Zegallan raiders carry captives west as slaves. The dead of both sides have been vanishing from the burial pits at the front; the court blames the Queen's Cult, and the whispers name Queen Melisande.]",
+            "constant": true
+          },
+          {
+            "comment": "Cast - The Cursefire Regiment",
+            "text": "[The Zegallan enemy at the front. Kanna Helfin, the Blood Saint, who speaks for herself: a tall demonborn woman of 25 with short wavy blood-red hair and dark red eyes, in blackened plate she summons in a swirl of blood, with the greataxe Blood Oath; a vulgar, battle-hungry blood mage who worships Prodyr, executes cowards, and keeps her word. Her Cursefire Regiment fights with cannon and firearms behind a drugged, frenzied slave corps, and its Demon Squad are flesh-shaped monsters twice a man's height.]",
+            "constant": true
+          },
+          {
+            "comment": "CP war-the-front - Scene",
+            "text": "[Scene state: Fort Vicinitas on its ridge above the Ashen March, the burned country in front of it and Greywater's walls across the valley under the Cursefire banner. Cannon at dawn, raids at night; the Darran shield walls hold the ridge.]",
+            "constant": true
+          }
+        ]
       }
     },
     {
@@ -709,7 +2033,50 @@
       "playerMessage": "I watch the woman coming down the stairs.",
       "judgeOff": {
         "flagged": []
+      },
+      "context": {
+        "scene": {
+          "player": "the heir",
+          "playerMessage": "I watch the woman coming down the stairs.",
+          "speakerRole": "narrator and game master: voices the world and every character outside the group",
+          "groupMembers": [
+            "Adolion Narrator",
+            "Tobias",
+            "Belle",
+            "Dalan",
+            "Ellie",
+            "Vallie"
+          ]
+        },
+        "worldBook": [
+          {
+            "comment": "World - Primer",
+            "text": "[World: Adolion. Centuries ago the undead Lich Queen conquered the continent of Sebela; only Aegis City, capital of the human Darran Kingdom, held out behind its holy shield until a band of adventurers slew her. Her freed undead still roam, necromancer sects plot her return, and her servant the Witch King lies sealed, not destroyed. Peoples are recovering and settling beyond the walls, but the wilds teem with monsters and rival powers, so the Adventuring Doctrine founded the Adventurer's Guild, which ranks adventurers and posts quests for coin. The fire-worshipping Zegallan Empire wars with both the Darran Kingdom and the Third Kingdom of Savalon. Flintlocks, gunpowder and magic-lifted airships exist alongside swords and spells.]",
+            "constant": true
+          },
+          {
+            "comment": "Domas Syllandri - Vice Guildmaster of the Adventurers Guild",
+            "text": "Domas Syllandri is the Vice Guildmaster of the Aegis City Adventurers Guild and former party member of \"Will of Steel\", a retired A-Rank Adventuring Party. Domas is an elven man with blonde hair, red eyes, a tall and well-toned build, and admittedly \"Quite attractive\" according to wistful bards. Domas is the logistical and legislative arm of the Adventurers Guild, keeping things in order and the paperwork filed with ease, though he was known to be quite the powerful spellcaster and a graduate of the Arcane University as well.\nAppearance: adult man, elf, lean build, blond hair with long bangs in a low ponytail, red eyes, white high-collared shirt, green and brown leather vest with toggle clasps, clipboard.",
+            "constant": false
+          },
+          {
+            "comment": "Vallie Goredust - Guildmaster of the Aegis City Adventurers Guild",
+            "text": "Vallie Goredust or \"Deathaxe\" is the Guildmaster of the Aegis City Adventurers Guild and former Party Leader for \"Will of Steel\", a retired A-rank Adventuring Party. Vallie is a Beastfolk woman with minotaur heritage, with shaggy red hair, a missing eye, a blue eye, huge breasts, a very tall muscular build, and ox horns on her head. Vallie is the one who implemented rank requirements for taking quests, which has drastically reduced casualty rates. Vallie is a good-natured woman, if a bit crass and intimidating.\nAppearance: adult woman, muscular, long red hair in ponytail, curved black horns, blue eye, black eyepatch, scars, sharp teeth, brown leather bustier, spiked black pauldron, leather bracers, dark trousers, brown boots.",
+            "constant": false
+          },
+          {
+            "comment": "Cast - The Party",
+            "text": "[Group members, who speak and act for themselves: Belle, a tall muscular human barbarian with long black hair and brown leather armour, who carries a greataxe called Cleaver; Dalan Evergreen, a short slender blond elf ranger in a green hooded tunic with a shortbow; Tobias Eldergreen, a tall lanky elf guild receptionist with short green hair, at the quest counter in Aegis City.]",
+            "constant": true
+          },
+          {
+            "comment": "CP guild-hall - Scene",
+            "text": "[Scene state: the Adventurer's Guild hall in Aegis City, midday. Tobias works the quest counter with Ellie Sunleaf beside him; Guildmaster Vallie Goredust's office door stands open upstairs, and the Guild tavern is through the arch next door. Belle and Dalan are each looking for a party. The posting that matters is D-rank, Investigate Wendhope: the mining village on Sheridan lands has sent no ore for weeks and neighbouring Raltdorf has heard nothing from it. Go, find out why, fix it if it can be fixed, come back. The Sheridans are funding it, so the pay is above the D-rank standard. Nobody in the hall knows any more than that.]",
+            "constant": true
+          }
+        ]
       }
     }
-  ]
+  ],
+  "contextSource": "context added 2026-10-02 by scripts/spike/typesafe/adolion-house-rules-context.py from adolion-campaign e6226f4 (labels untouched): scene = player 'the heir' (saga player_intro), the row's playerMessage, the speaker's roster role, group members enabled on at least one path into the checkpoint (cast_changes replayed as in check_cast.py); worldBook = entries of the saga's required books active at the checkpoint (gated entries on every path, others by file flag) that fire for a keyword scan of playerMessage + reply. The reply stands in for the preceding turns, so this is an upper bound on what a live scan carries for rule 6."
 }

@@ -187,7 +187,7 @@ export class LoreEvidence {
   private mirror = new Map<string, { eligible: number; fired: number }>();
   private host: LoreEvidenceHost | null = null;
   private settledSlot: LoreSlot | null = null;
-  private texts = new WeakMap<LoreSlot, Map<string, { comment: string; text: string }>>();
+  private texts = new WeakMap<LoreSlot, Map<string, { comment: string; text: string; constant: boolean }>>();
 
   attach(host: LoreEvidenceHost | null) {
     this.host = host;
@@ -227,16 +227,16 @@ export class LoreEvidence {
     if (!this.current) return;
     this.current.scans.push({ tag, loud, entries: entries.flatMap((entry) => toScanned(entry) ?? []) });
     if (!loud) return;
-    const texts = this.texts.get(this.current) ?? new Map<string, { comment: string; text: string }>();
+    const texts = this.texts.get(this.current) ?? new Map<string, { comment: string; text: string; constant: boolean }>();
     for (const entry of entries) {
       const ref = toScanned(entry);
       if (!ref || typeof entry.content !== "string" || !entry.content.trim() || !storyBooks.some((book) => sameLorebook(book, ref.world))) continue;
-      texts.set(refKey(ref), { comment: ref.comment, text: entry.content });
+      texts.set(refKey(ref), { comment: ref.comment, text: entry.content, constant: ref.constant });
     }
     if (texts.size) this.texts.set(this.current, texts);
   }
 
-  firedLore(messageId: number): Array<{ comment: string; text: string }> {
+  firedLore(messageId: number): Array<{ comment: string; text: string; constant: boolean }> {
     const slot = this.live().filter((candidate) => candidate.rendered === true && candidate.lastMessageId === messageId).pop();
     const texts = slot ? this.texts.get(slot) : undefined;
     return slot && texts ? firedEntries(slot.scans).flatMap((entry) => texts.get(refKey(entry)) ?? []) : [];

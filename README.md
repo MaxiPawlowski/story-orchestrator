@@ -168,7 +168,7 @@ use as unproven.
 | `loreSelect` | Recommended with a known weakness: it ranks by a compressed probability, so which entries win the top slots is weaker than the rate suggests. |
 | `typedExtraction` | Recommended. Needs authored `read_as` hints to do anything. |
 | `agencyCheck` (warden family) | Author view only; `review` mode recommended. |
-| `houseRules` (warden family) | **Off by default**: below its floor on the Adolion saga's 8 rules (2026-10-01, broken 12/18, untouched 165/172). Author view only; needs authored `house_rules`. If you turn it on, write objective rules the reply alone can show, one demand each. |
+| `houseRules` (warden family) | **Off by default**: below its floor on the Adolion saga's 8 rules, re-measured with the scene and the fired world-book entries (2026-10-02, broken 18/18, kept 10/10, untouched 165/172 vs 0.966). Author view only; needs authored `house_rules`. A paragraph-count rule is checked in code. If you turn it on, prefer objective rules, one demand each; judgement rules that overlap (who voices whom, mystery vs secret) false-alarm. |
 | `wardenLore` (warden family) | Author view only; needs the continuity warden on, `review` mode recommended. Checks the reply against the story's own lore entries that fired for it, in its own call. Live latency and over-steer not yet measured. |
 
 The two reply-path uses (`director`, `loreSelect`) fit their 1500 ms budget at the median; a slow judge
