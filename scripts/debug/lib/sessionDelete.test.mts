@@ -52,3 +52,15 @@ test('T4-3 delete-chat: nothing is deleted when the export fails, when a book ex
     assert.equal(case_.state.onDisk, true);
   }
 });
+
+test('T4-3-2 delete-chat: the reap prompt is found by its data-so-reap-chat attribute, not by its wording, and the book name is read from the stored {name, chatId}', async () => {
+  const { isReapPrompt } = await import('./sessionDelete.mts');
+  const { mirrorBookName } = await import('./sessionExport.mts');
+  assert.equal(isReapPrompt({ reapChat: 'chat-one' }, 'chat-one'), true);
+  assert.equal(isReapPrompt({ reapChat: 'chat-two' }, 'chat-one'), false);
+  assert.equal(isReapPrompt({ reapChat: null }, 'chat-one'), false);
+  assert.equal(mirrorBookName({ name: BOOK, chatId: 'chat-one' }), BOOK);
+  assert.equal(mirrorBookName(BOOK), BOOK);
+  assert.equal(mirrorBookName(null), null);
+  assert.equal(mirrorBookName({ name: '' }), null);
+});

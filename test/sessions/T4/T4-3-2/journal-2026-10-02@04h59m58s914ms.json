@@ -1,0 +1,6107 @@
+{
+  "chatId": "2026-10-02@04h59m58s914ms",
+  "storyTitle": "Adolion: Between the Roads",
+  "activeCheckpoint": "Homecoming",
+  "boundary": 14,
+  "events": [
+    {
+      "at": "2026-10-02T07:59:59.238Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "boundary",
+      "summary": "boundary 1: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:09.090Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@04h59m58s914ms, last seen never, gap n/a"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:09.184Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "status",
+      "summary": "Following Homecoming"
+    },
+    {
+      "at": "2026-10-02T08:00:09.572Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge scene in 342 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 5458,
+        "latencyMs": 342,
+        "inputTokens": 4648,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.11
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:09.590Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge typed in 361 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 596,
+        "latencyMs": 361,
+        "inputTokens": 1164,
+        "outputTokens": 160
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:09.834Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge typed in 251 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 596,
+        "latencyMs": 251,
+        "inputTokens": 1164,
+        "outputTokens": 160
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:09.834Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:00:09.834Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2387,
+        "samplers": "applied",
+        "usage": {
+          "input": 3174,
+          "output": 327,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 0
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.231Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "extraction",
+      "summary": "read cue:aegis-homecoming->aegis-the-tavern msgs 0-0 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "0ade1b6f",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_declined=false",
+          "aegis_exam_entered=false",
+          "location=aegis_guild_hall"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.231Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "aegis_exam_declined = false",
+      "detail": {
+        "auditId": "0ade1b6f",
+        "evidence": "the Guild will put you forward for the C-rank exam",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.231Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "0ade1b6f",
+        "evidence": "No one has put a pen in your hand yet.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.231Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "location = aegis_guild_hall",
+      "detail": {
+        "auditId": "0ade1b6f",
+        "evidence": "The Guild hall in Aegis City has barely settled after the party's return when Vallie appears on the stairs",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.233Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"No one has put a pen in your hand yet.\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:12.448Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 214 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 827,
+        "latencyMs": 214,
+        "inputTokens": 886,
+        "outputTokens": 40,
+        "p": {
+          "line:0": 0.94,
+          "line:1": 0.96
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.052Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:00:47.278Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge typed in 0 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 596,
+        "latencyMs": 0,
+        "cached": true
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:47.279Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:00:47.279Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2240,
+        "samplers": "applied",
+        "usage": {
+          "input": 3254,
+          "output": 333,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 0
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:48.210Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@04h59m58s914ms, last seen 2026-10-02T08:00:12.921Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:48.463Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "status",
+      "summary": "Continuing Adolion: Between the Roads"
+    },
+    {
+      "at": "2026-10-02T08:00:49.520Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "extraction",
+      "summary": "read resume:dropped msgs 0-0 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "901672cd",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_declined=false",
+          "aegis_exam_entered=false",
+          "location=aegis_guild_hall"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:49.520Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "aegis_exam_declined = false",
+      "detail": {
+        "auditId": "901672cd",
+        "evidence": "the Guild will put you forward for the C-rank exam",
+        "reason": "resume:dropped"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:49.520Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "901672cd",
+        "evidence": "No one has put a pen in your hand yet.",
+        "reason": "resume:dropped"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:49.520Z",
+      "boundary": -1,
+      "messageId": 0,
+      "kind": "delta",
+      "summary": "location = aegis_guild_hall",
+      "detail": {
+        "auditId": "901672cd",
+        "evidence": "The Guild hall in Aegis City has barely settled after the party's return when Vallie appears on the stairs with an announcement",
+        "reason": "resume:dropped"
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:49.521Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"No one has put a pen in your hand yet.\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:49.831Z",
+      "boundary": 1,
+      "messageId": 0,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 309 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 3,
+        "stateChars": 827,
+        "latencyMs": 309,
+        "inputTokens": 1006,
+        "outputTokens": 58,
+        "p": {
+          "line:0": 0.96,
+          "line:1": 0.96,
+          "line:2": 0.97
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:51.529Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge lore in 329 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 648,
+        "latencyMs": 329,
+        "inputTokens": 13659,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:51.598Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge lore in 395 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 648,
+        "latencyMs": 395,
+        "inputTokens": 12733,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:51.857Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge lore in 333 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 648,
+        "latencyMs": 333,
+        "inputTokens": 13352,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:52.068Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge lore in 474 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 648,
+        "latencyMs": 474,
+        "inputTokens": 12695,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:52.091Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge lore in 235 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 648,
+        "latencyMs": 235,
+        "inputTokens": 1900,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:00:52.381Z",
+      "boundary": 1,
+      "messageId": 1,
+      "kind": "judge",
+      "summary": "judge director in 271 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 1376,
+        "latencyMs": 271,
+        "inputTokens": 1910,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.61,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:11.557Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "boundary",
+      "summary": "applied aegis_exam_declined=false, location=aegis_guild_hall",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "901672cd",
+            "deltas": [
+              "aegis_exam_declined=false",
+              "location=aegis_guild_hall"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:11.621Z",
+      "boundary": 1,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge director in 267 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 2214,
+        "latencyMs": 267,
+        "inputTokens": 2098,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.94,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:11.737Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "status",
+      "summary": "Following Homecoming"
+    },
+    {
+      "at": "2026-10-02T08:01:12.067Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge typed in 254 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 1551,
+        "latencyMs": 254,
+        "inputTokens": 1771,
+        "outputTokens": 359
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:12.150Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge scene in 336 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 6413,
+        "latencyMs": 336,
+        "inputTokens": 4914,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.43
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:13.272Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge typed in 0 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 1551,
+        "latencyMs": 0,
+        "cached": true
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:13.273Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:01:13.273Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2893,
+        "samplers": "applied",
+        "usage": {
+          "input": 3573,
+          "output": 479,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 2
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:13.286Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge warden in 1220 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 1151,
+        "latencyMs": 1220,
+        "inputTokens": 868,
+        "outputTokens": 35,
+        "p": {
+          "facts": 1,
+          "flagged": 0,
+          "agency": 0.16
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:13.287Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1138 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5029,
+        "latencyMs": 1138,
+        "inputTokens": 2171,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:16.168Z",
+      "boundary": -1,
+      "messageId": 2,
+      "kind": "extraction",
+      "summary": "read cue:aegis-homecoming->aegis-the-tavern msgs 0-2 → 1 accepted, 0 rejected",
+      "detail": {
+        "auditId": "89fcffb1",
+        "scope": [
+          "aegis_city_favour",
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=aegis_guild_tavern"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:16.168Z",
+      "boundary": -1,
+      "messageId": 2,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "89fcffb1",
+        "evidence": "She slides her chair closer, her blue eyes gleaming with warmth.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:16.418Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 249 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 1782,
+        "latencyMs": 249,
+        "inputTokens": 1579,
+        "outputTokens": 112,
+        "p": {
+          "line:0": 0.91,
+          "line:1": 0.16,
+          "line:2": 0.94,
+          "line:3": 0.97,
+          "line:4": 0.95,
+          "line:5": 0.96
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:18.047Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge typed in 0 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 1551,
+        "latencyMs": 0,
+        "cached": true
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:18.047Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:01:18.047Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2588,
+        "samplers": "applied",
+        "usage": {
+          "input": 3642,
+          "output": 384,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 2
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:20.636Z",
+      "boundary": -1,
+      "messageId": 2,
+      "kind": "extraction",
+      "summary": "read scene:judge msgs 0-2 → 2 accepted, 0 rejected",
+      "detail": {
+        "auditId": "8d7a44bf",
+        "scope": [
+          "aegis_city_favour",
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=aegis_guild_tavern",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:20.636Z",
+      "boundary": -1,
+      "messageId": 2,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "8d7a44bf",
+        "evidence": "She slides her chair closer, her blue eyes gleaming with warmth.",
+        "reason": "scene:judge"
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:20.636Z",
+      "boundary": -1,
+      "messageId": 2,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "8d7a44bf",
+        "evidence": "Fiana's face lights up, a wide, genuine grin spreading across her freckled features as she sets down the half-empty flagon of ale.",
+        "reason": "scene:judge"
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:20.913Z",
+      "boundary": 2,
+      "messageId": 2,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 276 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 4,
+        "stateChars": 1782,
+        "latencyMs": 276,
+        "inputTokens": 1358,
+        "outputTokens": 76,
+        "p": {
+          "line:0": 0.84,
+          "line:1": 0.95,
+          "line:2": 0.21,
+          "line:3": 0.56
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:22.943Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:01:22.943Z",
+        "role": "synthesis",
+        "pass": "sceneSummary",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 980,
+        "samplers": "applied",
+        "usage": {
+          "input": 380,
+          "output": 88,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 2
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:24.290Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:01:24.290Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1461,
+        "samplers": "applied",
+        "usage": {
+          "input": 988,
+          "output": 190,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 2
+      }
+    },
+    {
+      "at": "2026-10-02T08:01:25.779Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:01:25.779Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1733,
+        "samplers": "applied",
+        "usage": {
+          "input": 737,
+          "output": 210,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 2
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:09.761Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 356 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 1579,
+        "latencyMs": 356,
+        "inputTokens": 12994,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:09.777Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 376 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 1579,
+        "latencyMs": 376,
+        "inputTokens": 13920,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:10.078Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 321 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 1579,
+        "latencyMs": 321,
+        "inputTokens": 13613,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:10.083Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 309 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 1579,
+        "latencyMs": 309,
+        "inputTokens": 12956,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:10.342Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 266 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 1579,
+        "latencyMs": 266,
+        "inputTokens": 2161,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:10.583Z",
+      "boundary": 2,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge director in 228 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 2281,
+        "latencyMs": 228,
+        "inputTokens": 2151,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.91,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:30.942Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "boundary",
+      "summary": "applied location=aegis_guild_tavern, tension_current=0; discarded location=aegis_guild_tavern (superseded)",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "8d7a44bf",
+            "deltas": [
+              "location=aegis_guild_tavern",
+              "tension_current=0"
+            ]
+          }
+        ],
+        "discarded": [
+          {
+            "origin": "89fcffb1",
+            "deltas": [
+              "location=aegis_guild_tavern"
+            ],
+            "reason": "superseded: a newer read covered the same turns"
+          }
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:31.283Z",
+      "boundary": 2,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge director in 482 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 3267,
+        "latencyMs": 482,
+        "inputTokens": 2381,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.86,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:31.490Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge scene in 263 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 7492,
+        "latencyMs": 263,
+        "inputTokens": 5217,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.08
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:31.541Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge warden in 259 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 3,
+        "stateChars": 1446,
+        "latencyMs": 259,
+        "inputTokens": 1052,
+        "outputTokens": 53,
+        "p": {
+          "facts": 2,
+          "flagged": 0,
+          "agency": 0.03
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:32.979Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1491 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5177,
+        "latencyMs": 1491,
+        "inputTokens": 2213,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:33.196Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge typed in 216 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2230,
+        "latencyMs": 216,
+        "inputTokens": 1997,
+        "outputTokens": 395
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:33.197Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:02:33.197Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4322,
+        "samplers": "applied",
+        "usage": {
+          "input": 3843,
+          "output": 858,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 4
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "extraction",
+      "summary": "read cadence msgs 1-4 → 8 accepted, 0 rejected",
+      "detail": {
+        "auditId": "ece3df16",
+        "scope": [
+          "aegis_city_favour",
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_city_favour=1",
+          "aegis_exam_declined=false",
+          "aegis_exam_entered=false",
+          "guild_reputation=1",
+          "location=aegis_guild_tavern",
+          "party_injuries=0",
+          "party_rank=0",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "aegis_city_favour = 1",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "Tilly, I'd have called you a friend the moment you walked in here with a story to tell!",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "aegis_exam_declined = false",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "Those Guild folks already buzzing about that C-rank exam? You going to sign on for it?",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "Those Guild folks already buzzing about that C-rank exam? You going to sign on for it?",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "guild_reputation = 1",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "Those Guild folks already buzzing about that C-rank exam?",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "She looks away toward the darkened window of the tavern for a heartbeat before returning her gaze to Max Nightriver.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "She reaches out and pats Max Nightriver's forearm, her touch lingering for a moment.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "Those Guild folks already buzzing about that C-rank exam?",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.521Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "ece3df16",
+        "evidence": "She slides her chair closer, her blue eyes gleaming with warmth.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.524Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"Those Guild folks already buzzing about that C-rank exam? You going to sign on for it?\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:37.782Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 257 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 2461,
+        "latencyMs": 257,
+        "inputTokens": 1950,
+        "outputTokens": 130,
+        "p": {
+          "line:0": 0.77,
+          "line:1": 0.78,
+          "line:2": 0.95,
+          "line:3": 0.61,
+          "line:4": 0.78,
+          "line:5": 0.57,
+          "line:6": 0.48
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:39.867Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge typed in 222 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2630,
+        "latencyMs": 222,
+        "inputTokens": 2138,
+        "outputTokens": 431
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:39.868Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:02:39.868Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2851,
+        "samplers": "applied",
+        "usage": {
+          "input": 4073,
+          "output": 554,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 4
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.720Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "extraction",
+      "summary": "read scene:location msgs 0-4 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "bf4e6daf",
+        "scope": [
+          "aegis_city_favour",
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_city_favour=3",
+          "location=aegis_guild_tavern",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.720Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "aegis_city_favour = 3",
+      "detail": {
+        "auditId": "bf4e6daf",
+        "evidence": "Tilly, I'd have called you a friend the moment you walked in here with a story to tell!",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.720Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "bf4e6daf",
+        "evidence": "She slides her chair closer, her blue eyes gleaming with warmth.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.720Z",
+      "boundary": -1,
+      "messageId": 4,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "bf4e6daf",
+        "evidence": "She reaches out and pats Max Nightriver's forearm, her touch lingering for a moment.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.721Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "story",
+      "summary": "1 rating reading(s) held: the evidence did not ground the level",
+      "detail": {
+        "note": "aegis_city_favour=\"3\" (the evidence never names liked) from \"Tilly, I'd have called you a friend the moment you walked in here with a story to tell!\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:42.945Z",
+      "boundary": 3,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 223 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 2861,
+        "latencyMs": 223,
+        "inputTokens": 1937,
+        "outputTokens": 112,
+        "p": {
+          "line:0": 0.94,
+          "line:1": 0.75,
+          "line:2": 0.93,
+          "line:3": 0.82,
+          "line:4": 0.84,
+          "line:5": 0.7
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:55.812Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 1021 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 2727,
+        "latencyMs": 1021,
+        "inputTokens": 13312,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:55.834Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 1048 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 2727,
+        "latencyMs": 1048,
+        "inputTokens": 14238,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:56.137Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 307 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 2727,
+        "latencyMs": 307,
+        "inputTokens": 13274,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Tobias Eldergreen - Guild Receptionist": 0.8
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:56.190Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 382 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 2727,
+        "latencyMs": 382,
+        "inputTokens": 13931,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:56.362Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 226 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 2727,
+        "latencyMs": 226,
+        "inputTokens": 2479,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:02:56.639Z",
+      "boundary": 3,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge director in 253 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 3403,
+        "latencyMs": 253,
+        "inputTokens": 2449,
+        "outputTokens": 376,
+        "p": {
+          "who": "Tobias",
+          "whoConfidence": 0.98,
+          "via": "choice",
+          "picked": "Tobias"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:22.231Z",
+      "boundary": 4,
+      "messageId": 6,
+      "kind": "boundary",
+      "summary": "applied aegis_city_favour=1, aegis_exam_declined=false, guild_reputation=1, party_injuries=0, party_rank=0, location=aegis_guild_tavern, tension_current=0; discarded location=aegis_guild_tavern, tension_current=0 (superseded)",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "ece3df16",
+            "deltas": [
+              "aegis_city_favour=1",
+              "aegis_exam_declined=false",
+              "guild_reputation=1",
+              "party_injuries=0",
+              "party_rank=0"
+            ]
+          },
+          {
+            "origin": "bf4e6daf",
+            "deltas": [
+              "location=aegis_guild_tavern",
+              "tension_current=0"
+            ]
+          }
+        ],
+        "discarded": [
+          {
+            "origin": "ece3df16",
+            "deltas": [
+              "location=aegis_guild_tavern",
+              "tension_current=0"
+            ],
+            "reason": "superseded: a newer read covered the same turns"
+          }
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:22.508Z",
+      "boundary": 3,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge director in 301 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 4421,
+        "latencyMs": 301,
+        "inputTokens": 2656,
+        "outputTokens": 353,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.78,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:22.751Z",
+      "boundary": 4,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge typed in 304 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2375,
+        "latencyMs": 304,
+        "inputTokens": 1967,
+        "outputTokens": 359
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:22.933Z",
+      "boundary": 4,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge scene in 427 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 8672,
+        "latencyMs": 427,
+        "inputTokens": 5526,
+        "outputTokens": 1188,
+        "p": {
+          "break": 0.2
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:22.996Z",
+      "boundary": 4,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge warden in 246 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 2315,
+        "latencyMs": 246,
+        "inputTokens": 2097,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:23.151Z",
+      "boundary": 4,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge wardenLore in 219 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5188,
+        "latencyMs": 219,
+        "inputTokens": 2205,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:39.778Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 391 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3887,
+        "latencyMs": 391,
+        "inputTokens": 14543,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:39.803Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 402 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3887,
+        "latencyMs": 402,
+        "inputTokens": 13617,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:40.085Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 311 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3887,
+        "latencyMs": 311,
+        "inputTokens": 14236,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:40.157Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 358 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3887,
+        "latencyMs": 358,
+        "inputTokens": 13579,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:40.369Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 286 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 3887,
+        "latencyMs": 286,
+        "inputTokens": 2784,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:03:40.683Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge director in 299 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 4537,
+        "latencyMs": 299,
+        "inputTokens": 2734,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.92,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:08.597Z",
+      "boundary": 5,
+      "messageId": 8,
+      "kind": "boundary",
+      "summary": "boundary 5: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:08.856Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge director in 391 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 5102,
+        "latencyMs": 391,
+        "inputTokens": 2865,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.8,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:09.103Z",
+      "boundary": 5,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge typed in 260 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2321,
+        "latencyMs": 260,
+        "inputTokens": 1963,
+        "outputTokens": 359
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:09.172Z",
+      "boundary": 5,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge scene in 318 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 9366,
+        "latencyMs": 318,
+        "inputTokens": 5731,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.06
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:10.616Z",
+      "boundary": 5,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1446 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5143,
+        "latencyMs": 1446,
+        "inputTokens": 2213,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:10.617Z",
+      "boundary": 5,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge warden in 1515 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 2229,
+        "latencyMs": 1515,
+        "inputTokens": 2102,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.18
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.081Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 360 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4481,
+        "latencyMs": 360,
+        "inputTokens": 13776,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.091Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 375 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4481,
+        "latencyMs": 375,
+        "inputTokens": 14702,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.417Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 340 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4481,
+        "latencyMs": 340,
+        "inputTokens": 14395,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.419Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 332 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4481,
+        "latencyMs": 332,
+        "inputTokens": 13738,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Will of Steel - Retired Adventurer Party": 0.72
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.667Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 252 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4481,
+        "latencyMs": 252,
+        "inputTokens": 2943,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:26.927Z",
+      "boundary": 5,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge director in 245 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5131,
+        "latencyMs": 245,
+        "inputTokens": 2893,
+        "outputTokens": 376,
+        "p": {
+          "who": "Vallie",
+          "whoConfidence": 0.94,
+          "via": "choice",
+          "picked": "Vallie"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:50.797Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "boundary",
+      "summary": "boundary 6: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:52.246Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge warden in 278 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 2149,
+        "latencyMs": 278,
+        "inputTokens": 2075,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.05
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:52.372Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge scene in 409 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 9425,
+        "latencyMs": 409,
+        "inputTokens": 5752,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:52.686Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge wardenLore in 441 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4693,
+        "latencyMs": 441,
+        "inputTokens": 2104,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:52.698Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 330 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4511,
+        "latencyMs": 330,
+        "inputTokens": 14717,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.020Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 326 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4511,
+        "latencyMs": 326,
+        "inputTokens": 14410,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.032Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 351 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4511,
+        "latencyMs": 351,
+        "inputTokens": 13791,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "Jasira Evergreen - Ranger": 0.7
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.276Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 246 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4511,
+        "latencyMs": 246,
+        "inputTokens": 2958,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.367Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 351 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4511,
+        "latencyMs": 351,
+        "inputTokens": 13753,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.544Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge typed in 269 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 3485,
+        "latencyMs": 269,
+        "inputTokens": 2407,
+        "outputTokens": 472
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:53.545Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:04:53.545Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 5685,
+        "samplers": "applied",
+        "usage": {
+          "input": 4264,
+          "output": 968,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 10
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "extraction",
+      "summary": "read cadence msgs 5-10 → 8 accepted, 0 rejected",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "scope": [
+          "aegis_city_favour",
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_city_favour=3",
+          "aegis_exam_declined=false",
+          "aegis_exam_entered=false",
+          "guild_reputation=3",
+          "location=aegis_guild_tavern",
+          "party_injuries=0",
+          "party_rank=1",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "aegis_city_favour = 3",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "Nobody's ever... I mean, I've got family, sure, but this is—",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "aegis_exam_declined = false",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "Tobias's pen pauses mid-signature on another adventurer's form.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "Tobias's pen pauses mid-signature on another adventurer's form.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "guild_reputation = 3",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "I have come to value your company more than most. I find myself... relieved when your party returns.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "Fiana freezes, her hand still resting near Max Nightriver's on the worn tavern table.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "She reaches out and grips Max Nightriver's hand firmly, her palm warm and calloused.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_rank = 1",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "Tobias's pen pauses mid-signature on another adventurer's form.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.234Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "80f6a3a0",
+        "evidence": "She squeezes once, hard enough to be felt, then adds with a shaky smile, \\\"That means you owe me for all the drinks I've served you.\\\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.237Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"Tobias's pen pauses mid-signature on another adventurer's form.\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.241Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "story",
+      "summary": "3 rating reading(s) held: the evidence did not ground the level",
+      "detail": {
+        "note": "aegis_city_favour=\"3\" (the evidence never names liked) from \"Nobody's ever... I mean, I've got family, sure, but this is—\"; guild_reputation=\"3\" (the evidence never names noticed) from \"I have come to value your company more than most. I find myself... relieved when your party returns.\"; party_rank=\"1\" (the evidence never names E-rank) from \"Tobias's pen pauses mid-signature on another adventurer's form.\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:04:59.549Z",
+      "boundary": 6,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 307 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 3716,
+        "latencyMs": 307,
+        "inputTokens": 2381,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.67,
+          "line:1": 0.97,
+          "line:2": 0.97,
+          "line:3": 0.97,
+          "line:4": 0.97,
+          "line:5": 0.98,
+          "line:6": 0.6,
+          "line:7": 0.46
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:23.522Z",
+      "boundary": 7,
+      "messageId": 11,
+      "kind": "boundary",
+      "summary": "applied aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, tension_current=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "80f6a3a0",
+            "deltas": [
+              "aegis_exam_declined=false",
+              "location=aegis_guild_tavern",
+              "party_injuries=0",
+              "tension_current=0"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:25.669Z",
+      "boundary": 7,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge scene in 1570 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 10346,
+        "latencyMs": 1570,
+        "inputTokens": 5957,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.07
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:25.688Z",
+      "boundary": 7,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge typed in 1590 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2213,
+        "latencyMs": 1590,
+        "inputTokens": 1939,
+        "outputTokens": 369
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:25.953Z",
+      "boundary": 7,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge wardenLore in 266 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5427,
+        "latencyMs": 266,
+        "inputTokens": 2264,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:26.003Z",
+      "boundary": 7,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge warden in 336 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 17,
+        "stateChars": 3073,
+        "latencyMs": 336,
+        "inputTokens": 2924,
+        "outputTokens": 311,
+        "p": {
+          "facts": 16,
+          "flagged": 0,
+          "agency": 0.05
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:05:27.474Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:05:27.474Z",
+        "role": "synthesis",
+        "pass": "shortTerm",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2115,
+        "samplers": "applied",
+        "usage": {
+          "input": 1561,
+          "output": 178,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:02.802Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge lore in 408 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4567,
+        "latencyMs": 408,
+        "inputTokens": 14713,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:02.818Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge lore in 411 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4567,
+        "latencyMs": 411,
+        "inputTokens": 13787,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Ellie Sunleaf - Guild Girl": 0.78
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:03.136Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge lore in 339 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4567,
+        "latencyMs": 339,
+        "inputTokens": 14406,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:03.142Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge lore in 329 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4567,
+        "latencyMs": 329,
+        "inputTokens": 13749,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:03.369Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge lore in 235 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4567,
+        "latencyMs": 235,
+        "inputTokens": 2954,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:03.631Z",
+      "boundary": 7,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge director in 246 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5217,
+        "latencyMs": 246,
+        "inputTokens": 2904,
+        "outputTokens": 375,
+        "p": {
+          "who": "Ellie",
+          "whoConfidence": 0.98,
+          "via": "choice",
+          "picked": "Ellie"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.220Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "boundary",
+      "summary": "boundary 8: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.499Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "reconciliation",
+      "summary": "stall re-check queued for aegis_exam_entered, aegis_exam_declined",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "targetedKeys": [
+          "aegis_exam_entered",
+          "aegis_exam_declined"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.570Z",
+      "boundary": 7,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge director in 431 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 6175,
+        "latencyMs": 431,
+        "inputTokens": 3108,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.63,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.994Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge typed in 456 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2441,
+        "latencyMs": 456,
+        "inputTokens": 1993,
+        "outputTokens": 375
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.998Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "reconciliation",
+      "summary": "stall re-check resolved (1 evidence)",
+      "detail": {
+        "evidence": [
+          "judge: nothing shown (max p 0.03)"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:28.998Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge stall in 430 ms",
+      "detail": {
+        "use": "stall",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 7984,
+        "latencyMs": 430,
+        "inputTokens": 2558,
+        "outputTokens": 40,
+        "p": {
+          "aegis_exam_entered==true": 0.03,
+          "aegis_exam_declined==true": 0.02
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:29.348Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge warden in 352 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 17,
+        "stateChars": 3180,
+        "latencyMs": 352,
+        "inputTokens": 2962,
+        "outputTokens": 311,
+        "p": {
+          "facts": 16,
+          "flagged": 0,
+          "agency": 0.23
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:29.354Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge scene in 362 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 10439,
+        "latencyMs": 362,
+        "inputTokens": 5975,
+        "outputTokens": 1190,
+        "p": {
+          "break": 0.14
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:29.601Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge wardenLore in 254 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5523,
+        "latencyMs": 254,
+        "inputTokens": 2293,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:29.796Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge typed in 255 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 5581,
+        "latencyMs": 255,
+        "inputTokens": 3012,
+        "outputTokens": 557
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:29.796Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:06:29.796Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3894,
+        "samplers": "applied",
+        "usage": {
+          "input": 4771,
+          "output": 790,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 13
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "extraction",
+      "summary": "read cue:aegis-homecoming->aegis-the-tavern msgs 6-13 → 7 accepted, 0 rejected",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_declined=false",
+          "aegis_exam_entered=false",
+          "guild_reputation=3",
+          "location=aegis_guild_tavern",
+          "party_injuries=0",
+          "party_rank=0",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "aegis_exam_declined = false",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "Ellie's head snaps up from her paperwork, her blue eyes going wide with shock.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "She looks down at the forms, then back up, adding with a shy, almost imperceptible smile,",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "guild_reputation = 3",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "I have come to value your company more than most. I find myself... relieved when your party returns. And anxious when you leave.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "Fiana freezes, her hand still resting near Max Nightriver's on the worn tavern table.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "She squeezes once, hard enough to be felt, then adds with a shaky smile,",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "The question catches him off guard, and a faint pink hue colors his cheeks.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.693Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "8bd0d3ab",
+        "evidence": "She grins, sharp teeth flashing.",
+        "reason": "cue:aegis-homecoming->aegis-the-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.697Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"She looks down at the forms, then back up, adding with a shy, almost imperceptible smile,\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:33.697Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "story",
+      "summary": "1 rating reading(s) held: the evidence did not ground the level",
+      "detail": {
+        "note": "guild_reputation=\"3\" (the evidence never names noticed) from \"I have come to value your company more than most. I find myself... relieved when your party returns. And anxious when yo\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:34.011Z",
+      "boundary": 8,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 313 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5812,
+        "latencyMs": 313,
+        "inputTokens": 2887,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.81,
+          "line:1": 0.95,
+          "line:2": 0.98,
+          "line:3": 0.97,
+          "line:4": 0.96,
+          "line:5": 0.98,
+          "line:6": 0.97,
+          "line:7": 0.98
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.145Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 349 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4626,
+        "latencyMs": 349,
+        "inputTokens": 14741,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.187Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 386 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4626,
+        "latencyMs": 386,
+        "inputTokens": 13815,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Jasira Evergreen - Ranger": 0.85
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.460Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 319 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4626,
+        "latencyMs": 319,
+        "inputTokens": 14434,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.492Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 309 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4626,
+        "latencyMs": 309,
+        "inputTokens": 13777,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.682Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 223 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4626,
+        "latencyMs": 223,
+        "inputTokens": 2982,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:06:47.919Z",
+      "boundary": 8,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge director in 224 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5276,
+        "latencyMs": 224,
+        "inputTokens": 2932,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.92,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:29.023Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "boundary",
+      "summary": "applied aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, party_rank=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "8bd0d3ab",
+            "deltas": [
+              "aegis_exam_declined=false",
+              "location=aegis_guild_tavern",
+              "party_injuries=0",
+              "party_rank=0"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:29.493Z",
+      "boundary": 8,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge director in 510 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 6337,
+        "latencyMs": 510,
+        "inputTokens": 3172,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.82,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:29.877Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge scene in 426 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 10601,
+        "latencyMs": 426,
+        "inputTokens": 6038,
+        "outputTokens": 1190,
+        "p": {
+          "break": 0.08
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:29.901Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge warden in 411 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 21,
+        "stateChars": 3651,
+        "latencyMs": 411,
+        "inputTokens": 3529,
+        "outputTokens": 387,
+        "p": {
+          "facts": 20,
+          "flagged": 0,
+          "agency": 0.07
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:33.452Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge wardenLore in 3577 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5384,
+        "latencyMs": 3577,
+        "inputTokens": 2276,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:33.901Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge typed in 242 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 3765,
+        "latencyMs": 242,
+        "inputTokens": 2435,
+        "outputTokens": 455
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:33.902Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:07:33.902Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3817,
+        "samplers": "applied",
+        "usage": {
+          "input": 4399,
+          "output": 756,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 15
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.721Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "extraction",
+      "summary": "read cadence msgs 11-15 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "dddc5403",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_entered=false",
+          "location=aegis_guild_hall",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.721Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "dddc5403",
+        "evidence": "She looks down at the forms, then back up, adding with a shy, almost imperceptible smile, \"Just... don't tell Tobias. He already thinks I spend too much time daydreaming.\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.721Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "delta",
+      "summary": "location = aegis_guild_hall",
+      "detail": {
+        "auditId": "dddc5403",
+        "evidence": "Ellie's head snaps up from her paperwork, her blue eyes going wide with shock.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.721Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "dddc5403",
+        "evidence": "She looks down at the forms, then back up, adding with a shy, almost imperceptible smile, \"Just... don't tell Tobias. He already thinks I spend too much time daydreaming.\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.724Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"She looks down at the forms, then back up, adding with a shy, almost imperceptible smile, \"Just... don't tell Tobias. He\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:37.957Z",
+      "boundary": 9,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 232 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 3996,
+        "latencyMs": 232,
+        "inputTokens": 2418,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.98,
+          "line:1": 0.97,
+          "line:2": 0.97,
+          "line:3": 0.98,
+          "line:4": 0.98,
+          "line:5": 0.98,
+          "line:6": 0.9,
+          "line:7": 0.04
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:51.308Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 408 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4856,
+        "latencyMs": 408,
+        "inputTokens": 13871,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:51.318Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 422 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4856,
+        "latencyMs": 422,
+        "inputTokens": 14797,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:51.618Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 305 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4856,
+        "latencyMs": 305,
+        "inputTokens": 13833,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Tobias Eldergreen - Guild Receptionist": 0.79
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:51.658Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 354 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4856,
+        "latencyMs": 354,
+        "inputTokens": 14490,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:51.848Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 231 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4856,
+        "latencyMs": 231,
+        "inputTokens": 3038,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:52.102Z",
+      "boundary": -1,
+      "messageId": 16,
+      "kind": "talk",
+      "summary": "Tobias speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 247
+      }
+    },
+    {
+      "at": "2026-10-02T08:07:52.102Z",
+      "boundary": 9,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge director in 243 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5506,
+        "latencyMs": 243,
+        "inputTokens": 2988,
+        "outputTokens": 376,
+        "p": {
+          "who": "Tobias",
+          "whoConfidence": 0.99,
+          "via": "choice",
+          "picked": "Tobias"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:29.213Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "boundary",
+      "summary": "applied location=aegis_guild_hall, tension_current=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "dddc5403",
+            "deltas": [
+              "location=aegis_guild_hall",
+              "tension_current=0"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:29.774Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 602
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:29.774Z",
+      "boundary": 9,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge director in 456 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 6307,
+        "latencyMs": 456,
+        "inputTokens": 3130,
+        "outputTokens": 353,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.68,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:32.278Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge scene fell back (timeout) in 2507 ms",
+      "detail": {
+        "use": "scene",
+        "model": null,
+        "route": null,
+        "questions": 47,
+        "stateChars": 10571,
+        "latencyMs": 2507,
+        "fallback": "timeout",
+        "p": {}
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:32.964Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge typed in 3313 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2457,
+        "latencyMs": 3313,
+        "inputTokens": 2011,
+        "outputTokens": 375
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:33.693Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge warden in 1418 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 25,
+        "stateChars": 3983,
+        "latencyMs": 1418,
+        "inputTokens": 4015,
+        "outputTokens": 463,
+        "p": {
+          "facts": 24,
+          "flagged": 0,
+          "agency": 0.06
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:34.305Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1343 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5091,
+        "latencyMs": 1343,
+        "inputTokens": 2182,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:34.318Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge typed in 627 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 5717,
+        "latencyMs": 627,
+        "inputTokens": 3067,
+        "outputTokens": 575
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:34.319Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:08:34.319Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 5540,
+        "samplers": "applied",
+        "usage": {
+          "input": 4843,
+          "output": 962,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:39.861Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "extraction",
+      "summary": "read scene:location msgs 10-17 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "41a3feb1",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_entered=false",
+          "location=aegis_guild_tavern",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:39.861Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "41a3feb1",
+        "evidence": "She looks down at the forms, then back up, adding with a shy, almost imperceptible smile, \"Just... don't tell Tobias. He already thinks I spend too much time daydreaming.\"",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:39.861Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "41a3feb1",
+        "evidence": "Vallie barks a laugh so loud it rattles the nearby flagon glasses, then slams a huge hand onto the tavern table.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:39.861Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "41a3feb1",
+        "evidence": "She grins, sharp teeth flashing. \"Though if you ask him, he'll say I'm a 'necessary complication' to his orderly system.\"",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:39.865Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"She looks down at the forms, then back up, adding with a shy, almost imperceptible smile, \"Just... don't tell Tobias. He\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:40.907Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 1041 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 10,
+        "stateChars": 5948,
+        "latencyMs": 1041,
+        "inputTokens": 3257,
+        "outputTokens": 184,
+        "p": {
+          "line:0": 0.98,
+          "line:1": 0.98,
+          "line:2": 0.97,
+          "line:3": 0.98,
+          "line:4": 0.97,
+          "line:5": 0.93,
+          "line:6": 0.96,
+          "line:7": 0.97,
+          "line:8": 0.96,
+          "line:9": 0.67
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.330Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 249 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 364,
+        "latencyMs": 249,
+        "inputTokens": 661,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.354Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 272 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 302,
+        "latencyMs": 272,
+        "inputTokens": 646,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.547Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 218 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 207,
+        "latencyMs": 218,
+        "inputTokens": 630,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.81
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.595Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 242 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 301,
+        "latencyMs": 242,
+        "inputTokens": 644,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.766Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 220 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 280,
+        "latencyMs": 220,
+        "inputTokens": 644,
+        "outputTokens": 66,
+        "p": {
+          "relation": "update",
+          "confidence": 0.87
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.836Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 242 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 321,
+        "latencyMs": 242,
+        "inputTokens": 652,
+        "outputTokens": 66,
+        "p": {
+          "relation": "update",
+          "confidence": 0.88
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:54.987Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 222 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 210,
+        "latencyMs": 222,
+        "inputTokens": 629,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.35
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.064Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 229 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 245,
+        "latencyMs": 229,
+        "inputTokens": 637,
+        "outputTokens": 66,
+        "p": {
+          "relation": "distinct",
+          "confidence": 0.93
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.283Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 218 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 231,
+        "latencyMs": 218,
+        "inputTokens": 637,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.68
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.316Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 250 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 257,
+        "latencyMs": 250,
+        "inputTokens": 637,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.82
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.520Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 238 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 340,
+        "latencyMs": 238,
+        "inputTokens": 662,
+        "outputTokens": 66,
+        "p": {
+          "relation": "distinct",
+          "confidence": 0.38
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.541Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 226 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 241,
+        "latencyMs": 226,
+        "inputTokens": 639,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.52
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:08:55.741Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 221 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 251,
+        "latencyMs": 221,
+        "inputTokens": 637,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.74
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:12.076Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 241 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 275,
+        "latencyMs": 241,
+        "inputTokens": 643,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.68
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:12.081Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 247 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 270,
+        "latencyMs": 247,
+        "inputTokens": 640,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.94
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:12.315Z",
+      "boundary": 10,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryPairs in 240 ms",
+      "detail": {
+        "use": "memoryPairs",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 243,
+        "latencyMs": 240,
+        "inputTokens": 636,
+        "outputTokens": 66,
+        "p": {
+          "relation": "duplicate",
+          "confidence": 0.89
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:25.967Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge lore in 368 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4879,
+        "latencyMs": 368,
+        "inputTokens": 13858,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.012Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge lore in 417 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4879,
+        "latencyMs": 417,
+        "inputTokens": 14784,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.320Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge lore in 357 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4879,
+        "latencyMs": 357,
+        "inputTokens": 14477,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.328Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge lore in 320 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4879,
+        "latencyMs": 320,
+        "inputTokens": 13820,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.540Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge lore in 222 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4879,
+        "latencyMs": 222,
+        "inputTokens": 3025,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.795Z",
+      "boundary": -1,
+      "messageId": 18,
+      "kind": "talk",
+      "summary": "Adolion Narrator speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 241
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:26.795Z",
+      "boundary": 10,
+      "messageId": 18,
+      "kind": "judge",
+      "summary": "judge director in 235 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5529,
+        "latencyMs": 235,
+        "inputTokens": 2975,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.9,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:55.502Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "boundary",
+      "summary": "applied location=aegis_guild_tavern",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "41a3feb1",
+            "deltas": [
+              "location=aegis_guild_tavern"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:55.819Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "reconciliation",
+      "summary": "stall re-check queued for aegis_exam_entered, aegis_exam_declined",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "targetedKeys": [
+          "aegis_exam_entered",
+          "aegis_exam_declined"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:56.029Z",
+      "boundary": -1,
+      "messageId": 19,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 625
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:56.029Z",
+      "boundary": 10,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge director in 426 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 5506,
+        "latencyMs": 426,
+        "inputTokens": 2952,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.74,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:56.347Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge typed in 432 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2214,
+        "latencyMs": 432,
+        "inputTokens": 1930,
+        "outputTokens": 375
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:56.611Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "reconciliation",
+      "summary": "stall re-check resolved (1 evidence)",
+      "detail": {
+        "evidence": [
+          "judge: nothing shown (max p 0.03)"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:56.611Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge stall in 583 ms",
+      "detail": {
+        "use": "stall",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 11461,
+        "latencyMs": 583,
+        "inputTokens": 3507,
+        "outputTokens": 40,
+        "p": {
+          "aegis_exam_entered==true": 0.03,
+          "aegis_exam_declined==true": 0.02
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:57.658Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge scene in 1314 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 9770,
+        "latencyMs": 1314,
+        "inputTokens": 5818,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:57.882Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge warden in 1273 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 25,
+        "stateChars": 4151,
+        "latencyMs": 1273,
+        "inputTokens": 4050,
+        "outputTokens": 463,
+        "p": {
+          "facts": 24,
+          "flagged": 0,
+          "agency": 0.22
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:57.917Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge wardenLore in 261 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5098,
+        "latencyMs": 261,
+        "inputTokens": 2196,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:58.116Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge typed in 236 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 4916,
+        "latencyMs": 236,
+        "inputTokens": 2875,
+        "outputTokens": 575
+      }
+    },
+    {
+      "at": "2026-10-02T08:09:58.116Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:09:58.116Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4655,
+        "samplers": "applied",
+        "usage": {
+          "input": 4687,
+          "output": 881,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 19
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:02.773Z",
+      "boundary": -1,
+      "messageId": 19,
+      "kind": "extraction",
+      "summary": "read scene:location msgs 12-19 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "5c39aad7",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_entered=false",
+          "location=aegis_guild_tavern",
+          "tension_current=0"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:02.773Z",
+      "boundary": -1,
+      "messageId": 19,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "5c39aad7",
+        "evidence": "Now tell me—you still avoiding that signature, or are you going to finally commit?",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:02.773Z",
+      "boundary": -1,
+      "messageId": 19,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "5c39aad7",
+        "evidence": "Fiana's gaze softens as she looks at Max Nightriver across the tavern table.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:02.773Z",
+      "boundary": -1,
+      "messageId": 19,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "5c39aad7",
+        "evidence": "Friends,\" she says, her voice clear and unwavering. \"No matter what. Even if you bomb that exam and have to spend the rest of your life on D-rank potato-peeling quests.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:03.061Z",
+      "boundary": 11,
+      "messageId": 19,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 281 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 5147,
+        "latencyMs": 281,
+        "inputTokens": 2903,
+        "outputTokens": 166,
+        "p": {
+          "line:0": 0.97,
+          "line:1": 0.97,
+          "line:2": 0.97,
+          "line:3": 0.97,
+          "line:4": 0.97,
+          "line:5": 0.94,
+          "line:6": 0.8,
+          "line:7": 0.96,
+          "line:8": 0.97
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:16.947Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge lore in 405 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4841,
+        "latencyMs": 405,
+        "inputTokens": 14781,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:16.977Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge lore in 430 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4841,
+        "latencyMs": 430,
+        "inputTokens": 13855,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Domas Syllandri - Vice Guildmaster of the Adventurers Guild": 0.85
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:17.274Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge lore in 301 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4841,
+        "latencyMs": 301,
+        "inputTokens": 13817,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Will of Steel - Retired Adventurer Party": 0.71
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:17.284Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge lore in 342 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4841,
+        "latencyMs": 342,
+        "inputTokens": 14474,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:17.542Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge lore in 268 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4841,
+        "latencyMs": 268,
+        "inputTokens": 3022,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:17.806Z",
+      "boundary": -1,
+      "messageId": 20,
+      "kind": "talk",
+      "summary": "Domas speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 252
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:17.806Z",
+      "boundary": 11,
+      "messageId": 20,
+      "kind": "judge",
+      "summary": "judge director in 246 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5491,
+        "latencyMs": 246,
+        "inputTokens": 2972,
+        "outputTokens": 375,
+        "p": {
+          "who": "Domas",
+          "whoConfidence": 0.99,
+          "via": "choice",
+          "picked": "Domas"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:52.326Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "boundary",
+      "summary": "applied aegis_exam_entered=false, location=aegis_guild_tavern, tension_current=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "5c39aad7",
+            "deltas": [
+              "aegis_exam_entered=false",
+              "location=aegis_guild_tavern",
+              "tension_current=0"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:52.806Z",
+      "boundary": 11,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge director in 531 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 5592,
+        "latencyMs": 531,
+        "inputTokens": 2952,
+        "outputTokens": 348,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.8,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:52.807Z",
+      "boundary": -1,
+      "messageId": 21,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 564
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:53.277Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge scene in 486 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 9856,
+        "latencyMs": 486,
+        "inputTokens": 5824,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.37
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:53.299Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge warden in 494 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 30,
+        "stateChars": 5106,
+        "latencyMs": 494,
+        "inputTokens": 4813,
+        "outputTokens": 558,
+        "p": {
+          "facts": 29,
+          "flagged": 0,
+          "agency": 0.13
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:53.509Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge wardenLore in 232 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5065,
+        "latencyMs": 232,
+        "inputTokens": 2183,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:53.754Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge typed in 223 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 3678,
+        "latencyMs": 223,
+        "inputTokens": 2439,
+        "outputTokens": 495
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:53.755Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:10:53.755Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4199,
+        "samplers": "applied",
+        "usage": {
+          "input": 4399,
+          "output": 764,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 21
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:57.956Z",
+      "boundary": -1,
+      "messageId": 21,
+      "kind": "extraction",
+      "summary": "read cadence msgs 16-21 → 2 accepted, 0 rejected",
+      "detail": {
+        "auditId": "7ab3cd8d",
+        "scope": [
+          "aegis_exam_declined",
+          "aegis_exam_entered",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "tension_current"
+        ],
+        "accepted": [
+          "aegis_exam_entered=false",
+          "location=aegis_guild_tavern"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:57.956Z",
+      "boundary": -1,
+      "messageId": 21,
+      "kind": "delta",
+      "summary": "aegis_exam_entered = false",
+      "detail": {
+        "auditId": "7ab3cd8d",
+        "evidence": "Now tell me—you still avoiding that signature, or are you going to finally commit?",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:57.956Z",
+      "boundary": -1,
+      "messageId": 21,
+      "kind": "delta",
+      "summary": "location = aegis_guild_tavern",
+      "detail": {
+        "auditId": "7ab3cd8d",
+        "evidence": "Fiana's gaze softens as she looks at Max Nightriver across the tavern table.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:57.961Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "story",
+      "summary": "1 commitment reading(s) held: no line the player wrote in the window shows the commitment",
+      "detail": {
+        "note": "aegis_exam_entered=\"false\" from \"Now tell me—you still avoiding that signature, or are you going to finally commit?\""
+      }
+    },
+    {
+      "at": "2026-10-02T08:10:58.231Z",
+      "boundary": 12,
+      "messageId": 21,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 265 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 3909,
+        "latencyMs": 265,
+        "inputTokens": 2407,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.92,
+          "line:1": 0.98,
+          "line:2": 0.95,
+          "line:3": 0.93,
+          "line:4": 0.98,
+          "line:5": 0.95,
+          "line:6": 0.97,
+          "line:7": 0.97
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:12.421Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge lore in 345 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4908,
+        "latencyMs": 345,
+        "inputTokens": 13852,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Ellie Sunleaf - Guild Girl": 0.76
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:12.439Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge lore in 368 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4908,
+        "latencyMs": 368,
+        "inputTokens": 14778,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:12.748Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge lore in 331 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4908,
+        "latencyMs": 331,
+        "inputTokens": 14471,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:12.750Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge lore in 315 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4908,
+        "latencyMs": 315,
+        "inputTokens": 13814,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:13.018Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge lore in 270 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4908,
+        "latencyMs": 270,
+        "inputTokens": 3019,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:13.313Z",
+      "boundary": 12,
+      "messageId": 22,
+      "kind": "judge",
+      "summary": "judge director in 271 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5558,
+        "latencyMs": 271,
+        "inputTokens": 2969,
+        "outputTokens": 375,
+        "p": {
+          "who": "Ellie",
+          "whoConfidence": 0.99,
+          "via": "choice",
+          "picked": "Ellie"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:13.314Z",
+      "boundary": -1,
+      "messageId": 22,
+      "kind": "talk",
+      "summary": "Ellie speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 278
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:58.558Z",
+      "boundary": 13,
+      "messageId": 23,
+      "kind": "boundary",
+      "summary": "applied location=aegis_guild_tavern",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          {
+            "origin": "7ab3cd8d",
+            "deltas": [
+              "location=aegis_guild_tavern"
+            ]
+          }
+        ],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:59.303Z",
+      "boundary": -1,
+      "messageId": 23,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 791
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:59.303Z",
+      "boundary": 12,
+      "messageId": 23,
+      "kind": "judge",
+      "summary": "judge director in 619 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 5434,
+        "latencyMs": 619,
+        "inputTokens": 2890,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.36,
+          "via": "composite",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:59.352Z",
+      "boundary": 13,
+      "messageId": 23,
+      "kind": "judge",
+      "summary": "judge typed in 379 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2571,
+        "latencyMs": 379,
+        "inputTokens": 2003,
+        "outputTokens": 375
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:59.826Z",
+      "boundary": 13,
+      "messageId": 23,
+      "kind": "judge",
+      "summary": "judge scene in 525 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 47,
+        "stateChars": 9698,
+        "latencyMs": 525,
+        "inputTokens": 5757,
+        "outputTokens": 1189,
+        "p": {
+          "break": 0.19
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:11:59.875Z",
+      "boundary": 13,
+      "messageId": 23,
+      "kind": "judge",
+      "summary": "judge warden in 526 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 35,
+        "stateChars": 5646,
+        "latencyMs": 526,
+        "inputTokens": 5472,
+        "outputTokens": 653,
+        "p": {
+          "facts": 34,
+          "flagged": 0,
+          "agency": 0.09
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:00.060Z",
+      "boundary": 13,
+      "messageId": 23,
+      "kind": "judge",
+      "summary": "judge wardenLore in 235 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5482,
+        "latencyMs": 235,
+        "inputTokens": 2268,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:02.090Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T08:12:02.090Z",
+        "role": "synthesis",
+        "pass": "shortTerm",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1779,
+        "samplers": "applied",
+        "usage": {
+          "input": 1852,
+          "output": 152,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@04h59m58s914ms",
+        "messageId": 23
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:15.832Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge lore in 378 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4765,
+        "latencyMs": 378,
+        "inputTokens": 14714,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:15.864Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge lore in 406 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4765,
+        "latencyMs": 406,
+        "inputTokens": 13788,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:16.348Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge lore in 519 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4765,
+        "latencyMs": 519,
+        "inputTokens": 14407,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:16.416Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge lore in 556 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4765,
+        "latencyMs": 556,
+        "inputTokens": 13750,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:16.678Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge lore in 331 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4765,
+        "latencyMs": 331,
+        "inputTokens": 2955,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:17.028Z",
+      "boundary": -1,
+      "messageId": 24,
+      "kind": "talk",
+      "summary": "Adolion Narrator speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 341
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:17.028Z",
+      "boundary": 13,
+      "messageId": 24,
+      "kind": "judge",
+      "summary": "judge director in 338 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 16,
+        "stateChars": 5415,
+        "latencyMs": 338,
+        "inputTokens": 2905,
+        "outputTokens": 379,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.91,
+          "via": "choice",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:58.944Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "boundary",
+      "summary": "boundary 14: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.314Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "reconciliation",
+      "summary": "stall re-check queued for aegis_exam_entered, aegis_exam_declined",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "targetedKeys": [
+          "aegis_exam_entered",
+          "aegis_exam_declined"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.369Z",
+      "boundary": -1,
+      "messageId": 25,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "aegis-homecoming",
+        "latencyMs": 509
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.369Z",
+      "boundary": 13,
+      "messageId": 25,
+      "kind": "judge",
+      "summary": "judge director in 464 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 15,
+        "stateChars": 5870,
+        "latencyMs": 464,
+        "inputTokens": 3011,
+        "outputTokens": 352,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.79,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.810Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "reconciliation",
+      "summary": "stall re-check resolved (1 evidence)",
+      "detail": {
+        "evidence": [
+          "judge: nothing shown (max p 0.03)"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.810Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "judge",
+      "summary": "judge stall in 443 ms",
+      "detail": {
+        "use": "stall",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 15462,
+        "latencyMs": 443,
+        "inputTokens": 4562,
+        "outputTokens": 40,
+        "p": {
+          "aegis_exam_entered==true": 0.03,
+          "aegis_exam_declined==true": 0.02
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T08:12:59.820Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "judge",
+      "summary": "judge typed in 463 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 2769,
+        "latencyMs": 463,
+        "inputTokens": 2075,
+        "outputTokens": 375
+      }
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:18.243Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T08:21:19.903Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@04h59m58s914ms, last seen 2026-10-02T08:12:59.820Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T08:21:20.338Z",
+      "boundary": 14,
+      "messageId": 25,
+      "kind": "status",
+      "summary": "Continuing Adolion: Between the Roads"
+    }
+  ]
+}

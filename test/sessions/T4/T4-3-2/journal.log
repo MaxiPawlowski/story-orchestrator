@@ -1,0 +1,679 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T4\T4-3-2\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T08:00:29.791Z session      chat 2026-10-02@05h00m18s777ms · story adolion-aegis · at Homecoming (boundary 1, 1 messages)
+2026-10-02T08:00:19.260Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T08:00:29.439Z story        away recap not due
+2026-10-02T08:00:29.532Z status       Following Homecoming
+2026-10-02T08:00:29.586Z judge        judge typed in 0 ms
+2026-10-02T08:00:29.586Z judge        judge scene in 0 ms
+2026-10-02T08:00:29.941Z judge        judge typed in 0 ms
+2026-10-02T08:00:29.942Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:32.095Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:00:32.095Z extraction   read cue:aegis-homecoming->aegis-the-tavern msgs 0-0 → 3 accepted, 0 rejected
+2026-10-02T08:00:32.095Z delta        aegis_exam_declined = false
+2026-10-02T08:00:32.095Z delta        aegis_exam_entered = false
+2026-10-02T08:00:32.095Z delta        location = aegis_guild_hall
+2026-10-02T08:00:32.095Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:00:32.356Z judge        judge memoryVerify in 260 ms
+2026-10-02T08:00:32.095Z audit        audit cue:aegis-homecoming->aegis-the-tavern msgs 0-0 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:00:47.141Z session      chat 2026-10-02@04h59m58s914ms · story adolion-aegis · at Homecoming (boundary 1, 1 messages)
+2026-10-02T07:59:59.238Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T08:00:09.090Z story        away recap not due
+2026-10-02T08:00:09.184Z status       Following Homecoming
+2026-10-02T08:00:09.572Z judge        judge scene in 342 ms
+2026-10-02T08:00:09.590Z judge        judge typed in 361 ms
+2026-10-02T08:00:09.834Z judge        judge typed in 251 ms
+2026-10-02T08:00:09.834Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:12.231Z extraction   read cue:aegis-homecoming->aegis-the-tavern msgs 0-0 → 3 accepted, 0 rejected
+2026-10-02T08:00:12.231Z delta        aegis_exam_declined = false
+2026-10-02T08:00:12.231Z delta        aegis_exam_entered = false
+2026-10-02T08:00:12.231Z delta        location = aegis_guild_hall
+2026-10-02T08:00:12.233Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:00:12.448Z judge        judge memoryVerify in 214 ms
+2026-10-02T08:00:47.052Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T08:00:47.052Z story        host change "background" was reverted when this chat reloaded
+2026-10-02T08:00:12.231Z audit        audit cue:aegis-homecoming->aegis-the-tavern msgs 0-0 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:00:47.278Z judge        judge typed in 0 ms
+2026-10-02T08:00:48.210Z story        away recap not due
+2026-10-02T08:00:48.463Z status       Continuing Adolion: Between the Roads
+2026-10-02T08:00:47.279Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:49.520Z extraction   read resume:dropped msgs 0-0 → 3 accepted, 0 rejected
+2026-10-02T08:00:49.520Z delta        aegis_exam_declined = false
+2026-10-02T08:00:49.520Z delta        aegis_exam_entered = false
+2026-10-02T08:00:49.520Z delta        location = aegis_guild_hall
+2026-10-02T08:00:49.520Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:00:49.521Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:00:49.831Z judge        judge memoryVerify in 309 ms
+2026-10-02T08:00:49.520Z audit        audit resume:dropped msgs 0-0 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:00:50.980Z payload      4 story blocks injected (generation)
+2026-10-02T08:00:51.013Z payload      5 story blocks injected (generation)
+2026-10-02T08:00:51.529Z judge        judge lore in 329 ms
+2026-10-02T08:00:51.598Z judge        judge lore in 395 ms
+2026-10-02T08:00:51.857Z judge        judge lore in 333 ms
+2026-10-02T08:00:52.068Z judge        judge lore in 474 ms
+2026-10-02T08:00:52.091Z judge        judge lore in 235 ms
+2026-10-02T08:00:52.381Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:00:52.381Z judge        judge director in 271 ms
+2026-10-02T08:00:52.609Z payload      5 story blocks injected (generation)
+2026-10-02T08:00:53.222Z payload      5 story blocks injected (generation)
+2026-10-02T08:01:11.557Z boundary     applied aegis_exam_declined=false, location=aegis_guild_hall
+2026-10-02T08:01:11.621Z judge        judge director in 267 ms
+2026-10-02T08:01:11.622Z talk         silence speaks (judge)
+2026-10-02T08:01:11.737Z status       Following Homecoming
+2026-10-02T08:01:12.067Z judge        judge typed in 254 ms
+2026-10-02T08:01:12.150Z judge        judge scene in 336 ms
+2026-10-02T08:01:13.272Z judge        judge typed in 0 ms
+2026-10-02T08:01:13.286Z judge        judge warden in 1220 ms
+2026-10-02T08:01:13.287Z judge        judge wardenLore in 1138 ms
+2026-10-02T08:01:13.273Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:16.418Z judge        judge memoryVerify in 249 ms
+2026-10-02T08:01:16.443Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:01:16.168Z extraction   read cue:aegis-homecoming->aegis-the-tavern msgs 0-2 → 1 accepted, 0 rejected
+2026-10-02T08:01:16.168Z delta        location = aegis_guild_tavern
+2026-10-02T08:01:16.168Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:01:18.047Z judge        judge typed in 0 ms
+2026-10-02T08:01:16.168Z audit        audit cue:aegis-homecoming->aegis-the-tavern msgs 0-2 scope [aegis_city_favour, aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:01:18.047Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:20.913Z judge        judge memoryVerify in 276 ms
+2026-10-02T08:01:21.575Z delta        queued location=aegis_guild_tavern, tension_current=0 for the next boundary
+2026-10-02T08:01:20.636Z extraction   read scene:judge msgs 0-2 → 2 accepted, 0 rejected
+2026-10-02T08:01:20.636Z delta        location = aegis_guild_tavern
+2026-10-02T08:01:20.636Z delta        tension_current = 0
+2026-10-02T08:01:20.636Z delta        queued location=aegis_guild_tavern, tension_current=0 for the next boundary
+2026-10-02T08:01:20.636Z audit        audit scene:judge msgs 0-2 scope [aegis_city_favour, aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:01:22.943Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:24.290Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:25.779Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:09.168Z payload      6 story blocks injected (generation)
+2026-10-02T08:02:09.199Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:09.761Z judge        judge lore in 356 ms
+2026-10-02T08:02:09.777Z judge        judge lore in 376 ms
+2026-10-02T08:02:10.078Z judge        judge lore in 321 ms
+2026-10-02T08:02:10.083Z judge        judge lore in 309 ms
+2026-10-02T08:02:10.342Z judge        judge lore in 266 ms
+2026-10-02T08:02:10.583Z judge        judge director in 228 ms
+2026-10-02T08:02:10.584Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:02:10.806Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:11.103Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:11.383Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:11.963Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:30.942Z boundary     applied location=aegis_guild_tavern, tension_current=0; discarded location=aegis_guild_tavern (superseded)
+2026-10-02T08:02:31.283Z talk         silence speaks (judge)
+2026-10-02T08:02:31.283Z judge        judge director in 482 ms
+2026-10-02T08:02:31.490Z judge        judge scene in 263 ms
+2026-10-02T08:02:31.541Z judge        judge warden in 259 ms
+2026-10-02T08:02:32.979Z judge        judge wardenLore in 1491 ms
+2026-10-02T08:02:33.196Z judge        judge typed in 216 ms
+2026-10-02T08:02:33.197Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:37.524Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:02:37.782Z judge        judge memoryVerify in 257 ms
+2026-10-02T08:02:38.185Z delta        queued aegis_city_favour=1, aegis_exam_declined=false, guild_reputation=1, location=aegis_guild_tavern, party_injuries=0, party_rank=0, tension_current=0 for the next boundary
+2026-10-02T08:02:37.521Z extraction   read cadence msgs 1-4 → 8 accepted, 0 rejected
+2026-10-02T08:02:37.521Z delta        aegis_city_favour = 1
+2026-10-02T08:02:37.521Z delta        aegis_exam_declined = false
+2026-10-02T08:02:37.521Z delta        aegis_exam_entered = false
+2026-10-02T08:02:37.521Z delta        guild_reputation = 1
+2026-10-02T08:02:37.521Z delta        location = aegis_guild_tavern
+2026-10-02T08:02:37.521Z delta        party_injuries = 0
+2026-10-02T08:02:37.521Z delta        party_rank = 0
+2026-10-02T08:02:37.521Z delta        tension_current = 0
+2026-10-02T08:02:37.521Z delta        queued aegis_city_favour=1, aegis_exam_declined=false, guild_reputation=1, location=aegis_guild_tavern, party_injuries=0, party_rank=0, tension_current=0 for the next boundary
+2026-10-02T08:02:37.521Z audit        audit cadence msgs 1-4 scope [aegis_city_favour, aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 8 accepted, 0 rejected
+2026-10-02T08:02:39.867Z judge        judge typed in 222 ms
+2026-10-02T08:02:39.868Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:42.720Z extraction   read scene:location msgs 0-4 → 3 accepted, 0 rejected
+2026-10-02T08:02:42.720Z delta        aegis_city_favour = 3
+2026-10-02T08:02:42.720Z delta        location = aegis_guild_tavern
+2026-10-02T08:02:42.720Z delta        tension_current = 0
+2026-10-02T08:02:42.720Z delta        queued location=aegis_guild_tavern, tension_current=0 for the next boundary
+2026-10-02T08:02:42.721Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-02T08:02:42.945Z judge        judge memoryVerify in 223 ms
+2026-10-02T08:02:42.720Z audit        audit scene:location msgs 0-4 scope [aegis_city_favour, aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:02:54.504Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:54.552Z payload      8 story blocks injected (generation)
+2026-10-02T08:02:55.812Z judge        judge lore in 1021 ms
+2026-10-02T08:02:55.834Z judge        judge lore in 1048 ms
+2026-10-02T08:02:56.137Z judge        judge lore in 307 ms
+2026-10-02T08:02:56.190Z judge        judge lore in 382 ms
+2026-10-02T08:02:56.362Z judge        judge lore in 226 ms
+2026-10-02T08:02:56.639Z talk         Tobias speaks (judge)
+2026-10-02T08:02:56.639Z judge        judge director in 253 ms
+2026-10-02T08:03:17.607Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:19.007Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:20.440Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:22.231Z boundary     applied aegis_city_favour=1, aegis_exam_declined=false, guild_reputation=1, party_injuries=0, party_rank=0, location=aegis_guild_tavern, tension_current=0; discarded location=aegis_guild_tavern, tension_current=0 (superseded)
+2026-10-02T08:03:22.508Z talk         silence speaks (judge)
+2026-10-02T08:03:22.508Z judge        judge director in 301 ms
+2026-10-02T08:03:22.751Z judge        judge typed in 304 ms
+2026-10-02T08:03:22.933Z judge        judge scene in 427 ms
+2026-10-02T08:03:22.996Z judge        judge warden in 246 ms
+2026-10-02T08:03:23.151Z judge        judge wardenLore in 219 ms
+2026-10-02T08:03:39.123Z payload      7 story blocks injected (generation)
+2026-10-02T08:03:39.160Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:39.778Z judge        judge lore in 391 ms
+2026-10-02T08:03:39.803Z judge        judge lore in 402 ms
+2026-10-02T08:03:40.085Z judge        judge lore in 311 ms
+2026-10-02T08:03:40.157Z judge        judge lore in 358 ms
+2026-10-02T08:03:40.369Z judge        judge lore in 286 ms
+2026-10-02T08:03:40.683Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:03:40.683Z judge        judge director in 299 ms
+2026-10-02T08:03:42.064Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:44.767Z payload      8 story blocks injected (generation)
+2026-10-02T08:03:46.363Z payload      8 story blocks injected (generation)
+2026-10-02T08:04:08.597Z boundary     boundary 5: nothing applied (gate)
+2026-10-02T08:04:08.856Z talk         silence speaks (judge)
+2026-10-02T08:04:08.856Z judge        judge director in 391 ms
+2026-10-02T08:04:09.103Z judge        judge typed in 260 ms
+2026-10-02T08:04:09.172Z judge        judge scene in 318 ms
+2026-10-02T08:04:10.616Z judge        judge wardenLore in 1446 ms
+2026-10-02T08:04:10.617Z judge        judge warden in 1515 ms
+2026-10-02T08:04:25.475Z payload      7 story blocks injected (generation)
+2026-10-02T08:04:25.512Z payload      8 story blocks injected (generation)
+2026-10-02T08:04:26.081Z judge        judge lore in 360 ms
+2026-10-02T08:04:26.091Z judge        judge lore in 375 ms
+2026-10-02T08:04:26.417Z judge        judge lore in 340 ms
+2026-10-02T08:04:26.419Z judge        judge lore in 332 ms
+2026-10-02T08:04:26.667Z judge        judge lore in 252 ms
+2026-10-02T08:04:26.927Z talk         Vallie speaks (judge)
+2026-10-02T08:04:26.927Z judge        judge director in 245 ms
+2026-10-02T08:04:49.234Z payload      8 story blocks injected (generation)
+2026-10-02T08:04:50.705Z talk         Domas speaks (mention)
+2026-10-02T08:04:50.797Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T08:04:51.013Z payload      7 story blocks injected (generation)
+2026-10-02T08:04:51.857Z payload      8 story blocks injected (generation)
+2026-10-02T08:04:52.246Z judge        judge warden in 278 ms
+2026-10-02T08:04:52.372Z judge        judge scene in 409 ms
+2026-10-02T08:04:52.686Z judge        judge wardenLore in 441 ms
+2026-10-02T08:04:52.698Z judge        judge lore in 330 ms
+2026-10-02T08:04:53.020Z judge        judge lore in 326 ms
+2026-10-02T08:04:53.032Z judge        judge lore in 351 ms
+2026-10-02T08:04:53.276Z judge        judge lore in 246 ms
+2026-10-02T08:04:53.367Z judge        judge lore in 351 ms
+2026-10-02T08:04:53.544Z judge        judge typed in 269 ms
+2026-10-02T08:04:53.545Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:59.237Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:04:59.241Z story        3 rating reading(s) held: the evidence did not ground the level
+2026-10-02T08:04:59.549Z judge        judge memoryVerify in 307 ms
+2026-10-02T08:05:00.183Z delta        queued aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, tension_current=0 for the next boundary
+2026-10-02T08:04:59.234Z extraction   read cadence msgs 5-10 → 8 accepted, 0 rejected
+2026-10-02T08:04:59.234Z delta        aegis_city_favour = 3
+2026-10-02T08:04:59.234Z delta        aegis_exam_declined = false
+2026-10-02T08:04:59.234Z delta        aegis_exam_entered = false
+2026-10-02T08:04:59.234Z delta        guild_reputation = 3
+2026-10-02T08:04:59.234Z delta        location = aegis_guild_tavern
+2026-10-02T08:04:59.234Z delta        party_injuries = 0
+2026-10-02T08:04:59.234Z delta        party_rank = 1
+2026-10-02T08:04:59.234Z delta        tension_current = 0
+2026-10-02T08:04:59.234Z delta        queued aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, tension_current=0 for the next boundary
+2026-10-02T08:04:59.234Z audit        audit cadence msgs 5-10 scope [aegis_city_favour, aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 8 accepted, 0 rejected
+2026-10-02T08:05:23.522Z boundary     applied aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, tension_current=0
+2026-10-02T08:05:23.630Z payload      6 story blocks injected (generation)
+2026-10-02T08:05:25.669Z judge        judge scene in 1570 ms
+2026-10-02T08:05:25.688Z judge        judge typed in 1590 ms
+2026-10-02T08:05:25.953Z judge        judge wardenLore in 266 ms
+2026-10-02T08:05:26.003Z judge        judge warden in 336 ms
+2026-10-02T08:05:27.474Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:02.134Z payload      8 story blocks injected (generation)
+2026-10-02T08:06:02.171Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:02.802Z judge        judge lore in 408 ms
+2026-10-02T08:06:02.818Z judge        judge lore in 411 ms
+2026-10-02T08:06:03.136Z judge        judge lore in 339 ms
+2026-10-02T08:06:03.142Z judge        judge lore in 329 ms
+2026-10-02T08:06:03.369Z judge        judge lore in 235 ms
+2026-10-02T08:06:03.631Z talk         Ellie speaks (judge)
+2026-10-02T08:06:03.631Z judge        judge director in 246 ms
+2026-10-02T08:06:26.322Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:28.220Z boundary     boundary 8: nothing applied (gate)
+2026-10-02T08:06:28.499Z reconciliation stall re-check queued for aegis_exam_entered, aegis_exam_declined
+2026-10-02T08:06:28.570Z talk         silence speaks (judge)
+2026-10-02T08:06:28.570Z judge        judge director in 431 ms
+2026-10-02T08:06:28.994Z judge        judge typed in 456 ms
+2026-10-02T08:06:28.998Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T08:06:28.998Z judge        judge stall in 430 ms
+2026-10-02T08:06:29.348Z judge        judge warden in 352 ms
+2026-10-02T08:06:29.354Z judge        judge scene in 362 ms
+2026-10-02T08:06:29.601Z judge        judge wardenLore in 254 ms
+2026-10-02T08:06:29.796Z judge        judge typed in 255 ms
+2026-10-02T08:06:29.796Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:33.697Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:06:33.697Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-02T08:06:34.011Z judge        judge memoryVerify in 313 ms
+2026-10-02T08:06:34.718Z delta        queued aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, party_rank=0 for the next boundary
+2026-10-02T08:06:33.693Z extraction   read cue:aegis-homecoming->aegis-the-tavern msgs 6-13 → 7 accepted, 0 rejected
+2026-10-02T08:06:33.693Z delta        aegis_exam_declined = false
+2026-10-02T08:06:33.693Z delta        aegis_exam_entered = false
+2026-10-02T08:06:33.693Z delta        guild_reputation = 3
+2026-10-02T08:06:33.693Z delta        location = aegis_guild_tavern
+2026-10-02T08:06:33.693Z delta        party_injuries = 0
+2026-10-02T08:06:33.693Z delta        party_rank = 0
+2026-10-02T08:06:33.693Z delta        tension_current = 0
+2026-10-02T08:06:33.693Z delta        queued aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, party_rank=0 for the next boundary
+2026-10-02T08:06:33.693Z audit        audit cue:aegis-homecoming->aegis-the-tavern msgs 6-13 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 7 accepted, 0 rejected
+2026-10-02T08:06:46.501Z payload      8 story blocks injected (generation)
+2026-10-02T08:06:46.538Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:47.145Z judge        judge lore in 349 ms
+2026-10-02T08:06:47.187Z judge        judge lore in 386 ms
+2026-10-02T08:06:47.460Z judge        judge lore in 319 ms
+2026-10-02T08:06:47.492Z judge        judge lore in 309 ms
+2026-10-02T08:06:47.682Z judge        judge lore in 223 ms
+2026-10-02T08:06:47.919Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:06:47.919Z judge        judge director in 224 ms
+2026-10-02T08:06:49.462Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:51.043Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:52.648Z payload      9 story blocks injected (generation)
+2026-10-02T08:06:54.442Z payload      9 story blocks injected (generation)
+2026-10-02T08:07:29.023Z boundary     applied aegis_exam_declined=false, location=aegis_guild_tavern, party_injuries=0, party_rank=0
+2026-10-02T08:07:29.493Z talk         silence speaks (judge)
+2026-10-02T08:07:29.493Z judge        judge director in 510 ms
+2026-10-02T08:07:29.877Z judge        judge scene in 426 ms
+2026-10-02T08:07:29.901Z judge        judge warden in 411 ms
+2026-10-02T08:07:33.452Z judge        judge wardenLore in 3577 ms
+2026-10-02T08:07:33.901Z judge        judge typed in 242 ms
+2026-10-02T08:07:33.902Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:37.724Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:07:37.934Z delta        queued location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:07:37.957Z judge        judge memoryVerify in 232 ms
+2026-10-02T08:07:37.721Z extraction   read cadence msgs 11-15 → 3 accepted, 0 rejected
+2026-10-02T08:07:37.721Z delta        aegis_exam_entered = false
+2026-10-02T08:07:37.721Z delta        location = aegis_guild_hall
+2026-10-02T08:07:37.721Z delta        tension_current = 0
+2026-10-02T08:07:37.721Z delta        queued location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:07:37.721Z audit        audit cadence msgs 11-15 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:07:50.605Z payload      6 story blocks injected (generation)
+2026-10-02T08:07:50.658Z payload      7 story blocks injected (generation)
+2026-10-02T08:07:51.308Z judge        judge lore in 408 ms
+2026-10-02T08:07:51.318Z judge        judge lore in 422 ms
+2026-10-02T08:07:51.618Z judge        judge lore in 305 ms
+2026-10-02T08:07:51.658Z judge        judge lore in 354 ms
+2026-10-02T08:07:51.848Z judge        judge lore in 231 ms
+2026-10-02T08:07:52.102Z talk         Tobias speaks (judge)
+2026-10-02T08:07:52.102Z judge        judge director in 243 ms
+2026-10-02T08:08:23.824Z payload      7 story blocks injected (generation)
+2026-10-02T08:08:25.307Z payload      7 story blocks injected (generation)
+2026-10-02T08:08:26.822Z payload      9 story blocks injected (generation)
+2026-10-02T08:08:29.213Z boundary     applied location=aegis_guild_hall, tension_current=0
+2026-10-02T08:08:29.774Z talk         silence speaks (judge)
+2026-10-02T08:08:29.774Z judge        judge director in 456 ms
+2026-10-02T08:08:32.278Z judge        judge scene fell back (timeout) in 2507 ms
+2026-10-02T08:08:32.964Z judge        judge typed in 3313 ms
+2026-10-02T08:08:33.693Z judge        judge warden in 1418 ms
+2026-10-02T08:08:34.305Z judge        judge wardenLore in 1343 ms
+2026-10-02T08:08:34.318Z judge        judge typed in 627 ms
+2026-10-02T08:08:34.319Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:39.865Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:08:40.475Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:08:40.907Z judge        judge memoryVerify in 1041 ms
+2026-10-02T08:08:39.861Z extraction   read scene:location msgs 10-17 → 3 accepted, 0 rejected
+2026-10-02T08:08:39.861Z delta        aegis_exam_entered = false
+2026-10-02T08:08:39.861Z delta        location = aegis_guild_tavern
+2026-10-02T08:08:39.861Z delta        tension_current = 0
+2026-10-02T08:08:39.861Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:08:39.861Z audit        audit scene:location msgs 10-17 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:08:54.330Z judge        judge memoryPairs in 249 ms
+2026-10-02T08:08:54.354Z judge        judge memoryPairs in 272 ms
+2026-10-02T08:08:54.547Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:08:54.595Z judge        judge memoryPairs in 242 ms
+2026-10-02T08:08:54.766Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:08:54.836Z judge        judge memoryPairs in 242 ms
+2026-10-02T08:08:54.987Z judge        judge memoryPairs in 222 ms
+2026-10-02T08:08:55.064Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:08:55.283Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:08:55.316Z judge        judge memoryPairs in 250 ms
+2026-10-02T08:08:55.520Z judge        judge memoryPairs in 238 ms
+2026-10-02T08:08:55.541Z judge        judge memoryPairs in 226 ms
+2026-10-02T08:08:55.741Z judge        judge memoryPairs in 221 ms
+2026-10-02T08:09:12.076Z judge        judge memoryPairs in 241 ms
+2026-10-02T08:09:12.081Z judge        judge memoryPairs in 247 ms
+2026-10-02T08:09:12.315Z judge        judge memoryPairs in 240 ms
+2026-10-02T08:09:25.285Z payload      6 story blocks injected (generation)
+2026-10-02T08:09:25.331Z payload      7 story blocks injected (generation)
+2026-10-02T08:09:25.967Z judge        judge lore in 368 ms
+2026-10-02T08:09:26.012Z judge        judge lore in 417 ms
+2026-10-02T08:09:26.320Z judge        judge lore in 357 ms
+2026-10-02T08:09:26.328Z judge        judge lore in 320 ms
+2026-10-02T08:09:26.540Z judge        judge lore in 222 ms
+2026-10-02T08:09:26.795Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:09:26.795Z judge        judge director in 235 ms
+2026-10-02T08:09:28.312Z payload      7 story blocks injected (generation)
+2026-10-02T08:09:55.502Z boundary     applied location=aegis_guild_tavern
+2026-10-02T08:09:55.819Z reconciliation stall re-check queued for aegis_exam_entered, aegis_exam_declined
+2026-10-02T08:09:56.029Z talk         silence speaks (judge)
+2026-10-02T08:09:56.029Z judge        judge director in 426 ms
+2026-10-02T08:09:56.347Z judge        judge typed in 432 ms
+2026-10-02T08:09:56.611Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T08:09:56.611Z judge        judge stall in 583 ms
+2026-10-02T08:09:57.658Z judge        judge scene in 1314 ms
+2026-10-02T08:09:57.882Z judge        judge warden in 1273 ms
+2026-10-02T08:09:57.917Z judge        judge wardenLore in 261 ms
+2026-10-02T08:09:58.116Z judge        judge typed in 236 ms
+2026-10-02T08:09:58.116Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:03.029Z delta        queued aegis_exam_entered=false, location=aegis_guild_tavern, tension_current=0 for the next boundary
+2026-10-02T08:10:03.061Z judge        judge memoryVerify in 281 ms
+2026-10-02T08:10:02.773Z extraction   read scene:location msgs 12-19 → 3 accepted, 0 rejected
+2026-10-02T08:10:02.773Z delta        aegis_exam_entered = false
+2026-10-02T08:10:02.773Z delta        location = aegis_guild_tavern
+2026-10-02T08:10:02.773Z delta        tension_current = 0
+2026-10-02T08:10:02.773Z delta        queued aegis_exam_entered=false, location=aegis_guild_tavern, tension_current=0 for the next boundary
+2026-10-02T08:10:02.773Z audit        audit scene:location msgs 12-19 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:10:16.230Z payload      6 story blocks injected (generation)
+2026-10-02T08:10:16.270Z payload      7 story blocks injected (generation)
+2026-10-02T08:10:16.947Z judge        judge lore in 405 ms
+2026-10-02T08:10:16.977Z judge        judge lore in 430 ms
+2026-10-02T08:10:17.274Z judge        judge lore in 301 ms
+2026-10-02T08:10:17.284Z judge        judge lore in 342 ms
+2026-10-02T08:10:17.542Z judge        judge lore in 268 ms
+2026-10-02T08:10:17.806Z talk         Domas speaks (judge)
+2026-10-02T08:10:17.806Z judge        judge director in 246 ms
+2026-10-02T08:10:46.551Z payload      7 story blocks injected (generation)
+2026-10-02T08:10:48.403Z payload      7 story blocks injected (generation)
+2026-10-02T08:10:50.235Z payload      7 story blocks injected (generation)
+2026-10-02T08:10:52.326Z boundary     applied aegis_exam_entered=false, location=aegis_guild_tavern, tension_current=0
+2026-10-02T08:10:52.806Z judge        judge director in 531 ms
+2026-10-02T08:10:52.807Z talk         silence speaks (judge)
+2026-10-02T08:10:53.277Z judge        judge scene in 486 ms
+2026-10-02T08:10:53.299Z judge        judge warden in 494 ms
+2026-10-02T08:10:53.509Z judge        judge wardenLore in 232 ms
+2026-10-02T08:10:53.754Z judge        judge typed in 223 ms
+2026-10-02T08:10:53.755Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:57.961Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:10:58.231Z judge        judge memoryVerify in 265 ms
+2026-10-02T08:10:58.728Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:10:57.956Z extraction   read cadence msgs 16-21 → 2 accepted, 0 rejected
+2026-10-02T08:10:57.956Z delta        aegis_exam_entered = false
+2026-10-02T08:10:57.956Z delta        location = aegis_guild_tavern
+2026-10-02T08:10:57.956Z delta        queued location=aegis_guild_tavern for the next boundary
+2026-10-02T08:10:57.956Z audit        audit cadence msgs 16-21 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:11:11.758Z payload      6 story blocks injected (generation)
+2026-10-02T08:11:11.796Z payload      9 story blocks injected (generation)
+2026-10-02T08:11:12.421Z judge        judge lore in 345 ms
+2026-10-02T08:11:12.439Z judge        judge lore in 368 ms
+2026-10-02T08:11:12.748Z judge        judge lore in 331 ms
+2026-10-02T08:11:12.750Z judge        judge lore in 315 ms
+2026-10-02T08:11:13.018Z judge        judge lore in 270 ms
+2026-10-02T08:11:13.313Z judge        judge director in 271 ms
+2026-10-02T08:11:13.314Z talk         Ellie speaks (judge)
+2026-10-02T08:11:53.498Z payload      7 story blocks injected (generation)
+2026-10-02T08:11:55.123Z payload      7 story blocks injected (generation)
+2026-10-02T08:11:56.686Z payload      7 story blocks injected (generation)
+2026-10-02T08:11:58.558Z boundary     applied location=aegis_guild_tavern
+2026-10-02T08:11:59.303Z talk         silence speaks (judge)
+2026-10-02T08:11:59.303Z judge        judge director in 619 ms
+2026-10-02T08:11:59.352Z judge        judge typed in 379 ms
+2026-10-02T08:11:59.826Z judge        judge scene in 525 ms
+2026-10-02T08:11:59.875Z judge        judge warden in 526 ms
+2026-10-02T08:12:00.060Z judge        judge wardenLore in 235 ms
+2026-10-02T08:12:02.090Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:15.158Z payload      6 story blocks injected (generation)
+2026-10-02T08:12:15.188Z payload      7 story blocks injected (generation)
+2026-10-02T08:12:15.832Z judge        judge lore in 378 ms
+2026-10-02T08:12:15.864Z judge        judge lore in 406 ms
+2026-10-02T08:12:16.348Z judge        judge lore in 519 ms
+2026-10-02T08:12:16.416Z judge        judge lore in 556 ms
+2026-10-02T08:12:16.678Z judge        judge lore in 331 ms
+2026-10-02T08:12:17.028Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:12:17.028Z judge        judge director in 338 ms
+2026-10-02T08:12:49.767Z payload      7 story blocks injected (generation)
+2026-10-02T08:12:52.056Z payload      7 story blocks injected (generation)
+2026-10-02T08:12:54.467Z payload      7 story blocks injected (generation)
+2026-10-02T08:12:56.736Z payload      7 story blocks injected (generation)
+2026-10-02T08:12:58.944Z boundary     boundary 14: nothing applied (gate)
+2026-10-02T08:12:59.314Z reconciliation stall re-check queued for aegis_exam_entered, aegis_exam_declined
+2026-10-02T08:12:59.369Z talk         silence speaks (judge)
+2026-10-02T08:12:59.369Z judge        judge director in 464 ms
+2026-10-02T08:12:59.810Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T08:12:59.810Z judge        judge stall in 443 ms
+2026-10-02T08:12:59.820Z judge        judge typed in 463 ms
+2026-10-02T08:13:00.392Z judge        judge warden in 576 ms
+2026-10-02T08:13:00.397Z judge        judge scene in 591 ms
+2026-10-02T08:13:00.661Z judge        judge wardenLore in 271 ms
+2026-10-02T08:13:15.564Z session      chat 2026-10-02@05h00m18s777ms · story adolion-aegis · at Homecoming (boundary 1, 1 messages)
+2026-10-02T08:13:15.380Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T08:13:15.380Z story        host change "background" was reverted when this chat reloaded
+2026-10-02T08:13:16.387Z story        away recap not due
+2026-10-02T08:13:16.640Z status       Continuing Adolion: Between the Roads
+2026-10-02T08:13:19.070Z payload      4 story blocks injected (generation)
+2026-10-02T08:13:19.101Z payload      5 story blocks injected (generation)
+2026-10-02T08:13:19.727Z judge        judge lore in 413 ms
+2026-10-02T08:13:19.741Z judge        judge lore in 422 ms
+2026-10-02T08:13:20.042Z judge        judge lore in 319 ms
+2026-10-02T08:13:20.150Z judge        judge lore in 415 ms
+2026-10-02T08:13:20.269Z judge        judge lore in 228 ms
+2026-10-02T08:13:20.500Z judge        judge director in 223 ms
+2026-10-02T08:13:20.501Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:13:20.715Z payload      5 story blocks injected (generation)
+2026-10-02T08:13:21.006Z payload      5 story blocks injected (generation)
+2026-10-02T08:13:21.260Z payload      5 story blocks injected (generation)
+2026-10-02T08:13:42.914Z boundary     boundary 2: nothing applied (gate)
+2026-10-02T08:13:43.089Z status       Following Homecoming
+2026-10-02T08:13:43.146Z judge        judge director in 267 ms
+2026-10-02T08:13:43.147Z talk         silence speaks (judge)
+2026-10-02T08:13:43.380Z judge        judge typed in 270 ms
+2026-10-02T08:13:43.416Z judge        judge scene in 272 ms
+2026-10-02T08:13:44.961Z judge        judge wardenLore in 1546 ms
+2026-10-02T08:13:44.961Z judge        judge warden in 1582 ms
+2026-10-02T08:14:07.049Z payload      4 story blocks injected (generation)
+2026-10-02T08:14:07.120Z payload      5 story blocks injected (generation)
+2026-10-02T08:14:07.811Z judge        judge lore in 353 ms
+2026-10-02T08:14:07.837Z judge        judge lore in 407 ms
+2026-10-02T08:14:08.121Z judge        judge lore in 290 ms
+2026-10-02T08:14:08.174Z judge        judge lore in 370 ms
+2026-10-02T08:14:08.363Z judge        judge lore in 244 ms
+2026-10-02T08:14:08.617Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:14:08.617Z judge        judge director in 235 ms
+2026-10-02T08:14:08.905Z payload      5 story blocks injected (generation)
+2026-10-02T08:14:09.941Z payload      5 story blocks injected (generation)
+2026-10-02T08:14:31.115Z boundary     boundary 3: nothing applied (gate)
+2026-10-02T08:14:31.214Z talk         silence speaks (judge)
+2026-10-02T08:14:31.214Z judge        judge director in 281 ms
+2026-10-02T08:14:31.676Z judge        judge warden in 270 ms
+2026-10-02T08:14:31.683Z judge        judge scene in 280 ms
+2026-10-02T08:14:34.593Z judge        judge wardenLore in 2919 ms
+2026-10-02T08:14:35.327Z judge        judge typed in 352 ms
+2026-10-02T08:14:35.327Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:39.120Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:14:39.130Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:14:39.364Z judge        judge memoryVerify in 241 ms
+2026-10-02T08:14:39.115Z extraction   read cadence msgs 0-4 → 4 accepted, 0 rejected
+2026-10-02T08:14:39.115Z delta        aegis_exam_declined = false
+2026-10-02T08:14:39.115Z delta        aegis_exam_entered = false
+2026-10-02T08:14:39.115Z delta        location = aegis_guild_hall
+2026-10-02T08:14:39.115Z delta        tension_current = 0
+2026-10-02T08:14:39.115Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:14:39.115Z audit        audit cadence msgs 0-4 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:14:52.556Z payload      4 story blocks injected (generation)
+2026-10-02T08:14:52.604Z payload      5 story blocks injected (generation)
+2026-10-02T08:14:53.165Z judge        judge lore in 368 ms
+2026-10-02T08:14:53.179Z judge        judge lore in 378 ms
+2026-10-02T08:14:53.474Z judge        judge lore in 313 ms
+2026-10-02T08:14:53.493Z judge        judge lore in 318 ms
+2026-10-02T08:14:53.734Z judge        judge lore in 262 ms
+2026-10-02T08:14:53.992Z judge        judge director in 244 ms
+2026-10-02T08:14:53.993Z talk         Tobias speaks (judge)
+2026-10-02T08:15:14.221Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:16.025Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:17.796Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:19.327Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:20.901Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:22.716Z boundary     applied aegis_exam_declined=false, location=aegis_guild_hall, tension_current=0
+2026-10-02T08:15:22.784Z talk         silence speaks (judge)
+2026-10-02T08:15:22.784Z judge        judge director in 290 ms
+2026-10-02T08:15:23.169Z judge        judge typed in 257 ms
+2026-10-02T08:15:23.237Z judge        judge scene in 324 ms
+2026-10-02T08:15:23.407Z judge        judge warden in 239 ms
+2026-10-02T08:15:23.480Z judge        judge wardenLore in 244 ms
+2026-10-02T08:15:39.235Z payload      5 story blocks injected (generation)
+2026-10-02T08:15:39.277Z payload      6 story blocks injected (generation)
+2026-10-02T08:15:39.908Z judge        judge lore in 416 ms
+2026-10-02T08:15:39.952Z judge        judge lore in 465 ms
+2026-10-02T08:15:40.223Z judge        judge lore in 320 ms
+2026-10-02T08:15:40.293Z judge        judge lore in 345 ms
+2026-10-02T08:15:40.468Z judge        judge lore in 247 ms
+2026-10-02T08:15:40.740Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:15:40.740Z judge        judge director in 259 ms
+2026-10-02T08:15:42.528Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:04.872Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:06.413Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:10.540Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:12.169Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:13.924Z boundary     boundary 5: nothing applied (gate)
+2026-10-02T08:16:14.019Z talk         silence speaks (judge)
+2026-10-02T08:16:14.019Z judge        judge director in 276 ms
+2026-10-02T08:16:14.359Z judge        judge typed in 256 ms
+2026-10-02T08:16:14.413Z judge        judge scene in 309 ms
+2026-10-02T08:16:14.604Z judge        judge warden in 246 ms
+2026-10-02T08:16:14.751Z judge        judge wardenLore in 339 ms
+2026-10-02T08:16:31.393Z payload      5 story blocks injected (generation)
+2026-10-02T08:16:31.422Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:32.004Z judge        judge lore in 388 ms
+2026-10-02T08:16:32.029Z judge        judge lore in 400 ms
+2026-10-02T08:16:32.408Z judge        judge lore in 383 ms
+2026-10-02T08:16:32.476Z judge        judge lore in 476 ms
+2026-10-02T08:16:32.695Z judge        judge lore in 288 ms
+2026-10-02T08:16:32.943Z talk         Vallie speaks (judge)
+2026-10-02T08:16:32.943Z judge        judge director in 239 ms
+2026-10-02T08:16:54.415Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:56.278Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:57.757Z payload      6 story blocks injected (generation)
+2026-10-02T08:16:59.102Z payload      6 story blocks injected (generation)
+2026-10-02T08:17:00.627Z payload      6 story blocks injected (generation)
+2026-10-02T08:17:02.091Z talk         Domas speaks (mention)
+2026-10-02T08:17:02.142Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T08:17:02.382Z payload      5 story blocks injected (generation)
+2026-10-02T08:17:02.425Z payload      6 story blocks injected (generation)
+2026-10-02T08:17:02.628Z judge        judge warden in 269 ms
+2026-10-02T08:17:02.708Z judge        judge scene in 351 ms
+2026-10-02T08:17:02.857Z judge        judge wardenLore in 230 ms
+2026-10-02T08:17:03.074Z judge        judge lore in 371 ms
+2026-10-02T08:17:03.170Z judge        judge lore in 317 ms
+2026-10-02T08:17:03.360Z judge        judge lore in 290 ms
+2026-10-02T08:17:03.470Z judge        judge lore in 304 ms
+2026-10-02T08:17:03.616Z judge        judge lore in 257 ms
+2026-10-02T08:17:05.593Z judge        judge typed in 242 ms
+2026-10-02T08:17:05.594Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:10.843Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:17:10.847Z story        2 rating reading(s) held: the evidence did not ground the level
+2026-10-02T08:17:11.114Z judge        judge memoryVerify in 265 ms
+2026-10-02T08:17:11.521Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall, party_injuries=0, tension_current=0 for the next boundary
+2026-10-02T08:17:10.838Z extraction   read cadence msgs 5-10 → 7 accepted, 0 rejected
+2026-10-02T08:17:10.838Z delta        aegis_exam_declined = false
+2026-10-02T08:17:10.838Z delta        aegis_exam_entered = false
+2026-10-02T08:17:10.838Z delta        guild_reputation = 3
+2026-10-02T08:17:10.838Z delta        location = aegis_guild_hall
+2026-10-02T08:17:10.838Z delta        party_injuries = 0
+2026-10-02T08:17:10.838Z delta        party_rank = 1
+2026-10-02T08:17:10.838Z delta        tension_current = 0
+2026-10-02T08:17:10.838Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall, party_injuries=0, tension_current=0 for the next boundary
+2026-10-02T08:17:10.838Z audit        audit cadence msgs 5-10 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 7 accepted, 0 rejected
+2026-10-02T08:17:25.954Z boundary     applied aegis_exam_declined=false, location=aegis_guild_hall, party_injuries=0, tension_current=0
+2026-10-02T08:17:26.028Z payload      5 story blocks injected (generation)
+2026-10-02T08:17:28.833Z judge        judge typed in 2331 ms
+2026-10-02T08:17:28.835Z judge        judge scene in 2332 ms
+2026-10-02T08:17:29.085Z judge        judge warden in 253 ms
+2026-10-02T08:17:29.160Z judge        judge wardenLore in 326 ms
+2026-10-02T08:17:31.440Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:03.720Z payload      7 story blocks injected (generation)
+2026-10-02T08:18:03.758Z payload      8 story blocks injected (generation)
+2026-10-02T08:18:04.354Z judge        judge lore in 364 ms
+2026-10-02T08:18:04.387Z judge        judge lore in 415 ms
+2026-10-02T08:18:04.658Z judge        judge lore in 309 ms
+2026-10-02T08:18:04.672Z judge        judge lore in 289 ms
+2026-10-02T08:18:04.889Z judge        judge lore in 233 ms
+2026-10-02T08:18:05.140Z talk         Ellie speaks (judge)
+2026-10-02T08:18:05.140Z judge        judge director in 239 ms
+2026-10-02T08:18:27.652Z payload      8 story blocks injected (generation)
+2026-10-02T08:18:29.273Z payload      8 story blocks injected (generation)
+2026-10-02T08:18:32.143Z payload      8 story blocks injected (generation)
+2026-10-02T08:18:33.936Z boundary     boundary 8: nothing applied (gate)
+2026-10-02T08:18:34.168Z reconciliation stall re-check queued for aegis_exam_entered, aegis_exam_declined
+2026-10-02T08:18:34.200Z talk         silence speaks (judge)
+2026-10-02T08:18:34.200Z judge        judge director in 371 ms
+2026-10-02T08:18:34.528Z judge        judge typed in 337 ms
+2026-10-02T08:18:34.534Z judge        judge stall in 335 ms
+2026-10-02T08:18:34.535Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T08:18:34.828Z judge        judge warden in 295 ms
+2026-10-02T08:18:34.830Z judge        judge scene in 304 ms
+2026-10-02T08:18:35.158Z judge        judge wardenLore in 332 ms
+2026-10-02T08:18:35.411Z judge        judge typed in 247 ms
+2026-10-02T08:18:35.411Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:40.410Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:18:40.712Z judge        judge memoryVerify in 301 ms
+2026-10-02T08:18:40.933Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:18:40.406Z extraction   read cue:aegis-homecoming->aegis-the-tavern msgs 6-13 → 3 accepted, 0 rejected
+2026-10-02T08:18:40.406Z delta        aegis_exam_declined = false
+2026-10-02T08:18:40.406Z delta        aegis_exam_entered = false
+2026-10-02T08:18:40.406Z delta        location = aegis_guild_hall
+2026-10-02T08:18:40.406Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:18:40.406Z audit        audit cue:aegis-homecoming->aegis-the-tavern msgs 6-13 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:18:54.497Z payload      7 story blocks injected (generation)
+2026-10-02T08:18:54.539Z payload      8 story blocks injected (generation)
+2026-10-02T08:18:55.134Z judge        judge lore in 384 ms
+2026-10-02T08:18:55.146Z judge        judge lore in 392 ms
+2026-10-02T08:18:55.449Z judge        judge lore in 320 ms
+2026-10-02T08:18:55.464Z judge        judge lore in 322 ms
+2026-10-02T08:18:55.732Z judge        judge lore in 283 ms
+2026-10-02T08:18:55.983Z judge        judge director in 240 ms
+2026-10-02T08:18:55.984Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:18:57.654Z payload      8 story blocks injected (generation)
+2026-10-02T08:19:18.468Z payload      8 story blocks injected (generation)
+2026-10-02T08:19:20.598Z boundary     applied aegis_exam_declined=false, location=aegis_guild_hall
+2026-10-02T08:19:20.715Z judge        judge director in 259 ms
+2026-10-02T08:19:20.716Z talk         Domas speaks (judge)
+2026-10-02T08:19:21.087Z payload      7 story blocks injected (generation)
+2026-10-02T08:19:21.130Z payload      8 story blocks injected (generation)
+2026-10-02T08:19:21.262Z judge        judge scene in 366 ms
+2026-10-02T08:19:21.289Z judge        judge warden in 391 ms
+2026-10-02T08:19:21.493Z judge        judge wardenLore in 232 ms
+2026-10-02T08:19:21.599Z judge        judge lore in 314 ms
+2026-10-02T08:19:21.837Z judge        judge lore in 348 ms
+2026-10-02T08:19:22.051Z judge        judge lore in 456 ms
+2026-10-02T08:19:22.161Z judge        judge lore in 330 ms
+2026-10-02T08:19:22.287Z judge        judge lore in 237 ms
+2026-10-02T08:19:22.507Z judge        judge typed in 349 ms
+2026-10-02T08:19:22.508Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:28.540Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T08:19:28.808Z judge        judge memoryVerify in 267 ms
+2026-10-02T08:19:28.991Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:19:28.537Z extraction   read cadence msgs 11-15 → 4 accepted, 0 rejected
+2026-10-02T08:19:28.537Z delta        aegis_exam_declined = false
+2026-10-02T08:19:28.537Z delta        aegis_exam_entered = false
+2026-10-02T08:19:28.537Z delta        location = aegis_guild_hall
+2026-10-02T08:19:28.537Z delta        tension_current = 0
+2026-10-02T08:19:28.537Z delta        queued aegis_exam_declined=false, location=aegis_guild_hall for the next boundary
+2026-10-02T08:19:28.537Z audit        audit cadence msgs 11-15 scope [aegis_exam_declined, aegis_exam_entered, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:19:43.537Z boundary     applied aegis_exam_declined=false, location=aegis_guild_hall
+2026-10-02T08:19:46.356Z judge        judge scene fell back (timeout) in 2502 ms
+2026-10-02T08:19:47.868Z judge        judge typed in 4015 ms
+2026-10-02T08:19:50.246Z judge        judge wardenLore in 2379 ms
+2026-10-02T08:19:50.247Z judge        judge warden in 3892 ms
+2026-10-02T08:20:14.715Z judge        judge memoryPairs in 246 ms
+2026-10-02T08:20:14.810Z judge        judge memoryPairs in 342 ms
+2026-10-02T08:20:15.045Z judge        judge memoryPairs in 235 ms
+2026-10-02T08:20:15.138Z judge        judge memoryPairs in 424 ms
+2026-10-02T08:20:15.256Z judge        judge memoryPairs in 211 ms
+2026-10-02T08:20:15.678Z judge        judge memoryPairs in 541 ms
+2026-10-02T08:20:15.685Z judge        judge memoryPairs in 430 ms
+2026-10-02T08:20:15.900Z judge        judge memoryPairs in 222 ms
+2026-10-02T08:20:16.130Z judge        judge memoryPairs in 227 ms
+2026-10-02T08:20:16.131Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:20:16.359Z judge        judge memoryPairs in 230 ms
+2026-10-02T08:20:16.389Z judge        judge memoryPairs in 259 ms
+2026-10-02T08:20:16.592Z judge        judge memoryPairs in 233 ms
+2026-10-02T08:20:16.864Z judge        judge memoryPairs in 476 ms
+2026-10-02T08:20:17.055Z judge        judge memoryPairs in 464 ms
+2026-10-02T08:20:31.422Z judge        judge memoryPairs in 255 ms
+2026-10-02T08:20:31.439Z judge        judge memoryPairs in 276 ms
+2026-10-02T08:20:31.654Z judge        judge memoryPairs in 215 ms
+2026-10-02T08:20:31.666Z judge        judge memoryPairs in 245 ms
+2026-10-02T08:20:31.885Z judge        judge memoryPairs in 232 ms
+2026-10-02T08:20:32.134Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:19.160Z session      chat 2026-10-02@04h59m58s914ms · story adolion-aegis · at Homecoming (boundary 14, 26 messages)
+2026-10-02T08:21:18.243Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T08:21:18.243Z story        host change "background" was reverted when this chat reloaded
+2026-10-02T08:21:19.903Z story        away recap not due
+2026-10-02T08:21:20.338Z status       Continuing Adolion: Between the Roads
+2026-10-02T08:22:12.116Z session      chat 2026-10-02@05h00m18s777ms · story adolion-aegis · at Homecoming (boundary 10, 17 messages)
+2026-10-02T08:22:11.183Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T08:22:11.183Z story        host change "background" was reverted when this chat reloaded
+2026-10-02T08:22:12.599Z story        away recap not due
+2026-10-02T08:22:13.018Z status       Continuing Adolion: Between the Roads
+
+Stopped after 654 events and 17 audits.

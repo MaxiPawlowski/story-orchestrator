@@ -1,0 +1,104 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guild hall in Aegis City has barely settled after the party's return when Vallie appears on the stairs with an announcement: the Guild will put you forward for the C-rank exam. Domas follows her with the terms in writing, and Ellie has already laid out the forms. Tobias watches from behind the counter. No one has put a pen in your hand yet."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, after today I'd call you a friend. Would you?"
+ },
+ {
+  "id": 2,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana's blue eyes go wide for a heartbeat, then brighten with an easy smile. She leans against the counter, her white headdress tilting slightly as she laughs. \"After what we did today? Absolutely. I've never had a noble offer to be friends before—most just look right through me. Besides, friends get the best table in the tavern, and I can tell you're the type who appreciates a good drink after a job well done.\"\nThe tavern beyond the arch is bustling with the midday rush; the smell of roasted mutton and fresh-poured ale drifts through. Fiana gestures toward the long timber tables. \"First round's on me. I want to hear the whole story, the parts you won't put in the official guild report.\"\nDomas glances over from his paperwork, his red eyes flicking between the noble heir and the tavern girl. He says nothing, but his expression suggests he's adding this development to his mental file."
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Who is Jasira to you, Fiana?"
+ },
+ {
+  "id": 4,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana's smile falters, just for a moment, then settles into something warmer and more complicated. She pushes a tankard of ale toward Max Nightriver and lowers her voice. \"Jasira? She's...\" Fiana pauses, choosing her words. \"The kind of friend you don't have many of, because most people can't handle her. She's stubborn and prickly as a hedgehog, and she'll look right through you if she thinks you're not worth her time.\"\nShe takes a sip of her own drink, glancing toward the door where the tavern opens to the main hall. \"But when the chips are down, there's no one I'd rather have at my back. She protected me once—didn't want to admit it, but she did. Ever since, we've had this... arrangement. I keep her sane when the guild work gets too dark, and she keeps the creeps from getting too close.\"\nFiana's eyes narrow slightly, watching Max Nightriver's reaction. \"Why do you ask? You two crossed paths during the job, or are you just digging for dirt?\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Tobias, you've watched me since my first contract. What am I to you, a regular or something more?"
+ },
+ {
+  "id": 6,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "Tobias pauses mid-blot, the ink-stained feather trembling slightly in his hand. His ocean blue eyes flick up from the ledger, then quickly away, settling instead on a stack of forms. The tip of one long ear pinks—a flush he cannot conceal. \"I... I believe the term 'regular' implies a certain... routine quality.\"\nHe sets the pen down with more precision than necessary, straightening his white collar as he finally meets Max Nightriver's gaze. \"You are not routine. Not by half. I have watched you take jobs that would make other D-ranks reconsider their career choices.\" His expression shifts, the stoicism cracking to reveal something warmer, something almost anxious. \"To be honest, I worry. Whenever I see your name on the board, I find myself checking the clock more often than I should.\"\nTobias looks back down at the ledger, but he doesn't pick up the pen. \"I care for all the adventurers who walk through that door, truly. But some...\" He trails off, his fingers drumming once against the wood of the counter. \"Some make it difficult to remain purely professional. I suspect you know that.\""
+ },
+ {
+  "id": 7,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, you're the closest thing to a sister I have in this city. I mean that."
+ },
+ {
+  "id": 8,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana freezes, her hand still halfway to wiping the counter. The white fabric of her headdress shifts as she looks up, blue eyes widening before they soften into something vulnerable and raw. For a heartbeat, she just stares, as if confirming she heard the words correctly.\nThen a laugh breaks from her throat—sharp and genuine—as she sets down the cloth and leans across the counter. \"Gods, you're not supposed to say things like that to people,\" she says, though her voice wavers. \"You're supposed to keep it cool and distant, right? That's how nobles do it.\" She shakes her head, her curly red hair bouncing. \"But I'll take it. Truth be damned, I'll take it.\"\nShe reaches across the polished wood and gives Max Nightriver's hand a quick, firm squeeze—no hesitation, no reservation. \"You're a strange one, Max. But if you're serious about it, then I'm serious too. You get hurt on a job, you come find me first. Not the guild, not your house, not anyone else. Me first.\" Her expression settles into something fierce and protective. \"Got it?\""
+ },
+ {
+  "id": 9,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Vallie, are you and Domas friends, or just colleagues who put up with each other?"
+ },
+ {
+  "id": 10,
+  "name": "Vallie",
+  "isUser": false,
+  "text": "\"Colleagues?\" Vallie lets out a bark of a laugh that makes a few nearby adventurers jump. \"Kid, this elf's been putting up with me since we were barely a party, long before he decided he looked good in a vest and with a clipboard.\" She gestures with a grin toward Domas. \"He's the only one in the guild who can read my handwriting and tell me I'm wrong without flinching.\"\nShe leans back against the railing of the stairs, blue eye twinkling. \"We're as close as a rock and the mountain it's stuck in. He handles the paperwork I hate, I punch the people who annoy him. Fair trade.\" Her expression softens slightly, genuine affection breaking through the crass humor. \"Best damn friend I've got in this city.\"\nDomas doesn't look up from his papers, but there's the faintest quirk to his lips. \"I simply prefer to have her between myself and anyone who might actually try to talk to me,\" he mutters, though his tone lacks any real bite."
+ },
+ {
+  "id": 11,
+  "name": "Domas",
+  "isUser": false,
+  "text": "\"She is quite right. We've endured each other for many years now.\" He finally glances up from his clipboard, red eyes meeting Max Nightriver's with an expression that is neither confirming nor denying the sentiment. \"Though I suspect that's largely because she's the only person who can tolerate my penchant for structure, and I'm the only person she doesn't accidentally break when she's annoyed.\"\nHe straightens a stack of papers with a decisive snap. \"We are partners. In the Guild, in adventuring, and in surviving each other's company. Now, if we're quite finished discussing our personal dynamics, there are terms to review and decisions to be made.\" His tone is firm, though not unkind. \"The Guild has made its offer. The rest is up to you.\""
+ },
+ {
+  "id": 12,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Ellie, I trust you more than anyone at this Guild. Can I count on you as a friend?"
+ },
+ {
+  "id": 13,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "Ellie's pen freezes mid-air above the paperwork, her blue eyes snapping wide. A slow, deep flush spreads across her cheeks as she stares at the noble heir, her lips parting but no words coming out immediately. Her ears twitch—a telltale sign of her complete loss of composure.\n\"I... you... I...?\" She stammers, her usual refined professionalism crumbling into a flustered mess. She quickly sets the pen down with a clatter and clasps her hands together, knuckles white. \"You trust me? More than anyone?\"\nShe clears her throat several times, trying to regain her footing, though the blush hasn't faded. \"I... yes. Of course. I... I would be honored to be your friend, Max Nightriver.\" Her voice drops an octave, becoming softer, almost shy. \"Just... just don't tell the fanclub. They think I'm supposed to stay single and available.\" She glances sideways as if expecting to be caught, then peeks back at him through her lashes."
+ },
+ {
+  "id": 14,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, if Jasira is your mentor, then she's family to me too. Tell me about her."
+ },
+ {
+  "id": 15,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana pauses with the tankard still halfway to the table, her blue eyes widening at the weight of those words. The bustle of the tavern seems to fade around her—the clinking of mugs and raucous laughter becoming distant background noise.\n\"Family?\" she breathes, then sets the tankard down with more care than it needs. She looks toward the door leading back to the main hall, as if checking for eavesdroppers. \"Jasira doesn't have many people. Not anymore. Not since...\" She stops herself, shaking her head. \"She's a ranger of the Evergreen tribe, born and raised in Duskwallow Forest. One of the best they've ever seen.\"\nFiana leans forward, her voice dropping. \"She wanted to be a leader. Wanted to protect her people. But her father—the tribe's elder—he said no. Called her too reckless, too stubborn. He's the one who pushed her away, which is why she came to Aegis City in the first place.\" Her jaw tightens. \"She's spent every day since trying to prove him wrong. That's why she's so damn prickly—she's built a wall around herself because the person who should've had her back is the one who cut hers.\""
+ },
+ {
+  "id": 16,
+  "name": "Domas",
+  "isUser": false,
+  "text": "*Domas stands nearby, his clipboard held against his chest as he watches the exchange with a patient, knowing expression. His red eyes flick between the noble heir and the tavern worker.*\n\"Family is a strong word,\" *he observes quietly, though there's no judgment in his tone, only curiosity.* \"But then again, the Guild teaches us that the bonds forged in the field often prove stronger than those of blood. If Jasira has indeed mentored you, Fiana, then her influence is reflected in your conduct.\"\n*He taps the side of his clipboard thoughtfully.* \"A ranger's discipline combined with a tavern-keeper's pragmatism. It makes for an interesting combination. Though I suspect Jasira would be rather insulted if she knew her name was being discussed as if she were a study specimen.\""
+ }
+]

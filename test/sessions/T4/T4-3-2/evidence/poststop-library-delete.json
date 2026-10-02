@@ -1,0 +1,115 @@
+{
+  "at": "2026-10-02T08:24:09.173Z",
+  "steps": [
+    {
+      "answer": "escape",
+      "popup": {
+        "text": "Delete \"Adolion: Between the Roads\" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.",
+        "buttons": [
+          "Delete",
+          "Keep"
+        ],
+        "focused": "Keep",
+        "focusedCls": "popup-button-cancel menu_button result-control menu_button_default interactable"
+      },
+      "after": {
+        "chat": "2026-10-02@04h54m18s523ms",
+        "storyId": "adolion-aegis",
+        "library": [
+          "adolion-aegis@12"
+        ],
+        "selectValue": "adolion-aegis",
+        "selectText": "Adolion: Between the Roads",
+        "continueText": "Playing \"Adolion: Between the Roads\".",
+        "identity": {
+          "id": "adolion-aegis",
+          "playedVersion": 12,
+          "libraryVersion": 12,
+          "pinned": true,
+          "drifted": false
+        },
+        "overview": "Where you areHomecomingAt the Guild hall in Aegis City.The Guildmaster has just put your party up for the C-rank promotion exam in front of the whole hall. Sign, ask for time or say no: the choice is yours.What happens next is yours to decide.About this storyA week in Aegis City between adventures. ",
+        "deleteBtn": true
+      }
+    },
+    {
+      "answer": "enter",
+      "popup": {
+        "text": "Delete \"Adolion: Between the Roads\" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.",
+        "buttons": [
+          "Delete",
+          "Keep"
+        ],
+        "focused": "Keep",
+        "focusedCls": "popup-button-cancel menu_button result-control menu_button_default interactable"
+      },
+      "after": {
+        "chat": "2026-10-02@04h54m18s523ms",
+        "storyId": "adolion-aegis",
+        "library": [
+          "adolion-aegis@12"
+        ],
+        "selectValue": "adolion-aegis",
+        "selectText": "Adolion: Between the Roads",
+        "continueText": "Playing \"Adolion: Between the Roads\".",
+        "identity": {
+          "id": "adolion-aegis",
+          "playedVersion": 12,
+          "libraryVersion": 12,
+          "pinned": true,
+          "drifted": false
+        },
+        "overview": "Where you areHomecomingAt the Guild hall in Aegis City.The Guildmaster has just put your party up for the C-rank promotion exam in front of the whole hall. Sign, ask for time or say no: the choice is yours.What happens next is yours to decide.About this storyA week in Aegis City between adventures. ",
+        "deleteBtn": true
+      }
+    },
+    {
+      "answer": "delete",
+      "popup": {
+        "text": "Delete \"Adolion: Between the Roads\" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.",
+        "buttons": [
+          "Delete",
+          "Keep"
+        ],
+        "focused": "Keep",
+        "focusedCls": "popup-button-cancel menu_button result-control menu_button_default interactable"
+      },
+      "after": {
+        "chat": "2026-10-02@04h54m18s523ms",
+        "storyId": "adolion-aegis",
+        "library": [],
+        "selectValue": "adolion-aegis",
+        "selectText": "Adolion: Between the Roads (pinned copy, not in the library)",
+        "continueText": "Playing \"Adolion: Between the Roads\" from this chat's pinned copy. It is no longer in the library.",
+        "identity": {
+          "id": "adolion-aegis",
+          "playedVersion": 12,
+          "libraryVersion": null,
+          "pinned": true,
+          "drifted": false
+        },
+        "overview": "Where you areHomecomingAt the Guild hall in Aegis City.The Guildmaster has just put your party up for the C-rank promotion exam in front of the whole hall. Sign, ask for time or say no: the choice is yours.What happens next is yours to decide.About this storyA week in Aegis City between adventures. ",
+        "deleteBtn": true
+      }
+    }
+  ],
+  "before": {
+    "chat": "2026-10-02@04h54m18s523ms",
+    "storyId": "adolion-aegis",
+    "library": [
+      "adolion-aegis@12"
+    ],
+    "selectValue": "adolion-aegis",
+    "selectText": "Adolion: Between the Roads",
+    "continueText": "Playing \"Adolion: Between the Roads\".",
+    "identity": {
+      "id": "adolion-aegis",
+      "playedVersion": 12,
+      "libraryVersion": 12,
+      "pinned": true,
+      "drifted": false
+    },
+    "overview": "Where you areHomecomingAt the Guild hall in Aegis City.The Guildmaster has just put your party up for the C-rank promotion exam in front of the whole hall. Sign, ask for time or say no: the choice is yours.What happens next is yours to decide.About this storyA week in Aegis City between adventures. ",
+    "deleteBtn": true
+  }
+}

@@ -18,7 +18,7 @@ export interface DeleteDeps {
   settle: (page: any, ms: number) => Promise<unknown>;
 }
 
-export const REAP_PROMPT = (chatId: string) => `The chat "${chatId}" was deleted`;
+export const isReapPrompt = (popup: { reapChat?: string | null }, chatId: string) => popup.reapChat === chatId;
 
 export async function deleteSessionChat(page: any, args: DeleteArgs, deps: DeleteDeps, { promptTimeoutMs = 20000, settleMs = 2500 } = {}) {
   const at = new Date().toISOString();
@@ -75,7 +75,7 @@ export async function defaultDeleteDeps(): Promise<DeleteDeps> {
       const others: string[] = [];
       while (Date.now() < deadline) {
         for (const popup of await readOpenPopups(page)) {
-          if (popup.text.startsWith(REAP_PROMPT(chatId))) {
+          if (isReapPrompt(popup, chatId)) {
             if (answer === 'escape') {
               await evaluateInST(page, ({ index, mark }: { index: number; mark: string }) => document.querySelectorAll('dialog[open]')[index]?.setAttribute(mark, 'escape'), { index: popup.index, mark: HANDLED_MARK });
               await page.keyboard.press('Escape');

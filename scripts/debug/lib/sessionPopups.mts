@@ -1,7 +1,7 @@
 import { evaluateInST } from './evaluate.mts';
 
 export interface PopupRule { id: string; match: RegExp; answer: string; why: string }
-export interface OpenPopup { index: number; text: string; buttons: string[] }
+export interface OpenPopup { index: number; text: string; buttons: string[]; reapChat?: string | null }
 export interface PopupAnswer { rule: string; text: string; answer: string; clicked: boolean; why: string }
 export interface PopupOutcome<T> { result: T | null; answered: PopupAnswer[]; unexpected: string[]; timedOut: boolean; error: string | null }
 
@@ -23,6 +23,7 @@ export const readOpenPopups = (page: any): Promise<OpenPopup[]> => evaluateInST(
     index,
     text: String(dialog.querySelector('.popup-content')?.textContent ?? dialog.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 400),
     buttons: [...dialog.querySelectorAll('[data-result]')].map((button) => String(button.textContent ?? '').trim()).filter(Boolean),
+    reapChat: dialog.querySelector('[data-so-reap-chat]')?.getAttribute('data-so-reap-chat') ?? null,
   })), HANDLED_MARK);
 
 const pressPopup = (page: any, index: number, label: string | null): Promise<boolean> => evaluateInST(page, ({ index, label, mark }: { index: number; label: string | null; mark: string }) => {

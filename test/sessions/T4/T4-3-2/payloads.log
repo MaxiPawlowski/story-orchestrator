@@ -1,0 +1,50 @@
+Persisting every capture → C:\dev\story-orchestrator\test\sessions\T4\T4-3-2\payloads.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T08:00:29.944Z #0 POST /api/backends/chat-completions/generate
+2026-10-02T08:00:47.283Z #1 POST /api/backends/chat-completions/generate
+2026-10-02T08:01:00.558Z #2 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:01:13.278Z #3 POST /api/backends/chat-completions/generate
+2026-10-02T08:01:18.052Z #4 POST /api/backends/chat-completions/generate
+2026-10-02T08:01:22.945Z #5 POST /api/backends/chat-completions/generate
+2026-10-02T08:01:24.293Z #6 POST /api/backends/chat-completions/generate
+2026-10-02T08:01:25.782Z #7 POST /api/backends/chat-completions/generate
+2026-10-02T08:02:16.582Z #8 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:02:33.200Z #9 POST /api/backends/chat-completions/generate
+2026-10-02T08:02:39.872Z #10 POST /api/backends/chat-completions/generate
+2026-10-02T08:03:05.186Z #11 POST /api/backends/text-completions/generate (151)
+2026-10-02T08:03:53.415Z #12 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:04:35.920Z #13 POST /api/backends/text-completions/generate (153)
+2026-10-02T08:04:53.549Z #14 POST /api/backends/chat-completions/generate (43)
+2026-10-02T08:05:01.053Z #15 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:05:27.479Z #16 POST /api/backends/chat-completions/generate (43)
+2026-10-02T08:05:30.150Z #17 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:06:11.274Z #18 POST /api/backends/text-completions/generate (45)
+2026-10-02T08:06:29.799Z #19 POST /api/backends/chat-completions/generate
+2026-10-02T08:07:03.306Z #20 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:07:33.908Z #21 POST /api/backends/chat-completions/generate
+2026-10-02T08:07:58.574Z #22 POST /api/backends/text-completions/generate (151)
+2026-10-02T08:08:34.323Z #23 POST /api/backends/chat-completions/generate
+2026-10-02T08:09:38.990Z #24 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:09:58.119Z #25 POST /api/backends/chat-completions/generate
+2026-10-02T08:10:28.119Z #26 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:10:53.758Z #27 POST /api/backends/chat-completions/generate
+2026-10-02T08:11:23.008Z #28 POST /api/backends/text-completions/generate (45)
+2026-10-02T08:12:02.094Z #29 POST /api/backends/chat-completions/generate
+2026-10-02T08:12:22.607Z #30 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:13:28.763Z #31 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:14:17.037Z #32 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:14:35.333Z #33 POST /api/backends/chat-completions/generate
+2026-10-02T08:15:01.556Z #34 POST /api/backends/text-completions/generate (151)
+2026-10-02T08:15:49.756Z #35 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:16:41.445Z #36 POST /api/backends/text-completions/generate (153)
+2026-10-02T08:17:05.596Z #37 POST /api/backends/chat-completions/generate (43)
+2026-10-02T08:17:10.347Z #38 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:17:31.446Z #39 POST /api/backends/chat-completions/generate (43)
+2026-10-02T08:17:32.686Z #40 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:18:14.360Z #41 POST /api/backends/text-completions/generate (45)
+2026-10-02T08:18:35.414Z #42 POST /api/backends/chat-completions/generate
+2026-10-02T08:19:01.440Z #43 POST /api/backends/text-completions/generate (1)
+2026-10-02T08:19:22.513Z #44 POST /api/backends/chat-completions/generate (43)
+2026-10-02T08:19:30.650Z #45 POST /api/backends/text-completions/generate (43)
+2026-10-02T08:20:32.137Z #46 POST /api/backends/chat-completions/generate
+
+{"written":47,"responses":25,"dropped":0,"rearmed":0,"unknownGaps":0,"writeErrors":0,"epoch":"1790928029760-ex86ta","ok":true}
