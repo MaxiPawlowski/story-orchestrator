@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { within, userEvent, expect, fn } from "@storybook/test";
+import { within, userEvent, expect, fn, waitFor } from "@storybook/test";
 import type { DriverContext } from "@copilot/index";
 import { DEFAULT_AGENCY } from "@engine/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
@@ -62,6 +62,9 @@ export const AdvanceRequiresConfirm: Story = {
     await expect(args.controller.advance).not.toHaveBeenCalled();
     await userEvent.click(canvas.getByRole("button", { name: "Confirm advance" }));
     await expect(args.controller.advance).toHaveBeenCalledWith("vault");
+    await expect(await canvas.findByRole("status")).toHaveTextContent("Advanced to vault.");
+    await expect(canvas.getByRole("button", { name: "Advance" })).toBeEnabled();
+    await waitFor(() => expect(canvasElement.getAnimations({ subtree: true })).toHaveLength(0));
   },
 };
 
