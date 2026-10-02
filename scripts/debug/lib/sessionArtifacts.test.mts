@@ -140,7 +140,7 @@ test('thinking overlay: no waiver, and a session whose replies carry no reasonin
 });
 
 test('T5-1-1 recorded: the armed wizard session carries its W6 candidate, so stop no longer invalidates it on ratingCandidates', async () => {
-  const dir = resolve(REPO_ROOT, 'test', 'sessions', 'T5', 'T5-1-1');
+  const dir = resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T5-1-1');
   const session = JSON.parse(readFileSync(resolve(dir, 'session.json'), 'utf-8'));
   const doc = await loadCards();
   const card = findCard(doc, session.charter);

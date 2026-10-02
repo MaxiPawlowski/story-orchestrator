@@ -207,7 +207,7 @@ test('T1-7: rows a tail recorded under a chat whose story it could not name are 
 });
 
 test('T1-7 recorded: the re-digested session has no phantom rollbacks or jumps and counts per chat', async () => {
-  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'sessions', 'T1', 'T1-7-1'), await loadIndex());
+  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T1-7-1'), await loadIndex());
   const digest = digestSession(files, paths);
   assert.equal(digest.counts.rollback, 0, 'the old digest counted 24, all of them the other story\'s boundaries');
   assert.equal(digest.counts['unexpected-jump'], 0, 'the old digest counted 2');
@@ -216,7 +216,7 @@ test('T1-7 recorded: the re-digested session has no phantom rollbacks or jumps a
 });
 
 test('T5-5-1 digest: a manual boundary the journal names as an author advance is expected, not an unexpected jump', async () => {
-  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'sessions', 'T5', 'T5-5-1'), await loadIndex());
+  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T5-5-1'), await loadIndex());
   assert.equal(digestSession(files, paths).counts['unexpected-jump'], 1, 'control: without the author record the manual boundary is still reported');
   const chatId = '2026-10-02@06h23m29s662ms';
   const advance = { line: files.journal.length + 1, value: { at: '2026-10-02T09:34:24.405Z', boundary: 7, messageId: 8, kind: 'author', summary: 'Author advance: The Summons → Fort Vicinitas', detail: { note: 'war-the-summons → war-the-front' }, chatId } };

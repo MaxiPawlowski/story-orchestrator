@@ -1,0 +1,145 @@
+{"at": "2026-10-01T17:33:25.119Z", "kind": "session", "boundary": 1, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m14s529ms", "storyId": "adolion-aegis", "activeCheckpointId": "aegis-homecoming", "boundary": 1}}
+{"at": "2026-10-01T17:33:14.931Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 1, "messageId": 0, "summary": "boundary 1", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:33:40.563Z", "kind": "session", "boundary": 1, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m02s449ms", "storyId": "adolion-adventurer", "activeCheckpointId": "guild-hall", "boundary": 1}}
+{"at": "2026-10-01T17:33:02.868Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 1, "messageId": 0, "summary": "boundary 1", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:34:41.562Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 2, "messageId": 2, "summary": "boundary 2", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:35:39.556Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 3, "messageId": 2, "summary": "boundary 3", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:36:54.071Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 4, "messageId": 4, "summary": "boundary 4", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:37:47.411Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 5, "messageId": 6, "summary": "boundary 5", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:39:11.506Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 6, "messageId": 8, "summary": "boundary 6", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:39:11.506Z", "kind": "transition", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 6, "messageId": 8, "summary": "guild-hall \u2192 road-to-wendhope", "detail": {}}
+{"at": "2026-10-01T17:40:21.739Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 7, "messageId": 9, "summary": "boundary 7", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:07.152Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "boundary 8", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:14.227Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "typed", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:16.759Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "memoryVerify", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:32.676Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 9, "messageId": 12, "summary": "boundary 9", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:33.048Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "boundary 10", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:41.048Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryVerify", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.490Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.490Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.491Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.492Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.494Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.598Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.598Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.735Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.736Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.736Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:29.456Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "curatorFilter", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:30.800Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "curatorFilter", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:53.763Z", "kind": "session", "boundary": 10, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m14s529ms", "storyId": null, "activeCheckpointId": "road-to-wendhope", "boundary": 10}}
+{"at": "2026-10-01T17:33:02.868Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 1, "messageId": 0, "summary": "boundary 1", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:34:41.562Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 2, "messageId": 2, "summary": "boundary 2", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:35:39.556Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 3, "messageId": 2, "summary": "boundary 3", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:36:54.071Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 4, "messageId": 4, "summary": "boundary 4", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:37:47.411Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 5, "messageId": 6, "summary": "boundary 5", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:39:11.506Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 6, "messageId": 8, "summary": "boundary 6", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:39:11.506Z", "kind": "transition", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 6, "messageId": 8, "summary": "guild-hall \u2192 road-to-wendhope", "detail": {}}
+{"at": "2026-10-01T17:40:21.739Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 7, "messageId": 9, "summary": "boundary 7", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:07.152Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "boundary 8", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:07.997Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:14.227Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "typed", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:16.759Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 11, "summary": "judge", "detail": {"use": "memoryVerify", "fallback": "busy"}}
+{"at": "2026-10-01T17:41:32.676Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 9, "messageId": 12, "summary": "boundary 9", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:33.048Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "boundary 10", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:41:41.048Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryVerify", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.490Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.490Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.491Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.492Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.493Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:01.494Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.598Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.598Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.735Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.736Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:25.736Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:29.456Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "curatorFilter", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:30.800Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 13, "summary": "judge", "detail": {"use": "curatorFilter", "fallback": "busy"}}
+{"at": "2026-10-01T17:42:56.450Z", "kind": "session", "boundary": 1, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m14s529ms", "storyId": "adolion-aegis", "activeCheckpointId": "aegis-homecoming", "boundary": 1}}
+{"at": "2026-10-01T17:43:50.413Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 2, "messageId": 2, "summary": "boundary 2", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:44:39.009Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 3, "messageId": 3, "summary": "boundary 3", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:45:56.706Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 4, "messageId": 5, "summary": "boundary 4", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:47:16.115Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 5, "messageId": 7, "summary": "boundary 5", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:48:44.238Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 6, "messageId": 9, "summary": "boundary 6", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:48:44.238Z", "kind": "transition", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 6, "messageId": 9, "summary": "aegis-homecoming \u2192 aegis-the-tavern", "detail": {}}
+{"at": "2026-10-01T17:50:40.095Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 7, "messageId": 11, "summary": "boundary 7", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:50:40.492Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 8, "messageId": 12, "summary": "boundary 8", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:51:46.359Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 9, "messageId": 13, "summary": "boundary 9", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:54:55.890Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 15, "summary": "boundary 10", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:54:58.952Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "scene", "fallback": "timeout"}}
+{"at": "2026-10-01T17:54:59.373Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "wardenLore", "fallback": "busy"}}
+{"at": "2026-10-01T17:54:59.767Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "typed", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:30.669Z", "kind": "session", "boundary": 10, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m02s449ms", "storyId": null, "activeCheckpointId": "aegis-the-tavern", "boundary": 10}}
+{"at": "2026-10-01T17:33:14.931Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 1, "messageId": 0, "summary": "boundary 1", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:43:50.413Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 2, "messageId": 2, "summary": "boundary 2", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:44:39.009Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 3, "messageId": 3, "summary": "boundary 3", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:45:56.706Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 4, "messageId": 5, "summary": "boundary 4", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:47:16.115Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 5, "messageId": 7, "summary": "boundary 5", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:48:44.238Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 6, "messageId": 9, "summary": "boundary 6", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:48:44.238Z", "kind": "transition", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 6, "messageId": 9, "summary": "aegis-homecoming \u2192 aegis-the-tavern", "detail": {}}
+{"at": "2026-10-01T17:50:40.095Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 7, "messageId": 11, "summary": "boundary 7", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:50:40.492Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 8, "messageId": 12, "summary": "boundary 8", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:51:46.359Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 9, "messageId": 13, "summary": "boundary 9", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:54:55.890Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 15, "summary": "boundary 10", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:54:58.952Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "scene", "fallback": "timeout"}}
+{"at": "2026-10-01T17:54:59.373Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "wardenLore", "fallback": "busy"}}
+{"at": "2026-10-01T17:54:59.767Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 15, "summary": "judge", "detail": {"use": "typed", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:31.850Z", "kind": "session", "boundary": 10, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m02s449ms", "storyId": "adolion-adventurer", "activeCheckpointId": "road-to-wendhope", "boundary": 10}}
+{"at": "2026-10-01T17:55:38.187Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "lore", "fallback": "timeout"}}
+{"at": "2026-10-01T17:55:38.196Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "lore", "fallback": "timeout"}}
+{"at": "2026-10-01T17:55:38.374Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:38.374Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:38.388Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "lore", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:38.399Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "director", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.708Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.708Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.708Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.708Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.740Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:55:47.741Z", "kind": "judge", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 10, "messageId": 14, "summary": "judge", "detail": {"use": "memoryPairs", "fallback": "busy"}}
+{"at": "2026-10-01T17:56:23.450Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 11, "messageId": 15, "summary": "boundary 11", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:57:09.012Z", "kind": "boundary", "chatId": "2026-10-01@14h33m02s449ms", "boundary": 12, "messageId": 16, "summary": "boundary 12", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:57:24.350Z", "kind": "session", "boundary": 10, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m14s529ms", "storyId": "adolion-aegis", "activeCheckpointId": "aegis-the-tavern", "boundary": 10}}
+{"at": "2026-10-01T17:58:16.773Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 11, "messageId": 17, "summary": "boundary 11", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:59:52.476Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 12, "messageId": 19, "summary": "boundary 12", "detail": {"source": "gate"}}
+{"at": "2026-10-01T17:59:52.476Z", "kind": "transition", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 12, "messageId": 19, "summary": "aegis-the-tavern \u2192 aegis-market-street", "detail": {}}
+{"at": "2026-10-01T18:02:06.758Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 13, "messageId": 21, "summary": "boundary 13", "detail": {"source": "gate"}}
+{"at": "2026-10-01T18:02:09.972Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 13, "messageId": 21, "summary": "judge", "detail": {"use": "scene", "fallback": "timeout"}}
+{"at": "2026-10-01T18:04:38.694Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 14, "messageId": 23, "summary": "boundary 14", "detail": {"source": "gate"}}
+{"at": "2026-10-01T18:05:25.099Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 15, "messageId": 24, "summary": "boundary 15", "detail": {"source": "gate"}}
+{"at": "2026-10-01T18:05:28.314Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 15, "messageId": 24, "summary": "judge", "detail": {"use": "scene", "fallback": "timeout"}}
+{"at": "2026-10-01T18:05:29.824Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 15, "messageId": 24, "summary": "judge", "detail": {"use": "warden", "fallback": "timeout"}}
+{"at": "2026-10-01T18:05:31.776Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 15, "messageId": 24, "summary": "judge", "detail": {"use": "wardenLore", "fallback": "busy"}}
+{"at": "2026-10-01T18:05:31.919Z", "kind": "judge", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 15, "messageId": 24, "summary": "judge", "detail": {"use": "typed", "fallback": "busy"}}
+{"at": "2026-10-01T18:07:05.132Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 16, "messageId": 24, "summary": "boundary 16", "detail": {"source": "gate"}}
+{"at": "2026-10-01T18:07:15.570Z", "kind": "boundary", "chatId": "2026-10-01@14h33m14s529ms", "boundary": 17, "messageId": 25, "summary": "boundary 17", "detail": {"source": "gate"}}
+{"at": "2026-10-01T18:09:25.382Z", "kind": "session", "boundary": 12, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m02s449ms", "storyId": "adolion-adventurer", "activeCheckpointId": "road-to-wendhope", "boundary": 12}}
+{"at": "2026-10-01T18:09:34.403Z", "kind": "session", "boundary": 17, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-01@14h33m14s529ms", "storyId": "adolion-aegis", "activeCheckpointId": "aegis-market-street", "boundary": 17}}

@@ -64,7 +64,9 @@ export const ROLE_EGRESS: Record<PassRole, string> = {
 const reasoningNote = (route: RoleRouteView): string | null => {
   if (route.effort === "default" || !route.reasoning) return null;
   if (route.reasoning.unsupported) return `Not applied: ${route.reasoning.unsupported}.`;
-  return route.reasoning.collapsed ? "This connection only switches thinking on or off." : null;
+  if (!route.reasoning.collapsed) return null;
+  const sent = route.reasoning.sent;
+  return sent && !sent.startsWith("enable_thinking") ? `This connection has no ${route.effort} level: it runs as ${sent}.` : "This connection only switches thinking on or off.";
 };
 
 const meterText = (meter: RouteMeter): string =>

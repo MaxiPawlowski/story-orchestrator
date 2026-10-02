@@ -1,0 +1,410 @@
+{
+  "source": "T0-2-2 snapshot 2026-10-01@08h41m13s779ms (private so-sessions repo), scrubbed: arc words of 4+ letters mapped one-to-one to tokens (thread overlap unchanged), shorter words replaced, digits zeroed, only the words the assertions name kept; extraction reduced to what derivePipelineStatus reads",
+  "activeCheckpointId": "first-night",
+  "extraction": {
+    "settings": {
+      "enabled": true,
+      "profileId": "p",
+      "cadence": 3,
+      "reconciliationMultiplier": 1.5,
+      "stabilityLag": 0
+    },
+    "audits": [],
+    "reconciliationEvents": [
+      {
+        "id": "event-00",
+        "boundary": 8,
+        "checkpointId": "guild-hall",
+        "targetedKeys": [],
+        "scheduledAt": "2026-10-01T11:48:47.890Z",
+        "resolvedAt": "2026-10-01T11:49:19.675Z",
+        "evidence": []
+      },
+      {
+        "id": "event-01",
+        "boundary": 16,
+        "checkpointId": "road-to-wendhope",
+        "targetedKeys": [],
+        "scheduledAt": "2026-10-01T11:56:23.753Z",
+        "resolvedAt": "2026-10-01T11:59:05.235Z",
+        "evidence": []
+      },
+      {
+        "id": "event-02",
+        "boundary": 19,
+        "checkpointId": "road-to-wendhope",
+        "targetedKeys": [],
+        "scheduledAt": "2026-10-01T11:58:49.429Z",
+        "resolvedAt": "2026-10-01T12:03:14.410Z",
+        "evidence": []
+      },
+      {
+        "id": "event-03",
+        "boundary": 22,
+        "checkpointId": "road-to-wendhope",
+        "targetedKeys": [],
+        "scheduledAt": "2026-10-01T12:02:50.942Z",
+        "resolvedAt": null,
+        "evidence": []
+      },
+      {
+        "id": "event-04",
+        "boundary": 33,
+        "checkpointId": "at-the-walls",
+        "targetedKeys": [],
+        "scheduledAt": "2026-10-01T12:22:22.460Z",
+        "resolvedAt": "2026-10-01T12:22:49.352Z",
+        "evidence": []
+      }
+    ],
+    "lastReadBoundary": 39,
+    "scheduler": {
+      "queueDepth": 0,
+      "inFlight": false,
+      "lastError": null,
+      "heavyQueueDepth": 0,
+      "heavyInFlight": false,
+      "lastHeavyError": null
+    }
+  },
+  "memory": {
+    "arcs": [
+      {
+        "id": "arc-00",
+        "text": "The qbaaa qbaab qbaac and qbaad party qbaae from qbaaf and qbaag qbaah the qbaai will zz the party qbaaj zz qbaak.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 1
+      },
+      {
+        "id": "arc-01",
+        "text": "Tobias's warning that Wendhope's qbaal zz zz qbaam qbaan qbaao zz qbaap-zz qbaaq the qbaar zz what qbaas qbaat zz the qbaau.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 3
+      },
+      {
+        "id": "arc-02",
+        "text": "The qbaav qbaaw party zz zz, qbaaf and qbaag qbaab still qbaax qbaaj the Wendhope qbaak and qbaay qbaah the qbaai will qbaaz them zz.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 5,
+        "resolvedAt": 9
+      },
+      {
+        "id": "arc-03",
+        "text": "what qbaas qbaba Wendhope remains unknown \u2014 Tobias's warning that zz zz zz qbaan qbaao zz qbaap-zz zz qbabb.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 5
+      },
+      {
+        "id": "arc-04",
+        "text": "qbabc qbabd zz qbabe the qbabf qbabg zz Wendhope \u2014 whether the qbabh zz qbabi qbabj the qbabk \u2014 remains qbabl.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 5
+      },
+      {
+        "id": "arc-05",
+        "text": "qbabm qbabn zz qbaai qbabo qbabp zz party qbabq zz zz qbabr zz zz been qbabs qbabt, still qbabu.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 5
+      },
+      {
+        "id": "arc-06",
+        "text": "qbabc qbabv qbabw \u2014 whether the zz party zz \"zz qbabx qbaby\" \u2014 qbabz zz zz qbaca qbacb zz the qbacc qbacd qbaah they qbace qbacf the qbacg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 6
+      },
+      {
+        "id": "arc-07",
+        "text": "Tobias's qbach qbaar \u2014 whether the party zz qbaci, qbacj, qback, zz qbacl qbacm and zz qbacn \u2014 qbaco the party's qbacp zz Wendhope qbaca.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 8
+      },
+      {
+        "id": "arc-08",
+        "text": "The party qbaab still qbaax qbaay and qbacq qbacr zz party qbacs qbaah the qbaai qbact qbabt the qbaak.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 8,
+        "resolvedAt": 9
+      },
+      {
+        "id": "arc-09",
+        "text": "qbacr qbaab still qbacu the party's qbacs zz the qbaai qbacv qbaah the qbaak zz qbacw qbabt.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 8,
+        "resolvedAt": 9
+      },
+      {
+        "id": "arc-10",
+        "text": "Tobias's warning that the party qbacx qbaci, qbacj, qback, zz qbacl qbacm and zz qbacn remains qbacy \u2014 they qbacz zz zz qbada qbaci and qbacj zz the zz zz.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 9
+      },
+      {
+        "id": "arc-11",
+        "text": "The party zz zz zz qbadb the qbaak zz the qbabh qbabf qbadc qbadd, which qbacr qbade will zz qbadf when they qbadg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 9
+      },
+      {
+        "id": "arc-12",
+        "text": "The party still zz zz qbadh qbaci, qbacj zz qback, and zz zz qbadi Tobias's qbadj about zz qbacl qbacm zz zz qbacn.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 10
+      },
+      {
+        "id": "arc-13",
+        "text": "The party qbadk zz zz qbaci, qbacj and zz qbadl zz qback zz the qbadm qbaah the qbadn qbado, zz zz zz zz qbadp zz.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 11
+      },
+      {
+        "id": "arc-14",
+        "text": "Tobias's qbadj about zz qbacl qbacm zz qbadq qbadr and zz qbacn zz qbads the qbadt remain qbacy.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 11
+      },
+      {
+        "id": "arc-15",
+        "text": "The party's zz-qbadu qbadv and qbabh qbabf qbadc zz qbadw qbadx they qbadg zz the qbaai.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 11
+      },
+      {
+        "id": "arc-16",
+        "text": "qbabm qbaca qbady \u2014 zz qbabn qbadz with zz party and zz qbaea qbaeb zz qbaec qbaed what zz zz zz zz \u2014 qbabz zz whether qbaee zz zz qbaef zz the Wendhope qbaeg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 12
+      },
+      {
+        "id": "arc-17",
+        "text": "qbabc qbaeh qbaei \u2014 whether this party zz zz qbaby \u2014 qbaej qbabt the qbaeg qbadn.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 12
+      },
+      {
+        "id": "arc-18",
+        "text": "zz qbaek qbael zz qbabh qbaem, still qbaen, qbaeo the party zz the qbadn qbaeg \u2014 qbaep qbael zz zz and what qbaat zz zz qbaeq zz unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 13
+      },
+      {
+        "id": "arc-19",
+        "text": "The qbaer qbadn qbaeg \u2014 zz qbaes zz zz zz qbaet \u2014 qbaeu qbaam zz qbaev zz qbaew qbaex qbaey qbaez qbafa and Wendhope.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 15
+      },
+      {
+        "id": "arc-20",
+        "text": "The qbafb qbafc qbafd zz the qbadn qbaeg \u2014 qbafe, qbaff, qbafg qbafh \u2014 qbaaq the qbaar zz what qbaat zz zz qbafi and zz qbafj zz there.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 18
+      },
+      {
+        "id": "arc-21",
+        "text": "The party qbafk zz the night qbafl the qbafb qbafd with zz qbafm qbafn \u2014 whether the qbafo qbafi zz qbafp, qbadt, zz qbafq remains unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 19
+      },
+      {
+        "id": "arc-22",
+        "text": "qbabm qbaar zz whether the qbafr qbafs zz still qbafp qbaej qbaft zz the party qbafu zz zz qbafv the qbafw qbaeg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 19
+      },
+      {
+        "id": "arc-23",
+        "text": "qbabm qbaar zz whether the qbafr qbafo qbafs zz still qbafp \u2014 and what qbafx them qbabp qbafy zz qbafz \u2014 zz zz the party's qbaga qbagb zz the qbaeg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 19
+      },
+      {
+        "id": "arc-24",
+        "text": "whether the qbafr qbafo qbafi qbagc qbafq qbafp \u2014 and zz what \u2014 remains the party's qbaga qbagb zz they qbagd zz the qbafw qbaeg.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 20
+      },
+      {
+        "id": "arc-25",
+        "text": "The qbaek qbabh-qbaem qbael zz qbage zz the party's qbagd \u2014 qbaep qbael zz zz and what qbagf zz zz qbaeq remains unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 21
+      },
+      {
+        "id": "arc-26",
+        "text": "Wendhope qbagg qbagh qbagi and qbaer \u2014 zz qbagj, zz qbafs, qbagk qbagl \u2014 and what qbaat zz the qbaau zz unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 22
+      },
+      {
+        "id": "arc-27",
+        "text": "The party qbaab qbagm zz zz qbagn the qbagi qbaau zz Wendhope from the qbago.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 22
+      },
+      {
+        "id": "arc-28",
+        "text": "zz the party qbagp qbagn the qbagi, qbagq qbaer qbaau zz Wendhope from the qbago \u2014 and what qbagr them qbags zz qbagt.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 22
+      },
+      {
+        "id": "arc-29",
+        "text": "The party qbagu zz Wendhope's qbagv qbado with zz qbagw zz their qbagx \u2014 zz they will zz qbags qbaah qbagy zz qbabb.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 28,
+        "resolvedAt": 33
+      },
+      {
+        "id": "arc-30",
+        "text": "whether Wendhope zz qbabi qbaer zz zz qbafs zz qbagz, qbadt, zz qbafq remains unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 28
+      },
+      {
+        "id": "arc-31",
+        "text": "whether the party zz qbaha, qbahb, zz qbahc qbahd Wendhope's qbahe qbahf zz zz qbags qbaah qbagy.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 28,
+        "resolvedAt": 32
+      },
+      {
+        "id": "arc-32",
+        "text": "zz Wendhope's qbahf zz qbahg zz qbahh and what they zz qbahi zz.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 28
+      },
+      {
+        "id": "arc-33",
+        "text": "The qbahj, qbahk qbahl zz Wendhope's qbahm and zz qbahe qbahf \u2014 zz they qbahn zz qbahh and what they qbaho.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 28
+      },
+      {
+        "id": "arc-34",
+        "text": "whether the party zz zz zz qbagw zz qbahp from Wendhope's qbagi qbado qbaah qbagy, and what the qbahq qbahf qbahr.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 28,
+        "resolvedAt": 32
+      },
+      {
+        "id": "arc-35",
+        "text": "whether the party zz qbahs and qbaht the qbahu qbadn qbahv zz the zz-qbahw qbaah qbagy.",
+        "status": "resolved",
+        "entities": [],
+        "openedAt": 30,
+        "resolvedAt": 32
+      },
+      {
+        "id": "arc-36",
+        "text": "what the qbahf qbahx zz warning that qbahy qbagy the party will qbahz the qbado zz qbaia qbaib.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 30
+      },
+      {
+        "id": "arc-37",
+        "text": "The party zz zz qbags zz qbagi, qbagq qbaer Wendhope \u2014 where zz qbafs have qbaic and what zz qbaid zz the qbaau remains unknown.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 32
+      },
+      {
+        "id": "arc-38",
+        "text": "The party qbaie the qbahv qbaif them, qbaig zz their zz qbaih qbaah qbagy.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 32
+      },
+      {
+        "id": "arc-39",
+        "text": "where Wendhope's qbafs have qbaic \u2014 the qbaau zz qbagi and qbagq qbaer, with zz qbaii zz qbaij qbaik zz qbail qbaim.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 33
+      },
+      {
+        "id": "arc-40",
+        "text": "The party zz qbags Wendhope with the qbahv qbaie qbaif them, and qbaab qbain zz what zz qbaid qbaah qbagy.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 33
+      },
+      {
+        "id": "arc-41",
+        "text": "qbaaf qbaio zz qbahq qbaip zz the qbaer qbaau \u2014 what zz with them zz Wendhope?",
+        "status": "open",
+        "entities": [],
+        "openedAt": 34
+      },
+      {
+        "id": "arc-42",
+        "text": "qbaiq qbair qbais qbait the qbaiu and qbaiv zz qbabe zz the qbaai qbaiw the party \u2014 what zz will zz with them qbaah qbagy.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 36
+      },
+      {
+        "id": "arc-43",
+        "text": "zz zz qbaix qbaiy the party from the qbacl-qbaiz qbaja zz the qbajb qbajc the qbado?",
+        "status": "open",
+        "entities": [],
+        "openedAt": 36
+      },
+      {
+        "id": "arc-44",
+        "text": "what the qbaiu zz qbajd qbaje qbajf qbajg, and what the red fog and the Screechers will qbajh when they qbaji.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 37
+      },
+      {
+        "id": "arc-45",
+        "text": "qbaiq qbair qbais zz zz the party zz the qbaiu qbafv \u2014 zz they will qbajj when the qbajk qbajl.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 38
+      },
+      {
+        "id": "arc-46",
+        "text": "whether the party survives their first night zz Wendhope's qbaiu when the red fog and the Screechers qbaji.",
+        "status": "open",
+        "entities": [],
+        "openedAt": 39
+      }
+    ]
+  }
+}

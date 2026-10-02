@@ -1,0 +1,107 @@
+{
+  "sessions": [
+    {
+      "key": "the-hoard-of-the-unflown",
+      "updatedAt": "2026-10-02T08:22:15.872Z",
+      "applied": [
+        "The Hoard of the Unflown \u2014 Lore",
+        "Vaelrith, the Unflown",
+        "Quill",
+        "Marlow",
+        "Brannoc",
+        "Ser Aldric"
+      ],
+      "createdLorebooks": [
+        "The Hoard of the Unflown \u2014 Lore"
+      ],
+      "agent": {
+        "steps": []
+      }
+    },
+    {
+      "key": "untitled-story",
+      "updatedAt": "2026-10-02T08:14:13.408Z",
+      "applied": [],
+      "createdLorebooks": [],
+      "agent": {
+        "steps": []
+      }
+    },
+    {
+      "key": "the-pawnbroker-of-forgotten-days",
+      "updatedAt": "2026-10-02T08:10:33.862Z",
+      "applied": [
+        "The Pawnbroker of Forgotten Days",
+        "Ivet Marrow",
+        "Osric Vane",
+        "Queen Alaric Vess",
+        "Sera Vantel"
+      ],
+      "createdLorebooks": [
+        "The Pawnbroker of Forgotten Days"
+      ],
+      "agent": {
+        "steps": [
+          {
+            "status": "applied",
+            "at": "2026-10-02T08:09:52.161Z",
+            "op": {
+              "kind": "createGroup",
+              "name": "The Pawnbroker of Forgotten Days"
+            },
+            "call": {
+              "tool": "createGroup"
+            },
+            "observation": "Created the group \"The Pawnbroker of Forgotten Days\" with 4 member(s)."
+          }
+        ]
+      }
+    }
+  ],
+  "library": [
+    {
+      "id": "adolion-aegis",
+      "version": 12
+    },
+    {
+      "id": "adolion-deep",
+      "version": 11
+    },
+    {
+      "id": "adolion-esha",
+      "version": 11
+    },
+    {
+      "id": "adolion-war",
+      "version": 10
+    },
+    {
+      "id": "adolion-academy",
+      "version": 27
+    },
+    {
+      "id": "adolion-night",
+      "version": 10
+    },
+    {
+      "id": "adolion-adventurer",
+      "version": 30
+    },
+    {
+      "id": "adolion-east",
+      "version": 11
+    },
+    {
+      "id": "adolion-saga",
+      "version": 17
+    },
+    {
+      "id": "the-hoard-of-the-unflown",
+      "version": 1
+    },
+    {
+      "id": "the-pawnbroker-of-forgotten-days",
+      "version": 2
+    }
+  ]
+}

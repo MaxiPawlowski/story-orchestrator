@@ -8,11 +8,8 @@ import { derivePipelineStatus } from "./pipeline";
 import { sanitizeGlobalSettings } from "./settingsModel";
 import type { ExtractionRuntimeState } from "./types";
 
-const SESSIONS = join(__dirname, "../../test/sessions/T0");
-const snapshotOf = (dir: string) => {
-  const file = readFileSync(join(SESSIONS, dir, dir.startsWith("T0-3") ? "snapshot-2026-10-01@08h40m59s527ms.json" : "snapshot-2026-10-01@08h41m13s779ms.json"), "utf8");
-  return JSON.parse(file) as { activeCheckpointId: string; extraction: ExtractionRuntimeState; memory: { arcs: ArcEntry[] } };
-};
+const recordedT022 = () => JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/t0-2-2-player-threads.json"), "utf8")) as
+  { activeCheckpointId: string; extraction: ExtractionRuntimeState; memory: { arcs: ArcEntry[] } };
 
 const ADOLION_LOCATIONS = ["aegis_guild_hall", "north_road", "wendhope_gate", "wendhope_wall", "wendhope", "needlehaven", "needlehaven_heart", "driftmere", "upper_mines", "deep_mines", "the_seals", "behind_the_seals", "eltaronal"];
 
@@ -61,7 +58,7 @@ describe("T0 finding 1: Where you are never prints a raw location value", () => 
 });
 
 describe("T0 finding 2: open threads are deduped and scoped to the scene in play (recorded T0-2-2)", () => {
-  const arcs = snapshotOf("T0-2-2").memory.arcs;
+  const arcs = recordedT022().memory.arcs;
 
   it("drops near-duplicates and threads from earlier checkpoints, newest wording kept", () => {
     const threads = playerThreadTexts(arcs, 36);
@@ -106,7 +103,7 @@ describe("T0 finding 3: the story so far is cut at a sentence, and the recap is 
 });
 
 describe("T0 finding 4: catching up does not outlive the stall it was about (recorded T0-2-2)", () => {
-  const recorded = snapshotOf("T0-2-2");
+  const recorded = recordedT022();
 
   it("a stall left open at a checkpoint the story has left is not shown", () => {
     expect(recorded.extraction.reconciliationEvents.some((event) => event.resolvedAt === null && event.checkpointId !== recorded.activeCheckpointId)).toBe(true);

@@ -16,7 +16,7 @@ import { agentModeTarget } from '../so-ui.mts';
 import { findCard, loadCards, loadIndex, loadSessionFiles, parseLiveArgs, scoreCommand, scoreRefusal } from '../so-session.mts';
 import { digestSession } from './sessionDigest.mts';
 
-const T52 = resolve(REPO_ROOT, 'test', 'sessions', 'T5', 'T5-2-1');
+const T52 = resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T5-2-1');
 const json = (name: string) => JSON.parse(readFileSync(resolve(T52, name), 'utf-8'));
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 const WIZARD_PATHS = ['inventory.characterCount', 'inventory.lorebookCount', 'inventory.lorebooksSelected', 'inventory.v2Stories', 'inventory.wizardSessions'];
