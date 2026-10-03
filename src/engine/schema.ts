@@ -212,6 +212,7 @@ export interface Checkpoint {
   convergence_threshold?: number;
   motives?: Record<string, string>;
   chapter?: string;
+  illustrate?: false;
 }
 
 export interface MemberGuidance {
@@ -240,6 +241,7 @@ export interface Chapter {
   kind?: ChapterKind;
   seal?: ChapterSealPolicy;
   final?: boolean;
+  illustrations?: IllustrationLook;
 }
 
 export const STORY_SO_FAR_MODES = ["block", "macro", "off"] as const;
@@ -327,6 +329,22 @@ export interface StoryRequirements {
 // write, full stop.
 export interface StoryStagecraft {
   lorebooks: string[];
+  exclude?: StagecraftExclusion[];
+}
+
+export interface StagecraftExclusion {
+  lorebook: string;
+  comments: string[];
+}
+
+export interface IllustrationLook {
+  style?: string;
+  appearances?: Record<string, string>;
+}
+
+export interface StoryIllustrations extends IllustrationLook {
+  checkpoints?: boolean;
+  scenes?: boolean;
 }
 
 // The scene read's vocabulary. The judge can only select, so a location is asked only
@@ -365,7 +383,7 @@ export interface StoryV2 {
   title: string;
   description: string;
   player_intro?: string;
-  illustrations?: { checkpoints?: boolean; scenes?: boolean; style?: string; appearances?: Record<string, string> };
+  illustrations?: StoryIllustrations;
   qualities: Quality[];
   checkpoints: Checkpoint[];
   transitions: Transition[];

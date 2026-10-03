@@ -3,7 +3,7 @@ import { buildGraph } from "./graph";
 import { imageMessages, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
-import { visualLore } from "./lore";
+import { firedLoreKeys, visualLore } from "./lore";
 
 const graph = (file: string, hires = false) => {
   const checkpoint = CHECKPOINTS.find((entry) => entry.file === file)!;
@@ -70,10 +70,11 @@ describe("Image Director merge", () => {
 
   it("uses only visible appearance lines and the current path's gated entry in scan mode", () => {
     const lines = visualLore([
-      { world: "Adolion World", comment: "Wendhope", key: ["Wendhope"], content: "Secret plot: the king is a spy.\nAppearance: misty stone walls." },
-      { world: "Adolion CP", comment: "Wendhope Gate", key: ["Wendhope Gate"], content: "Appearance: iron gate with ivy.", disable: true },
-      { world: "Adolion CP", comment: "Locked Future", key: ["Wendhope Gate"], content: "Appearance: a future castle.", disable: true },
-    ], ["Adolion World", "Adolion CP"], [{ lorebook: "Adolion CP", enable: ["Wendhope Gate"] }], "The party arrives at Wendhope Gate.");
+      { world: "Adolion World", uid: 1, comment: "Wendhope", key: ["Wendhope"], content: "Secret plot: the king is a spy.\nAppearance: misty stone walls." },
+      { world: "Adolion CP", uid: 2, comment: "Wendhope Gate", key: ["Wendhope Gate"], content: "Appearance: iron gate with ivy.", disable: true },
+      { world: "Adolion CP", uid: 3, comment: "Locked Future", key: ["Wendhope Gate"], content: "Appearance: a future castle.", disable: true },
+    ], ["Adolion World", "Adolion CP"], [{ lorebook: "Adolion CP", enable: ["Wendhope Gate"] }], "The party arrives at Wendhope Gate.",
+    firedLoreKeys([{ entries: [{ book: "Adolion World", uid: 1 }, { book: "Adolion CP", uid: 2 }, { book: "Adolion CP", uid: 3 }] }]));
     expect(lines).toEqual(["Wendhope: misty stone walls.", "Wendhope Gate: iron gate with ivy."]);
     expect(lines.join(" ")).not.toMatch(/king|future castle/i);
   });

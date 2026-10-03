@@ -1,5 +1,5 @@
 import React from "react";
-import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StoryRequirements } from "@engine/index";
+import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
 import { useDraftStore } from "../draft";
@@ -169,10 +169,38 @@ const StagecraftSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
       values={draft.stagecraft?.lorebooks ?? []}
       options={lorebookNames}
       listId="so-stagecraft-lorebooks"
-      onChange={(lorebooks) => mutate((current) => setStagecraft(current, { lorebooks }))}
+      onChange={(lorebooks) => mutate((current) => setStagecraft(current, { ...current.stagecraft, lorebooks }))}
     />
+    <CuratorExclusions draft={draft} mutate={mutate} />
   </div>
 );
+
+const EXCLUDE_HELP = "Entries in a curator lorebook that the curator is never shown and may never write, such as a house-style entry. "
+  + "Name each entry by its title (comment); separate several with commas.";
+
+const CuratorExclusions = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
+  const exclude = draft.stagecraft?.exclude ?? [];
+  const books = draft.stagecraft?.lorebooks ?? [];
+  const write = (next: StagecraftExclusion[]) =>
+    mutate((current) => setStagecraft(current, { lorebooks: current.stagecraft?.lorebooks ?? [], exclude: next }));
+  const patch = (index: number, change: Partial<StagecraftExclusion>) => write(exclude.map((entry, at) => (at === index ? { ...entry, ...change } : entry)));
+  return <div data-so="stagecraft-exclude" className="flex flex-col gap-1">
+    <span className="text-xs st-muted">Entries the curator never touches<HelpTooltip title={EXCLUDE_HELP} /></span>
+    {exclude.map((entry, index) => (
+      <div key={index} className="flex items-center gap-2">
+        <input className="text_pole st-input flex-1" aria-label={`Excluded lorebook ${index + 1}`} list="so-stagecraft-exclude-books" value={entry.lorebook}
+          onChange={(event) => patch(index, { lorebook: event.target.value })} />
+        <input className="text_pole st-input flex-1" aria-label={`Excluded entries ${index + 1}`} placeholder="Entry title, another title" value={entry.comments.join(",")}
+          onChange={(event) => patch(index, { comments: event.target.value.split(",") })} />
+        <button type="button" className="st-button danger" aria-label={`Remove exclusion ${index + 1}`} onClick={() => write(exclude.filter((_, at) => at !== index))}>×</button>
+      </div>
+    ))}
+    <button type="button" className="st-button secondary self-start" onClick={() => write([...exclude, { lorebook: books[0] ?? "", comments: [""] }])}>+ Excluded entry</button>
+    <datalist id="so-stagecraft-exclude-books">
+      {books.map((book) => <option key={book} value={book} />)}
+    </datalist>
+  </div>;
+};
 
 const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
   const art = draft.illustrations;

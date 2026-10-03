@@ -11,7 +11,7 @@ export interface ImageRequest {
 export interface ImageScene {
   target: number | null;
   messages: Array<{ name: string; text: string; target: boolean }>;
-  subjects: Array<{ key: string; name: string; appearance: string; focus: boolean }>;
+  subjects: Array<{ key: string; name: string; appearance: string; focus: boolean; described?: boolean }>;
   focus: string | null;
   location: string | null;
   checkpoint: string | null;
@@ -43,7 +43,7 @@ export const sceneForImage = (chat: ImageChat, request: ImageRequest, contextMes
   const speakers = new Set(window.map((message) => message.name));
   const subjects = request.purpose === "background" ? [] : chat.characters
     .filter((card) => card.enabled || speakers.has(card.name) || card.key === focus)
-    .map((card) => ({ key: card.key, name: card.name, appearance: card.appearance || card.description.slice(0, 500), focus: card.key === focus }));
+    .map((card) => ({ key: card.key, name: card.name, appearance: card.appearance || card.description.slice(0, 500), focus: card.key === focus, described: !card.appearance }));
   return { target: target < 0 ? null : target, messages: window, subjects, focus, location, checkpoint };
 };
 

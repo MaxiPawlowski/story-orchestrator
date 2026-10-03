@@ -373,6 +373,7 @@ that adds a player-visible element adds a row here.
 | Element | Persona | Where |
 |---|---|---|
 | Narrative view: where you are · recently · open threads · the story so far · noted · status | player | `PlayerOverview` (drawer Overview), away-recap popup, `/story recap` |
+| Story illustrations and their captions (v2.7 C6/C7): the beat cue and the director prompt name a beat by `player_name` or a neutral establishing shot, never the internal `name`; lore looks only from entries that fired in this chat or a `Public appearance:` line | player | posted image + caption; prompt checked by `src/image/cast.test.ts` (C6 spoiler property, C7) |
 | Checkpoint **name** + objective, tension **level word** (no numbers) | player | narrative "now" section, HUD |
 | Open-arc texts, canon prose (never canon-lite) | player | narrative "threads"/"story" sections, `/story threads` |
 | Pending deltas as "N things noted, apply next turn" (no quality keys) | player | narrative "pending" section, HUD chip |

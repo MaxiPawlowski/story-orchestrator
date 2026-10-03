@@ -1,6 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
-  CURATOR_OP_REVERTED, isCheckpointGated, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, settleWriteAheads,
+  CURATOR_OP_REVERTED, isCheckpointGated, isCuratorExcluded, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, settleWriteAheads,
   type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
@@ -53,7 +53,9 @@ export class CuratorWriter {
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
       const message = isCheckpointGated(story, op.lorebook, op.comment)
         ? `"${op.comment}" is switched by checkpoint effects, which alone decide it`
-        : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
+        : isCuratorExcluded(story, op.lorebook, op.comment)
+          ? `"${op.comment}" is excluded from the curator by this story`
+          : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
       return { ok: false, record: { ...entry, status: "failed", message } };
     }
     // The before-image is read at the write edge. by uid, and

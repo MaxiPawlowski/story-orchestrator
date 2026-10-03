@@ -275,6 +275,8 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
     if (text !== undefined && typeof text !== "string") addError(errors, `${path}.${key}`, `${key} must be text`);
     else if (typeof text === "string" && text.trim()) checkpoint[key] = text.trim();
   }
+  if (value.illustrate !== undefined && typeof value.illustrate !== "boolean") addError(errors, `${path}.illustrate`, "illustrate must be true or false");
+  if (value.illustrate === false) checkpoint.illustrate = false;
   if (typeof value.start === "boolean") checkpoint.start = value.start;
   if (isRecord(value.state_snapshot)) checkpoint.state_snapshot = value.state_snapshot as Record<string, PrimitiveValue>;
   if (isOneOf(value.tension_target, TENSION_LEVELS)) checkpoint.tension_target = value.tension_target;
