@@ -10,13 +10,7 @@ export async function countTokens(text: string): Promise<number> {
 
 const TOKENIZER_WARNING_KEY = "tokenizationWarningShown";
 
-const tokenizerFailedBefore = (): boolean => {
-  try {
-    return Boolean(globalThis.sessionStorage?.getItem(TOKENIZER_WARNING_KEY));
-  } catch {
-    return false;
-  }
-};
+const tokenizerFailedBefore = (): boolean => Boolean(globalThis.sessionStorage?.getItem(TOKENIZER_WARNING_KEY));
 
 export function tokenizerIdentity(): string {
   const context = getContext();

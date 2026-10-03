@@ -14,7 +14,7 @@ describe("T7 J11.26: the focused curator can only touch what it was shown", () =
     expect(proposal.ops.map((op) => op.comment)).toEqual(["Trade route 6"]);
     expect(proposal.dropped).toHaveLength(2);
     const plan = planCuratorProposal(proposal, shown, { mode: "review", declined: [] });
-    expect(plan.records.map((entry) => entry.op.comment)).toEqual(["Trade route 6"]);
+    expect(plan.records.map((entry) => ("comment" in entry.op ? entry.op.comment : null))).toEqual(["Trade route 6"]);
   });
 
   it("control: the same reply over the unfocused scope keeps every op", () => {
