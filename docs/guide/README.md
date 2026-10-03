@@ -4,6 +4,10 @@ Story Orchestrator is a SillyTavern extension that plays authored stories over a
 characters who enter and leave, lore that switches on when it matters, and a memory of what happened. You play by
 chatting, as always.
 
+**Stories play in group chats.** Each character keeps their own voice and what they know, so a story needs a group
+with its cast, even a one-character story (that character plus a narrator). In a one-on-one chat the story stays off
+and offers to make the group for you.
+
 | You want to | Read |
 |---|---|
 | Install it and play something in five minutes | this page |

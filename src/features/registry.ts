@@ -100,7 +100,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has "
       + "happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
     where: settingsAt("#story-library-select", "This chat › Story for this chat"),
-    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
+    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["group-chat", "memory-profile"],
   },
   {
     id: "group-binding", name: "Group story", area: "play", audience: "player",

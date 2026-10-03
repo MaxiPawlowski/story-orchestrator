@@ -2,10 +2,11 @@
 
 ## Pick a story for a chat
 
-A story plays in one chat at a time, usually a group chat with the story's characters.
+A story plays in one group chat at a time, a group with the story's characters. Stories play in group chats only: in
+a one-on-one chat the story stays off and the panel offers **Make a group for this story**.
 
-1. Open the chat (a story needs an open chat; with none open, an imported story is only saved to the library:
-   "Open a chat to play it.").
+1. Open the group chat (a story needs an open group chat; with no chat open, an imported story is only saved to the
+   library: "Open a chat to play it."; in a one-on-one chat it is saved and the panel offers to make a group).
 2. Open **Extensions → Story Orchestrator**. The panel starts with four tasks:
    - **Start**: **New story (wizard)** builds one from a premise; **Import a story** takes a story file (JSON).
    - **Continue**: says what this chat plays ("No story is playing in this chat yet." or `Playing "<title>".`).

@@ -41,7 +41,11 @@ author.
 
 ## FAQ
 
-**Does it work in a one-on-one chat?** Yes. Group chats get speaker direction on top.
+**Does it work in a one-on-one chat?** No: stories play in group chats. In a one-on-one chat the story stays off, and
+the settings panel and the drawer offer **Make a group for this story**: it asks first, makes a new group with the
+story's cast (nothing you already have is changed), sets it to start the story and opens it. A one-character story is
+a group of that character plus its narrator. If a card the story needs is missing, it says which and offers **Fix with
+wizard** instead of making a partial group.
 
 **Does it slow down replies?** The memory model reads after the reply, not before it. With the optional judge, two
 of its uses (speaker direction and lore selection) run before a reply and give up after 1.5 seconds.
