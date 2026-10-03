@@ -4,6 +4,8 @@ import {
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
+import { onChanceDraw } from "./chance";
+import { startPlaysIndex } from "./playsIndexHost";
 import { startStoryScenario } from "./storyScenarioHost";
 import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
@@ -26,7 +28,7 @@ import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
-import { loadInlineComposer } from "./snapshotBuilder";
+import { CHAT_LOADING_STATUS, loadInlineComposer } from "./snapshotBuilder";
 import { loadChapterKit } from "./chapterPort";
 
 export const FEATURE_FAILED_TEXT = (feature: string) => `${feature} could not load — reload SillyTavern.`;
@@ -102,6 +104,16 @@ const startWatches = () => {
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
+  runtimeDisposers.push(onChanceDraw((draw) => runtimeManager.recordChanceDraw(draw, Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1)));
+  runtimeDisposers.push(startPlaysIndex({
+    subscribe: (listener) => runtimeManager.subscribe(listener),
+    loadedChatId: () => runtimeManager.getLoadedChatId(),
+    story: () => runtimeManager.getStory(),
+    storyId: () => runtimeManager.getCachedSnapshot().storyId,
+    activeCheckpointId: () => runtimeManager.getCachedSnapshot().activeCheckpointId,
+    loading: () => runtimeManager.getCachedSnapshot().status === CHAT_LOADING_STATUS,
+    notify: () => runtimeManager.notify(),
+  }));
   runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
   const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(
     save.summary,

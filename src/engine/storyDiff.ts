@@ -1,5 +1,5 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
-import type { NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
+import { STORY_DISPLAY_TOGGLES, type NormalizedStoryV2, type PrimitiveValue, type Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
 
@@ -39,6 +39,7 @@ export type StoryDiffCode =
   | "stagecraft-changed"
   | "story-objective-block-changed"
   | "story-display-changed"
+  | "story-presence-changed"
   | "scene-read-changed"
   | "lore-select-changed"
   | "house-rules-changed"
@@ -314,6 +315,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   // Presentation scope only: widening or narrowing the curator's allowlist never invalidates a run.
   if (!sameValue(previous.stagecraft, next.stagecraft)) push("compatible", "stagecraft-changed", "stagecraft", "Which lorebooks the background curator may edit changed.");
   if (previous.display?.lore_names_public !== next.display?.lore_names_public) push("compatible", "story-display-changed", "display", "Whether players see World Info entry names changed.");
+  if (STORY_DISPLAY_TOGGLES.some((key) => previous.display?.[key] !== next.display?.[key])) push("compatible", "story-presence-changed", "display", "Which story panels and cards this story shows changed.");
   if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");

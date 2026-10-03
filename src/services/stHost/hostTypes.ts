@@ -111,6 +111,8 @@ export interface SillyTavernContext {
   getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
   // Re-renders one message from its chat row, text and reasoning (script.js:2033, st-context.js:238).
   updateMessageBlock?: (messageId: number, message: unknown) => void;
+  // Opens a chat the group lists; silent for any other id (group-chats.js:2195-2210, st-context.js:157).
+  openGroupChat?: (groupId: string, chatId: string) => Promise<void>;
   [key: string]: unknown;
 }
 
@@ -217,6 +219,8 @@ export interface RossModsHostModule {
 
 export interface GroupChatsHostModule {
   editGroup: (id: string, immediately: boolean, reload?: boolean) => Promise<void>;
+  // Selects a group and loads its current chat; false while a chat saves (group-chats.js:2018-2040).
+  openGroupById?: (groupId: string) => Promise<boolean>;
   [key: string]: unknown;
 }
 

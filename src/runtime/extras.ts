@@ -10,6 +10,7 @@ import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { createLore, sanitizeLore } from "./loreFired";
+import { createChance, sanitizeChance } from "./rolls";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
@@ -287,6 +288,7 @@ export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withG
   saveHealth: createSaveHealth(),
   judge: createJudgeRuntime(),
   lore: createLore(),
+  chance: createChance(),
   journal: [],
   modelCalls: [],
   lastSessionAt: null,
@@ -339,7 +341,10 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled, inline: global.display.inline };
+  extras.ui = {
+    authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled, inline: global.display.inline,
+    presence: global.display.presence,
+  };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
@@ -408,6 +413,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.saveHealth = sanitizeSaveHealth(extras);
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.lore = sanitizeLore(extras.lore);
+  extras.chance = sanitizeChance(extras.chance);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;

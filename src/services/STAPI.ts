@@ -52,6 +52,7 @@ export {
 } from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
+export { isHostGeneratingFlag, listGroupChats, openStoryGroupChat, readGroupChatMetadata, type HostGroupChats } from "@services/stHost/groupChatFiles";
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";

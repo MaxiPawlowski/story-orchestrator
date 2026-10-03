@@ -403,7 +403,10 @@ export interface StoryV2 {
   memory?: StoryMemoryOptions;
 }
 
-export interface StoryDisplay {
+export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips"] as const;
+export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
+
+export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {
   lore_names_public?: boolean;
 }
 

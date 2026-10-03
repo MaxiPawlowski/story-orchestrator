@@ -38,6 +38,9 @@ import type { BLOB_VERSION } from "./persistence";
 import type { LoreRuntimeState } from "./loreFired";
 import type { InlineView } from "./inlineTimeline";
 import type { InlineSettings } from "./settingsModel";
+import type { PresenceSettings } from "./displayToggles";
+import type { ChanceRuntimeState, RollRecord } from "./rolls";
+import type { PresenceView } from "./presence";
 
 export interface PayloadCapture {
   at: string;
@@ -144,6 +147,8 @@ export interface RuntimeExtras {
   judge: JudgeRuntimeState;
   /** Which World Info entries each rendered reply's scans activated, by message. */
   lore: LoreRuntimeState;
+  /** NPC reply and talk draws, by message; quality rolls are reconstructed instead. */
+  chance?: ChanceRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
@@ -165,6 +170,7 @@ export interface UiRuntimeSettings {
   announceTransitions: boolean;
   hudEnabled: boolean;
   inline: InlineSettings;
+  presence?: PresenceSettings;
 }
 
 export interface PendingDeltaReadout {
@@ -547,6 +553,9 @@ export interface RuntimeSnapshot {
   lore: LoreRuntimeState;
   /** The inline timeline: every item anchored under the message it is about, before the level filter. */
   inline: InlineView;
+  /** One roll store: quality rolls reconstructed from the seed, NPC and talk draws from the ring. Author-only surfaces. */
+  rolls?: RollRecord[];
+  presence?: PresenceView;
 }
 
 export interface LoadedStory {
