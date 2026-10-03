@@ -4,6 +4,8 @@ import type { RoleRouteView } from "@runtime/roleHealth";
 import type { RouteMeter } from "@runtime/roleRouteEdits";
 import { HARNESS_KEY_PREFIX } from "@utils/harness";
 import { effortLabel, isReasoningEffort, REASONING_EFFORTS, type ReasoningEffort } from "@utils/reasoningEffort";
+import { settingHelp } from "@features/settingsCopy";
+import { FieldLabel } from "./Field";
 
 export interface RoleProfileOption {
   id: string;
@@ -103,7 +105,7 @@ export const RoleProfilesGroup = ({
           const meter = harness ? meters.find((entry) => entry.route === harness.key) : null;
           return (
             <div key={route.role} data-so="role-profile" data-role={route.role} data-state={route.state} className="flex flex-col gap-1">
-              <label htmlFor={`so-role-profile-${route.role}`}>{route.label}</label>
+              <FieldLabel htmlFor={`so-role-profile-${route.role}`} label={route.label} help={`${ROLE_EGRESS[route.role]}. ${settingHelp("extraction.profiles")}`} />
               <div className="flex flex-col gap-1">
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
                   <option value="">Same as memory model</option>
@@ -124,18 +126,18 @@ export const RoleProfilesGroup = ({
                   <div data-so="role-egress" className="text-xs opacity-80">
                     {`${ROLE_EGRESS[route.role]} to ${option?.vendor ?? "the harness's vendor"} via ${option?.label ?? harness.key}, from the machine running SillyTavern.`}
                   </div>
-                  <label className="flex items-center gap-2 text-xs">
-                    <span className="opacity-80">On failure</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <FieldLabel htmlFor={`so-role-fallback-${route.role}`} setting="extraction.routes.*.onFailure.profileId" />
                     <select id={`so-role-fallback-${route.role}`} value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
                       <option value="">Pause this task</option>
                       {profiles.map((profile) => <option key={profile.id} value={profile.id}>Use {profile.name}</option>)}
                     </select>
-                  </label>
+                  </div>
                   {meter && <div data-so="role-meter" className="text-xs opacity-70">{meterText(meter)}</div>}
                 </>
               )}
-              <label className="flex items-center gap-2 text-xs">
-                <span className="opacity-80">Reasoning effort</span>
+              <div className="flex items-center gap-2 text-xs">
+                <FieldLabel htmlFor={`so-role-effort-${route.role}`} setting="extraction.routes.*.route.options.effort" />
                 <select
                   id={`so-role-effort-${route.role}`}
                   value={route.effort}
@@ -143,7 +145,7 @@ export const RoleProfilesGroup = ({
                 >
                   {REASONING_EFFORTS.map((effort) => <option key={effort} value={effort}>{effortLabel(effort)}</option>)}
                 </select>
-              </label>
+              </div>
               {note && <div data-so="role-reasoning-note" className="text-xs so-warning-text">{note}</div>}
               {route.state !== "fallback" && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">

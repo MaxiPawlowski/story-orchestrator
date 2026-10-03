@@ -100,7 +100,7 @@ export const BranchChip: Story = {
   args: { snapshot: baseSnapshot({ ready: false, chatIdentity: { kind: "branch", parentChat: "parent-chat", checkpointName: "The Ruined Gate" } }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText("branch — continue?"));
+    await userEvent.click(canvas.getByText("You went back: continue from here?"));
     await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
     await expect(canvas.queryByText(/◈/)).toBeNull();
   },

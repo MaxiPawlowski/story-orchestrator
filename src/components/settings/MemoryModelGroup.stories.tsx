@@ -7,6 +7,7 @@ import { MemoryModelGroup } from "./MemoryModelGroup";
 const snapshot = (settings: Record<string, unknown> = {}): RuntimeSnapshot =>
   ({
     extraction: { settings: { enabled: true, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0, ...settings } },
+    memory: { settings: { epistemicLedgerCapable: true } },
     roleRoutes: [],
     modelCallRing: [],
     ui: { authorView: false },
@@ -27,10 +28,10 @@ export const NotConfigured: Story = {
   args: { snapshot: snapshot(), manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const profile = canvas.getByLabelText("Memory model profile");
+    const profile = canvas.getByLabelText("Memory model");
     await expect(profile).toHaveAttribute("id", "so-extraction-profile");
     await expect(profile.tagName).toBe("SELECT");
-    const enabled = canvas.getByRole("checkbox", { name: "Let the story advance on its own (shared read extraction)" });
+    const enabled = canvas.getByRole("checkbox", { name: "Let the story move forward on its own" });
     await expect(enabled).toBeChecked();
     await expect(canvasElement.querySelector("#so-not-configured")).not.toBeNull();
     await expect(canvas.getByRole("button", { name: "Test memory model" })).toBeDisabled();
@@ -45,7 +46,7 @@ export const ExtractionOff: Story = {
   args: { snapshot: snapshot({ enabled: false }), manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox", { name: "Let the story advance on its own (shared read extraction)" })).not.toBeChecked();
+    await expect(canvas.getByRole("checkbox", { name: "Let the story move forward on its own" })).not.toBeChecked();
     await expect(canvasElement.querySelector("#so-not-configured")).toBeNull();
   },
 };

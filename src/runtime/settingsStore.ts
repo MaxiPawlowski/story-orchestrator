@@ -80,6 +80,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     image: { ...current.image, ...(patch.image ?? {}) },
     sprites: { ...current.sprites, ...(patch.sprites ?? {}) },
     spikes: { ...current.spikes, ...(patch.spikes ?? {}) },
+    help: { ...current.help, ...(patch.help ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);
   writeSettings(sanitized, Object.keys(patch).join(", "));

@@ -287,6 +287,49 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   return repairSteps(snapshot)[0] ?? null;
 }
 
+export type GettingStartedId = "memory-model" | "judge" | "images";
+
+export interface GettingStartedStep {
+  id: GettingStartedId;
+  title: string;
+  consequence: string;
+  targetId: string;
+  optional: boolean;
+  done: boolean;
+}
+
+export interface GettingStartedInput {
+  memoryModel: boolean;
+  judgeReady: boolean;
+  imagesReady: boolean;
+}
+
+export const GETTING_STARTED_TARGETS: Record<GettingStartedId, string> = {
+  "memory-model": REPAIR_TARGET_IDS.memoryModel,
+  judge: "so-judge-key",
+  images: "so-image-settings",
+};
+
+export function gettingStartedSteps(input: GettingStartedInput): GettingStartedStep[] {
+  return [
+    {
+      id: "memory-model", title: "Pick a memory model", optional: false, done: input.memoryModel, targetId: GETTING_STARTED_TARGETS["memory-model"],
+      consequence: "Without it the story cannot follow your play or remember what happened.",
+    },
+    {
+      id: "judge", title: "Add a judge key", optional: true, done: input.judgeReady, targetId: GETTING_STARTED_TARGETS.judge,
+      consequence: "Better speaker choice and memory checks. Without it, the story uses its usual path.",
+    },
+    {
+      id: "images", title: "Connect ComfyUI for pictures", optional: true, done: input.imagesReady, targetId: GETTING_STARTED_TARGETS.images,
+      consequence: "Lets stories draw scenes and characters. Without it, there are no pictures.",
+    },
+  ];
+}
+
+export const gettingStartedShown = (steps: readonly GettingStartedStep[], dismissed: boolean): boolean =>
+  steps.some((step) => !step.optional && !step.done) || (!dismissed && steps.some((step) => !step.done));
+
 export function viewerRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (snapshot.ui?.authorView) return nextRepairStep(snapshot);
   const step = repairSteps(snapshot).find((candidate) => candidate.player !== null);

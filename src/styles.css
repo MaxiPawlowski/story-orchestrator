@@ -466,3 +466,23 @@ body.no-blur dialog#so-studio-modal {
   white-space: nowrap;
   color: var(--st-info);
 }
+
+:is(#drawer-manager, #story-orchestrator-settings) .so-help-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings) .so-help-panel {
+  padding: 0.5rem;
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings) .so-help-feature {
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+}

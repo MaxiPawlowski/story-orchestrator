@@ -7,8 +7,10 @@ import {
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
-import HelpTooltip from "@components/studio/HelpTooltip";
+import { guideUrl } from "@features/registry";
+import { settingHelp } from "@features/settingsCopy";
 import { log } from "@utils/log";
+import { Advanced, CheckRow, FieldLabel } from "./Field";
 
 export interface JudgeSettingsPatch {
   enabled?: boolean;
@@ -88,17 +90,14 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
       const blocked = dependency && !settings.uses[dependency] ? `Needs "${JUDGE_USE_COPY[dependency].label}" first.` : null;
       return (
         <div key={use} className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              id={`so-judge-use-${kebab(use)}`}
-              type="checkbox"
-              checked={settings.uses[use]}
-              disabled={!settings.enabled || Boolean(blocked)}
-              onChange={(event) => onChange({ uses: { [use]: event.target.checked } })}
-            />
-            <span>{copy.label}</span>
-          </label>
-          <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />
+          <CheckRow
+            id={`so-judge-use-${kebab(use)}`}
+            checked={settings.uses[use]}
+            disabled={!settings.enabled || Boolean(blocked)}
+            onChange={(on) => onChange({ uses: { [use]: on } })}
+            label={copy.label}
+            help={`${copy.description} Sends: ${copy.sends}.`}
+          />
           {blocked && <span className="text-xs opacity-70">{blocked}</span>}
           <ProviderSelect
             id={`so-judge-provider-${kebab(use)}`}
@@ -201,10 +200,8 @@ export function JudgeSettingsGroup({
       <div className="font-medium text-sm">Judge <span className="opacity-70 font-normal">— install-wide, optional</span></div>
       <div id="so-judge-status" className="text-xs opacity-80">{statusText(status)}</div>
       <div className="flex flex-col gap-1 text-sm">
-        <div className="flex items-center gap-1">
-          <label htmlFor="so-judge-key">TypeSafe API key</label>
-          <HelpTooltip title="Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page." />
-        </div>
+        <FieldLabel htmlFor="so-judge-key" label="TypeSafe API key"
+          help="Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page." />
         <div className="flex gap-2">
           <input
             id="so-judge-key"
@@ -220,24 +217,17 @@ export function JudgeSettingsGroup({
         {saved === "saved" && <span className="text-xs opacity-70">Saved to SillyTavern secrets.</span>}
         {saved === "failed" && <span id="so-judge-key-error" className="text-xs so-warning-text">Could not save the key: {keyError ?? "SillyTavern refused it."}</span>}
       </div>
-      <div className="flex items-center gap-2 text-sm">
-        <label className="flex items-center gap-2">
-          <input id="so-judge-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => onChange({ enabled: event.target.checked })} />
-          <span>Use the judge</span>
-        </label>
-        <HelpTooltip title={"A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says " +
-          "what it sends. It never receives character cards, persona text, other chats or the key."} />
-      </div>
+      <CheckRow id="so-judge-enabled" setting="judge.enabled" checked={settings.enabled} onChange={(on) => onChange({ enabled: on })} />
       <div className="text-xs opacity-70">When a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.</div>
-      <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
+      <Advanced id="so-judge-uses" label={`What the judge is used for (${String(builtUses.filter((use) => settings.uses[use]).length)} on)`}>
+        <div className="text-xs opacity-70">{settingHelp("judge.uses")}</div>
+        <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
+      </Advanced>
       <JudgeProviderNotices settings={settings} status={status} providers={inUse} onChange={onChange} />
       {authorView && <div className="flex flex-wrap items-center gap-2 pl-4 text-sm">
-        <span>Expansion variants</span>
-        <HelpTooltip title={"Write this many outlines for each gap in the story and keep the best one, as the judge scores them. 1 writes one, " +
-          "as today. Each extra outline is another run of the story model."} />
+        <FieldLabel htmlFor="so-judge-expansion-variants" setting="judge.expansion.variants" />
         <select
           id="so-judge-expansion-variants"
-          aria-label="Expansion variants"
           className="text_pole w-16"
           value={settings.expansion.variants}
           disabled={!settings.enabled}
@@ -245,10 +235,9 @@ export function JudgeSettingsGroup({
         >
           {[1, 2, 3].map((count) => <option key={count} value={count}>{count}</option>)}
         </select>
-        <span>picked by</span>
+        <FieldLabel htmlFor="so-judge-expansion-pick" setting="judge.expansion.pick" />
         <select
           id="so-judge-expansion-pick"
-          aria-label="Variant picked by"
           className="text_pole w-36"
           value={settings.expansion.pick}
           disabled={!settings.enabled || settings.expansion.variants === 1}
@@ -276,7 +265,7 @@ export function JudgeSettingsGroup({
         <a
           id="so-judge-recommended-config"
           className="text-xs underline"
-          href="scripts/extensions/third-party/story-orchestrator/README.md#judge-recommended-configuration"
+          href={guideUrl("setup/judge.md") ?? undefined}
           target="_blank"
           rel="noreferrer"
         >

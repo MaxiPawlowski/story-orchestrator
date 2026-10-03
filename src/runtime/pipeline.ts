@@ -33,7 +33,7 @@ export interface PipelineStatus {
 
 export const HUD_COPY = {
   open: "Open the story",
-  branchChip: "branch — continue?",
+  branchChip: "You went back: continue from here?",
   steppedBack: "stepped back",
   fallbackScene: "Current scene",
   setupChip: "check setup",

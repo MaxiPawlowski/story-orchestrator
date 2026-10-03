@@ -48,7 +48,7 @@ export const AuthorView: Story = {
   args: { snapshot: snapshot(true), manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const curator = canvas.getByRole("checkbox", { name: "World Info curator" });
+    const curator = canvas.getByRole("checkbox", { name: "Lorebook curator" });
     await expect(curator).toBeChecked();
     const warden = canvas.getByLabelText("Warden notes");
     await expect(warden).toHaveAttribute("id", "so-warden-accept-mode");
@@ -66,10 +66,10 @@ export const PlayerWithAStory: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
-    await expect(canvas.queryByRole("checkbox", { name: "World Info curator" })).toBeNull();
+    await expect(canvas.queryByRole("checkbox", { name: "Lorebook curator" })).toBeNull();
     await expect(canvasElement.querySelector("#so-warden-accept-mode")).toBeNull();
     await expect(canvasElement.querySelector("#so-chain-stop-transition")).toBeNull();
-    await expect(canvas.getByRole("checkbox", { name: "Steering hint" })).toBeChecked();
+    await expect(canvas.getByRole("checkbox", { name: "Steer the tension" })).toBeChecked();
   },
 };
 
@@ -77,7 +77,7 @@ export const PlayerWithoutAStorySeesTheCurator: Story = {
   args: { snapshot: snapshot(false, null), manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox", { name: "World Info curator" })).toBeInTheDocument();
+    await expect(canvas.getByRole("checkbox", { name: "Lorebook curator" })).toBeInTheDocument();
     await expect(canvasElement.querySelector("#so-warden-accept-mode")).toBeNull();
   },
 };

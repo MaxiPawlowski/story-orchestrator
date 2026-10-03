@@ -90,7 +90,8 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: 260,
     live: "J11.20, J11.21",
     measuredOn: MEASURED_ON,
-    recommendation: "Needs authored read_as hints to do anything. The rate is lower than v2.2 reported because it now counts the coverage family — how often the judge answers " +
+    recommendation: "Needs the author to mark which story values it reads, or it does nothing. " +
+      "The rate is lower than first reported because it now counts the coverage family — how often the judge answers " +
       "at all — whose own floor is 0.",
   },
   memoryPairs: { calibration: 0.931, latencyP50Ms: 254, live: "J11.9, J11.10", measuredOn: MEASURED_ON, recommendation: "Measured on the consolidation path." },
@@ -101,13 +102,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: MEASURED_ON,
     recommendation: "Off the reply path, against a 2500 ms budget, so lateness costs nothing a player feels.",
   },
-  sceneTracker: { calibration: 0.9673, latencyP50Ms: 243, live: "J11.11–J11.15", measuredOn: MEASURED_ON, recommendation: "As sceneTrigger: measured, and off the reply path." },
+  sceneTracker: { calibration: 0.9673, latencyP50Ms: 243, live: "J11.11–J11.15", measuredOn: MEASURED_ON, recommendation: "As Notice scene changes: measured, and off the reply path." },
   director: {
     calibration: 0.88,
     latencyP50Ms: 245,
     live: "J11.3, J11.4",
     measuredOn: MEASURED_ON,
-    recommendation: "Only with an authored role on every candidate — without roles it reports no-roles and does nothing. Fits its 1500 ms reply-path budget at p50.",
+    recommendation: "Only with an authored role on every candidate — without roles it does nothing. Fits its 1500 ms reply-path budget at p50.",
   },
   agencyCheck: {
     calibration: 1,
@@ -148,7 +149,7 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: "Not measured yet: its recall and noise floors (v2.5 plan 08 X1/X2) have not run live, so keep it off.",
+    recommendation: "Not measured yet: its recall and noise floors have not run live, so keep it off.",
   },
   expressions: {
     calibration: null,
@@ -189,11 +190,11 @@ const llamaRow = (calibration: number, latencyP50Ms: number, passed: boolean, re
   live: null,
   measuredOn: LLAMA_LOGPROB_MEASURED_ON,
   passed,
-  recommendation: `${recommendation} Measured ×2 on 2026-10-03 (Artemis 31B v1.1 Q4_K_M on llama-server b11046, docs/plans/v2.6/12-provider-matrix.md).`,
+  recommendation: `${recommendation} Measured ×2 on 2026-10-03 (Artemis 31B v1.1 Q4_K_M on llama-server b11046).`,
 });
 
 const playLoad = (answered: string, fixtures: string) =>
-  `Withdrawn after the T6-2 play check (2026-10-03): under play load (group replies on the same pod, one request per question, 2 in flight) ${answered}. ` +
+  `Withdrawn after the play check (2026-10-03): under play load (group replies on the same pod, one request per question, 2 in flight) ${answered}. ` +
   `On fixtures ${fixtures}.`;
 
 const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
