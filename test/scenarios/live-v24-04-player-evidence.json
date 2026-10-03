@@ -32,7 +32,7 @@
       "log": true
     },
     {
-      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const missing = normal.filter((r) => !r.body.includes(\"The player's message states an attempt; decide its outcome from the world — it may fail.\")); if (missing.length) throw new Error('a request on the altar checkpoint does not carry the attempts clause: ' + missing.length + ' of ' + normal.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
+      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const missing = normal.filter((r) => !r.body.includes(\"'s message states an attempt; decide its outcome from the world — it may fail.\")); if (missing.length) throw new Error('a request on the altar checkpoint does not carry the attempts clause: ' + missing.length + ' of ' + normal.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
       "log": true
     },
     {

@@ -32,7 +32,7 @@
       "log": true
     },
     {
-      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const leaked = R.requests.filter((r) => r.body.includes(\"The player's message states an attempt; decide its outcome from the world — it may fail.\")); if (leaked.length) throw new Error('the control arm carries the attempts clause: ' + leaked.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
+      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const leaked = R.requests.filter((r) => r.body.includes(\"'s message states an attempt; decide its outcome from the world — it may fail.\")); if (leaked.length) throw new Error('the control arm carries the attempts clause: ' + leaked.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
       "log": true
     }
   ]

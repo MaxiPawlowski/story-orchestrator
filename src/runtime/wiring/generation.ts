@@ -5,6 +5,7 @@ import {
   readExtensionPromptBlocks,
   readPromptBudget,
   subscribeToHostEvents,
+  tokenizerIdentity,
   EXTENSION_SETTINGS_LOADED_EVENT,
   type HostSubscriptionEntry,
 } from "@services/STAPI";
@@ -73,7 +74,7 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
   }));
   disposers.push(modelCallLog.attach((record) => runtimeManager.recordModelCall(record)));
   disposers.push(attachPromptBuckets(() => runtimeManager.notify()));
-  disposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
+  disposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null, tokenizer: tokenizerIdentity }));
   disposers.push(runtimeManager.subscribe(() => {
     const blocks = readExtensionPromptBlocks();
     promptCost.request([...blocks.own, ...blocks.foreign].map((block) => block.value));
