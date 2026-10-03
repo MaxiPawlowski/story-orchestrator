@@ -31,7 +31,7 @@ Not in v2.7 (each needs a model or a later plan):
 - **Native tool calls over CC profiles** for the agentic wizard (decision 3): a CL spike on the DeepSeek API CC profile
   plus the opencode subscription route (which already has native tools via the MCP bridge), floor = v2.6 plan 11's agent
   checks on the same fixture. Owner: `v2.8/09-wizard-assistant.md` §F, acceptance rows indexed in
-  `v2.8/23-test-plan.md` (decided by the user 2026-10-03, as recommended).
+  `v2.8/24-test-plan.md` (decided by the user 2026-10-03, as recommended).
 - **Labelling aid** (decision 2): offline, per fixture plan in v2.8 (12, 13, 14); the labelling model is never
   calibrated on its own labels; Adolion-derived rows are checked by a second model, never the user (review B4).
 

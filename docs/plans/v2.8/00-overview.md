@@ -78,7 +78,8 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 20 | `20-character-life.md` | 18 | relationships, mood, agendas, schedules | D | CL (M1) + RP |
 | 21 | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
 | 22 | `22-living-story-director.md` | 24 | M1 spike; then M1–M3 with UI | D | RP + CL |
-| 23 | `23-test-plan.md` | v2.6 10 / 14 as the model | the v2.8 test plan: per-plan acceptance by tier, the one final real-LLM suite (absorbs v2.7's owed rows from 01 §A), sessions, blind rating packs, budget, freeze and attestation | — | all tiers; last |
+| 23 | `23-story-widgets.md` | new (user topic 2026-10-03) | story-declared widgets (board, meters, clock, clues, map) rendered by our components over a player-safe projection; sandboxed author HTML only as a seed | D | D |
+| 24 | `24-test-plan.md` | v2.6 10 / 14 as the model | the v2.8 test plan: per-plan acceptance by tier, the one final real-LLM suite (absorbs v2.7's owed rows from 01 §A), sessions, blind rating packs, budget, freeze and attestation | — | all tiers; last |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -127,15 +128,15 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | Question | Decided | Where |
 |---|---|---|
 | Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v2.9 (`v2.9/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.8 08 decision 11, v2.8 14 decision 7 |
-| Native tool calls over CC profiles (v2.7 14 decision 3) | v2.8 09 §F (decided); rows indexed in v2.8 23 | v2.8 09 §F |
+| Native tool calls over CC profiles (v2.7 14 decision 3) | v2.8 09 §F (decided); rows indexed in v2.8 24 | v2.8 09 §F |
 | `/story ask` for players vs rule 4 (09 decision 3) | the user's yes counts as the explicit decision rule 4 needs; player Ask ships dev-only, then off by default (rule 9) | v2.8 09 §E |
 | Living director "Save as story" (22) | drops unreached generated checkpoints by default; the player is not asked | v2.8 22 §Spoilers |
-| Blind ratings of Adolion excerpts (22 M2 and anywhere else) | a second model rates them; never the user (rule 11) | v2.8 22 M2, v2.8 19 M2, v2.8 23 §Blind rating packs, v2.7 12 |
-| SP5 acceptance tiers (16, Sol r3 R3-20) | C1–C5 dry-run plumbing acceptance is D on a lane; real-reply acceptance is v2.8 01 O13 (RP) | v2.8 16, v2.8 01 O13, v2.8 23 row 16 |
+| Blind ratings of Adolion excerpts (22 M2 and anywhere else) | a second model rates them; never the user (rule 11) | v2.8 22 M2, v2.8 19 M2, v2.8 24 §Blind rating packs, v2.7 12 |
+| SP5 acceptance tiers (16, Sol r3 R3-20) | C1–C5 dry-run plumbing acceptance is D on a lane; real-reply acceptance is v2.8 01 O13 (RP) | v2.8 16, v2.8 01 O13, v2.8 24 row 16 |
 | Character life M1 floors (20) | direction accuracy ≥ 0.80, stuck rate ≤ 0.10, hiding the current value costs ≤ 5 points, curator-proposal in-goal ≥ 0.85; frozen before the first run | v2.8 20 §Measurement |
 | Agenda effects and cast changes (20) | agenda effects exclude cast changes | v2.8 20 §Agendas |
 | Shared origin-tagged rollback (`revertOriginSince`, 18 + 20) | whichever plan builds first builds it; the other reuses it and adds its origin | v2.8 18 §Rewards and rollback, v2.8 20 §Agendas |
-| v2.8 RunPod budget (23) | EUR 20 cap, as v2.6; stop and ask the user before exceeding it | v2.8 23 §Cost and budget |
+| v2.8 RunPod budget (23) | EUR 20 cap, as v2.6; stop and ask the user before exceeding it | v2.8 24 §Cost and budget |
 | Earlier minor proposals | stand as written: J7.1 `SCENE_CONFIRM_P` = 0.40 (13); env names `SO_JUDGE_MODELS_DIR`, `SO_JUDGE_LOCAL_URL` and provider `systemone-local` (14) | v2.8 13 J7.1, v2.8 14 |
 
 ## Status
@@ -164,7 +165,8 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
 | 22 | written (exploration); decided (M1 first); not run |
-| 23 | written 2026-10-03 (test plan); runs last |
+| 23 | written 2026-10-03 (story widgets); not decided |
+| 24 | written 2026-10-03 (test plan); runs last |
 
 ## Review 2026-10-03
 

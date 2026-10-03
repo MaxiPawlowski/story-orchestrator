@@ -7,7 +7,7 @@ Overview: `00-overview.md`. Plugin-side campaign findings live in v2.7 02 C6–C
 lab; their model halves are v2.8 01).
 **Gate tiers** (v2.7 overview §Gate taxonomy): implementation D (campaign repo, offline checks); acceptance D in v2.7
 (A7's deterministic checks: `validate-stories`, `check_player_copy.py` on `briefing` text). A7's independent second-model
-content review is CL and is owned by `v2.8/01-v27-carry-over.md` §A O15 (indexed in `v2.8/23-test-plan.md`), never the
+content review is CL and is owned by `v2.8/01-v27-carry-over.md` §A O15 (indexed in `v2.8/24-test-plan.md`), never the
 user (rule 11).
 
 No campaign story content is quoted here: rows name files, counts and acts only.

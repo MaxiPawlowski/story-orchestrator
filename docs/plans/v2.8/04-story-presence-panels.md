@@ -68,7 +68,7 @@ All four items integrate after v2.8 18 except C5, which needs only v2.7 06's fra
 
 v2.7 06 (index, badges, frame, toggles, roll store, C1–C3, C6, C9 (b)), v2.7 05 (briefing, C8), v2.7 01 (registry),
 v2.8 18 (Journal, `display.public`, public rolls), v2.8 20 (meters stay author-only), v2.8 22 (director suggestions
-could join v2.7 06's Activity panel), v2.8 23 (final suite rows for C5).
+could join v2.7 06's Activity panel), v2.8 24 (final suite rows for C5).
 
 ## Review 2026-10-03
 

@@ -131,7 +131,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 
 | Question | Decided | Where |
 |---|---|---|
-| Homes for v2.7 14 research decisions 2 and 3 (Sol r3 R3-15) | native tool calls over CC profiles = v2.8 09 §F (rows in v2.8 23); optional Critic role = v2.9 05 §05.6 | v2.7 14, v2.8 09, v2.9 05 |
+| Homes for v2.7 14 research decisions 2 and 3 (Sol r3 R3-15) | native tool calls over CC profiles = v2.8 09 §F (rows in v2.8 24); optional Critic role = v2.9 05 §05.6 | v2.7 14, v2.8 09, v2.9 05 |
 | 01 triage: what "dev-only" means; what a fixed default removes | dev-only = left out of the release build, behind `__SO_DEV__` like the spike modules; a fixed default loses the control **and** the setting key (no-legacy rule) | v2.7 01 §D, §Triage proposal |
 | 16 live smoke | 5 real turns on the DeepSeek CC profile, no pod; plumbing check only, not acceptance; small spend accepted | v2.7 16 §Live smoke |
 | 05/06 saga rule (earlier proposal) | stands as written: a saga = a story with ≥ 2 chapters | v2.7 05 §Saga vs act, v2.7 06 B |

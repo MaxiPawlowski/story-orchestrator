@@ -3,7 +3,7 @@
 **Status (2026-10-03): written. Runs per plan as each lands, then once at close-out.** Overview: `00-overview.md`.
 Model: `v2.6/10-acceptance.md` (phase F, verdict rules) and `v2.6/14-tiered-testing.md` (tiers, ×2, findings), scoped
 down: v2.7 accepts **tier D only** (v2.7 rules 5–6). Every real-model row is listed in §What v2.7 does NOT prove with its
-owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/23-test-plan.md`) runs them.
+owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/24-test-plan.md`) runs them.
 
 ## Rules
 
@@ -103,7 +103,7 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
 | judge-typed evidence on the whole message (guard semantics) | — | v2.8 01 C11-F1 |
 | warden/lore timeouts, separate-arm checks | — | v2.8 01 C3, C4 |
 | independent-model content review of the A7 briefings | v2.7 07 A7 | v2.8 01 O15 |
-| any human or blind rating | — | v2.8 01 §F, v2.8 23 |
+| any human or blind rating | — | v2.8 01 §F, v2.8 24 |
 
 ## Archive locations
 
