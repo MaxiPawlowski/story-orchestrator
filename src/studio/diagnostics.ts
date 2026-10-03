@@ -7,6 +7,7 @@ import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkMotives, checkRequirementMembers } from "./authoringDiagnostics";
 import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
 import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnostics";
+import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -63,6 +64,7 @@ export const DIAGNOSTIC_CODES = [
   "requirement-persona-missing",
   "gate-open-on-arrival",
   "cast-member-never-enabled",
+  "briefing-spoiler-risk",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -109,6 +111,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "requirement-member-roster-id": "The story never reads as ready: it waits for a character named by a cast id, while the card has another name.",
   ...CAST_CONSEQUENCES,
   ...ARRIVAL_CONSEQUENCES,
+  ...BRIEFING_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -527,6 +530,7 @@ const DIAGNOSTIC_CHECKS = [
   checkRequiredPersonas,
   checkGateOpenOnArrival,
   checkNeverEnabled,
+  checkBriefingSpoilers,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

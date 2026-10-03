@@ -6,6 +6,7 @@ import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readStoryIllustrations } from "./illustrations";
+import { readBriefing } from "./briefing";
 
 const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
 
@@ -181,6 +182,7 @@ const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["displa
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
   if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
   const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
+  const briefing = readBriefing(json.briefing, "briefing", errors);
   const illustrations = readStoryIllustrations(json.illustrations, errors);
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
@@ -192,6 +194,7 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const display = readDisplay(json.display, errors);
   return {
     ...(playerIntro ? { player_intro: playerIntro } : {}),
+    ...(briefing ? { briefing } : {}),
     ...(illustrations ? { illustrations } : {}),
     ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(requirements ? { requirements } : {}),

@@ -94,6 +94,10 @@ export const checkBackgrounds = ({ draft, context, push }: CastRun) => {
     if (!name || stems.has(stem(name))) return;
     push("background-missing", "warning", `checkpoints.${index}.effects.background`, `no background '${name}' on this install; pick one from its list, or leave the background out`);
   });
+  const images: Array<[string, string | undefined]> = [["briefing.image", draft.briefing?.image], ...(draft.chapters ?? []).map((chapter, index): [string, string | undefined] => [`chapters.${index}.briefing.image`, chapter.briefing?.image])];
+  images.forEach(([path, name]) => {
+    if (name && !stems.has(stem(name))) push("background-missing", "warning", path, `no background '${name}' on this install for the briefing picture; pick one from its list, or leave the picture out`);
+  });
 };
 
 export const checkRequiredPersonas = ({ draft, context, push }: CastRun) => {
