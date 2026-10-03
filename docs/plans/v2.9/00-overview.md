@@ -27,7 +27,8 @@ closes.** No plan is approved or built. Old → new numbers: `docs/plans/v2.7/RE
 | 05.1 | `05-deferred-items.md` layered 2D rig | old 28 option D → v2.8 07 talking-sprites (D → here) | heavy build, auto-rig robustness unknown, Spine licence; user parked it | the v2.8 07 playtest asks for real head motion B + P cannot give | v2.8 06 sprite generation, v2.8 07 |
 | 05.2 | SP10 tool-call turns, the rest | old 16d option A → v2.7 15 (B + C there) | nobody plays story chats with CC function calling | CC + tools in story chats, or a session finding on multi-boundary tool turns | v2.7 15 (probe removed; recipe in the v2.5 report) |
 | 05.3 | C4 report-only staging panel | old 09 option E → v2.7 11 (close) | no author session asked for it | an author session finds jump staging wrong and painful to fix | v2.7 04 check registry (lands as a finding with an action) |
-| 05.4 | Runtime verbatim recall | old 29 B/P1/P5 → v2.8 21 (E0 + offline only) | in groups, recall needs a witness filter; unmeasured | E0 picks an arm (hit@4 ≥ 0.80), offline VR6 passes, and a reversible witness record exists | v2.8 21; v2.9 02 option B; v2.8 01 Q-M5 + P3 |
+| 05.4 | Runtime verbatim recall | old 29 B/P1/P5 → v2.8 21 (E0 + offline only) | in groups, recall needs a witness filter; unmeasured | E0 picks a winning arm (hit@4 ≥ 0.80), current VR1 and VR2 pass together on a fixture meeting v2.8 21 §6.2's minimums (≥ 20 positives, ≥ 20 nonce exclusions, ≥ 3 members, ≥ 2 secret scenes, ≥ 2 sessions), and a reversible witness record exists (old VR6 retired) | v2.8 21; v2.9 02 option B; v2.8 01 Q-M5 + P3 |
+| 05.6 | Optional "Critic" role | v2.7 14 research decision 2 (recommended; pending user) | "after the wizard work" (v2.8 09) | v2.8 09 built, and the critic passes chains a different model rejects | v2.8 09; v2.7 14 role map |
 | 05.5 | "Not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.8 03 / 08 / 14 | written before the split; placement not confirmed | per item, see `05-deferred-items.md` §05.5 | parent v2.8 plan |
 
 ## Order if reopened
@@ -47,4 +48,9 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 - 01: park mechanism (a) dev counter vs (b) auto-drop at the v2.9 freeze? Recommended (b). And decision 2 (do you swipe
   back to earlier versions?): "rarely" drops it now.
 - 05.5: are the three "not in v2.7" items inside v2.8 plans v2.8 scope or v2.9?
-- Optional "Critic" role (v2.7 14 decision 4, "after the wizard work"): v2.8 09 or here?
+- Optional "Critic" role (v2.7 14 decision 2, "after the wizard work"): placed here as 05.6 (recommended; pending
+  user).
+
+## Review 2026-10-03
+
+Round 3 (Sol): R3-14, R3-15 (recommended; pending user) applied.

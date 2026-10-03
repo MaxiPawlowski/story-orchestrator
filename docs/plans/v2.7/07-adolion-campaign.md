@@ -5,8 +5,10 @@
 campaign rows (review D13) are `v2.8/02-adolion-campaign.md`.** Repo: `C:\dev\adolion-campaign` (HEAD `8012a61`).
 Overview: `00-overview.md`. Plugin-side campaign findings live in v2.7 02 C6–C11 (C12, C13 also come from the campaign
 lab; their model halves are v2.8 01).
-**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D (campaign repo, offline checks); acceptance D, plus a
-second-model content review for A7 (CL, recorded in v2.8 02, never the user: rule 11).
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D (campaign repo, offline checks); acceptance D in v2.7
+(A7's deterministic checks: `validate-stories`, `check_player_copy.py` on `briefing` text). A7's independent second-model
+content review is CL and is owned by `v2.8/01-v27-carry-over.md` §A O15 (indexed in `v2.8/23-test-plan.md`), never the
+user (rule 11).
 
 No campaign story content is quoted here: rows name files, counts and acts only.
 
@@ -30,7 +32,7 @@ No campaign story content is quoted here: rows name files, counts and acts only.
 | A2 | **Make `check_all.sh` portable**: working-python detection, `--fast` (skip the 8+ min harness), delete the stray `build/story/adolion-adventurer.v6.json` | the check could not run here | S | none | **done** `b61639f` |
 | A3 | **Move the pin once**, in the first v2.7 build step (step 0b), and re-freeze story-orchestrator's `test:debug` integration runs in the same change | `test:debug` went red the last time the pin moved alone (`v2.6/15-review.md`); moving it during the playtest re-seeds every lane | S | v2.7 step 0 | open (review A10: still `6d974d6`) |
 | A8 | **Harness test vs current plugin types:** `tests/adolion.local.test.ts` fails `typecheck:test` on the plugin (12× `activeCheckpoint` possibly undefined since T6-1 typed it `Checkpoint \| undefined`); a left-over copy in the plugin turned master's gates red on 2026-10-03 | fix with guards in the campaign test; same change as A3 | S | none | open |
-| A7 | **Story briefings:** one `briefing` per story plus Saga chapter briefings, built from the authored player copy and scenario framing, checked by `check_player_copy.py` (spoiler terms); content review by an independent model | the opening message lacks context (user, 2026-10-03) | M | v2.7 05 format | waits |
+| A7 | **Story briefings:** one `briefing` per story plus Saga chapter briefings, built from the authored player copy and scenario framing, checked by `check_player_copy.py` (spoiler terms); content review by an independent model is v2.8 01 O15 (CL), not a v2.7 gate | the opening message lacks context (user, 2026-10-03) | M | v2.7 05 format | waits |
 | A6 | **Badge check:** the nine `groupStories` bindings (`build/st-groups.js`) show the v2.7 06 badge, and the saga/act kind is right for each (Sol split item 7) | first real consumer of v2.7 06 | S | v2.7 06 built | waits |
 | A4 | lab data for v2.8 measurements | | | | → v2.8 02 |
 | A5 | playtest fix round | | | | → v2.8 02 |
@@ -66,3 +68,5 @@ D13a–e, pilots), v2.8 01 §F (lab ratings via Astra).
 Applied: A10 (pin still `6d974d6`; moved in step 0b with A8), the Claude-A note on the header (C12/C13 also come from the
 campaign), Sol split item 7 (A6 badge validation in v2.7), D13 (new campaign rows go to v2.8 02), A1/A2 recorded as done,
 B4 (A7 content reviewed by a second model), B12 (references).
+
+Round 3 (Sol): R3-02 applied.

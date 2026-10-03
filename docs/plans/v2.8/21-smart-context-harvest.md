@@ -183,12 +183,16 @@ bands (two queries at 0.82 and 0.55). Is that enough, or does a re-rank pay for 
 p50/p95 latency per question, input tokens per question.
 
 **Floors (declared now):** the cheapest arm with hit@4 ≥ 0.80 wins; a costlier arm must beat it by ≥ 0.10 MRR@4 to be
-chosen. If no arm reaches hit@4 0.80 while pool recall is ≥ 0.80, ranking is the problem and P4 stays parked; if pool
-recall itself is < 0.80, retrieval is the problem and §6.2 still runs on the winning arm, with the number recorded.
+chosen. **No winner (Sol r3 R3-13):** if no arm reaches hit@4 0.80 there is no winning arm, and the floor is not
+lowered. Then: with pool recall ≥ 0.80, ranking is the problem; with pool recall < 0.80, retrieval is the problem; in
+both cases P4 stays parked and **§6.2 is recorded BLOCKED (insufficient E0)**, never scored against its floors. For the
+record only, a **diagnostic arm** is named (highest hit@4, ties to the cheaper arm; it is not a winner and nothing
+ships on it), and §6.2's fixture may be run once on it, labelled diagnostic, with its numbers kept beside E0's.
 
 ### 6.2 Step 2 — offline group witness feasibility
 
-Uses E0's winning arm. Replaces the solo-era runtime recipe (old VR2–VR6, live, twice). Arms: R0 = today (tiers + D10 as
+Uses E0's winning arm, and runs (for a verdict) only when E0 produced one; otherwise it is BLOCKED (§6.1).
+Replaces the solo-era runtime recipe (old VR2–VR6, live, twice). Arms: R0 = today (tiers + D10 as
 Q-M5 leaves it), R1 = P1 message index, R2 = P2 row index → raw range. R1/R2 filter each candidate by the scene read's
 per-scene `present` set: a member gets a message only if it was present in that message's scene.
 
@@ -304,3 +308,5 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
 - Changed from the earlier draft: "spot-checked by Claude" → second-model check (rule 11). Line ref touched and verified:
   `src/endpoints/vectors.js:385-392` (the server sorts via `queryItems`, so ST's order is a real score order, which
   arm (e) and the tie rule use).
+
+Round 3 (Sol): R3-13 applied.

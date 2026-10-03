@@ -30,9 +30,10 @@ gate runs, and are listed here only so nothing is lost. If v2.7 freezes without 
 | O9 | v2.7 08 warning | `fix` overlay + harvest on → row, HUD chip and harvest line after 5 real replies, in player and author view; `thinking` overlay → none | RP | `v2.7/08-thinking-per-story.md` §Gate record |
 | O10 | v2.7 10 option C | edit the newest reply in a playing chat → pipeline `catching-up` until the re-read audit lands | CL (read role) | `v2.7/10-sp2-recommit-v2.md` §Gate record |
 | O11 | v2.7 09 commitment | `so-journal.mts show` on a held commitment row from real play | CL | `v2.7/09-commitment-double-negatives.md` §Gate record |
-| O13 | v2.7 02 C1 | the SP5.b story-owned scenario in real replies (the scenario reaches the prompt and the reply follows it), beyond v2.8 16's plumbing | RP | `v2.7/02-v26-carry-in.md` C1; v2.8 16 |
+| O13 | v2.7 02 C1 | the SP5.b story-owned scenario in real replies (the scenario reaches the prompt and the reply follows it), beyond v2.8 16's C1–C5 dry-run plumbing (tier D there); the real-reply acceptance of SP5 (recommended; pending user) | RP | `v2.7/02-v26-carry-in.md` C1; v2.8 16 |
 | O14 | v2.7 02 C13 | promoted SP8 curator tiers under a real curator pass (C13-b covers prompt changes only) | CL (curator profile) | `v2.7/02-v26-carry-in.md` C13 |
 | O12 | every merged v2.7 plan | its own "Live: NOT run" line, as recorded at merge | per row | each gate record |
+| O15 | v2.7 07 A7 briefings | independent second-model content review of every story and Saga chapter briefing (spoiler terms beyond `check_player_copy.py`, agreement with the authored player copy); rater named in the record, never the user (rule 11). v2.7 closes A7 on its deterministic checks only | CL (second-model rater) | `v2.7/07-adolion-campaign.md` A7 |
 
 The v2.7 close-out walks its gate records and adds any row missing here before v2.7 freezes.
 
@@ -144,10 +145,14 @@ decision 5, verbatim: "i'll play it, but add a tesst case so that claude also pl
   on a story whose outcome qualities stay at `evidence_from: any`, warden accept mode `auto`, `agencyCheck` on.
   Claude plays a player who sometimes declares outcomes and sometimes goes silent (the two near-miss shapes from v2.6
   T1). Runs on an adolion-fresh lane with the overview's baseline settings.
-- **Completion contract:** the session is VALID (so-session stop exit 0); the digest counts agency notes raised and
-  accepted per 100 turns, replies that narrated the player, and declarations counted as world outcomes; each counted
-  case is quoted in the session dir (private `so-sessions`, not the public repo). The v2.9 04 floors are then scored
-  against this session and, separately, against the user's.
+- **Completion contract** (the full v2.9 04 hand-off, Sol r3 R3-08): the session is VALID (so-session stop exit 0);
+  the digest counts agency notes **raised, accepted and applied** per 100 turns, every reply the check flagged, replies
+  that narrated the player, and declarations counted as world outcomes; **every applied note** (the eligible set for
+  the T22 80 % / zero floors) carries one rating, `helpful | invisible | OOC | over-corrected`, from a second-model
+  rater named in the record (Adolion content: never the user, rule 11); the T0–T7 journal count v2.9 04 asks for is
+  attached. A note without a rating leaves the session **incomplete**, not scored. Each counted case is quoted in the
+  session dir (private `so-sessions`, not the public repo). The v2.9 04 floors are then scored against this session
+  and, separately, against the user's.
 - It does not decide D6/T22. It produces the evidence v2.9 04 decides on. Tier: RP (replies) + CL (judge).
 
 ## Gates (plan close)
@@ -170,3 +175,5 @@ Applied: F02 (option A scheduled, §C), F04 (funded A/B, §D), F17 + D10 (owner 
 measurements, §F), C3 (inner-voice promotion owner, §F), C9 refined (Claude's card + completion contract, §G), A12
 refined (actual post-processor, Recast-shaped fixtures, §C step 0), A15 refined (`buildChecks.mjs` + named build, §C),
 Sol split items 2, 3, 4, 5 (§A, §B), F15 (tiers per row). Not placed here: K1/K2/K3 and C14's picker (v2.7).
+
+Round 3 (Sol): R3-02 (O15), R3-08, R3-20 (O13; recommended; pending user) applied.

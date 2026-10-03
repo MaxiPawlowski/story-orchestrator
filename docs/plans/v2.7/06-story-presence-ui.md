@@ -102,8 +102,22 @@ Not proposed: anything that posts into the chat array, and steering controls in 
 - Story `display` block, authored in the Studio Story tab. v2.7 keys: `{ continueList?, groupCard?, chapterCard?,
   wand?, rollChips? }`, each boolean. v2.8 04 adds `journal`, `suggestions`, `statSheet`.
 - Install-wide defaults in `display.*` settings (all on).
-- **Precedence:** the story's value wins when present; otherwise the install default. A player can always turn an item
-  off install-wide: a story can switch an item off, never force one on against the player's off.
+- **Effective value (Sol r3 R3-17): `shown = storyValue AND installValue`**, with an absent story key read as `true`.
+  The install-wide off is the player's veto; a story off hides the item for that story; both on shows it. There is no
+  other precedence rule ("the story wins" is withdrawn: it would let a story force an item on against the player).
+
+  | story `display.<item>` | install `display.<item>` | shown |
+  |---|---|---|
+  | true | true | yes |
+  | true | false | **no** (player veto) |
+  | false | true | no (story hides it) |
+  | false | false | no |
+  | absent | true | yes |
+  | absent | false | no |
+
+  **Test (jest, `displayToggles.test.ts`):** all four story true/false × install true/false combinations plus both
+  absent rows, for every key (`continueList`, `groupCard`, `chapterCard`, `wand`, `rollChips`, and v2.8 04's keys when
+  they land); the story-true/install-false row is the named case that a "story wins" implementation fails.
 - C1 and C2 read the index, so their story toggle applies only to that story's rows.
 
 ## C9 (b) "Behind the scenes" for authors (review F21)
@@ -116,7 +130,11 @@ Not proposed: anything that posts into the chat array, and steering controls in 
 - **NPC reply and talk draws are recorded** in a production ring `extras.chance.draws` (cap 100, no text), written
   through `onChanceDraw` with the message id and rolled back by message like `extras.lore.fired`; sanitized in
   `runtime/extras.ts`. The dev ring stays dev-only.
-- v2.8 18 Q3 adds `modifier` and `narrate` to the same record shape; v2.8 04 shows public chips from it.
+- **One roll store** (Sol r3 R3-05): `snapshot.rolls`, composed by `snapshotBuilder` from the reconstructed quality
+  rolls and `extras.chance.draws` into one `RollRecord` `{source, key, messageId, boundary, sides, draw, target?,
+  modifiers?, total?, outcome?, narrate}`. v2.8 18 Q3 adds a third producer (its own `extras.checks` ring, `source:
+  "check"`, with modifiers and `narrate`) to the same store; it does not extend the draws ring. The author chips here
+  and v2.8 04's public chips render only `snapshot.rolls`.
 
 **Who sees what (v2.7).**
 - **Author view only:** roll chips at inline level ≥ 2 and the Activity panel. Every chip is filtered on `authorView`,
@@ -130,7 +148,7 @@ findings (v2.7 04), expansions. Each row links to its message. Listed in `PLAYER
 ## Gates (tier D)
 
 - **Pure (jest):** index writes, caps, F14 (library removal keeps a pinned chat's row), backfill pass (throttle, pause on
-  generating, resume); Continue list from the index; toggle precedence; roll reconstruction ≡ the seeded value under
+  generating, resume); Continue list from the index; the toggle truth table (all four story × install combinations + absent); roll reconstruction ≡ the seeded value under
   rollback, swipe, reopen, and with two group replies inside one checkpoint; **rollback ≡ replay for the draws ring**
   (property test over seeds × cuts, the `rollbackReplay.property.test.ts` shape, with a no-rollback negative control);
   badge module over a fake list DOM (page turn re-applies, `dispose` removes all).
@@ -187,3 +205,5 @@ every item built here; idle backfill specified), F14 (library removal keeps pinn
 provenance; Author-view guard, not level), A2 (build split: index, badges and independent UI here; the rest after
 v2.8 18), A9 (no playtest prerequisite; C8 in v2.7 05), F08 + v2.7 03 (no solo marks, no `characterAvatar`), B10
 (registry gate), B12 (references).
+
+Round 3 (Sol): R3-05, R3-17 applied.

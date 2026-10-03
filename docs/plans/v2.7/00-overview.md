@@ -148,9 +148,9 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 
 ## Unresolved questions
 
-- Native tool calls over CC profiles for the wizard (v2.7 14 research decision 3, "sure") is a CL spike with no v2.8
-  plan. Home: v2.8 09 (wizard assistant)?
-- Optional "Critic" role (v2.7 14 decision 2): v2.8 09, v2.8 11, or v2.9?
+- Native tool calls over CC profiles for the wizard (v2.7 14 research decision 3, "sure"): placed in v2.8 09 §F, its
+  rows indexed in v2.8 23 (recommended; pending user). Optional "Critic" role (decision 2): placed in v2.9 05 §05.6
+  (recommended; pending user). Confirm both homes.
 - 01 triage: "dev-only" = not in the prod bundle, or Author view only? Fixed defaults: drop the key too, or only the
   control?
 
@@ -159,3 +159,5 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),
 B12/F36 (rule 12), K1–K3 (step 0), Sol split items 2 (owed rows → v2.8 01), 6 (03 + 04 together), 7 (A6 here). Per-plan
 findings are listed in each plan's own "Review 2026-10-03" section.
+
+Round 3 (Sol): R3-15 (recommended; pending user) applied.

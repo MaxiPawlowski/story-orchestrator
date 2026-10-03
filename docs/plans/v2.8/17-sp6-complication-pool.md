@@ -99,7 +99,7 @@ integration (review C4). What Q6 builds (design carried there):
    recorded in a small per-chat field (rolled back by boundary), replacing the in-memory map.
 6. **Surfaces.** Author only: an inline timeline chip at the author level ("Complication released: `<id>`"), the line
    in the message inspector, a journal event, the pool's remaining count in the author driver panel, and a row in
-   v2.8 04 C9's author Activity panel. Player: none (decision 4).
+   v2.7 06 C9 (b)'s author Activity panel. Player: none (decision 4).
 7. **Studio.** A pool editor on the checkpoint (lines, ids, `complication_after`), with a Storybook story; the guide
    moves the fields out of "Experimental effects".
 8. **Not in it.** R13 (a judge adversity read as the trigger) stays out until K1–K5 pass, as v2.5 said
@@ -158,7 +158,7 @@ Restated conditions (v2.5 bars unchanged; commit this section's final form befor
 - v2.8 18 quests and game layer: Q6 is where the production component is built.
 - v2.8 19 open stretches: pressure uses this pool, after 18 Q6; defines `trigger: "quiet"`.
 - v2.8 22 living story director: lists complications among things that move on their own.
-- v2.8 04 C9: the author Activity panel shows releases.
+- v2.7 06 C9 (b): the author Activity panel shows releases (moved from v2.8 04, user 2026-10-03).
 - v2.7 07 / v2.8 02 Adolion campaign: the authored pools and the lab data.
 - v2.8 16 SP5: the other v2.6 spike measured in v2.8. SP1 is deferred (v2.9 01); SP10 is v2.7 15.
 
@@ -172,3 +172,5 @@ Restated conditions (v2.5 bars unchanged; commit this section's final form befor
   a named build via `scripts/release/buildChecks.mjs:46`. Also re-verified `index.ts:85`, `wiring/generation.ts:86`,
   `devOnly.guard.test.ts:22`, `injectionRegistry.ts:21` and the collision check (now `:55-70`, was :62-68).
 - Not applied: none.
+
+Round 3 (Sol): R3-19 applied.

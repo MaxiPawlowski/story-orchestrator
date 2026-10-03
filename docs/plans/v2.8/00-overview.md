@@ -64,14 +64,14 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 06 | `06-sprite-generation.md` | 26b (new) | in-plugin sprite builder contract | D | LI |
 | 07 | `07-talking-sprites.md` | 28 | blink/talk frames, animator, mouth setting | D + LI (spike S28) | LI + a streamed reply on a named backend (RP or CL) |
 | 08 | `08-living-cards.md` | 32 | per-chat card/persona overlay, look sprites | D | RP (S32-1), LI (looks) |
-| 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial | D | CL (DeepSeek CC profile) |
+| 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; recommended; pending user) | D | CL (DeepSeek CC profile) |
 | 10 | `10-briefing-drafting.md` | 03 decision 1 | wizard drafts a briefing (auto on the fly, Premise step) | D | CL |
 | 11 | `11-curator-create-op.md` | 12 | curator `create` op, contract B, Lore-creation role | D | CL (frozen fixtures) |
 | 12 | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
 | 13 | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
 | 14 | `14-open-source-jev.md` | 15 | local judge provider (systemone, then NLI), our own evals | D | LT; RP for the play-load check |
 | 15 | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
-| 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | RP |
+| 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | D (C1–C5 dry-run plumbing, no model call); real-reply acceptance = v2.8 01 O13, RP (recommended; pending user) |
 | 17 | `17-sp6-complication-pool.md` | 16b | SP6 measurement | — | RP |
 | 18 | `18-quests-and-game-layer.md` | 19 | quests, visible qualities, checks, milestones, Journal; production complications (Q6) | D | CL (M1/M2 reads) + RP |
 | 19 | `19-open-stretches.md` | 17 | open stub mode, pressure, encounter pool | D (engine half) | RP (A/B) |
@@ -141,7 +141,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 13 | written; decided; not built; no Phase A run in v2.8 yet |
 | 14 | written; decided; not built; jevbench read, our evals not run |
 | 15 | written; decided (measure first); not run |
-| 16 | written; decided; SP5.b built in v2.7 02 C1 (check its gate record); live legs not run |
+| 16 | written; decided; **SP5.b NOT built** (owned by v2.7 02 C1, no gate record as of `c7967323`; `sp5Scenario` is still a dev flag); live legs not run |
 | 17 | written; decided (run on the pod); not run |
 | 18 | written (exploration); decided; not built |
 | 19 | written (exploration); decided; not built |
@@ -159,3 +159,5 @@ public relationship meters), A4 (rows rewritten from decisions), B10 (registry r
 
 2026-10-03 (later): the 04 row reflects the user-approved move of C1, C2, C3, C6, C9 (b), the panel frame and the
 per-story toggles to v2.7 06; plan 23 (test plan) added as the last row.
+
+Round 3 (Sol): R3-15, R3-20 (recommended; pending user) applied.

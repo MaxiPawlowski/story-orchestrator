@@ -117,6 +117,24 @@ Ask is a new runtime model use. It ships **dev-only** until the Q&A floor passes
 loop and is not a new use. Player Ask (`/story ask` and the Help Ask box in player mode) is the player-visible surface:
 decision 3 is the user's explicit yes to it (v2.8 rule 4); see the open question at the end.
 
+### F. Native tool calls over CC profiles (v2.7 14 research decision 3, "sure"; recommended; pending user)
+
+Owner of the spike v2.7 14 approved (Sol r3 R3-15). The agentic wizard on a CC profile today speaks the text JSON
+protocol (`localRoute`, `route.ts:38-57`; `requestModelReply` reads text only, `modelReply.ts:180`); the opencode route
+already has native tools through the MCP bridge (`harnessRoute`).
+- **Prerequisites:** v2.7 14's role picker and per-source context table built (v2.7 02 C14); the DeepSeek API CC profile
+  (`deepseek 4.1 flash`) named in the record (the user has no OpenRouter or Anthropic API key, review B6); the v2.6
+  plan 11 agent-check fixture frozen at its current revision.
+- **Spike (CL, ×2, before the build decision):** a probe per source (does ST forward `tools` and return `tool_calls`
+  for this source?), then the v2.6 plan 11 agent checks on the same fixture through three routes: the text protocol on
+  the DeepSeek CC profile (control), native tools on the DeepSeek CC profile (arm), and the opencode route (reference).
+  **Floor (predeclared, never retuned):** the arm passes every v2.6 plan 11 agent check the control passes, with no more
+  refused tool calls than the control and 0 provisioning calls accepted without the author's confirm.
+- **Build on PASS ×2:** a `profileToolsRoute` beside `localRoute`/`harnessRoute`, passing `tools` in the override
+  payload and reading `tool_calls`, every call still through `checkToolCall` and `mutations.ts`/`validateProvisioningOp`
+  (the agentic-wizard invariant); ownership census row; dev-only, then off by default (rule 9). On FAIL: numbers
+  recorded, text protocol stays, the route is not built.
+
 ## Gates
 
 | Gate | Tier |
@@ -131,6 +149,8 @@ decision 3 is the user's explicit yes to it (v2.8 rule 4); see the open question
 | `so-ui.mts assert-player-clean` with the Help Ask box open and an answer rendered | D |
 | Registered in the v2.7 01 feature registry + Help (registry test) (B10) | D |
 | **Live Q&A:** a scripted set of about 20 author questions ("how do I make a lorebook entry always on?", "why didn't the story advance?", "what does Author view show?") plus about 8 player questions, 3 of them asking about unreached content. Floor predeclared before the run: ≥ 17/20 author answers cite the right topic with a correct "Show me"; 8/8 player answers leak nothing unreached (a second model checks the Adolion-derived rows, never the user; v2.8 rule 11). On the `deepseek 4.1 flash` CC profile, run twice | CL |
+| §F probe per source + agent checks on three routes, ×2 (spike, before the build decision) | CL |
+| §F on PASS: `profileToolsRoute` unit tests (tools passed, `tool_calls` read, every call through `checkToolCall`; a provisioning call still only waits) | D |
 | `npm run gates` | D |
 
 ## Decisions for the user
@@ -149,9 +169,9 @@ decision 3 is the user's explicit yes to it (v2.8 rule 4); see the open question
 - Does decision 3 count as the explicit decision v2.8 rule 4 needs for the player Ask surface, or should player Ask wait
   for a session card that asks for it? This plan assumes it counts; the author half is unaffected either way.
 
-- Proposed home (pending the user): the CC native tool-call spike from v2.7 14 decision 3 (the agentic wizard driven
-  by a cloud profile's native tool calls instead of the text protocol; floor = v2.6 plan 11's agent checks). And the optional
-  Critic role (v2.7 14 decision 4, "after the wizard work").
+- Homes for two v2.7 14 research decisions (Sol r3 R3-15; **recommended; pending user**): the CC native tool-call
+  spike (decision 3) is this plan's §F; the optional Critic role (decision 2, "after the wizard work") is
+  `v2.9/05-deferred-items.md` §05.6.
 
 ## Links
 
@@ -171,3 +191,5 @@ role route), v2.8 22 living story director (shares the agent loop), v2.8 05 imag
 - **B10:** registry + Help gate row added.
 - **Rule 9:** Ask ships dev-only, then off by default.
 - Not applied: none. Assumption flagged: rule 4 for player Ask (open question).
+
+Round 3 (Sol): R3-15 (§F native tool-call spike; recommended; pending user), R3-19 (Critic = research decision 2) applied.

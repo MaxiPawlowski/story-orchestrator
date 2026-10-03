@@ -137,10 +137,18 @@ what's expected. Or maybe some sort of setup on story start?"
      player's click.
    - `inject` (default on): a short block (`INJECTION_REGISTRY.playerRole`, in-prompt, low priority) says "In this
      story, `{{user}}` is <role>: <summary>". **It stays on for every existing persona, kept or picked**: choosing a
-     persona does not show that its description carries this story's role (review F11). It turns off only when
-     equivalence is established explicitly: the persona was **created in this step from this story's
-     `suggested_description`**, and its live description still hashes to what was created
-     (`extras.ui.playerSetup.createdHash`). An edit in Persona Management later turns the block back on.
+     persona does not show that its description carries this story's role (review F11). It turns off only for a
+     **verified canonical equivalent** (Sol r3 R3-03): the persona's live description contains, verbatim, the exact
+     canonical line the block would inject (`renderPlayerRoleLine(role, summary)`, the same function the injection
+     uses), re-checked at every loud generation. Provenance is not equivalence: `suggested_description` is authored
+     independently and editable before creation, so "Create a persona for this story" prepends the canonical line to
+     it, and the injection stays on whenever that line is missing or altered (the player edited it before or after
+     creation, the author changed `role`/`summary` later, or the persona was created some other way).
+     `extras.ui.playerSetup.createdHash` stays as provenance for the journal only; it never turns the block off.
+     Tests (jest): (a) created from a `suggested_description` unrelated to `role`/`summary`, with the canonical line
+     removed before the click → injection on (the counterexample); (b) created with the line intact → off; (c) the line
+     edited in Persona Management later → on; (d) the story's `role` changed by an update → on until the line matches
+     again; (e) a kept persona whose description happens to contain the line → off (equivalence by content).
    - `card` (optional): the fields of the player that the story may change, owned by v2.8 08's overlay.
 2. **`player` never blocks readiness.** Only `requirements.personas` (kept, for the rare story that truly needs a named
    persona) and `name.mode: fixed` gate effects. Everything else is a choice the player makes once, at the start.
@@ -203,7 +211,7 @@ in.
   - **Choose another persona**: a list of existing personas; on pick, select (`setUserAvatar`) then lock. `inject`
     applies.
   - **Create a persona for this story**: name (prefilled from `name.value` or blank), description (prefilled from
-    `suggested_description`), shown in full, editable. One "Create and use" button: `/persona-create select=false`
+    `suggested_description`, with the canonical role line first), shown in full, editable. One "Create and use" button: `/persona-create select=false`
     with a marked title (`title="Story: <story title>"`), then select and lock. Never edits or deletes an existing
     persona; never sets the default persona; never touches the persona lorebook. `inject` is off only under the
     equivalence rule above.
@@ -256,7 +264,8 @@ in.
 
 - **D (deterministic).**
   - Pure: validator, diagnostics (`opener-uses-player-name` included), the `playerRole` source order (`player.role`
-    first), the `inject` equivalence rule (created + unchanged hash → off; created then edited → on; picked → on), setup
+    first), the `inject` equivalence rule (cases (a)–(e) above: off only while the live description carries the canonical line;
+    the unrelated-description counterexample stays on), setup
     state under rollback, reopen and Restart, the deterministic fit and switch rules.
   - Registry: `persona-fit` and `persona-switch` are in `CHECKS` and pass the v2.7 04 registry tests.
   - Activation order: a jest case per entry path (new chat, `selectStory`, `restartStory`) asserts readiness → identity
@@ -346,3 +355,5 @@ Applied from `v2.7/review-2026-10-03.md`:
   `storyOptions.ts:10,29`, `repair.ts:196-221/:223`, `provisioning.ts:13-20`, `castDiagnostics.ts:13,105/11,120`,
   `playerRole.ts:17-44`, `playerCast.ts:20-25`, `agency.ts:20`, `snapshotBuilder.ts:50`; added `effectsApplier.ts:255,509`
   and `checks.ts`. Not re-checked: `story-guide.md` lines and every ST host line (from the original draft).
+
+Round 3 (Sol): R3-03 applied.

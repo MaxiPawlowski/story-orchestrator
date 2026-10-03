@@ -84,26 +84,15 @@ information without the product guessing.
 Decisions 3 and 4 had no inline answer; they are taken as recommended (review A16). "Plan 23" in decision 3 is now the
 v2.8 01 §G over-steer session, whose evidence feeds v2.9 04.
 
-## Floor and measurement before building
+## Floor, measurement and gates if reopened
 
-Predeclared, before any (b)/(C)/(D) build:
-- **Trigger:** at least 2 sessions (user or Claude, player or author) where a jump target played wrongly **because**
-  inherited staging was missing, each with a journal line and the checkpoint's missing effect named. Harness starts do
-  not count (they have `setup.members`).
-- **Data to collect first (no model):** over the campaign data and `test/fixtures/*.story.json`, count checkpoints that
-  author no AN/background/scenario/cast of their own and inherit one from every predecessor (needs-inheritance), and
-  how many of those have ≥2 predecessor paths that would stage differently (ambiguous). Not determined today.
-- **Floor for (b)/(D):** on that census, the chosen path stages the target identically to the played path in ≥ 95 % of
-  needs-inheritance checkpoints reached in recorded sessions; 0 cast writes outside the story's roster.
+Moved to `v2.9/05-deferred-items.md` §05.3, which is now their only owner (Sol r3 R3-21): the reopen trigger (2
+sessions), the needs-inheritance census, the (b)/(D) floor and the gate recipes for E and B/C/D. This plan is closed
+and keeps only the decisions above.
 
-## Gates (per repo CLAUDE.md tiers)
+## Gates (this plan)
 
-- A: none (docs only).
-- E: runtime/UI tier: `npm run gates` (jest for the pure "skipped staging" reader, Storybook play for the panel row)
-  + live gate (`so-scenario` jump on a fixture story, panel lists the skipped effects; `so-ui assert-player-clean`).
-- B/C/D: runtime tier: `npm run gates`; jest per effect kind (jump == played path on a linear fixture; ambiguity rule on
-  a branching one); `rollback ≡ replay` across a jump; live no-LLM scenario on a group (cast restored after cleanup,
-  per debug-scripts rules).
+- A (the decision taken): none (docs only).
 
 ## Links
 
@@ -116,3 +105,5 @@ Predeclared, before any (b)/(C)/(D) build:
 
 Applied: A16 (the "not recorded" answer is recorded; decisions 3/4 as recommended; E deferred to v2.9 05.3), the
 Claude-A note on Links (deferred plans named as deferred), B12/F36 (references). Closed.
+
+Round 3 (Sol): R3-21 applied.

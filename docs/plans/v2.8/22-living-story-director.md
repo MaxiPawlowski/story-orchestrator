@@ -31,9 +31,12 @@ What already moves on its own during play, in production:
 - canon regeneration.
 
 Not production inputs until they ship (review C10): **complications** (the `sp6Complications` dev spike,
-`runtime/settingsModel.ts:88`; measured by v2.8 17, built for production by v2.8 18 Q6), **curator auto tiers** (the
-`sp8CuratorTiers` dev spike, same list) and **chapter seals** (v2.6 plan 07, off until the Q-M floors pass; owned by
-v2.8 01 §F). The director may read them in a dev run; production never depends on them before they ship.
+`runtime/settingsModel.ts:88`; measured by v2.8 17, built for production by v2.8 18 Q6) and **chapter seals** (v2.6
+plan 07, off until the Q-M floors pass; owned by v2.8 01 §F). The director may read them in a dev run; production never
+depends on them before they ship. **Curator tiers are production** once v2.7 02 C13 lands (Sol r3 R3-18): C13 promotes
+them exactly as measured and drops the `sp8CuratorTiers` flag, so they are no longer a dev input and no flag can switch
+them off. They act only through the curator (`routeByTier` in `auto` accept mode; the protected-span refusal always), so
+the director never reads them; M1 isolates them through the curator's own install-wide switch (below).
 
 A live story edit can also reach a running chat. `applyStoryUpdate` + `storyDiff` treat added checkpoints and
 transitions as compatible, so they hot-swap with no prompt (`engine/storyDiff.ts:230,283-288`). Today only an author's
@@ -118,9 +121,12 @@ expansion entries back to the status they had before a later revalidation staled
 is the model for ordering (graph restored before anything reads the checkpoint, the v2.6 T6-1-2 fix), not for removal.
 The director needs its own history:
 
-- **Storage.** The chat keeps `living.base` (the pinned story as loaded, its hash) and `living.ops[]`, an ordered log of
-  `{id, boundary, messageId, kind, payload}` where `kind` is `add-checkpoint | add-transition | add-stub |
-  add-quality`. The played graph is always `fold(base, ops)`, with the expansion merge on top. `pinnedStory` stays the
+- **Storage.** The chat keeps three things (Sol r3 R3-11): `living.authored`, the **immutable authored baseline** (the
+  library story as loaded, or as taken by the last author update, and its hash; never compacted into); `living.folded[]`,
+  the generated ops that left the rollback window (no longer undoable, kept so they can be re-folded); and
+  `living.ops[]`, the live ordered log of `{id, boundary, messageId, kind, payload}` where `kind` is `add-checkpoint |
+  add-transition | add-stub | add-quality`. `living.base` = `fold(authored, folded)` is a derived cache of the compacted
+  runtime base, never a diff input. The played graph is always `fold(base, ops)`, with the expansion merge on top. `pinnedStory` stays the
   full folded copy (the pin invariant); the ops log is how it is rebuilt.
 - **Engine snapshots.** An op applied at boundary `k` is kept by any rollback to a boundary `≥ k`. A checkpoint can only
   become active after the boundary that added it, so every retained snapshot names a checkpoint the rebuilt graph holds.
@@ -134,10 +140,16 @@ The director needs its own history:
   id); a rollback or an author save bumps the epoch, so a proposal built for a future that was rolled back is discarded
   before it applies, and a waiting `suggest` card is withdrawn.
 - **Retained-history limit.** The engine keeps the last 200 boundaries (`engine/engine.ts:267`, `:313`); a rollback past
-  the floor answers `history-unavailable`. Ops older than the floor can never be undone, so they are folded into `base`
-  when the engine drops the matching log entry. The ops log is therefore bounded by the same window.
-- **Author update.** `applyStoryUpdate` on a living chat diffs the library version against `living.base`, then re-folds
-  the ops; an op whose target the update removed makes the diff invalidating (the existing keep/restart/cancel choice).
+  the floor answers `history-unavailable`. Ops older than the floor can never be undone, so they move from `ops` to
+  `folded` (and into the `base` cache) when the engine drops the matching log entry; `authored` is never touched. The
+  live ops log is therefore bounded by the same window; `folded` grows only with generated content.
+- **Author update.** `applyStoryUpdate` on a living chat diffs the new library version against `living.authored`
+  (authored against authored, so generated nodes never read as author deletions), then rebuilds
+  `fold(fold(newAuthored, folded), ops)` and replaces `authored`; an op in `folded` or `ops` whose target the update
+  removed makes the diff invalidating (the existing keep/restart/cancel choice). **Test:** an ordinary author update
+  (one added authored checkpoint, one edited authored text) after compaction has moved generated ops into `folded`:
+  compatible hot-swap, no deletion reported, every generated node and the active checkpoint retained, graph equal to a
+  fresh fold of the same inputs; a control that diffs against `base` reports the generated nodes as deletions.
 - **Replay.** `rollback ≡ replay` and `reopen ≡ replay` hold for the graph: the graph hash, engine state and expansion
   statuses after a rollback to `b` equal those of a run stopped at `b`, and hydrating `base + ops` reproduces the pinned
   copy. Property test over random op/boundary/cut sequences, as `rollbackReplay.property.test.ts` does for memory.
@@ -159,6 +171,16 @@ rules apply in full:
 - **Save as story.** By default the export holds the authored part plus generated anchors the player reached; unreached
   generated anchors are dropped. Private inputs are never written into story fields. In Author view the author may opt to
   include unreached anchors (the Studio is an author surface).
+- **Referentially closed projection (Sol r3 R3-12).** Dropping an anchor drops everything that names it: transitions
+  whose `to` (or any gate/route reference) is an excluded anchor, generated checkpoints between a reached and an
+  excluded anchor that were not reached either, chapter entries and `arc_bridges` naming an excluded anchor, and
+  qualities declared only by excluded nodes. A kept checkpoint whose outgoing transitions all pointed into the excluded
+  future gets one `stub` exit (the shape `add-stub` already writes), so the exported story is still playable by
+  background generation instead of dead-ending. The export is then run through `validate.ts` and the Studio diagnostics,
+  and is refused (with the reason) on any error. **Test:** a reached generated anchor whose only exit targets an
+  unreached generated anchor, plus a chapter naming that anchor → the export validates with zero errors, holds no id the
+  graph does not define, and the reached anchor ends in a stub; property test over random reached/unreached cuts:
+  every export validates.
 - **Spoiler checklist.** `docs/plans/v2.1/test-plan.md`'s list gains a planted unreached generated anchor and a planted
   held secret; both must be absent from every player surface.
 
@@ -211,7 +233,11 @@ library (with the spoiler rules above). **Playing becomes a way of authoring**, 
   - warden contradiction notes per 50 turns no higher than the authored baseline;
   - 0 unreached generated anchor names and 0 held-secret restatements in any player surface (F27);
   - every rollback in a scripted swipe/delete run leaves the graph equal to the replay (F26).
-  Complications and curator tiers stay off in M1 (not production inputs, C10).
+  Isolation (C10, Sol r3 R3-18): complications stay off (`spikes.sp6Complications` is still a dev flag until v2.8 18
+  Q6 ships); the promoted curator tiers have no flag, so M1 runs with `stagecraft.curatorEnabled = false` on **both**
+  the living run and the authored baseline run (no curator pass, so no tier routing and no curator write in either
+  arm), asserted from the run header's `stagecraft` path before and after each batch; chapter seals stay off as
+  shipped. A curator-on column is a later M3 question, not M1.
 - **M2, blind:** pairs of excerpts, authored vs living, rated for coherence and "felt free". The floor is set before the
   run. Adolion excerpts are rated by Astra (delegated) or a second model, never the user (v2.8 rule 11).
 - **M3, hybrid:** an authored act continued by the director past its end. Does it hold the act's threads?
@@ -221,7 +247,8 @@ library (with the spoiler rules above). **Playing becomes a way of authoring**, 
 | Gate | Tier |
 |---|---|
 | Director op validation (future-only writes, bounded qualities, namespaced ids) | D |
-| Graph-op history: rollback/reopen ≡ replay property test; retained-window compaction; pending-write discard; stale proposal discarded after a rollback (F26) | D |
+| Graph-op history: rollback/reopen ≡ replay property test; retained-window compaction; pending-write discard; stale proposal discarded after a rollback (F26); author update after compaction diffs against `living.authored` (R3-11) | D |
+| Export projection: referentially closed, validates, reached anchor → excluded anchor case (R3-12) | D |
 | Spoiler property: planted unreached generated anchor + planted held secret absent from every player surface; `assert-player-clean` with director selectors (F27) | D |
 | `architecture.test.ts` keeps the director away from the blackboard and memory, like stagecraft | D |
 | Ownership census row for the director unit | D |
@@ -278,3 +305,5 @@ the agent loop), v2.6 plan 07 chapter seals (dependency), v2.9 03 new game plus 
 - **F15:** tiers per gate row.
 - Line refs touched and verified: `expansionCoordinator.ts:123`, `engine.ts:196,267,313`, `settingsModel.ts:88`,
   `storyDiff.ts:230,283-288`.
+
+Round 3 (Sol): R3-11, R3-12, R3-18 applied.

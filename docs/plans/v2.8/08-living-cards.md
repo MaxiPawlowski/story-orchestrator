@@ -152,9 +152,17 @@ snapshot names would never be read. It gains an explicit, bounded source:
 - New pull kind `card`. Input `cardSources: Array<{key, owner}>`, passed by the runtime (the scope function stays pure):
   the card-field qualities of **members enabled in the current group** (`enabledCharacterIds`) plus `player.card`.
   Members not present are not read.
-- **Bound:** at most `CARD_SCOPE_CAP` = 12 card keys per read (predeclared). Over the cap, order is: the speaker of the
-  newest reply, members named in the read window, then roster order; the rest wait for a later read. The Studio warns
+- **Bound:** at most `CARD_SCOPE_CAP` = 12 card keys per read (predeclared). **Starvation-free split (Sol r3 R3-04):**
+  the first `CARD_SCOPE_PRIORITY` = 8 slots go by priority (the speaker of the newest reply, members named in the read
+  window, then roster order); the last 4 slots rotate round-robin over the keys the priority slots left out, from a
+  per-chat cursor (`extras.extraction.cardScopeCursor`, advanced by 4 on every read that overflowed; not
+  message-scoped, since it chooses what is read, never what is stored). So with O overflow keys, every present key is
+  read at least once every ⌈O / 4⌉ overflowing reads, whatever the priority order does. The Studio warns
   `card-scope-over-cap` when one checkpoint can have more than 12 card fields present.
+- **Test (jest, pure):** one member with 13 non-latching card fields, the same speaker and the same read window on every
+  read (priority unchanged): field 13 is in scope within ⌈5 / 4⌉ = 2 reads, and over 10 reads every field is read at
+  least once per 2 reads; a control with the rotation slots removed never reads field 13 (the guard proves it can fail).
+  Also: 30 fields over 3 members → every field within ⌈18 / 4⌉ = 5 reads.
 - Latched keys stay out as today (card fields are not latching).
 
 ### Readers
@@ -198,8 +206,11 @@ one is expensive.
    visual field changes and no set matches:
    - **Key:** `look_<hash8>` = hash(story id, member id, normalized visual field values, **base sprite version** (the
      content hash of the reference sprite set's manifest, or of the reference PNG when there is no manifest), **edit
-     model** (the discovered model file name), **recipe id and version**). A new base sprite, model or recipe therefore
-     makes a new key instead of reusing a stale render. The set id stays valid (`^[a-z0-9_]+$`, no `-`), so a set rule
+     model name and content hash** and **recipe id and version**, exactly v2.8 06 §3's cache-key contract (Sol r3
+     R3-07: this plan consumes 06's key, it does not define its own). A new base sprite, model weights or recipe therefore
+     makes a new key instead of reusing a stale render, including weights replaced under the same file name. Test
+     (jest): same model file name, changed model content hash → a new `look_<hash8>`, the old set not reused.
+     The set id stays valid (`^[a-z0-9_]+$`, no `-`), so a set rule
      never picks up v2.8 07's `anim-*` folders. Another chat of the same story with the same look and inputs reuses it
      (decision 6).
    - **Order:** render the current expression first (or `neutral` when unknown), then each other expression **the first
@@ -221,10 +232,11 @@ one is expensive.
      (`sprites.js:19-37` allows one subfolder level). The card's default and authored sets are untouched. Names are
      plain `<label>.png`, because ST cuts the label at the first `-`/`.` (`sprites.js:136-138`). ST's own expressions
      never see the subfolder unless the user sets a costume.
-   - **Ownership ledger:** install-wide `sprites.generated[{story, member, set, key inputs, chats[], createdAt,
-     labels[]}]`, so cleanup knows what is ours. Like the wizard ledger, nothing unlisted is ever deleted.
-   - **Cleanup:** on chat delete, drop the chat from `chats[]`. A set no chat references is deleted (per label via
-     `/api/sprites/delete`). It asks first, like the mirror reaper. Also a manual "Remove generated sprites for this
+   - **Ownership ledger:** v2.8 06's `spriteLedger` (§1), written only by 06's `stHost/spriteFiles.ts`; this plan adds
+     no ledger of its own (Sol r3 R3-07). A look row carries `story`, `chats[]`, the set and the full key inputs. Like
+     the wizard ledger, nothing unlisted is ever deleted.
+   - **Cleanup:** on chat delete, drop the chat from the `spriteLedger` rows' `chats[]`. A set no chat references is
+     deleted through 06's `spriteFiles.ts` (per label via `/api/sprites/delete`). It asks first, like the mirror reaper. Also a manual "Remove generated sprites for this
      story" in the author view. Not determined: whether ST removes an empty subfolder (no endpoint seen); an empty
      folder is harmless.
    - **Rollback:** a rolled-back look switches the stage back, because the set choice reads the blackboard. The files
@@ -266,7 +278,9 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
 - **S32-1 (RP), does the model honour the overlay over the card?** Predeclared before the run:
   - Fixture: a synthetic group story, 3 members, each with one visual change mid-scene (card says X, overlay says Y).
     10 replies after each change, mentions prompted. N = 30 replies per arm. On the RunPod main model (`Artemis RunPod
-    RP`), in the v2.8 final suite.
+    RP`), **inside this plan, ×2, before the default/depth decision and before the v2.8 freeze** (Sol r3 R3-10: it
+    selects the depth and the default, so running it on the frozen candidate could change that candidate). The final
+    suite only regresses the selected depth and default.
   - Arms: overlay block at depth 1 / depth 4 / no block (memory fact only, today's baseline).
   - Score: a reply that describes the changed attribute contradicts Y (says X) = fail. A second model labels each
     reply (rule 11), and replies that never mention it are excluded and counted.
@@ -336,7 +350,10 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
   - **Reopen:** close and reopen the chat; the value, writer and stage set hold.
   - A new chat shows the card default. Card file bytes unchanged (sha256 before/after).
   - Solo control: a solo chat of the member shows nothing and writes nothing (v2.7 03).
-- **RP (acceptance):** S32-1 on the RunPod main model, in the v2.8 final real-LLM suite. Not green until it runs.
+- **RP (decision measurement):** S32-1 on the RunPod main model, ×2 inside this plan, before the default/depth
+  decision and the freeze. Not green until it runs.
+- **RP (regression, final suite):** the overlay block at the depth and default S32-1 selected, in real replies (the
+  card-vs-overlay agreement re-checked at that one setting, not the arm comparison).
 - **LI (acceptance, after v2.8 06):** S32-2 on the local ComfyUI, lane started with `--media on --allow-comfy`. Never
   `/sd` on a shared lane.
 - **Player-visible surface** (v2.8 rule 4): the `cast` chip is the user's 2026-10-03 decision (decision 5); the prompt
@@ -389,3 +406,5 @@ Applied from `v2.7/review-2026-10-03.md`:
 
 Not re-checked: ST host line refs (from the original draft), `memory/ledger.ts` and `memoryInjector.ts` line refs (now
 cited without lines).
+
+Round 3 (Sol): R3-04, R3-07, R3-10 applied.

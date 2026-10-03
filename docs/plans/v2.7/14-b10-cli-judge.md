@@ -26,10 +26,12 @@ decision 1). So:
 
 Not in v2.7 (each needs a model or a later plan):
 - **Lore-creation role** (research decision 2): built with the curator create op, `v2.8/11-curator-create-op.md`.
-- **Optional Critic role** (decision 2, "after the wizard work"): no home yet (question in the overview).
+- **Optional Critic role** (decision 2, "after the wizard work"): `v2.9/05-deferred-items.md` §05.6 (recommended;
+  pending user).
 - **Native tool calls over CC profiles** for the agentic wizard (decision 3): a CL spike on the DeepSeek API CC profile
   plus the opencode subscription route (which already has native tools via the MCP bridge), floor = v2.6 plan 11's agent
-  checks on the same fixture. No v2.8 plan holds it yet (question in the overview; v2.8 09 suggested).
+  checks on the same fixture. Owner: `v2.8/09-wizard-assistant.md` §F, acceptance rows indexed in
+  `v2.8/23-test-plan.md` (recommended; pending user).
 - **Labelling aid** (decision 2): offline, per fixture plan in v2.8 (12, 13, 14); the labelling model is never
   calibrated on its own labels; Adolion-derived rows are checked by a second model, never the user (review B4).
 
@@ -144,7 +146,7 @@ For option B: no floor; record which fixture rows were model-proposed and which 
 - v2.7 02 C14 (the build row), v2.8 01 §B C14-b (enlarged inputs, real-model row).
 - v2.8 14 open-source Jev (the recommended path to a non-TypeSafe judge).
 - v2.8 13 J7 judge ideas, v2.8 12 J6d shadow record (fixtures B10-as-labeller would help build).
-- v2.8 11 curator create op (Lore-creation role), v2.8 09 wizard assistant (native tools, Critic: candidates).
+- v2.8 11 curator create op (Lore-creation role), v2.8 09 wizard assistant §F (native tools), v2.9 05 §05.6 (Critic).
 - v2.7 12 model choice (a hosted model choice may change the harness model list).
 - No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C, v2.9 02 (deferred), v2.9 01
   (deferred), v2.7 13, v2.8 15, v2.7 11, v2.7 09, v2.9 04 (deferred), v2.7 08.
@@ -316,3 +318,5 @@ source and per-source context table here, as v2.7 02 C14; Lore-creation role →
 spike: questions), F36 ("plan 11 agent checks" = v2.6 plan 11), Sol split item 5 (picker + table deterministic here;
 enlarged extraction inputs keep a real-model row in v2.8 01), B4 (labels from Adolion evidence checked by a second
 model), B12 (references).
+
+Round 3 (Sol): R3-15 (recommended; pending user) applied.

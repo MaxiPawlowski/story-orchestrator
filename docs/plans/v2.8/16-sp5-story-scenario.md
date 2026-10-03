@@ -2,8 +2,9 @@
 
 **Status (2026-10-03): v2.8 plan 16 (was v2.7 plan 16a). Decided (all recommendations accepted); the `SP5.b` build
 itself is v2.7 02 C1 and has no gate record as of `c7967323`, so it is not built; the live legs here are not run.**
-Overview: `00-overview.md`. **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance RP (the C1–C5
-recipe ×2 runs on an adolion-fresh lane in the final suite; the recipe itself makes no model call).
+Overview: `00-overview.md`. **Gate tiers** (00-overview §Gate taxonomy; Sol r3 R3-20, recommended; pending user):
+implementation D; acceptance **D** for the C1–C5 recipe (dry-run plumbing, no model call, ×2 on an adolion-fresh lane);
+the scenario block **in real replies** is RP and is `v2.8/01-v27-carry-over.md` §A O13, not this plan's recipe.
 
 Split of work (review A5): the build (typed field, prod path, flag removed, Studio field, author-view note) is
 deterministic and belongs to **v2.7 02 C1**. This file keeps the design reference (below) and owns the two things v2.7
@@ -190,3 +191,5 @@ Bars unchanged (C1–C5 above). Restate before the run, as `v2.6/03-sp5-restated
   :101-105), `schema.ts:116`, `effectsApplier.ts:301`, `index.ts:84`. Bundle headroom now cites a named build and
   `buildChecks.mjs:46` (the old "1,224,979 B" figure was a v2.6 build).
 - Not applied: none. Open: 00-overview lists acceptance as RP although the recipe makes no model call (see report).
+
+Round 3 (Sol): R3-20 (recommended; pending user; resolves the "Open" note above) applied.

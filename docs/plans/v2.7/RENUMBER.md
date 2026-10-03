@@ -11,7 +11,7 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 33 group-chats-only | v2.7 03 |
 | 31 story-health-center | v2.7 04 (core; consumers land with their features) |
 | 03 story-briefing | v2.7 05 (static briefing, modal, Studio editor, C8 onboarding); LLM drafting → v2.8 10 |
-| 04 story-presence-ui | v2.7 06 (A plays index + B badges); C1–C8 panels + C9 → v2.8 04 |
+| 04 story-presence-ui | v2.7 06 (A plays index, B badges, the panel frame, per-story toggles, C1–C3, C6, C9 (b) author chips + Activity panel + roll store; user-approved 2026-10-03); C4, C5, C7, C9 (a) public roll chips → v2.8 04; C8 → v2.7 05 |
 | 05 adolion-campaign | v2.7 07 (A1–A3, A6, A7, A8); A4, A5 and new campaign rows → v2.8 02 |
 | 06 thinking-per-story | v2.7 08 (warning, built); story/checkpoint level (R4) → v2.8 01 |
 | 07 commitment-double-negatives | v2.7 09 |
@@ -45,3 +45,7 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 16c sp1-swipe-back-cache | v2.9 01 |
 | 22 sp9-witness-filter-v2 | v2.9 02 |
 | 25 new-game-plus | v2.9 03 |
+
+## Review 2026-10-03
+
+Round 3 (Sol): R3-19 applied.

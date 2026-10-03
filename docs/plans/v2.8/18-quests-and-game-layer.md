@@ -115,14 +115,28 @@ source:
 - Modifiers are read at each boundary over the fixed draw: total = draw + modifiers. Finding the rope changes the
   outcome; asking again does not.
 - The draw is computed in the runtime chance seam (`EngineHost.derive`), never in the engine (chance invariant, SP7.b).
-- **Provenance for the chips (cross-ref F21).** v2.8 04 C9's roll chips need production roll history, which does not
-  exist: `ChanceDrawKind` is `npc | talk` only (`chance.ts:14`) and the draw ring is dev-only. Q3 adds a per-chat
-  `extras.checks` ring `{checkId, boundary, messageId, sides, draw, modifiers, total, target, outcome, narrate}`,
-  written when a check's transition fires, capped, rolled back by message (like `extras.lore.fired`), and
-  reconstructable from the seed for a reopen. That ring is what C9 renders.
-- **Visibility.** `narrate: public`: a player chip "Climb: 15 + 4 vs 12, success" (v2.8 04 C9) and the steering text
+- **Provenance for the chips (cross-ref F21; Sol r3 R3-05, R3-06).** v2.8 04 C9 (a)'s public chips and v2.7 06 C9 (b)'s author chips need production roll
+  history: `ChanceDrawKind` is `npc | talk` only (`chance.ts:14`), and v2.7 06 adds the production `extras.chance.draws`
+  ring for those two. Q3 adds a per-chat `extras.checks` ring `{checkId, visit, boundary, messageId, sides, draw,
+  modifiers, total, target, outcome, narrate}`, capped, rolled back by message (like `extras.lore.fired`), and
+  reconstructable from the seed for a reopen. **One consumer schema:** checks do not go into `extras.chance.draws`;
+  v2.7 06's roll store (`snapshot.rolls`, composed in `snapshotBuilder`) reads its three producers (reconstructed
+  quality rolls, `extras.chance.draws`, `extras.checks`) into one `RollRecord` `{source: "quality" | "npc" | "talk" |
+  "check", key, messageId, boundary, sides, draw, target?, modifiers?, total?, outcome?, narrate}`, ordered by message.
+  C9 (a) and (b) render only `snapshot.rolls`, never a ring directly.
+- **When a check is recorded (Sol r3 R3-06): when it is evaluated, not when a transition fires.** A check is evaluated
+  at a boundary when it is **attempted**: for a transition check, the transition's gate holds apart from the check's
+  own quality (the player tried); for a beat check, the beat is reached. The record is written at that boundary
+  whatever the outcome, so a failed public check, whose transition never fires, still shows its result, and a beat
+  check, which has no transition, shows one too. **Dedup:** one record per (`checkId`, visit, outcome), visit =
+  `checkpointStartedBoundary`; later replies in the same round add nothing, a modifier that flips the outcome (the rope
+  found) adds the new outcome's record, and a re-entry (new visit) records afresh. Tests (jest): failed public check
+  with the transition unfired → one `failure` record and a public chip; beat check → one record; a group round of three
+  replies → one record; rope found after a failure → a second record `success`; swipe of the attempting reply → the
+  record rolled back and re-derived identically; reopen → identical.
+- **Visibility.** `narrate: public`: a player chip "Climb: 15 + 4 vs 12, success" (v2.8 04 C9 (a)) and the steering text
   tells the narrator the outcome. `hidden`: only the outcome is narrated; the roll detail renders only with Author view
-  on, guarded on `authorView`, not on the inline level, because players can reach L2 (`PLAYER_LEVEL_CAP = 2`,
+  on (v2.7 06 C9 (b)), guarded on `authorView`, not on the inline level, because players can reach L2 (`PLAYER_LEVEL_CAP = 2`,
   `runtime/settingsModel.ts:37`).
 - Prior art: the Multihog "DC before the roll" and Gamemaster "code rolls the outcome" ideas (`SUMMARY.md` §8,
   ideas 5 and 7).
@@ -255,7 +269,8 @@ Adolion, staged: the academy act first (v2.8 02 lab copy), then the Saga once M1
 - v2.8 17 SP6: the measurement that decides Q6.
 - v2.8 19 open stretches: side quests found in stretches; pressure built on Q6.
 - v2.8 20 character life: relationship qualities never take `display.public`.
-- v2.8 04 C4 (Journal), C7 (stat sheet), C9 (roll chips, Activity panel): the panels over this plan's read models.
+- v2.8 04 C4 (Journal), C7 (stat sheet), C9 (a) (public roll chips): the panels over this plan's read models; v2.7 06
+  C9 (b) (author roll chips, Activity panel, the roll store `snapshot.rolls` that reads `extras.checks`).
 - v2.8 02 Adolion campaign: the academy-act lab copy and the pilot.
 - v2.7 06: the plays index a cross-chat trophy shelf would need.
 - v2.7 01: feature registry + Help.
@@ -280,3 +295,5 @@ Adolion, staged: the academy act first (v2.8 02 lab copy), then the Saga once M1
   CL, replies RP.
 - Not applied: none. Line refs re-verified on `c7967323`: `scope.ts:22-84`, `chance.ts:14,31-41`,
   `settingsModel.ts:37`, `rollback.ts:89-103,109,130,146,150`, `extractionCoordinator.ts:167-184`.
+
+Round 3 (Sol): R3-05, R3-06, R3-19 applied.

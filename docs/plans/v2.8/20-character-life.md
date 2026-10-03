@@ -137,8 +137,16 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
 
 - Not new state: the continuity warden already checks replies.
 - Add a warden family "out of character", over the drafted member's card + drives + relationship lines.
-- Notes only; it never rewrites. It needs its own 20-case fixture and calibration row (judge rule), and ships dark (v2.8
-  rule 9): dev-only until its floor passes twice, then off by default.
+- Notes only; it never rewrites. It ships dark (v2.8 rule 9): dev-only until its floor passes twice, then off by
+  default.
+- **Calibration row L6-C (CL; Sol r3 R3-09), frozen here before the first run and never retuned.** Use
+  `judge.uses.wardenVoice` (new switch), provider × model × use row on the current fixture revision (judge rule).
+  Fixture: 20 replies from the 7-member act lab copy, 10 in character and 10 out of character against the drafted
+  member's card + drives + relationship lines, labels from session evidence checked by a second model (never the user,
+  rule 11). Metrics: **OOC recall ≥ 0.80** (≥ 8 of 10 OOC replies noted), **false-note rate ≤ 0.10** (≤ 1 of 10
+  in-character replies noted), **0 notes that propose a rewrite or narrate a player action**, fallback rate (timeout /
+  too-large / error) ≤ 1 in 20. Run ×2 offline replay; both runs must pass. Below the floor: L6 stays dev-only, the
+  numbers are recorded, the family is not built further in v2.8.
 
 ## Not proposed
 
@@ -174,7 +182,8 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
 - Host: agenda effect dispatch/reversal tests (F25), ownership census and fault-matrix rows.
 - Read path: the judge-first / extractor-fallback test (an answered key leaves the shared read; an unanswered one
   stays).
-- M1 and M2 floors above; the curator-proposal and warden floors (dark ship).
+- M1 and M2 floors above; L3's curator-proposal floor (in-goal ≥ 0.85, 0 narrated player actions, 0 unreached
+  references) and L6-C (above), each ×2 before its switch leaves dev (dark ship).
 - Spoiler checklist rows: no relationship value, mood, agenda step, meanwhile fact or away reason in player mode at any
   inline level; "who is here" shows player-safe names only; `so-ui.mts assert-player-clean`.
 - Registered in the v2.7 01 feature registry + Help (registry test).
@@ -239,3 +248,5 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
 - Line refs re-verified on `c7967323`: `sharedRead.ts:217-230`, `extractionCoordinator.ts:167-184`, `scope.ts:22-84`,
   `judge/settings.ts:256`, `rollback.ts:109,130,146`.
 - Not applied: none. The M1 floor numbers are proposals frozen here; the user can change them before the first run.
+
+Round 3 (Sol): R3-09 applied.

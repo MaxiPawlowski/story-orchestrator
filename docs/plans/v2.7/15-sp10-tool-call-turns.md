@@ -90,9 +90,8 @@ that is Q2's question and was not measured.
 `DROPPED_SPIKES` with a planted-import control. The v2.5 report stays as history, and its Q1 procedure (`:30-39`) is the
 recipe if SP10 reopens. Keep `v24-01-toolcall-run.json` (it guards the delete decode, not SP10).
 
-**What reopens it (any one):** the user or a target player plays story chats with CC + tools; a session finding shows a
-tool chain committing several boundaries in one player turn and the pacing or a transition going wrong because of it;
-a tool-bearing extension becomes part of the tested setup. Then option A, starting with D3.
+**What reopens it:** see `v2.9/05-deferred-items.md` §05.2, the only owner of the reopen trigger and of option A's
+recipe and gates (Sol r3 R3-21).
 
 ## Recommendation
 
@@ -108,11 +107,7 @@ note tells a player what to expect; the probe is dead code until someone has the
 
 ## Floor and measurement before building
 
-Only if reopened (option A):
-
-- Q1/Q2 on ≥ 20 recorded CC tool turns, ×2 consecutive on one lane, run header diff around the batch.
-- Any new fold (work-only): conditions restated first; rollback ≡ replay over 4 seeds with a fold-off control at 0
-  divergent; then J6 ×2.
+None in v2.7 (B + C need no measurement). Option A's floor and gates live in `v2.9/05-deferred-items.md` §05.2.
 
 ## Gates
 
@@ -138,3 +133,5 @@ version. Decisions 2 and 3 are taken as recommended.
 
 Applied: B9 (the note targets `docs/guide/setup/memory-model.md`, not the README), the Claude-B note "16d moves to tier 1"
 (v2.7, deterministic), option A deferred to v2.9 05.2, B12/F36 (references).
+
+Round 3 (Sol): R3-21 applied.

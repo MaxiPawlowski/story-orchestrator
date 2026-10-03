@@ -91,9 +91,14 @@ Solo chats are half-supported, which is the worst of both:
 
 - **Pure:** the no-group refusal across select, restart, update and effects (like the no-chat tests); the snapshot flag;
   the engine-free `story-needs-group` check (no story → quiet); refusal tests for new selection in a solo chat (D7).
-- **Removal guard (D3):** a jest guard lists the removed exports and fails when any module imports one again, with a
-  planted-import control (typecheck cannot see dead exports), the `DROPPED_SPIKES` pattern in
-  `src/runtime/devOnly.guard.test.ts`.
+- **Removal guard (D3; Sol r3 R3-16):** a jest guard lists the removed solo-only **modules and definitions** (file paths,
+  and `file + exported symbol` for definitions removed from a file that stays) and asserts they are **absent from
+  `src/`**: no listed file exists, and no listed symbol is declared or exported anywhere under `src/` (a declaration
+  scan, not only an import scan), like `DROPPED_SPIKES` in `src/runtime/devOnly.guard.test.ts:29-32,128` checks source
+  absence. It also fails when any module imports one again. Two planted controls, both through the guard's `read`
+  seam: (1) a **planted unused definition** (a listed symbol re-declared and exported in an untouched module, imported
+  by nobody) must fail the absence check, which an import-only guard would pass (typecheck cannot see dead exports);
+  (2) a **planted import** of a listed module must fail the import check.
 - **Payload invariance:** a dry-run capture of a scripted group turn (drafted member, resting prompt, a withheld quiet
   run) is byte-identical before and after the removal.
 - **UI:** Storybook for the "make a group" card (390/768/1440, a11y); `assert-player-clean`.
@@ -138,3 +143,5 @@ control), D4 (the player-triggered group creation codified, missing narrator han
 `agent/prompt.ts`, `finish.ts`), D6 (engine-free `story-needs-group`, ordinary solo chats quiet), D7 (`seed_metadata`
 legacy case + refusal tests), K3 (guide FAQ + registry `needs`), F08 (no solo text in other plans), Sol split item 6
 (built with v2.7 04; scripted gates), B12 (references).
+
+Round 3 (Sol): R3-16 applied.

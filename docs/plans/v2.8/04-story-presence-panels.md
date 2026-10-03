@@ -38,13 +38,15 @@ All four items integrate after v2.8 18 except C5, which needs only v2.7 06's fra
 
 - C4, C5 and C7 are panels in v2.7 06's frame (own CSS root, persisted position, docking under 768 px, keyboard).
 - This plan adds the story `display` keys `journal`, `suggestions`, `statSheet` to v2.7 06's block, with the same
-  precedence (story value wins; a player's install-wide off always wins). `rollChips` (v2.7 06) also governs the public
+  effective value (`shown = story AND install`, absent story key = true; v2.7 06's truth table and its four-combination
+  test extended to these keys). `rollChips` (v2.7 06) also governs the public
   chips here. `suggestions` defaults on but calls a model only on click.
 
 ## C9 (a) public roll chips (review F21)
 
-- Source: v2.7 06's roll store (reconstructed quality rolls + `extras.chance.draws`), extended by v2.8 18 Q3 with
-  `modifier` and `narrate`.
+- Source: v2.7 06's roll store `snapshot.rolls` only (reconstructed quality rolls + `extras.chance.draws`), to which
+  v2.8 18 Q3 adds its `extras.checks` ring as a third producer (`source: "check"`, modifiers, `narrate`), recorded when
+  a check is attempted, not when its transition fires (Sol r3 R3-05, R3-06).
 - Player mode shows a chip only when the record is `narrate: public` and the story's `rollChips` is on. Level 2 is
   **not** a guard (`PLAYER_LEVEL_CAP` = 2, `src/runtime/settingsModel.ts:37`): every non-public chip stays filtered on
   `authorView`, as v2.7 06 builds it.
@@ -74,3 +76,5 @@ Applied: the user-approved move of C1, C2, C3, C6, C9 (b), the frame and the tog
 cover the items kept here), F21 (public chips filtered on `authorView` + `narrate: public`), A2 (C4, C7, C9 (a) after
 v2.8 18), A9 (no playtest prerequisite; C8 in v2.7 05), A3 (meters never on the stat sheet), F16 (deps), B10 (registry
 gate). F14 (index keeps rows of chats that pin a deleted story) is v2.7 06's.
+
+Round 3 (Sol): R3-05, R3-06, R3-17 applied.

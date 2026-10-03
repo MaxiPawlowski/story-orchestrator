@@ -47,10 +47,10 @@ owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/23-test-plan.md`
 | 02 C11-F1a | jest: cut note for a long source, none for a short one | — | — | journal row author-only | `so-journal.mts show` on a seeded held judge-typed reading |
 | 02 C13 | `curatorTiers.test.ts` + spike review test re-homed; write-edge mutant killed (`test:replay`); flag-off control | a mocked curator scenario (`stagecraft: {action: "curate"}` with `storyOrchestratorDebugCuratorResponse`): an op into a protected span refused, an applied op reverted by a swipe | — | — | payload invariance on the curator request (identical prompt bytes) |
 | 02 C14 + 14 | jest: unknown model/source, preset precedence, truncation, TC untouched, picker grouping | — | role picker grouped, cloud/local labels | — | picker on a lane with a TC, a DeepSeek CC and a harness route listed in the right groups; no route changed (run header `profiles` diff empty) |
-| 03 group-only | no-group refusals, engine-free `story-needs-group`, removal guard with planted import | `plan10-epistemic-ledger.json`, `v24-01-macro-group-rest.json` (group blocks unchanged); new `seed_metadata` legacy solo-story scenario | "make a group" card | yes | legacy solo blob: card only, no extraction call, no injection in the dry-run capture, select refused; "make a group" creates + binds a group; cleanup deletes it |
+| 03 group-only | no-group refusals, engine-free `story-needs-group`, removal guard (removed modules/definitions absent from `src/`, planted-unused-definition and planted-import controls) | `plan10-epistemic-ledger.json`, `v24-01-macro-group-rest.json` (group blocks unchanged); new `seed_metadata` legacy solo-story scenario | "make a group" card | yes | legacy solo blob: card only, no extraction call, no injection in the dry-run capture, select refused; "make a group" creates + binds a group; cleanup deletes it |
 | 04 health center | detect fixtures, registry tests, Repair order regression, `blocks` undismissable, `info` off the HUD | — | HUD chip, Setup section, Before you start (0/1/many, each severity) | yes | complete fixture (no memory profile, Summarize on, missing member, solo control), with and without a seeded secret; order, Show me, one-click fixes, no toast |
 | 05 briefing | validator + diagnostics, fallback reads `player_intro` only, once-per-chat under rollback/reopen/restart, activation order per entry path, `storyKind` | J10 restart/selection checks (`--only`, no reply) | modal states, chapter briefing, first-run section | modal swept | new chat in a bound group: once; reopen: no; Restart: yes; `/story intro` and drawer button re-open; setting off suppresses; Before you start first; payload capture of the first activation unchanged (opener untouched) |
-| 06 presence UI | index (F14, caps, backfill pause), toggles precedence, roll reconstruction, **rollback ≡ replay for the draws ring** with a negative control, badge DOM | `v24-02-chat-delete-reap.json` (row dropped on delete) | badges + hover card, Continue list, chapter card, wand entries, panel frame, Activity panel, author roll chip | badge titles, C1–C3, C6; author roll chip and Activity absent at player L2 | two group chats in two stories (saga + act), list paging, library delete keeps a pinned row, chapter card on a seeded chapter entry, wand targets, per-story off, panel position after reload; payload invariance with all items on/off |
+| 06 presence UI | index (F14, caps, backfill pause), toggle truth table (story AND install, all four combinations + absent), roll reconstruction, **rollback ≡ replay for the draws ring** with a negative control, badge DOM | `v24-02-chat-delete-reap.json` (row dropped on delete) | badges + hover card, Continue list, chapter card, wand entries, panel frame, Activity panel, author roll chip | badge titles, C1–C3, C6; author roll chip and Activity absent at player L2 | two group chats in two stories (saga + act), list paging, library delete keeps a pinned row, chapter card on a seeded chapter entry, wand targets, per-story off, panel position after reload; payload invariance with all items on/off |
 | 07 campaign | `check_all.sh --fast`, `validate-stories`, `check_player_copy.py` on briefings | — | — | — | A6: the nine bound groups show the badge and the right saga/act kind on an adolion-fresh lane |
 | 08 thinking | `thinkingSilence.test.ts`, `checks.test.ts` (built) | — | `HudStrip`, `InnerVoiceControls` stories (built) | player copy only in player mode | scripted replies with and without `extra.reasoning` (5 generated replies, `extra.api` set): finding appears/clears; harvest off → none |
 | 09 commitment | `commitHoldReason.test.ts`, `heldJournal.test.ts` (built) | — | — | — | `so-journal.mts show` on a seeded held commitment row (mocked read) |
@@ -93,12 +93,13 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
 | the thinking warning after real replies (`fix` vs `thinking` overlay) | v2.7 08 | v2.8 01 O9 |
 | `catching-up` until a real re-read lands | v2.7 10 | v2.8 01 O10 |
 | a held commitment from real play in the journal | v2.7 09 | v2.8 01 O11 |
-| the story scenario block in real replies (SP5 live legs) | v2.7 02 C1 | v2.8 16 (no v2.8 01 row yet: to add) |
-| promoted SP8 tiers/spans under a real curator | v2.7 02 C13 | v2.8 01 C13-b covers prompt changes only (promotion row: to add) |
+| the story scenario block in real replies (SP5 live legs) | v2.7 02 C1 | v2.8 01 O13 (real replies, RP); v2.8 16 owns the dry-run plumbing (D) |
+| promoted SP8 tiers/spans under a real curator | v2.7 02 C13 | v2.8 01 O14 (promotion under a real curator, CL); C13-b covers digest/prompt changes only |
 | extraction quality on inputs the context table enlarges | v2.7 02 C14 / 14 | v2.8 01 C14-b |
 | real group play unchanged after the solo removal and with the activation modal | v2.7 03, 05 | v2.8 01 O12 (final suite) |
 | judge-typed evidence on the whole message (guard semantics) | — | v2.8 01 C11-F1 |
 | warden/lore timeouts, separate-arm checks | — | v2.8 01 C3, C4 |
+| independent-model content review of the A7 briefings | v2.7 07 A7 | v2.8 01 O15 |
 | any human or blind rating | — | v2.8 01 §F, v2.8 23 |
 
 ## Archive locations
@@ -125,10 +126,12 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
       for 2.7 written; second feature triage reviewed with the user (v2.7 01).
 - [ ] Internal records moved to `so-sessions` (v2.7 01 decision 3).
 - [ ] Every gate record walked into `v2.8/01-v27-carry-over.md` §A: each "Live: NOT run" real-model line has an O-row;
-      the two missing rows above (C1, C13 promotion) added.
+      O13 (C1) and O14 (C13 promotion) are in §A already; check they still match the gate records.
 - [ ] `test:release` green on the prod build; v2.7 overview Status table updated.
 
 ## Review 2026-10-03
 
 New file. Applied: F15 (tiers), Sol split items 2 (owed real rows → v2.8 01), 6 (03 + 04 scripted gates), K1/F34 (the
 privacy leg with and without held secrets), B10 (registry gates).
+
+Round 3 (Sol): R3-01, R3-02, R3-16, R3-17 applied.
