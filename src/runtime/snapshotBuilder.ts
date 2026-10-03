@@ -239,7 +239,7 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
   briefing: briefingState({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
-    chatOpen: hasOpenChat(), groupChat: sources.groupChat === true,
+    chatOpen: hasOpenChat(),
   }),
 });
 

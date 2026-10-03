@@ -39,12 +39,11 @@ export interface BriefingSources {
   record: BriefingRecord | undefined;
   enabled: boolean;
   chatOpen: boolean;
-  groupChat: boolean;
 }
 
-export const briefingState = ({ story, storyId, record, enabled, chatOpen, groupChat }: BriefingSources): BriefingState | null => {
+export const briefingState = ({ story, storyId, record, enabled, chatOpen }: BriefingSources): BriefingState | null => {
   if (!story || !storyId) return null;
-  return { storyId, view: composeBriefing(story), pending: chatOpen && groupChat && record?.seen === false, enabled };
+  return { storyId, view: composeBriefing(story), pending: chatOpen && record?.seen === false, enabled };
 };
 
 export const briefingDue = (state: BriefingState | null | undefined, blocks: number): boolean =>

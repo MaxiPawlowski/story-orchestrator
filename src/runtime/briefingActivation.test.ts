@@ -138,11 +138,12 @@ describe("v2.7 05 activation sequence", () => {
     expect(pending(older)).toBe(false);
   });
 
-  it("controls: a solo chat, and the Display switch off, open nothing on their own", async () => {
+  it("controls: a one-on-one chat (no story loads there, v2.7 03), and the Display switch off, open nothing on their own", async () => {
     (getActiveGroup as jest.Mock).mockReturnValue(null);
     mockContext.groupId = null;
     const solo = new RuntimeManager();
     await solo.importStory(storyJson());
+    expect(solo.getSnapshot().briefing ?? null).toBeNull();
     expect(pending(solo)).toBe(false);
     expect(briefingDue(solo.getSnapshot().briefing, 0)).toBe(false);
 
