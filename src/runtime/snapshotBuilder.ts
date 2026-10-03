@@ -20,7 +20,7 @@ import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
-import { secretLeaks, switchedOnCopiers } from "./transcriptCopiers";
+import { copierWarning, switchedOnCopiers } from "./transcriptCopiers";
 import { harvestWaitsOnThought, repliesCarryNoThought } from "./thinkingSilence";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
@@ -66,6 +66,7 @@ export interface SnapshotSources {
   memoryInjection?: MemoryInjectionView | null;
   privateBlocks?: NextTurnSourceBlock[];
   secretsHeld?: boolean;
+  groupChat?: boolean;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -210,8 +211,8 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "thinkingSilent"> => ({
-  secretLeaks: secretLeaks(Boolean(sources.loaded && sources.secretsHeld), sources.promptBlocks.foreign, sources.copiersOn),
+export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "secretsHeld" | "thinkingSilent"> => ({
+  ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
 });
 
