@@ -84,21 +84,6 @@ describe("stopRuntime", () => {
     expect(surface.stopped).toBe(before.stopped + 1);
   });
 
-  it("stops a tool-turn probe that was left running (E4: its patches and host listeners)", async () => {
-    const original = runtimeManager.onGenerationStarted;
-    startRuntime();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    const probe = globalThis.storyOrchestratorToolTurnProbe;
-    expect(probe).toBeDefined();
-    const open = hostSubscriptions.open;
-    probe?.start();
-    expect(runtimeManager.onGenerationStarted).not.toBe(original);
-    expect(hostSubscriptions.open).toBe(open + 1);
-    stopRuntime();
-    expect(runtimeManager.onGenerationStarted).toBe(original);
-    expect(hostSubscriptions.open).toBeLessThanOrEqual(open);
-  });
-
   it("a start after stop registers each macro once again", () => {
     startRuntime();
     stopRuntime();

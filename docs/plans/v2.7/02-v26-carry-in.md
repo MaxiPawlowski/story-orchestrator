@@ -205,3 +205,40 @@ Applied: K1, K2 (C2-K1), F34 (with and without held secrets), A5 (C1 determinist
 C14 and C11), Sol split items 2 (owed real rows → v2.8 01 §A), 3 (C11 per item: F1 display half here, the rest
 v2.8 01), 4 (C13 exact promotion here, digest/prompt v2.8 01), 5 (C14 picker + table here, enlarged inputs keep a
 real-model row), the Claude-A note "C14 is missing from 02" (added), F15 (tiers per row), B12/F36 (references).
+
+## Gate record (C14)
+
+2026-10-03, branch `worktree-agent-a1eb7b669f3b8ce6a`, code commit `8f850724`, built with v2.7 14 (picker: its gate record).
+Not merged into master.
+
+| Piece | Built |
+|---|---|
+| Table | `src/services/stHost/contextLimit.ts` `CONTEXT_TABLE` replaces `CHAT_SOURCE_CONTEXT`: rows keyed by CC source and, where ST knows them, a model pattern. Source rows: `deepseek` 131,072 (unchanged), `claude` 200,000, `openai`/`azure_openai`/`makersuite`/`vertexai`/`xai` 128,000. Model rows mirror ST's own model maxima (`public/scripts/openai.js` `getMaxContextOpenAI` :5088-5122, `getGeminiMaxContext` :5130-5161, the xAI block :5913-5926; Claude's 1M rows left out, beta-gated). `custom`, `openrouter`, `mistralai` and every other source have no row (their models vary or need ST's live model list) |
+| Precedence | preset value > model row > source row > 8192 default. A CC profile's preset that is unreadable or has no usable `openai_max_context`, or a missing preset manager, now falls to the table with the preset's reason kept (`known for deepseek; the preset "X" could not be read`); the 8192 default keeps its reason as before. A Text Completion profile never reads the table. `ContextLimit.source` stays `"source"` for both row kinds (Diagnostics shows the reason) |
+| Tests | `contextLimit.test.ts` §"v2.7 02 C14": model row wins over its source row, unknown model on a known source, unknown source (custom, openrouter) → default with reason, preset wins over the table, CC preset without a size → table, TC untouched, `inputBudget` truncates at the table's limit (200,000 − 512 − 20,000), table shape (one source row per source, last). Picker grouping: `src/utils/profileGroups.test.ts` + Storybook `GroupedBySource` |
+
+**Model input (rule 6): yes.** What changes reaching the model: the extraction input budget (`inputBudget`, shared read,
+memorize backlog plan, preflight) for (a) a preset-less CC profile on `claude`, `openai`, `azure_openai`, `makersuite`,
+`vertexai` or `xai` (8,192 → 128,000-2,000,000 by row), and (b) a CC profile whose preset gives no usable context size,
+on any source with a row (8,192 → the row, `deepseek` included). Unchanged: DeepSeek profiles with no preset (131,072
+before and after; the v2.6 role setup), every CC profile whose preset has `openai_max_context`, every TC profile, and
+`custom`/`openrouter`. Real-model row: `v2.8/01-v27-carry-over.md` §B C14-b (owed). The picker sends nothing new.
+
+Gates (tier D), all on the branch after the code commit:
+
+| Command | Result |
+|---|---|
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` | all green: typecheck, typecheck:test, lint, test (502 suites passed, 1 skipped; 6141 tests passed, 1 skipped), build, build:dev, test:debug (87 pass, 3 skipped), debug:typecheck, test:release, test:replay, test:plugin; Storybook skipped by the flag and run separately below |
+| `npm run typecheck:test` | green (inside the gates run) |
+| `npm run storybook:build` (to `.sb-static`), `npx http-server .sb-static -p 6063 -s -c-1 -a 127.0.0.1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6063` | 71 suites, 447 tests passed (includes the new `Settings/RoleProfilesGroup` `GroupedBySource` story with its a11y check); server stopped |
+| prod bundle `dist/index.js` | 1,117,438 B (budget 1,250,000 B) |
+
+Live gate: **NOT run** (no ST, lanes, pod or ComfyUI in this build session). The tier-D live row in `16-test-plan.md`
+(the picker on a lane with a TC, a DeepSeek CC and a harness route in the right groups; run header `profiles` diff empty)
+is still owed.
+
+Deviations: none beyond v2.7 14's (image director select not grouped).
+
+Open questions:
+- DeepSeek's row stays at 131,072 although ST now allows up to 1,000,000 for the source (`openai.js:5882-5888`); raising
+  it would change the v2.6 role setup's input, so it waits for C14-b's measurement.

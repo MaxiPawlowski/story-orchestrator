@@ -6,12 +6,10 @@ import { HARNESS_KEY_PREFIX } from "@utils/harness";
 import { effortLabel, isReasoningEffort, REASONING_EFFORTS, type ReasoningEffort } from "@utils/reasoningEffort";
 import { settingHelp } from "@features/settingsCopy";
 import { FieldLabel } from "./Field";
+import { ProfileOptions } from "./ProfileOptions";
+import { profileLocality, vendorLabel, type GroupableProfile } from "@utils/profileGroups";
 
-export interface RoleProfileOption {
-  id: string;
-  name: string;
-  model?: string;
-}
+export type RoleProfileOption = GroupableProfile;
 
 export interface HarnessOption {
   key: string;
@@ -103,6 +101,8 @@ export const RoleProfilesGroup = ({
           const state = STATE_COPY[route.state];
           const note = reasoningNote(route);
           const meter = harness ? meters.find((entry) => entry.route === harness.key) : null;
+          const chosen = !harness && value ? profiles.find((profile) => profile.id === value) : undefined;
+          const cloud = chosen && profileLocality(chosen) === "cloud" ? chosen : undefined;
           return (
             <div key={route.role} data-so="role-profile" data-role={route.role} data-state={route.state} className="flex flex-col gap-1">
               <FieldLabel htmlFor={`so-role-profile-${route.role}`} label={route.label} help={`${ROLE_EGRESS[route.role]}. ${settingHelp("extraction.profiles")}`} />
@@ -110,9 +110,7 @@ export const RoleProfilesGroup = ({
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
                   <option value="">Same as memory model</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
-                  <optgroup label="Connection profiles">
-                    {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
-                  </optgroup>
+                  <ProfileOptions profiles={profiles} />
                   {(harnesses.length > 0 || (harness && !option)) && (
                     <optgroup label="Cloud harness (on the SillyTavern server)">
                       {harness && !option && <option value={harness.key}>Unavailable harness ({harness.key})</option>}
@@ -121,6 +119,11 @@ export const RoleProfilesGroup = ({
                   )}
                 </select>
               </div>
+              {cloud && (
+                <div data-so="role-egress" data-locality="cloud" className="text-xs opacity-80">
+                  {`${ROLE_EGRESS[route.role]} to ${vendorLabel(cloud.source)}, a cloud service, from the machine running SillyTavern.`}
+                </div>
+              )}
               {harness && (
                 <>
                   <div data-so="role-egress" className="text-xs opacity-80">
@@ -130,7 +133,7 @@ export const RoleProfilesGroup = ({
                     <FieldLabel htmlFor={`so-role-fallback-${route.role}`} setting="extraction.routes.*.onFailure.profileId" />
                     <select id={`so-role-fallback-${route.role}`} value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
                       <option value="">Pause this task</option>
-                      {profiles.map((profile) => <option key={profile.id} value={profile.id}>Use {profile.name}</option>)}
+                      <ProfileOptions profiles={profiles} text={(profile) => `Use ${profile.name}`} />
                     </select>
                   </div>
                   {meter && <div data-so="role-meter" className="text-xs opacity-70">{meterText(meter)}</div>}

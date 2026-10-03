@@ -19,6 +19,8 @@ numbers there). Test plan: `16-test-plan.md`.
 | 10 | option C (`catching-up` pipeline state after an edit) | `e9082dd5` |
 | 07 | A1 (coverage + lab README refresh), A2 (`check_all.sh` portable) | campaign `8012a61`, `b61639f` |
 | 03 | the 10 solo story chats on the real install deleted (user-confirmed) | install, no commit |
+| 02 C14 + 14 | per-source/per-model context table; profile selects grouped by source, labelled local/cloud; cloud-model guide | merged after v2.6 freeze-2 (branch `8f850724`) |
+| 15 | B guide note; C SP10 probe removed (scenario file left, see its record) | merged after v2.6 freeze-2 (branch `8f850724`) |
 
 Every merged row's **live gate is NOT run** (each gate record says so). Deterministic live checks close in v2.7
 (`16-test-plan.md`); real-model rows are owed to `v2.8/01-v27-carry-over.md` §A.
@@ -139,7 +141,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | Plan | State |
 |---|---|
 | 01 | BUILT (both halves merged); triage proposal awaits the user's review; live D checks owed (16-test-plan) |
-| 02 | PARTLY BUILT: C2, C6–C10 merged; C1 built on branch `worktree-agent-a1032536536635cc2` (gates green, live NOT run, not merged); K1 open (step 0); C11-F1 display, C13, C14 not built |
+| 02 | PARTLY BUILT: C2, C6–C10, C1 and C14 merged (gates green, live NOT run); K1/K2 fixed in the v2.6 T7 wave B (step 0); C11-F1 display, C13 not built |
 | 03 | APPROVED (all five decisions); not built |
 | 04 | APPROVED; seed registry in `checks.ts`; extension and migration not built |
 | 05 | APPROVED (static half); not built |
@@ -151,8 +153,8 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 11 | CLOSED (docs) |
 | 12, 12a | CLOSED (decision + runbook) |
 | 13 | CLOSED (keep separate) |
-| 14 | APPROVED (picker + context table); not built |
-| 15 | APPROVED (B + C); not built |
+| 14 | BUILT, merged (picker + context table + docs; image director select grouped at merge); live D row owed |
+| 15 | BUILT, merged (B + C; `v25-09-tool-turn.json` removed by the v2.6 T7 wave C) |
 | 16 | written |
 
 ## Review 2026-10-03

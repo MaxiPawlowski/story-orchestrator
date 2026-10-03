@@ -19,13 +19,12 @@ const SPIKES = [
   "src/runtime/spikes/sp6Complications.ts",
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
-  "src/runtime/spikes/toolTurnProbe.ts",
-  "src/runtime/spikes/toolTurnSummary.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const DROPPED_SPIKES = [
   "src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts", "src/runtime/wiring/spikes.ts",
   "src/stagecraft/curatorDigest.ts", "src/memory/shortTermAppend.ts",
+  "src/runtime/spikes/toolTurnProbe.ts", "src/runtime/spikes/toolTurnSummary.ts",
 ];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost.ts", "src/runtime/replyEffortLive.ts", "src/services/stHost/llamaCpp.ts", "src/utils/replyEffort.ts"];
@@ -84,15 +83,6 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
     expect(files.map(rel).filter((path) => SPIKE_PATTERN.test(path)).sort()).toEqual([...SPIKES].sort());
   });
 
-  it.each([
-    ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
-  ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
-    const planted = join(SRC, "index.tsx");
-    const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\n${line}\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain(module);
-  });
-
   it("control: a planted static import of a plan-09 spike module from the entry fails", () => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");
@@ -135,6 +125,8 @@ import "./runtime/spikes/witnessFilterHost";
 import "./runtime/wiring/spikes";
 import "./stagecraft/curatorDigest";
 import "./memory/shortTermAppend";
+import "./runtime/spikes/toolTurnProbe";
+import "./runtime/spikes/toolTurnSummary";
 ` : fs.readFileSync(path, "utf8"));
     const reached = staticReach(files, read);
     expect(reached.filter((path) => DROPPED_SPIKES.includes(path))).toEqual([]);

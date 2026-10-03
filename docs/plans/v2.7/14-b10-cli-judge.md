@@ -320,3 +320,44 @@ enlarged extraction inputs keep a real-model row in v2.8 01), B4 (labels from Ad
 model), B12 (references).
 
 Round 3 (Sol): R3-15 applied; its homes decided by the user 2026-10-03 (as recommended).
+
+## Gate record
+
+2026-10-03, branch `worktree-agent-a1eb7b669f3b8ce6a` (merged `master` at `7371a44e` first), code commit `8f850724`.
+Built together with v2.7 02 C14 (same files); not merged into master (the lead merges after freeze-2).
+
+| Item | Built |
+|---|---|
+| 1. Picker grouped by source | `src/utils/profileGroups.ts` (pure): `profileLocality` labels a profile `local` (a self-hosted TC backend, or a CC `custom` endpoint, on a loopback/LAN/link-local address or with no URL for a TC backend) or `cloud` (every other CC source, the hosted TC services, any public host such as a RunPod proxy URL); a profile whose API the host map cannot resolve is `unknown` and keeps the old "Connection profiles" group, never claimed local. `groupProfiles` groups by source + locality, local first, then cloud, then unresolved, vendor names from ST's source/type ids. `stHost/connectionProfiles.ts` now returns `kind`, `source` (CC source or TC type from `CONNECT_API_MAP`) and `apiUrl`. `ProfileOptions.tsx` renders the optgroups (`data-so="profile-group"`, `data-locality`); used by every profile select in the Memory model group: memory model profile, fallback, Models per task and the per-role harness fallback. A task explicitly on a cloud profile shows `data-so="role-egress"` `data-locality="cloud"`: what it sends and to which provider. Harness routes keep their own group. No route, setting or request changed |
+| 2. Context table | see v2.7 02 C14 gate record |
+| 3. Docs | `docs/guide/setup/memory-model.md` §"Use a cloud model for a task" (one CC profile per provider/model with its own saved key, DeepSeek API as the worked example, Claude/ChatGPT subscriptions only through the opencode harness (W27), OpenRouter as an alternative, egress per task) and §"How much the model is sent" (the precedence) |
+| Registry (rule 9) | no new feature or setting: the `models-per-task` entry's `what` now says profiles are grouped and labelled and a cloud task names its egress; `src/features/registry.test.ts` green |
+
+**Model input (rule 6):** the picker changes nothing sent. The context table does (v2.7 02 C14 record); its real-model
+row is `v2.8/01-v27-carry-over.md` §B C14-b.
+
+Gates (tier D), all on the branch after the code commit:
+
+| Command | Result |
+|---|---|
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` | all green: typecheck, typecheck:test, lint, test (502 suites passed, 1 skipped; 6141 tests passed, 1 skipped), build, build:dev, test:debug (87 pass, 3 skipped), debug:typecheck, test:release, test:replay, test:plugin; Storybook skipped by the flag and run separately below |
+| `npm run typecheck:test` | green (inside the gates run) |
+| `npm run storybook:build` (to `.sb-static`), `npx http-server .sb-static -p 6063 -s -c-1 -a 127.0.0.1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6063` | 71 suites, 447 tests passed (includes the new `Settings/RoleProfilesGroup` `GroupedBySource` story with its a11y check); server stopped |
+| prod bundle `dist/index.js` | 1,117,438 B (budget 1,250,000 B) |
+
+Live gate: **NOT run** (no ST, lanes, pod or ComfyUI in this build session). The tier-D live row in `16-test-plan.md`
+(the picker on a lane with a TC, a DeepSeek CC and a harness route in the right groups; run header `profiles` diff empty)
+is still owed.
+
+Deviations:
+- **The image director's select is not grouped.** The plan says "same for the image director's select"
+  (`src/image/ImageGroup.tsx`); the build brief limited settings edits to the Memory model group. `ProfileOptions` is a
+  drop-in for it (one line), left for whoever owns the Images group.
+- The locality rule is mine (the plan says only "cloud" or "local"): a RunPod pod reached through a loopback SSH tunnel
+  reads `local`, because the request leaves SillyTavern for a loopback address; the same pod through its public proxy URL
+  reads `cloud`. Stated in the tests.
+
+Open questions:
+- Should the image director's select (Images group) take `ProfileOptions` too, and who builds it?
+- Should "Same as memory model" also show the cloud egress line when the memory model profile is cloud? Built: only
+  where a profile is explicitly chosen.

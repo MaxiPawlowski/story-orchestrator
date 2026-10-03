@@ -176,3 +176,27 @@ export const HarnessFailureSaysWhyOutsideAuthorView: Story = {
     await expect(authoring.querySelector('[data-so="role-profile-detail"]')?.textContent).toContain("config.json");
   },
 };
+
+export const GroupedBySource: Story = {
+  args: {
+    profiles: [
+      { id: "ds", name: "deepseek 4.1 flash", model: "deepseek-v4-flash", kind: "chat", source: "deepseek" },
+      { id: "artemis", name: "Artemis RunPod RP", kind: "text", source: "llamacpp", apiUrl: "http://127.0.0.1:18080" },
+      { id: "lm", name: "LM Studio", kind: "chat", source: "custom", apiUrl: "http://127.0.0.1:1235/v1" },
+    ],
+    assigned: { read: "ds", synthesis: "artemis" },
+    harnesses: [{ key: "harness:opencode:openai/gpt-6-astra", label: "opencode · openai/gpt-6-astra", vendor: "OpenAI" }],
+  },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(within(canvasElement).getByText(/Models per task/));
+    const select = canvasElement.querySelector("#so-role-profile-read") as HTMLSelectElement;
+    const groups = [...select.querySelectorAll("optgroup")].map((group) => group.label);
+    await expect(groups).toEqual(["Custom (OpenAI-compatible) · local", "llama.cpp · local", "DeepSeek · cloud", "Cloud harness (on the SillyTavern server)"]);
+    await expect(select.querySelector('optgroup[data-locality="cloud"] option')?.textContent).toBe("deepseek 4.1 flash (deepseek-v4-flash)");
+    const read = canvasElement.querySelector('[data-role="read"]') as HTMLElement;
+    await expect(read.querySelector('[data-so="role-egress"]')?.textContent).toContain("to DeepSeek, a cloud service");
+    await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-egress"]')).toBeNull();
+    await userEvent.selectOptions(canvasElement.querySelector("#so-role-profile-curator") as HTMLSelectElement, "lm");
+    await expect(args.onAssign).toHaveBeenCalledWith("curator", "lm");
+  },
+};

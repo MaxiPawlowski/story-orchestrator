@@ -81,7 +81,6 @@ const registerHostSurfaces = () => {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
-  if (__SO_DEV__) void import("./spikes/toolTurnProbe").then(({ registerToolTurnProbe }) => { if (started) registerToolTurnProbe(runtimeManager); });
   runtimeDisposers.push(startStoryScenario());
   if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
     if (!started) return;
@@ -127,7 +126,7 @@ const windowAccess = (): WindowAccess => {
 
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
-  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore", "storyOrchestratorToolTurnProbe",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore",
   "storyOrchestratorSpikes", "storyOrchestratorTalk",
 ] as const;
 
@@ -201,7 +200,6 @@ export function stopRuntime() {
   live.talk = null;
   live.scene = null;
   live.typedJudge = null;
-  globalThis.storyOrchestratorToolTurnProbe?.stop();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;

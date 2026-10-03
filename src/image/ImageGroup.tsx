@@ -7,6 +7,7 @@ import { type ImageBinding, type ImageRoute, type ImageSettings } from "./settin
 import { startImage } from "./start";
 import { guideUrl } from "@features/registry";
 import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
+import { ProfileOptions } from "@components/settings/ProfileOptions";
 
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
@@ -62,7 +63,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           <FieldLabel htmlFor="so-image-profile" setting="image.directorProfileId" />
           <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
             <option value="">Select a Connection Manager profile</option>
-            {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
+            <ProfileOptions profiles={profiles} />
           </select>
         </div>
         <div className="flex flex-col gap-1">
