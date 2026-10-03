@@ -59,6 +59,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
       ref={dialogRef}
       aria-labelledby="so-briefing-title"
       onCancel={(event) => { event.preventDefault(); close(); }}
+      onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); close(); } }}
       onClose={close}
     >
       <div className="so-briefing-panel flex flex-col gap-4">
