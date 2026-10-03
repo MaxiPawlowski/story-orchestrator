@@ -171,6 +171,9 @@ pass (census), all on the user's own pod. No paid API call: the run never reache
 
 ## Recorded as rows (2026-10-03)
 
+**Withdrawn after T6-2 (2026-10-03, `test/sessions/T6/SUMMARY.md` T6-2-3, valid):** routed live on lane 4 under play load (group replies generating on the same pod, play-sized calls of up to 17 questions, one llama request per question, plugin 2 in flight), the five passed uses answered typedExtraction 0/59, warden + agencyCheck 0/30, stallCheck 0/7, memoryPairs 26/58 (p95 3.0 s at its 3.0 s budget). Every llama-logprob row is now `passed: false` with that reason, so no use routes there; the fixture numbers stay in each row. Phase B measured an idle pod with fixture-sized calls, which is not the play shape. A local judge needs batching (one request per call) or its own model slot before it is re-measured (v2.7).
+
+
 `JUDGE_READINESS_BY_PROVIDER["llama-logprob"]` in `src/judge/readiness.ts`. Each row carries `measuredOn`
 `/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf` (the reports' `resolvedTo` minus the `llama-server:` prefix, which
 `servedId()` strips), `measured` 2026-10-03, `live: null`. `latencyP50Ms` is the higher p50 of r1/r2; the recommendation names the

@@ -192,18 +192,21 @@ const llamaRow = (calibration: number, latencyP50Ms: number, passed: boolean, re
   recommendation: `${recommendation} Measured ×2 on 2026-10-03 (Artemis 31B v1.1 Q4_K_M on llama-server b11046, docs/plans/v2.6/12-provider-matrix.md).`,
 });
 
+const playLoad = (answered: string, fixtures: string) =>
+  `Withdrawn after the T6-2 play check (2026-10-03): under play load (group replies on the same pod, one request per question, 2 in flight) ${answered}. ` +
+  `On fixtures ${fixtures}.`;
+
 const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
-  memoryPairs: llamaRow(0.9655, 1475, true, "Meets its floor (28/29 both runs) inside its 3000 ms budget (p95 1.7 s)."),
-  typedExtraction: llamaRow(0.8485, 1041, true, "Answered family 55/57 both runs, above its 0.95 floor, inside its 5000 ms budget (p95 4.1 s). Needs authored read_as hints, as on TypeSafe."),
-  stallCheck: llamaRow(1, 1180, true, "Every row right both runs, inside its 4000 ms budget (p95 3.5 s)."),
+  memoryPairs: llamaRow(0.9655, 1475, false, playLoad("it answered 26 of 58 calls, the rest timed out or hit busy", "it met its floor (28/29 both runs) inside its 3000 ms budget (p95 1.7 s)")),
+  typedExtraction: llamaRow(0.8485, 1041, false, playLoad("it answered 0 of 59 calls", "the answered family was 55/57 both runs inside its 5000 ms budget (p95 4.1 s)")),
+  stallCheck: llamaRow(1, 1180, false, playLoad("it answered 0 of 7 calls", "every row was right both runs inside its 4000 ms budget (p95 3.5 s)")),
   warden: llamaRow(
     1,
     1320,
-    true,
-    "Continuity: every family right both runs, inside its 4000 ms budget (p95 3.8 s). Routes only with the agency check on the same provider; " +
-      "house rules has no row here, so with house rules on the warden's call is refused.",
+    false,
+    playLoad("it answered 0 of 30 calls", "continuity was right in every family both runs inside its 4000 ms budget (p95 3.8 s)"),
   ),
-  agencyCheck: llamaRow(0.9756, 1015, true, "Writes 17/18 and clean 23/23 both runs, inside its 4000 ms budget (p95 1.8 s). Rides the warden's call, so route both together."),
+  agencyCheck: llamaRow(0.9756, 1015, false, playLoad("it rides the warden's call, which answered 0 of 30", "writes 17/18 and clean 23/23 both runs (p95 1.8 s)")),
   director: llamaRow(0.88, 4301, false, "Refused: meets its floor (22/25 both runs) but needs 5.3 s at p95 against its 1500 ms reply-path budget."),
   memoryVerify: llamaRow(1, 3591, false, "Refused: every row right both runs, but 3.9 s at p95 against its 3000 ms budget."),
   expansionCritic: llamaRow(0.9265, 2676, false, "Refused: below its floor (verdict 30/34 against 1.0, both runs, no timeouts) and 3.0 s at p95 against its 2500 ms budget."),

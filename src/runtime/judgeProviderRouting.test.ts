@@ -227,11 +227,11 @@ describe("plan 12 Phase B: the recorded llama-logprob rows (2026-10-03)", () => 
   const SERVED = { "llama-logprob": `llama-server:${LLAMA_LOGPROB_MEASURED_ON}` };
   const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
 
-  it("records passed rows only for the uses that met their floor twice inside their timeout, failed rows for the rest it measured, nothing for the unmeasured", () => {
+  it("records every measured use as failed after the T6-2 play check, nothing for the unmeasured", () => {
     const passed = Object.entries(table).filter(([, fact]) => fact?.passed === true).map(([key]) => key).sort();
     const failed = Object.entries(table).filter(([, fact]) => fact?.passed === false).map(([key]) => key).sort();
-    expect(passed).toEqual(["agencyCheck", "memoryPairs", "stallCheck", "typedExtraction", "warden"]);
-    expect(failed).toEqual(["director", "expansionCritic", "expansionLookahead", "lookahead", "memoryVerify", "wardenLore"]);
+    expect(passed).toEqual([]);
+    expect(failed).toEqual(["agencyCheck", "director", "expansionCritic", "expansionLookahead", "lookahead", "memoryPairs", "memoryVerify", "stallCheck", "typedExtraction", "warden", "wardenLore"]);
     expect(Object.keys(table)).toHaveLength(passed.length + failed.length);
     for (const [key, fact] of Object.entries(table)) {
       expect([key, fact?.fixtureRevision]).toEqual([key, JUDGE_FIXTURE_REVISION[key as JudgeReadinessKey]]);
@@ -239,7 +239,15 @@ describe("plan 12 Phase B: the recorded llama-logprob rows (2026-10-03)", () => 
     }
   });
 
+  const passing = (keys: JudgeReadinessKey[]) => {
+    const saved = keys.map((key) => [key, { ...table[key]! }] as const);
+    for (const key of keys) Object.assign(table[key]!, { passed: true });
+    return () => saved.forEach(([key, fact]) => Object.assign(table[key]!, fact));
+  };
+
   it("a passed row routes when the served model is the measured one, and a call goes to llama-logprob", async () => {
+    const restore = passing(["memoryPairs", "warden", "agencyCheck"]);
+    try {
     expect(providerCleared("llama-logprob", "memoryPairs", SERVED)).toBe(true);
     expect(judgeRoute(routed({ memoryPairs: "llama-logprob" }), "memoryPairs", SERVED)).toEqual({ provider: "llama-logprob", keys: ["memoryPairs"] });
     expect(judgeRoute(routed({ warden: "llama-logprob", agencyCheck: "llama-logprob" }), "warden", SERVED)).toEqual({ provider: "llama-logprob", keys: ["warden", "agencyCheck"] });
@@ -250,11 +258,19 @@ describe("plan 12 Phase B: the recorded llama-logprob rows (2026-10-03)", () => 
     expect(llama).toHaveBeenCalledTimes(1);
     expect(typesafe).not.toHaveBeenCalled();
     expect(records[0]).toMatchObject({ use: "memoryPairs", provider: "llama-logprob", model: SERVED["llama-logprob"] });
+    } finally {
+      restore();
+    }
   });
 
   it("a passed row serving another model is refused", () => {
-    expect(providerCleared("llama-logprob", "memoryPairs", { "llama-logprob": "llama-server:/workspace/models/other.gguf" })).toBe(false);
-    expect(judgeRoute(routed({ memoryPairs: "llama-logprob" }), "memoryPairs", { "llama-logprob": "llama-server:/workspace/models/other.gguf" })).toMatchObject({ refused: "uncalibrated" });
+    const restore = passing(["memoryPairs"]);
+    try {
+      expect(providerCleared("llama-logprob", "memoryPairs", { "llama-logprob": "llama-server:/workspace/models/other.gguf" })).toBe(false);
+      expect(judgeRoute(routed({ memoryPairs: "llama-logprob" }), "memoryPairs", { "llama-logprob": "llama-server:/workspace/models/other.gguf" })).toMatchObject({ refused: "uncalibrated" });
+    } finally {
+      restore();
+    }
   });
 
   it("a failed row is refused even on the measured model, and the panel row says it was measured and failed", () => {
@@ -265,9 +281,18 @@ describe("plan 12 Phase B: the recorded llama-logprob rows (2026-10-03)", () => 
   });
 
   it("house rules has no row: the warden's call is refused split when house rules stays on typesafe, uncalibrated when it follows", () => {
-    const on = (routes: Parameters<typeof routed>[0]) => ({ ...routed(routes), uses: { ...defaultJudgeSettings().uses, houseRules: true } });
-    expect(judgeRoute(on({ warden: "llama-logprob", agencyCheck: "llama-logprob" }), "warden", SERVED)).toMatchObject({ refused: "split" });
-    expect(judgeRoute(on({ warden: "llama-logprob", agencyCheck: "llama-logprob", houseRules: "llama-logprob" }), "warden", SERVED)).toMatchObject({ refused: "uncalibrated" });
+    const restore = passing(["warden", "agencyCheck"]);
+    try {
+      const on = (routes: Parameters<typeof routed>[0]) => ({ ...routed(routes), uses: { ...defaultJudgeSettings().uses, houseRules: true } });
+      expect(judgeRoute(on({ warden: "llama-logprob", agencyCheck: "llama-logprob" }), "warden", SERVED)).toMatchObject({ refused: "split" });
+      expect(judgeRoute(on({ warden: "llama-logprob", agencyCheck: "llama-logprob", houseRules: "llama-logprob" }), "warden", SERVED)).toMatchObject({ refused: "uncalibrated" });
+    } finally {
+      restore();
+    }
+  });
+
+  it("after the T6-2 play check no use routes to llama-logprob on the measured model", () => {
+    for (const key of ["memoryPairs", "typedExtraction", "stallCheck", "warden", "agencyCheck"] as JudgeReadinessKey[]) expect(providerCleared("llama-logprob", key, SERVED)).toBe(false);
   });
 
   it("the default provider stays typesafe for every use", () => {
