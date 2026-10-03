@@ -121,6 +121,7 @@ export interface CheckpointEffects {
   npc_replies?: NpcReplyEffect[];
   background?: BackgroundEffect;
   reasoning?: CheckpointReasoning;
+  scenario?: string | null;
 }
 
 export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;

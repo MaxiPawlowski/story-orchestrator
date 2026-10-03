@@ -10,15 +10,12 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
-  "src/services/stHost/chatScenario.ts",
   ...PLAN_09_SPIKES,
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/install.ts",
-  "src/runtime/spikes/sp5Scenario.ts",
-  "src/runtime/spikes/sp5ScenarioHost.ts",
   "src/runtime/spikes/sp6Complications.ts",
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
@@ -99,8 +96,8 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
   it("control: a planted static import of a plan-09 spike module from the entry fails", () => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nimport { registerScenarioSpike } from "./runtime/spikes/sp5ScenarioHost";\nregisterScenarioSpike();\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/sp5ScenarioHost.ts", "src/runtime/spikes/sp5Scenario.ts", "src/services/stHost/chatScenario.ts"]));
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nimport { SwipeBack } from "./runtime/spikes/swipeBack";\nvoid SwipeBack;\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {
@@ -149,6 +146,11 @@ import "./memory/shortTermAppend";
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === planted ? `import { installSpikes } from "./spikes/install";\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
     expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp6Complications.ts"]));
+  });
+
+  it("SP5.b (v2.7 02 C1): the story scenario ships in the prod entry graph, and its spike modules are gone", () => {
+    expect(staticReach(files)).toEqual(expect.arrayContaining(["src/runtime/storyScenario.ts", "src/runtime/storyScenarioHost.ts", "src/services/stHost/chatScenario.ts"]));
+    expect(files.map(rel).filter((path) => /spikes\/sp5/.test(path))).toEqual([]);
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {

@@ -1,23 +1,30 @@
 import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
-import { isRecord } from "@utils/guards";
 import type { WriteResult } from "@utils/writeResult";
-import type { EffectExtension, EffectExtensionInput, EffectExtensionPlan } from "../effectExtensions";
-import type { EffectLedgerRow } from "../types";
+import type { EffectExtension, EffectExtensionInput, EffectExtensionPlan } from "./effectExtensions";
+import type { EffectLedgerRow } from "./types";
 
-export const SP5_EXTENSION = "scenario";
-export const SP5_FLAG = "sp5Scenario";
+export const SCENARIO_EFFECT = "scenario";
+
+export interface ScenarioCard {
+  name: string;
+  scenario: string;
+}
 
 export interface ScenarioHost {
-  enabled: () => boolean;
   read: () => { chatId: string; text: string } | null;
   write: (chatId: string, text: string) => WriteResult<object>;
-  cast: () => Array<{ name: string; scenario: string }>;
+  cast: () => ScenarioCard[];
+}
+
+export interface ScenarioFrame {
+  override: string;
+  cast: ScenarioCard[];
 }
 
 const authored = (checkpoint: Checkpoint | undefined): string | null => {
-  const effects: unknown = checkpoint?.effects;
-  if (!isRecord(effects) || !Object.prototype.hasOwnProperty.call(effects, "scenario")) return null;
-  return typeof effects.scenario === "string" ? effects.scenario.trim() : "";
+  const scenario = checkpoint?.effects?.scenario;
+  if (scenario === undefined) return null;
+  return typeof scenario === "string" ? scenario.trim() : "";
 };
 
 export function scenarioForPath(story: NormalizedStoryV2, path: string[]): string | null {
@@ -27,7 +34,7 @@ export function scenarioForPath(story: NormalizedStoryV2, path: string[]): strin
 export const storySetsScenario = (story: NormalizedStoryV2): boolean => story.checkpoints.some((checkpoint) => authored(checkpoint) !== null);
 
 const scenarioRows = (ledger: EffectLedgerRow[]) =>
-  ledger.filter((row) => row.target.kind === "extension" && row.target.name === SP5_EXTENSION);
+  ledger.filter((row) => row.target.kind === "extension" && row.target.name === SCENARIO_EFFECT);
 
 const rowText = (value: Record<string, unknown> | null | undefined): string | null => (typeof value?.text === "string" ? value.text : null);
 
@@ -41,20 +48,22 @@ const alreadyRefused = (ledger: EffectLedgerRow[], desired: string, held: string
   return newest?.status === "externally-changed" && rowText(newest.after) === desired && rowText(newest.found) === held;
 };
 
-export function competingCards(story: NormalizedStoryV2, override: string, cast: Array<{ name: string; scenario: string }>): string[] {
+export function competingCards(story: NormalizedStoryV2, override: string, cast: ScenarioCard[]): string[] {
   if (storySetsScenario(story) || override.trim()) return [];
   return cast.filter((entry) => entry.scenario.trim()).map((entry) => entry.name);
 }
+
+export const competingSummary = (names: string[]): string => `${names.length} character card scenario(s) frame this chat and the story sets none`;
 
 const competingNotes = (input: EffectExtensionInput, override: string, host: ScenarioHost) => {
   if (input.mode !== "activate") return [];
   const names = competingCards(input.story, override, host.cast());
   if (!names.length) return [];
-  return [{ summary: `${names.length} character card scenario(s) frame this chat and the story sets none`, detail: names.join(", ") }];
+  return [{ summary: competingSummary(names), detail: names.join(", ") }];
 };
 
 export function planScenario(input: EffectExtensionInput, host: ScenarioHost): EffectExtensionPlan {
-  const open = host.enabled() ? host.read() : null;
+  const open = host.read();
   if (!open) return { step: null, notes: [] };
   const notes = competingNotes(input, open.text, host);
   const desired = scenarioForPath(input.story, input.path);
@@ -63,12 +72,12 @@ export function planScenario(input: EffectExtensionInput, host: ScenarioHost): E
   if (clobbers && alreadyRefused(input.ledger, desired, open.text)) return { step: null, notes };
   const before = { text: open.text };
   const write = async () => host.write(open.chatId, desired);
-  return { step: { effect: SP5_EXTENSION, before, after: { text: desired }, write, ...(clobbers ? { found: before } : {}) }, notes };
+  return { step: { effect: SCENARIO_EFFECT, before, after: { text: desired }, write, ...(clobbers ? { found: before } : {}) }, notes };
 }
 
 export function createScenarioExtension(host: ScenarioHost): EffectExtension {
   return {
-    name: SP5_EXTENSION,
+    name: SCENARIO_EFFECT,
     plan: (input) => planScenario(input, host),
     read: () => {
       const open = host.read();
@@ -81,3 +90,17 @@ export function createScenarioExtension(host: ScenarioHost): EffectExtension {
     },
   };
 }
+
+let readFrame: () => ScenarioFrame | null = () => null;
+
+export const readScenarioFrameWith = (read: () => ScenarioFrame | null): (() => void) => {
+  readFrame = read;
+  return () => {
+    if (readFrame === read) readFrame = () => null;
+  };
+};
+
+export const scenarioFrame = (): ScenarioFrame | null => readFrame();
+
+export const competingScenarios = (story: NormalizedStoryV2 | null, frame: ScenarioFrame | null): string[] =>
+  story && frame ? competingCards(story, frame.override, frame.cast) : [];

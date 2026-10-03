@@ -492,6 +492,7 @@ export interface RuntimeSnapshot {
   /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */
   secretsHeld?: boolean;
   thinkingSilent?: boolean;
+  competingScenarios?: string[];
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

@@ -274,6 +274,14 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "background", doc: "author/topics/background.md", status: "shipped", since: "2.1.0",
   },
   {
+    id: "story-scenario", name: "Story scenario", area: "world", audience: "author",
+    oneLine: "A turning point can set the chat's scenario text, in place of every character card's own.",
+    what: "A story can give a turning point a scenario: one short framing text that stands in for every member card's scenario in a group, and follows the "
+      + "story as it moves. A scenario typed into the chat by hand is left alone. When a story sets none, the author view names the cards whose scenarios frame the chat.",
+    where: studioAt("#so-studio-modal", "Turning point › Effects › Scenario"),
+    settings: [], guideTopic: "scenario", doc: "author/topics/scenario.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
+  },
+  {
     id: "images", name: "Illustrations", area: "world", audience: "setup",
     oneLine: "Draws pictures of scenes and characters through ComfyUI.",
     what: "Stories can ask for pictures at key moments, or you can draw every few replies or by hand. A prompt model writes each picture prompt; ComfyUI renders it after the text is done.",

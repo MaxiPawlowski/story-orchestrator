@@ -116,6 +116,89 @@ reader seam, player wording, HUD alert), `src/runtime/checks.test.ts`.
 switch Summarize (main source, interval > 0) and chat vectors on → row and `#so-hud-setup` appear in player mode,
 clear when off; `so-ui.mts assert-player-clean` green.
 
+## Gate record — C1 SP5.b (2026-10-03)
+
+Branch `worktree-agent-a1032536536635cc2` (master `7371a44e` merged in first). Built as `v2.8/16-sp5-story-scenario.md`
+§Design reference decides, steps 1–10.
+
+**Step 1, T7 triage (from the archived evidence; no re-run, no live lane in this session).** Both reds are fixture
+counts that predate v2.6 04 C4 (c) (a `/cp activate` jump releases the source's scenario row first), not product
+regressions:
+
+- Adolion `t7-adolion-sp5-scenario.json` step 7 counts `status === 'applied'` and wants 2. Under C4 (c) the jump to
+  `east-landfall` reverts the guild-hall row, so the ledger holds 1 applied + 1 reverted: the same count
+  `v2.6/03-sp5-restated.md` addendum 3 already changed to "applied **or** reverted". The T7 copy (under
+  `test/sessions/T7/suite/spikes/`, untracked session evidence) still has the old count. Pinned by the jest case "a jump
+  releases the source's scenario and applies the target alone" (`["reverted", "applied"]`).
+- Toy `live-v25-09-sp5-scenario.json` C2 order 1: the lane log (`so-lanes/1/debug/batch/2026-10-03T06-08-17-091Z-…-run1.log`)
+  shows every clause true except `back.refusedRows === 1` (found 2). The jump to `hall` releases the gate row, the
+  compare-and-set refuses it (the user's text is held) and marks it `externally-changed`, then the hall write is refused
+  too: two refused rows, and the hydrate on return adds none. Pinned by the jest case "T7 triage, toy C2 order 1".
+  The fixture's count is left to v2.8 16 (it converts both fixtures to groups); its `spikes.sp5Scenario` residue is
+  gone (the helper's `flag()` now writes nothing).
+- The T7 header diff also warned the served bundle was not the built one, so neither red was a measurement anyway.
+
+**Built.**
+
+| Step | What |
+|---|---|
+| 2 type | `CheckpointEffects.scenario?: string \| null` (`engine/schema.ts`); `validate/checkpoints.ts` trims text, reads `""`/`null` as clear (`""`), keeps the key out when absent (inherit), refuses any other type by path. Localized: one schema line, one validator block |
+| 3 move | `spikes/sp5Scenario.ts` → `runtime/storyScenario.ts` (pure, reads the typed field, `SCENARIO_EFFECT = "scenario"`: the ledger target name is unchanged, so stored rows still restore), `spikes/sp5ScenarioHost.ts` → `runtime/storyScenarioHost.ts` (`startStoryScenario`: registers the extension and the frame reader). Registered statically in `runtime/index.ts` `registerHostSurfaces`, before the startup load (the dev import used to race it); not in the manager |
+| 4 flag | `sp5Scenario` out of `SPIKE_FLAGS`; the sanitizer drops a stored value (`spikeFlags.test.ts`), and `test/sessions/baseline-settings.json` no longer names it (`sessionBaseline.test.ts`). `devOnly.guard.test.ts`: the two spike files and `stHost/chatScenario.ts` leave the dev-only lists; the planted-import control now plants `spikes/swipeBack` (still reached and caught); a new case asserts the scenario modules ship in the prod entry graph and no `spikes/sp5*` file remains |
+| 5 C3 | unchanged: held with World Info while requirements are unmet (`effectsApplier.ts` `ready ? effectExtensions() : []`); jest case + control |
+| 6 jump | unchanged C4 (c); jest case (target authoring none plays the pre-story value) |
+| 7 Studio | `EffectsEditor` "Scenario" section: off = inherit, on + empty = clear (`[data-so="scenario-clear-note"]`), text = set; through `setCheckpointEffects`. Story `Studio/CheckpointEditor` `ScenarioThreeStates` (interaction + a11y). No new diagnostic |
+| 8 C5 note | snapshot `competingScenarios` (`snapshotBuilder` `setupWarnings`, from the live frame: the chat's override + the open group's enabled card scenarios, via the `readScenarioFrameWith` seam, the `readCopiersWith` pattern). Author view only, under the requirements rows (`OverviewTab` `[data-so="scenario-competing"]`); the journal note stays. Not a check-registry row: v2.7 04 is not built and `checks.ts` was out of scope. Stories `AuthorCompetingScenarios`, `PlayerSeesNoCompetingScenarios` |
+| 9 guide | new topic `scenario` after `background` (`docs/authoring/story-guide.md` + `guideTopics.ts` twin, `STUDIO_TAB_GUIDE` checkpoints); `experimental-effects` keeps `reasoning` and `complications` only; `npm run docs:guide` regenerated `docs/guide/author` (new `topics/scenario.md`). No solo sentence existed to drop |
+| 10 agent | `setCheckpointEffects` tool doc lists `scenario` |
+| rule 9 | registry feature `story-scenario` (area world, author, Studio › Turning point › Effects › Scenario, guide topic `scenario`, since 2.7.0, needs group-chat + story); `registry.test.ts` green |
+
+Invariants kept: `EffectsApplier` refuses with `NO_OPEN_CHAT` and writes nothing (new jest case); restore on leave never
+writes the chat left behind, restart/remove is compare-and-set (`externally-changed`, user text kept); rollback restores
+through the RESTORABLE row and equals a fresh replay of the shorter path (new jest case).
+
+**Tests.** `src/engine/checkpointScenario.test.ts` (new), `src/runtime/storyScenario.test.ts` (moved + 7 new cases:
+typed field, no chat, held/control, jump, T7 C2 triage, rollback ≡ replay, author-view names),
+`storyScenarioHost.test.ts` (rewritten: no flag, frame reader), `storyScenarioCastSettle.review.test.ts` (moved),
+`storyScenarioSnapshot.test.ts` (new), guide drift (`guideTopics.test.ts`), `registry.test.ts`, `devOnly.guard.test.ts`,
+`spikeFlags.test.ts`. Census note in `test/findings/ownership-sites.json` repointed at the moved case.
+
+**No-LLM scenario (D, not run live).** `test/scenarios/effects-story-scenario.json` (new, group sandbox, toy story
+`live-v25-09-sp5.story.json`): import sets the gate's scenario; `/cp activate hall` swaps it; `/cp activate road`
+(authors none) plays the pre-story value; back to gate; `removeStory` puts the pre-story value back. Each step takes a
+dry-run capture (no model call) and asserts the held scenario is in the request once and the other checkpoint's text
+zero times. Evals syntax-checked (`new Function`), the closed-vocabulary validator passes it inside `test:debug`.
+Run: `so-scenario.mts run test/scenarios/effects-story-scenario.json --sandbox --group <id>`, ×2, with a run header diff.
+
+**Gates** (worktree, node_modules junctioned to the main checkout):
+
+- `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook`: **all green**. typecheck, typecheck:test,
+  lint ok; test 505 suites passed + 1 skipped, 6156 tests passed + 1 skipped; build ok (prod bundle `68937905eb17`);
+  build:dev ok; test:debug 935/935; debug:typecheck ok; test:release ok; test:replay 30 mutants KILLED, 0 survived;
+  test:plugin ok. `test-storybook:ci` SKIPPED by the flag; run separately below. (A first run was RED on
+  `sessionBaseline.test.ts`: the session baseline still named `spikes.sp5Scenario`. Fixed, re-run green.)
+- `npm run typecheck:test`: ok (also inside the gates).
+- Storybook (UI files changed): `npm run storybook:build` → `.sb-static`; `npx http-server .sb-static -p 6064 -s -c-1 -a
+  127.0.0.1`; `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6064`:
+  71 suites, 449 tests passed (the three new stories included); server stopped.
+- Prod main entry `dist/index.js` 1,119,130 B (named 2026-10-03 build 1,115,323 B: +3,807 B), budget 1,250,000 B.
+
+**Live gate: NOT run** (no ST, lane, pod or ComfyUI in this session), so C1 is **not green for live use**. Owed:
+the no-LLM scenario above ×2 on a lane group (D, v2.7 16-test-plan C1 row, with the payload capture as the declared
+diff); the C1–C5 ×2 acceptance on Adolion with both fixtures converted to groups (v2.8 16).
+
+**Model input changes (rule 6), declared.** (1) Reply prompts: a group chat playing a story whose checkpoints author
+`effects.scenario` now carries that one scenario text in place of every member card's scenario, on every install (it
+was behind a dev-only flag, off by default). Real-model row: **v2.8 01 O13** (the scenario reaches the prompt and the
+reply follows it); plumbing ×2: v2.8 16. (2) Wizard/agent prompts: the agent's topic list gains `scenario`, the
+`experimental-effects` topic text changes, the `setCheckpointEffects` tool doc names `scenario`. No staged-stage topic
+list changed (`STAGE_GUIDE_TOPICS` untouched). This row has no v2.8 owner yet (open question below).
+
+**Open.** (a) An owner for the wizard-prompt diff (2) above (v2.8 01, beside O13?). (b) The toy fixture's C2 count and
+the Adolion T7 count (fixture, above) are v2.8 16's to change with the group conversion. (c) 16-test-plan's C1 row says
+"cleared on leave": a chat-scoped scenario is never written on leave (the chat keeps its own); the scenario above uses
+story removal (restore `exit`) instead.
+
 ## Review 2026-10-03
 
 Applied: K1, K2 (C2-K1), F34 (with and without held secrets), A5 (C1 deterministic; C12/C13 owners), F17 (owners for

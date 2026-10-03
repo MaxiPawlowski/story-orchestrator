@@ -257,6 +257,25 @@ const EffectsEditor: React.FC<{
         </label>
       </Section>
 
+      <Section
+        title="Scenario"
+        help={"Replaces the chat's scenario text from this checkpoint on, in place of every member card's own scenario. Later checkpoints without one keep it. "
+          + "Leave the text empty to clear the scenario here. Framing only: genre, place, the arc's name; never a secret or a twist."}
+        enabled={effects.scenario !== undefined}
+        onToggle={(on) => emit({ ...effects, scenario: on ? "" : undefined })}
+      >
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-xs st-muted">Scenario text</span>
+          <textarea
+            className="text_pole st-input min-h-[3rem]"
+            aria-label="Scenario text"
+            value={effects.scenario ?? ""}
+            onChange={(event) => emit({ ...effects, scenario: event.target.value })}
+          />
+        </label>
+        {(effects.scenario ?? "").trim() ? null : <p data-so="scenario-clear-note" className="text-xs st-muted">Empty: this checkpoint clears the chat&apos;s scenario.</p>}
+      </Section>
+
       <Section title="Cast changes" enabled={cast !== undefined} onToggle={(on) => emit({ ...effects, cast_changes: on ? { enable: [], disable: [] } : undefined })}>
         <CastSide label="Enable members" names={castEnable} roster={roster} castable={castable}
           onChange={(enable) => emit({ ...effects, cast_changes: { enable, disable: castMemberNames(roster, castDisable) } })} />

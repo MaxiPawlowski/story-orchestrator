@@ -139,7 +139,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | Plan | State |
 |---|---|
 | 01 | BUILT (both halves merged); triage proposal awaits the user's review; live D checks owed (16-test-plan) |
-| 02 | PARTLY BUILT: C2, C6–C10 merged; K1 open (step 0); C1, C11-F1 display, C13, C14 not built |
+| 02 | PARTLY BUILT: C2, C6–C10 merged; C1 built on branch `worktree-agent-a1032536536635cc2` (gates green, live NOT run, not merged); K1 open (step 0); C11-F1 display, C13, C14 not built |
 | 03 | APPROVED (all five decisions); not built |
 | 04 | APPROVED; seed registry in `checks.ts`; extension and migration not built |
 | 05 | APPROVED (static half); not built |

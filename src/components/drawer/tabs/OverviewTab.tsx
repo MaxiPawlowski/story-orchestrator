@@ -1,5 +1,6 @@
 import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import { provisionableMissing } from "@runtime/repair";
+import { competingSummary } from "@runtime/storyScenario";
 import PlayerOverview from "../PlayerOverview";
 import ScenePanel from "../ScenePanel";
 
@@ -31,6 +32,13 @@ const LoreBindings = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+const CompetingScenarios = ({ names }: { names: string[] }) => (names.length ? (
+  <div data-so="scenario-competing" className="flex flex-col gap-1 text-xs opacity-80">
+    <div>{competingSummary(names)}.</div>
+    <div>Cards: {names.join(", ")}. Give a checkpoint a scenario to frame the chat with one story text instead.</div>
+  </div>
+) : null);
+
 // Diagnose-only dots were the half of this panel: the wizard turns them into a next step it can
 // actually take — create the missing cards, lorebook and group. Personas stay diagnostic.
 const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void }) => {
@@ -52,6 +60,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
         </div>
       ))}
       <LoreBindings snapshot={snapshot} />
+      <CompetingScenarios names={snapshot.competingScenarios ?? []} />
       {provisionable && onFixWithWizard && (
         <button
           id="so-fix-with-wizard"

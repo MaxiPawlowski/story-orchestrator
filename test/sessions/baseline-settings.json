@@ -177,7 +177,6 @@
     },
     "spikes": {
       "swipeBackCache": false,
-      "sp5Scenario": false,
       "sp6Complications": false,
       "sp8CuratorTiers": false,
       "reasoningEffect": false

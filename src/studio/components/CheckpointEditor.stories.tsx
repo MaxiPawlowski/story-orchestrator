@@ -82,6 +82,22 @@ export const ToggleBackground: Story = {
   },
 };
 
+// v2.7 02 C1: the story scenario has three states, inherit (off), clear (on and empty) and text.
+export const ScenarioThreeStates: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBeUndefined();
+    await userEvent.click(canvas.getByLabelText("Scenario"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBe("");
+    await expect(canvasElement.querySelector('[data-so="scenario-clear-note"]')).not.toBeNull();
+    await userEvent.type(canvas.getByLabelText("Scenario text"), "The party waits at the city gate.");
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBe("The party waits at the city gate.");
+    await expect(canvasElement.querySelector('[data-so="scenario-clear-note"]')).toBeNull();
+    await userEvent.click(canvas.getByLabelText("Scenario"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBeUndefined();
+  },
+};
+
 // v2.4 plan 06 (X20): the preset is an overlay on this checkpoint's replies, and the editor says so.
 export const PresetSaysOverlay: Story = {
   play: async ({ canvasElement }) => {
