@@ -42,7 +42,7 @@ owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/23-test-plan.md`
 | Plan | Deterministic gates | No-LLM scenarios / journeys | Storybook (interaction + a11y, 390/768/1440) | `assert-player-clean` | Live (D) ×2 |
 |---|---|---|---|---|---|
 | 01 docs + in-app | registry tests, settings reference fresh, guide drift | J3 player-mode checks that need no reply (`--only`, listed in the record) | Help panel, What's new, Getting started, legend (built) | Help open in player mode (O2) | in-app walk from cleared settings to the first send (no reply); Show me landings; settings-header "?" opens/toggles |
-| 02 C1 SP5.b | jest: set, release on jump/leave, held while unmet, rollback ≡ replay | new no-LLM scenario on a group (scenario set, swapped at a transition by `/cp activate` in Author view, cleared on leave) | — | — | payload capture shows the authored scenario block and nothing else (declared diff → v2.8 16) |
+| 02 C1 SP5.b | jest: set, release on jump/leave, held while unmet, rollback ≡ replay | new no-LLM scenario on a group (scenario set, swapped at a transition by `/cp activate` in Author view; the scenario lives in the chat, so leaving writes nothing; removing the story restores the pre-story value) | — | — | payload capture shows the authored scenario block and nothing else (declared diff → v2.8 16) |
 | 02 C2-K1 | see step 0 | — | HUD chip with/without secret | yes | step 0 row |
 | 02 C11-F1a | jest: cut note for a long source, none for a short one | — | — | journal row author-only | `so-journal.mts show` on a seeded held judge-typed reading |
 | 02 C13 | `curatorTiers.test.ts` + spike review test re-homed; write-edge mutant killed (`test:replay`); flag-off control | a mocked curator scenario (`stagecraft: {action: "curate"}` with `storyOrchestratorDebugCuratorResponse`): an op into a protected span refused, an applied op reverted by a swipe | — | — | payload invariance on the curator request (identical prompt bytes) |
@@ -94,6 +94,7 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
 | `catching-up` until a real re-read lands | v2.7 10 | v2.8 01 O10 |
 | a held commitment from real play in the journal | v2.7 09 | v2.8 01 O11 |
 | the story scenario block in real replies (SP5 live legs) | v2.7 02 C1 | v2.8 01 O13 (real replies, RP); v2.8 16 owns the dry-run plumbing (D) |
+| wizard/agent prompt changes from C1 (guide topics, tool doc) | v2.7 02 C1 | v2.8 01 O13b (CL) |
 | promoted SP8 tiers/spans under a real curator | v2.7 02 C13 | v2.8 01 O14 (promotion under a real curator, CL); C13-b covers digest/prompt changes only |
 | extraction quality on inputs the context table enlarges | v2.7 02 C14 / 14 | v2.8 01 C14-b |
 | real group play unchanged after the solo removal and with the activation modal | v2.7 03, 05 | v2.8 01 O12 (final suite) |

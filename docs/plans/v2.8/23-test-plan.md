@@ -30,7 +30,7 @@ owed here through `01-v27-carry-over.md`.
 
 | Plan | Acceptance tier | Own measurement (×2, before the build decision) | Final suite rows |
 |---|---|---|---|
-| 01 carry-over | RP, CL, LI, D | §C V0–V8 (SP2 option A), §D thinking A/B, §E R4, §F M1–M5, C3, C12, C11-F2 | **all of §A O1–O15** (v2.7's owed rows; O15 = the A7 briefing content review by a second model; O13 = SP5.b in real replies, O14 = promoted SP8 tiers under a real curator, distinct from C13-b), C4, C13-b, C14-b, C11-F1/F7, §C V3/V4/V8 regression |
+| 01 carry-over | RP, CL, LI, D | §C V0–V8 (SP2 option A), §D thinking A/B, §E R4, §F M1–M5, C3, C12, C11-F2 | **all of §A O1–O15 + O13b** (v2.7's owed rows; O13b = wizard prompt changes from C1; O15 = the A7 briefing content review by a second model; O13 = SP5.b in real replies, O14 = promoted SP8 tiers under a real curator, distinct from C13-b), C4, C13-b, C14-b, C11-F1/F7, §C V3/V4/V8 regression |
 | 02 campaign | LI, CL, D | D13d cue reads per turn before/after | lab runs on the pinned campaign; D13b renders QA-equivalent |
 | 03 persona | D, RP | S30-1 (scripted opener on a lane) | the injected `player` block in real replies; identity gate before the opener |
 | 04 panels | D, CL | — | C5 suggestions (10 runs, no unreached name); C4/C7/C9 (a) live D rows |
@@ -63,7 +63,7 @@ Each plan's own file holds the floors; this table is the index. A plan is done o
 2. **Fresh imports**: `adolion-fresh seed` on every lane; toy stories re-seeded; run header captured per lane.
 3. **Run, cheapest first** (an early failure costs little):
    1. D: the mocked scenario corpus, the no-reply journey checks, every plan's live D rows;
-   2. CL: v2.8 01 O7, O10, O11, O14, O15, C3, C4 (CL half), C12, C13-b, C14-b; then each plan's CL suite rows;
+   2. CL: v2.8 01 O7, O10, O11, O13b, O14, O15, C3, C4 (CL half), C12, C13-b, C14-b; then each plan's CL suite rows;
    3. LT: v2.8 14 rows (local judge server up from the tray);
    4. LI: v2.8 01 O3–O6; v2.8 05–08 rows (broker; LT and LI never share the GPU in the same batch);
    5. RP: v2.8 01 O1, O4, O9, O12, O13, C4 (RP half), C11-F7, §C V3/V4/V8; then each plan's RP suite rows;
