@@ -56,6 +56,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | 27 | `27-wizard-assistant.md` | shipped knowledge base (plugin + author guide + condensed ST know-how), read-only Ask mode, character-building tutorial (needs plan 01's registry; cloud authoring profile, no RunPod) | user topic |
 | 28 | `28-talkinghead-review.md` | Talkinghead is gone (removed from ST in 1.12.13, Extras archived); instead: build-time blink/talk frames via the campaign's ComfyUI edit pipeline + a tiny animator in VnStage; spike S28 first (local ComfyUI, no RunPod) | user topic |
 | 29 | `29-smart-context-harvest.md` | Smart Context deprecated, Vector Storage covered; harvest only verbatim quote recall (spike, solo first) after 02 C2 and the Q-M5 measurement (+P3 arm); needs a model for the reply-accuracy floor (tier 3) | user topic |
+| 32 | `32-living-cards.md` | per-chat card/persona overlay backed by story values (effects, extraction, author); prompt block + image prompts + sprite set rule; on-demand look sprites after 26b; S32-1 needs the model (tier 3), the store itself is pure | user topic |
 | 06 | `06-thinking-per-story.md` | the Repair warning (the story/checkpoint level waits on R4: tier 3) | seed |
 | 07 | `07-commitment-double-negatives.md` | player line + hold reason in the author journal row | seed |
 | 08 | `08-sp2-recommit-v2.md` | option C: "catching up after your edit" status + README | seed |
