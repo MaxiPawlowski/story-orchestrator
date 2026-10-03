@@ -33,6 +33,21 @@ export const AuthorFeed: Story = {
   },
 };
 
+export const WithSetupFindings: Story = {
+  args: {
+    checks: [{
+      check: "cast-muted", area: "cast", severity: "degrades", consequence: "Ilsa is muted in this group.", detail: "Muted in the group: Ilsa.",
+      targetId: null, target: null, provisionable: false, player: null, action: null, opensGroup: false, dismissable: true,
+    }],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("region", { name: "Setup" })).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="activity-check"][data-check="cast-muted"]')).not.toBeNull();
+    await expect(canvasElement.querySelectorAll('[data-so="activity-row"]')).toHaveLength(5);
+  },
+};
+
 export const Empty: Story = {
   args: { rows: [] },
   play: async ({ canvasElement }) => {

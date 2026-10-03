@@ -9,6 +9,7 @@ import type { ContinueRow } from "@runtime/playsIndex";
 import { panelGeometry } from "@runtime/panelGeometry";
 import { readPanels, savePanel } from "@runtime/panelStore";
 import { composeActivity } from "@runtime/activityFeed";
+import { setupFindings } from "@runtime/repair";
 import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
@@ -45,6 +46,11 @@ export interface PresenceUiDeps {
   openDrawer: () => void;
 }
 
+const activityChecks = (snapshot: RuntimeSnapshot) => {
+  const findings = setupFindings(snapshot);
+  return [...findings.blocks, ...findings.degrades, ...findings.info];
+};
+
 const viewport = () => ({ width: window.innerWidth, height: window.innerHeight });
 
 const Panel = ({ id, title, children }: { id: PanelId; title: string; children: ReactNode }) => (
@@ -72,7 +78,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         )}
         {activity && (
           <Panel id="activity" title={PRESENCE_TEXT.activityTitle}>
-            <Lazy fallback={null}><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])} onJump={jump} /></Lazy>
+            <Lazy fallback={null}><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])} onJump={jump} checks={activityChecks(snapshot)} /></Lazy>
           </Panel>
         )}
       </>

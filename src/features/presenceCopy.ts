@@ -17,6 +17,7 @@ export const PRESENCE_TEXT = {
   activityEmpty: "Nothing happened behind the scenes in the recent messages.",
   activityEverything: "Everything",
   activityShow: "Show",
+  activitySetup: "Setup",
   rollsLabel: "Rolls and draws",
   helpTitle: "Help",
 };
