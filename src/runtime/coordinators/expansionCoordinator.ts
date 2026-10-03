@@ -114,10 +114,19 @@ export class ExpansionCoordinator {
       if (entry.insertedCheckpointIds.includes(state.activeCheckpointId)) return;
       const verdict = revalidateExpansion(story, entry, values);
       if (verdict.status === "pass") return;
-      this.entries[key] = { ...entry, status: "stale", lastError: verdict.issues.join("; "), updatedAt: new Date().toISOString() };
+      this.entries[key] = { ...entry, status: "stale", lastError: verdict.issues.join("; "), staledAt: { boundary: state.boundary, from: entry.status }, updatedAt: new Date().toISOString() };
       changed = true;
     });
     if (changed) this.rebuildMergedStory();
+  }
+
+  restoreStaledAfter(boundary: number): number {
+    const restored = Object.entries(this.entries).filter(([, entry]) => entry.status === "stale" && entry.staledAt && entry.staledAt.boundary > boundary);
+    restored.forEach(([key, { staledAt, ...entry }]) => {
+      this.entries[key] = { ...entry, status: staledAt?.from ?? "inserted", lastError: null, updatedAt: new Date().toISOString() };
+    });
+    if (restored.length) this.rebuildMergedStory();
+    return restored.length;
   }
 
   private emptyEntry(candidate: StubExpansionCandidate, status: ExpansionCacheEntry["status"]): ExpansionCacheEntry {

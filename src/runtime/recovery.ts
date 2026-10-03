@@ -1,5 +1,6 @@
 import type { Checkpoint, StoryEngine } from "@engine/index";
 import { beginRun, type RunOwnership } from "./runToken";
+import { LOST_CHECKPOINT, repairActiveCheckpoint } from "./rollback";
 
 // Author recovery, kept out of the manager: undo the last gate advance without touching the
 // messages, and drop a latched value so extraction asks for it again. Both re-check the run token
@@ -7,7 +8,7 @@ import { beginRun, type RunOwnership } from "./runToken";
 // onto whatever loaded meanwhile.
 export interface RecoveryHost {
   loaded: boolean;
-  engine: Pick<StoryEngine, "stepBackFiredTransition" | "resetQuality" | "activeCheckpoint">;
+  engine: Pick<StoryEngine, "stepBackFiredTransition" | "resetQuality" | "activeCheckpoint" | "ensureActiveCheckpoint">;
   applyActive: (mode: "activate" | "hydrate") => Promise<unknown>;
   refreshRequirements: () => void;
   announce: (checkpoint: Checkpoint | undefined) => Promise<unknown>;
@@ -25,6 +26,7 @@ export async function runStepBackTransition(host: RecoveryHost): Promise<{ ok: b
   const run = beginRun(host.ownership);
   const outcome = host.engine.stepBackFiredTransition();
   if (!outcome.ok) return { ok: false, detail: outcome.reason };
+  repairActiveCheckpoint(host.engine, (detail) => host.noteRecap(LOST_CHECKPOINT, detail));
   const reset = outcome.keys.filter((key) => host.engine.resetQuality(key));
   host.refreshRequirements();
   await host.applyActive("hydrate");

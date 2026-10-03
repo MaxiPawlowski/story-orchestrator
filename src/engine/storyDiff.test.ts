@@ -339,7 +339,7 @@ describe("pruneEngineState", () => {
     const engine = new StoryEngine();
     engine.loadStory(next);
     engine.hydrate(pruneEngineState(state, next, diff));
-    expect(engine.activeCheckpoint.id).toBe("middle");
+    expect(engine.activeCheckpoint?.id).toBe("middle");
     engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "trust", v: 5, source: "extractor" }] });
     const result = engine.commitBoundary({ lastMessageId: 7, chatLength: 8 });
     expect(result.fired?.to).toBe("end");

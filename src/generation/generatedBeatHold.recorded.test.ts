@@ -33,7 +33,7 @@ describe("T2-1: a generated beat waits for the player (journal.jsonl:1001 enter 
   it("the next member's reply in the same round does not move The Breathing Dark on; the player's next turn does", () => {
     const engine = entered();
     expect(engine.commitBoundary({ lastMessageId: 47, chatLength: 48, lastPlayerMessageId: 45 }).fired).toBeNull();
-    expect(engine.activeCheckpoint.id).toBe("gen_between-the-floors_1");
+    expect(engine.activeCheckpoint?.id).toBe("gen_between-the-floors_1");
     expect(engine.commitBoundary({ lastMessageId: 49, chatLength: 50, lastPlayerMessageId: 48 }).activeCheckpointId).toBe("gen_between-the-floors_2");
   });
 

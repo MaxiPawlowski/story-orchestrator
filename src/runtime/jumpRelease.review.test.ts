@@ -50,8 +50,8 @@ describe("v2.6 plan 04 C4: /cp activate releases the source, then applies the ta
     jest.spyOn(runtime, "notify").mockImplementation(() => undefined);
     jest.spyOn(runtime, "getSnapshot").mockImplementation(() => ({}) as never);
     const order: string[] = [];
-    jest.spyOn(probe.effects, "releaseStaging").mockImplementation(async () => { order.push(`release@${probe.engine.activeCheckpoint.id}`); });
-    jest.spyOn(probe.effects, "applyCheckpoint").mockImplementation(async (_story, checkpoint, _extras, _snapshot, mode, path) => { order.push(`apply:${checkpoint.id}:${mode}:${path.join(">")}`); });
+    jest.spyOn(probe.effects, "releaseStaging").mockImplementation(async () => { order.push(`release@${probe.engine.activeCheckpoint?.id}`); });
+    jest.spyOn(probe.effects, "applyCheckpoint").mockImplementation(async (_story, checkpoint, _extras, _snapshot, mode, path) => { order.push(`apply:${checkpoint?.id}:${mode}:${path.join(">")}`); });
     expect(await runtime.activateCheckpoint("far")).toBe(true);
     expect(order).toEqual(["release@hall", "apply:far:activate:far"]);
     expect(probe.engine.checkpointPath).toEqual(["hall", "far"]);
@@ -87,7 +87,7 @@ describe("CR-E3 / CR-E4: every caller of activateCheckpoint gets the chapter-jum
     const { runtime, probe } = managerAt();
     expect(await runtime.activateCheckpoint("walls")).toBe(false);
     expect(choice.asked).toHaveLength(1);
-    expect(probe.engine.activeCheckpoint.id).toBe("market");
+    expect(probe.engine.activeCheckpoint?.id).toBe("market");
   });
 
   it("jump without sealing: the skip marker is already in memory when the target's onEnter effects run", async () => {

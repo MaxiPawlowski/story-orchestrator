@@ -161,7 +161,8 @@ export function wireCoordinators(port: ManagerPort) {
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
   });
   const rollbackDeps: RollbackDeps = {
-    ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(), extras: () => port.extras(),
+    ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
+    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), extras: () => port.extras(),
     persist: lifecycle.persist, notify: lifecycle.notify, setStatus: (status) => port.setStatus(status),
   };
   const storyUpdateDeps: StoryUpdateDeps = {

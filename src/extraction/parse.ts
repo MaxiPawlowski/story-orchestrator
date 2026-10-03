@@ -7,6 +7,10 @@ const deltaPattern = /^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+evidence="([\s\S
 const bareDeltaPattern = /^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const bareWordPattern = /^[A-Za-z][\w -]*$/;
 const factPattern = /^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+evidence="([\s\S]+)"\s*$/;
+const UNTERMINATED_EVIDENCE = String.raw`evidence=("[\s\S]*[^"\s])\s*$`;
+const openDeltaPattern = new RegExp(String.raw`^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+${UNTERMINATED_EVIDENCE}`);
+const openBareDeltaPattern = new RegExp(String.raw`^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+${UNTERMINATED_EVIDENCE}`);
+const openFactPattern = new RegExp(String.raw`^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+${UNTERMINATED_EVIDENCE}`);
 const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
 const harmonyFinalPattern = /<\|channel\|>final<\|message\|>([\s\S]*?)(?:<\|(?:end|return|start)\|>|$)/i;
 const harmonyTokenPattern = /<\|[^|>]*\|>/g;
@@ -104,7 +108,8 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
 
   for (const line of lines) {
     if (line === "NO_DELTA") continue;
-    const delta = line.match(deltaPattern) ?? line.replace(/^DELTA\s+/, "").match(bareDeltaPattern);
+    const bare = line.replace(/^DELTA\s+/, "");
+    const delta = line.match(deltaPattern) ?? bare.match(bareDeltaPattern) ?? line.match(openDeltaPattern) ?? bare.match(openBareDeltaPattern);
     if (delta) {
       const q = delta[1];
       const quality = story.qualityByKey[q];
@@ -141,7 +146,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       continue;
     }
 
-    const fact = line.match(factPattern);
+    const fact = line.match(factPattern) ?? line.match(openFactPattern);
     if (fact) {
       result.facts.push({ importance: Number(fact[1]) as 1 | 2 | 3, text: fact[2], evidence: fact[3] });
       continue;

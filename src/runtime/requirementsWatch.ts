@@ -10,6 +10,8 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 
 export const REQUIREMENTS_DEBOUNCE_MS = 250;
 
+export const behindActive = (lastApplied: string | null | undefined, active: { id: string } | undefined): boolean => Boolean(active) && lastApplied !== active?.id;
+
 export interface RequirementsReading {
   before: boolean;
   after: boolean;

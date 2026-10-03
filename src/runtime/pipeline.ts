@@ -82,9 +82,14 @@ export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
 
 export const failoverDetail = (fallback: string): string => `Memory model unreachable, using ${fallback}`;
 
+const lostPlace = (checkpointId: string): PipelineStatus =>
+  ({ state: "error", text: "The story lost its place and cannot move on.", detail: `active checkpoint ${checkpointId} is not in the played graph`, needsSetup: false, nextAction: "wait" });
+
 export function derivePipelineStatus(
   extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false, active: { id: string } | null = null,
+  lostCheckpointId: string | null = null,
 ): PipelineStatus {
+  if (lostCheckpointId) return lostPlace(lostCheckpointId);
   const status = baseStatus(extraction, expansion, health, ended, active);
   return health?.kind === "transport" && health.fallback && !status.detail ? { ...status, detail: failoverDetail(health.fallback) } : status;
 }

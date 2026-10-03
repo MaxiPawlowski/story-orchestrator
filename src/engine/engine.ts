@@ -2,7 +2,7 @@ import { ApplyQueue, type ApplyQueueEntry, type QueueDrainResult } from "./apply
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
 import { applyTransitionProgress, progressQualityForAnchor } from "./convergence";
 import { gateKeys } from "./gates";
-import { GENERATED_CHECKPOINT_PREFIX, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
+import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 
 export interface DerivedQualityView {
@@ -200,6 +200,13 @@ export class StoryEngine {
     this.loadStory(normalized);
     this.hydrate(state, history);
     pending.forEach((write) => this.queue.enqueue(write));
+  }
+
+  ensureActiveCheckpoint(): string | null {
+    const story = this.requireStory();
+    if (story.checkpointById[this.activeCheckpointId]) return null;
+    this.replaceGraph(story);
+    return this.hydrateRepair;
   }
 
   getBoundary(): number {
@@ -400,7 +407,7 @@ export class StoryEngine {
     return existed;
   }
 
-  get activeCheckpoint() {
+  get activeCheckpoint(): Checkpoint | undefined {
     const story = this.requireStory();
     return story.checkpointById[this.activeCheckpointId];
   }
