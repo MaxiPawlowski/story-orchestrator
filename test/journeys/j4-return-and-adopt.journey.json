@@ -101,7 +101,7 @@
       "id": "J4.3",
       "mode": "auto",
       "findings": [],
-      "goal": "the recap names the checkpoint the player left off at, then dismisses cleanly",
+      "goal": "the recap names the checkpoint the player left off at by its player copy (player_name, else Current scene: the authored name is author copy since 544975fb, and sun-ruins cp1 has no player_name), then dismisses cleanly",
       "requires": [
         "away-recap"
       ],
@@ -110,7 +110,7 @@
           "expect_ui": {
             "selector": "dialog[open]",
             "contains": [
-              "Investigate the Job Board",
+              "Current scene",
               "Where you are"
             ],
             "timeoutMs": 30000
