@@ -1,6 +1,7 @@
 import type { StoryDisplay } from "@engine/index";
 import { storyAllows, type PresenceSettings } from "./displayToggles";
-import { groupPlays, kindLabel, lastPlayedText, storyKind, type PlayRow, type PlaysIndex } from "./playsIndex";
+import { storyKind } from "@engine/index";
+import { groupPlays, kindLabel, lastPlayedText, type PlayRow, type PlaysIndex } from "./playsIndex";
 import { libraryDisplay } from "./presence";
 
 export interface BadgeView {

@@ -1,11 +1,7 @@
-import type { Chapter, Checkpoint, NormalizedStoryV2, StoryDisplay } from "@engine/index";
+import { storyKind, type Chapter, type Checkpoint, type NormalizedStoryV2, type StoryDisplay, type StoryKind } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
 export const PLAYS_LIMIT = 500;
-export const SAGA_MIN_CHAPTERS = 2;
-
-export type StoryKind = "saga" | "story";
-
 export interface PlayRow {
   storyId: string;
   title: string;
@@ -17,9 +13,6 @@ export interface PlayRow {
 }
 
 export type PlaysIndex = Record<string, PlayRow>;
-
-export const storyKind = (story: { chapters?: readonly unknown[] } | null | undefined): StoryKind =>
-  ((story?.chapters?.length ?? 0) >= SAGA_MIN_CHAPTERS ? "saga" : "story");
 
 const text = (value: unknown): string | null => (typeof value === "string" && value.trim() ? value.trim() : null);
 

@@ -3,7 +3,7 @@ import { join } from "path";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { composeChapterCards } from "./chapterCards";
 import {
-  continueRows, dropPlay, groupPlays, lastPlayedText, PLAYS_LIMIT, playRow, playRowFromBlob, sanitizePlays, storyKind, upsertPlay, type PlayRow, type PlaysIndex,
+  continueRows, dropPlay, groupPlays, lastPlayedText, PLAYS_LIMIT, playRow, playRowFromBlob, sanitizePlays, upsertPlay, type PlayRow, type PlaysIndex,
 } from "./playsIndex";
 import { BACKFILL_CAP, planBackfill, runBackfill, sanitizeBackfill, type BackfillState, type BackfillTarget } from "./playsBackfill";
 
@@ -50,12 +50,6 @@ describe("v2.7 06 A: the plays index", () => {
       storyId: chapters.id, title: chapters.title, groupId: "g1", checkpointName: chapters.checkpointById.walls.player_name ?? null, chapterTitle: "The Siege", kind: "saga",
     });
     expect(JSON.stringify(view)).not.toMatch(/"walls"|"siege"/);
-  });
-
-  it("calls a story with two or more chapters a saga", () => {
-    expect(storyKind({ chapters: [{}, {}] })).toBe("saga");
-    expect(storyKind({ chapters: [{}] })).toBe("story");
-    expect(storyKind(null)).toBe("story");
   });
 
   it("sanitizes a stored index and refuses rows without their identity", () => {
