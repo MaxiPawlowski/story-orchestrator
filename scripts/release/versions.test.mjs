@@ -31,6 +31,7 @@ test("R4: package.json, manifest.json, dist/manifest.json and the top CHANGELOG 
 
 test("R4 control: a changelog heading one version behind fails", () => {
   assert.equal(changelogTopVersion("# Changelog\n\nintro\n\n## 2.3.0\n\n### x\n## 2.2.0\n"), "2.3.0");
+  assert.equal(changelogTopVersion("# Changelog\n\n## 2.5 – 2.7 (unreleased)\n\n### x\n## 2.4.0\n"), "2.4.0");
   assert.deepEqual(versionIssues({ ...current(), changelog: "0.0.0" }), [`CHANGELOG.md top heading 0.0.0 != package.json ${current().pkg}`]);
   assert.deepEqual(versionIssues({ ...current(), build: undefined }), [], "a tree with no build yet is checked on the source fields only");
   assert.equal(versionIssues({ ...current(), loader: "9.9.9" }).length, 1);
