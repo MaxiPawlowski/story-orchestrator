@@ -112,7 +112,9 @@
           "value": {
             "contains": [
               "Pacing: keep the tension near stirring — move the scene with one concrete development",
-              "Do not narrate the player's own words or decisions."
+              "If nothing new is happening, hand the scene back to {{user}} in one short beat",
+              "Do not narrate {{user}}'s own words or decisions.",
+              "never skip ahead in time"
             ]
           },
           "position": 1,
@@ -122,5 +124,6 @@
       }
     }
   ],
-  "_v24": "The pacing text now carries the agency clause (plan 07: DEFAULT_AGENCY applies when a checkpoint declares none). The check asserts both halves instead of the pre-plan-07 literal."
+  "_v24": "The pacing text now carries the agency clause (plan 07: DEFAULT_AGENCY applies when a checkpoint declares none). The check asserts both halves instead of the pre-plan-07 literal.",
+  "_v26": "v2.6 T1 rewrote the hold hint (e72055ed: one concrete development + NOTHING_NEW_CLAUSE, no filler steering) and plan 14 T1 (e37a27b2) names the player as the {{user}} macro, not \"the player\" (src/pacing/steering.ts hintText/playerClause, src/engine/agency.ts PLAYER_REF, NO_SKIP_CLAUSE). The injected prompt holds the macro unresolved (ST resolves it per prompt), so the check asserts the current hold text, the nothing-new hand-back, the agency clause and the no-skip clause literally."
 }

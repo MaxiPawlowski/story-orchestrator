@@ -79,11 +79,26 @@
       "id": "J5.3",
       "mode": "auto",
       "findings": [],
-      "goal": "the scripted npc_reply for entering the checkpoint fired",
+      "goal": "the scripted npc_reply for entering the checkpoint is held, then fires once (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): the import enters `brief` while Arin's greeting addresses the player, so the opener waits (no line, no npcFired); it stays held after the player line alone, and fires exactly once, after the player line, at the next rendered reply (a /sendas line: the same afterSpeak path a real group reply takes)",
       "requires": [
         "talk-control"
       ],
       "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const held = rt.extras.deferredOpener ?? null; const fired = rt.extras.firedNpcReplies?.[\"brief:onEnter:DM Narrator:0\"]; const lines = chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The guild hall quiets as Ponticius unrolls the map.').length; const state = { held, fired, lines, last: chat.at(-1)?.name ?? null, lastIsUser: Boolean(chat.at(-1)?.is_user) }; if (held?.checkpointId !== \"brief\") throw new Error(\"the opener of brief was not held although the chat ended on a line addressed to the player (T6-4 openerDeferral): \" + JSON.stringify(state)); if (fired !== undefined || lines !== 0) throw new Error('the held opener fired before the player answered: ' + JSON.stringify(state)); return state;"
+        },
+        {
+          "send": "I am right behind you."
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await new Promise((r) => setTimeout(r, 1500)); const chat = SillyTavern.getContext().chat; const held = rt.extras.deferredOpener ?? null; const fired = rt.extras.firedNpcReplies?.[\"brief:onEnter:DM Narrator:0\"]; const lines = chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The guild hall quiets as Ponticius unrolls the map.').length; const state = { held, fired, lines, last: chat.at(-1)?.mes ?? null, lastIsUser: Boolean(chat.at(-1)?.is_user) }; if (!state.lastIsUser) throw new Error('the player line is not the last message: ' + JSON.stringify(state)); if (held?.checkpointId !== \"brief\" || fired !== undefined || lines !== 0) throw new Error('the opener did not stay held until a reply followed the player line: ' + JSON.stringify(state)); return state;"
+        },
+        {
+          "slash": "/sendas name=Arin Then let us go."
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const count = () => SillyTavern.getContext().chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The guild hall quiets as Ponticius unrolls the map.').length; const until = Date.now() + 15000; while (Date.now() < until && !(count() >= 1 && rt.extras.firedNpcReplies?.[\"brief:onEnter:DM Narrator:0\"] === 1 && !document.body.dataset.generating)) await sleep(200); await sleep(2000); const chat = SillyTavern.getContext().chat; const player = chat.findIndex((m) => m.is_user && !m.is_system && m.mes === \"I am right behind you.\"); const opener = chat.findIndex((m) => m.name === 'DM Narrator' && m.mes === 'The guild hall quiets as Ponticius unrolls the map.'); const state = { lines: count(), fired: rt.extras.firedNpcReplies?.[\"brief:onEnter:DM Narrator:0\"], held: rt.extras.deferredOpener ?? null, player, opener }; if (state.lines !== 1 || state.fired !== 1) throw new Error('the held opener did not fire exactly once after the player answered and a reply followed: ' + JSON.stringify(state)); if (!(player >= 0 && opener > player)) throw new Error('the released opener did not land after the player line: ' + JSON.stringify(state)); if (state.held) throw new Error('the opener is still held after it fired: ' + JSON.stringify(state)); return state;"
+        },
         {
           "expect": {
             "npcFired": {

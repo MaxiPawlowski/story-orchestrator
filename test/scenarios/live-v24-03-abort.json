@@ -69,5 +69,6 @@
       "eval": "const R = globalThis.__g03; const m = R.marks.noop; if (!m.covered) throw new Error('DEFECT: an edit inside an in-flight cadence read that rewinds nothing (no transition fired, nothing applied from the message) aborts the read, and no reread:lapsed read covered message ' + m.edit.edited + ' before the next turn (covered only incidentally by: ' + JSON.stringify(m.incidental.map((a) => ({ reason: a.reason, window: a.window }))) + '). Reads after the edit: ' + JSON.stringify(m.later.fresh.map((a) => ({ reason: a.reason, window: a.window })))); if (m.rereads.length !== 1) throw new Error('the lapsed read was re-read ' + m.rereads.length + ' times, expected once: ' + JSON.stringify(m.rereads)); return { covered: true, reread: m.rereads[0] };",
       "log": true
     }
-  ]
+  ],
+  "_v26": "T7 2026-10-03: the APPLIED case's '/cp set pay_discussed true' and '/cp set go true' went through an in-page executeSlashCommandsWithOptions in player mode, and /cp answers only in Author view since v2.6 plan 14 T3-4 (01a11e07; src/runtime/slashCommands.ts authorView gate: one neutral line, nothing set), so go never reached the blackboard and hall->yard could not fire (x2). The step now grants Author view for exactly those two commands and puts player mode back (the same grant scripts/debug/lib/authorSlash.mts gives the slash verb); the transition, the in-flight abort and the rollback re-read assertions are unchanged."
 }

@@ -494,10 +494,24 @@ const rowsOf = (dir: string, file: string) => {
 
 export const FORCED_OUTCOMES = new Set(['forced', 'activated', 'failed']);
 
+export const CHAT_SWITCHING_VERBS = new Set(['switch-chat-mid-gen', 'reload-mid-gen']);
+
+export class IntegrationStop extends Error {}
+
+export function chatDriftStop(openChatId: string | null, primaryChatId: string, where: string): string | null {
+  return openChatId === primaryChatId ? null : `${where}: the open chat is ${openChatId ?? 'none'}, not the run's chat ${primaryChatId}; the run stops so no turn lands in another chat (T7 I4 seq 73-74)`;
+}
+
+export function mutationStop(verb: string, done: { ok?: boolean; problems?: string[] } | null, openChatId: string | null, primaryChatId: string): string | null {
+  if (CHAT_SWITCHING_VERBS.has(verb) && done?.ok === false) return `${verb} failed (${(done.problems ?? []).join('; ') || 'no reason given'}): a failed chat switch is a hard stop`;
+  return chatDriftStop(openChatId, primaryChatId, `after ${verb}`);
+}
+
 export function verifyRun(dir: string, run: RunSpec, doc: RunsDoc, { column = 'on' as Column, attempt = 1 } = {}) {
   if (run.ridesOn) return verifyRider(dir, run, doc, column, attempt);
   const problems = verifyArtifacts(dir, run, doc);
   const rows = rowsOf(dir, 'turns.jsonl');
+  for (const row of rows.filter((entry: any) => entry.kind === 'stop')) problems.push(`the run stopped early: ${(row.problems ?? []).join('; ')}`);
   const steps = rows.filter((row: any) => row.kind === 'step');
   const forced = steps.filter((row: any) => FORCED_OUTCOMES.has(row.outcome));
   const failed = steps.filter((row: any) => row.outcome === 'failed');

@@ -1,5 +1,9 @@
 {
   "_note": "v2.3 plan 02 §R8, live: a story REQUIRES a book the author already owns, and the wizard must ask before it may write there. The grant is confirmed through the review card, the permission is durable, and it can be taken back. Cleanup is marker-scoped: the session key is `so-p02-ownership`, so `assets remove --marker so-p02` drops it. Nothing is written into the user's book.",
+  "requires": {
+    "authorView": true,
+    "why": "#so-open-studio shows only with no story or in Author view (EntryPoints.tsx:114, 544975fb); the fixture imports a story first"
+  },
   "steps": [
     {
       "import_story": {

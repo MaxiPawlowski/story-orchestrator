@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
+import { captureReopenState, checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
 import { runById, verifyRun, type RouteDoc, type RunsDoc, type RunSpec } from './lib/integrationRuns.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
 
@@ -167,6 +167,87 @@ test('play cuts the memory model through page.route during its window only, neve
   assert.ok(outcomes.filter((row) => row.kind === 'main').every((row) => row.result === 'passed'));
   const cuts = readFileSync(join(out, 'outages.jsonl'), 'utf-8').trim().split('\n').map((line) => JSON.parse(line));
   assert.deepEqual(cuts.map((row) => [row.service, row.aborted, row.status]), [['memory', 2, 'cut'], ['gpu', 0, 'unexercised']]);
+});
+
+test('T7 I4: a chat switch that fails under load stops the run; no later turn is sent into the chat it left the page on', async () => {
+  const doc = loadDoc();
+  const run: RunSpec = {
+    ...runById(doc, 'I1')!,
+    route: { file: 'tests/routes-adventurer.json', name: 'tiny', from: 0, to: 1, throughExpect: 'road-to-wendhope' },
+    drive: { mode: 'turns', turns: 5, turnsPerStep: 1, maxForcedShare: 1 },
+    mutations: [{ verb: 'switch-chat-mid-gen', afterTurn: 2 }],
+    cuts: [],
+  };
+  const out = stage(doc, run);
+  writeFileSync(join(out, 'chats.json'), JSON.stringify({ run: run.id, column: 'on', group: run.group, groupId: 'g1', storyId: run.story, chats: [{ chatId: 'chat-a', primary: true }, { chatId: 'chat-b', primary: false }], touched: [] }), 'utf-8');
+  const fake = fakeWorld(run.group!);
+  (fake.runtime as any).setQuality = async (key: string, value: string) => { fake.state.snapshot = { ...fake.state.snapshot, blackboard: { ...fake.state.snapshot.blackboard, [key]: value } }; };
+  (fake.runtime as any).activateCheckpoint = async (id: string) => { fake.state.snapshot = { ...fake.state.snapshot, activeCheckpointId: id }; };
+  let sends = 0;
+  let stuck = false;
+  const deps: PlayDeps = {
+    send: async (_page, line) => {
+      sends += 1;
+      fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Adolion Narrator', mes: `reply ${sends}` });
+      return { replied: true };
+    },
+    waitIdle: async () => undefined, waitScheduler: async () => ({ quietMs: 0 }), startSend: async () => undefined, waitGenerating: async () => true,
+    clickSwipeRight: async () => undefined, ...clearPage,
+    openChat: async (_page, target) => {
+      if (!stuck && target.chatId === 'chat-b') { stuck = true; fake.ctx.chatId = 'chat-b'; throw new Error('open chat did not settle within 60000 ms'); }
+    },
+    reload: async () => undefined, now: () => Date.now(),
+    spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
+    captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
+  };
+  const report = await playRun(fakePage(), { doc, run, column: 'on', out, routes: tinyRoutes, deps });
+  const rows = readFileSync(join(out, 'turns.jsonl'), 'utf-8').trim().split('\n').map((line) => JSON.parse(line));
+  assert.equal(sends, 2, 'no turn after the failed switch');
+  assert.deepEqual(rows.map((row) => row.kind), ['turn', 'turn', 'mutation', 'stop']);
+  assert.match(rows[3].problems[0], /switch-chat-mid-gen failed .*a failed chat switch is a hard stop/);
+  assert.ok(report.findings.some((finding) => finding.kind === 'stop'));
+  for (const [name, text] of [['run-header-start.json', '{"label":"x"}'], ['run-header-end.json', '{"label":"y"}'], ['run-header-diff.txt', 'ok\n'], ['journal.jsonl', '{"k":1}\n'], ['payloads.jsonl', '{"i":1}\n']]) writeFileSync(join(out, name), text, 'utf-8');
+  assert.ok((verifyRun(out, run, doc) as { problems: string[] }).problems.some((problem) => /the run stopped early/.test(problem)));
+});
+
+test('negative control for I4: a switch that lands and returns lets the run play on', async () => {
+  const doc = loadDoc();
+  const run: RunSpec = {
+    ...runById(doc, 'I1')!,
+    route: { file: 'tests/routes-adventurer.json', name: 'tiny', from: 0, to: 1, throughExpect: 'road-to-wendhope' },
+    drive: { mode: 'turns', turns: 4, turnsPerStep: 1, maxForcedShare: 1 },
+    mutations: [{ verb: 'switch-chat-mid-gen', afterTurn: 2 }],
+    cuts: [],
+  };
+  const out = stage(doc, run);
+  writeFileSync(join(out, 'chats.json'), JSON.stringify({ run: run.id, column: 'on', group: run.group, groupId: 'g1', storyId: run.story, chats: [{ chatId: 'chat-a', primary: true }, { chatId: 'chat-b', primary: false }], touched: [] }), 'utf-8');
+  const fake = fakeWorld(run.group!);
+  (fake.runtime as any).setQuality = async (key: string, value: string) => { fake.state.snapshot = { ...fake.state.snapshot, blackboard: { ...fake.state.snapshot.blackboard, [key]: value } }; };
+  (fake.runtime as any).activateCheckpoint = async (id: string) => { fake.state.snapshot = { ...fake.state.snapshot, activeCheckpointId: id }; };
+  let sends = 0;
+  const deps: PlayDeps = {
+    send: async (_page, line) => { sends += 1; fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Adolion Narrator', mes: `reply ${sends}` }); return { replied: true }; },
+    waitIdle: async () => undefined, waitScheduler: async () => ({ quietMs: 0 }), startSend: async () => undefined, waitGenerating: async () => true,
+    clickSwipeRight: async () => undefined, ...clearPage,
+    openChat: async (_page, target) => { fake.ctx.chatId = target.chatId; },
+    reload: async () => undefined, now: () => Date.now(),
+    spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
+    captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
+  };
+  await playRun(fakePage(), { doc, run, column: 'on', out, routes: tinyRoutes, deps });
+  const rows = readFileSync(join(out, 'turns.jsonl'), 'utf-8').trim().split('\n').map((line) => JSON.parse(line));
+  assert.ok(!rows.some((row) => row.kind === 'stop'), JSON.stringify(rows.filter((row) => row.kind !== 'turn')));
+  assert.ok(sends >= 4, `the run played on after a clean switch (${sends} sends)`);
+});
+
+test('reopen capture reads the stored engineState.visitedPath (not a state field that does not exist) and records whether its re-scan ran', async () => {
+  const fake = fakeWorld('Adolion - The Adventurer\'s Road');
+  const record = fake.ctx.chatMetadata.story_orchestrator.stories['adolion-adventurer'];
+  record.engineState = { visitedPath: ['guild-hall', 'road-to-wendhope'] };
+  record.state = { visitedPath: ['decoy'] };
+  const read = await captureReopenState(fakePage()) as { engine: { visitedPath: unknown }; wi: { scanError: unknown } };
+  assert.deepEqual(read.engine.visitedPath, ['guild-hall', 'road-to-wendhope']);
+  assert.equal(typeof read.wi.scanError, 'string', 'outside ST the world-info module cannot load, and the capture says so instead of reading a stale scan gate silently');
 });
 
 test('play refuses an outage run whose memory profile shares the main reply endpoint', async () => {

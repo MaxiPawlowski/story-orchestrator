@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { decideAsset, GENERATED, journeyMinutes, suiteBudget, suiteRowProblems } from './suiteDecisions.mjs';
+import { decideAsset, GENERATED, journeyMinutes, noLlmSuiteRows, suiteBudget, suiteRowProblems, TOY_GROUP } from './suiteDecisions.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const config = JSON.parse(readFileSync(join(ROOT, 'test', 'findings', 'suite-decisions.json'), 'utf-8'));
@@ -63,4 +63,31 @@ test('negative controls: a placeholder, a missing command, tier, artifact or con
   assert.match(suiteRowProblems({ ...good, when: '' }, onDisk).join(), /run condition/);
   assert.match(suiteRowProblems({ ...good, command: 'node scripts/debug/so-not-a-script.mts run' }, onDisk).join(), /does not exist/);
   assert.deepEqual(suiteRowProblems({ ...good, command: 'node scripts/debug/st-lanes.mts batch <campaign>/lab/x.json test/scenarios/<file>.json' }, onDisk), []);
+});
+
+test('the no-LLM row splits by the lane each scenario requires, keeps prior-step files out of batches, and lists every precondition', () => {
+  const scenarios = [
+    { asset: 'test/scenarios/a.json', est: 60, requires: {} },
+    { asset: 'test/scenarios/b.json', est: 60, requires: { lane: 'no-model', why: 'the pass must fail' } },
+    { asset: 'test/scenarios/c.json', est: 120, requires: { lane: 'model', group: "Adolion - The Adventurer's Road", members: ['Tobias'], judge: 'off' } },
+    { asset: 'test/scenarios/d.json', est: 60, requires: { prior: 'so-timeout-arm scale <base-run.log>' } },
+  ];
+  const plan = noLlmSuiteRows(scenarios);
+  assert.equal(plan.rows.length, 2);
+  const [noModel, live] = plan.rows;
+  assert.match(noModel.command, /st-lanes\.mts no-model <n>.*batch .*--group 1759606632088 test\/scenarios\/b\.json; .*restore-model <n>$/);
+  assert.doesNotMatch(noModel.command, /a\.json|c\.json|d\.json/);
+  assert.match(live.command, /--group 1759606632088 test\/scenarios\/a\.json test\/scenarios\/c\.json$/);
+  assert.equal(live.minutes, 3);
+  assert.deepEqual(plan.excluded, [{ asset: 'test/scenarios/d.json', prior: 'so-timeout-arm scale <base-run.log>' }]);
+  assert.deepEqual(plan.preconditions.map((row) => [row.asset, row.lane, row.needs]), [
+    ['test/scenarios/b.json', 'no-model', ''],
+    ['test/scenarios/c.json', 'model', "group Adolion - The Adventurer's Road; members Tobias; judge off"],
+    ['test/scenarios/d.json', 'any', ''],
+  ]);
+  const exists = () => true;
+  for (const row of plan.rows) assert.deepEqual(suiteRowProblems(row, exists), []);
+  assert.equal(TOY_GROUP, '1759606632088');
+  assert.match(noLlmSuiteRows(scenarios, { group: 'X' }).rows[1].command, /--group X /);
+  assert.deepEqual(noLlmSuiteRows([]).rows, []);
 });

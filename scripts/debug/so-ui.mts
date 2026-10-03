@@ -105,8 +105,32 @@ export async function assignedRoleProfiles(page): Promise<Record<string, { id: s
   });
 }
 
+export async function revealSettingsControl(page, selector: string, { timeoutMs = 15000, pollMs = 250 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const state = await evaluateInST(page, (wanted) => {
+      const general = document.querySelector('#so-general-setup') as HTMLDetailsElement | null;
+      if (general && general.tagName === 'DETAILS' && !general.open) general.open = true;
+      const node = document.querySelector(wanted);
+      if (!node) return { found: false, opened: 0 };
+      let opened = 0;
+      for (let at = node.parentElement; at; at = at.parentElement) {
+        if (at.tagName === 'DETAILS' && !(at as HTMLDetailsElement).open) {
+          (at as HTMLDetailsElement).open = true;
+          opened += 1;
+        }
+      }
+      return { found: true, opened };
+    }, selector);
+    if (state.found || Date.now() >= deadline) return state;
+    await new Promise((done) => setTimeout(done, pollMs));
+  }
+}
+
 export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
   const { navWasOpen } = await openExtensionSettings(page);
+  await revealSettingsControl(page, '#so-extraction-enabled');
+  await revealSettingsControl(page, '#so-extraction-profile');
   const enable = page.locator('#so-extraction-enabled');
   if (!(await enable.count())) throw new Error('Extraction toggle (#so-extraction-enabled) not found in the settings panel.');
   const select = page.locator('#so-extraction-profile');

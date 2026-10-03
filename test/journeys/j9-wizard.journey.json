@@ -41,7 +41,7 @@
         "D3",
         "U6"
       ],
-      "goal": "the wizard interviews before proposing, and 'You decide' always proceeds to a proposal",
+      "goal": "the wizard interviews before proposing, and 'You decide' always proceeds to a proposal (the proposal panel is labelled \"Wizard proposal\" since 5444e94c; T7 step 7 failed on the old \"Copilot proposal\" label and its retry re-asked an already-answered interview)",
       "requires": [
         "wizard-interview",
         "wizard-entry-points"
@@ -87,7 +87,7 @@
           "retryBack": 2
         },
         {
-          "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Copilot proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };",
+          "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Wizard proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };",
           "attempts": 3,
           "retryBack": 3
         },
@@ -184,7 +184,7 @@
         "D3",
         "T6"
       ],
-      "goal": "create-only: a group whose cast does not exist yet is refused and nothing is created",
+      "goal": "create-only: a group whose cast does not exist yet is refused and nothing is created. Two layers since 9b5407c6 (T5-1 re-run): a member outside the story's cast is refused first (\"no cast yet\" / \"Not in this story's cast\"), and a cast member with no card is refused with \"do not exist yet\"; both are asserted on scoped drafts",
       "requires": [
         "wizard-provisioning"
       ],
@@ -193,7 +193,7 @@
           "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const op = { kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }; const base = rt.getPlayedStoryRaw() ?? {}; const outside = await rt.applyProvisioning(op, { ...base, id: 'so-j9-ghost', title: 'SO-J9 Ghost', roster: [], requirements: {} }); if (outside.ok) throw new Error('a group was created for a member outside the story cast'); if (!/no cast yet|Not in this story's cast/.test(outside.message)) throw new Error(`unexpected rejection message (outside the cast): ${outside.message}`); const missing = await rt.applyProvisioning(op, { ...base, id: 'so-j9-ghost', title: 'SO-J9 Ghost', roster: [{ id: 'nobody', name: 'SO-J9 Nobody' }], requirements: {} }); if (missing.ok) throw new Error('a group was created for a cast member whose card does not exist'); if (!missing.message.includes('do not exist yet')) throw new Error(`unexpected rejection message (cast member without a card): ${missing.message}`); return { refused: true, outside: outside.message, missing: missing.message };"
         },
         {
           "assets": {
@@ -325,7 +325,7 @@
         "D3",
         "U6"
       ],
-      "goal": "the provisioned story is playable: requirements go green and a real transition fires (the transition half is model-dependent — a real read sometimes omits the delta — so the step retries once and the retry is REPORTED in the record, never hidden)",
+      "goal": "the provisioned story is playable: requirements go green and a real transition fires (the transition half is model-dependent — a real read sometimes omits the delta — so the step retries once and the retry is REPORTED in the record, never hidden). Create-only (provisioning.ts upsertLorebookEntry, deliberate since v2.3): when SO-J9 Lore already exists because J9.3's wizard session made it, this story may not write into it until the author grants it, so the step asserts that refusal, grants the book (grantLorebook, the author's decision) and then writes",
       "requires": [
         "wizard-provisioning"
       ],
@@ -346,7 +346,8 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const draft = rt.getPlayedStoryRaw(); const outcome = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J9 Lore' }, draft); if (!outcome.ok && !outcome.message.includes('already exists')) throw new Error(`could not provision the story lorebook: ${outcome.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J9 Lore', comment: 'The flooded city', keys: ['flood', 'city'], content: 'Half the city stands in water; the couriers know which roofs hold.' }, draft); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); return { outcome, entry };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const draft = rt.getPlayedStoryRaw(); const entryOp = { kind: 'upsertLorebookEntry', lorebook: 'SO-J9 Lore', comment: 'The flooded city', keys: ['flood', 'city'], content: 'Half the city stands in water; the couriers know which roofs hold.' }; const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J9 Lore' }, draft); if (!made.ok && !made.message.includes('already exists')) throw new Error(`could not provision the story lorebook: ${made.message}`); let refusedBeforeGrant = null; let granted = null; if (!made.ok) { const blocked = await rt.applyProvisioning(entryOp, draft); if (blocked.ok) throw new Error('create-only breached: the wizard wrote into SO-J9 Lore, made by another wizard session, without a grant for this story'); if (!blocked.message.includes('has not created')) throw new Error(`unexpected refusal before the grant: ${blocked.message}`); refusedBeforeGrant = blocked.message; const grant = await rt.applyProvisioning({ kind: 'grantLorebook', lorebook: 'SO-J9 Lore' }, draft); if (!grant.ok) throw new Error(`the author's grant was refused: ${grant.message}`); granted = grant.message; } const entry = await rt.applyProvisioning(entryOp, draft); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); return { createdHere: made.ok, refusedBeforeGrant, granted, entry: entry.message };",
+          "log": true
         },
         {
           "select_story": "so-j9-wizard"

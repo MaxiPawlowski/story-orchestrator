@@ -292,8 +292,12 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-async function applySetup(page, setup, { allowConfig, journey = null, group = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+export type SetupApplied = { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown };
+
+export const emptySetup = (): SetupApplied => ({ configSnapshot: null, chat: null, guard: null });
+
+export async function applySetup(page, setup, { allowConfig, journey = null, group = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null, into = emptySetup() }) {
+  const applied: SetupApplied = into;
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -537,7 +541,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   const reserved = (journey.status ?? 'active') === 'reserved';
   const results = [];
   const importedHashes = [];
-  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: LibraryCapture; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const setupApplied: SetupApplied = emptySetup();
   let runnerError = null;
   let releasedRoutes: unknown = null;
   let assetBaseline = null;
@@ -558,7 +562,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
-      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating });
+      await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating, into: setupApplied });
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 

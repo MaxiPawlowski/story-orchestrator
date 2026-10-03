@@ -1,5 +1,5 @@
 {
-  "_note": "v2.5 plan 08 G-L2, LIVE on a lane, once in FILE mode and once in SCAN mode (the record names the mode). so-scenario run test/scenarios/live-v25-08-l2-bindings.json --sandbox --group <group holding Arin and DM Narrator>. Bindings are changed in memory only and put back (no card or settings save). Predeclared: chat-bound ready (satisfiedBy chat; file mode also names the slot conflict), persona-bound ready (persona), bound to one of two members MISSING with the gap named (D2), bound to both ready (character). The two file-mode displacement legs (a) story book first then adoption and (b) mirror first then the author binds through ST's UI are run by hand on the lane with so-ui, recorded beside this run.",
+  "_note": "v2.5 plan 08 G-L2, LIVE on a lane, once in FILE mode and once in SCAN mode (the record names the mode). so-scenario run test/scenarios/live-v25-08-l2-bindings.json --sandbox --group <group holding Arin and DM Narrator>. Bindings are changed in memory only and put back (no card or settings save). Predeclared: chat-bound ready (satisfiedBy chat; file mode also names the slot conflict), persona-bound ready (persona), bound to one of two members MISSING with the gap named (D2), bound to both ready (character). The two file-mode displacement legs (a) story book first then adoption and (b) mirror first then the author binds through ST's UI are run by hand on the lane with so-ui, recorded beside this run. T7 wave C (2026-10-03): story-scoped lore (T5-2-2, f7342021; src/runtime/storyLore.ts, requirementsRead.ts sourceOf) meets a listed book with source 'story' whenever the host orders scan listeners, so the unbound leg now reads READY by 'story' (it read missing before; never by a global selection, asserted), and the one-of-two-members leg is met by 'story' too, with no card gap (D2's missing-with-gap reading is only reachable without story lore: requirements.test.ts). Chat, persona and every-member bindings still win over 'story' (sourceOf checks them first). The book is deleted at the end and by cleanup (so-assets marker SO-V25-08), and no SO-V25-08 book may stay selected globally (T7 lane residue).",
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"
@@ -43,7 +43,7 @@
       }
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); if (req.ready) throw new Error('the book is not bound anywhere yet, but the requirement reads ready: ' + JSON.stringify(req)); globalThis.__l2.none = req.ready; return req;"
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); const selected = (await import('/scripts/world-info.js')).selected_world_info ?? []; if (selected.includes('SO-V25-08 Req Lore')) throw new Error('the story book is selected globally, so this leg cannot tell the story-scoped scan from a global one: ' + JSON.stringify(selected)); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'story') throw new Error('unbound, the listed book must be met by the story-scoped scan (T5-2-2, source story): ' + JSON.stringify(req)); if ((req.missingLorebooks ?? []).length || (req.absentLorebooks ?? []).length) throw new Error('a book the story scans for itself is still named missing: ' + JSON.stringify(req)); globalThis.__l2.none = { ready: req.ready, by: req.satisfiedBy, globallySelected: false }; return globalThis.__l2.none;"
     },
     {
       "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindChatSlot('SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); const fileMirror = globalThis.__l2.mode === 'file'; if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'chat') throw new Error('chat-bound: ' + JSON.stringify(req)); if (fileMirror && !req.slotConflict) throw new Error('file mode: a story book in the slot must name the mirror conflict: ' + JSON.stringify(req)); globalThis.__l2.chat = { ready: req.ready, by: req.satisfiedBy, conflict: req.slotConflict ?? null }; return globalThis.__l2.chat;",
@@ -54,7 +54,7 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindCard('Arin', 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (req.ready || !(req.characterGaps?.['SO-V25-08 Req Lore'] ?? []).length) throw new Error('D2: a book bound to one of two members must read missing, naming the gap: ' + JSON.stringify(req)); globalThis.__l2.oneMember = { ready: req.ready, gaps: req.characterGaps }; return globalThis.__l2.oneMember;",
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindCard('Arin', 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'story') throw new Error('a book bound to one of two members is not a character binding, and the story-scoped scan still meets it (source story): ' + JSON.stringify(req)); if ((req.characterGaps?.['SO-V25-08 Req Lore'] ?? []).length) throw new Error('a book the story scans for itself must not be reported as a card gap: ' + JSON.stringify(req)); globalThis.__l2.oneMember = { ready: req.ready, by: req.satisfiedBy, gaps: req.characterGaps ?? {} }; return globalThis.__l2.oneMember;",
       "log": true
     },
     {
@@ -62,8 +62,21 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.restoreBindings(); await V.deleteBook('SO-V25-08 Req Lore'); return globalThis.__l2;",
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.restoreBindings(); await V.deleteBook('SO-V25-08 Req Lore'); const wi = await import('/scripts/world-info.js'); await wi.updateWorldInfoList(); const left = (wi.selected_world_info ?? []).filter((name) => String(name).startsWith('SO-V25-08')); if (left.length) throw new Error('SO-V25-08 books are still selected globally after the run: ' + JSON.stringify(left)); if (wi.world_names.includes('SO-V25-08 Req Lore')) throw new Error('the requirement book was not deleted'); return { ...globalThis.__l2, globalSelection: [] };",
       "log": true
     }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const V = globalThis.__soV2508; if (V) V.restoreBindings(); const wi = await import('/scripts/world-info.js'); await wi.updateWorldInfoList(); const selected = (wi.selected_world_info ?? []).filter((name) => String(name).startsWith('SO-V25-08')); for (const name of selected) await SillyTavern.getContext().executeSlashCommandsWithOptions('/world silent=true state=off ' + JSON.stringify(name)); const left = (wi.selected_world_info ?? []).filter((name) => String(name).startsWith('SO-V25-08')); if (left.length) throw new Error('could not deselect SO-V25-08 books: ' + JSON.stringify(left)); return { deselected: selected, bindingsRestored: Boolean(V) };"
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-V25-08"
+        }
+      }
+    ]
+  }
 }

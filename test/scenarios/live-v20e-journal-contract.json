@@ -7,7 +7,7 @@
         "id": "v20e-journal-contract",
         "title": "V20e journal contract",
         "version": 1,
-        "description": "Two planted reads, one applied and one discarded.",
+        "description": "Two planted reads over the same turns: the older's key_taken is superseded by the newer's, its torch_seen still applies (per-key supersession).",
         "qualities": [
           {
             "key": "key_taken",
@@ -20,6 +20,12 @@
             "type": "bool",
             "source": "extractor",
             "rubric": "Is the lamp lit?"
+          },
+          {
+            "key": "torch_seen",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player spotted the torch?"
           },
           {
             "key": "door_open",
@@ -37,7 +43,8 @@
             "start": true,
             "state_snapshot": {
               "key_taken": false,
-              "lamp_lit": false
+              "lamp_lit": false,
+              "torch_seen": false
             }
           },
           {
@@ -87,7 +94,7 @@
       }
     },
     {
-      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 50 }); await SillyTavern.getContext().executeSlashCommandsWithOptions('/send I take the brass key and light the lamp.'); return { chatLength: SillyTavern.getContext().chat.length };"
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 50 }); await SillyTavern.getContext().executeSlashCommandsWithOptions('/send I take the brass key, spot a torch and light the lamp.'); return { chatLength: SillyTavern.getContext().chat.length };"
     },
     {
       "eval": "const rt = globalThis.storyOrchestratorRuntime; const to = SillyTavern.getContext().chat.length - 1; const audit = (id, q, evidence) => ({ id, createdAt: new Date().toISOString(), priority: 1, reason: id, contractHash: 'v20e', scope: [q], window: { from: 0, to }, prompt: '', rawResponse: `DELTA ${q} value=true`, acceptedDeltas: [{ delta: { q, v: true, source: 'extractor' }, evidence }], rejected: [] }); const stamp = Date.now().toString(36); await rt.applyExtractionAudit(audit(`v20e-older-${stamp}`, 'lamp_lit', 'light the lamp'), []); await new Promise((r) => setTimeout(r, 5)); await rt.applyExtractionAudit(audit(`v20e-newer-${stamp}`, 'lamp_lit', 'light the lamp'), []); return { boundary: rt.getSnapshot().boundary, audits: rt.getExtractionAudits().map((a) => a.id) };",

@@ -1,4 +1,6 @@
 {
+  "_note": "Held opener (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): an onEnter npc_reply entered while the last reply addresses the player waits. The fixture makes that deterministic with an Arin line ending on a question, asserts the opener is held (no line, no npcFired), still held after the player line alone, fires once at the next rendered reply after the player answered (a /sendas line, the same afterSpeak path as a real reply), lands after the player line, and never fires again.",
+  "requires": { "group": "1759606632088", "members": ["DM Narrator"], "why": "the story requires DM Narrator (requirements gate fireOnEnter); toy group pinned so the cast is known" },
   "steps": [
     {
       "import_story": {
@@ -26,9 +28,19 @@
       }
     },
     { "slash": "/cp state" },
+    { "slash": "/sendas name=Arin Shall we head out, then?" },
     { "slash": "/cp set found_key true" },
     { "wait": { "checkpoint": "door", "timeoutMs": 10000 } },
-    { "expect": { "activeCheckpoint": "door", "blackboard": { "found_key": true }, "latched": ["found_key"], "npcFired": { "door:onEnter:DM Narrator:0": 1 } } },
+    { "expect": { "activeCheckpoint": "door", "blackboard": { "found_key": true }, "latched": ["found_key"] } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const held = rt.extras.deferredOpener ?? null; const fired = rt.extras.firedNpcReplies?.[\"door:onEnter:DM Narrator:0\"]; const lines = chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The vault door waits for proof.').length; const state = { held, fired, lines, last: chat.at(-1)?.name ?? null, lastIsUser: Boolean(chat.at(-1)?.is_user) }; if (held?.checkpointId !== \"door\") throw new Error(\"the opener of door was not held although the chat ended on a line addressed to the player (T6-4 openerDeferral): \" + JSON.stringify(state)); if (fired !== undefined || lines !== 0) throw new Error('the held opener fired before the player answered: ' + JSON.stringify(state)); return state;" },
+    { "send": "I am right behind you." },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; await new Promise((r) => setTimeout(r, 1500)); const chat = SillyTavern.getContext().chat; const held = rt.extras.deferredOpener ?? null; const fired = rt.extras.firedNpcReplies?.[\"door:onEnter:DM Narrator:0\"]; const lines = chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The vault door waits for proof.').length; const state = { held, fired, lines, last: chat.at(-1)?.mes ?? null, lastIsUser: Boolean(chat.at(-1)?.is_user) }; if (!state.lastIsUser) throw new Error('the player line is not the last message: ' + JSON.stringify(state)); if (held?.checkpointId !== \"door\" || fired !== undefined || lines !== 0) throw new Error('the opener did not stay held until a reply followed the player line: ' + JSON.stringify(state)); return state;" },
+    { "slash": "/sendas name=Arin Then let us go." },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const count = () => SillyTavern.getContext().chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The vault door waits for proof.').length; const until = Date.now() + 15000; while (Date.now() < until && !(count() >= 1 && rt.extras.firedNpcReplies?.[\"door:onEnter:DM Narrator:0\"] === 1 && !document.body.dataset.generating)) await sleep(200); await sleep(2000); const chat = SillyTavern.getContext().chat; const player = chat.findIndex((m) => m.is_user && !m.is_system && m.mes === \"I am right behind you.\"); const opener = chat.findIndex((m) => m.name === 'DM Narrator' && m.mes === 'The vault door waits for proof.'); const state = { lines: count(), fired: rt.extras.firedNpcReplies?.[\"door:onEnter:DM Narrator:0\"], held: rt.extras.deferredOpener ?? null, player, opener }; if (state.lines !== 1 || state.fired !== 1) throw new Error('the held opener did not fire exactly once after the player answered and a reply followed: ' + JSON.stringify(state)); if (!(player >= 0 && opener > player)) throw new Error('the released opener did not land after the player line: ' + JSON.stringify(state)); if (state.held) throw new Error('the opener is still held after it fired: ' + JSON.stringify(state)); return state;" },
+    { "expect": { "activeCheckpoint": "door", "npcFired": { "door:onEnter:DM Narrator:0": 1 } } },
+    { "send": "I check my pack once more." },
+    { "slash": "/sendas name=Arin Still with you." },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; await new Promise((r) => setTimeout(r, 3000)); const lines = SillyTavern.getContext().chat.filter((m) => m.name === 'DM Narrator' && m.mes === 'The vault door waits for proof.').length; const state = { lines, fired: rt.extras.firedNpcReplies?.[\"door:onEnter:DM Narrator:0\"], held: rt.extras.deferredOpener ?? null }; if (state.fired !== 1 || state.held || state.lines !== 1) throw new Error('the opener fired again on a later answer (it must fire once): ' + JSON.stringify(state)); return state;" },
     { "slash": "/cp activate end" },
     { "wait": { "checkpoint": "end", "timeoutMs": 10000 } },
     { "expect": { "activeCheckpoint": "end" } }

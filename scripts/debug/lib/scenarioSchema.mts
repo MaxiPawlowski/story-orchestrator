@@ -10,6 +10,7 @@
 
 import { branchSpec, nextReadWindowSpec, rollbackOutcomeSpec } from './identityVerbs.mts';
 import { soloSpec } from './soloSandbox.mts';
+import { validateRequires } from './scenarioRequires.mts';
 
 export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail']);
 
@@ -222,7 +223,7 @@ export function globalsReadButNeverWritten(files: Array<{ name: string; text: st
 
 export function validateFixture(doc: unknown, where = 'fixture'): string[] {
   if (!isRecord(doc)) return [`${where}: expected an object`];
-  const problems: string[] = [];
+  const problems: string[] = [...validateRequires(doc.requires, `${where}.requires`)];
   if (Array.isArray(doc.steps)) problems.push(...validateSteps(doc.steps, `${where}.steps`));
   if (Array.isArray(doc.setup)) problems.push(...validateSteps(doc.setup, `${where}.setup`));
   if (isRecord(doc.setup) && Array.isArray((doc.setup as Record<string, unknown>).steps)) {

@@ -1,6 +1,14 @@
 {
   "name": "v24-01-macro-group-rest",
   "objective": "v2.4 plan 01 T10 (X5, inv 15), no backend. In a group, `story_epistemic` must be empty at rest and the drafted member's own block while drafted - never every member's private knowledge merged. Red on v2.3: after our own transition Note the speaker reads null and getEpistemicBlock renders enabledCharacterNames (all members), so the macro leaks Arin's and Luke's secrets together. Private rows are planted directly (the parser has its own suites); the mechanism under test is the macro's source. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "requires": {
+    "group": "1759606632088",
+    "members": [
+      "Luke",
+      "Arin"
+    ],
+    "why": "T10 plants Luke's and Arin's private rows: both must be enabled roster members (sun-ruins roster little_brother=Luke, companion=Arin) of the toy group"
+  },
   "steps": [
     {
       "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"

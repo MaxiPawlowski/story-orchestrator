@@ -1,4 +1,6 @@
 {
+  "_note": "plan 07 memory foundation, mocked plumbing (no model). 2026-10-03 refresh: the sceneBreak line carries maxTriggers 3, and repeats of an afterSpeak/sceneBreak line need 8 messages since the last post (npcReplyMayFire, 01a11e07, v2.6 plan 14 T3-4/T3-6; story-guide: give sceneBreak a maxTriggers). So the second break, 1-2 messages after the first line, is HELD (exactly one line), and a third break after nine filler lines fires it again (exactly two).",
+  "requires": {"judge": "off", "group": "1759606632088", "members": ["Arin", "DM Narrator"], "why": "facts are planted through applyExtractionAudit with no supporting transcript; judge memoryVerify (on by default since v2.6 rule 5) drops them on a judge-on lane (facts 0, T7 SUITE); the subject is the memory tiers, not the judge. Arin and DM Narrator are the cast the story enables and speaks as"},
   "steps": [
     { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
     {
@@ -18,7 +20,7 @@
             "start": true,
             "effects": {
               "cast_changes": { "enable": ["Arin", "DM Narrator"] },
-              "npc_replies": [ { "trigger": "sceneBreak", "member": "DM Narrator", "kind": "scripted", "text": "The scene shifts." } ]
+              "npc_replies": [ { "trigger": "sceneBreak", "member": "DM Narrator", "kind": "scripted", "text": "The scene shifts.", "maxTriggers": 3 } ]
             }
           },
           { "id": "disable_arin", "name": "Disable Arin", "objective": "Disable Arin.", "type": "anchor", "effects": { "cast_changes": { "disable": ["Arin"] } } },
@@ -47,7 +49,13 @@
     },
     { "expect": { "memory": { "scene_history": { "count": 2 } }, "sceneBreaks>=": 2 } },
     { "wait": { "idle": true, "timeoutMs": 10000 } },
-    { "eval": "const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => typeof m.mes === 'string' && m.mes.includes('The scene shifts.')).length; if (n < 2) throw new Error('expected the sceneBreak reply to fire on each distinct break, got ' + n); return n;" },
+    { "eval": "const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => typeof m.mes === 'string' && m.mes.includes('The scene shifts.')).length; if (n !== 1) throw new Error('the second break came 1-2 messages after the first line, so the 8-message spacing for a repeated sceneBreak line (npcReplyMayFire, 01a11e07) must hold it: expected exactly 1, got ' + n); return { lines: n, held: true };" },
+    { "eval": "const ctx = SillyTavern.getContext(); const before = ctx.chat.length; for (let i = 1; i <= 9; i += 1) await ctx.executeSlashCommandsWithOptions(`/sendas name=\"DM Narrator\" Dust drifts across the vault floor, mote ${i}.`); const added = SillyTavern.getContext().chat.length - before; if (added !== 9) throw new Error('expected 9 filler lines, got ' + added); return { added };" },
+    { "wait": {"schedulerIdle": true, "quietMs": 1000, "timeoutMs": 30000} },
+    { "eval": "globalThis.storyOrchestratorDebugSceneSummaryResponse = 'They waited in the vault while the dust settled.'; const to = SillyTavern.getContext().chat.length - 1; await globalThis.storyOrchestratorRuntime.runSceneBreakPass({ id:'a4', createdAt:new Date().toISOString(), priority:0, reason:'scene:divider', contractHash:'h', scope:[], window:{from:to - 8,to}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[], sceneBreak:{at:to, reason:'divider'} }); return { to, sceneCount: globalThis.storyOrchestratorRuntime.getSnapshot().memory.sceneCount };" },
+    { "expect": {"memory": {"scene_history": {"count": 3}}, "sceneBreaks>=": 3} },
+    { "wait": {"idle": true, "timeoutMs": 10000} },
+    { "eval": "const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => typeof m.mes === 'string' && m.mes.includes('The scene shifts.')).length; if (n !== 2) throw new Error('with maxTriggers 3 and 8+ messages since the last line, a distinct break must fire the sceneBreak line again: expected exactly 2, got ' + n); return { lines: n };" },
     { "slash": "/cp activate disable_arin" },
     { "expect": { "memory": { "facts": { "count": 1, "contains": ["Arin distrusts the vault door."] } } } },
     {

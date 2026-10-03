@@ -1,6 +1,13 @@
 {
   "name": "v24-01-sd-post-speaker",
   "objective": "v2.4 plan 01 T10, no backend. A group `/sd` post is named systemUserName ('SillyTavern System', script.js:405) and is VISIBLE (is_system:false, media in extra.media[], no extra.type) - host fact 01-H11, stable-diffusion/index.js:4966-4999. A tool-call row has the same name and is_system:true (tool-calling.js:903-913). The eval posts the host's own row shape and events, since no image backend runs here. Neither row is a character's turn, so the speaker stays Luke. Red on v2.3 (the visible /sd row reads as a non-roster speaker: null). Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "requires": {
+    "group": "1759606632088",
+    "members": [
+      "Luke"
+    ],
+    "why": "T10 needs Luke (sun-ruins roster little_brother) enabled in the toy group; an earlier cast change leaves him disabled"
+  },
   "steps": [
     {
       "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"

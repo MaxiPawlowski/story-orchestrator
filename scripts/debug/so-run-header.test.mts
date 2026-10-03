@@ -293,6 +293,15 @@ test('a profile repointed and never put back is a difference the header can see 
   assert.deepEqual(result[0].removed, ['Artemis RunPod RP [textgenerationwebui] -> http://127.0.0.1:18080']);
 });
 
+test('the T7 breaker residue: a dead-port url written onto a profile that had none is blocking, and the clean state is not', () => {
+  const clean = profileInventory([{ name: 'deepseek 4.1 flash', api: 'deepseek', url: null }]);
+  const residue = profileInventory([{ name: 'deepseek 4.1 flash', api: 'deepseek', url: 'http://127.0.0.1:9' }]);
+  const result = diffHeaders({ profiles: { urls: clean } } as any, { profiles: { urls: residue } } as any);
+  assert.deepEqual(result.filter((entry) => !entry.allowed).map((entry) => entry.path), ['profiles.urls']);
+  assert.deepEqual(result[0].added, ['deepseek 4.1 flash [deepseek] -> http://127.0.0.1:9']);
+  assert.deepEqual(diffHeaders({ profiles: { urls: clean } } as any, { profiles: { urls: [...clean] } } as any).filter((entry) => !entry.allowed), []);
+});
+
 test('a sampler left on a probe preset is a difference the header can see (V22b, found by V24)', () => {
   const raw = (preset: string, temp: number) => ({ mainApi: 'textgenerationwebui', textgen: { preset, temp, top_p: temp }, oai: { preset: 'Default', temp: 1, top_p: 1 } });
   const before = samplerState(raw('Artemis v1.1 RP', 1));

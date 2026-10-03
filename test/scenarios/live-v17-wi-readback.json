@@ -75,5 +75,15 @@
       "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v17AfterFault; await rt.activateCheckpoint('quay'); await new Promise((resolve) => setTimeout(resolve, 1500)); const disabled = await globalThis.__v17Flag(); const refusals = globalThis.__v17Refusals(); if (disabled !== false) throw new Error(`re-entering The Quay should switch the entry ON on the server, and it reads disable=${disabled}`); if (refusals !== before) throw new Error(`a kept write was journaled as refused (${before} -> ${refusals})`); return { disabled, refusals };",
       "log": true
     }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-V17"
+        }
+      }
+    ]
+  }
 }

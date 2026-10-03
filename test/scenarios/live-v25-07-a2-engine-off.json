@@ -1,5 +1,10 @@
 {
   "_note": "v2.5 plan 07 A2 live gate, engine-off leg (LANE ONLY). Before the run: switch User Settings > experimental macro engine OFF on the lane, then node scripts/debug/st-session.mts reload (the bridge-registered per-key macros re-register into the engine active at startup). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a2-engine-off.json --sandbox --group <lane group id>. The macroArgs capability reads absent and names the fallback, {{story_quality::location}} stays literal, {{story_quality_location}} still resolves. Afterwards switch the engine back ON and reload; host.macroEngine is the one declared run-header difference of this leg.",
+  "requires": {
+    "lane": "model",
+    "macroEngine": false,
+    "why": "the engine-off leg measures the macroArgs fallback with experimental_macro_engine off; it is read at startup, so the lane must be switched and reloaded before the run"
+  },
   "steps": [
     {
       "eval": "const ctx = SillyTavern.getContext(); if (ctx.powerUserSettings?.experimental_macro_engine !== false) throw new Error('this leg needs the new macro engine switched off: switch experimental_macro_engine off and reload first'); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { macroEngine: 'off' };",

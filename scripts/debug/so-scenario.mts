@@ -24,6 +24,9 @@ import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectSta
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { assertDevBundle } from './lib/bundleFlavour.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
+import { notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
+import { establishChatRequires, establishGroupRequires, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
+import { captureResidue, residueCount, sweepResidue, type ResidueSnapshot } from './lib/runResidue.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -666,11 +669,24 @@ async function expand(page, spec) {
   }, debugResponse);
 }
 
+export function evalFailureMessage(failure: { name?: string; message?: string; stack?: string }): string {
+  const head = `Evaluation failed in SillyTavern page: ${failure.message ?? 'unknown error'}`;
+  if (!failure.name || failure.name === 'Error' || !failure.stack) return head;
+  const frames = failure.stack.split('\n').filter((line) => /^\s+at /.test(line)).slice(0, 8).map((line) => line.trim());
+  return `${head} [${failure.name}; stack: ${frames.join(' | ') || failure.stack.slice(0, 600)}]`;
+}
+
 async function evalStep(page, code) {
-  return evaluateInST(page, (code) => {
-    const fn = new Function(`return (async () => { ${code} })();`);
-    return fn();
+  const result = await evaluateInST(page, async (code) => {
+    try {
+      const fn = new Function(`return (async () => { ${code} })();`);
+      return { value: await fn() };
+    } catch (error) {
+      return { failure: { name: error?.name ?? null, message: String(error?.message ?? error), stack: typeof error?.stack === 'string' ? error.stack : null } };
+    }
   }, code);
+  if (result?.failure) throw new Error(evalFailureMessage(result.failure));
+  return result?.value;
 }
 
 // v2.3 plan 06's blocked-save check. The block lives at the TRANSPORT (Playwright's route handler is
@@ -1199,12 +1215,18 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let libraryBefore: LibraryCapture | null = null;
   let extractionBefore = null;
   let judgeBefore = null;
+  const requires = requiresOf(scenario);
+  const pinned = requiredGroup(requires, group);
+  let reenabled: string[] = [];
+  let residueBefore: ResidueSnapshot | null = null;
   if (sandbox) {
-    if (group) await openGroup(page, group);
+    if (pinned.group) await openGroup(page, pinned.group);
     else await openMostRecentGroupChat(page);
+    reenabled = await establishGroupRequires(page, requires);
     guard = (await beginSandboxSession(page)).guard;
     await clearDebugResponses(page);
     libraryBefore = await captureLibrary(page);
+    residueBefore = await captureResidue(page);
     // Extraction settings are INSTALL-WIDE. Scenarios write them (plan06-convergence sets
     // stabilityLag 1) and a failed read pauses extraction for the whole install — so running the
     // mocked corpus left extraction DISABLED and stabilityLag 1 behind, which a real player would
@@ -1216,8 +1238,16 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   }
 
   try {
-    result = { file, ...(await runSteps(page, steps, { scenarioDir, importedHashes, guard })), cleanup: null };
-    if (!result.ok) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
+    const established = Object.keys(requires).length
+      ? (sandbox ? await establishChatRequires(page, requires, reenabled) : await readRequiresFacts(page, requires).then((facts) => ({ facts, problems: requiresProblems(requires, facts), reenabled, authorView: null, judgeOff: false })))
+      : null;
+    if (established?.problems.length) {
+      result = { file, steps: [], ok: false, notRunnable: true, requires: { ...established, group: pinned }, error: notRunnableLine(established.problems), cleanup: null };
+      console.log(notRunnableLine(established.problems));
+    } else {
+      result = { file, ...(await runSteps(page, withAuthorView(steps, requires), { scenarioDir, importedHashes, guard })), ...(established ? { requires: { ...established, group: pinned } } : {}), cleanup: null };
+    }
+    if (!result.ok && !result.notRunnable) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
   } finally {
     // A route block is a change to the SHARED page's network, so it is released even when the run
     // failed midway: a save endpoint left blocked would fail every later run's persistence in silence.
@@ -1233,6 +1263,13 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
       cleanup.judge = await restoreJudgeConfig(page, judgeBefore).catch((error) => ({ error: error.message }));
+      const residue = await sweepResidue(page, residueBefore).catch((error) => ({ swept: false, clean: false, error: error.message }));
+      cleanup.residue = residue;
+      if ('plan' in residue && residue.plan && residueCount(residue.plan)) console.log(`residue swept (this fixture left it behind): ${JSON.stringify(residue.plan)}`);
+      if (residue.clean === false) {
+        result.ok = false;
+        result.error = [result.error, `cleanup could not sweep the run's residue: ${JSON.stringify('leaked' in residue ? residue.leaked : residue)}`].filter(Boolean).join('; ');
+      }
       result.cleanup = cleanup;
       const leftChats = Array.isArray(cleanup.notDeleted) ? cleanup.notDeleted : [];
       if (leftChats.length) {

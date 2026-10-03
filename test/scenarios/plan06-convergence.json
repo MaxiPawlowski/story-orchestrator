@@ -12,11 +12,11 @@
       "send": "The hall beyond stays silent for a while."
     },
     {
-      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:true, cadence:50, reconciliationMultiplier:1.5, stabilityLag:1}); globalThis.storyOrchestratorDebugExtractionResponse = 'DELTA q=mood value=\"tense\" evidence=\"this tense scene mood\"'; return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings.enabled;"
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:true, cadence:50, reconciliationMultiplier:1.5, stabilityLag:1}); globalThis.storyOrchestratorDebugExtractionResponse = 'DELTA q=mood value=\"tense\" evidence=\"this tense scene mood\"'; globalThis.storyOrchestratorDebugGenerationResponse = \"{\\\"beats\\\":[{\\\"objective\\\":\\\"Open the vault\\\",\\\"guidance\\\":\\\"Open the vault.\\\",\\\"tension_target\\\":\\\"tense\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"vault open\\\",\\\"gate\\\":{\\\"q\\\":\\\"vault_open\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":true},\\\"deltas\\\":[{\\\"q\\\":\\\"vault_open\\\",\\\"v\\\":true}],\\\"progress\\\":{\\\"anchor\\\":\\\"finale\\\",\\\"amount\\\":2}}]},{\\\"objective\\\":\\\"Confirm the ally\\\",\\\"guidance\\\":\\\"Confirm ally convinced once the mood settles.\\\",\\\"tension_target\\\":\\\"critical\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"ally convinced\\\",\\\"gate\\\":{\\\"q\\\":\\\"mood\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":\\\"neutral\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"ally_convinced\\\",\\\"v\\\":true}]}]}]}\"; return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings.enabled;"
     },
     {
       "expand": {
-        "debugResponse": "{\"beats\":[{\"objective\":\"Secure the safe approach\",\"guidance\":\"Steer toward the safe route.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"tense\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}],\"progress\":{\"anchor\":\"midway\",\"amount\":2}}]},{\"objective\":\"Confirm the key\",\"guidance\":\"Confirm key is found.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"key confirmed\",\"gate\":{\"q\":\"key_found\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"key_found\",\"v\":true}]}]}]}"
+        "debugResponse": "{\"beats\":[{\"objective\":\"Secure the safe approach\",\"guidance\":\"Steer toward the safe route.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"tense\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}],\"progress\":{\"anchor\":\"midway\",\"amount\":2}}]},{\"objective\":\"Confirm the key\",\"guidance\":\"Confirm key is found once the scene calms.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"key confirmed\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"calm\"},\"deltas\":[{\"q\":\"key_found\",\"v\":true}]}]}]}"
       }
     },
     {
@@ -77,7 +77,7 @@
       }
     },
     {
-      "slash": "/cp set key_found true"
+      "slash": "/cp set mood calm"
     },
     {
       "expect": {
@@ -86,7 +86,7 @@
     },
     {
       "expand": {
-        "debugResponse": "{\"beats\":[{\"objective\":\"Open the vault\",\"guidance\":\"Open the vault.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"vault open\",\"gate\":{\"q\":\"vault_open\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"vault_open\",\"v\":true}],\"progress\":{\"anchor\":\"finale\",\"amount\":2}}]},{\"objective\":\"Confirm the ally\",\"guidance\":\"Confirm ally convinced.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"ally convinced\",\"gate\":{\"q\":\"ally_convinced\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"ally_convinced\",\"v\":true}]}]}]}"
+        "debugResponse": "{\"beats\":[{\"objective\":\"Open the vault\",\"guidance\":\"Open the vault.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"vault open\",\"gate\":{\"q\":\"vault_open\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"vault_open\",\"v\":true}],\"progress\":{\"anchor\":\"finale\",\"amount\":2}}]},{\"objective\":\"Confirm the ally\",\"guidance\":\"Confirm ally convinced once the mood settles.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"ally convinced\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"neutral\"},\"deltas\":[{\"q\":\"ally_convinced\",\"v\":true}]}]}]}"
       }
     },
     {
@@ -126,7 +126,7 @@
       }
     },
     {
-      "slash": "/cp set ally_convinced true"
+      "slash": "/cp set mood neutral"
     },
     {
       "expect": {
@@ -149,5 +149,6 @@
     }
   ],
   "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal.",
-  "_v24b": "Premise rebuilt 2026-09-23 (V24b). The fixture relied on the cadence read MISSING the planted 'tense' evidence so the checkpoint would stall and the stall re-read would find it. That was an artifact of the pre-V25 cadence window, which did not reach the player's line; once V25 fixed the window, the cadence read correctly accepted mood=tense and the story converged without stalling. The re-read window also starts after the stuck checkpoint began, and the only evidence was posted before it, so the intended path could not have produced reconciliation evidence even then (it had been red since plan 02). Now: cadence 50 keeps regular reads out of the stall, and the evidence is posted inside the stuck checkpoint's window, where the stall re-read looks. The reconciled mood=tense now carries the story through gen_bridge_a_2 (key_found is already true) during the stall loop's own boundaries, so step 14 asserts the property (a_2 or midway, with the +2 progress applied) instead of assuming the story is still parked."
+  "_v24b": "Premise rebuilt 2026-09-23 (V24b). The fixture relied on the cadence read MISSING the planted 'tense' evidence so the checkpoint would stall and the stall re-read would find it. That was an artifact of the pre-V25 cadence window, which did not reach the player's line; once V25 fixed the window, the cadence read correctly accepted mood=tense and the story converged without stalling. The re-read window also starts after the stuck checkpoint began, and the only evidence was posted before it, so the intended path could not have produced reconciliation evidence even then (it had been red since plan 02). Now: cadence 50 keeps regular reads out of the stall, and the evidence is posted inside the stuck checkpoint's window, where the stall re-read looks. The reconciled mood=tense now carries the story through gen_bridge_a_2 (key_found is already true) during the stall loop's own boundaries, so step 14 asserts the property (a_2 or midway, with the +2 progress applied) instead of assuming the story is still parked.",
+  "_v26": "v2.6 T1-6 (a5e221d2) fails a generated beat whose gate already holds when the beat starts (critic.ts runCodeChecks -> paths.ts gatesHeldOnEntry, entry = blackboard + latched + the stub transition's gate pins). Both mocked chains gated their second beat on the value the stub transition pins (key_found / ally_convinced == true), so both now came back `failed`. Beat 2 now gates on a mood the chain does not hold on entry (A: mood == calm, B: mood == neutral), and the steps that fire beat 2 set that mood (step 15 /cp set mood calm, step 23 /cp set mood neutral) instead of re-setting the pinned value. Step 14 still accepts gen_bridge_a_2 or midway: the stall loop writes mood=calm each boundary, so a reconciliation that lands mid-loop can carry the story through a_2 into midway. Step 4 also plants storyOrchestratorDebugGenerationResponse (chain B): the boundary that enters midway queues an active generation in the background (boundaryWork 'expansion', order 40), and unplanted it made a real model call whose `failed` could land over the expand step's `validated` (same race as plan05)."
 }

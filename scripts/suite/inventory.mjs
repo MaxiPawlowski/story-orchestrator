@@ -114,7 +114,7 @@ export function collect({ jestJson = null, replayPath = null } = {}) {
     const shape = stepsShape(parsed.steps);
     const name = path.split('/').pop().replace(/\.json$/, '');
     const note = [parsed.name, parsed.objective, parsed._note].filter(Boolean).join(' ');
-    return [{ path, name, shape, est: estimateSeconds(shape), guard: guardOf(path, note), cited: citedBy(name), fixes: fixes.get(path) ?? 0, oneShot: /^live-v2\d|^v2\d-/.test(name) }];
+    return [{ path, name, shape, est: estimateSeconds(shape), guard: guardOf(path, note), cited: citedBy(name), fixes: fixes.get(path) ?? 0, oneShot: /^live-v2\d|^v2\d-/.test(name), requires: parsed.requires ?? {} }];
   });
   const storyFixtures = files.filter((path) => /^test\/scenarios\/.*\.story\.json$/.test(path)).length;
 

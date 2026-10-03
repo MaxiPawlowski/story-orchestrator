@@ -115,27 +115,38 @@
       "inject_script": "../fixtures/interop/v25-01-gating.js"
     },
     {
-      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await V.waitFor(() => gating?.active(), 'the gating to activate after the reload', 90000); const status = await V.waitFor(() => { const s = rt.getSnapshot().wiGating; return s?.drift?.some((ref) => ref.lorebook === T.G5.book && ref.comment === T.G5.comment) ? s : null; }, 'the drifted entry in the start-up verify'); const repairText = document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? ''; const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const scanView = await S.effective([T.G5.book]); T.G5.startup = { drift: status.drift.length, repairShown: repairText.includes('switched on outside the story'), fileDisable: fileEntry?.disable ?? null, scanOn: scanView.get(S.key(T.G5.book, T.G5.comment)) ?? null, onlyDrift: status.drift.length === 1 }; V.save(T); if (!T.G5.startup.repairShown || T.G5.startup.fileDisable === true || !T.G5.startup.onlyDrift) throw new Error(`G5 FAIL (start-up): ${JSON.stringify(T.G5.startup)}`); return T.G5.startup;",
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await V.waitFor(() => gating?.active(), 'the gating to activate after the reload', 90000); const status = await V.waitFor(() => { const s = rt.getSnapshot().wiGating; return s?.drift?.some((ref) => ref.lorebook === T.G5.book && ref.comment === T.G5.comment) ? s : null; }, 'the drifted entry in the start-up verify'); rt.setUiSettings({ authorView: true }); const rowEnd = Date.now() + 5000; while (Date.now() < rowEnd && !(document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? '').includes('switched on outside the story')) await new Promise((resolve) => setTimeout(resolve, 250)); const repairText = document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? ''; const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const scanView = await S.effective([T.G5.book]); T.G5.startup = { drift: status.drift.length, repairShown: repairText.includes('switched on outside the story'), fileDisable: fileEntry?.disable ?? null, scanOn: scanView.get(S.key(T.G5.book, T.G5.comment)) ?? null, onlyDrift: status.drift.length === 1 }; V.save(T); if (!T.G5.startup.repairShown || T.G5.startup.fileDisable === true || !T.G5.startup.onlyDrift) throw new Error(`G5 FAIL (start-up): ${JSON.stringify(T.G5.startup)}`); return T.G5.startup;",
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await gating.normalize(); const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const status = rt.getSnapshot().wiGating; T.G5.renormalised = { fileDisable: fileEntry?.disable ?? null, drift: status?.drift?.length ?? null, repairShown: (document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? '').includes('switched on outside the story') }; V.save(T); if (T.G5.renormalised.fileDisable !== true || T.G5.renormalised.drift !== 0 || T.G5.renormalised.repairShown) throw new Error(`G5 FAIL (re-normalise): ${JSON.stringify(T.G5.renormalised)}`); return T.G5.renormalised;",
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await gating.normalize(); const rowEnd = Date.now() + 5000; while (Date.now() < rowEnd && (document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? '').includes('switched on outside the story')) await new Promise((resolve) => setTimeout(resolve, 250)); const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const status = rt.getSnapshot().wiGating; T.G5.renormalised = { fileDisable: fileEntry?.disable ?? null, drift: status?.drift?.length ?? null, repairShown: (document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? '').includes('switched on outside the story') }; V.save(T); rt.setUiSettings({ authorView: false }); if (T.G5.renormalised.fileDisable !== true || T.G5.renormalised.drift !== 0 || T.G5.renormalised.repairShown) throw new Error(`G5 FAIL (re-normalise): ${JSON.stringify(T.G5.renormalised)}`); return T.G5.renormalised;",
       "log": true
     },
     {
       "ui": {
         "action": "assert-player-clean"
       }
-    },
-    {
-      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); for (const id of ['so-v25-g1', 'so-v25-e']) if (rt.getSnapshot().library.some((r) => r.id === id)) await rt.removeStory(id); await globalThis.storyOrchestratorScanGating.requestFile(); const books = await V.restoreBooks(); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {}, normalizedFrom: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); T.cleanup = { books, mode: rt.getGlobalSettings().worldInfo.gatingMode }; T.finishedAt = new Date().toISOString(); V.save(T); if (Object.values(books.identical ?? {}).some((same) => !same)) throw new Error(`cleanup: a real book did not read back identical: ${JSON.stringify(books)}`); return T;",
-      "log": true
-    },
-    {
-      "assets": {
-        "action": "remove",
-        "marker": "SO-V25"
-      }
     }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "inject_script": "../fixtures/interop/t13-spike.js"
+      },
+      {
+        "inject_script": "../fixtures/interop/v25-01-gating.js"
+      },
+      {
+        "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); for (const id of ['so-v25-g1', 'so-v25-e']) if (rt.getSnapshot().library.some((r) => r.id === id)) await rt.removeStory(id); await globalThis.storyOrchestratorScanGating.requestFile(); const books = await V.restoreBooks(); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {}, normalizedFrom: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); T.cleanup = { books, mode: rt.getGlobalSettings().worldInfo.gatingMode }; T.finishedAt = new Date().toISOString(); V.save(T); if (Object.values(books.identical ?? {}).some((same) => !same)) throw new Error(`cleanup: a real book did not read back identical: ${JSON.stringify(books)}`); return T;",
+        "log": true
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-V25"
+        }
+      }
+    ]
+  },
+  "_v26": "T7 2026-10-03, two fixes. (1) The G5 start-up row is author-only since v2.6 plan 15 CR-U (3c2f7790): viewerRepairStep (src/runtime/repair.ts) shows a player only steps with player copy, and wiGatingStep has player: null, so in player mode the drift was found (drift 1, file entry on) and no row could show. Steps 24-25 read the row in Author view (switched on for the reading, waiting up to 5 s for the render both ways) and switch it off again before assert-player-clean, so the row is asserted shown on drift and gone after re-normalise exactly as before. (2) The cleanup (back to file mode through the product, every saved book written back and read back identical, ledger reset, marker stories and SO-V25 books removed) moved from the last two steps into cleanup.steps, which so-scenario runs in its finally (fixtureCleanupSteps), re-injecting both helpers first because a failure after the G5 reload leaves them unloaded. A red run used to skip it and leave the lane in scan mode with a ledger, so the next run refused as 'lane not fresh'."
 }
