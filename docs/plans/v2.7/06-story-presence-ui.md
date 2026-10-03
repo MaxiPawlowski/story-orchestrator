@@ -1,16 +1,23 @@
-# Plan 04 — Story presence in ST's lists, and the player UI we still owe
+# Plan 06 — Story presence in ST's lists, and the story UI that needs no model
 
-**Status: DRAFT 2026-10-03 (topic from the user). Not approved, not built.** Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 06 (was old v2.7 04). APPROVED; not built.** Scope: A plays index, B list badges, and
+from §C (moved here from `v2.8/04-story-presence-panels.md`, user-approved 2026-10-03): C1 Continue list, C2 story card
+on hover, C3 chapter title card, C6 wand-menu entry, C9 (b) the author Activity panel with the production roll store
+(author-only), the draggable-panel frame and the per-story toggles. **C4, C5, C7 and C9 (a) public roll chips stay in
+v2.8 04.** C8 onboarding is built in v2.7 05. Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D. **Model input: none.** Nothing here may
+change what is sent to a model; the payload-invariance check proves it (§Gates).
 
 ## Problem
 
 - **ST's lists cannot tell a story chat from an ordinary one.**
-  - The left-panel character/group list, the welcome screen's recent chats, and the group's past-chats list all look the
-    same whether or not a chat plays one of our stories.
+  - The left-panel group list, the welcome screen's recent chats, and the group's past-chats list all look the same
+    whether or not a chat plays one of our stories.
   - A player with several campaigns has to open a chat to find out.
-- **The player UI items deferred since v2.4 are still open.** v2.4 rule 7 held back an options menu, visible
-  qualities, a cross-chat Continue list, a wand-menu entry and the objective echo until a player session ran
-  (`v2.4/00-overview.md:80-82`, `v2.5/00-overview.md:398-399`). The v2.6 playtest is that session.
+- **The player UI items deferred since v2.4 are still open.** v2.4 rule 7 held back a cross-chat Continue list, a
+  wand-menu entry and the rest until a player session ran (`v2.4/00-overview.md:80-82`, `v2.5/00-overview.md:398-399`).
+  The user decided them on 2026-10-03 (v2.8 rule 4, v2.7 rule 10).
+- **Dice and other background draws are shown nowhere** (user comment, §Review of the answers).
 
 ## Host facts (verified 2026-10-03 by reading the source; re-check against the ST in use before building)
 
@@ -21,74 +28,125 @@
 | H3 | Group objects carry no chat metadata: the server strips `chat_metadata`/`past_metadata` on create and edit. Reading a non-open chat's `chat_metadata` costs one request per chat file (`withMetadata`) | `src/endpoints/groups.js:18-28,113-154`, `chats.js:459-463,1138-1141` |
 | H4 | Welcome-screen recent chats render as `.recentChat.group[data-group]` from `/api/chats/recent` (no metadata by default) | `welcome-screen.js:763`, `templates/welcomePanel.html:49` |
 | H5 | `GROUP_UPDATED` fires on edit; `GROUP_CHAT_CREATED` on a new chat | `group-chats.js:319,1777,2003` |
+| H6 | ST's extensions wand is `#extensionsMenu`; `stHost/imageSurface.ts` already adds an entry there | `stHost/imageSurface.ts` |
 
 ## What we already have
 
-- **`extensionSettings["story-orchestrator"].groupStories`** (`groupId → storyId`). The settings panel sets it by hand
-  (`components/settings/GroupStoryBinding.tsx`, `runtime/groupStoryBindingHost.ts`), and `boundStoryForEmptyChat`
-  reads it. It only covers groups someone bound, so it is not evidence that a group plays a story.
-- **No chat → story index exists.** `ownedChat` is the loaded chat only. The mirror book name
-  (`Story Orchestrator - <title> - <chatId>`) is a heuristic that needs the whole lorebook list. Not used.
+- **`extensionSettings["story-orchestrator"].groupStories`** (`groupId → storyId`), set by hand
+  (`components/settings/GroupStoryBinding.tsx`, `runtime/groupStoryBindingHost.ts`) and read by
+  `boundStoryForEmptyChat`. It only covers groups someone bound, so it is not evidence that a group plays a story.
+- **No chat → story index exists.** `ownedChat` is the loaded chat only.
 - **DOM pattern to copy:** `stHost/inlineMount.ts` (idempotent class-keyed nodes, re-sync on host events, `dispose`).
+- **Chance seam:** `src/runtime/chance.ts` (`ChanceDrawKind` = `npc | talk`, `:14`; quality rolls in
+  `chanceGateValues`, `:31-36`, announce nothing); the only collector is the dev ring (`runtime/spikes/install.ts:66`,
+  under `__SO_DEV__`).
 
-## Design
+## A. Plays index (install-wide)
 
-### A. Plays index (new, install-wide)
+`extensionSettings["story-orchestrator"].plays`: chat id → `{ storyId, title, groupId, checkpointName, chapterTitle?,
+kind, updatedAt }` (`kind` = saga | story, v2.7 05's `storyKind`). Group chats only (v2.7 03): no `characterAvatar`.
 
-`extensionSettings["story-orchestrator"].plays`: a map from chat id to
-`{ storyId, title, groupId?, characterAvatar?, checkpointName, chapterTitle?, updatedAt }`.
+- **Written at the persistence boundary we already own** (select, hydrate, restart, each committed boundary), only when a
+  field changes; debounced with the other settings writes; never awaited on the reply path.
+- **Cleared** on story clear in that chat and on chat delete (the mirror reaper already observes deletes,
+  `runtime/mirrorReaperHost.ts`). **Removing a story from the library does not clear rows of chats that still pin it**
+  (review F14): the chat plays its pinned copy, so its row stays until the chat is deleted or its story cleared.
+- **A hint, never truth.** Nothing in the runtime reads it to decide anything. Opening the chat rewrites its row.
+- **Capped** at 500 rows, oldest `updatedAt` dropped.
+- **Player copy only.** Checkpoint and chapter **names** the player has reached (decision 2), never ids, gates or
+  upcoming anchors. Spoiler-checklist row.
+- **Group view, derived:** a group is a story group if any of its chats has a row, or `groupStories` binds it; it shows
+  the most recently played story.
+- **Backfill, seamless (decision 4):** opening a chat writes its row. On the first load after install or after the
+  update that adds the index, **one idle background pass** reads group chats' metadata (`withMetadata`), capped and
+  throttled, paused while a generation runs (ST's `document.body.dataset.generating`), resumable, never repeated once
+  done. No "Scan my chats" button.
 
-- **Written at the persistence boundary we already own.** On select, hydrate, restart and each committed boundary,
-  only when a field changes. It is debounced with the other settings writes and never awaited on the reply path.
-- **Cleared** on story clear, on chat delete (the mirror reaper already observes deletes, `runtime/mirrorReaperHost.ts`)
-  and when a library story is removed.
-- **A hint, never truth.** Nothing in the runtime reads it to decide anything. A stale row can only mislabel a list entry,
-  and opening the chat corrects it (the open chat's `chat_metadata` wins and rewrites the row).
-- **Capped** (e.g. 500 rows, oldest `updatedAt` dropped).
-- **A player-visible copy, so player copy only.** It holds checkpoint and chapter **names** that the player has already
-  seen, never ids, gates or upcoming anchors. It joins the spoiler checklist.
-- **Group-level view, derived:** a group is a "story group" if any of its chats has a row, or if `groupStories` binds it.
-  It shows the most recently played story.
-- **Backfill:** opening a chat writes its row. An optional one-shot "Scan my chats" button reads `withMetadata` per chat
-  file and is the only bulk read. Never automatic.
-
-### B. List badges (`stHost/charListBadges.ts`, new)
+## B. List badges (`stHost/charListBadges.ts`, new)
 
 - **Left list.** On `CHARACTER_PAGE_LOADED`, `GROUP_UPDATED`, `CHAT_CHANGED` and index changes, mark
-  `#rm_print_characters_block .group_select[data-grid]`: a Font Awesome `fa-route` (the drawer's icon) on `.ch_name`,
-  `title` = story title and the last checkpoint name. Solo characters get the same mark on `.character_select` from the
-  `characterAvatar` rows.
-- **Welcome screen** recent chats (`.recentChat`), per chat from the index.
-- **Group past-chats list** and the group panel's chat list, per chat.
-- **Idempotent and removable.** Re-applying is a no-op, and `dispose` removes every mark.
-- **CSS:** the badge lives outside our mount roots, so it gets one rule of its own, scoped to `.so-story-badge`
-  (`styles.css` currently scopes everything to the five roots; add this as a deliberate, named exception), and it must not
-  touch `.avatar` (H2).
-- **Guard:** an `architecture.test.ts` entry so only this module touches the list DOM, like the message-DOM list.
+  `#rm_print_characters_block .group_select[data-grid]`: a Font Awesome `fa-route` on `.ch_name` (H2). **Saga vs act**
+  (v2.7 05 decision 3): a saga gets its own icon and colour token; the kind is in `title` and the accessible name.
+  Groups only; solo characters are never marked.
+- **Welcome screen** recent group chats (`.recentChat.group`), and the group past-chats list, per chat from the index.
+- **Idempotent and removable**; `dispose` removes every mark.
+- **CSS:** the badge lives outside our mount roots, so it gets one named exception scoped to `.so-story-badge`
+  (`styles.css`), and it never touches `.avatar`.
+- **Guard:** an `architecture.test.ts` entry so only this module touches the list DOM.
 - **Setting:** `display.listBadges` (install-wide, default on).
 
-### C. Player UI candidates (rule 7: each needs the playtest to ask for it; ranked by what the index unlocks cheaply)
+## C. Story UI built here
 
 | # | Item | Shape | Spoiler risk |
 |---|---|---|---|
-| C1 | **Continue list** | "Your stories" in the Continue entry point and optionally on the welcome screen: story, last checkpoint name, last played, one click opens the chat. Reads the plays index | low: names already seen |
-| C2 | **Story card on the group** | hovering the badge shows title, chapter, "last played 2 days ago" | low |
-| C3 | **Chapter title card** | a full-width inline card when a chapter opens (inline layer exists, `components/inline/`), instead of a chip | none: chapter is entered |
-| C4 | **Quest log / objectives tab** | see plan 19 | gated by plan 19 |
-| C5 | **"What could I do?" options** | 3–4 suggestions in the drawer/HUD that **fill the input box and never send** (CYOA/Roadway idea, `v2.4/extension-research/SUMMARY.md` §9). Off-path call on the memory profile, on demand only, agency policy in the prompt (suggest, never decide) | medium: a suggestion can hint at a gated route; prompt sees only player-safe state |
-| C6 | **Wand-menu entry** | "Story" in ST's extensions wand: recap, quest log, flag | none |
-| C7 | **Visible qualities / stat sheet** | see plan 19 (`display.public` per quality) | gated by plan 19 |
-| C8 | **First-run onboarding** | one dismissible card in the drawer the first time a story starts: what the HUD, chips and Memory tab are | none |
+| C1 | **Continue list** | "Your stories" in the Continue entry point (and optionally on the welcome screen): story, last checkpoint name, last played, one click opens the chat. Reads the index | low: names already seen |
+| C2 | **Story card on the group** | hovering (or focusing) the badge shows title, kind, chapter, "last played 2 days ago" | low |
+| C3 | **Chapter title card** | a full-width inline card when a chapter opens (inline layer, `components/inline/`, `stHost/inlineMount.ts`), instead of a chip; carries the chapter briefing from v2.7 05 when authored | none: the chapter is entered |
+| C6 | **Wand-menu entry** | "Story" in `#extensionsMenu` (H6): recap, briefing, flag (Journal joins in v2.8 04) | none |
+| C9 (b) | **Author Activity panel + roll store** | §C9 below | author-only |
 
-Not proposed: anything that posts into the chat array (Roadway's `is_system` cards and CYOA's fake user message are
-on the research doc's rejected list), and steering controls in player mode (two-personas rule).
+In v2.8 04: C4 quest log / Journal, C5 "What could I do?" (a model call, CL), C7 stat sheet, C9 (a) public roll chips.
+Not proposed: anything that posts into the chat array, and steering controls in player mode (two-personas rule).
 
-## Gates
+## Panel frame (built here; v2.8 04's panels reuse it)
 
-- `npm run gates` (pure index module + badge module tests with a fake list DOM; Storybook for C-items).
-- Live: page through a 10-per-page list across two pages, open/close chats, delete a chat. The badges follow and none
-  leak onto unrelated entries. Run `so-ui assert-player-clean` with the badge title included in its sweep.
-- Spoiler checklist rows for the plays index, the badge title and every C-item built.
+- **Movable, resizable panels** for the v2.7 01 Help panel and the Activity panel now; v2.8 04 adds C4, C5, C7.
+  Briefings and confirmations stay modal (native `<dialog>`, gotchas).
+- Each panel is its own root in the CSS scope list (`styles.css`) and in `.storybook/preview.ts` `mountRootFor`.
+- Position and size persist per install (`extensionSettings["story-orchestrator"].panels[id] = {x, y, w, h}`), clamped
+  to the viewport on load and on resize; under 768 px a panel docks full-width instead of floating.
+- Keyboard: focusable title bar, arrow keys move when the bar is focused, Escape closes, no focus trap (not modal).
+
+## Per-story toggles
+
+- Story `display` block, authored in the Studio Story tab. v2.7 keys: `{ continueList?, groupCard?, chapterCard?,
+  wand?, rollChips? }`, each boolean. v2.8 04 adds `journal`, `suggestions`, `statSheet`.
+- Install-wide defaults in `display.*` settings (all on).
+- **Precedence:** the story's value wins when present; otherwise the install default. A player can always turn an item
+  off install-wide: a story can switch an item off, never force one on against the player's off.
+- C1 and C2 read the index, so their story toggle applies only to that story's rows.
+
+## C9 (b) "Behind the scenes" for authors (review F21)
+
+**Roll provenance in production.**
+- **Quality rolls are reconstructed, not recorded.** A roll is a pure function of (chat, story,
+  `checkpointStartedBoundary`, key) and the quality's `roll {sides, target}`. The snapshot builder recomputes, for the
+  active checkpoint's rolled qualities, `{key, sides, target, drawn, outcome, boundary}`, anchored at the message that
+  boundary committed. Reopen, rollback and swipe need no store: the inputs already roll back.
+- **NPC reply and talk draws are recorded** in a production ring `extras.chance.draws` (cap 100, no text), written
+  through `onChanceDraw` with the message id and rolled back by message like `extras.lore.fired`; sanitized in
+  `runtime/extras.ts`. The dev ring stays dev-only.
+- v2.8 18 Q3 adds `modifier` and `narrate` to the same record shape; v2.8 04 shows public chips from it.
+
+**Who sees what (v2.7).**
+- **Author view only:** roll chips at inline level ≥ 2 and the Activity panel. Every chip is filtered on `authorView`,
+  **not** on level, because `PLAYER_LEVEL_CAP` = 2 (`src/runtime/settingsModel.ts:37`) lets players reach L2.
+- Player mode shows no roll anything in v2.7.
+
+**Activity panel (author only).** A live feed of what the machine did this turn, composed from existing rings plus the
+draws ring: boundary logs, extraction audits, judge calls, talk decisions, curator proposals, lore fired, draws, check
+findings (v2.7 04), expansions. Each row links to its message. Listed in `PLAYER_FORBIDDEN_SELECTORS`.
+
+## Gates (tier D)
+
+- **Pure (jest):** index writes, caps, F14 (library removal keeps a pinned chat's row), backfill pass (throttle, pause on
+  generating, resume); Continue list from the index; toggle precedence; roll reconstruction ≡ the seeded value under
+  rollback, swipe, reopen, and with two group replies inside one checkpoint; **rollback ≡ replay for the draws ring**
+  (property test over seeds × cuts, the `rollbackReplay.property.test.ts` shape, with a no-rollback negative control);
+  badge module over a fake list DOM (page turn re-applies, `dispose` removes all).
+- **Storybook (interaction + a11y, 390/768/1440):** badge + hover card (saga and story), Continue list, chapter card
+  (with and without a briefing), wand entries, panel frame (move, resize, dock under 768 px, Escape), Activity panel,
+  author roll chip.
+- **Spoiler:** checklist rows for the index, badge title, hover card, each C-item; `so-ui.mts assert-player-clean`
+  sweeps C1–C3, C6, the badge titles and an author roll chip at player L2 (must be absent), and the Activity panel
+  selector.
+- **Payload invariance:** a dry-run capture of a scripted group turn is byte-identical with every v2.7 06 item on and
+  off.
+- **Live (D), ×2:** a lane with two group chats in two stories (one saga, one act): page a 10-per-page list across two
+  pages, the badges follow and none leak onto unrelated entries; Continue lists both; a deleted library story keeps its
+  row while a chat pins it; a deleted chat drops its row; a seeded chapter entry shows the chapter card; the wand entry
+  opens each target; per-story off hides the item; panel position survives a reload.
+- Registry entries + Help for each item (rule 9). `npm run gates`.
 
 ## Unresolved questions
 
@@ -104,45 +162,28 @@ do we have some infomration about the kind of background processses that are hap
 
 ## Review of the answers (2026-10-03)
 
-- **1. Solo chats:** the user decided stories run in **group chats only**. That is now plan 33. Badges therefore mark
-  groups only.
+- **1. Solo chats:** stories run in **group chats only** (v2.7 03). Badges mark groups only.
 - **2.** The plays index may hold the checkpoint name (player copy, names already reached).
-- **3. Build all eight C-items:**
-  - Draggable windows wherever they make sense: the Help panel, the quest log/Journal (C4), the stat sheet (C7) and the
-    "What could I do?" suggestions (C5) become movable, resizable panels that remember their position per install.
-    Briefings and confirmations stay modal.
-  - Each item can be switched on or off **per story** (a `display` block in the story, authored in the Studio Story
-    tab), with an install-wide default.
-  - C5 is the only one that calls a model, so it is tier 3 for its live gate. Its code is built with the rest.
-- **4. Seamless backfill:**
-  - No "Scan my chats" button. Opening a chat writes its row.
-  - On the first load after install (and after an update that adds the index), one background pass at idle reads group
-    chats' metadata, capped and throttled, never during a generation. After that, opening chats keeps it current.
+- **3. Build all eight C-items**, draggable where it makes sense, each switchable per story. Split by version: C1, C2,
+  C3, C6, C9 (b), the panel frame and the toggles here; C4, C5, C7, C9 (a) in v2.8 04 (C4/C7/C9 (a) need v2.8 18; C5
+  calls a model); C8 in v2.7 05.
+- **4. Seamless backfill:** no button; opening a chat writes its row; one idle background pass after install or update
+  (§A).
+- **The comment (dice, author UI):** dice are not shown anywhere today (dev ring only). Answer: C9. Authors get roll
+  chips and the Activity panel here; players get roll chips only for rolls a story marks public (v2.8 04 + v2.8 18 Q3).
+  The rest of the author UI planned: v2.7 01 Help author topics, v2.7 04 author findings, v2.8 12 shadow record, v2.8 22
+  director suggestions, v2.8 08 overlay source.
 
-**The user's comment: "do we have information about the background processes, like the dice? Should we? Have you
-planned UI for authors too?"**
+## Links
 
-- **Today:**
-  - **Authors** see background work in Author view:
-    - the inline timeline at levels 2–4 (lore that fired, who was chosen to speak, extraction reads and what they
-      wrote, judge calls at Raw);
-    - the Scheduler tab (speaker decisions, curator proposals);
-    - the Payload tab (what the prompt carried);
-    - the session journal.
-  - **Dice (seeded rolls and NPC-reply chances) are NOT shown anywhere.** Draws go only to a dev-build ring
-    (`storyOrchestratorSpikes.draws`, `runtime/chance.ts`).
-- **Proposal, added here as C9 "Behind the scenes":**
-  - **A roll chip** on the message it affected. It shows at L2 for authors ("Roll d20: 14 vs 12, the door holds") and at
-    L1 for players only when the story marks the roll public (plan 19 Q3, which the user approved).
-  - **An "Activity" author panel** (draggable): a live feed of everything the machine did this turn:
-    - reads, rolls, speaker picks, judge verdicts, curator proposals, complications released, expansions prepared,
-      checks raised (plan 31);
-    - each linked to its message.
-  - It is composed from the existing rings (journal, judge calls, talk decisions, lore fired, draws), with no new store.
-  - Player mode keeps the narrative-only view (the spoiler checklist).
-- **The rest of the author UI planned across v2.7:**
-  - plan 01's Help panel author topics;
-  - plan 20's shadow record (L3);
-  - plan 24's director suggestions;
-  - plan 31's author findings;
-  - plan 32's overlay source at L3.
+v2.7 05 (briefing, chapter briefings, C8, `storyKind`), v2.7 04 (check findings in Activity), v2.7 03 (groups only),
+v2.7 01 (Help panel moves into the frame; registry), v2.7 07 A6 (badge check on the campaign), v2.8 04 (C4, C5, C7,
+C9 (a)), v2.8 18 (Journal, `display.public`, public rolls), v2.9 03 (new game plus in the Continue list).
+
+## Review 2026-10-03
+
+Applied: the user-approved move (C1, C2, C3, C6, C9 (b), panel frame, toggles from v2.8 04), F12 (body and gates cover
+every item built here; idle backfill specified), F14 (library removal keeps pinned chats' rows), F21 (production roll
+provenance; Author-view guard, not level), A2 (build split: index, badges and independent UI here; the rest after
+v2.8 18), A9 (no playtest prerequisite; C8 in v2.7 05), F08 + v2.7 03 (no solo marks, no `characterAvatar`), B10
+(registry gate), B12 (references).

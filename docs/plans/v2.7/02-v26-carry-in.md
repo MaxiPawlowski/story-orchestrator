@@ -1,38 +1,48 @@
 # Plan 02 — v2.6 carry-in
 
-**Status: DRAFT 2026-10-03. Not approved, not built.** Overview: `00-overview.md` (rule 2).
+**Status (2026-10-03): v2.7 plan 02. PARTLY BUILT: C2 (`e9082dd5`) and C6–C10 (`74c8f50a`) merged, live NOT run.
+Open in v2.7: K1 (step 0, urgent), C1, C11-F1 display half, C13 exact promotion, C14. The model-consuming rows (C3, C4,
+C12, C11-F2/F7, the F1 guard change, C13-b, C14-b) moved to `v2.8/01-v27-carry-over.md` §B.** Overview:
+`00-overview.md` (rule 2).
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D here, CL/LI/RP rows in v2.8 01 §A/§B.
 
 ## Why
 
 User decision 2026-10-03: **v2.6 takes no more changes.** Anything the seed research marked as a v2.6 item, and
-anything v2.6 still owes, lands here. v2.6's code, gate records and seeds file stay as written, as history.
+anything v2.6 still owes, lands here or, when it needs a model, in v2.8 01. v2.6's code, gate records and seeds file
+stay as written, as history.
 
-## Items
+## Items in v2.7
 
-| # | Item | What | Source | Proposed gate |
-|---|---|---|---|---|
-| C1 | **SP5.b build** | the story-owned scenario (`effects.scenario` → `chat_metadata.scenario`), approved in v2.6 but never built. On the campaign it gives one story block instead of up to 7 card texts. C1–C5 passed ×1 | `16a-sp5-story-scenario.md` (design); `v2.6/04-remaining-builds.md:26`; `v2.6/03-sp5-restated.md` | triage the T7 red first; `npm run gates` + the SP5 recipe ×2 live; the scenario stays held while requirements are unmet (C3) |
-| C2 | **Summarize / chat-vectors Repair row** | warn the author when ST's Summarize or Vector Storage chat vectors are on, because they put the whole transcript (unwitnessed scenes included) into every member's prompt. This bypasses per-member privacy | `22-sp9-witness-filter-v2.md` option A, decision 1; `v2.6/14-findings.md` T2-2 item 1 | pure `repair.ts` row + unit cases; live: toggle each extension and see the row appear and clear |
-| C3 | **Warden and lore-check timeouts** | pooled over the playtest sessions, warden calls timed out 7.2% and lore-check calls 3.9%, both above J2's 1-in-50 bar. Find out whether this is the 4000 ms budget, plugin queueing or provider latency before tuning anything | `11-warden-lore-one-request.md` decision 3 (ad hoc scan of session journals) | formal `so-judge timeouts` run (was v2.6's owed R4) ×2; the floor stays 1 in 50, never retuned |
-| C4 | **Separate-arm live checks owed** | the warden-lore runtime shipped as a separate call; R4, R6 and the G-L7 J8 on/off checks were owed to v2.6 plan 15 Part B | `11-warden-lore-one-request.md:22,70`; `v2.6/15-review.md:407-429` | as written in `v2.6/04-remaining-builds.md:536-540` |
-| C5 | **SP6 / SP1 / SP10 runs** | never run in v2.6. SP6 measured, then built in plan 19 on PASS (`16b-sp6-complication-pool.md`); SP1 parked with a swipe-back counter (`16c-sp1-swipe-back-cache.md`); SP10 README note + probe removed (`16d-sp10-tool-call-turns.md`) | `16-spike-defers.md` (index) | per each file |
+"Model input" says whether the change alters what reaches a model (v2.7 rule 6) and who owns its real-model row.
 
-Plugin-side findings the campaign cannot fix (`C:\dev\adolion-campaign\docs\FEATURE-COVERAGE.md` §Findings,
-re-checked against the current plugin before building):
+| # | Item | What | Source | Gate (D) | Model input |
+|---|---|---|---|---|---|
+| C1 | **SP5.b build** | the story-owned scenario (`effects.scenario` → `chat_metadata.scenario`), approved in v2.6, never built. No model call in its code path (review A5), so it is deterministic to build. Design: `v2.8/16-sp5-story-scenario.md` | v2.6 `v2.6/04-remaining-builds.md:26`, `v2.6/03-sp5-restated.md` | triage the T7 red first; jest (scenario set, released on jump/leave, held while requirements are unmet, rollback ≡ replay); `effects-*`-style no-LLM scenario on a group; dry-run payload shows the authored block and nothing else | **yes**: the scenario block; real legs owned by v2.8 16 |
+| C2 | **Summarize / chat-vectors privacy check** | built (gate record below) | `v2.9/02-sp9-witness-filter-v2.md` option A | live seeded lane (v2.8 01 O8, tier D) | no |
+| C2-K1 | **K1: the player alert must not reveal a held secret** | `SECRET_LEAK_CHECK` (`src/runtime/checks.ts:45`) shows only when `secretLeaks()` is non-empty, which needs a held secret. Fix: the player copy shows whenever a copier is on in a **group story**; `secretsHeld` gates only the author detail. K2: rewrite the held-secret invariant in `.claude/rules/architecture.md` (player alert + HUD chip, author detail) in the same change | review K1, K2, F34 | jest: player-visible output (HUD chip, drawer row, settings row, Help) identical with and without held secrets, both copiers, solo control inactive; live seeded lane ×2 | no |
+| C6–C10 | image cue, fired/public looks, `illustrate`, narrator fallback, `stagecraft.exclude` | built (gate record below) | campaign F3–F6, review | done (D) | **yes**: image and curator prompts; real rows v2.8 01 O3–O7 |
+| C11-F1a | **Judge-typed evidence cut, display half** | F1: a judge-typed read cites only the first 160 characters of the chosen message (`src/judge/extraction.ts:179`). The display half: the author journal row of a held judge-typed reading says the evidence was cut and names the source message id, so an author can see why a long reply did not commit. Own short plan first (problem above; floor: jest, the note appears for a cut source and never for a short one; gate: `npm run gates`) | campaign F1; Sol split item 3 | jest + `so-journal.mts show` on a seeded hold | no |
+| C13 | **SP8 tiers and spans, exact promotion** | v2.6 approved them; the code still runs behind its spike flag (`stagecraftCoordinator.ts`, `settingsModel.ts`). Promote exactly as measured: out of the spike path, flag dropped, no prompt or digest change. Deterministic safety/revert checks: a write outside a tier or into a protected span is refused at the write edge; rollback reverts an applied op; flag-off control | `v2.6/03-sp8-restated.md`; campaign lab README; Sol split item 4 | jest (`curatorTiers.test.ts`, `curatorTiersSpike.review.test.ts` re-homed), defect-replay mutant on the write edge, payload invariance on the curator request (byte-identical prompt) | none if the prompt bytes stay identical; any digest or prompt change is v2.8 01 C13-b |
+| C14 | **Model-specific context table + role picker** | today a preset-less CC profile gets 8192 tokens unless the source is `deepseek` (`src/services/stHost/contextLimit.ts:21-28`). Build a per-source/per-model table, the precedence (preset value > table > default) and the picker grouped by source with a cloud/local label. Design: v2.7 14 §Build in v2.7 | v2.7 14 research decision 6; review F17, A (C14); Sol split item 5 | jest: unknown model → default with a reason, preset wins over the table, truncation at the table's limit, picker grouping; Storybook for the picker (a11y) | **yes**: larger extraction inputs; real row v2.8 01 C14-b |
 
-| # | Item | What | Source | Proposed fix |
-|---|---|---|---|---|
-| C6 | **Image cue leaks the internal checkpoint name** (F3) | the establishing-shot cue sends `name`, never `player_name`, so a name that says more than the scene has shown reaches the image prompt | campaign F3; `src/image/runtime.ts:91-97` (cited there) | use `player_name` when present, else a neutral "establishing shot"; spoiler-checklist row for image prompts |
-| C7 | **Secret looks reach image prompts** (F6) | lore `Appearance:` lines are read from every scanned entry the scene mentions, hidden forms included | campaign F6; `src/image/lore.ts` | read appearance only from entries the player has seen fire (`extras.lore.fired`) or an authored `public` flag |
-| C8 | **Illustrations are story-wide** (F4) | no per-checkpoint opt-out or look; the Saga renders one image per transition (157 checkpoints, ~26 s GPU each, text queued meanwhile) | campaign F4; `src/engine/schema.ts` | `checkpoints[].illustrate: false` + per-chapter look override; chapter boundary as the default cadence |
-| C9 | **Card fallback reads as a look** (F5) | a member with no image prompt falls back to 500 chars of the card description (the narrator's instructions) | campaign F5; `src/image/prompt.ts` | skip members whose roster role is narrator/system, or require an `appearance` |
-| C10 | **Curator vs the house-style meta entry** | the WI curator may propose edits to the book's house-style entry | campaign review | a per-entry curator exclusion (`stagecraft.exclude`) |
-| C11 | **F1/F2/F7 still open** | judge-typed evidence cut to 160 chars (F1); `commit_evidence` per quality, not per value (F2); chain voice ignores `no_repeat` (F7) | campaign F1, F2, F7 | each needs its own small plan before building; listed so they are not lost |
-| C12 | **Lore select costs 5 judge requests per turn** (campaign lab C11) | open in the plugin with no v2.7 row until now | `adolion-campaign/lab/README.md` findings table (2026-10-03 refresh) | measure the per-turn request count on the campaign, then batch the questions into fewer requests (plan 14 notes that extra questions on an existing call cost almost nothing) |
-| C13 | **SP8 tiers and spans approved but never built** | v2.6 approved them; the code still runs only behind its spike flag | `adolion-campaign/lab/README.md` v2.6 verdicts; `docs/plans/v2.6/03-sp8-restated.md` | build as approved (move out of `spikes/`, drop the flag), or record why not |
+## Moved out
 
-v2.6 playtest findings that arrive from now on are appended as new rows here (or as their own plan when large), with
-their session dir or `14-findings.md` row as the source.
+| # | Item | Now |
+|---|---|---|
+| C3 | warden and lore-check timeouts | v2.8 01 §B C3 (CL) |
+| C4 | separate-arm live checks (R4, R6, G-L7 J8) | v2.8 01 §B C4 (CL + RP) |
+| C5 | SP6 / SP1 / SP10 runs | SP6 → `v2.8/17-sp6-complication-pool.md`; SP1 → `v2.9/01-sp1-swipe-back-cache.md`; SP10 → v2.7 15 (B + C) and v2.9 05.2 |
+| C11-F1 guard | test the commit guard against the whole source message (commitment semantics) | v2.8 01 §B C11-F1 |
+| C11-F2 | `commit_evidence` per value | v2.8 01 §B |
+| C11-F7 | chain voice ignores `no_repeat` | v2.8 01 §B |
+| C12 | lore select costs 5 judge requests per turn | v2.8 01 §B (CL) |
+| C13-b | SP8 digest or prompt changes | v2.8 01 §B |
+| C14-b | enlarged extraction inputs, real-model row | v2.8 01 §B |
+
+Plugin-side campaign findings (C6–C11) come from `C:\dev\adolion-campaign\docs\FEATURE-COVERAGE.md` §Findings,
+re-checked against the current plugin before building. v2.6 playtest findings that arrive from now on are appended as
+new rows here (or as their own plan when large), with their session dir or `v2.6/14-findings.md` row as the source.
 
 ## Decisions for the user
 
@@ -41,10 +51,13 @@ their session dir or `14-findings.md` row as the source.
 3. Does the playtest's findings stream keep going into `v2.6/14-findings.md`, with this file only citing it, or straight
    into this file? **Recommended: straight here.** v2.6 docs stay as history.  Your recommendation is accepted.
 
+Decision 2 now applies in v2.8 01 (C3/C4 measure on the first v2.7 build).
+
 ## Links
 
-`22-sp9-witness-filter-v2.md`, `16-spike-defers.md` (index; `16a`–`16d`), `11-warden-lore-one-request.md`, `19-quests-and-game-layer.md`
-(SP6).
+`v2.9/02-sp9-witness-filter-v2.md` (C2 is its option A), `v2.8/16-sp5-story-scenario.md` (C1 design + live legs),
+`v2.8/17-sp6-complication-pool.md`, `v2.9/01-sp1-swipe-back-cache.md`, v2.7 15 (SP10), v2.7 13 (warden-lore kept
+separate), v2.7 14 (C14 design), v2.7 04 (checks registry), `v2.8/01-v27-carry-over.md` §A/§B.
 
 ## Gate record (C6–C10)
 
@@ -88,17 +101,24 @@ C2 adds:
 - **Player wording**: "<Summarize and Vector Storage> share the whole chat with every character, so a character can
   learn what was kept from them. Switch them off in SillyTavern's extensions to keep secrets." Names no secret and no
   holder. The author detail says how to switch each one off.
-- **Check registry seed (plan 31 design note)**: `src/runtime/checks.ts`, `Check {id, area, scope, audience,
+- **Check registry seed (v2.7 04 design note, old plan 31)**: `src/runtime/checks.ts`, `Check {id, area, scope, audience,
   severity, applies?, detect}`; C2 is `transcript-copiers` (scope story, audience player, severity degrades). Findings
   reach the one Repair channel (`repairSteps` → drawer, settings, new HUD `#so-hud-setup` chip); no parallel alert
-  path. The existing repair.ts steps are NOT migrated yet (follow-up, plan 31).
+  path. The existing repair.ts steps are NOT migrated yet (follow-up, v2.7 04).
 - Spoiler checklist rows added (`docs/plans/v2.1/test-plan.md`).
 
 **Tests:** `src/services/stHost/transcriptCopiers.test.ts`, `src/runtime/secretLeak.test.ts` (settings reading,
 reader seam, player wording, HUD alert), `src/runtime/checks.test.ts`.
 
-**Gates:** one run covers plans 02 C2, 06, 07 E and 08 C; see the plan 06 gate record.
+**Gates:** one run covers old plans 02 C2, 06, 07 E and 08 C (= v2.7 02 C2, 08, 09 E, 10 C); see the v2.7 08 gate record.
 
 **Live: NOT run** (no ST lane available to this agent). Owed: a lane with a group story holding a `[hiding]` row →
 switch Summarize (main source, interval > 0) and chat vectors on → row and `#so-hud-setup` appear in player mode,
 clear when off; `so-ui.mts assert-player-clean` green.
+
+## Review 2026-10-03
+
+Applied: K1, K2 (C2-K1), F34 (with and without held secrets), A5 (C1 deterministic; C12/C13 owners), F17 (owners for
+C14 and C11), Sol split items 2 (owed real rows → v2.8 01 §A), 3 (C11 per item: F1 display half here, the rest
+v2.8 01), 4 (C13 exact promotion here, digest/prompt v2.8 01), 5 (C14 picker + table here, enlarged inputs keep a
+real-model row), the Claude-A note "C14 is missing from 02" (added), F15 (tiers per row), B12/F36 (references).

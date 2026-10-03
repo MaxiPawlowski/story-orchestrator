@@ -59,7 +59,7 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 01 | `01-v27-carry-over.md` | 02, 06, 08, 10, 23, 29 parts | owed real-model rows of built v2.7 work; 02 C3/C4/C12; model-driven C11; SP2 v2 option A; funded thinking A/B; story/checkpoint thinking level (R4); Q-M5/P3; frozen v2.6 measurements; Claude's over-steer card + session | D (option A code, R4 lift) | RP, CL, LI |
 | 02 | `02-adolion-campaign.md` | 05 A4, A5 + new | lab data, playtest fix round, `player` blocks, `render_sprites` paths off `C:`, `--anim` frames, trigger narrowing | D (campaign repo) | LI (renders), RP (lab runs) |
 | 03 | `03-player-persona-and-start-setup.md` | 30 | story `player` profile, "Who are you in this story" step, persona lock, mid-story switch finding | D (S30-1 on a lane, scripted opener) | RP (final suite: injected block) |
-| 04 | `04-story-presence-panels.md` | 04 §C | C1–C7 + C9 player/author panels, draggable, per-story toggles | D | D; CL for C5 suggestions |
+| 04 | `04-story-presence-panels.md` | 04 §C (C4, C5, C7, C9 a) | Journal panel, "What could I do?" suggestions, stat sheet, public roll chips; in v2.7 06's panel frame and toggles (C1–C3, C6, C9 b moved to v2.7 06, user 2026-10-03) | D | D; CL for C5 suggestions |
 | 05 | `05-self-contained-images.md` | 26 | ST Image Generation route, ComfyUI discovery, broker optional, probes | D | LI + CL (director profile) |
 | 06 | `06-sprite-generation.md` | 26b (new) | in-plugin sprite builder contract | D | LI |
 | 07 | `07-talking-sprites.md` | 28 | blink/talk frames, animator, mouth setting | D + LI (spike S28) | LI + a streamed reply on a named backend (RP or CL) |
@@ -78,6 +78,7 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 20 | `20-character-life.md` | 18 | relationships, mood, agendas, schedules | D | CL (M1) + RP |
 | 21 | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
 | 22 | `22-living-story-director.md` | 24 | M1 spike; then M1–M3 with UI | D | RP + CL |
+| 23 | `23-test-plan.md` | v2.6 10 / 14 as the model | the v2.8 test plan: per-plan acceptance by tier, the one final real-LLM suite (absorbs v2.7's owed rows from 01 §A), sessions, blind rating packs, budget, freeze and attestation | — | all tiers; last |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -85,8 +86,9 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 - 12 → 13: J7.6 needs 12's reconstruction replay.
 - 13 N2 lands on 05's cue seam (05 names it); 13 N8 adds a judge arm to 20 M1.
 - 05 → 06 → 07 / 08: sprite generation needs the image route; talking frames and look sprites need the builder.
-- 04 C4 (quest log), C7 (stat sheet) and C9's public roll chips integrate after 18. C1–C3, C5, C6 and C9's author
-  Activity panel build earlier.
+- 04 C4 (quest log), C7 (stat sheet) and C9 (a) public roll chips integrate after 18; C5 builds earlier on v2.7 06's
+  panel frame. C1–C3, C6 and C9 (b) (author Activity panel + roll store) are v2.7 06.
+- 23 runs last: its final suite needs every other plan frozen.
 - 03 → 02 `player` blocks; 07 S28 → 02 `--anim`; 03 and 08 share `player.card`.
 - 03 builds on v2.7 05's briefing modal and v2.7 04's check registry; 10 builds on v2.7 05's format; 09 on v2.7 01's
   registry and Help.
@@ -100,7 +102,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 01 | 02, 06, 08, 10, 23 | 02: C3/C4 measure on the first v2.7 build (v2.6 untouched). 08: **SP2 v2 option A is important** (the user edits replies and uses a post-processor); held reply loud only, 15 s cap; R5′ net of displaced reads. 10: **fund one thinking A/B** (Cydonia or Skyfall). 06: story + checkpoint level behind R4; Astra rates. 23: the user plays the over-steer session; a test card so Claude plays it too | A moves from parked to built |
 | 02 | 05 | do every step; academy act pilots v2.8 18, the 7-member act pilots v2.8 20 | new rows from review D13 |
 | 03 | 30 | profile, create-by-click, keep-current default, `requirements.personas` kept, no judge fit check, Adolion `player` blocks | **no persona switching inside a story** (chosen at start, always locked; a switch raises a finding); the ST persona is the base, story changes go through v2.8 08's overlay |
-| 04 | 04 | plays index holds checkpoint names; seamless backfill (v2.7 06) | **build all C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"** (roll chips + author Activity panel). C8 is built in v2.7 05 |
+| 04 | 04 | plays index holds checkpoint names; seamless backfill (v2.7 06) | **build all C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"**. Split 2026-10-03 (user-approved): C1–C3, C6, C9 (b), the frame and the toggles in v2.7 06; C4, C5, C7, C9 (a) here. C8 is built in v2.7 05 |
 | 05 | 26 | all recommendations | sprite generation becomes v2.8 06 (campaign script as the base) |
 | 06 | 26b | from 05 decision 6 and the review (F31) | new plan |
 | 07 | 28 | drop Talkinghead; B + P; on by default with reduced-motion off | mouth frames compared (2 vs 3) **and** a "Mouth movement" setting (off/simple/smooth); D (rig) → v2.9 05 |
@@ -127,7 +129,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 01 | written 2026-10-03 from v2.7 carry-in; items decided; option A, the A/B, R4 and the session not run or built; owed v2.7 live rows open |
 | 02 | written; decided (do every step); A4/A5 and new rows not started |
 | 03 | written; decided (review of the answers applied); not built; S30-1 not run |
-| 04 | written; decided; not built (v2.7 06 builds the plays index and badges first) |
+| 04 | written; decided; reduced to C4, C5, C7, C9 (a) on 2026-10-03 (the rest moved to v2.7 06); not built |
 | 05 | written; decided; not built |
 | 06 | written 2026-10-03 (contract only); not decided in detail; not built |
 | 07 | written; decided; not built; S28 not run |
@@ -146,6 +148,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
 | 22 | written (exploration); decided (M1 first); not run |
+| 23 | written 2026-10-03 (test plan); runs last |
 
 ## Review 2026-10-03
 
@@ -153,3 +156,6 @@ Applied here: F01 (per-plan status), F15 (gate taxonomy), F16 + A2 + Sol split i
 public relationship meters), A4 (rows rewritten from decisions), B10 (registry rule), B4 (second-model labels), B12/F36
 (qualified references), C6 (DeepSeek reads are CL, not RP). Per-plan findings are listed in each plan's own
 "Review 2026-10-03" section.
+
+2026-10-03 (later): the 04 row reflects the user-approved move of C1, C2, C3, C6, C9 (b), the panel frame and the
+per-story toggles to v2.7 06; plan 23 (test plan) added as the last row.

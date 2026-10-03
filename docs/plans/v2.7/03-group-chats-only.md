@@ -1,29 +1,46 @@
-# Plan 33 — Stories run in group chats only
+# Plan 03 — Stories run in group chats only
 
-**Status: DRAFT 2026-10-03 (user decision while reviewing plans 04, 29 and 30). Not approved as built; the direction is
-decided.** Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 03 (was old v2.7 33). APPROVED (all five decisions as recommended, user 2026-10-03);
+not built. The 10 solo story chats on the real install are deleted. Built together with v2.7 04 at their seam (Sol
+split item 6).** Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D (scripted messages, `seed_metadata`,
+dry-run payloads). Model input: group prompts must stay byte-identical (payload invariance); solo chats lose every
+injection by design (the runtime is inactive there).
 
-The user's words:
-- Plan 04: "Do we support solo chats on this plugin? I thought we only supported group chats. Should we support solo? I
+The user's words (old plan numbers):
+- Plan 04 (now v2.7 06): "Do we support solo chats on this plugin? I thought we only supported group chats. Should we support solo? I
   think it goes against many of this plugin's mechanics."
-- Plan 29: "I think this plugin makes no sense for solo players; let's only consider group. Plugin should be disabled for
+- Plan 29 (now v2.8 21): "I think this plugin makes no sense for solo players; let's only consider group. Plugin should be disabled for
   solo chats."
 
 ## What solo support exists today
 
 Solo chats are half-supported, which is the worst of both:
 - **A story can be selected and played in a solo character chat.** The runtime loads, extraction reads, effects apply.
-- **Some systems have solo-specific code:**
-  - the solo epistemic block (`runtime/memoryInjector.ts:120-122,176-178,267-272`, `renderSoloEpistemicBlock`);
-  - the solo member hook (`runtime/managerWiring.ts:128`);
-  - D10 archive recall running in solo chats (plan 29: `runtime/loudGenerationGate.ts:32-42`).
+- **Some systems have solo-specific code.** Full census (review D1; lines read 2026-10-03, re-verify at build):
+
+| Site | Solo behaviour | Action |
+|---|---|---|
+| `runtime/runtimeManager.ts:588` | `memory.injector.onSoloGeneration()` on every non-withheld generation | remove the solo call; keep the stale-hold releases |
+| `runtime/memoryInjector.ts:108, :122, :176, :267-274, :285-290` | solo epistemic block, solo aims, `onSoloGeneration` | remove; keep the group resting block (empty by design) and the per-member swap |
+| `memory/epistemic.ts:184` `renderSoloEpistemicBlock` | solo knowledge render | remove with its tests |
+| `memory/innerRender.ts:180` `soloAims` | solo inner aims | remove |
+| `runtime/coordinators/pacingCoordinator.ts:28, :139` `soloMember` | guidance target falls back to the solo member | remove the dep; keep `drafted` (group) |
+| `runtime/managerWiring.ts:128` | wires `soloMember` | remove |
+| `runtime/roster.ts` fallback | resolves a solo character as the speaker | keep only the group fallbacks that are valid without a solo chat |
+| `runtime/loudGenerationGate.ts:32-42` | D10 archive recall in solo chats | remove the solo path |
+| `stHost/sprites.ts:58-62`, `sprites/stage.ts:347` | solo character sprite | remove the solo branch |
+| `stHost/image.ts:43-63` | solo cast for images | remove the solo branch |
+| `stHost/selectors.ts:46-57` | solo chat selectors | keep only what shared cleanup/restore uses |
+| `stHost/chatScenario.ts:25-28`, `stHost/persistence.ts:330-340`, `stHost/chatFiles.ts:54-62` | solo save/scenario/file paths | keep the shared cleanup and restore (leaving a solo chat must still restore); drop solo-only writes |
+| `copilot/agent/prompt.ts:35`, `finish.ts:34` | assumes one card can be a story (cardinality) | remove the assumption; a story using existing cards also needs a group (review D5) |
 - **Many core mechanics assume a group and simply do nothing solo:**
   - speaker direction and chains (`talk/`), cast changes, per-member private knowledge, NPC replies as other members;
   - the roster's member requirements;
   - the campaign finding "a solo or partial group gets no checkpoint effects at all" (campaign F8/C3, fixed for the
     effects part in `e04783c2`).
-- **Plans written today keep paying a solo tax:** plan 04 (badges on solo characters), plan 29 (solo-only spike scope),
-  plan 30 (persona switch reloads differ solo vs group), plan 32 (avatars).
+- **Plans written today keep paying a solo tax:** v2.7 06 (badges on solo characters), v2.8 21 (solo-only spike scope),
+  v2.8 03 (persona switch reloads differ solo vs group), v2.8 08 (avatars).
 
 ## Decision and design
 
@@ -34,6 +51,10 @@ Solo chats are half-supported, which is the worst of both:
    - "Stories play in group chats. [Make a group for this story]".
    - That button runs the existing provisioning path: a group with the story's cast (or this character plus the story's
      narrator), confirmed by the player, create-only.
+   - **The player-triggered exception is codified** (review D4): this is the one place a player (not the wizard) creates
+     an asset. It runs `validateProvisioningOp` with the draft's cast (`environment.castNames`, `castNames.ts`); a
+     story whose narrator card is missing names that and offers "Fix with wizard" instead of creating a partial group.
+     The created group is bound to the story (`groupStories`) and the player is moved to its new chat.
 2. **Story selection is refused with no group open,** the same way the "no chat, no story" invariant refuses with no
    chat. The message names the fix.
 3. **A one-character story is a group of one plus a narrator.** The wizard's setup step always creates a group, which it
@@ -47,26 +68,40 @@ Solo chats are half-supported, which is the worst of both:
    Opening one shows the "make a group" card. Nothing is migrated automatically. The v2.6 records stay history.
 6. **Invariant (architecture.md):** "No group, no story" joins "No chat, no story". Checks: `noGroupChat` in the snapshot,
    a refusal status, tests mirroring `runtime/noChatOpen.review.test.ts`.
+7. **`story-needs-group` is a v2.7 04 check that works without an active engine** (review D6). Today `inScope` and the
+   check scope assume a loaded story; this check reads the selection/binding (`selectedStoryId`, `groupStories`), not the
+   engine. An ordinary solo chat with no story stays quiet: no card, no finding.
+8. **Docs and registry (review K3):** the guide's FAQ line "Does it work in a one-on-one chat? Yes."
+   (`docs/guide/player/troubleshooting.md:44`) becomes "No: stories play in group chats"; the registry's `stories`
+   feature (`src/features/registry.ts:98-103`) gains `needs: ["group-chat", ...]`; the guide README says it up front.
 
 ## Effects on other plans
 
 | Plan | Change |
 |---|---|
-| 04 story presence | badges on groups only (decision 1 answered) |
-| 29 verbatim recall | the "solo first" spike scope becomes "groups with witness filtering, or not at all"; the D10 solo path goes |
-| 30 persona | one flow (the group reload path); persona chosen at story start, then locked for the story (user: no persona switching inside a story) |
-| 31 health center | a `story-needs-group` check (blocks) with the "make a group" action |
-| 32 living cards | no solo avatar branch |
-| 01 docs | the guide says it up front: stories are group chats |
-| harness | scenarios and journeys that open solo chats move to groups; `so-session` cards checked |
+| v2.7 06 story presence | badges on groups only (decision 1 answered) |
+| v2.8 21 smart context | the "solo first" spike scope becomes "groups with witness filtering, or not at all"; the D10 solo path goes here |
+| v2.8 03 persona | one flow (the group reload path); persona chosen at story start, then locked (no switching inside a story) |
+| v2.7 04 health center | a `story-needs-group` check (blocks) with the "make a group" action, engine-free (decision 7) |
+| v2.8 08 living cards | no solo avatar branch |
+| v2.7 01 docs | the guide says it up front: stories are group chats (K3) |
+| harness | scenarios and journeys that open solo chats move to groups; `so-session` cards checked; a solo chat stays only as a control |
 
-## Gates (tier 1, no LLM)
+## Gates (tier D)
 
-- Pure: the no-group refusal across select, restart, update and effects (like the no-chat tests); the snapshot flag; the
-  check; removed code has no remaining callers (typecheck).
-- UI: Storybook for the "make a group" card; player-clean sweep.
-- Live: a solo chat with a bound story shows the card and nothing else runs (no extraction calls, no injections in
-  `GENERATE_AFTER_DATA`); the button creates the group, which then plays.
+- **Pure:** the no-group refusal across select, restart, update and effects (like the no-chat tests); the snapshot flag;
+  the engine-free `story-needs-group` check (no story → quiet); refusal tests for new selection in a solo chat (D7).
+- **Removal guard (D3):** a jest guard lists the removed exports and fails when any module imports one again, with a
+  planted-import control (typecheck cannot see dead exports), the `DROPPED_SPIKES` pattern in
+  `src/runtime/devOnly.guard.test.ts`.
+- **Payload invariance:** a dry-run capture of a scripted group turn (drafted member, resting prompt, a withheld quiet
+  run) is byte-identical before and after the removal.
+- **UI:** Storybook for the "make a group" card (390/768/1440, a11y); `assert-player-clean`.
+- **Live (D, D7):** `seed_metadata` writes a legacy solo-story blob into a solo chat on a lane: the card shows, nothing
+  else runs (no extraction call, no injection in `GENERATE_AFTER_DATA` dry run); selecting a story there is refused;
+  the button creates a group from the validated cast and binds it; the new chat activates (no reply needed). Cleanup
+  deletes the created group and its chat. ×2.
+- Registry + guide: `stories` needs `group-chat`; guide drift test (K3).
 - `npm run gates`.
 
 ## Decisions for the user
@@ -75,14 +110,16 @@ Solo chats are half-supported, which is the worst of both:
 2. Remove solo-only code rather than keep it dormant? **Recommended: yes** (no-legacy rule).
 3. "Make a group" uses the existing create-only provisioning, confirmed by the player? **Recommended: yes.**
 4. Old solo story chats: leave as is, show the card, no auto-migration? **Recommended: yes.**
-5. Build position: tier 1, before plans 03, 04 and 30, because they each have solo branches to drop.
+5. Build position: tier 1, before plans 03, 04 and 30 (now v2.7 05, v2.7 06, v2.8 03), because they each have solo
+   branches to drop.
    **Recommended: yes.**
 
 Lets do as you recommend on all your questions, you can delete any old solo chat so we close that for good.
 
 ## Links
 
-04, 29, 30, 31, 32; `.claude/rules/architecture.md` "No chat, no story".
+v2.7 04 (`story-needs-group`), v2.7 06 (badges), v2.7 01 (guide, registry), v2.8 03, v2.8 08, v2.8 21;
+`.claude/rules/architecture.md` "No chat, no story".
 
 ## Review of the answers (2026-10-03)
 
@@ -93,3 +130,11 @@ card needed for them", and the card still ships for any solo chat that gets a st
 
 2026-10-03: user confirmed; the 10 solo story chats were deleted from the real install (re-scan finds none left; no
 per-chat mirror lorebooks named for them). Decision 4 is moot for this install; the card still ships.
+
+## Review 2026-10-03
+
+Applied: status APPROVED, D1 (full solo census, shared cleanup/restore kept), D3 (removal guard with a planted-import
+control), D4 (the player-triggered group creation codified, missing narrator handled), D5 (cardinality assumptions in
+`agent/prompt.ts`, `finish.ts`), D6 (engine-free `story-needs-group`, ordinary solo chats quiet), D7 (`seed_metadata`
+legacy case + refusal tests), K3 (guide FAQ + registry `needs`), F08 (no solo text in other plans), Sol split item 6
+(built with v2.7 04; scripted gates), B12 (references).

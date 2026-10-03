@@ -83,7 +83,7 @@ version (`storySelection.ts:142-143`), so a carried key can disappear under an e
 unclear for a branching story.
 
 **E. Cross-chat trophy shelf only.** Record per finished run: title, ending chapter title, epilogue, milestones
-(v2.8 18 Q4). Show it in the Continue list (v2.8 04, old v2.7 04 C1). Nothing flows into a new run. Cost: low once
+(v2.8 18 Q4). Show it in the Continue list (v2.7 06 C1, old v2.7 04 C1). Nothing flows into a new run. Cost: low once
 the plays index and the Continue list exist.
 
 ## Recommendation
@@ -92,7 +92,7 @@ the plays index and the Continue list exist.
 the Q-M floors decide whether the seal ships at all; building a consumer for an output that has never run live is
 backwards. When a final chapter has been reached live, build **B**: it is deterministic, needs no model call or floor
 of its own, keeps rollback ≡ replay, and is how a campaign split into stories (the Adolion lab's shape) would actually
-use it. Add E as a by-product once v2.8 04's Continue list is built. C only behind its own measurement.
+use it. Add E as a by-product once v2.7 06's Continue list is built. C only behind its own measurement.
 
 ## Decisions for the user
 
@@ -108,7 +108,7 @@ use it. Add E as a by-product once v2.8 04's Continue list is built. C only behi
 5. A trophy shelf (option E) in the Continue list? **Recommended: only if plan 04 C1 is built; decide there.**
 
 (Answer above kept verbatim; "next version" = this v2.9 plan. In 4 and 5, "plan 04" = the plays index, v2.7 06 §A, and
-"plan 04 C1" = the Continue list, now v2.8 04. The user chose to build all eight C-items, so 5 is decided when v2.8 04
+"plan 04 C1" = the Continue list, now v2.7 06. The user chose to build all eight C-items, so 5 is decided when v2.7 06
 closes.)
 
 ## Floor and measurement before building
@@ -133,7 +133,7 @@ closes.)
 
 ## Links
 
-- v2.7 06 §A plays index: the list of finished runs. v2.8 04: the Continue list hosts option E.
+- v2.7 06 §A plays index: the list of finished runs. v2.7 06: the Continue list hosts option E.
 - v2.7 05 story briefing ("Before you start" modal): where B's picker would sit.
 - v2.8 18 quests and game layer: Q4 milestones are the natural trophy content; quest state could be outcome keys.
 - v2.8 20 character life: relationship axes are qualities, so they could be outcome keys (carry a bond into the sequel).

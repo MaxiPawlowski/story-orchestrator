@@ -1,9 +1,12 @@
-# Plan 09 — C4 option (b): re-stage the target's path after a jump
+# Plan 11 — C4 option (b): re-stage the target's path after a jump
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "C4 option (b)". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 11 (was old v2.7 09). CLOSED: keep (c) (decision 1), seed dropped; option E deferred to
+`v2.9/05-deferred-items.md` §05.3 (decision 2). No code.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "C4 option (b)".
+Overview: `00-overview.md`.
+**Gate tiers:** none (docs). Model input: none.
 
 Name clash: this is v2.6 plan 04's design call **C4** (`/cp activate` staging). It is not v2.3 plan 07's C4 ("absent agency
-= the defaults"), which v2.4 D6 cites. Plan 23 uses the other one.
+= the defaults"), which v2.4 D6 cites. v2.9 04 (D6/T22 revisits) uses the other one.
 
 ## What it is (plain words, 3–6 lines)
 
@@ -28,7 +31,7 @@ Name clash: this is v2.6 plan 04's design call **C4** (`/cp activate` staging). 
 | 2026-10-02 | Review pack item 6 put "keep (c) or revisit (b)" to the user; Claude recommended keep (c) | `docs/plans/v2.6/14-review-pack.md:43, :235-262` |
 
 Verdict so far: the only observed harm (T1-5) was a test-harness start, not play. No session recorded a jump hurting
-a player. The user's answer to review item 6 is **not recorded** in the repo (not determined).
+a player. The user's answer to review item 6 is now recorded: decision 1 below ("yes", keep (c)), 2026-10-03.
 
 ## Why it was deferred
 
@@ -78,6 +81,9 @@ information without the product guessing.
    campaign checkpoints author `agency.alternate`.)
 4. If (b) is ever built, how is an ambiguous path resolved? **Recommended: don't build; if forced, C (author picks).**
 
+Decisions 3 and 4 had no inline answer; they are taken as recommended (review A16). "Plan 23" in decision 3 is now the
+v2.8 01 §G over-steer session, whose evidence feeds v2.9 04.
+
 ## Floor and measurement before building
 
 Predeclared, before any (b)/(C)/(D) build:
@@ -101,7 +107,12 @@ Predeclared, before any (b)/(C)/(D) build:
 
 ## Links
 
-04 story presence/plays index · 19 quests/game layer · 18 character life · 25 new game plus · 08 SP2 · 22 SP9 · 16 spike
-defers (SP5's caveat) · 20 J6d shadow record · 14 J7 judge ideas · 13 B10 CLI judge · 12 curator create op · 11 warden-lore
-one request · 21 cue+scene read merge · **09 this** · 07 commitment double negatives · 23 D6/T22 revisits (agency
-alternates) · 10 model choice · 06 thinking per story · 15 open-source Jev alternative
+- v2.9 05 §05.3 (option E, deferred), v2.7 04 (where E would land as a finding with an action).
+- v2.8 16 SP5 (its "unstaged jump target" caveat), v2.9 04 D6/T22 revisits (deferred; agency alternates), v2.8 01 §G.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03, v2.8 01 §C SP2, v2.9 02, v2.8 12, v2.8 13, v2.7 14, v2.8 11,
+  v2.7 13, v2.8 15, v2.7 09, v2.7 12, v2.7 08, v2.8 14.
+
+## Review 2026-10-03
+
+Applied: A16 (the "not recorded" answer is recorded; decisions 3/4 as recommended; E deferred to v2.9 05.3), the
+Claude-A note on Links (deferred plans named as deferred), B12/F36 (references). Closed.

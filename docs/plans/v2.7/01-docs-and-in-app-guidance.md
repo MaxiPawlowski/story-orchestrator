@@ -1,6 +1,9 @@
 # Plan 01 — Documentation by feature, and an extension that explains itself
 
-**Status: DRAFT 2026-10-03 (topic from the user). Not approved, not built.** Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 01. APPROVED; BUILT (docs half `cf35ec22`, in-app half `6dcfccb8`). Open: the triage
+review with the user (§Triage proposal), the owed deterministic live checks (`16-test-plan.md` row 01), close-out step Z.
+The fresh-install real reply is owed to `v2.8/01-v27-carry-over.md` O1.** Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D, except O1 (RP or CL, v2.8 01).
 
 The user's words: the feature count has grown absurd. We need a better way to manage and share it. Nobody will make a
 course about it, so it has to be intuitive inside SillyTavern.
@@ -118,8 +121,8 @@ docs/
   - architecture doc to current;
   - `manifest.json` `homePage` set to the guide;
   - plugin READMEs.
-- **Internal records:** keep them in the public repo under `docs/internal/`, or move them to the private `so-sessions`
-  repo (it already holds session evidence). `docs/review` alone is 8.4 MB of screenshots.
+- **Internal records move to the private `so-sessions` repo** (decision 3: "move"; it already holds session evidence).
+  `docs/review` alone is 8.4 MB of screenshots. Not done yet: a close-out item (step Z).
 
 ## C. In ST: an extension that explains itself
 
@@ -128,12 +131,12 @@ docs/
      needs, a **Show me** button (`revealSetting`, the Repair pattern), and "Read more" (opens the guide page on the
      repo, `homePage`).
    - Player mode lists player features only; Author view adds the rest (two-personas rule).
-   - The author's guide index (all 34 topics, not only per Studio tab) lives here too.
+   - The author's guide index (all 33 topics, not only per Studio tab) lives here too.
 2. **Getting started checklist**, an extension of Repair: memory model → (optional) judge → (optional) images.
    - Each step has its consequence, Show me, and a one-click check.
    - It sits in the Start entry point until done, then folds away.
 3. **First-run and briefing:**
-   - plan 03's briefing modal carries a one-time collapsible "How Story Orchestrator works": what the HUD, chips,
+   - v2.7 05's briefing modal carries a one-time collapsible "How Story Orchestrator works": what the HUD, chips,
      drawer and Memory tab are, in about 6 lines with icons.
    - A drawer opened with no story says what to do next (today it is bare).
 4. **"What's new" card** after an update: features whose `since` is newer than the last seen version, one line each,
@@ -169,8 +172,9 @@ The triage table is filled in during build and reviewed with the user before any
 - **Pure:** registry tests (A), the generated settings reference, the guide drift test after the split.
 - **UI:** Storybook for the Help panel, checklist, What's new, legend (a11y plays, 390/768/1440), and an
   `assert-player-clean` sweep including the Help panel in player mode.
-- **Live:** a fresh install (adolion-fresh lane with our settings cleared) reaches a first reply using only in-app
-  guidance, scripted through `so-ui`, with the steps recorded.
+- **Live (D, v2.7):** the in-app walk on an adolion-fresh lane with our settings cleared, up to the first send,
+  scripted through `so-ui`, with the steps recorded; Help in player mode under `assert-player-clean` (v2.8 01 O2).
+- **Live (RP or CL, v2.8 01 O1):** the same walk reaching a first real reply. Not a v2.7 gate.
 - **Human:** the user, or a delegated rater who has never used the extension, sets it up from the release zip with no
   docs open. Every point where they had to ask is a defect.
 - `npm run gates`.
@@ -190,7 +194,8 @@ user concern: should this be built after all development? or should we have a se
 **Answer (2026-10-03): both, in that order.** The registry, its tests and the guide layout go first, because they are
 the frame every later plan writes into. Each later plan's gate then includes "registered in the registry, guide page
 written, help strings plain", and the tests fail the build otherwise. So the docs cannot fall behind silently, and
-there is no big rewrite at the end. A short **close-out step at the end of v2.7** (overview §Build order, row Z) then:
+there is no big rewrite at the end. A short **close-out step at the end of v2.7** (v2.7 overview §Build order, row Z)
+then:
 - regenerates the settings reference and the README feature table;
 - runs the feature triage again with everything v2.7 added, for your review;
 - checks every guide page against the shipped UI;
@@ -198,7 +203,9 @@ there is no big rewrite at the end. A short **close-out step at the end of v2.7*
 
 ## Links
 
-04 (C6 wand entry, C8 onboarding), 03 briefing (first-run section), 02 carry-in (judge readiness leak).
+v2.7 06 (C6 wand entry; the panel frame that hosts Help), v2.7 05 (briefing modal, C8 first-run section), v2.7 02
+(judge readiness leak), v2.7 04 (Getting started reads the check registry), v2.7 03 (the guide says stories are group
+chats, K3), v2.8 01 O1/O2 (owed live rows), v2.8 09 (the wizard assistant reads this registry).
 
 ## Triage proposal
 
@@ -345,5 +352,12 @@ Unresolved for the review:
   off the registry's newest `since`, not the bundle version).
 - Getting started's "one-click check" is Show me only (the memory model test and the judge Recheck sit next to the
   revealed controls); no separate check buttons.
-- "A drawer opened with no story says what to do next" and the briefing's first-run section are left to plan 03.
+- "A drawer opened with no story says what to do next" and the briefing's first-run section are left to v2.7 05.
 - `npm run lint` already lints all of `src` (`eslint src`); the gotcha about enumerated dirs is stale, nothing added.
+
+## Review 2026-10-03
+
+Applied: A13 (33 author's-guide topics, not 34), decision 3 recorded (internal records move to `so-sessions`, a
+close-out item), Sol split item 2 (the fresh-install real reply is v2.8 01 O1; the deterministic half stays here), B10
+(this registry is the gate every feature plan uses), B12/F36 (links version-qualified). K3 (the guide's solo FAQ line)
+is fixed with v2.7 03.

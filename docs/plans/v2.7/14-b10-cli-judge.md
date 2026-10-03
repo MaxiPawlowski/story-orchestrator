@@ -1,6 +1,37 @@
-# Plan 13 — B10 CLI model as judge
+# Plan 14 — B10 CLI model as judge, and cloud models per role
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "B10 CLI model as judge". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 14 (was old v2.7 13). Decided. B10 is DROPPED as a runtime judge (decision 1); the CLI
+stays a labelling aid (decision 2); W27 kept. What v2.7 builds from the research: the role picker grouped by source and
+the per-source/per-model context table (§Build in v2.7, tracked as v2.7 02 C14); not built.** Source:
+`docs/plans/v2.6/v2.7-seeds.md` row "B10 CLI model as judge". Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D. Model input: the context table changes
+how much of an extraction input fits (real-model row `v2.8/01-v27-carry-over.md` §B C14-b); the picker changes nothing
+sent.
+
+## Build in v2.7 (review B6 refined, research decisions 1 and 6)
+
+The user has **Claude and Codex subscriptions and the DeepSeek API, no OpenRouter and no Anthropic API key** (research
+decision 1). So:
+
+1. **Picker grouped by source.** `RoleProfilesGroup.tsx` groups Connection Manager profiles by source/vendor and labels
+   each "cloud" or "local", so a cloud egress is visible where it is chosen; harness routes stay in their own group.
+   Same for the image director's select. No route changes.
+2. **Per-source/per-model context table** (`src/services/stHost/contextLimit.ts`, today `CHAT_SOURCE_CONTEXT` lists only
+   `deepseek`, `:21-28`): a table keyed by source and, where known, model id; precedence **preset value > model row >
+   source row > 8192 default**, the default carrying its reason as today. Tests: an unknown model on a known source,
+   an unknown source, a preset that wins over the table, truncation at the table's limit, a TC profile untouched.
+3. **Docs** (`docs/guide/setup/`): "use a cloud model for a task": one CC profile per provider/model with its own
+   `secret-id`, picked under Models per task; the DeepSeek API as the worked example; Claude/Codex subscriptions only
+   through the opencode harness (W27); OpenRouter mentioned as an alternative, not the path (B6); egress per role.
+
+Not in v2.7 (each needs a model or a later plan):
+- **Lore-creation role** (research decision 2): built with the curator create op, `v2.8/11-curator-create-op.md`.
+- **Optional Critic role** (decision 2, "after the wizard work"): no home yet (question in the overview).
+- **Native tool calls over CC profiles** for the agentic wizard (decision 3): a CL spike on the DeepSeek API CC profile
+  plus the opencode subscription route (which already has native tools via the MCP bridge), floor = v2.6 plan 11's agent
+  checks on the same fixture. No v2.8 plan holds it yet (question in the overview; v2.8 09 suggested).
+- **Labelling aid** (decision 2): offline, per fixture plan in v2.8 (12, 13, 14); the labelling model is never
+  calibrated on its own labels; Adolion-derived rows are checked by a second model, never the user (review B4).
 
 ## What it is
 
@@ -16,20 +47,20 @@
 |---|---|---|
 | v2.5 plan 13 | "LLM-as-judge via a harness" kept as candidate H-S3, belonging to plan 06; harness plugin designed (`/complete`, spawn per call) | `docs/plans/v2.5/13-harness-routing.md:49-50` |
 | v2.5 plan 06 J8 | Contract = verbalized label (+ optional stated confidence); corpus = existing fixtures; columns harness vs Jev vs off; off-path only; setting `judge.transport[use]`; privacy row per vendor; "not a v2.5 build unless the user asks" | `docs/plans/v2.5/06-judge-next.md:197-207`; risk note "J8 looks like a cheaper judge and is not one" `:253-254` |
-| v2.5 plan 06 J5 | Why the harness is not a Jev host: Jev is a System One classifier; a CLI is "a different contract" | `06-judge-next.md:150-158` |
+| v2.5 plan 06 J5 | Why the harness is not a Jev host: Jev is a System One classifier; a CLI is "a different contract" | `v2.5/06-judge-next.md:150-158` |
 | v2.6 Q4 | B10 recommendation **defer**: text not probabilities, 2–7 s spawn, needs the harness build | `docs/plans/v2.6/00-overview.md:278` |
-| v2.6 W16 | User: plan 12 Phase C spikes it (row C12, floor = the Jev use's floor on the same fixture, its own decision rule declared first); C12 waits on 04 H | `00-overview.md:173`; `12-open-judge.md:97,109` |
+| v2.6 W16 | User: plan 12 Phase C spikes it (row C12, floor = the Jev use's floor on the same fixture, its own decision rule declared first); C12 waits on 04 H | `00-overview.md:173`; `v2.6/12-open-judge.md:97,109` |
 | v2.6 W27 | **Harness scope = opencode only, no CLI logins.** "The Claude Code and Codex arms are dropped, not pending" | `00-overview.md:184` |
 | v2.6 04 H | Harness plugin built (H1–H4 + agent bridge), opencode only offered; Claude/Codex support kept in code, unoffered | `docs/plans/v2.6/04-remaining-builds.md:12,310,340` |
-| v2.6 plan 12 Phase 0 | Survey F6: all three CLIs **verbalized** only; "latency 2-7 s rules out the 1500 ms reply path. Off-path only" | `12-survey.md:73-79,169-177` |
-| v2.6 plan 12 Phase C | Never started | `12-open-judge.md:3` |
+| v2.6 plan 12 Phase 0 | Survey F6: all three CLIs **verbalized** only; "latency 2-7 s rules out the 1500 ms reply path. Off-path only" | `v2.6/12-survey.md:73-79,169-177` |
+| v2.6 plan 12 Phase C | Never started | `v2.6/12-open-judge.md:3` |
 | v2.6 T6-3 (2026-10-02) | Harness route **never exercised live**: opencode account hit its usage limit ("opencode reports its usage limit"), role Test took 75–89 s to report it | `test/sessions/T6/SUMMARY.md:160,203-218` |
 
 Measured latency (probe, not a judge run):
-- `claude -p` haiku, isolated flags: 402 input tokens, wall **2.1–3.4 s** (2 calls) (`13-harness-routing.md:100`).
+- `claude -p` haiku, isolated flags: 402 input tokens, wall **2.1–3.4 s** (2 calls) (`v2.5/13-harness-routing.md:100`).
 - `opencode run` gpt-6-astra(-fast): wall **6.0–6.7 s**; inline agent cut input to 133 tokens but wall stayed 6.7 s,
-  so startup dominates (`13-harness-routing.md:109-110`).
-- `codex exec`: not found (`12-survey.md:196`).
+  so startup dominates (`v2.5/13-harness-routing.md:109-110`).
+- `codex exec`: not found (`v2.6/12-survey.md:196`).
 
 Judge budgets it would have to fit (`src/judge/policy.ts`): director and lore 1500 ms (reply path), scene 2500, critic
 2500, memoryVerify/memoryPairs 3000, stall/warden/curatorFilter 4000, typed 5000. **Every one is below opencode's
@@ -41,17 +72,17 @@ measured 6–7 s.**
 - Latency: above every current judge budget.
 - W27 removed two of the three CLIs, and the remaining one (opencode) ran out of quota in the v2.6 sessions.
 - Privacy: opencode's own policy lists prompts for "Improving the Services" and the training question was closed
-  unanswered (`12-survey.md:79,173`).
+  unanswered (`v2.6/12-survey.md:79,173`).
 
 ## Current state in code
 
 - `DecisionContract` already has `"verbalized"` (`src/judge/providers.ts:8`), but `JUDGE_PROVIDER_IDS` is only
   `typesafe`, `llama-logprob` (`:3`). No verbalized provider exists.
 - Harness plugin: `server-plugin/story-orchestrator-harness/` (`POST /complete`, concurrency 2 and queue 8 per harness,
-  single-flight per user/harness/role, admin-only, `offer` gate) (`04-remaining-builds.md:310`). Not offered unless the
+  single-flight per user/harness/role, admin-only, `offer` gate) (`v2.6/04-remaining-builds.md:310`). Not offered unless the
   server `config.json` sets `offer: true`.
 - Judge plugin provider table: `typesafe`, `llama-logprob` only (`server-plugin/story-orchestrator-judge/index.mjs:9-11`).
-- No `judge.transport[use]` setting; routing is `judge.provider[use]` (`src/judge/settings.ts`, plan 12 Phase A).
+- No `judge.transport[use]` setting; routing is `judge.provider[use]` (`src/judge/settings.ts`, v2.6 plan 12 Phase A).
 
 ## Options
 
@@ -62,7 +93,7 @@ its existing fixture. Budgets raised per use for this provider only, or the use 
 verify, chapter-seal verify, memory backlog). Cost: per-call subscription/API quota; 6–7 s each. Risk: quota outages
 (seen 2026-10-02) turn into fallbacks; vendor privacy row needed.
 
-**B. Labelling aid, not a judge.** Use the CLI model offline to *propose* labels for new fixtures (J7, J6d, plan 15),
+**B. Labelling aid, not a judge.** Use the CLI model offline to *propose* labels for new fixtures (J7, J6d, v2.8 14),
 which a human or a second pass confirms before any judge answer is read. No runtime code, no new provider. Cost: one-off
 quota. Risk: model-proposed labels bias the fixture toward that model; mitigate with the user spot-check and by never
 calibrating the same CLI model on fixtures it labelled.
@@ -70,14 +101,14 @@ calibrating the same CLI model on fixtures it labelled.
 **C. Restore Claude Code / Codex arms** (reverse W27) to get the faster `claude -p` (2–3 s). Still above the reply path,
 still verbalized; needs logins the user ruled out.
 
-**D. Drop it.** The local judge question is better served by plan 15 (a model that returns real probabilities on this
+**D. Drop it.** The local judge question is better served by v2.8 14 (a model that returns real probabilities on this
 machine).
 
 ## Recommendation
 
 **D for the runtime judge, plus B as tooling.** A verbalized, 6–7 s, quota-bound judge adds a contract, a decision rule
 per use and a privacy row, to serve only uses nobody waits on, and it failed on quota the one time it was scheduled.
-Plan 15 is the better path to a non-TypeSafe judge. Using the CLI as a labelling aid gets value from the harness without
+v2.8 14 is the better path to a non-TypeSafe judge. Using the CLI as a labelling aid gets value from the harness without
 putting it on any play path.
 
 ## Decisions for the user
@@ -92,8 +123,8 @@ putting it on any play path.
 ## Floor and measurement before building
 
 Only if decision 1 is "yes" (option A):
-- Per use: its decision rule declared **before** any answer is read (`12-open-judge.md:97`), then the Jev use's
-  existing floor on the same fixture, ×2, with judge-off and TypeSafe columns (`12-provider-matrix.md` shape).
+- Per use: its decision rule declared **before** any answer is read (`v2.6/12-open-judge.md:97`), then the Jev use's
+  existing floor on the same fixture, ×2, with judge-off and TypeSafe columns (`v2.6/12-provider-matrix.md` shape).
 - p95 latency per use against a budget declared for this provider; quota-failure rate recorded as fallbacks.
 - A calibration row per provider × model × use (`readiness.ts`), bound to the fixture revision; an unlisted model is
   refused by the harness allowlist.
@@ -110,17 +141,20 @@ For option B: no floor; record which fixture rows were model-proposed and which 
 
 ## Links
 
-- 15 open-source Jev alternative (the recommended path to a non-TypeSafe judge)
-- 14 J7 judge ideas, 20 J6d shadow record (fixtures B10-as-labeller would help build)
-- 10 model choice (a hosted model choice may change the harness model list)
-- 04 story presence/plays index, 19 quests/game layer, 18 character life, 25 new game plus, 08 SP2, 22 SP9, 16 spike
-  defers, 12 curator create op, 11 warden-lore one request, 21 cue+scene read merge, 09 C4 option b, 07 commitment
-  double negatives, 23 D6/T22 revisits, 06 thinking per story
+- v2.7 02 C14 (the build row), v2.8 01 §B C14-b (enlarged inputs, real-model row).
+- v2.8 14 open-source Jev (the recommended path to a non-TypeSafe judge).
+- v2.8 13 J7 judge ideas, v2.8 12 J6d shadow record (fixtures B10-as-labeller would help build).
+- v2.8 11 curator create op (Lore-creation role), v2.8 09 wizard assistant (native tools, Critic: candidates).
+- v2.7 12 model choice (a hosted model choice may change the harness model list).
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C, v2.9 02 (deferred), v2.9 01
+  (deferred), v2.7 13, v2.8 15, v2.7 11, v2.7 09, v2.9 04 (deferred), v2.7 08.
 
 ## Research 2026-10-03: multiple cloud providers per role
 
-Asked by the user's answers to decisions 1 and 4 above, and by plan 12 ("its own model selector, maybe a cloud model,
-or something like opencode"). Code read only; nothing measured live in this pass.
+Asked by the user's answers to decisions 1 and 4 above, and by old plan 12 (now v2.8 11: "its own model selector, maybe a
+cloud model, or something like opencode"). Code read only; nothing measured live in this pass. Plan numbers inside this
+research are old v2.7 numbers unless version-qualified: 01 = v2.7 01, 03 = v2.7 05 / v2.8 10, 11 = v2.6 plan 11,
+12 = v2.8 11, 14 = v2.8 13, 15 = v2.8 14, 24 = v2.8 22.
 
 ### 1. How the extension calls models today
 
@@ -205,7 +239,7 @@ What does not, and why:
 | Gap | Why | Size |
 |---|---|---|
 | Wizard agent on a CC profile has no native tool calls | `localRoute` uses the text JSON protocol (`route.ts:38-57`); `requestModelReply` reads text only (`modelReply.ts:180`) | new `AgentRoute` passing `tools` in the override payload and reading `tool_calls`; a probe per source first |
-| Context limit for a preset-less cloud profile is 8192 except DeepSeek | `CHAT_SOURCE_CONTEXT` lists only `deepseek` (`src/services/stHost/contextLimit.ts:21-28`); v2.6 F6 found the trimming (`15-model-config.md:26`) | small: per-source table, or read the model's context from ST's model list |
+| Context limit for a preset-less cloud profile is 8192 except DeepSeek | `CHAT_SOURCE_CONTEXT` lists only `deepseek` (`src/services/stHost/contextLimit.ts:21-28`); v2.6 F6 found the trimming (`v2.6/15-model-config.md:26`) | small: per-source table, or read the model's context from ST's model list |
 | Curator create op has no selector of its own | it would ride the `curator` role (`stagecraftCoordinator.ts:193`) | a 7th pass role, default "same as curator" |
 | Critic shares the generator's model | critic inherits `authoring` (`critic.ts:105`) | optional 8th role; a different model reduces self-grading |
 | Image director / sprites cannot use cloud reliably | sprites pass a llama.cpp `grammar` (`sprites/stage.ts:410`); cloud sources ignore it | `json_schema` path for CC sources (ST supports it, `chat-completions.js:318`) |
@@ -217,8 +251,8 @@ Options:
 | | What | Providers | Keys / privacy | Tool calls (wizard) | Latency | Cost | Effort |
 |---|---|---|---|---|---|---|---|
 | **A. ST CC profiles per role** (today's seam) | document it; picker groups profiles by source; per-source context; new roles where asked | every ST CC source + any OpenAI-compatible URL | in ST `secrets.json`, server-side, per profile by `secret-id`; ST user accounts respected | text protocol today; native via a new route (ST forwards `tools`) | network only (no spawn) | per-token API billing | small (docs, picker, context table); medium for the native-tools route |
-| **B. Provider seam in our plugin** (judge-style) | our own OpenAI-compatible client + keys | whatever we write | a second key store beside ST's | we would implement it | network only | API billing | large; duplicates ST's backend for ~25 sources. Only worth it for something ST cannot do (logprobs for the judge, plan 15) |
-| **C. Harness CLIs** (opencode; claude/codex) | per-role CLI spawn | the CLI's providers; subscription logins only today | logins in the CLI's home; vendor terms/training rows (`12-survey.md:79,173`) | native, via the MCP bridge (built) | 2-7 s spawn per call (`13-harness-routing.md:100,109-110`); quota outages seen T6-3 | subscription quota | built; API-key providers need a plugin change; claude/codex need reversing W27 |
+| **B. Provider seam in our plugin** (judge-style) | our own OpenAI-compatible client + keys | whatever we write | a second key store beside ST's | we would implement it | network only | API billing | large; duplicates ST's backend for ~25 sources. Only worth it for something ST cannot do (logprobs for the judge, v2.8 14) |
+| **C. Harness CLIs** (opencode; claude/codex) | per-role CLI spawn | the CLI's providers; subscription logins only today | logins in the CLI's home; vendor terms/training rows (`v2.6/12-survey.md:79,173`) | native, via the MCP bridge (built) | 2-7 s spawn per call (`v2.5/13-harness-routing.md:100,109-110`); quota outages seen T6-3 | subscription quota | built; API-key providers need a plugin change; claude/codex need reversing W27 |
 | **D. OpenRouter as one gateway** | one CC profile per model, one key | hundreds of models via one source | one key in ST secrets | as A (openrouter takes the generic path, `chat-completions.js:2636`) | network | per-token + reports `usage.cost` | none beyond A |
 
 ### 4. Uses that benefit from a separate cloud model
@@ -226,18 +260,18 @@ Options:
 | Use | Role today | Player waiting? | Recommended route |
 |---|---|---|---|
 | Wizard / agentic wizard | authoring | no (author) | **A**: a strong cloud CC profile (Claude/GPT/Gemini direct, or OpenRouter). Text protocol works now; build the native-tools CC route after a probe. Keep C as an option only |
-| Curator create op (plan 12) | curator | no (review mode) | **A** with its own role "Lore creation" (default: same as curator). Its floor is per model: a new model needs its own Phase A row |
+| Curator create op (v2.8 11) | curator | no (review mode) | **A** with its own role "Lore creation" (default: same as curator). Its floor is per model: a new model needs its own Phase A row |
 | Image director | own select | no | **A**, after a `json_schema` path for CC sources; sprites stay on the local llama.cpp grammar |
 | Chapter seal | synthesis | no | **A**, long-context cloud model; sends whole chapters (egress row) |
 | Canon | synthesis | no | **A**, same profile as chapter seal |
 | Expansion generation | authoring | no (pre-generation) | **A**, same as wizard |
 | Critic | authoring (inherited) | no | **A**, optional own role on a *different* model than the generator |
 | Labelling aid (decision 2) | none, offline | no | **A** from a debug script over a CC profile (no runtime code); C also fine |
-| Living-story director (plan 24) | not built ("memory or harness profile", `24-living-story-director.md:128`) | no (per anchor) | **A** on authoring, or its own role if it should differ from the wizard |
-| Briefing drafting (plan 03) | wizard Premise step (`03-story-briefing.md:92`) | no | **A**, authoring role |
+| Living-story director (v2.8 22) | not built ("memory or harness profile", old v2.7 24, now `v2.8/22-living-story-director.md`) | no (per anchor) | **A** on authoring, or its own role if it should differ from the wizard |
+| Briefing drafting (v2.8 10) | wizard Premise step (old v2.7 03; now `v2.8/10-briefing-drafting.md`) | no | **A**, authoring role |
 | Story reads, epistemic, ledger | read | indirectly (state lags) | cheap fast cloud (DeepSeek flash proven) or local; unchanged |
 | Director, inner voice | director, inner | **yes** (before a reply) | fast cheap cloud or local only; never C (spawn) |
-| Judge | judge plugin | yes for director/lore | stays on the judge plugin (needs probabilities); plan 15 for non-TypeSafe |
+| Judge | judge plugin | yes for director/lore | stays on the judge plugin (needs probabilities); v2.8 14 for non-TypeSafe |
 
 ### Recommendation
 
@@ -245,17 +279,19 @@ Options:
 server-side; the role map already routes per role, and the v2.6 sessions ran six roles on DeepSeek this way. The work is
 small and concrete:
 
-1. Docs (plan 01): "use a cloud model for a task" — create a CC profile per provider/model (own `secret-id`), pick it
+1. Docs (v2.7 01): "use a cloud model for a task" — create a CC profile per provider/model (own `secret-id`), pick it
    under Models per task; OpenRouter as the one-key route; egress per role.
 2. Picker: group profiles by source/vendor in `RoleProfilesGroup` and label "cloud" vs "local", so a cloud egress is
    visible where it is chosen.
 3. Context limits: per-source table (or ST's model list) instead of `deepseek` only (`contextLimit.ts:21`).
-4. New roles only where a use is built: "Lore creation" (plan 12), optionally "Critic". Default = same as the parent role.
-5. Native tool calls over CC profiles for the wizard agent: spike on two sources (OpenRouter + Claude direct) first,
-   then a `profileToolsRoute` beside `localRoute`/`harnessRoute`. Floor = plan 11's agent checks on the same fixture.
+4. New roles only where a use is built: "Lore creation" (v2.8 11), optionally "Critic". Default = same as the parent role.
+5. Native tool calls over CC profiles for the wizard agent: spike on two sources first, then a `profileToolsRoute`
+   beside `localRoute`/`harnessRoute`. Floor = v2.6 plan 11's agent checks on the same fixture. *Superseded by review
+   B6: the user has no OpenRouter or Anthropic API key, so the spike runs on the DeepSeek API CC profile and the opencode
+   subscription route (§Build in v2.7, "Not in v2.7").*
 
 C stays as built (opencode, W27); reopening API-key harness providers adds a second key store for no provider ST lacks.
-B only if plan 15 needs a logprob provider ST cannot proxy.
+B only if v2.8 14 needs a logprob provider ST cannot proxy.
 
 For decision 4 (if A-as-judge were wanted anyway): no judge use benefits from a verbalized cloud model enough to justify
 a contract per use; the off-path value is in the generative roles above, not in the judge.
@@ -271,3 +307,12 @@ a contract per use; the off-path value is in the generative roles above, not in 
 4. Keep the harness at opencode with subscription logins only (no API-key providers, W27)? **Rec: keep.** keep
 5. Build our own provider seam in the plugin (option B)? **Rec: no**, unless plan 15 needs it for logprobs. as you recommend
 6. Fix the 8192 context default for preset-less cloud CC profiles (per-source table)? **Rec: yes, small, v2.7 carry-in.** yes
+
+## Review 2026-10-03
+
+Applied: B6 refined (no OpenRouter or Anthropic API key: the native-tool spike runs on the DeepSeek API plus the opencode
+subscription route; OpenRouter stays docs only), the Claude-B note "13 decisions need a home" (role picker grouped by
+source and per-source context table here, as v2.7 02 C14; Lore-creation role → v2.8 11; Critic and the CC native-tool
+spike: questions), F36 ("plan 11 agent checks" = v2.6 plan 11), Sol split item 5 (picker + table deterministic here;
+enlarged extraction inputs keep a real-model row in v2.8 01), B4 (labels from Adolion evidence checked by a second
+model), B12 (references).

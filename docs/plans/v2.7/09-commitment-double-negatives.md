@@ -1,6 +1,13 @@
-# Plan 07 — Commitment double negatives
+# Plan 09 — Commitment double negatives
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "Commitment double negatives". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 09 (was old v2.7 07). Decided: keep holding (A), E built and merged (`e9082dd5`), B
+only if a session shows the miss, D no. Closes in v2.7 once its deterministic live check runs (`16-test-plan.md` row 09);
+the real-play journal check is `v2.8/01-v27-carry-over.md` O11.** Source: `docs/plans/v2.6/v2.7-seeds.md` row
+"Commitment double negatives". Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D (seeded hold); CL for O11 (v2.8 01).
+Model input: none (accept/hold decisions unchanged; only the author journal row grows).
+
+Line references below were re-read on 2026-10-03 after E landed (review A14).
 
 ## What it is (plain words, 3–6 lines)
 
@@ -18,24 +25,25 @@
 | When | What | Where |
 |---|---|---|
 | 2026-10-01, T0 blocker | After an edit-rollback, three re-acceptances never moved the story. Cause: the guard judged the line the **reader quoted** (often an NPC line with no commit verb), and never asked who wrote it. Fix: a commit counts only when a **player** line (`isUser`) in the read's window matches; NPC/narrator lines never count | `docs/plans/v2.6/14-findings.md` §"T0 blocker: commit evidence after rollback" (l.24-34); `src/extraction/commitGuard.ts` |
-| same day, follow-up | Negation- and value-aware match: no negator (`not`, `never`, `no`, any `n't`, `cannot`, `refuse`, `decline`) before the verb in the same clause; the sentence must be about the claimed value. Test `commitNegation.test.ts` (12 of 19 red before, all green after). **Known limit stated there:** a double negative reads as a refusal ("fails safe, holds") | `14-findings.md:35` |
-| 2026-10-01, T1 | Recall/precision on a labelled set (44 acceptances, 45 refusals) | `14-findings.md:129-147`; `src/extraction/commitRecall.test.ts` |
-| | T0 pattern + T0 guard: recall 30/44 (0.682), precision 0.732, refusals committed 11/45 | `14-findings.md:143` |
-| | T1 pattern + T1 guard (shipped): **recall 43/44 (0.977), precision 1.000, refusals committed 0/45** | `14-findings.md:146` |
-| T1 follow-up (T2 wave) | An intent-verb bool fix (`objectIsTopic`); T1 recall set unchanged (43/44, 0/45) | `14-findings.md:263`; `src/extraction/commitIntentVerb.test.ts` |
+| same day, follow-up | Negation- and value-aware match: no negator (`not`, `never`, `no`, any `n't`, `cannot`, `refuse`, `decline`) before the verb in the same clause; the sentence must be about the claimed value. Test `commitNegation.test.ts` (12 of 19 red before, all green after). **Known limit stated there:** a double negative reads as a refusal ("fails safe, holds") | `v2.6/14-findings.md:35` |
+| 2026-10-01, T1 | Recall/precision on a labelled set (44 acceptances, 45 refusals) | `v2.6/14-findings.md:129-147`; `src/extraction/commitRecall.test.ts` |
+| | T0 pattern + T0 guard: recall 30/44 (0.682), precision 0.732, refusals committed 11/45 | `v2.6/14-findings.md:143` |
+| | T1 pattern + T1 guard (shipped): **recall 43/44 (0.977), precision 1.000, refusals committed 0/45** | `v2.6/14-findings.md:146` |
+| T1 follow-up (T2 wave) | An intent-verb bool fix (`objectIsTopic`); T1 recall set unchanged (43/44, 0/45) | `v2.6/14-findings.md:263`; `src/extraction/commitIntentVerb.test.ts` |
 
 Notes on the evidence:
 - The labelled set and the negation suite contain **no double-negative acceptance**
   (`grep -i "wouldn\|see why" src/extraction/commit*.test.ts` finds none). The limit is reasoned, not measured.
 - Verified by reading the guard: for "I don't see why we wouldn't take it", the verb match is "take";
-  `clauseBefore` is "I don't see why we wouldn't "; `NEGATOR` (`commitGuard.ts:48`) matches → held
-  (`lineCommits`, `commitGuard.ts:184-199`). `HEDGE` (`:49`) also lists `would`/`should`/`could`, so "we would take
+  `clauseBefore` is "I don't see why we wouldn't "; `NEGATOR` (`commitGuard.ts:50`) matches → held with reason
+  `negated` (`lineVerdict`, `commitGuard.ts:198`). `HEDGE` (`:51`) also lists `would`/`should`/`could`, so "we would take
   it" is held too (hedge, not negation).
 - **No author workaround:** the negator check runs on the clause before *any* pattern match, so widening
   `commit_evidence` cannot accept the phrase.
 - Session counts: "commitment reading(s) held" rows in Claude's session journals: T0 11, T1 20, T2 1, T3 2, T4 40,
   T5 0, T6 10, T7 0 (`grep` over `test/sessions/T*/**/journal.jsonl`, 2026-10-03). How many were double negatives is
-  **not determined**: the held record stores the reader's quote, not the player line (`runtimeManager.ts:444`). The
+  **not determined** for v2.6: the held record stored the reader's quote, not the player line. Since E it also stores
+  the player line and the reason (`runtimeManager.ts:445`, `heldJournal.ts`). The
   sessions were played by Claude, whose lines are plain; a human player is the likelier source.
 
 ## Why it was deferred
@@ -46,11 +54,11 @@ precision 1.000 over the last recall point.
 
 ## Current state in code
 
-- `src/extraction/commitGuard.ts`: `applyCommitEvidence` (l.214), `lineCommits` (l.184), `NEGATOR`/`HEDGE`/
-  `CLAUSE_BREAK` (l.48-50). Pure; no flag.
-- Called once, from `RuntimeManager.enqueueExtractorDeltas` (`src/runtime/runtimeManager.ts:439-445`), for every
-  extractor delta batch; judge-typed and stall deltas take the same rule (`14-findings.md:34`).
-- A held value is journaled author-only (`journalHeld`) and dropped for this read; a later read with a clearer player
+- `src/extraction/commitGuard.ts`: `applyCommitEvidence` (l.241), `lineVerdict` (l.198, returns a hold reason since E),
+  `NEGATOR`/`HEDGE`/`CLAUSE_BREAK` (l.50-52). Pure; no flag.
+- Called once, from `RuntimeManager.enqueueExtractorDeltas` (`src/runtime/runtimeManager.ts:443-445`), for every
+  extractor delta batch; judge-typed and stall deltas take the same rule (`v2.6/14-findings.md:34`).
+- A held value is journaled author-only (`journalHeld`, `runtimeManager.ts:457`) and dropped for this read; a later read with a clearer player
   line commits. Whether the refusal recovery (`src/runtime/agencyRecovery.ts`) can fire on a held commitment streak is
   **not determined** (it reads audits that "moved nothing", which a held delta may look like).
 - Schema: `Quality.commit_evidence` (`src/engine/schema.ts:83`), Studio help and guide topic exist.
@@ -99,10 +107,11 @@ ever needed; C risks the precision that the T0 blocker fix bought; D is out of s
 
 ## Links
 
-04 story presence/plays index · 19 quests/game layer · 18 character life · 25 new game plus · 08 SP2 · 22 SP9 · 16 spike
-defers · 20 J6d shadow record · 14 J7 judge ideas (D's judge question would be one) · 13 B10 CLI judge · 12 curator create
-op · 11 warden-lore one request · 21 cue+scene read merge · 09 C4 option b · **07 this** · 23 D6/T22 revisits (agency;
-player-line evidence) · 10 model choice · 06 thinking per story · 15 open-source Jev alternative
+- v2.8 01 O11 (real-play journal check), v2.8 01 §B C11-F1/F2 (other commitment-guard changes; semantics, v2.8).
+- v2.9 04 D6/T22 revisits (deferred; agency, player-line evidence), v2.8 13 J7 judge ideas (D's judge question would be
+  one; refused here).
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C SP2, v2.9 02 SP9 (deferred), v2.8 12,
+  v2.7 14, v2.8 11, v2.7 13, v2.8 15, v2.7 11, v2.7 12, v2.7 08, v2.8 14.
 
 ## Gate record — option E (2026-10-03)
 
@@ -121,6 +130,12 @@ own line in `so-journal.mts show`.
 control), `src/runtime/heldJournal.test.ts`; the existing `commitGuard`/`commitNegation`/`commitRecall`/
 `commitIntentVerb` suites are green unchanged (recall 43/44, refusals committed 0/45).
 
-**Gates:** see the plan 06 gate record (one run).
+**Gates:** see the v2.7 08 gate record (old plan 06; one run).
 
 **Live: NOT run** (no ST lane available to this agent). Owed: `so-journal.mts show` on a held commitment row.
+
+## Review 2026-10-03
+
+Applied: A14 (line refs re-read: `lineVerdict`, `applyCommitEvidence:241`, `NEGATOR`/`HEDGE` at `:50-51`; the generic
+held summary line stays as built), the Claude-A note on Links (deferred plans named as deferred), Sol split item 2 (O11
+in v2.8 01), B12/F36 (references).

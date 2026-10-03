@@ -1,6 +1,11 @@
-# Plan 08 — SP2 re-commit after edit, v2
+# Plan 10 — SP2 re-commit after edit, v2
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP2 re-commit after edit, v2". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.7 plan 10 (was old v2.7 08). Decided. Option C BUILT and merged (`e9082dd5`; live NOT run);
+its guide line is open. Option A (the awaited re-commit, "an important feature" for the user) is
+`v2.8/01-v27-carry-over.md` §C, with its floors V0–V8 and gates.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP2
+re-commit after edit, v2". Overview: `00-overview.md`.
+**Gate tiers** (v2.7 overview §Gate taxonomy): C: implementation D, acceptance D (scripted edit + seeded re-read);
+the real re-read leg is v2.8 01 O10 (CL). A: v2.8 01 §C. Model input: none for C (pipeline text only).
 
 ## What it is
 
@@ -33,8 +38,8 @@ The motivation was Recast, which emits `MESSAGE_EDITED` on every accepted rewrit
 | v2.6 | J6 | not run (R4/R5 already failed) | `:132` |
 
 The v2.6 setup was lane 2, adolion-fresh at `adolion-campaign@e1c91fb`, dev bundle `ceb15ac19ec0`. Replies ran on Artemis,
-the `read` role on DeepSeek, judge off. The run was ×1 (×2 was owed to plan 10). Records: `test/measurements/v2.6-03/sp2/summary.json`.
-The lab covers 4 real gating moments in 3 act stories, each with an editor leg and a recast leg (`03-sp2-restated.md` §What changed).
+the `read` role on DeepSeek, judge off. The run was ×1 (×2 was owed to v2.6 plan 10). Records: `test/measurements/v2.6-03/sp2/summary.json`.
+The lab covers 4 real gating moments in 3 act stories, each with an editor leg and a recast leg (`v2.6/03-sp2-restated.md` §What changed).
 
 **Mechanism of the failure** (`v2.5/09-sp2-spike-report.md:135-138`): the re-commit is an **unawaited** model read. One
 player edit settles once, the read lands in seconds, and the next request carries the edit. A recast-style burst
@@ -53,7 +58,7 @@ a checkpoint behind until the priority-0 re-read lands and another boundary comm
 - It failed its predeclared R4 (recast leg 0/2) and R5 (2 reads per edit) bars. Bars are never retuned after a run
   (v2.5 plan 09 rule 1), so it could not be re-run as-is.
 - The fix is a different design (an awaited hold), not a re-run (`00-overview.md` §Seeds, "Spike redesigns").
-- C12 caps how often it matters on Adolion-like stories. 65 % of saga transitions post an onEnter reply, so the gating
+- C12 (v2.6 plan 04 design call, onEnter rollback; not v2.7 02 C12) caps how often it matters on Adolion-like stories. 65 % of saga transitions post an onEnter reply, so the gating
   reply is not the newest message, and only 17 of 63 branch points keep it newest (`v2.6/04-remaining-builds.md:212-218`).
 
 ## Current state in code
@@ -65,7 +70,7 @@ a checkpoint behind until the priority-0 re-read lands and another boundary comm
 - **Today's edit path:** `MESSAGE_EDITED`/`MESSAGE_UPDATED` → `TurnBridge.onMutation` (`turnBridge.ts:81,83,228`). This
   asks `rollbackOnEnter` first (C12, `runtimeManager.ts:356`), then the seam (none in prod), then the ordinary rollback.
 - **C12 is new since the spike ran.** An edit of the gating reply while its onEnter post is the chat's tail now rolls back
-  the transition and `/cut`s the post (`04-remaining-builds.md:412`). A v2 re-commit would re-fire that transition, and with
+  the transition and `/cut`s the post (`v2.6/04-remaining-builds.md:412`). A v2 re-commit would re-fire that transition, and with
   it the onEnter reply. The spike never met this path.
 - **Holding precedent already in prod.** The generate interceptor already awaits work before ST builds the prompt:
   - `gatedInterceptor` runs `hold?.()` first (`src/runtime/loudGenerationGate.ts:36`). `holdForChat` waits for the chat's
@@ -73,7 +78,7 @@ a checkpoint behind until the priority-0 re-read lands and another boundary comm
     (`src/runtime/wiring/talk.ts:43-48`, `src/runtime/chatSettle.ts:1`).
   - The talk director and the lore intercept are awaited model work in the same interceptor (`wiring/talk.ts:52-59`).
 - **Not documented:** the lag is not in `README.md` (grep for edit/lag/behind: no hit). v2.5 said a FAIL would leave the lag
-  "stated in the README troubleshooting (plan 12)" (`09-research-spikes.md:101`). Not done.
+  "stated in the README troubleshooting (plan 12)" (`v2.5/09-research-spikes.md:101`). Not done.
 - **Recast is not installed** on this ST (`public/scripts/extensions/third-party/` lists no Recast). Whether the user runs
   any post-processor that rewrites replies: not determined.
 
@@ -96,17 +101,19 @@ already be correct. Not determined: needs a step-0 trace with a recast-style emi
 
 | | Design | Cost | Risk | Needs |
 |---|---|---|---|---|
-| **A. Awaited re-commit** | The spike's three steps (rollback, re-enqueue untouched writes + commit, one read of the edited text, commit), plus: (1) a settle window per message id, so a burst becomes one cycle on the last text; (2) a hold in the interceptor's `hold` slot (H1, H2) that waits for a pending cycle, loud generations only, with a timeout like `holdForChat`'s; on timeout, go ahead and journal it; (3) the cycle takes a `RunOwnership`; (4) re-stage what `GENERATION_STARTED` set (H4); (5) a defined C12 interaction (re-fire the transition only when the edited text still satisfies the gate) | M–L. About 150 lines plus the hold; one extra read on the `read` route per settled edit (about 5 s on DeepSeek, `09-sp2-spike-report.md:145`) | Touches `rollback ≡ replay` and the mutation path. A held reply is visible latency. A hung read blocks up to the timeout. The "no audit" case seen in v2.6 is unexplained | Step 0: find why the 180 s diagnostic saw no audit; the H6 ordering trace |
+| **A. Awaited re-commit** | The spike's three steps (rollback, re-enqueue untouched writes + commit, one read of the edited text, commit), plus: (1) a settle window per message id, so a burst becomes one cycle on the last text; (2) a hold in the interceptor's `hold` slot (H1, H2) that waits for a pending cycle, loud generations only, with a timeout like `holdForChat`'s; on timeout, go ahead and journal it; (3) the cycle takes a `RunOwnership`; (4) re-stage what `GENERATION_STARTED` set (H4); (5) a defined C12 interaction (re-fire the transition only when the edited text still satisfies the gate) | M–L. About 150 lines plus the hold; one extra read on the `read` route per settled edit (about 5 s on DeepSeek, `v2.5/09-sp2-spike-report.md:145`) | Touches `rollback ≡ replay` and the mutation path. A held reply is visible latency. A hung read blocks up to the timeout. The "no audit" case seen in v2.6 is unexplained | Step 0: find why the 180 s diagnostic saw no audit; the H6 ordering trace |
 | **B. Deterministic half only** | Keep step 2 (re-enqueue the writes read before the reply, re-commit at the id). No model read, no hold | S. No model call | Fixes only the overshoot (a transition rolled back although nothing it used changed). An edit that newly satisfies a gate still lags | R2-style jest only |
 | **C. Document and signal** | README troubleshooting: "an edit of the last reply is read at the next turn". The HUD pipeline chip says "catching up after your edit" while the priority-0 re-read runs (`#so-hud-pipeline`, `runtime/pipeline.ts`) | S | None to state | Copy review; player-safe wording |
 | **D. Drop for good** | Nothing; the lag stays undocumented | 0 | Silent one-turn lag on edits | — |
 
 ## Recommendation
 
+*Written before the user's answers; decision 1 was "yes", so A is built in v2.8 01 §C, not parked.*
+
 **C now. A parked with its floors written below.** Build A only if the user answers yes to decision 1.
 
 - The case that worked (one player edit) already works unawaited when the player takes more than about 5 s before the
-  next send (3 of 3, `09-sp2-spike-report.md:132`).
+  next send (3 of 3, `v2.5/09-sp2-spike-report.md:132`).
 - The case that failed is post-processor bursts. No such extension is installed here.
 - C12 caps the reachable cases to about 35 % of transitions on the campaign.
 - A holds the reply and re-opens `rollback ≡ replay` for a case this install does not produce.
@@ -127,37 +134,31 @@ already be correct. Not determined: needs a step-0 trace with a recast-style emi
 
 ## Floor and measurement before building
 
-Predeclared, for A only. Committed before any code (v2.5 plan 09 rule 1).
-
-| # | Condition | Floor | Data |
-|---|---|---|---|
-| V0 | Step 0, no code | the 180 s "no audit" case explained from the v2.6 records; the H6 ordering traced with a recast-style emitter | `test/measurements/v2.6-03/sp2/`; a scripted emitter fixture |
-| V1 | Re-commit ≡ replay | R2 unchanged: 800/800 over 4 seeds × 200 cuts, both negative controls unequal | v2.5 harness (`test/fixtures/spike-edits.story.json`), rebuilt |
-| V2 | One cycle per settled burst | R3 (a)–(f), plus a burst of 2–5 rewrites within the settle window = 1 cycle on the last text | jest |
-| V3 | Recast leg live (**measured first**, it is the one that failed) | the next request carries the settled text in **every** burst case, ×2 | `lab/swipes/` recast legs (4 cases; the 2 not measured in v2.6 included) |
-| V4 | Editor leg live | 4 of 4 cases, ×2 | `lab/swipes/` editor legs |
-| V5 | Cost | R5′: extra reads per settled edit net of displaced reads ≤ 1 (route recorded); hold p95 recorded | V3/V4 runs vs a flag-off control arm |
-| V6 | Hold safety | a hung read releases at the cap; the reply goes out; journal row present | jest + one live fault run |
-| V7 | C12 interaction | editing the gating reply with an onEnter post present ends in the same state as a replay of the edited chat | jest (`onEnterRollback.review.test.ts` style) |
-| V8 | Rollback journey | J6 green ×2 with the flag on | J6 |
+Moved with option A to `v2.8/01-v27-carry-over.md` §C (V0–V8 unchanged, R5′ approved in decision 4; step 0 refined by
+review A12: identify the user's actual post-processor, keep Recast-shaped bursts as scripted fixtures). Nothing to
+measure for C.
 
 ## Gates
 
-- C: docs + runtime copy (pipeline text). `npm run gates` (includes typecheck, lint, test, build, test:release). The
-  spoiler/copy check: `so-ui.mts assert-player-clean` on a live chat after an edit (live gate per `CLAUDE.md`, runtime/UI tier).
-- A: runtime + ST-facing. `npm run gates`, then the live gate: real-LLM V3/V4 on an adolion-fresh lane ×2, J6 ×2, run header
-  diff around the batch. New async writer → ownership census row (`test/findings/ownership-sites.json`). New mutation
-  shape → fault-matrix row. Bundle budget (`architecture.test.ts`; main entry headroom about 8 KB, `v2.6/14-findings.md` row 1b).
+- C: runtime copy (pipeline text) + the guide line. `npm run gates`. Live (D): edit the newest reply in a seeded group
+  chat with a mocked re-read (`storyOrchestratorDebugExtractionResponse`): `so-ui.mts pipeline` reads `catching-up`
+  until the audit lands, then `idle`; `so-ui.mts assert-player-clean` green. ×2. The real re-read is v2.8 01 O10.
+- **Guide line (open):** the README is rewritten (v2.7 01), so the note goes to `docs/guide/player/troubleshooting.md`
+  and the `catching up` row of `docs/guide/player/drawer-and-hud.md`: *editing the last reply steps the story back to
+  before it, then re-reads the edited text; until that read lands (a few seconds) the HUD says "catching up after your
+  edit", and a reply sent before then is built from the pre-edit state.*
+- A: v2.8 01 §C (gates and the bundle headroom from `scripts/release/buildChecks.mjs`, review A15).
 
 ## Links
 
-- 22 SP9 witness filter v2: the other dropped spike that needs a new design.
-- 16 spike defers: SP1 shares the bridge seam and `writes.requeue` with this plan; its fate decides whether the seam stays.
-- 21 cue + scene read merge: R5's second read is the scene read; a merged read would change R5′.
-- 09 C4 option (b): also about what a re-applied checkpoint re-stages.
-- 04 story presence, 19 quests, 18 character life, 25 new game plus, 20 J6d shadow record, 14 J7 judge ideas, 13 B10 CLI
-  judge, 12 curator create op, 11 warden-lore one request, 07 commitment double negatives, 23 D6/T22 revisits, 10 model
-  choice, 06 thinking per story, 15 open-source Jev alternative: no direct dependency.
+- v2.8 01 §C (option A), O10 (real re-read leg of C).
+- v2.9 02 SP9 witness filter v2 (deferred): the other dropped spike that needs a new design.
+- v2.9 01 SP1 swipe-back cache (deferred): shares the bridge seam and `writes.requeue`; its fate decides whether the
+  seam stays.
+- v2.8 15 cue + scene read merge: R5's second read is the scene read; a merged read would change R5′.
+- v2.7 11 C4 option (b): also about what a re-applied checkpoint re-stages.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 12, v2.8 13, v2.7 14, v2.8 11, v2.7 13,
+  v2.7 09, v2.9 04 (deferred), v2.7 12, v2.7 08, v2.8 14.
 
 ## Gate record — option C (2026-10-03)
 
@@ -174,7 +175,7 @@ Predeclared, for A only. Committed before any code (v2.5 plan 09 rule 1).
   "reading". Swipe/delete re-reads stay "reading". The inline health chip (L2) shows it too.
 - Only the "applied" rollback path schedules a re-read, so an edit that rolled nothing back shows nothing (nothing is
   behind).
-- README untouched (another agent is rewriting it). Note for that rewrite: *editing the last reply steps the story
+- README untouched (another agent is rewriting it; the line now goes to the guide, §Gates). Note for that rewrite: *editing the last reply steps the story
   back to before it, then re-reads the edited text; until that read lands (a few seconds) the HUD says "catching up
   after your edit", and a reply sent before then is built from the pre-edit state.*
 - To stay under the S3 file budget the cadence-window block moved from `scheduler.ts` to
@@ -182,8 +183,14 @@ Predeclared, for A only. Committed before any code (v2.5 plan 09 rule 1).
 
 **Tests:** `src/runtime/editCatchUp.test.ts` (pipeline precedence and controls; scheduler queued → running → gone).
 
-**Gates:** see the plan 06 gate record (one run).
+**Gates:** see the v2.7 08 gate record (old plan 06; one run).
 
 **Live: NOT run** (no ST lane available to this agent). Owed: edit the newest reply in a playing chat →
 `so-ui.mts pipeline` shows `catching-up` until the re-read audit lands; `so-ui.mts assert-player-clean` green.
 Option A (the user's priority, decision 1) is not built here.
+
+## Review 2026-10-03
+
+Applied: F02 (A approved and scheduled in v2.8 01 §C, not parked), A12 refined and A15 refined (both applied in
+v2.8 01 §C, pointed to here), the Claude-A note on Links (deferred plans named as deferred), Sol split item 2 (O10 in
+v2.8 01), B12/F36 (references). Open in v2.7: the guide line.

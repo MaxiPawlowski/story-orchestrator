@@ -30,6 +30,8 @@ gate runs, and are listed here only so nothing is lost. If v2.7 freezes without 
 | O9 | v2.7 08 warning | `fix` overlay + harvest on → row, HUD chip and harvest line after 5 real replies, in player and author view; `thinking` overlay → none | RP | `v2.7/08-thinking-per-story.md` §Gate record |
 | O10 | v2.7 10 option C | edit the newest reply in a playing chat → pipeline `catching-up` until the re-read audit lands | CL (read role) | `v2.7/10-sp2-recommit-v2.md` §Gate record |
 | O11 | v2.7 09 commitment | `so-journal.mts show` on a held commitment row from real play | CL | `v2.7/09-commitment-double-negatives.md` §Gate record |
+| O13 | v2.7 02 C1 | the SP5.b story-owned scenario in real replies (the scenario reaches the prompt and the reply follows it), beyond v2.8 16's plumbing | RP | `v2.7/02-v26-carry-in.md` C1; v2.8 16 |
+| O14 | v2.7 02 C13 | promoted SP8 curator tiers under a real curator pass (C13-b covers prompt changes only) | CL (curator profile) | `v2.7/02-v26-carry-in.md` C13 |
 | O12 | every merged v2.7 plan | its own "Live: NOT run" line, as recorded at merge | per row | each gate record |
 
 The v2.7 close-out walks its gate records and adds any row missing here before v2.7 freezes.

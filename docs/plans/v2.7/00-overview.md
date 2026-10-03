@@ -1,157 +1,161 @@
 # Implementation Overview — Story Orchestrator v2.7
 
-**Status: COLLECTING (opened 2026-10-03).** v2.6 is frozen (no more changes) while the user playtests it. This folder
-takes topics meanwhile. Nothing here is approved or built. Each topic gets its own plan doc, numbered in build order
-(§Build order).
+**Status: IN BUILD (re-scoped 2026-10-03 at the version split).** v2.7 = **urgent fixes + quick wins whose gates are
+deterministic** (`npm run gates`, no-LLM scenarios, seeded metadata, dry-run payloads, Storybook). Everything else the
+user decided on 2026-10-03 is v2.8 (`docs/plans/v2.8/00-overview.md`); everything deferred is v2.9
+(`docs/plans/v2.9/00-overview.md`). Old → new numbers: `RENUMBER.md`. Review findings: `review-2026-10-03.md` (old
+numbers there). Test plan: `16-test-plan.md`.
 
-## Rules (draft)
+**Built and merged on master** (gate records in each plan):
 
-1. v2.6 rules and every invariant in `.claude/rules/architecture.md` are inherited.
-2. **v2.6 takes no more changes** (user decision 2026-10-03). Its owed work, the items the seed research marked as v2.6,
-   and every playtest finding land in v2.7 (`02-v26-carry-in.md`). v2.6 docs stay as history.
-3. A seed is a candidate, not a commitment: a plan names its problem, conditions, floor and gate before it is approved.
-4. Playtest findings that become topics cite their source (session dir, `14-findings.md` row, or the user's report).
-
-## Inputs
-
-| Input | What it gives |
-|---|---|
-| `docs/plans/v2.6/v2.7-seeds.md` | 16 seeds deferred from v2.6 (§Seeds below) |
-| v2.6 playtest (plan 14/15 sessions, the user's own sessions) | new topics as they appear |
-| User topics | one plan doc each, slotted into §Build order |
-
-## Seeds carried from v2.6
-
-Full rows and sources stay in `docs/plans/v2.6/v2.7-seeds.md`, frozen as history. New findings go to `02-v26-carry-in.md`. Grouped:
-
-| Group | Seeds | Gate before planning |
+| Plan | What | Merge |
 |---|---|---|
-| Spike redesigns | SP2 re-commit v2 (await the re-read), SP9 witness filter v2 (host-channel aware), SP5/SP6/SP1/SP10 defers | the dropped spike's report says why; a new design, not a re-run |
-| Judge | J6d shadow record, J7 ideas (scene break, canon verify, epistemic, cast tuning, look-ahead, per-quality floors, canon drafts), B10 CLI-as-judge, open-source Jev alternative (v2.6 plan 12 Phase B) | 20-case English fixture per use; provider calibration row |
-| Curator / warden | curator `create` op (none-case floor 0.788 vs 1.00), warden-lore folded into one request (R5 unmeasured) | the floor that stopped it |
-| Extraction | cue + scene read merge, commitment double negatives (negation-scope parser) | J11 audit reasons; T0 negation fixture |
-| Runtime | C4 option (b) re-stage after jump | session evidence that unstaged jumps hurt |
-| Product scope | new game plus, thinking per story (story/checkpoint asks for thinking; Repair warns on harvestReasoning + disabling prefill) | user decision |
-| Decided at review | D6/T22 revisits, model choice (Artemis vs v1.2 / Cydonia-24B) | user sessions; blind pack |
+| 01 | docs half (`docs/guide`, README rewrite, dev docs, plugin READMEs, CHANGELOG 2.5–2.7) | `cf35ec22` |
+| 01 | in-app half (feature registry, Help panel, What's new, Getting started, `/story help`, plain-language pass, triage proposal) | `6dcfccb8` |
+| 02 | C6–C10 (player-safe image cue, fired/public lore looks, `illustrate` opt-out + chapter looks, narrator never drawn from its card, `stagecraft.exclude`) | `74c8f50a` |
+| 02 | C2 (transcript-copier settings read + player copy, check registry seed) | `e9082dd5` |
+| 08 | option A warning (`model-not-thinking` check, HUD `#so-hud-setup`) | `e9082dd5` |
+| 09 | option E (hold reason + player line in the author journal) | `e9082dd5` |
+| 10 | option C (`catching-up` pipeline state after an edit) | `e9082dd5` |
+| 07 | A1 (coverage + lab README refresh), A2 (`check_all.sh` portable) | campaign `8012a61`, `b61639f` |
+| 03 | the 10 solo story chats on the real install deleted (user-confirmed) | install, no commit |
+
+Every merged row's **live gate is NOT run** (each gate record says so). Deterministic live checks close in v2.7
+(`16-test-plan.md`); real-model rows are owed to `v2.8/01-v27-carry-over.md` §A.
+
+## Rules
+
+1. **Inherited.** v2.6 rules and every invariant in `.claude/rules/architecture.md`.
+2. **v2.6 takes no more changes** (user, 2026-10-03). v2.6 docs stay as history; its owed work lands in v2.7 02 or
+   v2.8 01.
+3. **A seed is a candidate, not a commitment**: a plan names its problem, conditions, floor and gate before it is
+   approved. Floors are predeclared and never retuned.
+4. **Findings cite their source** (session dir, `v2.6/14-findings.md` row, review ledger id, or the user's report).
+5. **v2.7 gates are deterministic (tier D).** A v2.7 item is built and accepted at tier D. Any row that needs CL, LT,
+   LI or RP is owned by v2.8 01 (or the v2.8 plan named in the row), never closed by `npm run gates`.
+6. **v2.7 never changes what reaches the model** unless the change carries a real-model acceptance row owned by v2.8 01
+   (or the named v2.8 plan). Each plan says which of its changes touch model input. Plans that touch injection,
+   extraction input or image/curator prompts carry a **payload-invariance check** (dry-run capture on a scripted group
+   chat, byte-identical except the declared diff) in `16-test-plan.md`.
+7. **Group chats only** (v2.7 03). No plan adds solo behaviour. A solo chat appears in a gate only as a control (the
+   runtime stays inactive, a story refuses, cleanup runs).
+8. **Every server in the tray; models off `C:`** (v2.8 rule 5). v2.7 adds no server; a script that starts one uses
+   `C:\dev\tray\items\story-orchestrator.json`, and no new model, weight or cache path lands on `C:`.
+9. **Feature-producing plans register** in the v2.7 01 feature registry and Help, with the registry test as their gate
+   (review B10). Closures and docs-only plans need no entry.
+10. **Player-visible surfaces need a session or an explicit user decision** (v2.8 rule 4). The 2026-10-03 decisions
+    cover v2.7 05, 06 and 04's surfaces. Their copy still goes through the spoiler checklist and
+    `so-ui.mts assert-player-clean`.
+11. **Adolion stays unspoiled for the user.** No campaign story content in plans or reports; briefing and `player`
+    copy is reviewed by a second model (review B4).
+12. **References are version-qualified** ("v2.7 03", "v2.8 01", "v2.6 plan 11"), never a bare number (review B12,
+    F36). Every plan closes with `npm run gates`.
+
+## Gate taxonomy (same codes as v2.8)
+
+| Tier | Code | What runs | In v2.7 |
+|---|---|---|---|
+| Deterministic | **D** | `npm run gates`, jest/property tests, no-LLM scenarios, Storybook, scripted messages, `seed_metadata`, dry-run payloads, live lane checks that make no model call | implementation and acceptance |
+| Cloud LLM | **CL** | DeepSeek API roles, TypeSafe judge | owed to v2.8 01 |
+| Local text model | **LT** | a model served on this PC | owed to v2.8 |
+| Local image model | **LI** | local ComfyUI through the GPU broker | owed to v2.8 01 |
+| RunPod | **RP** | the main reply model on the pod | owed to v2.8 01 |
 
 ## Build order
 
-Plans are numbered in build order (renumbered 2026-10-03; before that they were numbered by arrival).
-**Tier 1 and 2 need no RunPod**: their gates are deterministic (`npm run gates`, no-LLM scenarios, Storybook) or call
-only the cloud judge (TypeSafe). **Tier 3 needs the RunPod model**: a real-LLM live gate or a measurement on Artemis.
-A plan with rows in two tiers is listed where its first buildable part sits; its later rows are named in tier 3.
+Step 0 runs first. Then file order, except where a row says "together".
 
-### Tier 1: no LLM
+| # | Plan | What v2.7 builds | State | Moves out |
+|---|---|---|---|---|
+| 0 | **Code recheck K1–K3** (below) | after the v2.6 worktree session lands: re-read the code, then fix K1 (02 C2), K2 (architecture invariant) and K3 (03) | open, **first** | — |
+| 0b | 07 A3 + A8 | pin move + campaign test guards, one change, `test:debug` re-frozen | open, with step 0 | — |
+| 01 | `01-docs-and-in-app-guidance.md` | registry, Help, guide (built); triage review with the user; close-out step Z | built; triage open | O1 fresh-install reply → v2.8 01 |
+| 02 | `02-v26-carry-in.md` | C2 + K1, C6–C10 (built); C1 SP5.b; C11-F1 display half; C13 exact promotion; C14 context table | partly built | C3, C4, C12, C11-F2/F7, F1 guard, C13-b, C14-b → v2.8 01 |
+| 03 | `03-group-chats-only.md` | no group, no story; solo-only code removed; "make a group" card | approved, not built | — |
+| 04 | `04-story-health-center.md` | one check registry (extend `checks.ts`), Repair as its ordering, one Story setup surface | seeded, not built | — |
+| 05 | `05-story-briefing.md` | static briefing, modal, Studio editor, chapter briefings, C8 onboarding, saga/act indicator, the activation sequence frame | not built | LLM drafting → v2.8 10; identity step → v2.8 03 |
+| 06 | `06-story-presence-ui.md` | plays index, badges, C1 Continue list, C2 hover card, C3 chapter card, C6 wand entry, C9 (b) author Activity + roll store, panel frame, per-story toggles | not built | C4, C5, C7, C9 (a) public chips → v2.8 04 |
+| 07 | `07-adolion-campaign.md` | A1, A2 (done); A3, A8 (step 0b); A6 badge check after 06; A7 briefings after 05 | partly done | A4, A5, D13 → v2.8 02 |
+| 08 | `08-thinking-per-story.md` | warning (built); copy fix (A11) | built | story/checkpoint level (R4) → v2.8 01 §E |
+| 09 | `09-commitment-double-negatives.md` | option E (built); close | built | — |
+| 10 | `10-sp2-recommit-v2.md` | option C (built); guide line | built; doc line open | option A → v2.8 01 §C |
+| 11 | `11-c4-option-b-restage.md` | close (keep (c)) | docs | E → v2.9 05.3 |
+| 12 | `12-model-choice.md` + `12a-model-switch-checklist.md` | decision + runbook | docs (done) | thinking A/B → v2.8 01 §D |
+| 13 | `13-warden-lore-one-request.md` | close (separate arm) | docs | C3/C4 → v2.8 01 §B |
+| 14 | `14-b10-cli-judge.md` | role picker grouped by source + per-source context table (built as 02 C14) | not built | Lore-creation role → v2.8 11; native CC tool spike: no home (question) |
+| 15 | `15-sp10-tool-call-turns.md` | B guide note + C probe removal | not built | A → v2.9 05.2 |
+| 16 | `16-test-plan.md` | the v2.7 test plan and close-out checklist | written | — |
+| Z | close-out | regenerate settings reference + README feature table; second feature triage; guide pages vs the UI; What's new for 2.7; walk every gate record into v2.8 01 §A | open | — |
 
-| # | Plan | What gets built | Kind |
+**Together** (Sol split item 6): 03 and 04 are built at their seam (`story-needs-group` is a 04 check; the refusal is
+03's). Their gates use scripted messages, seeded metadata and dry-run payloads. 05 needs 04's `blocks` findings for
+"Before you start"; 06's C3 chapter card can carry 05's chapter briefing.
+
+## Code recheck (step 0, review K1–K3)
+
+Defects in code already on master, held until the v2.6 worktree session lands because it may touch them. When it lands:
+re-read each against the current tree, then fix.
+
+| id | Finding | Fix | Gate | Where |
+|---|---|---|---|---|
+| K1 | **Privacy leak in the shipped 02 C2.** `SECRET_LEAK_CHECK` (`src/runtime/checks.ts:45`) is audience `player`, but `secretLeaks()` is empty unless a secret is held, so the player alert appearing reveals that a hidden `[hiding]`/`[unaware]` row exists | the player copy shows whenever a copier is on in a group story; `secretsHeld` gates only the author detail | identical player-visible output (HUD chip, drawer, settings, Help) with and without held secrets; jest + live seeded lane, ×2 | v2.7 02 C2-K1, v2.7 04 |
+| K2 | `architecture.md`'s held-secret invariant says "author-only Repair row"; as built it is a player alert plus a HUD chip | rewrite the invariant together with K1 | docs | v2.7 02 C2-K1 |
+| K3 | the shipped guide says solo chats work (`docs/guide/player/troubleshooting.md:44`); the registry's `stories` feature does not need `group-chat` (`src/features/registry.ts:98-103`) | fix both with 03 | registry test + guide drift | v2.7 03 |
+
+## Decisions (user, 2026-10-03)
+
+Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. Decisions for plans that moved are in
+`v2.8/00-overview.md` §Decisions and `v2.9/00-overview.md`.
+
+| v2.7 | Was | Decided | Scope change |
 |---|---|---|---|
-| 01 | `01-docs-and-in-app-guidance.md` | feature registry first (later features register into it), docs split, Help panel, plain-language pass, triage | user topic |
-| 31 | `31-story-health-center.md` | one check registry (Repair becomes its ordering) + one "Story setup" surface while a story is active; later plans add checks, not alert channels (numbered 31: builds right after 01) | user topic |
-| 33 | `33-group-chats-only.md` | no group, no story: runtime inactive in solo chats, "make a group" card, solo-only code removed (builds before 03/04/30) | user decision |
-| 02 | `02-v26-carry-in.md` | **C2** privacy Repair row, **C6–C10** image/curator fixes, **C11** small plans | carry-in |
-| 03 | `03-story-briefing.md` | briefing format, modal, Studio editor (the wizard's drafting is optional, later) | user topic |
-| 30 | `30-player-persona-and-start-setup.md` | story `player` profile + "Who are you in this story" step inside 03's "Before you start" modal (keep / switch+lock / create by the player's click only); spike S30-1 first (persona switch vs scripted opening); no RunPod, the injected block rides the final real-LLM suite (numbered 30: builds with 03) | user topic |
-| 04 | `04-story-presence-ui.md` | plays index, list badges, Continue list, title card, wand entry (C5 suggestions need an LLM: tier 3) | user topic |
-| 05 | `05-adolion-campaign.md` | **A1–A3** docs/check/pin, **A7** briefings (A4 lab data and A5/A6 follow later) | campaign |
-| 26 | `26-self-contained-images.md` | ST Image Generation route, ComfyUI model discovery, template prompt, broker optional + fail-open, probes/Repair, quiet defaults (numbered 26: arrived after the renumbering; builds here). Sprite generation = 26b after it | user topic |
-| 27 | `27-wizard-assistant.md` | shipped knowledge base (plugin + author guide + condensed ST know-how), read-only Ask mode, character-building tutorial (needs plan 01's registry; cloud authoring profile, no RunPod) | user topic |
-| 28 | `28-talkinghead-review.md` | Talkinghead is gone (removed from ST in 1.12.13, Extras archived); instead: build-time blink/talk frames via the campaign's ComfyUI edit pipeline + a tiny animator in VnStage; spike S28 first (local ComfyUI, no RunPod) | user topic |
-| 29 | `29-smart-context-harvest.md` | Smart Context deprecated, Vector Storage covered; harvest only verbatim quote recall (spike, solo first) after 02 C2 and the Q-M5 measurement (+P3 arm); needs a model for the reply-accuracy floor (tier 3) | user topic |
-| 32 | `32-living-cards.md` | per-chat card/persona overlay backed by story values (effects, extraction, author); prompt block + image prompts + sprite set rule; on-demand look sprites after 26b; S32-1 needs the model (tier 3), the store itself is pure | user topic |
-| 06 | `06-thinking-per-story.md` | the Repair warning (the story/checkpoint level waits on R4: tier 3) | seed |
-| 07 | `07-commitment-double-negatives.md` | player line + hold reason in the author journal row | seed |
-| 08 | `08-sp2-recommit-v2.md` | option C: "catching up after your edit" status + README | seed |
-| 09 | `09-c4-option-b-restage.md` | close; optional author panel of skipped staging | seed |
-| 10 | `10-model-choice.md` | decision + switch checklist (doc only) | seed |
-| 11 | `11-warden-lore-one-request.md` | close (keep the separate call) | seed |
-| 12 | `12-curator-create-op.md` | not built in v2.7 (decision only) | seed |
-| 13 | `13-b10-cli-judge.md` | drop as a runtime judge; optional offline labelling | seed |
-
-### Tier 2: cloud judge only (TypeSafe), no RunPod
-
-| # | Plan | What gets built | Kind |
-|---|---|---|---|
-| 14 | `14-j7-judge-ideas.md` | scene-break confirmation + canon verification fixtures and calibration | seed |
-| 15 | `15-open-source-jev.md` | local NLI provider + calibration on CPU (its play-load check is tier 3) | seed |
-
-### Tier 3: needs RunPod
-
-| # | Plan | What gets built | Kind |
-|---|---|---|---|
-| 16 | `16-spike-defers.md` (index) → `16a-sp5-story-scenario.md`, `16b-sp6-complication-pool.md`, `16c-sp1-swipe-back-cache.md`, `16d-sp10-tool-call-turns.md` | 16a SP5.b (plan 02 **C1**; no model call, could move to tier 1), 16b SP6 measurement (feeds 19), 16c SP1 park + swipe-back counter, 16d SP10 README note + probe removal (plan 02 **C5**); plus plan 02 **C3** judge timeouts, **C4** owed live checks | seed + carry-in |
-| 17 | `17-open-stretches.md` | open stub mode (its engine half is pure; the A/B needs the model) | user topic |
-| 18 | `18-character-life.md` | relationships, mood (reads); agendas and schedules are pure code but ride on the same measurement | user topic |
-| 19 | `19-quests-and-game-layer.md` | quests, visible qualities, checks, milestones, Journal (M1/M2 measure extraction load) | user topic |
-| 20 | `20-j6d-shadow-record.md` | offline replay judge vs extractor | seed |
-| 21 | `21-cue-scene-read-merge.md` | A/B on labelled windows | seed |
-| 22 | `22-sp9-witness-filter-v2.md` | **deferred to the next version** (kept as a candidate; the Repair row ships in 02 C2) | seed |
-| 23 | `23-d6-t22-revisits.md` | one session with the warden on `auto` | seed |
-| 24 | `24-living-story-director.md` | M1 spike; if it passes, M1–M3 ship with proper UI | user topic |
-| 25 | `25-new-game-plus.md` | **deferred to the next version** (user, 2026-10-03) | seed |
-| Z | close-out | regenerate settings reference + README feature table, second feature triage for review, guide pages checked against the UI, "What's new" for 2.7 (plan 01's answer to "build docs first or last": both) | process |
-
-Also tier 3: plan 04 C5 (suggestions), plan 05 A4 (lab data runs), plan 06's story/checkpoint level (R4), plan 15's
-play-load check.
-
-Cross-plan: plan 04's plays index feeds the Continue list and any cross-chat view; plan 19's `display.public` is how
-plan 18's relationship meters become visible; 03, 04, 17, 18, 19 and 24 add spoiler-checklist rows and wait on the
-playtest (rule 7). Every plan from 03 on registers its features in plan 01's registry.
-
-## Decisions (user, 2026-10-03, plans 01–15 reviewed)
-
-Answers are written inline in each plan's decisions list; this is the index plus what changed scope.
-
-| Plan | Decided | Scope change |
-|---|---|---|
-| 01 | all recommendations; **internal records move to the private `so-sessions` repo** | — |
-| 02 | build order C2, C1, then C3; v2.6 untouched, so C3/C4 measure on the first v2.7 build | — |
-| 03 | all recommendations | **new:** when no briefing is authored and the player has auto/wizard on, the wizard may draft one on the fly; **new:** a different colour/indicator in the group selector for a full saga vs a single act |
-| 04 | as recommended | — |
-| 05 | **do every step** (A1–A7); pin moves at the start of the v2.7 build; academy act pilots 19, the 7-member act pilots 18 | — |
-| 06 | warning, no turning thinking on from a non-thinking setup; story + checkpoint level behind R4; Astra rates | **changed:** the warning must reach players too (a story downloaded from the internet is played without Author view): a general player-safe alert, not only an author Repair row |
-| 07 | hold; journal row; B if ever needed | — |
-| 08 | **the user edits replies and uses a post-processor: SP2 v2 (option A) is important** plus C now; held reply as recommended (loud only, 15 s cap); R5′ net of displaced reads | A moves from parked to built (tier 3, needs live legs) |
-| 09 | keep (c); defer E to the next version | — |
-| 10 | keep Artemis v1.1; switch checklist written (`10a-model-switch-checklist.md`); all three triggers | **changed:** the user funds one thinking A/B (Cydonia or Skyfall) in v2.7 — tier 3 |
-| 11 | A: keep separate, close | — |
-| 12 | **the user wants the create op**, properly made and tested; contract B, floors kept | **new:** its own model selector (cloud model, or a harness like opencode) |
-| 13 | not as a runtime judge; labelling aid yes; W27 kept | **new:** the user wants to connect multiple cloud providers for other roles (e.g. the wizard), which ST may not support; explore uses and come back with proposals |
-| 14 | Phase A for J7.1, J7.2 (+J7.7); recommendations otherwise | **new:** review `github.com/mossyfield/ST-jeved` for new judge use cases (cheap, fast, works well); build a test set for the unanswered ideas and run them as spikes/POCs behind settings |
-| 15 | build the local provider, opt-in, all uses in the first measurement | **new:** investigate `github.com/fstandhartinger/jevbench` first; our own evals for our use cases across options |
-
-### Decisions on 16–26 (user, 2026-10-03)
-
-| Plan | Decided | Scope change |
-|---|---|---|
-| 13 (research) | Connection Manager profiles per role; Lore-creation role with plan 12 (+ Critic later); test native tool calls over cloud profiles; keep W27; no own provider seam; fix the 8192 context default (carry-in) | the user has Claude and Codex subscriptions and DeepSeek, not OpenRouter |
-| 14 (research) | all of N1–N8 in the stated order; N4 on the reply path as an author opt-in, off by default | — |
-| 15 (research) | our own harness; local systemone arm (decider-4b, then Plumb) ahead of NLI; local server on 127.0.0.1 started by the user; cloud models offline only; A5 not in v2.7 | **models stored off `C:`**; **every server goes in the system tray** (`C:\dev\tray\items\story-orchestrator.json`, done 2026-10-03: ST, RunPod tunnel, ComfyUI, Unsloth Studio, GPU broker, debug browser, lanes) |
-| 16a | all recommendations (build SP5.b, triage the T7 red first) | — |
-| 16b | run SP6 (pod), build in 19 on PASS, no player copy | — |
-| 16c | — | **deferred to the next version** (drop if still unmeasured at that freeze) |
-| 16d | answered from the install: no CC function calling in story chats | take B + C now (README note, remove the probe); defer the rest |
-| 17 | not yet answered | — |
-| 18 | relationships both toward the player and between NPCs; meters author-visible, private for players; agendas authored + curator-proposed | schedules drop members from speaker candidates (no cast change); answer written in the plan |
-| 19 | all of Q1–Q5; rolls visible; side quests authored + proposed | pilot: Adolion academy act, then the Saga |
-| 20 | option C offline replay only; recommendations | — |
-| 21 | measure first; triggers first; J11 contract kept | — |
-| 22 | the Repair row (02 C2) yes; the rest deferred | **deferred to the next version** |
-| 23 | D6 defaults kept; agencyCheck stays on; warden mode decided after sessions | **deferred**; the user plays the over-steer session and wants a test card so Claude plays it too |
-| 24 | all recommendations; M1 first, then M1–M3 with proper UI | **new plan 27:** the wizard as a docs-aware assistant with a character-building tutorial |
-| 25 | — | **deferred to the next version** |
-| 26 | all recommendations | sprite generation reviewed in the plan: becomes 26b after 26 (campaign script is the base) |
-| 27 | all recommendations | — |
-| 31 | all recommendations | the C2/06 build already seeded the check registry (`src/runtime/checks.ts`) |
-| 04 | plays index holds checkpoint names; seamless backfill (on open + one idle background pass) | **build all eight C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"**: roll chips + an author Activity panel (dice are not shown anywhere today) |
-| 14 (rest) | unanswered items taken as recommended | every unmeasured idea: fixture, offline replay, dev-only setting until it passes twice, then an off-by-default switch |
-| 28 | drop Talkinghead; B + P; on by default with reduced-motion off; D parked to the next version | mouth frames: compared in the spike (2 vs 3) **and** a "Mouth movement" setting |
-| 29 | — | **group chats only** (plan 33): the solo path goes, verbatim recall becomes group + witness filter, offline only; **new E0**: a proper ranking evaluation (5 arms, predeclared floors) before the spike |
-| 30 | recommendations otherwise | **no persona switching inside a story** (chosen at start, locked; a switch raises a finding); the user's ST persona is the base, in-story changes go through plan 32's overlay |
-| 32 | all recommendations | — |
-| 33 | **new:** stories run in group chats only; solo chats show "make a group"; solo-only code removed | user decision while reviewing 04/29 |
+| 01 | 01 | all recommendations; **internal records move to the private `so-sessions` repo**; docs both first and at close-out | — |
+| 02 | 02 | build order C2, C1, then C3; v2.6 untouched, so C3/C4 measure on the first v2.7 build; findings straight into this file | C3/C4/C12 and model-driven C11 → v2.8 01 (split) |
+| 03 | 33 | **stories run in group chats only**; solo chats show "make a group"; solo-only code removed; all five as recommended; the old solo story chats deleted | — |
+| 04 | 31 | all recommendations (one registry, active while a story plays, findings not toasts, dismissible except `blocks`, build right after 01) | the C2/08 build already seeded `src/runtime/checks.ts` |
+| 05 | 03 | all recommendations; chapter briefings yes; image optional; C8 merged into the modal | **saga vs act indicator** in the group selector (here); on-the-fly drafting "if the player enables auto" → v2.8 10 |
+| 06 | 04 | badges on groups only; the plays index holds checkpoint names; seamless backfill (on open + one idle pass) | **build all C-items**, draggable panels, per-story toggles; **C9 "Behind the scenes"**. Split: C1, C2, C3, C6, C9 (b), panels and toggles here (moved from v2.8 04, user-approved 2026-10-03); C4, C5, C7, C9 (a) in v2.8 04; C8 in 05 |
+| 07 | 05 | **do every step**; pin moves at the start of the v2.7 build | A4, A5 → v2.8 02 |
+| 08 | 06 | warning yes; no turning thinking on (C refused); story + checkpoint level behind R4; Astra rates | **the warning reaches players too** (built as a player-safe check); level → v2.8 01 §E |
+| 09 | 07 | hold; journal row (E); B if ever needed; D no | — |
+| 10 | 08 | C now; **option A is important** (the user edits replies and uses a post-processor); 15 s hold; R5′ | A → v2.8 01 §C |
+| 11 | 09 | keep (c); E deferred | E → v2.9 05.3 |
+| 12 | 10 | keep Artemis v1.1; thinking required; checklist (12a); all three triggers | **one thinking A/B funded** → v2.8 01 §D |
+| 13 | 11 | A: keep separate, close | — |
+| 14 | 13 | not a runtime judge; labelling aid yes; W27 kept; profiles per role; Lore-creation role with the create op; native-tool spike; no own provider seam; fix the 8192 default | the user has Claude and Codex subscriptions and DeepSeek, no OpenRouter (review B6) |
+| 15 | 16d | no CC function calling in story chats: B + C now | A → v2.9 05.2 |
 
 ## Status
 
 | Plan | State |
 |---|---|
-| 01–25 | written; every plan has decisions open for the user; nothing approved or built |
+| 01 | BUILT (both halves merged); triage proposal awaits the user's review; live D checks owed (16-test-plan) |
+| 02 | PARTLY BUILT: C2, C6–C10 merged; K1 open (step 0); C1, C11-F1 display, C13, C14 not built |
+| 03 | APPROVED (all five decisions); not built |
+| 04 | APPROVED; seed registry in `checks.ts`; extension and migration not built |
+| 05 | APPROVED (static half); not built |
+| 06 | APPROVED (A, B, moved C-items); not built |
+| 07 | A1, A2 done; A3, A8 open (step 0b); A6, A7 wait on 06, 05 |
+| 08 | BUILT (warning); A11 copy fix open; closes in v2.7 |
+| 09 | BUILT (E); closes in v2.7 |
+| 10 | BUILT (C); guide line open; closes in v2.7 |
+| 11 | CLOSED (docs) |
+| 12, 12a | CLOSED (decision + runbook) |
+| 13 | CLOSED (keep separate) |
+| 14 | APPROVED (picker + context table); not built |
+| 15 | APPROVED (B + C); not built |
+| 16 | written |
+
+## Unresolved questions
+
+- Native tool calls over CC profiles for the wizard (v2.7 14 research decision 3, "sure") is a CL spike with no v2.8
+  plan. Home: v2.8 09 (wizard assistant)?
+- Optional "Critic" role (v2.7 14 decision 2): v2.8 09, v2.8 11, or v2.9?
+- 01 triage: "dev-only" = not in the prod bundle, or Author view only? Fixed defaults: drop the key too, or only the
+  control?
+
+## Review 2026-10-03
+
+Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),
+B12/F36 (rule 12), K1–K3 (step 0), Sol split items 2 (owed rows → v2.8 01), 6 (03 + 04 together), 7 (A6 here). Per-plan
+findings are listed in each plan's own "Review 2026-10-03" section.

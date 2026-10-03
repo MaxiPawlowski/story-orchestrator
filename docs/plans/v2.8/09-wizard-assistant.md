@@ -149,6 +149,10 @@ decision 3 is the user's explicit yes to it (v2.8 rule 4); see the open question
 - Does decision 3 count as the explicit decision v2.8 rule 4 needs for the player Ask surface, or should player Ask wait
   for a session card that asks for it? This plan assumes it counts; the author half is unaffected either way.
 
+- Proposed home (pending the user): the CC native tool-call spike from v2.7 14 decision 3 (the agentic wizard driven
+  by a cloud profile's native tool calls instead of the text protocol; floor = v2.6 plan 11's agent checks). And the optional
+  Critic role (v2.7 14 decision 4, "after the wizard work").
+
 ## Links
 
 v2.7 01 docs and registry (knowledge source, Help panel; this plan adds its Ask entry), v2.7 14 role map (authoring
