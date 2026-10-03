@@ -12,7 +12,7 @@ const PROFILES = [
 ];
 const ROLES = ['read', 'synthesis', 'authoring', 'director', 'curator', 'inner'];
 
-function pinnedPage({ judge = true, key = true, sendRequest = async () => ({ content: 'PONG' }) } = {}) {
+function pinnedPage({ judge = true, key = true, sendRequest = (async () => ({ content: 'PONG' })) as (...args: any[]) => Promise<unknown> } = {}) {
   const fake = fakeSt();
   fake.ctx.extensionSettings = { connectionManager: { profiles: PROFILES, selectedProfile: 'ds' } };
   fake.ctx.getRequestHeaders = () => ({});
