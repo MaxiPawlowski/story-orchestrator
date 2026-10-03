@@ -4,11 +4,11 @@
 
 Guide topic `stagecraft` (the Studio's "How to write this" and the wizard's `readGuide` show the same topic).
 
-Field: `stagecraft.lorebooks` (`schema.ts` `StoryStagecraft`, `stagecraft/scope.ts`).
+Fields: `stagecraft.lorebooks`, `stagecraft.exclude` (`schema.ts` `StoryStagecraft`, `StagecraftExclusion`, `stagecraft/scope.ts`).
 
-- **What it does.** The only lorebooks the World Info curator may edit, for this story: it keeps the story's own lore current as play goes. Its proposals are reviewed and applied at a boundary. Nothing is inferred from requirements; an empty list means no curator writes.
-- **Good.** `{ "lorebooks": ["Adolion Chronicle"] }`, a book seeded with the campaign-state entries play will change.
-- **Bad.** A curator book that ships empty; a curator book that beat lore also gates.
+- **What it does.** The only lorebooks the World Info curator may edit, for this story: it keeps the story's own lore current as play goes. Its proposals are reviewed and applied at a boundary. Nothing is inferred from requirements; an empty list means no curator writes. `stagecraft.exclude` (`[{ "lorebook": "...", "comments": ["..."] }]`) names entries inside those books that the curator is never shown and may never write (`isCuratorWritable` refuses them at the write edge too); match is by entry title (comment), ignoring case.
+- **Good.** `{ "lorebooks": ["Adolion Chronicle"] }`, a book seeded with the campaign-state entries play will change; `"exclude": [{ "lorebook": "Story Lore", "comments": ["House style"] }]` for a meta entry that sets the book's voice.
+- **Bad.** A curator book that ships empty; a curator book that beat lore also gates; a style or rules entry left open to curator rewrites.
 - **If wrong.** The curator can enable, disable, rewrite or patch existing entries, but it cannot create one, so an empty book gets nothing forever (memory note `story-authoring-traps.md`; `INTEGRATION.md`). It is never shown and never writes an entry any beat's `world_info` names, because the path replay would undo the write; a gated curator book silently disables the feature.
 
 ---
