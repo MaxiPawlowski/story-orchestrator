@@ -220,8 +220,8 @@ The overlay ships as tier 1 (pure plus injection). The prompt effect is measured
 
 ## Decisions for the user
 
-1. Overlay as bound blackboard qualities (A), not a card copy (B)? **Recommended: A.**
-2. Writers: authored effect + extraction + author hand edit? **Recommended: all three, newest wins.**
+1. Overlay as bound blackboard qualities (A), not a card copy (B)? **Recommended: A.** 
+2. Writers: authored effect + extraction + author hand edit? **Recommended: all three, newest wins.** 
 3. Which fields: visual + condition/status lines only, or also free-text description/personality deltas?
    **Recommended: typed short fields only in v2.7.** Free-text deltas fight the card prose and are hard to roll back
    cleanly in the prompt.
@@ -238,7 +238,7 @@ The overlay ships as tier 1 (pure plus injection). The prompt effect is measured
 10. Cleanup on chat delete: ask (like the mirror reaper) or silent? **Recommended: ask, and keep sets another chat
     still references.**
 11. Per-chat avatars via `force_avatar`? **Recommended: not in v2.7**; revisit with on-demand images.
-
+ Lets do as you recommend on those options
 ## Gates
 
 - **Tier 1 (no LLM):** `npm run gates`.
@@ -274,3 +274,8 @@ The overlay ships as tier 1 (pure plus injection). The prompt effect is measured
 - How swipes and regenerates rebuild `force_avatar` in a group: not determined (only matters if D11 changes).
 - Whether ST deletes an empty sprite subfolder: not determined.
 - Which edit model the user's ComfyUI has for on-demand edits: probed at runtime (plan 26), not assumed.
+
+## Review of the answers (2026-10-03)
+
+All recommendations accepted. Plan 30 now routes the player's in-story changes through this overlay (`player.card`):
+the user's ST persona stays the base and is never edited. No solo branches (plan 33).

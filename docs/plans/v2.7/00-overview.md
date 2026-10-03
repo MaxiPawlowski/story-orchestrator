@@ -47,6 +47,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 |---|---|---|---|
 | 01 | `01-docs-and-in-app-guidance.md` | feature registry first (later features register into it), docs split, Help panel, plain-language pass, triage | user topic |
 | 31 | `31-story-health-center.md` | one check registry (Repair becomes its ordering) + one "Story setup" surface while a story is active; later plans add checks, not alert channels (numbered 31: builds right after 01) | user topic |
+| 33 | `33-group-chats-only.md` | no group, no story: runtime inactive in solo chats, "make a group" card, solo-only code removed (builds before 03/04/30) | user decision |
 | 02 | `02-v26-carry-in.md` | **C2** privacy Repair row, **C6–C10** image/curator fixes, **C11** small plans | carry-in |
 | 03 | `03-story-briefing.md` | briefing format, modal, Studio editor (the wizard's drafting is optional, later) | user topic |
 | 30 | `30-player-persona-and-start-setup.md` | story `player` profile + "Who are you in this story" step inside 03's "Before you start" modal (keep / switch+lock / create by the player's click only); spike S30-1 first (persona switch vs scripted opening); no RunPod, the injected block rides the final real-LLM suite (numbered 30: builds with 03) | user topic |
@@ -128,7 +129,7 @@ Answers are written inline in each plan's decisions list; this is the index plus
 | 16a | all recommendations (build SP5.b, triage the T7 red first) | — |
 | 16b | run SP6 (pod), build in 19 on PASS, no player copy | — |
 | 16c | — | **deferred to the next version** (drop if still unmeasured at that freeze) |
-| 16d | the user does not use CC function calling in story chats | take B + C (README note, remove the probe); defer the rest |
+| 16d | answered from the install: no CC function calling in story chats | take B + C now (README note, remove the probe); defer the rest |
 | 17 | not yet answered | — |
 | 18 | relationships both toward the player and between NPCs; meters author-visible, private for players; agendas authored + curator-proposed | schedules drop members from speaker candidates (no cast change); answer written in the plan |
 | 19 | all of Q1–Q5; rolls visible; side quests authored + proposed | pilot: Adolion academy act, then the Saga |
@@ -141,6 +142,13 @@ Answers are written inline in each plan's decisions list; this is the index plus
 | 26 | all recommendations | sprite generation reviewed in the plan: becomes 26b after 26 (campaign script is the base) |
 | 27 | all recommendations | — |
 | 31 | all recommendations | the C2/06 build already seeded the check registry (`src/runtime/checks.ts`) |
+| 04 | plays index holds checkpoint names; seamless backfill (on open + one idle background pass) | **build all eight C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"**: roll chips + an author Activity panel (dice are not shown anywhere today) |
+| 14 (rest) | unanswered items taken as recommended | every unmeasured idea: fixture, offline replay, dev-only setting until it passes twice, then an off-by-default switch |
+| 28 | drop Talkinghead; B + P; on by default with reduced-motion off; D parked to the next version | mouth frames: compared in the spike (2 vs 3) **and** a "Mouth movement" setting |
+| 29 | — | **group chats only** (plan 33): the solo path goes, verbatim recall becomes group + witness filter, offline only; **new E0**: a proper ranking evaluation (5 arms, predeclared floors) before the spike |
+| 30 | recommendations otherwise | **no persona switching inside a story** (chosen at start, locked; a switch raises a finding); the user's ST persona is the base, in-story changes go through plan 32's overlay |
+| 32 | all recommendations | — |
+| 33 | **new:** stories run in group chats only; solo chats show "make a group"; solo-only code removed | user decision while reviewing 04/29 |
 
 ## Status
 

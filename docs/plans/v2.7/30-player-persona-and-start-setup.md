@@ -214,13 +214,35 @@ One modal (plan 03's `#so-briefing`), two panes when the story has a `player` bl
 ## Unresolved
 
 - S30-1: does a persona switch on a fresh bound chat clobber or duplicate our opener (solo `createOrEditCharacter`,
-  group `reloadCurrentChat`)? When is `chat_metadata.tainted` set? Not determined.
+  group `reloadCurrentChat`)? When is `chat_metadata.tainted` set? Not determined. Persona switch should be disabled within a story
 - Older ST without `/persona-create`: capability probe and fall back to `initPersona`-style direct writes, or refuse
-  creation? Not determined.
-- Multi-user ST installs: personas are per user directory; assumed fine, not verified.
+  creation? Not determined. whatever u recommend
+- Multi-user ST installs: personas are per user directory; assumed fine, not verified. Persona should be handled per story per chat, with a user level persona as base. Check 32-living-cards
 
 ## Links
 
 03 story briefing (the modal), 24 living story (`player_role`), 27 wizard assistant (tutorial: "the player is the
 persona"), 31 health center (the fit check row), 01 docs (guide pages: author topic `player`, player page "Your
 character"), 05 Adolion campaign.
+
+## Review of the answers (2026-10-03)
+
+The user's notes in the open questions change the design in three places:
+
+1. **No persona switching inside a story.**
+   - The persona is chosen once, in the start step (keep / pick / create), then locked to the chat for the story.
+   - A persona switch while a story plays raises a plan 31 finding: "This story was started as X; switching mid-story
+     breaks what characters know about you". It offers "switch back", and nothing else changes silently.
+   - A Restart reopens the start step.
+2. **Persona per story per chat, with the user's persona as the base.**
+   - The user's ST persona is the base identity. What the story changes about the player (looks, status, titles) lives
+     in plan 32's overlay under `player.card`, per chat.
+   - The ST persona is never edited, so a new chat starts from the base persona.
+   - This replaces option (a)'s "adapt for this chat" idea.
+3. **Solo chats are out** (plan 33), so only the group reload path matters for spike S30-1.
+
+The remaining decisions (1–7) and the "whatever you recommend" question are taken as recommended:
+- creation is create-only by the player's click;
+- deterministic checks only;
+- Adolion gets `player` blocks after the format lands;
+- the step goes before the opener if S30-1 shows it is safe.

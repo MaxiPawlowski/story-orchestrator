@@ -176,6 +176,36 @@ R1 vs R2: if both pass, take the cheaper (index size and VR4); if neither passes
 ## Unresolved questions
 
 - Checked: `gatedInterceptor`'s group flag only feeds the loud-generation gate (`src/runtime/loudGenerationGate.ts:32-42`),
-  so D10 recall runs in solo chats too, inside our interceptor. A P1 block would sit on the same path.
+  so D10 recall runs in solo chats too, inside our interceptor. A P1 block would sit on the same path. I think this plugin makes no sense for solo players, lets only consider group. Plugin should be disabled for solo chats.
 - Score values are not returned by `/api/vector/query` (`src/endpoints/vectors.js:390`), so ranking within the
-  retrieved set is by band, as today. Whether that is enough for VR1 at k ≤ 4: not determined.
+  retrieved set is by band, as today. Whether that is enough for VR1 at k ≤ 4: not determined. whatever u recommend here, please do a proper review and evaluation, this is an interested topic
+
+## Review of the answers (2026-10-03)
+
+- **Solo chats:** the user decided the plugin runs in **group chats only** (plan 33). So:
+  - the D10 solo path is removed;
+  - this plan's "solo first" spike scope is gone.
+  - Verbatim recall can only ship for groups, and in a group it must be filtered by who witnessed the message.
+  - That ties P1 to a witness record, which plan 22 deferred to the next version.
+- **New sequence:**
+  1. C2 (shipped).
+  2. Q-M5 with the P3 arm.
+  3. The verbatim-recall spike on group chats in **offline replay only**, with a witness filter built from scene
+     presence (the per-scene `present` set the scene read already records), measured against the "no unwitnessed text"
+     floor.
+  4. If presence is too weak (plan 22 measured 4/40 agreement for message-level labels), P1 waits with plan 22.
+- **"Do a proper review and evaluation" of ranking within the retrieved set:** a dedicated evaluation step, E0, before
+  the spike.
+  - **The question.** `/api/vector/query` returns no scores (`src/endpoints/vectors.js:390`), so today we rank by
+    threshold bands (two queries at 0.82 and 0.55).
+  - **Arms on the labelled "what did X say" set:**
+    - (a) bands only;
+    - (b) more bands (0.82/0.7/0.55/0.4);
+    - (c) re-rank the retrieved candidates locally with Jaccard plus recency;
+    - (d) re-rank with the judge (one Choice over the top 8, TypeSafe);
+    - (e) ST's own ordering.
+  - **Metrics:** hit@1, hit@4, MRR, latency and token cost.
+  - **Floors are declared before the run.** The cheapest arm that meets hit@4 ≥ 0.80 wins; a costlier arm must beat it
+    by ≥ 0.10 MRR to be chosen.
+  - **The fixture:** written by another model from private session transcripts (`so-sessions`), spot-checked by Claude,
+    never shown to the user (Adolion content).

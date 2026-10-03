@@ -221,15 +221,21 @@ campaign content goes into the report.
 
 ## 7. Decisions for the user
 
-1. Talkinghead itself: drop it (removed from ST in 1.12.13, Extras archived)? **Recommended: yes.**
-2. Primary path B (build-time blink + talk frames + animator) with P (procedural idle)? **Recommended: yes.**
+1. Talkinghead itself: drop it (removed from ST in 1.12.13, Extras archived)? **Recommended: yes.** yes
+2. Primary path B (build-time blink + talk frames + animator) with P (procedural idle)? **Recommended: yes.** yes
 3. Mouth: two frames (closed/open), or three (with half-open)? **Recommended: two, three only if the blind rating asks
-   for it.**
-4. Blink and talk on by default whenever a set has frames? **Recommended: yes, both off under reduced motion.**
+   for it.** lets have some sort of comparative or maybe even config
+
+   **Review:** both.
+   - **The spike's blind comparison** includes a 2-frame and a 3-frame mouth arm, so the rating decides the default.
+   - **The animator reads the frame count per set,** so a set may ship 2 or 3 mouth frames.
+   - **An install-wide setting** "Mouth movement: off / simple / smooth" picks how many frames are used when a set has
+     them (`smooth` falls back to `simple` when a set has only two).
+4. Blink and talk on by default whenever a set has frames? **Recommended: yes, both off under reduced motion.**  Lets do as you recommend
 5. D (See-through + rig, real head motion) as a later spike, only if the playtest asks for it? **Recommended: yes,
-   parked.**
+   parked.** parked for next version
 6. Does the Adolion render of about 6,900 frames go to the local 3090 night runs or a pod? Not determined until the
-   spike measures seconds per edit.
+   spike measures seconds per edit. 
 
 ## 8. Gates
 
@@ -264,3 +270,9 @@ campaign content goes into the report.
 - Whether ST serves a non-image sidecar from `/characters/<folder>/` (only needed for cropped patches).
 - Whether Qwen image edit closes eyes cleanly behind glasses or hair over the eyes.
 - How LivePortrait and Iki do on anime art: not tested, out of the primary path.
+
+## Review of the answers (2026-10-03)
+
+1, 2 and 4 taken as recommended. 3 is answered above (compare in the spike, plus a setting). 5 is parked for the next
+version. 6 is decided by the spike's seconds-per-edit measurement: under about 2 s per edit it goes to the local 3090
+night runs, otherwise to a pod. The cost is quoted before any run.

@@ -101,3 +101,48 @@ on the research doc's rejected list), and steering controls in player mode (two-
 
 User comment:
 do we have some infomration about the kind of background processses that are happening from behind? like the dice? should we? have you planned some UI for authors too?
+
+## Review of the answers (2026-10-03)
+
+- **1. Solo chats:** the user decided stories run in **group chats only**. That is now plan 33. Badges therefore mark
+  groups only.
+- **2.** The plays index may hold the checkpoint name (player copy, names already reached).
+- **3. Build all eight C-items:**
+  - Draggable windows wherever they make sense: the Help panel, the quest log/Journal (C4), the stat sheet (C7) and the
+    "What could I do?" suggestions (C5) become movable, resizable panels that remember their position per install.
+    Briefings and confirmations stay modal.
+  - Each item can be switched on or off **per story** (a `display` block in the story, authored in the Studio Story
+    tab), with an install-wide default.
+  - C5 is the only one that calls a model, so it is tier 3 for its live gate. Its code is built with the rest.
+- **4. Seamless backfill:**
+  - No "Scan my chats" button. Opening a chat writes its row.
+  - On the first load after install (and after an update that adds the index), one background pass at idle reads group
+    chats' metadata, capped and throttled, never during a generation. After that, opening chats keeps it current.
+
+**The user's comment: "do we have information about the background processes, like the dice? Should we? Have you
+planned UI for authors too?"**
+
+- **Today:**
+  - **Authors** see background work in Author view:
+    - the inline timeline at levels 2–4 (lore that fired, who was chosen to speak, extraction reads and what they
+      wrote, judge calls at Raw);
+    - the Scheduler tab (speaker decisions, curator proposals);
+    - the Payload tab (what the prompt carried);
+    - the session journal.
+  - **Dice (seeded rolls and NPC-reply chances) are NOT shown anywhere.** Draws go only to a dev-build ring
+    (`storyOrchestratorSpikes.draws`, `runtime/chance.ts`).
+- **Proposal, added here as C9 "Behind the scenes":**
+  - **A roll chip** on the message it affected. It shows at L2 for authors ("Roll d20: 14 vs 12, the door holds") and at
+    L1 for players only when the story marks the roll public (plan 19 Q3, which the user approved).
+  - **An "Activity" author panel** (draggable): a live feed of everything the machine did this turn:
+    - reads, rolls, speaker picks, judge verdicts, curator proposals, complications released, expansions prepared,
+      checks raised (plan 31);
+    - each linked to its message.
+  - It is composed from the existing rings (journal, judge calls, talk decisions, lore fired, draws), with no new store.
+  - Player mode keeps the narrative-only view (the spoiler checklist).
+- **The rest of the author UI planned across v2.7:**
+  - plan 01's Help panel author topics;
+  - plan 20's shadow record (L3);
+  - plan 24's director suggestions;
+  - plan 31's author findings;
+  - plan 32's overlay source at L3.

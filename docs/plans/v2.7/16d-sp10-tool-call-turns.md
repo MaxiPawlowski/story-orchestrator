@@ -122,3 +122,10 @@ Only if reopened (option A):
 - 01 docs and in-app guidance: the README split and Help panel may move this note (its feature registry entry: none, it
   is a host-interaction note).
 - 10 model choice: a switch to a CC profile would change the reach question.
+
+## Review of the answers (2026-10-03)
+
+**Decision 1 ("idk"), answered from the install:** the story chats here run the main reply on a Text Completion
+profile, and the roles run on DeepSeek Chat Completion profiles without tools. Nobody uses Chat Completion function
+calling in story chats. So: take **B + C now** (the README note and removing the probe), and defer the rest to the next
+version. Decisions 2 and 3 are taken as recommended.

@@ -387,3 +387,17 @@ N4, N6; J7.3/J7.5/J7.6 fixtures in parallel; N7, J7.4 last.
    author-view readout first; the nudge only after its fixture passes.** as you recommend
 6. Spikes behind `spikes.judge<Id>` (dev, default off) until ×2 floors pass, then a `judge.uses.*` key (default off)
    as a separate decision? **Rec: yes.** yes
+
+## Review of the answers (2026-10-03)
+
+- **Unanswered 2–4: taken as recommended,** per the user ("for the unanswered I don't have the answer; prepare a test
+  set and see if we get value from those spikes or POCs; if so, behind a setting"):
+  - **J7.4:** stays a seed.
+  - **J7.6:** after plan 20's replay.
+  - **J7.2:** auto-drop below the threshold, with draft mode as an author option.
+- **Every idea with no measurement gets the same treatment:**
+  - a 20-case fixture;
+  - an offline replay;
+  - a dev-only, default-off setting until it passes its floor twice.
+  - Then it becomes an install-wide `judge.uses.*` switch, off by default, until the user turns it on.
+- That covers the J7 list and the ST-jeved ideas N1–N8.
