@@ -39,6 +39,14 @@
         "level": 1,
         "categories": {},
         "window": 20
+      },
+      "presence": {
+        "listBadges": true,
+        "continueList": true,
+        "groupCard": true,
+        "chapterCard": true,
+        "wand": true,
+        "rollChips": true
       }
     },
     "copilot": {

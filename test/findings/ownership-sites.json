@@ -676,6 +676,10 @@
     "src/sprites/stage.ts#SpriteStage.rendered": {
       "status": "checked",
       "note": "Sprite stage fix wave (2026-10-02): mints a run over the rendered message's own window ({from: id, to: id}) before classifying and checks it immediately before spriteWriteExpressions, so a chat change, story reload or an edit/swipe/delete at or below the message refuses the store; the host write also refuses another chat and a message whose text changed. The stream/apply writes after the await are in-memory display, done only while that message's stream is still the current one. Cases: stage.test.ts \"stores the reads for the message they belong to when the next member is drafted before classification ends\", \"does not store them when the run lapsed (the message was edited, or the chat changed)\"."
+    },
+    "src/runtime/playsBackfill.ts#runBackfill": {
+      "status": "local",
+      "note": "v2.7 06 A (2026-10-03): the plays-index backfill. It reads one group chat file per step and writes only install-wide rows keyed by THAT file's own chat id (never the open chat, never chat metadata), plus its own progress record; deps.alive() is re-read after every await and stops the loop when the runtime stops. A chat switch mid-run cannot misattribute a row, because the key is the file it read."
     }
   }
 }
