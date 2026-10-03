@@ -1,89 +1,125 @@
-# Plan 15 — Open-source Jev alternative (local judge)
+# Plan 14 — Open-source Jev alternative (local judge)
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "Open-source Jev alternative (local judge)". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.8 plan 14 (was v2.7 plan 15). Decided: build a local judge provider, opt-in per use; our own
+eval harness; local systemone (A1: decider-4b, then Plumb-4B) ahead of NLI (A2); a local server on 127.0.0.1 started by
+the user from the tray; models and caches off `C:`; cloud LLMs offline only; A5 not now. Not built; jevbench read; our
+evals not run.**
+Source: `docs/plans/v2.6/v2.7-seeds.md` row "Open-source Jev alternative (local judge)". Overview: `00-overview.md`.
+**Gate tiers** (00-overview §Gate taxonomy): implementation D (provider, plugin route, matrix runner); acceptance LT
+(local systemone / NLI calibration on this PC); the play-load check runs on RP (group replies on the pod while the local
+judge answers).
 
 ## What it is
 
 - Today every judge use that works runs on one hosted vendor: TypeSafe's Jev. Chat excerpts leave the machine (US
   hosting), and the product depends on that account.
-- This seed is a **local, open-source judge** that answers the same typed questions (yes/no with a probability, a
-  distribution over options, a score) with no data leaving the box.
-- The candidate named in v2.6 is an open NLI / zero-shot classifier run on CPU inside the ST server. Plan 12 Phase B
-  was to calibrate it beside the Artemis-logprob provider; the user deferred it to v2.7.
+- This plan adds a **local, open-source judge** that answers the same typed questions (yes/no with a probability, a
+  distribution over options, a score) with no data leaving the box. It is opt-in per use; TypeSafe stays the default
+  (W2, decision 4).
+- **Primary sequence (decided, research P1–P4):**
+  1. **A1 local systemone:** a decision model that speaks our wire (`/v1/systemone`, several questions per state),
+     served on 127.0.0.1. **decider-4b v2 first**, then **Plumb-4B**.
+  2. **A2 NLI classifier** (bge-m3-zeroshot-v2.0, deberta-v3-large-zeroshot-v2.0), only for the entailment-shaped uses,
+     as the zero-GPU arm. Expected to be weaker (jevbench finding 1).
+  3. Fallback **A3** (small local LLM logprob, its own slot, batched) only if A1 and A2 miss; A6 cascade designed after
+     A1 rows exist.
+- The v2.6 candidate (NLI first, in-process under ST's data root) is superseded by that order and by the off-`C:` rule.
 
 ## History and evidence
 
 | When | What | Where |
 |---|---|---|
-| v2.6 W13 | User: "a new decisions standard, there are many open source alternatives. Can we use something general here, but also keep our current featureset working properly?" → provider-agnostic judge | `docs/plans/v2.6/00-overview.md:170`; `12-open-judge.md:6-8` |
-| v2.6 plan 12 Phase 0 | Survey family F4 (open classifiers / NLI): mDeBERTa-v3-base-xnli (0.3B, MIT, ONNX ports), bge-m3-zeroshot-v2.0 (0.6B, MIT, 8,192 ctx), deberta-v3-large-zeroshot-v2.0 (English, MIT, 512 ctx), ModernBERT-large-nli (0.4B, Apache-2.0, English), gliclass-x-base (Apache-2.0). Latency on our hardware: not found | `12-survey.md:47-58,142-154` |
-| | Finding 8: ST already ships `sillytavern-transformers` 2.14.6 with `ZeroShotClassificationPipeline`; ST's own `/api/extra/classify` lacks the task, so our plugin would call the library directly. No new dependency. Not probed | `12-survey.md:152,210` |
-| | Community "open-source Jev" clones (poorjev: NLI + temperature scaling; jevper/opendecider: logprob wrappers; NanoJev, von, …) listed as unvetted references, not providers | `12-survey.md:85,181` |
-| | Licence constraint: TypeSafe MCA §2.3 forbids distillation, so **no training on Jev answers**; calibrating against our gold fixtures is unaffected | `12-open-judge.md:130-132` (Phase 0 gate record); `12-survey.md:212` (finding 10) |
-| v2.6 plan 12 Phase A | Seam built: `DecisionProvider {id, contract, ask}`, `contract: "native" \| "logprob" \| "verbalized"`; readiness keyed provider × model × use; an uncalibrated route is refused before sending | `12-open-judge.md:137-151` |
-| v2.6 plan 12 Phase B | **Logprob column** (Artemis 31B on the pod's llama-server) run ×2 on 2026-10-03: 6 uses met floor ×2 inside their budget (memory-pairs, continuity, typed, stall, agency, contradiction-release); director, memory-verify, warden-lore-facts missed the budget; critic and variants missed the floor; 8 not measurable cleanly (harness concurrency) | `12-provider-matrix.md:116-170` |
-| | **Then withdrawn**: in play (T6-2-3, same pod streaming group replies) the routed uses answered typed/warden/stall **0 of 96** calls, memoryPairs 26/58. Every llama-logprob row is now `passed: false`. "A local judge needs batching (one request per call) or its own model slot before it is re-measured (v2.7)" | `12-provider-matrix.md:174`; `test/sessions/T6/SUMMARY.md:74-112`; commit `10a74535`; `src/judge/readiness.ts` `playLoad` rows |
-| | **Classifier column NOT BUILT, deferred to v2.7 by the user** (2026-10-02). Needs (1) a build (`nli` provider + plugin route), (2) approval to download a model | `12-provider-matrix.md:7,16,108-114,212` |
+| v2.6 W13 | User: "a new decisions standard, there are many open source alternatives. Can we use something general here, but also keep our current featureset working properly?" → provider-agnostic judge | `docs/plans/v2.6/00-overview.md:170`; `docs/plans/v2.6/12-open-judge.md:6-8` |
+| v2.6 plan 12 Phase 0 | Survey family F4 (open classifiers / NLI): mDeBERTa-v3-base-xnli (0.3B, MIT, ONNX ports), bge-m3-zeroshot-v2.0 (0.6B, MIT, 8,192 ctx), deberta-v3-large-zeroshot-v2.0 (English, MIT, 512 ctx), ModernBERT-large-nli (0.4B, Apache-2.0, English), gliclass-x-base (Apache-2.0). Latency on our hardware: not found | `docs/plans/v2.6/12-survey.md:47-58,142-154` |
+| | Finding 8: ST already ships `sillytavern-transformers` 2.14.6 with `ZeroShotClassificationPipeline`; ST's own `/api/extra/classify` lacks the task, so our plugin would call the library directly. No new dependency. Not probed | `docs/plans/v2.6/12-survey.md:152,210` |
+| | Community "open-source Jev" clones (poorjev: NLI + temperature scaling; jevper/opendecider: logprob wrappers; NanoJev, von, …) listed as unvetted references, not providers | `docs/plans/v2.6/12-survey.md:85,181` |
+| | Licence constraint: TypeSafe MCA §2.3 forbids distillation, so **no training on Jev answers**; calibrating against our gold fixtures is unaffected | `docs/plans/v2.6/12-open-judge.md:130-132` (Phase 0 gate record); `docs/plans/v2.6/12-survey.md:212` (finding 10) |
+| v2.6 plan 12 Phase A | Seam built: `DecisionProvider {id, contract, ask}`, `contract: "native" \| "logprob" \| "verbalized"`; readiness keyed provider × model × use; an uncalibrated route is refused before sending | `docs/plans/v2.6/12-open-judge.md:137-151` |
+| v2.6 plan 12 Phase B | **Logprob column** (Artemis 31B on the pod's llama-server) run ×2 on 2026-10-03: 6 uses met floor ×2 inside their budget (memory-pairs, continuity, typed, stall, agency, contradiction-release); director, memory-verify, warden-lore-facts missed the budget; critic and variants missed the floor; 8 not measurable cleanly (harness concurrency) | `docs/plans/v2.6/12-provider-matrix.md:116-170` |
+| | **Then withdrawn**: in play (T6-2-3, same pod streaming group replies) the routed uses answered typed/warden/stall **0 of 96** calls, memoryPairs 26/58. Every llama-logprob row is now `passed: false`. "A local judge needs batching (one request per call) or its own model slot before it is re-measured" | `docs/plans/v2.6/12-provider-matrix.md:174`; `test/sessions/T6/SUMMARY.md:74-112`; commit `10a74535`; `src/judge/readiness.ts` `playLoad` rows |
+| | **Classifier column NOT BUILT, deferred by the user** (2026-10-02). Needs (1) a build (`nli` provider + plugin route), (2) approval to download a model | `docs/plans/v2.6/12-provider-matrix.md:7,16,108-114,212` |
+| v2.7, 2026-10-03 | jevbench read; user decisions: our harness, A1 before A2, downloads approved "but not on C", local servers in the tray | §Research below |
 
 Verified on this box 2026-10-03:
 - `C:\dev\SillyTavern-MainBranch\package.json:86` pins `sillytavern-transformers` 2.14.6;
   `node_modules/sillytavern-transformers/src/pipelines.js:1015` defines `ZeroShotClassificationPipeline`.
 - That pipeline runs **one model forward pass per candidate label per premise** (loop at `pipelines.js:1069-1078`).
-- `data/_cache/Xenova/` holds only `all-mpnet-base-v2`: **no NLI model on disk**.
+- `data/_cache/Xenova/` holds only `all-mpnet-base-v2`: **no NLI model on disk**. That cache is under ST's data root on
+  `C:`, so A2 must not use it (below).
 
 ## Why it was deferred
 
-- v2.6 measured the provider that costs nothing new (Artemis logprob) first (`12-open-judge.md:107-108`).
-- The classifier needs a build and a model download, both user decisions (`12-provider-matrix.md:110-112`).
+- v2.6 measured the provider that costs nothing new (Artemis logprob) first (`docs/plans/v2.6/12-open-judge.md:107-108`).
+- The classifier needs a build and a model download, both user decisions (`docs/plans/v2.6/12-provider-matrix.md:110-112`).
 - User decision 2026-10-02 (seed row).
 
 ## Current state in code
 
-- Providers: `JUDGE_PROVIDER_IDS = ["typesafe", "llama-logprob"]` (`src/judge/providers.ts:3`). No `nli` id.
-- Plugin provider table: `typesafe`, `llama-logprob` (`server-plugin/story-orchestrator-judge/index.mjs:9-11`), limiter
-  2 in flight per user (`:29`, env `SO_JUDGE_MAX_IN_FLIGHT`).
+- Providers: `JUDGE_PROVIDER_IDS = ["typesafe", "llama-logprob"]` (`src/judge/providers.ts:3`). No local systemone or
+  `nli` id.
+- Plugin provider table: `typesafe`, `llama-logprob` (`server-plugin/story-orchestrator-judge/index.mjs:9-11`;
+  `llama-logprob` reads its URL from `SO_JUDGE_LLAMA_URL` on the server), limiter 2 in flight per user (`:29`,
+  env `SO_JUDGE_MAX_IN_FLIGHT`).
 - `llama-logprob` client is a lazy chunk (`src/judge/llamaLogprob.ts`), one 1-token `/completion` per **question**,
-  options > 20 refused (`12-open-judge.md:144`). Its rows: all `passed: false` (withdrawn).
+  options > 20 refused (`docs/plans/v2.6/12-open-judge.md:144`). Its rows: all `passed: false` (withdrawn).
 - Default provider for every use: `typesafe` (W2). TypeSafe is the only routable provider.
+- Fixtures: `test/fixtures/judge/` (23 files). Several have `-holdout` twins; **`memory-verify` and `stall` have none**
+  (listed 2026-10-03).
+- Tray: `C:\dev\tray\items\story-orchestrator.json` lists SillyTavern, the RunPod tunnel, ComfyUI, Unsloth Studio, the
+  debug browser. No local judge entry.
+
+## Deployment rules (v2.8 rule 5)
+
+- **Models and caches off `C:`.** One install-wide path names where judge models live: env `SO_JUDGE_MODELS_DIR` on the
+  ST server, shown read-only in the judge panel. The local systemone server is started with its weights and every cache
+  under it (`HF_HOME`, `HF_HUB_CACHE`, the server's own cache flags, or Ollama's `OLLAMA_MODELS` if Ollama serves it).
+  The A2 plugin route passes `cache_dir` under it to `sillytavern-transformers`, never ST's `data/_cache`. The plugin
+  refuses to load a model (status `models-on-system-drive`) when the resolved path is on `C:`.
+- **Every server in the tray.** The local systemone server gets an entry in `C:\dev\tray\items\story-orchestrator.json`
+  with a status probe (`http` on its 127.0.0.1 health URL), **Start** (with the off-`C:` env set in the entry's `env`),
+  **Stop** (`notify`), and a **readiness check** (`notify`: one probe decision through the server, prints the model id
+  and latency). A2 runs inside the judge plugin, so it has no server of its own; its readiness is a tray check that
+  calls the plugin's status route and prints the loaded NLI model and its path. `C:\dev\tray\status.txt` must read OK
+  for the file.
+- The URL the plugin calls comes from the server env (`SO_JUDGE_LOCAL_URL`), never from the page.
 
 ## The fit problem (read before choosing)
 
 | Issue | Evidence | Consequence |
 |---|---|---|
-| Context | DeBERTa-v3 family 512 tokens; bge-m3-zeroshot 8,192 (`12-survey.md:51-53`). Judge states run to > 12k chars (scene state-size bands 0–4k … > 12k, `v2.5/06-judge-next.md:278,287`) | 512-token models need the state cut to the relevant window per use; bge-m3 fits more. The pipeline tokenizes with `truncation: true` (`pipelines.js:1072-1076`), so an over-long state is cut **silently**: the provider must refuse or trim explicitly, never pass it through |
-| Calls | Questions per request: director 8, scene 6.9, lore 42.3, lore-relevance 64 (`12-provider-matrix.md:57-76`); NLI adds one pass **per label** | multi-option uses multiply; lore and director on the 1500 ms reply path are unlikely |
-| Task match | NLI is native to "is this supported / contradicted": memoryVerify (supported by transcript), continuity / warden (contradicts a fact), memoryPairs (same thing), contradiction-release | start where the task *is* entailment; director/lore/scene are weaker fits |
-| Probability meaning | NLI entailment p is not Jev's p; every threshold (`CONTINUITY_P` 0.7, `LORE_MIN_P` 0.6, …) is per provider | calibrate per use on gold fixtures; temperature scaling on gold labels is allowed (MCA §2.3 only forbids Jev answers as labels) |
-| Load | the logprob provider died under play load on a shared GPU | a CPU classifier does not share the GPU, but shares the ST server's CPU; whether onnxruntime-node stalls ST under play is **not determined** |
+| Context | DeBERTa-v3 family 512 tokens; bge-m3-zeroshot 8,192 (`docs/plans/v2.6/12-survey.md:51-53`). Judge states run to > 12k chars (scene state-size bands 0–4k … > 12k, `docs/plans/v2.5/06-judge-next.md:278,287`). 4B decision models: CPU latency on 2–8k-token states not determined | 512-token models need the state cut per use. The pipeline tokenizes with `truncation: true` (`pipelines.js:1072-1076`), so an over-long state is cut **silently**: the provider must refuse or trim explicitly, never pass it through |
+| Calls | Questions per request: director 8, scene 6.9, lore 42.3, lore-relevance 64 (`docs/plans/v2.6/12-provider-matrix.md:57-76`); NLI adds one pass **per label** | A1 batches several questions per state like TypeSafe; NLI multiplies; lore and director on the 1500 ms reply path are unlikely for NLI |
+| Task match | NLI is native to "is this supported / contradicted": memoryVerify, continuity / warden, memoryPairs, wardenLore, contradiction-release | A2 is limited to those uses; A1 is tried on all |
+| Probability meaning | a local model's p is not Jev's p; every threshold (`CONTINUITY_P` 0.7, `LORE_MIN_P` 0.6, …) is per provider | per-provider thresholds fitted on a tuning split only, frozen before held-out rows (decision 6 of the research) |
+| Load | the logprob provider died under play load on a shared GPU | A1 on CPU first (the 3090 only when ComfyUI is idle); the play-load check decides every row |
 
 ## Options
 
-**A. NLI classifier provider, NLI-native uses first.** Provider id `nli`, contract `classifier` (new value, or map onto
-`logprob`'s "probability from a model" meaning; decide in build). Plugin route runs `ZeroShotClassificationPipeline`
-in-process with `cache_dir` under the data root. First uses: memoryVerify, memoryPairs, continuity (warden), stall.
-Cost: model download (size not determined; 0.3–0.6B params), CPU time per call (unmeasured). Risk: 512-token cut loses
-context; ST server CPU contention.
+| | What | Verdict |
+|---|---|---|
+| **A1 local systemone** | `systemone-local` provider, contract `native`, our TypeSafe client against a 127.0.0.1 URL; decider-4b v2 then Plumb-4B | **first** (research P1, P3; decision 2) |
+| **A2 NLI classifier** | `nli` provider, `ZeroShotClassificationPipeline` in the judge plugin, entailment uses only | **second** (research P4) |
+| **A3 small local LLM logprob, own slot, batched** | existing `llama-logprob` path with one request per call | fallback if A1 and A2 miss (decision 5, "b Next") |
+| **A6 cascade** (local → TypeSafe below a confidence threshold) | composite in the plugin | designed after A1 rows exist (P6) |
 
-**B. Small local LLM, logprob, its own slot.** A small instruct or judge model (survey F5: Flow-Judge 3.8B, Selene-1-Mini
-8B; logprob-derivable) on its own llama-server (the local 3090, or a second slot on the pod), with **one request per judge
-call** (batch all questions) instead of one per question. Reuses the built `llama-logprob` code path with a batching
-change. Cost: VRAM (the 3090 also runs image generation), pod time if remote. Risk: GPU contention again unless truly
-separate.
-
-**C. Re-measure Artemis-logprob with batching.** Same model as play, batched requests, a dedicated llama-server slot.
-Cheapest code, but the 31B main model is still the contended resource.
-
-**D. Adopt a community clone** (poorjev, jevper, opendecider). Unvetted, unknown licences (`12-survey.md:85`). Useful as
-reference implementations only.
-
-**E. Drop.** Keep TypeSafe as the only judge; users without a key get each use's fallback.
+Rejected: C (re-measure Artemis-logprob batched; the 31B main model stays the contended resource); D (adopt a community
+clone; unvetted, unknown licences); E (drop; the user wants a local judge). A4 (cloud LLMs) and A5 (same Jev, other
+hosts) are not runtime routes (§Research).
 
 ## Recommendation
 
-**A, scoped to the four NLI-native uses, with a load check before any row is recorded.** It is the only option that is
-open-source, fully local, needs no GPU and adds no dependency (the library is already in ST). The v2.6 lesson is built in:
-fixture floors ×2 are necessary but not enough; a play-load check decides the row. If A fails its load or floor check,
-B is the fallback, because it fixes the two causes the T6-2 check found (per-question requests, shared GPU).
+**Superseded by the research (P1–P4) and the user's answers.** The original recommendation ("A, scoped to the four
+NLI-native uses, in-process under ST's data root") is replaced by:
+
+1. **Matrix runner first** (P2): extend `scripts/spike/typesafe/calibrate-node.mts` into the provider matrix runner,
+   serial for local arms, with the jevbench-borrowed metrics. Shared with v2.8 13's `--replay` mode.
+2. **Held-out twins** (B8): write `memory-verify-holdout.json` and `stall-holdout.json` (≥ 20 English authored rows
+   each, labelled before any answer) before any provider row for those two uses counts.
+3. **A1** (P1, P3): `systemone-local` provider; decider-4b v2 GGUF on CPU first, then Plumb-4B; weights and caches
+   under `SO_JUDGE_MODELS_DIR`; the server in the tray.
+4. **A2** (P4): `nli` provider for the five entailment uses; models under the same path.
+5. **Play-load check** on every row that passes its floors ×2 (RP). A use that passes becomes routable opt-in for that
+   provider × model; TypeSafe stays default.
 
 ## Decisions for the user
 
@@ -100,39 +136,50 @@ B is the fallback, because it fixes the two causes the T6-2 check found (per-que
 6. Where does it run when ST user accounts are on? **Rec: one shared in-process model; no key, nothing leaves the machine;
    the panel says so (no privacy notice needed).** as you recommend
 
+(Read with the research decisions below: decision 1's "investigate jevbench first" led to A1 ahead of A2; decision 2's
+NLI downloads are A2's; decision 5's "B" is A3 here; decision 6 holds for A1 too: one shared local server, nothing
+leaves the machine.)
+
 ## Floor and measurement before building
 
 - **Floors:** each use's existing fixture floor, **unchanged** (`test/fixtures/judge/*.json`), ×2, with TypeSafe and
-  judge-off columns (`12-provider-matrix.md` shape). No floor is retuned. Each fixture is already ≥ 20 English rows
-  (`memory-verify`, `memory-pairs`, `continuity`, `stall`); no new fixture is needed for these four.
-- **Budget:** p95 within the use's timeout (`policy.ts`: memoryVerify/memoryPairs 3000 ms, warden/stall 4000 ms).
-- **Load check (new, predeclared):** routed in a real play session on a lane (group replies generating), each routed use
-  answers ≥ 95 % of its calls with p95 inside its budget, and ST's own reply latency moves by no more than 10 % against a
-  judge-on-TypeSafe session on the same replayed lines (T1-3 lines, as T6-2 did). Below that, the row is recorded
-  `passed: false`.
-- **Rows:** `JUDGE_READINESS_BY_PROVIDER["nli"]` per model × use, `measuredOn` = model id, bound to the fixture revision.
+  judge-off columns (`docs/plans/v2.6/12-provider-matrix.md` shape). No floor is retuned. A use counts for a provider
+  only when its held-out twin also passes (B8: `memory-verify` and `stall` need theirs written first).
+- **Budget:** p95 within the use's timeout (`policy.ts`: memoryVerify/memoryPairs 3000 ms, warden/stall 4000 ms,
+  director/lore 1500 ms).
+- **Option rotation and paraphrase twins** reported for every local arm (jevbench finding 5).
+- **Load check (predeclared, RP):** routed in a real play session on a lane (group replies generating on the pod), each
+  routed use answers ≥ 95 % of its calls with p95 inside its budget, and ST's own reply latency moves by no more than
+  10 % against a judge-on-TypeSafe session on the same replayed lines (T1-3 lines, as T6-2 did). Below that, the row is
+  recorded `passed: false`.
+- **Rows:** `JUDGE_READINESS_BY_PROVIDER["systemone-local" | "nli"]` per model × use, `measuredOn` = model id, bound to
+  the fixture revision.
 - **Harness first:** the calibration runner's concurrency bug (all rows fired at once, `busy`/timeouts;
-  `12-provider-matrix.md:126-137`) needs a no-pause serial mode for local providers before the run.
+  `docs/plans/v2.6/12-provider-matrix.md:126-137`) is fixed by the serial mode before any local run.
 - **MCA §2.3:** calibration uses gold labels only; no Jev answer is used as a training or scaling label.
 
 ## Gates
 
-- Provider + plugin route: judge seam, plugin, settings → `npm run gates` + `npm run test:plugin`; byte-identical
-  TypeSafe golden still passes; a mutant routing to an uncalibrated `nli` use is refused; client code stays a lazy
-  chunk (bundle budget, `12-open-judge.md:164`).
-- Measurement: lane runs per fixture ×2 (`so-judge calibrate --provider nli`), page reloaded between runs; the play-load
-  check as a v2.6 plan 14-style session with header diff.
+- Provider + plugin route (D): judge seam, plugin, settings → `npm run gates` + `npm run test:plugin`; byte-identical
+  TypeSafe golden still passes; a mutant routing to an uncalibrated local use is refused; the local URL is read only
+  from the server env (test); the plugin refuses a models path on `C:` (test with a planted `C:\` path); client code
+  stays a lazy chunk (bundle budget, `docs/plans/v2.6/12-open-judge.md:164`).
+- Tray (D, v2.8 rule 5): `C:\dev\tray\items\story-orchestrator.json` has the local judge entry (status, Start, Stop,
+  readiness check) and `status.txt` reads OK; the readiness check answers with the model id and a path not on `C:`.
+- Measurement (LT): matrix runs per fixture ×2 per arm (`so-judge calibrate --provider …` or the node runner), page
+  reloaded between runs, held-out twins included; a preregistration note per run committed first.
+- Play-load (RP): the check above as a v2.6 plan 14-style session with header diff.
+- The local provider choice in the judge panel is **registered in the v2.7 01 feature registry + Help (registry test)**
+  (B10); routes stay opt-in per use (decision 4); a newly routable use ships dev-only until its rows pass twice
+  (v2.8 rule 9).
 
 ## Links
 
-- 13 B10 CLI judge (the other non-TypeSafe route; recommended dropped as a runtime judge)
-- 14 J7 judge ideas (J7.2 canon verify is an NLI-shaped question this provider could take later)
-- 20 J6d shadow record
-- 10 model choice (if the main model changes, option C's model changes with it)
-- 11 warden-lore one request (the warden key's calls)
-- 04 story presence/plays index, 19 quests/game layer, 18 character life, 25 new game plus, 08 SP2, 22 SP9, 16 spike
-  defers, 12 curator create op, 21 cue+scene read merge, 09 C4 option b, 07 commitment double negatives, 23 D6/T22
-  revisits, 06 thinking per story
+- v2.7 14 B10 CLI judge (the other non-TypeSafe route; dropped as a runtime judge; W27 kept)
+- v2.8 13 J7 judge ideas (shares the `--replay` mode; J7.2 canon verify is an NLI-shaped question; Rout host noted there)
+- v2.8 12 J6d shadow record (a new typed provider is what a shadow would compare against)
+- v2.7 12 model choice (option C's model would follow the main model; C is rejected)
+- v2.7 13 warden-lore one request (the warden key's calls)
 
 ---
 
@@ -210,7 +257,7 @@ Findings for this plan:
 6. **Cascades work.** classifier.dev Fast → Jev at a 0.42 confidence threshold escalated 3 % of held-out items and kept
    99.6 % of Jev's accuracy at 11 % of the cost. The same shape fits us: a local model answers, low-confidence answers
    go to TypeSafe (privacy and cost), with the threshold fitted on a tuning split.
-7. **Same model, other hosts:** classifier.dev (fast tier = Jev 1.13.0), OpenRouter, NanoGPT, Rout (plan 14
+7. **Same model, other hosts:** classifier.dev (fast tier = Jev 1.13.0), OpenRouter, NanoGPT, Rout (v2.8 13
    research). Each would need its own row (the model-match check already refuses an unmapped id).
 8. Our own Jev latency (p50 ~240 ms, `readiness.ts`) is far below jevbench's 0.652 s (Germany → US); their speed
    column does not transfer.
@@ -243,10 +290,10 @@ Findings for this plan:
 | Arm | Contract | How it runs | Cost to try | First uses |
 |---|---|---|---|---|
 | A0 TypeSafe Jev 1.13.0 | native | as today | none (baseline column) | all |
-| A1 **local systemone**: decider-4b v2, Plumb-4B, Imajev-4B (Imajev also for `expressions`/backgrounds with images) | native | a local server on 127.0.0.1 (the author's own server, or Ollama if its endpoint holds), our plugin with a configurable URL | one download each (2.7 GB GGUF to ~10 GB bf16), a new provider id | all |
-| A2 NLI classifier (bge-m3-zeroshot-v2.0, deberta-v3-large-zeroshot-v2.0) | classifier | `sillytavern-transformers` in the plugin | download + a provider | entailment-shaped only: memoryVerify, memoryPairs, continuity, wardenLore, contradiction-release |
+| A1 **local systemone**: decider-4b v2, Plumb-4B, Imajev-4B (Imajev also for `expressions`/backgrounds with images) | native | a local server on 127.0.0.1 (the author's own server, or Ollama if its endpoint holds), weights and caches under `SO_JUDGE_MODELS_DIR` (off `C:`), started from the tray; our plugin with a URL from the server env | one download each (2.7 GB GGUF to ~10 GB bf16), a new provider id | all |
+| A2 NLI classifier (bge-m3-zeroshot-v2.0, deberta-v3-large-zeroshot-v2.0) | classifier | `sillytavern-transformers` in the plugin, `cache_dir` under `SO_JUDGE_MODELS_DIR` (not ST's `data/_cache`) | download + a provider | entailment-shaped only: memoryVerify, memoryPairs, continuity, wardenLore, contradiction-release |
 | A3 small local LLM logprob, own slot, batched | logprob | existing `llama-logprob` with one request per call | a GGUF + a slot | all |
-| A4 cloud LLM verbalized (DeepSeek V4.1 Flash, GPT-6 Luna low) | verbalized | Connection Manager profile or `codex exec`, offline only | per-token | all, as a **ceiling and a labelling cross-check**, never a runtime route |
+| A4 cloud LLM verbalized (DeepSeek V4.1 Flash, GPT-6 Luna low) | verbalized | Connection Manager profile or `codex exec`, offline only (evaluation tooling run by Claude, not the runtime harness; W27 unchanged, below) | per-token | all, as a **ceiling and a labelling cross-check**, never a runtime route |
 | A5 same Jev, other host (OpenRouter, NanoGPT, Rout, classifier.dev) | native | plugin host table | an account each | the cheapest-to-measure uses (stall, agency) to show equivalence |
 | A6 cascade (A1 → A0 below a confidence threshold) | composite | in the plugin | none beyond A1 | every use A1 nearly passes |
 
@@ -260,7 +307,11 @@ Findings for this plan:
 **Decision rule (unchanged):** each use's existing floor ×2, p95 inside its budget, then the play-load check already
 predeclared above. Per-provider thresholds (e.g. `CONTINUITY_P`) may be fitted **only on a tuning split** and frozen
 before the held-out rows are read; floors are never retuned. A use with no held-out twin gets one before its provider
-row counts. Gold labels only (MCA §2.3).
+row counts: today `memory-verify` and `stall` (B8). Gold labels only (MCA §2.3).
+
+**A4 and W27.** `codex exec` in A4 is **offline evaluation tooling**: Claude runs it from a script to get a ceiling column
+and to find label errors on authored fixtures. It is not the runtime harness, routes no player traffic, and never sees
+Adolion text. W27 (the harness plugin offers opencode only, no logins) is kept.
 
 ### Proposals
 
@@ -268,9 +319,9 @@ row counts. Gold labels only (MCA §2.3).
   answer reading against a local URL from the server env (`SO_JUDGE_LOCAL_URL`), never from the page; same model-match
   and token guards.
 - **P2.** Extend `calibrate-node.mts` into the provider matrix runner (all fixtures × arms, serial, raw rows,
-  Brier/ECE/AUROC, option rotation, $/1k, questions per request), shared with plan 14's `--replay` mode.
+  Brier/ECE/AUROC, option rotation, $/1k, questions per request), shared with v2.8 13's `--replay` mode.
 - **P3.** Measure A1 with **decider-4b v2 first** (licence statement clean, GGUF exists, smallest), then Plumb-4B; run on
-  CPU first, the 3090 only when ComfyUI is idle.
+  CPU first, the 3090 only when ComfyUI is idle. Weights and caches off `C:`; the server in the tray.
 - **P4.** Keep A2 (NLI), limited to the five entailment-shaped uses, as the zero-GPU, zero-new-runtime arm; expect it to
   miss the floors on narrative states (jevbench finding 1).
 - **P5.** Measure A4 once per fixture as a ceiling and to find label errors (a row every strong arm "gets wrong" is
@@ -294,6 +345,24 @@ row counts. Gold labels only (MCA §2.3).
 
    **Answer:** A5 is the *same* Jev model sold by other hosts (OpenRouter, NanoGPT, Rout, classifier.dev), not a
    different judge. Measuring it would only show those hosts give the same answers as TypeSafe, as a fallback if
-   TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7.
+   TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7 (nor v2.8).
    **Also recorded:** local models are stored off `C:` (another drive; the path becomes a setting); every local server
-   this plan adds gets a tray entry (`C:\dev\tray\items\story-orchestrator.json`).
+   this plan adds gets a tray entry (`C:\dev\tray\items\story-orchestrator.json`). Both are now §Deployment rules
+   and gates above.
+
+## Review 2026-10-03
+
+- **F01:** status line rewritten (decided; not built; jevbench read, evals not run).
+- **F06:** primary sequence rewritten around A1 local systemone (decider-4b, then Plumb) then A2 NLI (§What it is,
+  Options, Recommendation); models and caches off `C:` via `SO_JUDGE_MODELS_DIR`; tray start/stop/readiness for the
+  local server and a readiness check for the in-plugin NLI arm (§Deployment rules, Gates).
+- **B7:** same: weights and caches off `C:` (asserted by a plugin test and the tray readiness check); tray readiness
+  gate for the local judge server.
+- **B8:** held-out twins for `memory-verify` and `stall` written before their provider rows count (Recommendation step
+  2, Floor; confirmed missing on 2026-10-03).
+- **Sol open question (A4 `codex exec` vs W27):** stated as offline evaluation tooling, not the runtime harness; W27
+  kept (arms table, note after the decision rule).
+- **"15's recommendation is superseded by research P1–P4":** the Recommendation says so and lists the new sequence.
+- Tiers: implementation D, acceptance LT, play-load RP. Registry gate (B10) and v2.8 rule 9 on newly routable uses.
+- References version-qualified (B12); Links cut to the plans that matter. Line refs touched re-checked
+  (`providers.ts:3`, plugin `index.mjs:9-11`, `:29`).

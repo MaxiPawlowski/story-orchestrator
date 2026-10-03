@@ -1,6 +1,9 @@
-# Plan 30 — Who the player is: a story player profile and a start-setup step
+# Plan 03 — Who the player is: a story player profile and a start-setup step
 
-**Status: DRAFT 2026-10-03 (topic from the user). Not approved, not built.** Overview: `00-overview.md`.
+**Status (2026-10-03): v2.8 plan 03 (was v2.7 plan 30). Decided (see Decisions and Review of the answers); not built;
+spike S30-1 not run.** Overview: `00-overview.md`.
+**Gate tiers** (00-overview §Gate taxonomy): implementation D (S30-1 on a lane with the scripted opener); acceptance RP
+(the injected block rides the v2.8 final real-LLM suite).
 
 The user's words: "some sort of persona definition on the story/wizard, to make sure the player's persona matches
 what's expected. Or maybe some sort of setup on story start?"
@@ -23,35 +26,45 @@ what's expected. Or maybe some sort of setup on story start?"
 
 ## What exists
 
-### Our code
+### Our code (line refs checked 2026-10-03 on master `c7967323`)
 
 | What | Where | Notes |
 |---|---|---|
-| `requirements.personas` (names) | `engine/schema.ts:320`, `engine/validate/storyOptions.ts:9,26` | normalizes like members/lorebooks |
+| `requirements.personas` (names) | `engine/schema.ts:322`, `engine/validate/storyOptions.ts:10,29` | normalizes like members/lorebooks |
 | Readiness: persona = `context.name1`, compared by name | `runtime/requirements.ts:16,21`, `runtime/requirementsRead.ts:50,63,67` | a mismatch makes `ready` false, so effects wait. `absentPersonas` = not on the install |
+| The opener waits for readiness | `runtime/effectsApplier.ts:255` (`if (ready)` before the `new_chat_only` replies), `:509` (only into an empty chat) | a fixed-name story therefore holds its opener until the name is selected |
 | Re-check on persona switch | `runtime/requirementsWatch.ts:75` (`PERSONA_CHANGED`) | |
-| Repair rows | `runtime/repair.ts:193-218` | absent → one-click "Remove the requirement" (`withoutPersonas`, `:220`; `castRepair.ts:17`); unselected → "Select it in Persona Management" |
-| Wizard refusal | `wizard/provisioning.ts:12-20` (`personaRequirementProblem`), `copilot/authoring.ts:67-72`, `copilot/agent/requirements.ts:52-54` | a required name must already exist |
+| Check registry (v2.7 04) | `runtime/checks.ts` (`CHECKS`, `:85`; areas include `persona`, `:4`) | today: `transcript-copiers`, `model-not-thinking` |
+| Repair rows | `runtime/repair.ts:196-221` (`personaRepairSteps`) | absent → one-click "Remove the requirement" (`withoutPersonas`, `:223`; `castRepair.ts:17`); unselected → "Select it in Persona Management" |
+| Wizard refusal | `wizard/provisioning.ts:13-20` (`personaRequirementProblem`), `copilot/authoring.ts:67-72`, `copilot/agent/requirements.ts:52-54` | a required name must already exist |
 | No persona tool | `copilot/agent/tools.ts:80` (only `setRequirements`), `copilot/agent/prompt.ts:39` ("never touch personas"), `copilot/prompts.ts:69,119` | by design (architecture.md, wizard invariant, T5-1-4) |
 | "Fix with wizard" seed | `wizard/interview.ts:42` | tells the author to create personas themselves |
-| Studio | `studio/components/StoryEditor.tsx:136-141` (Persona field), `studio/castDiagnostics.ts:13,99-110` (`requirement-persona-missing`) | |
-| The player is never a cast member | `studio/playerRole.ts:3,21-44`, `castDiagnostics.ts:115-119` (`roster-member-is-player`), `copilot/agent/playerCast.ts:23-25`, `agent/prompt.ts:33` | the player's role is read by regex ("you are a …") from `description`, `player_intro`, openers |
+| Studio | `studio/components/StoryEditor.tsx:136-141` (Persona field), `studio/castDiagnostics.ts:13,105` (`requirement-persona-missing`) | |
+| The player is never a cast member | `studio/playerRole.ts:3,17-44`, `castDiagnostics.ts:11,120` (`roster-member-is-player`), `copilot/agent/playerCast.ts:20-25`, `agent/prompt.ts:33` | the player's role is read by regex ("you are a …") from `description`, `player_intro`, openers |
 | Player name | `stHost/context.ts:78-81` (`getPlayerName` = `name1`), `runtime/macros.ts:63` (`{{story_player_name}}`) | |
-| Prompts say `{{user}}`, never "the player" | `engine/agency.ts` `PLAYER_REF`; `docs/plans/v2.6/14-findings.md:137` | ST substitutes it in extension prompts (`script.js:3326`) |
-| `player_intro` | `engine/schema.ts:367`, `snapshotBuilder.ts:49` | premise; drawer Overview only |
+| Prompts say `{{user}}`, never "the player" | `engine/agency.ts:20` `PLAYER_REF`; `docs/plans/v2.6/14-findings.md:137` | ST substitutes it in extension prompts (`script.js:3326`) |
+| `player_intro` | `engine/schema.ts:385`, `snapshotBuilder.ts:50` (`publishedIntro`, falls back to `description`) | premise; drawer Overview only |
 | Player copy label | `runtime/narrative.ts:241` ("Your character") | |
 | Persona-bound lorebook read | `stHost/selectors.ts:77` | counts for lore requirements |
-| Author guide | `docs/authoring/story-guide.md:49,52,61-62,72` | "leave `requirements.personas` out unless the story truly needs a named persona" |
+| Author guide | `docs/authoring/story-guide.md:49,52,61-62,72` | "leave `requirements.personas` out unless the story truly needs a named persona" (not re-checked) |
 
-### Related v2.7 plans
+### Related plans
 
-- **03 briefing** (`03-story-briefing.md`): one modal on the story's first start in a chat, with a free-text
-  "Who you are" section; `extras.ui.briefingSeen`; harness sets `display.briefing` off.
-- **24 living story**: `living.player_role` (free text) feeds the director (`24-living-story-director.md:53`).
-- **27 wizard assistant**: character-building tutorial; "greeting speaks for the player" is a listed card mistake.
-- **31 health center**: already lists "persona fit (30)" as an incoming check (`31-story-health-center.md`).
+- **v2.7 05 story briefing** (`v2.7/05-story-briefing.md`): owns the one modal (`#so-briefing`) shown on a story's first
+  activation in a chat, its free-text "Who you are" section, `extras.ui.briefingSeen` and `display.briefing` (the
+  harness sets it off). This plan adds a pane to that modal; it does not own the modal.
+- **v2.7 04 story health center** (`v2.7/04-story-health-center.md`): owns the check registry (`src/runtime/checks.ts`)
+  and the "Before you start" findings list. This plan delivers two registry entries: persona fit and persona switch.
+- **v2.7 03 group-chats-only**: stories run in group chats only. A solo chat appears here only as a control.
+- **v2.8 08 living cards**: in-story changes to the player (looks, status, titles) live in its per-chat overlay under
+  `player.card`. The ST persona is the base and is never edited.
+- **v2.8 22 living story**: its `living.player_role` becomes this plan's `player.role` (review C10).
+- **v2.8 09 wizard assistant**: character-building tutorial; "greeting speaks for the player" is a listed card mistake.
+- **v2.8 02 Adolion campaign**: one `player` block per story, after this format lands (review D13).
+- **v2.5 plan 17**: the scripted `new_chat_only` opener and the bound-story path (`runtime/groupStoryBinding.ts`,
+  `boundStoryForEmptyChat`).
 
-### SillyTavern host (`C:\dev\SillyTavern-MainBranch`, verified)
+### SillyTavern host (`C:\dev\SillyTavern-MainBranch`, verified when the plan was written; not re-checked 2026-10-03)
 
 - **What a persona is.** `power_user.personas[avatarId] = name` and `power_user.persona_descriptions[avatarId] =
   {description, position, depth, role, lorebook, title, connections}` (`personas.js:515-549`, `initPersona`).
@@ -68,8 +81,8 @@ what's expected. Or maybe some sort of setup on story start?"
   - character/group: a `connection` on the persona (`:1094-1126`).
   - default: `power_user.default_persona` (`:978`).
   - `persona_auto_lock` (user setting) locks the chosen persona to the chat on selection (`:900`, `:936`).
-- **There is no per-chat description override.** The description belongs to the persona. "Adapt for this chat" means
-  a separate persona (duplicate or new) locked to the chat, or a story-side prompt block.
+- **There is no per-chat description override.** The description belongs to the persona. Per-chat changes go through
+  v2.8 08's overlay or this plan's story-side block.
 - **Slash API** (this checkout; the comment calls them "New CRUD commands", so older ST may lack them):
   `/persona-create name= description= descriptionPosition= ... select=` (`personas.js:2096-2150`, `:2558`; default
   avatar uploaded via `/api/avatars/upload`, `:359-384`), `/persona-update`, `/persona-get`, `/persona-duplicate`,
@@ -81,9 +94,9 @@ what's expected. Or maybe some sort of setup on story start?"
   `persona_descriptions` (`:229`), `chatMetadata.persona` (`:135`). `user_avatar` itself is not on the context; it is an
   export of `personas.js` (a new `stHost/personas.ts` module would import it).
 - **Risks.**
-  - Switching persona on a new chat re-triggers the greeting: `setUserAvatar` → `retriggerFirstMessageOnEmptyChat`,
+  - Switching persona on an empty chat re-triggers the greeting: `setUserAvatar` → `retriggerFirstMessageOnEmptyChat`,
     which **reloads the whole chat in a group** unless `chat_metadata.tainted` (`personas.js:163`, `:1875-1885`). How
-    that interacts with our scripted opener (v2.5 plan 17) is **not determined**.
+    that interacts with the v2.5 plan 17 scripted opener is **not determined** (S30-1).
   - A persona switch changes the install-wide current persona. Chats without a lock open with it afterwards.
   - Past user messages keep the old name; `/persona-sync` rewrites them (`:1842`), which is a history edit.
   - Deleting a persona unlocks chats that used it (`:1188-1190`).
@@ -93,18 +106,12 @@ what's expected. Or maybe some sort of setup on story start?"
 
 | | What | Cost | Risk |
 |---|---|---|---|
-| **A** | Story declares a **player profile**; a "Who are you in this story" step in the start modal lets the player keep the current persona, pick another (switched and **chat-locked** via ST's own lock), or **create a story persona** (player-confirmed, create-only, then chat-locked) | medium: schema + validator + modal step + `stHost/personas.ts` + harness | host: greeting retrigger/reload on switch, older ST without `/persona-create`; invariant change |
+| **A** | Story declares a **player profile**; a "Who are you in this story" step in the start modal lets the player keep the current persona, pick another, or **create a story persona** (player-confirmed, create-only); every choice is **chat-locked** via ST's own lock | medium: schema + validator + modal pane + `stHost/personas.ts` + harness | host: greeting retrigger/reload on switch, older ST without `/persona-create`; invariant change |
 | **B** | Inject a story-side "who `{{user}}` is in this story" block; never touch ST personas | small: one injection key | contradicts a persona description that says otherwise; the model gets two identities |
-| **C** | Validation only: Repair/health row when the persona doesn't fit (name rule deterministic; description fit via judge) | small (name), medium (judge: needs a calibrated use and floor) | warns but never fixes; judge use uncalibrated |
+| **C** | Validation only: health-center row when the persona does not fit (name rule deterministic; description fit via judge) | small (name), medium (judge: needs a calibrated use and floor) | warns but never fixes; judge use uncalibrated |
 | **D** | Wizard authoring: the Characters step drafts the profile (edit op, author reviews) | small | none beyond the usual review |
 
-- B alone is weakest: the description wins or fights. B is useful as the "keep my persona" path.
-- C alone tells the player something is wrong and leaves them to go fix it in Persona Management.
-- D only produces data; it needs A or B to mean anything.
-
-## Recommendation
-
-**A + B + D, with C's deterministic part; the judge fit check deferred.**
+## Recommendation (decided 2026-10-03: A + B + D, with C's deterministic part; no judge)
 
 1. **Format: optional story-level `player`.**
 
@@ -120,66 +127,113 @@ what's expected. Or maybe some sort of setup on story start?"
    ```
 
    - `role`: one line. Replaces the regex guess in `playerRole.ts` as the first source (the regex stays as a fallback).
+     v2.8 22 reads it instead of `living.player_role`.
    - `summary`: player copy (spoiler rules as for briefings). Fills the briefing's "Who you are" section when the
-     author wrote none, and the start step's text.
+     author wrote none, and the setup pane's text.
    - `name.mode`: `any` (default) | `suggested` (`name.value` is offered when creating) | `fixed` (the story only works
      with that name; replaces most uses of `requirements.personas`).
    - `assumes`: what the story takes for granted. Shown to the player; fed to the model only through `summary`/the block.
    - `suggested_description`: prefilled text for "Create a persona for this story". Never written anywhere without the
      player's click.
-   - `inject`: when on and the player kept a persona that is not a story persona, a short block
-     (`INJECTION_REGISTRY.playerRole`, in-prompt, low priority) says "In this story, `{{user}}` is <role>: <summary>".
-     Off when the player chose or created a persona for this story (the description already carries it).
-   - `living.player_role` (plan 24) becomes `player.role`.
+   - `inject` (default on): a short block (`INJECTION_REGISTRY.playerRole`, in-prompt, low priority) says "In this
+     story, `{{user}}` is <role>: <summary>". **It stays on for every existing persona, kept or picked**: choosing a
+     persona does not show that its description carries this story's role (review F11). It turns off only when
+     equivalence is established explicitly: the persona was **created in this step from this story's
+     `suggested_description`**, and its live description still hashes to what was created
+     (`extras.ui.playerSetup.createdHash`). An edit in Persona Management later turns the block back on.
+   - `card` (optional): the fields of the player that the story may change, owned by v2.8 08's overlay.
 2. **`player` never blocks readiness.** Only `requirements.personas` (kept, for the rare story that truly needs a named
-   persona) and `name.mode: fixed` gate effects. Everything else is a choice the player makes.
-3. **Start-setup step in plan 03's modal** (below). The player confirms every persona change.
+   persona) and `name.mode: fixed` gate effects. Everything else is a choice the player makes once, at the start.
+3. **Start-setup pane in v2.7 05's modal** (below). The player confirms every persona change. **Every start choice
+   locks the persona to the chat**, Skip included; there is no switching inside a story.
 4. **Wizard (D).** The Characters step drafts `player` from the premise (new mutation + agent tool `setPlayer`, an
    ordinary edit op). Still no persona tool: the wizard never creates, selects or edits a persona.
-5. **Deterministic fit check (C).** A plan 31 registry entry, audience player: `fixed` name not selected (blocks), the
-   persona is a cast member's card name (degrades; same rule as `roster-member-is-player`), persona description empty
-   while `inject` is off (info). No judge in v2.7.
+5. **Deterministic checks (C), delivered as v2.7 04 registry entries** (`src/runtime/checks.ts`, scope `chat`, area
+   `persona`):
+   - `persona-fit`, audience player: `fixed` name not selected (`blocks`); the persona is a cast member's card name
+     (`degrades`; same rule as `roster-member-is-player`); persona description empty while `inject` is off (`info`,
+     the severity v2.7 04 D8 adds).
+   - `persona-switch`, audience player, `degrades`: the selected persona is not the one `playerSetup` locked. Copy:
+     "This story was started as X; switching mid-story breaks what characters know about you." One action: "Switch
+     back" (select the locked avatar). Nothing else changes silently.
+   - No judge fit check (decision 5).
 
-## Start-setup flow ("Before you start")
+## Activation sequence (one sequence for new chat, `selectStory` and `restartStory`)
 
-One modal (plan 03's `#so-briefing`), two panes when the story has a `player` block, one otherwise.
+This replaces the three different "before the opener" stories in the old briefing, persona and health-center plans
+(review F10). The briefing modal and "Before you start" stay owned by v2.7 05 and v2.7 04; this is the order they run
+in.
 
-1. **Briefing** (plan 03, unchanged).
-2. **Who are you in this story** (`#so-player-setup`):
-   - Shows `role`, `summary`, `assumes`, and the current persona's name (not its description; it may be long or private).
-   - Choices:
-     - **Play as <current persona>** (default). Optionally "lock to this chat" (ST's chat lock). `inject` applies.
-     - **Choose another persona**: a list of existing personas; on pick, select + chat-lock through ST
-       (`setUserAvatar` then `lockPersona('chat')`, or the slash equivalents).
-     - **Create a persona for this story**: name (prefilled from `name.value` or blank), description (prefilled from
-       `suggested_description`), shown in full, editable. One "Create and use" button: `/persona-create select=false`
-       with a marked title (e.g. `title="Story: <story title>"`), then select + chat-lock. Never edits or deletes an
-       existing persona; never sets the default persona; never touches the persona lorebook.
-   - "Skip" = play as current, no lock.
-3. **When it runs.**
-   - **New chat** (bound story, plan 17 path): ideally **before** the opener posts, so the opener and `{{user}}` see the
-     chosen name, and the greeting retrigger has nothing to clobber. Whether the opener can wait for the modal (and for
-     how long) is a spike item (S30-1); plan 17's opener deferral is the starting point.
-   - **`selectStory` into a chat with messages:** offered, but switching shows a warning that earlier messages keep the
-     old name. No `/persona-sync` (it rewrites history).
-   - **`restartStory`:** offered again.
-   - **No chat open:** never (no-chat invariant).
-4. **State.** The choice is chat state: ST holds the lock (`chat_metadata.persona`); we record
-   `extras.ui.playerSetup = {storyId, version, choice, avatarId?}` beside `briefingSeen`. Rollback does not touch it
-   (it is not message-scoped); reopen does not re-show it; Restart re-offers it.
-5. **Groups.** ST's chat lock works in group chats (it is chat metadata). The group-reload on switch (`personas.js:1879`)
-   is the main host risk and is part of S30-1.
-6. **Re-open any time:** drawer Overview footer "Your character in this story" and `/story who`.
+| Step | What | Required? | Owner |
+|---|---|---|---|
+| 0 | A chat is open and is a group chat. No chat: nothing (no-chat invariant). A solo chat: the story refuses (v2.7 03) | required | v2.7 03 |
+| 1 | The story is resolved: a new empty chat in a bound group (`boundStoryForEmptyChat`), `selectStory`, or `restartStory` | required | runtime |
+| 2 | **Readiness**: `blocks` findings for this story are listed in "Before you start" (missing cast, lore, fixed persona) | required (shown whenever any exist) | v2.7 04 |
+| 3 | **Identity**: the "Who are you in this story" pane resolves and the chat lock is written | required, every activation | this plan |
+| 4 | **Briefing** sections | optional: only when `display.briefing` is on and not yet seen | v2.7 05 |
+| 5 | **Opener** (`new_chat_only` scripted reply, v2.5 plan 17) and the rest of `applyCheckpoint` | fires when `ready` and identity is settled | runtime |
+
+- **One modal, panes in that order.** With `display.briefing` off, the modal still opens for steps 2–3 when it has
+  something to show (a `player` block, a fixed name, a `blocks` finding). With nothing to show (no `player` block, no
+  fixed name, no blocker) the identity step resolves without UI as Skip: the current persona is locked and "Playing as
+  X" appears in the drawer Overview.
+- **Identity gates the opener.** On a new chat the opener waits for `playerSetup` for this story and version, the same
+  way it waits for `ready` (`effectsApplier.ts:255`). The opener then sees the chosen `{{user}}` name, and the greeting
+  retrigger has nothing to clobber. There is no timeout: closing the modal (Escape, the close button) is Skip.
+- **Fixed name.** `name.mode: fixed` with another persona selected makes `ready` false (step 2 shows the blocker). The
+  identity pane offers only the personas with that name and "Create a persona named <name>". Readiness turns true on
+  the lock, and the opener fires (the chat is still empty).
+- **`selectStory` into a chat with messages and `restartStory`.** Same steps. No opener (the chat is not empty). A
+  choice other than the current persona warns that earlier messages keep the old name. No `/persona-sync` (it rewrites
+  history). Restart re-offers the full pane and writes a new lock.
+- **S30-1 failure path.** If S30-1 shows that a persona switch or create on an empty bound group chat reloads the chat
+  in a way that loses or duplicates the opener, the opener posts first (today's order), and step 3 then runs before
+  the player's first message. A switch on a non-empty chat does not retrigger the greeting
+  (`retriggerFirstMessageOnEmptyChat`), so pick and create stay available. Cost: an opener that says `{{user}}` keeps
+  the old name; the Studio shows `opener-uses-player-name` (info) for such stories. Fixed-name stories are unaffected:
+  readiness still holds their opener. This replaces the old decision 7 fallback ("after the opener, offering only lock
+  and create for future chats"), which allowed a story to start unlocked.
+
+## The "Who are you in this story" pane (`#so-player-setup`)
+
+- Shows `role`, `summary`, `assumes`, and the current persona's name (not its description; it may be long or private).
+- Choices; each one ends with ST's chat lock (`chat_metadata.persona`, `lockPersona('chat')` or `/persona-lock
+  type=chat on`):
+  - **Play as <current persona>** (default). Lock. `inject` applies.
+  - **Choose another persona**: a list of existing personas; on pick, select (`setUserAvatar`) then lock. `inject`
+    applies.
+  - **Create a persona for this story**: name (prefilled from `name.value` or blank), description (prefilled from
+    `suggested_description`), shown in full, editable. One "Create and use" button: `/persona-create select=false`
+    with a marked title (`title="Story: <story title>"`), then select and lock. Never edits or deletes an existing
+    persona; never sets the default persona; never touches the persona lorebook. `inject` is off only under the
+    equivalence rule above.
+  - **Skip** = keep the current persona **and lock it**. Same outcome as the default choice.
+- **State.** ST holds the lock; we record `extras.ui.playerSetup = {storyId, version, choice, avatarId, createdHash?}`
+  beside `briefingSeen`. Rollback does not touch it (it is not message-scoped); reopen does not re-show the pane;
+  Restart re-offers it.
+- **Groups.** ST's chat lock works in group chats (it is chat metadata). The group reload on switch
+  (`personas.js:1879`) is the main host risk and the subject of S30-1. Solo chats are not a target (v2.7 03).
+- **Later reopening is informational.** The drawer Overview footer "Your character in this story" and `/story who`
+  show the locked persona, role, summary and assumptions. They have no switch or create controls.
+- **Mid-story switch.** A persona change in a chat with `playerSetup` (Persona Management, a slash command, another
+  extension) raises `persona-switch` with "Switch back". ST's own chat lock also re-selects the locked persona on the
+  next `CHAT_CHANGED`. Switching back clears the finding.
+- **Older ST without `/persona-create`.** A capability probe (`stHost/capabilities.ts`, new `personaCrud`). Absent:
+  the create choice is hidden with one line ("This SillyTavern version cannot create personas from here; create one in
+  Persona Management, then choose it"). No direct `power_user` writes (answer to "whatever u recommend").
+- **Multi-user installs.** Personas live in each user's settings; the pane reads the current user's context only.
+  Assumed fine, checked once in the lane gate with a second ST user if the lane has one.
 
 ## Invariant changes needed
 
 - architecture.md, wizard invariant: "Personas are never provisioned" becomes:
   > **The wizard never touches personas.** A persona is created only from the player's own click in the start-setup
   > step, with its exact name and description shown, and is only ever added: no edit, delete, default or lorebook
-  > change. Selecting one for a story chat uses ST's own chat lock.
+  > change. Every story start locks the chosen persona to the chat with ST's own chat lock; the story never switches it.
 - `personaRequirementProblem`, `requirement-persona-missing` and the Repair "remove" action stay as they are for
-  `requirements.personas`. Repair's "unselected" row gains "Open the setup step".
-- New: `player` text is player copy (spoiler diagnostics as for briefings; `so-ui assert-player-clean` sweeps the step).
+  `requirements.personas`. Repair's "unselected" row gains "Open the setup step" (before the first player message
+  only; afterwards it is the `persona-switch` finding).
+- New: `player` text is player copy (spoiler diagnostics as for briefings; `so-ui assert-player-clean` sweeps the pane).
 
 ## Decisions for the user
 
@@ -190,59 +244,105 @@ One modal (plan 03's `#so-briefing`), two panes when the story has a `player` bl
    opts into switching or creating.
 4. `requirements.personas`: keep for named-persona stories, steer authors to `player` instead? **Recommended: keep,
    guide says prefer `player`.**
-5. Judge "does this persona fit the story" check? **Recommended: not in v2.7** (no calibrated use; deterministic checks
-   only).
-6. Adolion: give each of the nine stories a `player` block (campaign A-step, content review by another model, not the
-   user)? **Recommended: yes**, after this plan's format lands.
-7. Show the step before the opener on a new chat (needs S30-1)? **Recommended: yes if S30-1 shows it is safe; otherwise
-   after the opener, offering only "lock" and "create for future chats".**
+5. Judge "does this persona fit the story" check? **Recommended: not in this plan** (no calibrated use; deterministic
+   checks only).
+6. Adolion: give each of the nine stories a `player` block (campaign step, content review by another model, not the
+   user)? **Recommended: yes**, after this plan's format lands (v2.8 02).
+7. Show the step before the opener on a new chat (needs S30-1)? **Recommended: yes.** Superseded in part by the
+   answers: the step always runs and always locks; if S30-1 fails, the failure path in §Activation sequence applies
+   (opener first, step before the first player message), not the old "lock and create for future chats" fallback.
 
 ## Gates
 
-- **Tier 1 (no LLM, no RunPod).**
-  - Pure: validator, diagnostics, the `playerRole` source order, setup state under rollback/reopen/restart, the
-    deterministic fit rules.
-  - UI: Storybook for the step (390/768/1440, a11y).
-  - Live on a **lane** (it writes personas): S30-1 spike (switch + lock on a new solo and group chat, before and after
-    the opener; the greeting retrigger/reload), then the flow via new `so-ui` verbs. Harness: setup off by default like
-    `display.briefing`; `so-assets` learns to list/remove marker-titled personas; `so-run-header` records
-    `inventory.personas` and the chat lock.
+- **D (deterministic).**
+  - Pure: validator, diagnostics (`opener-uses-player-name` included), the `playerRole` source order (`player.role`
+    first), the `inject` equivalence rule (created + unchanged hash → off; created then edited → on; picked → on), setup
+    state under rollback, reopen and Restart, the deterministic fit and switch rules.
+  - Registry: `persona-fit` and `persona-switch` are in `CHECKS` and pass the v2.7 04 registry tests.
+  - Activation order: a jest case per entry path (new chat, `selectStory`, `restartStory`) asserts readiness → identity
+    → briefing → opener; with `display.briefing` off the identity step still runs and still locks; a story without a
+    `player` block locks silently.
+  - UI: Storybook for the pane (390/768/1440, a11y), incl. the fixed-name and no-create (capability absent) variants.
+  - Live on a **lane** (it writes personas), group chats only, scripted opener (v2.5 plan 17), no model call:
+    - S30-1 spike: switch and create on a new bound group chat before and after the opener; record the greeting
+      retrigger/reload and `chat_metadata.tainted`. Decides primary vs failure path.
+    - The flow via new `so-ui` verbs (`player-setup`, `player-setup-choose keep|pick <name>|create|skip`): every choice,
+      Skip included, leaves `chat_metadata.persona` set.
+    - **An existing persona whose description lacks the story role**: pick it; the dry-run payload carries the
+      `playerRole` block (F11).
+    - **Mid-story switch and switch-back**: after two turns (scripted messages), switch persona; `persona-switch`
+      appears with "Switch back"; clicking it restores the locked persona and clears the finding (D12).
+    - **Reopen**: close and reopen the chat; the pane does not re-show, the lock holds; "Your character in this story"
+      has no switch controls.
+    - **Restart**: the pane is re-offered and a new lock is written.
+    - **Fixed name**: the opener does not post until the fixed-name persona is locked; then it posts once.
+    - **Briefings off**: `display.briefing` off, a story with a `player` block: the identity pane still shows and locks.
+    - **Solo control**: a solo chat with the story's character; the story refuses, no pane, no lock written.
+    - Harness: setup off by default like `display.briefing` (auto-Skip, which still locks); `so-assets` lists/removes
+      marker-titled personas; `so-run-header` records `inventory.personas` and the chat lock.
+  - Registered in the v2.7 01 feature registry + Help (registry test).
   - `npm run gates`.
-- **Real-LLM.** The injected block changes the reply prompt, so it rides the v2.7 final real-LLM suite (any working
-  backend; nothing here needs RunPod specifically). Not green until that runs.
+- **RP (acceptance).** The injected block changes the reply prompt, so it rides the v2.8 final real-LLM suite on the
+  RunPod main model (v2.8 rule 8). Not green until that runs.
+- **Player-visible surface** (v2.8 rule 4): the pane exists by the user's 2026-10-03 decision; its copy is checked in a
+  session card of the final suite before the plan is called accepted.
 
 ## Unresolved
 
 - S30-1: does a persona switch on a fresh bound chat clobber or duplicate our opener (solo `createOrEditCharacter`,
   group `reloadCurrentChat`)? When is `chat_metadata.tainted` set? Not determined. Persona switch should be disabled within a story
+  - Only the group path is tested (v2.7 03). The answer decides between the primary order and the failure path.
 - Older ST without `/persona-create`: capability probe and fall back to `initPersona`-style direct writes, or refuse
   creation? Not determined. whatever u recommend
+  - Taken: probe; hide create when absent (no direct writes).
 - Multi-user ST installs: personas are per user directory; assumed fine, not verified. Persona should be handled per story per chat, with a user level persona as base. Check 32-living-cards
+  - Taken: v2.8 08 `player.card` overlay; the base persona is never edited.
 
 ## Links
 
-03 story briefing (the modal), 24 living story (`player_role`), 27 wizard assistant (tutorial: "the player is the
-persona"), 31 health center (the fit check row), 01 docs (guide pages: author topic `player`, player page "Your
-character"), 05 Adolion campaign.
+v2.7 05 story briefing (the modal), v2.7 04 health center (check registry, "Before you start"), v2.7 03 group-chats-only,
+v2.7 01 docs (feature registry; guide pages: author topic `player`, player page "Your character"), v2.8 08 living cards
+(`player.card`), v2.8 22 living story (`player.role`), v2.8 09 wizard assistant (tutorial: "the player is the persona"),
+v2.8 02 Adolion campaign (`player` blocks), v2.5 plan 17 (scripted opener).
 
 ## Review of the answers (2026-10-03)
 
 The user's notes in the open questions change the design in three places:
 
 1. **No persona switching inside a story.**
-   - The persona is chosen once, in the start step (keep / pick / create), then locked to the chat for the story.
-   - A persona switch while a story plays raises a plan 31 finding: "This story was started as X; switching mid-story
-     breaks what characters know about you". It offers "switch back", and nothing else changes silently.
+   - The persona is chosen once, in the start step (keep / pick / create / skip), then locked to the chat for the story.
+   - A persona switch while a story plays raises the v2.7 04 registry finding `persona-switch`: "This story was started
+     as X; switching mid-story breaks what characters know about you". It offers "Switch back", and nothing else
+     changes silently.
    - A Restart reopens the start step.
 2. **Persona per story per chat, with the user's persona as the base.**
    - The user's ST persona is the base identity. What the story changes about the player (looks, status, titles) lives
-     in plan 32's overlay under `player.card`, per chat.
+     in v2.8 08's overlay under `player.card`, per chat.
    - The ST persona is never edited, so a new chat starts from the base persona.
    - This replaces option (a)'s "adapt for this chat" idea.
-3. **Solo chats are out** (plan 33), so only the group reload path matters for spike S30-1.
+3. **Solo chats are out** (v2.7 03), so only the group reload path matters for spike S30-1.
 
 The remaining decisions (1–7) and the "whatever you recommend" question are taken as recommended:
 - creation is create-only by the player's click;
 - deterministic checks only;
 - Adolion gets `player` blocks after the format lands;
-- the step goes before the opener if S30-1 shows it is safe.
+- the step goes before the opener if S30-1 shows it is safe; otherwise the failure path in §Activation sequence.
+
+## Review 2026-10-03
+
+Applied from `v2.7/review-2026-10-03.md`:
+- **F01**: status line and gate tiers rewritten.
+- **F08**: solo removed from flow and S30-1; solo only as a refusal control in the live gate.
+- **F09**: every choice locks, Skip = keep + lock; reopening informational; gates for mid-story switch, switch-back,
+  reopen, Restart.
+- **F10**: §Activation sequence (one order for all three entry paths; identity required, briefing optional; S30-1
+  failure path; fixed-name case; briefings-off gate). Old decision 7 fallback replaced.
+- **F11**: `inject` stays on for existing personas; off only on an explicit, hash-checked equivalence; gate case added.
+- **D12**: mid-story switch + switch-back gated; opener = v2.5 plan 17; `player.card` ↔ v2.8 08.
+- **D9**: `persona-fit` and `persona-switch` are v2.7 04 registry entries delivered here.
+- **C10**: `living.player_role` (v2.8 22) → `player.role`.
+- **B10**: registry + Help gate row.
+- **Line refs** (ledger "30 line refs"): checked against master `c7967323`; fixed `schema.ts:322/385`,
+  `storyOptions.ts:10,29`, `repair.ts:196-221/:223`, `provisioning.ts:13-20`, `castDiagnostics.ts:13,105/11,120`,
+  `playerRole.ts:17-44`, `playerCast.ts:20-25`, `agency.ts:20`, `snapshotBuilder.ts:50`; added `effectsApplier.ts:255,509`
+  and `checks.ts`. Not re-checked: `story-guide.md` lines and every ST host line (from the original draft).

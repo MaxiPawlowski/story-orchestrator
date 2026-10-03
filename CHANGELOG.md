@@ -8,7 +8,7 @@ records under `docs/plans/` are the as-built truth, and this file is the summary
 
 Nothing after 2.4.0 has been released. v2.5 (plans in `docs/plans/v2.5/`) closed unreleased on 2026-09-30 and was
 folded into v2.6, which re-measured everything on the Adolion campaign and was played end to end by Claude on test
-lanes (not accepted: the user's review and human sessions are outstanding). v2.7 is planned (`docs/plans/v2.7/`), not built.
+lanes (not accepted: the user's review and human sessions are outstanding). v2.7 (urgent fixes, quick wins) is in build (`docs/plans/v2.7/`); v2.8 and v2.9 are planned.
 `package.json` stays at 2.4.0 until a release.
 
 ### Playing

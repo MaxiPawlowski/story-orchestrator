@@ -1,6 +1,9 @@
-# Plan 22 — SP9 witness filter, v2
+# Plan 02 — SP9 witness filter, v2
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP9 witness filter, v2". Overview: `00-overview.md`.
+**Status: DEFERRED to v2.9 (user, 2026-10-03).** Was v2.7 plan 22; moved at the version split
+(`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. Its option A shipped as **v2.7 02 C2**; what stays
+here is the witness source (B) and the message-level filter (C). Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP9
+witness filter, v2". Overview: `00-overview.md` (this folder).
 
 ## What it is
 
@@ -12,6 +15,7 @@
   Vector Storage) re-inserted the hidden text through their own channels. And the model copied the test markers, which
   polluted the measurement.
 - v2 = a design aware of those host channels, with a better witness source, or a decision to stay at block-level privacy.
+- Stories run in group chats only (v2.7 03), so this is the only chat shape it concerns.
 
 ## History and evidence
 
@@ -33,47 +37,63 @@
 | v2.5 live | F3 | J5 7/7 ×2; J6 failed on the shared-read throw (product defect, since fixed `7663bbb0`) | `:56` |
 | v2.5 live ×2 | F4 | 0/40. Presence sets held name + roster id twice; name-only reading 0.80 / 0.825 | `:57` |
 | v2.5 live | F5 | p95 0.20 / 0.10 ms → PASS | `:58` |
-| v2.6 Adolion lab | F1 | FAIL as declared (ST's `extra.reasoning: ""` write; 0 own symbols) | `:122` |
-| v2.6 Adolion lab | F2 | Summarize on: not measured (Summarize's quiet pass blocked generations 10–11). Summarize off: witnessed kept 432/432, **41 unwitnessed visible**. Diagnostics: the leaks sat in Vector Storage's `Past events:` block. With Vector Storage really off, 35 hits remained, **all model mimicry** (the model ends replies with marker-like tokens) | `:123`; `v2.6/03-sp9-restated.md` addendum |
+| v2.6 lab | F1 | FAIL as declared (ST's `extra.reasoning: ""` write; 0 own symbols) | `:122` |
+| v2.6 lab | F2 | Summarize on: not measured (Summarize's quiet pass blocked generations 10–11). Summarize off: witnessed kept 432/432, **41 unwitnessed visible**. Diagnostics: the leaks sat in Vector Storage's `Past events:` block. With Vector Storage really off, 35 hits remained, **all model mimicry** (the model ends replies with marker-like tokens) | `:123`; `v2.6/03-sp9-restated.md` addendum |
 | v2.6 | F3 | not run (F2, F4 already fail) | `:124` |
-| v2.6 Adolion lab | F4 | presence vs 40 pre-run labels **4/40 = 0.10**, exactly the lab's prediction ("presence is not hearing": asides, muted onlookers) | `:125` |
+| v2.6 lab | F4 | presence vs 40 pre-run labels **4/40 = 0.10**, exactly the lab's prediction ("presence is not hearing": asides, muted onlookers) | `:125` |
 | v2.6 | F5 | p95 0.3–0.5 ms → PASS | `:126` |
 
 The v2.6 setup was lane 2, adolion-fresh at `e1c91fb`, dev bundle `ceb15ac19ec0`. Lab `lab/witness/`: 37 messages,
-11 asides, 24 generations (8 members × 3), 40 labels written before the run, 9 secrets (`03-sp9-restated.md` §What changed).
-Records: `test/measurements/v2.6-03/sp9/summary.json`.
+11 asides, 24 generations (8 members × 3), 40 labels written before the run, 9 secrets (`v2.6/03-sp9-restated.md`
+§What changed). Records: `test/measurements/v2.6-03/sp9/summary.json`.
 
-**Verdict: drop**, removed in `301b0d5a`. **The "no message-level hiding" stance stays**: private knowledge by prompt block only
-(`v2.5/09-sp9-spike-report.md:136`). The worth review allowed a v2 seed only "if a witness source (extraction, not
-presence) clears F4 first, with Summarize/Vector Storage/WI-scan named as channels to close".
+**Verdict: drop**, removed in `301b0d5a`. **The "no message-level hiding" stance stays**: private knowledge by prompt
+block only (`v2.5/09-sp9-spike-report.md:136`). The worth review allowed a v2 seed only "if a witness source (extraction,
+not presence) clears F4 first, with Summarize/Vector Storage/WI-scan named as channels to close".
 
 **Since then, the same host channels showed up in real play.**
-- T2-2 found secrets in other members' prompts through **our** shared memory tiers. The fix wave made private knowledge
-  per drafted member at block level: sentence-level redaction of the shared tiers against `[hiding]`/`[unaware]` rows
-  (`v2.6/14-findings.md` T2-2 item 1; commits `a19c7023`, merge `f0e62687`).
+- v2.6 T2-2 found secrets in other members' prompts through **our** shared memory tiers. The fix wave made private
+  knowledge per drafted member at block level: sentence-level redaction of the shared tiers against `[hiding]`/`[unaware]`
+  rows (`v2.6/14-findings.md` T2-2 item 1; commits `a19c7023`, merge `f0e62687`).
 - The same finding lists ST Summarize (`1_memory`) and Vector Storage (`3_vectors`) as host leaks. These are "not ours".
-  A Repair row was proposed and not built, for lack of bundle headroom (`14-findings.md` row 1b).
-- T7 saw a secret in another member's prompts through our `[Recent events]` block and ST Summarize's `[Summary]`
+- v2.6 T7 saw a secret in another member's prompts through our `[Recent events]` block and ST Summarize's `[Summary]`
   (`test/sessions/T7/SUMMARY.md:15`). The fix above landed after that session.
+- v2.6 T6-4 (`97156c2f`) then shipped a block-based author-only Repair row, and v2.7 02 C2 (`e4eb410a`) extended it into
+  a settings read plus a player alert (§Current state).
 
 ## Why it was deferred
 
 - F2 and F4 failed as declared. F4 is the root problem: no witness source we have is accurate.
 - A correct filter is still not private while other extensions build prompt text from the whole chat.
-- Shipping the stance change would promise a privacy the host does not keep (`09-sp9-spike-report.md:135`).
+- Shipping the stance change would promise a privacy the host does not keep (`v2.5/09-sp9-spike-report.md:135`).
+- User 2026-10-03: option A yes (built as v2.7 02 C2); message-level privacy kept "as a candidate for next version".
 
 ## Current state in code
 
-- **Removed:** `witnessFilter.ts`, `witnessFilterHost.ts`, `wiring/spikes.ts`, the `spikes.witnessFilter` flag, the fixtures
-  (`301b0d5a`). Guarded by `DROPPED_SPIKES` (`src/runtime/devOnly.guard.test.ts:30`). `SPIKE_FLAGS` no longer lists it
-  (`src/runtime/settingsModel.ts:72-75`).
+Verified on master `c7967323`.
+
+- **Removed:** `witnessFilter.ts`, `witnessFilterHost.ts`, `wiring/spikes.ts`, the `spikes.witnessFilter` flag, the
+  fixtures (`301b0d5a`). Guarded by `DROPPED_SPIKES` (`src/runtime/devOnly.guard.test.ts:29-32`). `SPIKE_FLAGS` no longer
+  lists it (`src/runtime/settingsModel.ts:87-90`).
 - **Block-level privacy in prod:**
   - Per-member epistemic staging (`onMemberDrafted`).
-  - Per-member checkpoint guidance (C13: `guidance {all, members}`, `v2.6/04-remaining-builds.md:413`).
+  - Per-member checkpoint guidance (v2.6 C13: `guidance {all, members}`, `v2.6/04-remaining-builds.md:413`).
   - Per-member redaction of shared memory tiers and the ledger (`src/memory/heldSecrets.ts`, `src/runtime/memoryInjector.ts`;
     test `src/runtime/secretSpread.review.test.ts`).
-- **No witness source exists.** Presence was spike-only. Extraction has no witness line.
-- **No host-channel warning.** No `stHost` read of `extension_settings.memory` or `vectors.enabled_chats`. Not in `runtime/repair.ts`.
+- **Host-channel warning: built (option A = v2.7 02 C2).**
+  - Settings read `src/services/stHost/transcriptCopiers.ts` (Summarize on; `vectors.enabled_chats`), unioned with the
+    v2.6 T6-4 block read (`1_memory` / `3_vectors` prompt present) in `src/runtime/transcriptCopiers.ts` `secretLeaks()`
+    → `snapshot.secretLeaks` (`src/runtime/snapshotBuilder.ts:213-214`).
+  - Surfaced through the check registry: `SECRET_LEAK_CHECK` (`transcript-copiers`, area privacy, **audience player**,
+    severity degrades; `src/runtime/checks.ts:45-60`) → Repair, settings and the HUD `#so-hud-setup` chip.
+  - **Known defect K1 (review 2026-10-03, urgent, fix owned by v2.7):** `secretLeaks()` returns `[]` unless a secret is
+    held, while the check's audience is `player`. So the player alert appearing reveals that a hidden `[hiding]`/`[unaware]`
+    row exists. Fix: the player copy shows whenever a copier is on in a group story; `secretsHeld` gates only the author
+    detail. Gate: identical player-visible output with and without held secrets. K2 updates the held-secret invariant in
+    `.claude/rules/architecture.md` (it still says "author-only Repair row") together with K1. This plan does not fix
+    K1; it must not be reopened on top of the unfixed form.
+- **No witness source exists.** Presence was spike-only. Extraction has no witness line. The scene read records a
+  per-scene `present` set, which v2.8 21 uses for its offline witness proxy.
 
 **Host facts** (ST `7c3994196`, read from source; the last two are not measured):
 
@@ -84,26 +104,27 @@ presence) clears F4 first, with Summarize/Vector Storage/WI-scan named as channe
 | H3 | The World Info scan buffer is built from `coreChat` text after the interceptors, without checking the symbol | `script.js:4564,4624` |
 | H4 | Vector Storage's interceptor walks the `chat` array it is given, takes the messages whose text hash matches the query, **splices them out** and re-inserts their text as `Past events:` | `extensions/vectors/index.js:776-854` (template `:88`) |
 | H5 | So a message **spliced out** of `coreChat` by our interceptor (instead of flagged) would not be in the WI buffer (H3), nor findable by Vector Storage (H4). Not measured. Splicing changes message counts, which shifts depth-based injections; that is why ST offers the symbol (`script.js:5839` comment) | inference from H3/H4 |
-| H6 | Summarize builds one summary from the **live** chat (`context.chat.slice()`), not the interceptor's copy, and injects it into every generation. No per-member form exists | `extensions/memory/index.js:785`; `14-findings.md` row 1b |
+| H6 | Summarize builds one summary from the **live** chat (`context.chat.slice()`), not the interceptor's copy, and injects it into every generation. No per-member form exists | `extensions/memory/index.js:785`; `v2.6/14-findings.md` T2-2 |
 
 ## Options
 
 | | Design | Cost | Risk | Needs |
 |---|---|---|---|---|
-| **A. Stay at block level, warn about host channels** | Keep the stance. Build the 14-findings 1b proposal: a Repair/requirements row "Summarize / chat vectors are on: they put the whole transcript, secrets included, into every member's prompt", only for a group story whose store holds a `[hiding]`/`[unaware]` row. Needs a new `stHost` read of both settings | S. About 1–2 KB main entry (headroom about 8 KB, `14-findings.md` row 1b) | Low: read-only, author-facing. Spoiler check: the copy names no secret | `stHost` module + `repair.ts` step + copy; jest |
+| **A. Stay at block level, warn about host channels** | **Built as v2.7 02 C2** (player alert + author detail through the check registry; K1 fix in v2.7) | done | the K1 leak until fixed | — |
 | **B. Witness source first (measurement only)** | An extraction-sourced witness: the shared read emits a witness line per message, or a per-scene pass does. Score it offline against the lab's 40 labels and real session transcripts, **before** any filter exists | M (prompt + parser + scorer). One more line family in the shared read, or one more pass | Prompt cost on every read. Could crowd out DELTA lines | F4 restated for extraction; 40 lab labels + ≥ 40 labels from real sessions |
-| **C. Host-channel-aware filter** | B's source + a filter that **splices** unwitnessed messages out of the interceptor's `coreChat` (H5), closing the WI-scan and Vector Storage channels. Summarize stays an open channel (H6), so it is refused or warned by A's row. Re-measure F2 with per-message nonce markers that the model cannot predict, so mimicry cannot score as a leak | L. Filter + depth-shift handling + persisted witness records (v2.5 found in-memory records forget everything on reload, `09-sp9-spike-report.md:110-111`) | Changes the stance. Depth-based injections move. A wrong witness hides what a member did see. Silent when another extension adds a new channel | B passes F4 first; user decision 2 |
-| **D. Drop for good** | Nothing beyond today's block-level privacy | 0 | Host leaks stay unannounced | — |
+| **C. Host-channel-aware filter** | B's source + a filter that **splices** unwitnessed messages out of the interceptor's `coreChat` (H5), closing the WI-scan and Vector Storage channels. Summarize stays an open channel (H6), so A's alert keeps warning about it. Re-measure F2 with per-message nonce markers that the model cannot predict, so mimicry cannot score as a leak | L. Filter + depth-shift handling + persisted witness records (v2.5 found in-memory records forget everything on reload, `v2.5/09-sp9-spike-report.md:110-111`) | Changes the stance. Depth-based injections move. A wrong witness hides what a member did see. Silent when another extension adds a new channel | B passes F4 first; user decision 2 |
+| **D. Drop for good** | Nothing beyond today's block-level privacy and A's alert | 0 | — | — |
 
 ## Recommendation
 
-**A.** It closes the gap real play hit (T2-2, T7) without promising message-level privacy:
+**A is done (v2.7 02 C2, once K1 is fixed).** Block-level stays the stance:
 - Our own blocks are now per member.
-- The remaining leaks are host extensions we cannot filter per member (H6).
-- The author should be told.
+- The remaining leaks are host extensions we cannot filter per member (H6), and the alert names them.
 
-**B only if the user wants message-level privacy as a goal.** It is the cheapest honest next step: no filter is built
-until a witness source clears F4. **C not before B passes.**
+**B only if message-level privacy becomes a goal.** It is the cheapest honest next step: no filter is built until a
+witness source clears F4. **C not before B passes.** v2.8 21's offline presence-proxy measurement is the first data
+point: if presence-from-scene-read clears its "no unwitnessed text" floor there, B may start from it; if not (v2.6
+measured 4/40 at message level), B needs an extraction witness line.
 
 ## Decisions for the user
 
@@ -116,10 +137,11 @@ until a witness source clears F4. **C not before B passes.**
 4. If C is ever built: should a story be able to require Summarize / chat vectors off (a requirement that blocks), or only
    warn? **Recommended: warn only. They are the user's install-wide tools.**  Lets do as you recommend
 
+(Answers kept verbatim. Decision 1 is built as v2.7 02 C2; the "next version" in decision 2 is this v2.9 plan.)
+
 ## Floor and measurement before building
 
-- **A:** no floor (deterministic). Jest: the row appears only for group + secret rows + either setting on, never in
-  player mode; spoiler checklist row added.
+- **A:** built; its gates are v2.7 02 C2's plus K1's (identical player-visible output with and without held secrets).
 - **B (predeclared, committed before any run):**
 
   | # | Condition | Floor |
@@ -128,7 +150,10 @@ until a witness source clears F4. **C not before B passes.**
   | W4n | Null control | presence as v2.6 measured it (0.10) is the floor to beat by construction; a source that matches presence on asides fails |
   | Wc | Cost | added prompt tokens per read and DELTA-line recall unchanged within the live suite's floors (`so-live-suite.mts`, per-tier) |
 
-- **C (only after B):** F1–F5 as v2.5 declared, with two changes stated before any run:
+  Labels from Adolion session transcripts are written and checked by a second model, never shown to the user (review
+  B4, no-spoiler rule); the labelled set lives in the private `so-sessions` repo.
+
+- **C (only after B):** F1–F5 as v2.5 declared, with these changes stated before any run:
   - F2 uses nonce markers.
   - F2 runs with Summarize on, with Vector Storage on and with both off, as separate rows. Summarize-on is expected to
     fail and is reported, not excused.
@@ -137,18 +162,24 @@ until a witness source clears F4. **C not before B passes.**
 
 ## Gates
 
-- A: runtime + ST-facing (`stHost` read, Repair UI). `npm run gates`, then the live gate: a group story with a `[hiding]`
-  row on a lane with Summarize on → row shown, `so-ui.mts assert-player-clean` green; Summarize and vectors off → row gone.
+- A: built (v2.7 02 C2 gate record; K1 fix in v2.7).
 - B: extraction prompt change → `npm run gates` + live suite (`so-live-suite.mts run`, per-tier floors) + the W4 scorer.
 - C: as SP9's original live legs, ×2 on an adolion-fresh lane, run header diff around each batch.
 
 ## Links
 
-- 08 SP2 re-commit v2: the other dropped spike that needs a new design.
-- 16 spike defers: the remaining spikes from the same v2.6 plan 03.
-- 18 character life: richer characters raise the cost of a character "knowing" what it missed.
-- 20 J6d shadow record, 14 J7 judge ideas (epistemic via the judge could feed a witness source).
-- 21 cue + scene read merge: B adds lines to the same shared read.
-- 04 story presence, 19 quests, 25 new game plus, 13 B10 CLI judge, 12 curator create op, 11 warden-lore one request,
-  09 C4 option b, 07 commitment double negatives, 23 D6/T22 revisits, 10 model choice, 06 thinking per story,
-  15 open-source Jev alternative: no direct dependency.
+- v2.7 02 C2 (option A, built) and K1/K2 (its privacy fix and invariant update, v2.7).
+- v2.7 03 group-chats-only: stories are group-only; no solo variant of this plan.
+- v2.8 21 smart-context harvest: its runtime verbatim recall (P5) needs B's witness records; v2.8 21 does E0 + the offline
+  presence-proxy evaluation only, runtime recall waits here (`05-deferred-items.md`).
+- v2.7 10 / v2.8 01 SP2 re-commit v2: the other dropped spike that needed a new design.
+- v2.8 20 character life: richer characters raise the cost of a character "knowing" what it missed.
+- v2.8 12 J6d shadow record, v2.8 13 J7 judge ideas (J7.3 epistemic via the judge could feed a witness source).
+- v2.8 15 cue + scene read merge: B adds lines to the same shared read.
+
+## Review 2026-10-03
+
+Applied from `docs/plans/v2.7/review-2026-10-03.md` (old numbers there): **C8** (current state reflects built v2.7 02 C2
+and code finding **K1**/**K2**), **F07** (deferred status), **B4** (second-model labels for Adolion evidence), **B11**
+(`SPIKE_FLAGS` at `settingsModel.ts:87-90`), **B12** (version-qualified refs), **F36** (cross-refs to new numbers), split
+item 9 (runtime verbatim recall waits on this plan). Group-only per v2.7 03.

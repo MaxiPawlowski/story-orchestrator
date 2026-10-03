@@ -1,6 +1,10 @@
-# Plan 21 — Cue + scene read merge
+# Plan 15 — Cue + scene read merge
 
-**Status: SEED from v2.6, not approved.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "Cue + scene read merge". Overview: `00-overview.md`.
+**Status (2026-10-03): v2.8 plan 15 (was v2.7 plan 21). Decided: measure first (the A/B below); no merge built unless
+the merged arm passes its floor; triggers first (v2.8 02 row C7); J11's exact-reason contract kept. Not run; not built.**
+Source: `docs/plans/v2.6/v2.7-seeds.md` row "Cue + scene read merge". Overview: `00-overview.md`.
+**Gate tiers** (00-overview §Gate taxonomy): implementation D (scheduler, `so-session digest` metric); acceptance CL
+(both A/B arms call the DeepSeek read model; no pod).
 
 ## What it is
 
@@ -54,8 +58,8 @@ reads report a scene break runs two scene-summary passes was **not determined**.
 | Piece | Where | Fact |
 |---|---|---|
 | Boundary order | `src/runtime/boundaryWork.ts:53` forced-cues (order 20), `:103` scene-detect (50), `:114` scene-read (55, async judge) | cues are scheduled before the scene heuristic. `scene:judge` is scheduled only after the judge answers |
-| Scheduler | `src/extraction/scheduler.ts:194` (`mergeRead`/`mergeReread`/`mergeCue`), `:214` `mergeCue`, `:118` `isWindowlessCue` | merges act on **queued** jobs only |
-| Pump | `src/extraction/scheduler.ts:480-485` | dequeues synchronously when nothing is in flight, so at a quiet boundary the cue read is **already running** when the scene read is scheduled. A queue-only merge would miss most pairs (147/156 had the cue first) |
+| Scheduler | `src/extraction/scheduler.ts:182` (dispatch to `mergeRead` `:189` / `mergeCue` `:202` / `mergeReread` `:211`), `:105` `isWindowlessCue` | merges act on **queued** jobs only |
+| Pump | `src/extraction/scheduler.ts:469-473` | dequeues synchronously when nothing is in flight, so at a quiet boundary the cue read is **already running** when the scene read is scheduled. A queue-only merge would miss most pairs (147/156 had the cue first) |
 | Reason use | `src/runtime/journal.ts:107`, `src/runtime/inlineTimeline.ts:172,325` (display); `reconcile:` is the only prefix the runtime acts on (`extractionCoordinator.ts:260`) | `scene:*` and `cue:*` are labels. The read prompt does not include the reason; `audit.sceneBreak` comes from the model's own output |
 | Scene pass | `extractionCoordinator.ts:265` emits the scene break from `audit.sceneBreak` | independent of the reason |
 
@@ -74,7 +78,10 @@ control test changes, on purpose.
 
 ## Recommendation
 
-**D for now, with a measurement that could flip it to A.**
+**D for now, with a measurement that could flip it to A** (decisions 1–2, as answered). Spend work goes to narrowing
+the campaign's `extractor_trigger`s first (decision 3): that is **v2.8 02 row C7**, with its own coverage gate (no cue
+an authored transition needs is lost). The A/B below runs after C7 lands, on windows recorded before and after it, so
+the saving it measures is the one left once triggers are narrow.
 
 - The saving is ~4.6% of read-model input. The read model is the cheap off-path model, and cue coalescing already
   removed the large multiplier.
@@ -94,8 +101,10 @@ control test changes, on purpose.
 
 ## Floor and measurement before building
 
-- **A/B on recorded windows:** take ≥ 40 recorded cue+scene pairs (session chats, private), label the qualities each
-  window establishes (labels frozen before any model answer), then run both arms ×2 on the read model:
+- **A/B on recorded windows (CL):** take ≥ 40 recorded cue+scene pairs (session chats, private evidence in
+  `so-sessions`). Label the qualities each window establishes, labels frozen before any model answer. The windows are
+  Adolion session text, so the labels are made by Claude and **checked by a second model, never the user**
+  (v2.8 rule 11, review B4). Then run both arms ×2 on the DeepSeek read profile:
   - two-read arm: the current sequence;
   - merged arm: one read with the union reason.
 - **Floor (predeclare before the run):** merged recall ≥ two-read recall − 0.02, and merged precision ≥ two-read
@@ -108,14 +117,26 @@ control test changes, on purpose.
 
 - Scheduler/extraction (pure): `npm run typecheck && npm run lint && npm test` (`cueCoalesce.test.ts` control
   rewritten deliberately, `scheduler.test.ts`, ownership census row if `hold/release` awaits).
-- Runtime boundary wiring: `npm run gates` + live J11.12, J11.15 ×2 and J12 on a lane with the real read model
-  (no `debugResponse`).
+- Runtime boundary wiring (only if A is built): `npm run gates` + live J11.12, J11.15 ×2 and J12 on a lane in a group
+  chat with the real cloud read model and TypeSafe (no `debugResponse`, no pod).
+- If A ships, the merge is internal (no new setting, no player surface): no registry entry is needed.
 
 ## Links
 
-- 07 commitment double negatives (the other extraction seed), 20 J6d shadow record and 14 J7 judge ideas
-  (scene-break confirmation via the judge would change who schedules `scene:judge`), 10 model choice (the read
-  model's price sets the value of D).
-- Others: 04 story presence/plays index, 19 quests/game layer, 18 character life, 25 new game plus, 08 SP2, 22 SP9,
-  16 spike defers, 13 B10 CLI judge, 12 curator create op, 11 warden-lore one request, 09 C4 option b,
-  23 D6/T22 revisits, 06 thinking per story, 15 open-source Jev alternative.
+- v2.8 02 row C7 (narrow the campaign's `extractor_trigger`s, with a coverage gate: the "triggers first" decision)
+- v2.7 09 commitment double negatives (the other extraction plan)
+- v2.8 12 J6d shadow record and v2.8 13 J7 judge ideas (J7.1 scene-break confirmation would change who schedules
+  `scene:judge`)
+- v2.7 12 model choice (the read model's price sets the value of D)
+
+## Review 2026-10-03
+
+- **F01:** status line rewritten (decided: measure first; not run, not built).
+- **C6:** acceptance tier CL (DeepSeek read model), not RunPod.
+- **"21 line refs":** verified 2026-10-03 against `src`. Fixed: `scheduler.ts` merge dispatch `:182`, `mergeRead`
+  `:189`, `mergeCue` `:202`, `mergeReread` `:211`, `isWindowlessCue` `:105`, pump `:469-473`. Confirmed unchanged:
+  `boundaryWork.ts:53/:103/:114`, `journal.ts:107`, `inlineTimeline.ts:172,325`, `extractionCoordinator.ts:260,265`,
+  `cueCoalesce.test.ts:138-150`, J11 `:387/:501` (check ids) and evals `:411/:554`, J12 `:88`.
+- **C7:** "triggers first" cross-referenced to v2.8 02 row C7 (Recommendation, Links); the A/B runs after it.
+- B4: A/B labels from Adolion windows get a second-model check, not the user.
+- References version-qualified (B12); Links cut to the plans that matter.

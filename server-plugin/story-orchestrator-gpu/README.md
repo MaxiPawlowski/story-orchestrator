@@ -28,7 +28,7 @@ one machine and assumes all of this:
   `<SillyTavern>/plugins/story-orchestrator-gpu` and restart SillyTavern.
 
 `npm run plugin:install` currently installs it along with the other plugins, and the release zip ships it. Making it
-opt-in, fail-open and adaptable to other backends is planned (`docs/plans/v2.7/26-self-contained-images.md`).
+opt-in, fail-open and adaptable to other backends is planned (`docs/plans/v2.8/05-self-contained-images.md`).
 
 ## Routes
 
