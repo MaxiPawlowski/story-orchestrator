@@ -52,6 +52,14 @@ export const BeatOnPicksTheFanOut: Story = {
   },
 };
 
+export const HarvestButTheModelDoesNotThink: Story = {
+  args: { manager: fakeManager(), snapshot: { ...snapshot({ harvestReasoning: true }), thinkingSilent: true } as RuntimeSnapshot },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-inner-harvest-silent")).toHaveTextContent("the model is not thinking");
+    await expect(canvasElement.querySelector("#so-inner-harvest-idle")).toBeNull();
+  },
+};
+
 export const HarvestWithoutKnowledgeTracking: Story = {
   args: { manager: fakeManager(), snapshot: snapshot({ harvestReasoning: true, epistemicLedgerCapable: false }) },
   play: async ({ canvasElement }) => {

@@ -7,9 +7,10 @@ import {
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
 import {
-  type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
+  type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit,
 } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
+import { heldNote, type HeldReading } from "./heldJournal";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { readCursorSeed } from "@extraction/readCursor";
 import { clearAllMemoryInjection } from "@memory/index";
@@ -28,7 +29,7 @@ import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISI
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
-import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal } from "./rollback";
+import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal, type RollbackListener } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
@@ -97,7 +98,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private readonly listeners = new Set<() => void>();
   private readonly snapshotCache = new SnapshotCache<RuntimeSnapshot>(() => this.getSnapshot(Boolean(this.loaded) && this.loadedChatId !== String(getContext().chatId ?? "")));
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
-  private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
+  private readonly rollbackListeners = new Set<RollbackListener>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>();
   private readonly arcResolvedListeners = new Set<(arcIds: string[]) => void>();
   private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
@@ -131,7 +132,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     rollback: {
       journal: this.journal, context: () => ({ ...this.getBoundaryContext(), journal: this.journalContext() }), refreshRequirements: () => this.refreshRequirements(),
       reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
-      notices: this.notices, onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
+      notices: this.notices, onApplied: (messageId, window, kind) => this.rollbackListeners.forEach((listener) => listener(messageId, window, kind)),
     },
     storyUpdate: {
       swapStory: (loaded, state, reanchored, history) => this.swapStory(loaded, state, reanchored, history), restart: () => this.restartStory(true),
@@ -193,7 +194,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     const blob = getMetadataBlob();
     return blob.chatId === chatId && blob.selectedStoryId === this.loaded.record.id;
   }
-  onRollback(listener: (messageId: number, window: SharedReadWindow) => void) { this.rollbackListeners.add(listener); return () => { this.rollbackListeners.delete(listener); }; }
+  onRollback(listener: RollbackListener) { this.rollbackListeners.add(listener); return () => { this.rollbackListeners.delete(listener); }; }
   onSceneBreakConfirmed(listener: (audit: SharedReadAudit, collect?: SchedulerJob[]) => void) { this.sceneBreakListeners.add(listener); return () => { this.sceneBreakListeners.delete(listener); }; }
   onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
 
@@ -453,10 +454,9 @@ export class RuntimeManager extends CoordinatorDelegates {
         ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
-  private journalHeld(summary: string, held: Array<{ key: string; value: string; evidence: string; reason?: string }>) {
+  private journalHeld(summary: string, held: HeldReading[]) {
     if (!held.length) return;
-    this.journal.record("story", summary, this.journalContext(),
-        held.map((entry) => `${entry.key}="${entry.value}"${entry.reason ? ` (${entry.reason})` : ""} from "${entry.evidence.slice(0, 120)}"`).join("; "));
+    this.journal.record("story", summary, this.journalContext(), heldNote(held));
     this.extras.journal = this.journal.getRecords();
   }
 

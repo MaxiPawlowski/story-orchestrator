@@ -114,6 +114,43 @@ export const NoBranchChipForAForeignBlob: Story = {
   },
 };
 
+const playing = {
+  storyId: "quest",
+  extraction: { settings: { enabled: true, profileId: "p1" } },
+  requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
+  saveHealth: { lastAppliedBoundary: 3, pendingBoundary: null, lastOutcome: "applied", consecutiveFailures: 0, lastReason: null, lastFailureAt: null },
+};
+
+export const SetupAlertForAPlayer: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const chip = canvas.getByText("check setup");
+    await expect(chip.getAttribute("title")).toMatch(/the model is not thinking/);
+    await expect(chip.getAttribute("title")).not.toMatch(/harvest|Inner voice/);
+    await userEvent.click(chip);
+    await expect(args.onOpenSettings).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const PipelineChipWinsOverSetupAlert: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, secretLeaks: ["Summarize"], pipeline: { state: "catching-up", text: "Catching up after your edit…", detail: null, needsSetup: false } }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByText("check setup")).toBeNull();
+    await userEvent.click(canvas.getByText("catching up after your edit"));
+    await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const NoSetupAlertWhenNothingIsMissing: Story = {
+  args: { snapshot: baseSnapshot(playing) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByText("check setup")).toBeNull();
+  },
+};
+
 export const HiddenWhenNoStory: Story = {
   args: { snapshot: baseSnapshot({ ready: false }) },
   play: async ({ canvasElement }) => {

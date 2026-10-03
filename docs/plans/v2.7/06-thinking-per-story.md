@@ -122,3 +122,49 @@ seed; this doc replaces that bullet.
   16 spike defers (R4 is a v2.6 spike, not a v2.6 plan 03 one), 20 J6d, 14 J7, 13 B10, 12 curator create op, 11 warden-lore,
   21 cue+scene merge, 09 C4 option b, 07 commitment double negatives, 23 D6/T22, 15 open-source Jev alternative: no
   direct dependency.
+
+## Gate record — option A warning (2026-10-03)
+
+**As built** (decision 4 changed by the user: players must see it too):
+
+- **Evidence (decision 5a):** `runtime/thinkingSilence.ts` `repliesCarryNoThought`: the last 5 *generated* replies
+  (non-user, non-system, `extra.api` set and not `"manual"`: script.js:6680-6749, slash-commands.js:5973) all have an
+  empty `extra.reasoning`. Greetings, `/sendas` posts and system notes never count, so a fresh chat is never "silent".
+  Gated on harvest on AND knowledge tracking capable (`harvestWaitsOnThought`). Snapshot field `thinkingSilent`.
+  Detail (b) (the overlay's "prompt does not open a thought") is not wired: that reason lives only in the dev shot ring.
+- **General player-safe alert = a check registry** (`runtime/checks.ts`, seed of plan 31): each check declares `scope`
+  (install / chat / story; chat and story checks run only while a story is active in this chat), `audience`
+  (player / author), `severity` (blocks / degrades), `applies?`, and `detect` → a finding with the author consequence,
+  detail, player copy and an optional Show-me `targetId`. This warning is `model-not-thinking` (chat, player,
+  degrades); plan 02 C2 is `transcript-copiers`. Findings flow into `repairSteps`, the one Repair channel;
+  `viewerRepairStep` swaps in the player copy in player mode.
+- **Surfaces:** drawer footer Repair button and settings Repair row (existing), plus a new HUD chip `#so-hud-setup`
+  ("check setup", title = the consequence, `data-check` = check id), shown only when the pipeline has no chip of its
+  own and never for the save row, which has its own notice (`setupAlert()` in `repair.ts`). Author view adds the detail,
+  "Show me" on `#so-inner-harvest`, and `#so-inner-harvest-silent` under the harvest switch.
+- Player copy: "Characters' private intentions are not being tracked, because the model is not thinking before it
+  replies. Turn on reasoning (thinking) in your model's settings to play this as intended."
+- Story/checkpoint thinking levels (option B): not in scope, they wait on R4.
+
+**Tests:** `src/runtime/thinkingSilence.test.ts`, `src/runtime/checks.test.ts`; stories `Drawer/HudStrip`
+(SetupAlertForAPlayer, PipelineChipWinsOverSetupAlert, NoSetupAlertWhenNothingIsMissing) and
+`Settings/InnerVoiceControls` (HarvestButTheModelDoesNotThink).
+
+**Gates (one run for plans 02 C2, 06, 07 E, 08 C; branch `worktree-agent-a58b6dbb0f866aef6`):**
+
+- `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` → **all green**: typecheck, typecheck:test,
+  lint, test (501 suites passed, 1 skipped; 6093 tests passed, 1 skipped), build, build:dev, test:debug,
+  debug:typecheck, test:release, test:replay, test:plugin. `test-storybook:ci` skipped by the flag, see next line.
+- Storybook: `npm run test-storybook:ci` finds no stories in this worktree (the runner resolves the junctioned
+  `node_modules` to the main checkout and reports "No tests found"; an environment fault, not a story failure; the
+  full gates run with it went green through test:plugin). Ran instead: `npm run storybook:build`, then
+  `http-server .sb-static -p 6006` + `test-storybook --url http://127.0.0.1:6006 --maxWorkers 1 --index-json` →
+  **67 suites, 428 tests passed**, the four new stories included. Re-run `npm run gates` with Storybook from the main
+  checkout after merge.
+
+**Live: NOT run** (no ST lane available to this agent), so the runtime/UI tier is NOT green. Owed: one lane with the
+`fix` overlay + harvest on → row, HUD chip and harvest line appear after 5 replies (player and author view); the
+`thinking` overlay → none; `so-ui.mts assert-player-clean` green.
+
+**Follow-up (plan 31):** migrate the remaining `repair.ts` steps (memory model, roles, cast/lore/persona, save, chapter,
+WI gating, global story lore, orphaned books) into `CHECKS`; today they sit beside the registry in the same channel.

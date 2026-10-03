@@ -43,3 +43,35 @@ their session dir or `14-findings.md` row as the source.
 
 `22-sp9-witness-filter-v2.md`, `16-spike-defers.md`, `11-warden-lore-one-request.md`, `19-quests-and-game-layer.md`
 (SP6).
+
+## Gate record — C2 (2026-10-03)
+
+**As built.** v2.6 T6-4 (`97156c2f`) already shipped a block-based row: Summarize's `1_memory` / Vector Storage's
+`3_vectors` extension prompt present + a held secret (`secretsHeld`, groups only) → author-only `privacy` Repair row.
+C2 adds:
+
+- **Settings read** (`src/services/stHost/transcriptCopiers.ts`, pure, host shapes cited from ST `7c3994196`:
+  `memory/index.js:36,93-97,319,418,434,541-555,566,785`, `vectors/index.js:50,52,86,795,1746-1789`,
+  `extensions.js:146,513`, `script.js:485`). Summarize counts as on when not in `disabledExtensions`, not paused,
+  interval > 0, position not NONE and source main/webllm (the retired Extras source is invisible to this read; its
+  block, if any, is still caught by the block read). Chat vectors: `vectors.enabled_chats === true`. So the row
+  appears before the copier's first block lands, not only after.
+- Wired in `runtime/wiring/lore.ts` through `readCopiersWith` (`runtime/transcriptCopiers.ts`), the same reader-seam
+  pattern as `globalStoryLore`; the snapshot unions both readings into `secretLeaks`.
+- **Player wording**: "<Summarize and Vector Storage> share the whole chat with every character, so a character can
+  learn what was kept from them. Switch them off in SillyTavern's extensions to keep secrets." Names no secret and no
+  holder. The author detail says how to switch each one off.
+- **Check registry seed (plan 31 design note)**: `src/runtime/checks.ts`, `Check {id, area, scope, audience,
+  severity, applies?, detect}`; C2 is `transcript-copiers` (scope story, audience player, severity degrades). Findings
+  reach the one Repair channel (`repairSteps` → drawer, settings, new HUD `#so-hud-setup` chip); no parallel alert
+  path. The existing repair.ts steps are NOT migrated yet (follow-up, plan 31).
+- Spoiler checklist rows added (`docs/plans/v2.1/test-plan.md`).
+
+**Tests:** `src/services/stHost/transcriptCopiers.test.ts`, `src/runtime/secretLeak.test.ts` (settings reading,
+reader seam, player wording, HUD alert), `src/runtime/checks.test.ts`.
+
+**Gates:** one run covers plans 02 C2, 06, 07 E and 08 C; see the plan 06 gate record.
+
+**Live: NOT run** (no ST lane available to this agent). Owed: a lane with a group story holding a `[hiding]` row →
+switch Summarize (main source, interval > 0) and chat vectors on → row and `#so-hud-setup` appear in player mode,
+clear when off; `so-ui.mts assert-player-clean` green.

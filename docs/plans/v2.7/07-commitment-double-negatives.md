@@ -103,3 +103,24 @@ ever needed; C risks the precision that the T0 blocker fix bought; D is out of s
 defers · 20 J6d shadow record · 14 J7 judge ideas (D's judge question would be one) · 13 B10 CLI judge · 12 curator create
 op · 11 warden-lore one request · 21 cue+scene read merge · 09 C4 option b · **07 this** · 23 D6/T22 revisits (agency;
 player-line evidence) · 10 model choice · 06 thinking per story · 15 open-source Jev alternative
+
+## Gate record — option E (2026-10-03)
+
+**As built:** `src/extraction/commitGuard.ts`: the per-line check returns a reason instead of a bool (`lineVerdict`,
+same control flow, so accept/hold decisions are unchanged). A held delta carries `reason` (`HOLD_REASONS`: negated,
+hedged, asked as a question, names nothing it agrees to, not about this value, no player line names the commitment,
+no player line in the window) and `playerLine` (the newest player line in the read's window that tried to commit,
+else the newest player line). `src/runtime/heldJournal.ts` `heldNote` renders the author-only journal detail:
+`key="value" (reason) from "<reader quote>", the player wrote "<line>"` (both cut at 120 chars).
+`RuntimeManager.journalHeld` uses it for commit and rating holds.
+
+This is the instrument decision 3's trigger needs: a held double negative now shows as `(negated)` with the player's
+own line in `so-journal.mts show`.
+
+**Tests:** `src/extraction/commitHoldReason.test.ts` (each reason, newest attempting line, no player line, accepted
+control), `src/runtime/heldJournal.test.ts`; the existing `commitGuard`/`commitNegation`/`commitRecall`/
+`commitIntentVerb` suites are green unchanged (recall 43/44, refusals committed 0/45).
+
+**Gates:** see the plan 06 gate record (one run).
+
+**Live: NOT run** (no ST lane available to this agent). Owed: `so-journal.mts show` on a held commitment row.

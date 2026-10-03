@@ -21,6 +21,8 @@ export interface HeldCommitDelta {
   key: string;
   value: string;
   evidence: string;
+  reason?: string;
+  playerLine?: string;
 }
 
 export interface CommitGuardResult {
@@ -181,28 +183,53 @@ const pointsBack = (text: string, index: number, matched: string): boolean => {
   return (POINTS_BACK.test(matched.trim()) && !NAMES_ITS_OBJECT.test(after)) || POINTED_AT.test(after);
 };
 
-const lineCommits = (line: string, matcher: RegExp, relevance: Relevance, windowIsAbout: boolean): boolean => {
+export const HOLD_REASONS = {
+  negated: "negated",
+  hedged: "hedged",
+  question: "asked as a question",
+  unpointed: "names nothing it agrees to",
+  offTopic: "not about this value",
+  noMatch: "no player line names the commitment",
+  noPlayerLine: "no player line in the window",
+} as const;
+
+export type HoldReason = (typeof HOLD_REASONS)[keyof typeof HOLD_REASONS];
+
+const lineVerdict = (line: string, matcher: RegExp, relevance: Relevance, windowIsAbout: boolean): HoldReason | null => {
   const text = normalizeLine(line);
   const unbound = !relevance.words && !relevance.intents.length;
+  let first: HoldReason | null = null;
+  const miss = (reason: HoldReason) => { first ??= reason; };
   for (const match of text.matchAll(new RegExp(matcher.source, `${matcher.flags.replace("g", "")}g`))) {
     const index = match.index ?? 0;
     const before = clauseBefore(text, index);
-    if (NEGATOR.test(before) || HEDGE.test(before)) continue;
-    if (restOfSentence(text, index + match[0].length).end === "?") continue;
+    if (NEGATOR.test(before)) { miss(HOLD_REASONS.negated); continue; }
+    if (HEDGE.test(before)) { miss(HOLD_REASONS.hedged); continue; }
+    if (restOfSentence(text, index + match[0].length).end === "?") { miss(HOLD_REASONS.question); continue; }
     const bare = isBareToken(text, index, match[0]);
-    if (bare && !pointsBack(text, index, match[0])) continue;
-    if (unbound) return true;
-    if (!bare && sentenceIsAbout(text, index, match[0].length, relevance, windowIsAbout)) return true;
-    if (windowIsAbout && pointsBack(text, index, match[0])) return true;
+    if (bare && !pointsBack(text, index, match[0])) { miss(HOLD_REASONS.unpointed); continue; }
+    if (unbound) return null;
+    if (!bare && sentenceIsAbout(text, index, match[0].length, relevance, windowIsAbout)) return null;
+    if (windowIsAbout && pointsBack(text, index, match[0])) return null;
+    miss(HOLD_REASONS.offTopic);
   }
-  return false;
+  return first ?? HOLD_REASONS.noMatch;
 };
 
-const playerCommits = (matcher: RegExp, relevance: Relevance, messages: readonly EvidenceMessage[]): boolean => {
+interface PlayerReading {
+  commits: boolean;
+  playerLine?: string;
+  reason?: HoldReason;
+}
+
+const playerReading = (matcher: RegExp, relevance: Relevance, messages: readonly EvidenceMessage[]): PlayerReading => {
   const windowIsAbout = messages.some((message) => isAbout(normalizeLine(message.text), relevance));
   const named = messages.filter((message) => !message.isUser).flatMap((message) => normalizeLine(message.text).match(PROPER_NOUN) ?? []);
   const read = { ...relevance, topics: new Set([...relevance.topics, ...named.map((name) => name.toLowerCase())]) };
-  return messages.some((message) => message.isUser && lineCommits(message.text, matcher, read, windowIsAbout));
+  const verdicts = messages.filter((message) => message.isUser).map((message) => ({ line: message.text, reason: lineVerdict(message.text, matcher, read, windowIsAbout) }));
+  if (verdicts.some((verdict) => verdict.reason === null)) return { commits: true };
+  const closest = [...verdicts].reverse().find((verdict) => verdict.reason !== HOLD_REASONS.noMatch) ?? verdicts[verdicts.length - 1];
+  return closest ? { commits: false, playerLine: closest.line, reason: closest.reason ?? HOLD_REASONS.noMatch } : { commits: false, reason: HOLD_REASONS.noPlayerLine };
 };
 
 const gatePartners = (story: CommitStory, key: string): Set<string> => new Set(story.transitions
@@ -226,8 +253,12 @@ export const applyCommitEvidence = (
       const partners = gatePartners(story, delta.delta.q);
       const partnerValues = [...deltas.filter((other) => partners.has(other.delta.q)).map((other) => other.delta.v),
         ...[...partners].map((partner) => values[partner]).filter((value): value is PrimitiveValue => value !== undefined)];
-      if (!playerCommits(matcher, relevanceFor(story, delta.delta.q, delta.delta.v, partnerValues), messages ??= windowMessages())) {
-        held.push({ key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "" });
+      const reading = playerReading(matcher, relevanceFor(story, delta.delta.q, delta.delta.v, partnerValues), messages ??= windowMessages());
+      if (!reading.commits) {
+        held.push({
+          key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "",
+          ...(reading.reason ? { reason: reading.reason } : {}), ...(reading.playerLine !== undefined ? { playerLine: reading.playerLine } : {}),
+        });
         continue;
       }
     }
