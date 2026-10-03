@@ -123,7 +123,7 @@ Answers are written inline in each plan's decisions list; this is the index plus
 |---|---|---|
 | 13 (research) | Connection Manager profiles per role; Lore-creation role with plan 12 (+ Critic later); test native tool calls over cloud profiles; keep W27; no own provider seam; fix the 8192 context default (carry-in) | the user has Claude and Codex subscriptions and DeepSeek, not OpenRouter |
 | 14 (research) | all of N1–N8 in the stated order; N4 on the reply path as an author opt-in, off by default | — |
-| 15 (research) | our own harness; local systemone arm (decider-4b, then Plumb) ahead of NLI; local server on 127.0.0.1 started by the user; cloud models offline only; A5 not in v2.7 | **models stored off `C:`**; **every server goes in the system tray** (`C:\dev	ray\items\story-orchestrator.json`, done 2026-10-03: ST, RunPod tunnel, ComfyUI, Unsloth Studio, GPU broker, debug browser, lanes) |
+| 15 (research) | our own harness; local systemone arm (decider-4b, then Plumb) ahead of NLI; local server on 127.0.0.1 started by the user; cloud models offline only; A5 not in v2.7 | **models stored off `C:`**; **every server goes in the system tray** (`C:\dev\tray\items\story-orchestrator.json`, done 2026-10-03: ST, RunPod tunnel, ComfyUI, Unsloth Studio, GPU broker, debug browser, lanes) |
 | 16a | all recommendations (build SP5.b, triage the T7 red first) | — |
 | 16b | run SP6 (pod), build in 19 on PASS, no player copy | — |
 | 16c | — | **deferred to the next version** (drop if still unmeasured at that freeze) |

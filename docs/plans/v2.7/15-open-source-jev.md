@@ -296,4 +296,4 @@ row counts. Gold labels only (MCA §2.3).
    different judge. Measuring it would only show those hosts give the same answers as TypeSafe, as a fallback if
    TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7.
    **Also recorded:** local models are stored off `C:` (another drive; the path becomes a setting); every local server
-   this plan adds gets a tray entry (`C:\dev	ray\items\story-orchestrator.json`).
+   this plan adds gets a tray entry (`C:\dev\tray\items\story-orchestrator.json`).
