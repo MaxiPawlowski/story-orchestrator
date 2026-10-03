@@ -116,3 +116,158 @@ For option B: no floor; record which fixture rows were model-proposed and which 
 - 04 story presence/plays index, 19 quests/game layer, 18 character life, 25 new game plus, 08 SP2, 22 SP9, 16 spike
   defers, 12 curator create op, 11 warden-lore one request, 21 cue+scene read merge, 09 C4 option b, 07 commitment
   double negatives, 23 D6/T22 revisits, 06 thinking per story
+
+## Research 2026-10-03: multiple cloud providers per role
+
+Asked by the user's answers to decisions 1 and 4 above, and by plan 12 ("its own model selector, maybe a cloud model,
+or something like opencode"). Code read only; nothing measured live in this pass.
+
+### 1. How the extension calls models today
+
+Two route kinds per role, plus two consumers outside the role map:
+
+- **Role map ("Models per task").** Six pass roles: `read`, `synthesis`, `authoring`, `director`, `curator`, `inner`
+  (`src/extraction/passRole.ts:1-12`). A role holds a Connection Manager profile id, or a harness route
+  `{kind:"harness", harness, model}` with an optional `onFailure` profile (`src/runtime/passProfiles.ts:18-23,37-47`).
+  Unset = the memory model profile; a missing profile refuses (`passProfiles.ts:78-92`). Route type:
+  `ModelRoute = profile | harness` (`src/extraction/modelRoute.ts:12-14`). UI: `RoleProfilesGroup.tsx:92-120`, one
+  select per role with optgroups "Connection profiles" and "Cloud harness (on the SillyTavern server)"; egress copy per
+  role `:55-62`.
+- **Profile route.** `requestModelReply` → `ConnectionManagerRequestService.sendRequest(profileId, …)`
+  (`src/services/stHost/modelReply.ts:162-191`, host `connectionProfiles.ts:93-109`). One user message,
+  `stream:false`, `extractData:false`, preset + instruct included; returns text only (`modelReply.ts:180-182`).
+  Reasoning effort is mapped per CC source: openai/azure, claude, makersuite/vertexai, xai, deepseek, custom,
+  openrouter (`src/services/stHost/reasoningPayload.ts:27-29,46-49,72-74`). Usage read from `usage.*`, cost only when
+  the provider returns `usage.cost` (OpenRouter does) (`modelReply.ts:142-148`).
+- **Harness route.** `POST /api/plugins/story-orchestrator-harness/complete` (`src/services/stHost/harness.ts:8-48`).
+  Text in, text out, "You have no tools" (`harness.ts:10`). Harness ids claude/codex/opencode exist in code
+  (`src/utils/harness.ts:1`) but only opencode is offered (W27); default models `openai/gpt-6-astra(-fast)`
+  (`server-plugin/story-orchestrator-harness/index.mjs:36-40`). The plugin copies **only subscription (oauth) logins**
+  into the owned home; API-key entries are dropped (`index.mjs:158-193`, `ownedLoginCopy`). So the harness cannot
+  today use an API-key provider configured in opencode.
+- **Agentic wizard.** `localRoute` = a one-JSON-object text protocol over any role route plus one repair
+  (`src/copilot/agent/route.ts:38-57`); `harnessRoute` = native tool calls through the opencode MCP shim bridge, else
+  the text protocol (`src/copilot/agent/bridge.ts:25-49,85-96`). Native tools exist only on the harness route.
+- **Outside the role map:** the image director has its own profile select (`src/image/settings.ts:29`,
+  call `src/image/runtime.ts:157-163`, host `src/services/stHost/image.ts:68-78`); the sprite stage reuses it with a
+  llama.cpp `grammar` (`src/sprites/stage.ts:410`). The judge goes through its own plugin with provider ids
+  `typesafe`, `llama-logprob` (`src/judge/providers.ts:3-8`; keys server-side, `server-plugin/story-orchestrator-judge/index.mjs:7-11`).
+
+Consumers per role (callers found by `role:` in `src/`):
+
+| Role | Passes / consumers | Route kinds today |
+|---|---|---|
+| read | shared read (`extraction/scheduler.ts:505`, `extractionCoordinator.ts:323`), epistemic + ledger (`extractionCoordinator.ts:437,452`), supersession (`memoryCoordinator.ts:490`), memorize backlog (`runtime/memorizeBacklog.ts:118`) | profile, harness |
+| synthesis | scene summary, short-term (`extractionCoordinator.ts:368,409`), arc summary (`memoryCoordinator.ts:308`), canon (`runtime/canonSynthesis.ts:71`), chapter seal (`runtime/chapterSeal.ts:175`) | profile, harness |
+| authoring | wizard stages (`copilotCoordinator.ts:43`), agentic wizard (`copilot/agent/turn.ts:38,75`), expansion generation (`expansionCoordinator.ts:280`), critic inherits it (`generation/critic.ts:105`, `generate.ts:117`) | profile, harness (+ native tool bridge, opencode only) |
+| director | speaker direction (`runtime/wiring/talk.ts:31`) — reply path | profile, harness (2-7 s, `RoleProfilesGroup.tsx:59`) |
+| curator | WI curator (`stagecraftCoordinator.ts:193`), create-op suite (`runtime/liveSuite.ts:131`) | profile, harness |
+| inner | inner voice (`innerCoordinator.ts:76`) — before the drafted speaker | profile, harness |
+| — | image director, sprites | profile only (own select) |
+| — | judge | judge plugin providers only |
+
+### 2. What ST already supports
+
+- **Any CC source per profile.** `ConnectionManagerRequestService` accepts Chat Completion and Text Completion
+  profiles (`public/scripts/extensions/shared.js:402-407`). A CC profile carries `chat_completion_source`, `model`,
+  `api-url`, `proxy` and `secret-id` into `ChatCompletionService.processRequest` (`shared.js:438-466`). Sources
+  include openai, claude, openrouter, makersuite (Google AI Studio), vertexai, mistralai, custom (any OpenAI-compatible
+  URL), cohere, groq, deepseek, xai, fireworks, azure_openai, moonshot, zai and more (`src/constants.js:187-214`).
+- **A non-active profile, by id.** `sendRequest(profileId, …)` reads the profile's fields and never switches the UI
+  connection (`shared.js:423-480`). Proven in use: the v2.6 autonomous sessions ran every orchestrator role on the CC
+  profile `deepseek 4.1 flash` while the main reply ran on `Artemis RunPod RP` (W28, `docs/plans/v2.6/00-overview.md:185`;
+  `docs/plans/v2.6/15-model-config.md:25,71`).
+- **Keys stay server-side and can be several per source.** `secrets.json` holds an array of keys per secret slot, one
+  active (`src/endpoints/secrets.js:80-88,242-251,277-278`); `readSecret(directories, key, id)` picks by id or the active
+  one (`secrets.js:448`). Profiles store `secret-id` (CC and TC, `connection-manager/index.js:50,68,88,179`), and the
+  backend reads the key by it (e.g. custom `src/endpoints/backends/chat-completions.js:1801-1802`, claude `:232`,
+  deepseek `:1073`). So two `custom` endpoints with two different keys work: two profiles, two `api-url`s, two
+  `secret-id`s. With ST user accounts, secrets are per user (`request.user.directories`).
+- **Native tool calls pass through.** `createRequestData` forwards unknown props (`public/scripts/custom-request.js:428-451`),
+  the override payload wins over the preset (`custom-request.js:609-619`), and the backend forwards `tools`/
+  `tool_choice` for Claude (`chat-completions.js:248-292`), Gemini (`:571-640`), several named sources (`:912-914,
+  1094-1096, 1206-1208, …`) and the generic OpenAI-compatible path incl. custom/openrouter (`:2636-2637`). ST's own
+  ToolManager adds nothing on `quiet` requests (`public/scripts/tool-calling.js:694-699`), which is the type the CC
+  request service uses (`custom-request.js:609`). With `extractData:false` we already get the raw JSON
+  (`modelReply.ts:177`), so `tool_calls` is readable. **Not verified live**, and the reply shape per source
+  (Claude/Gemini conversion to the OpenAI shape) needs a probe.
+
+So the user's "ST does not support this" is mostly not the case: ST connects to many cloud providers, per profile,
+with server-side keys, and our role map already routes per role to any of them.
+
+### 3. Gap analysis
+
+What already works: pick a CC profile (any source, own key via `secret-id`) for any of the six roles under Models per
+task. Reasoning effort, sampler pass-through and usage metering already understand the main cloud sources.
+
+What does not, and why:
+
+| Gap | Why | Size |
+|---|---|---|
+| Wizard agent on a CC profile has no native tool calls | `localRoute` uses the text JSON protocol (`route.ts:38-57`); `requestModelReply` reads text only (`modelReply.ts:180`) | new `AgentRoute` passing `tools` in the override payload and reading `tool_calls`; a probe per source first |
+| Context limit for a preset-less cloud profile is 8192 except DeepSeek | `CHAT_SOURCE_CONTEXT` lists only `deepseek` (`src/services/stHost/contextLimit.ts:21-28`); v2.6 F6 found the trimming (`15-model-config.md:26`) | small: per-source table, or read the model's context from ST's model list |
+| Curator create op has no selector of its own | it would ride the `curator` role (`stagecraftCoordinator.ts:193`) | a 7th pass role, default "same as curator" |
+| Critic shares the generator's model | critic inherits `authoring` (`critic.ts:105`) | optional 8th role; a different model reduces self-grading |
+| Image director / sprites cannot use cloud reliably | sprites pass a llama.cpp `grammar` (`sprites/stage.ts:410`); cloud sources ignore it | `json_schema` path for CC sources (ST supports it, `chat-completions.js:318`) |
+| Harness cannot use API-key providers | oauth-only login copy (`harness index.mjs:186-193`), W27 | plugin change + key storage outside ST |
+| Cost per call | only when the provider returns `usage.cost` (`modelReply.ts:147`) | OpenRouter gives it; others need a price table |
+
+Options:
+
+| | What | Providers | Keys / privacy | Tool calls (wizard) | Latency | Cost | Effort |
+|---|---|---|---|---|---|---|---|
+| **A. ST CC profiles per role** (today's seam) | document it; picker groups profiles by source; per-source context; new roles where asked | every ST CC source + any OpenAI-compatible URL | in ST `secrets.json`, server-side, per profile by `secret-id`; ST user accounts respected | text protocol today; native via a new route (ST forwards `tools`) | network only (no spawn) | per-token API billing | small (docs, picker, context table); medium for the native-tools route |
+| **B. Provider seam in our plugin** (judge-style) | our own OpenAI-compatible client + keys | whatever we write | a second key store beside ST's | we would implement it | network only | API billing | large; duplicates ST's backend for ~25 sources. Only worth it for something ST cannot do (logprobs for the judge, plan 15) |
+| **C. Harness CLIs** (opencode; claude/codex) | per-role CLI spawn | the CLI's providers; subscription logins only today | logins in the CLI's home; vendor terms/training rows (`12-survey.md:79,173`) | native, via the MCP bridge (built) | 2-7 s spawn per call (`13-harness-routing.md:100,109-110`); quota outages seen T6-3 | subscription quota | built; API-key providers need a plugin change; claude/codex need reversing W27 |
+| **D. OpenRouter as one gateway** | one CC profile per model, one key | hundreds of models via one source | one key in ST secrets | as A (openrouter takes the generic path, `chat-completions.js:2636`) | network | per-token + reports `usage.cost` | none beyond A |
+
+### 4. Uses that benefit from a separate cloud model
+
+| Use | Role today | Player waiting? | Recommended route |
+|---|---|---|---|
+| Wizard / agentic wizard | authoring | no (author) | **A**: a strong cloud CC profile (Claude/GPT/Gemini direct, or OpenRouter). Text protocol works now; build the native-tools CC route after a probe. Keep C as an option only |
+| Curator create op (plan 12) | curator | no (review mode) | **A** with its own role "Lore creation" (default: same as curator). Its floor is per model: a new model needs its own Phase A row |
+| Image director | own select | no | **A**, after a `json_schema` path for CC sources; sprites stay on the local llama.cpp grammar |
+| Chapter seal | synthesis | no | **A**, long-context cloud model; sends whole chapters (egress row) |
+| Canon | synthesis | no | **A**, same profile as chapter seal |
+| Expansion generation | authoring | no (pre-generation) | **A**, same as wizard |
+| Critic | authoring (inherited) | no | **A**, optional own role on a *different* model than the generator |
+| Labelling aid (decision 2) | none, offline | no | **A** from a debug script over a CC profile (no runtime code); C also fine |
+| Living-story director (plan 24) | not built ("memory or harness profile", `24-living-story-director.md:128`) | no (per anchor) | **A** on authoring, or its own role if it should differ from the wizard |
+| Briefing drafting (plan 03) | wizard Premise step (`03-story-briefing.md:92`) | no | **A**, authoring role |
+| Story reads, epistemic, ledger | read | indirectly (state lags) | cheap fast cloud (DeepSeek flash proven) or local; unchanged |
+| Director, inner voice | director, inner | **yes** (before a reply) | fast cheap cloud or local only; never C (spawn) |
+| Judge | judge plugin | yes for director/lore | stays on the judge plugin (needs probabilities); plan 15 for non-TypeSafe |
+
+### Recommendation
+
+**A, with D as the documented easy path, and no B.** ST already gives every role any cloud provider with its keys
+server-side; the role map already routes per role, and the v2.6 sessions ran six roles on DeepSeek this way. The work is
+small and concrete:
+
+1. Docs (plan 01): "use a cloud model for a task" — create a CC profile per provider/model (own `secret-id`), pick it
+   under Models per task; OpenRouter as the one-key route; egress per role.
+2. Picker: group profiles by source/vendor in `RoleProfilesGroup` and label "cloud" vs "local", so a cloud egress is
+   visible where it is chosen.
+3. Context limits: per-source table (or ST's model list) instead of `deepseek` only (`contextLimit.ts:21`).
+4. New roles only where a use is built: "Lore creation" (plan 12), optionally "Critic". Default = same as the parent role.
+5. Native tool calls over CC profiles for the wizard agent: spike on two sources (OpenRouter + Claude direct) first,
+   then a `profileToolsRoute` beside `localRoute`/`harnessRoute`. Floor = plan 11's agent checks on the same fixture.
+
+C stays as built (opencode, W27); reopening API-key harness providers adds a second key store for no provider ST lacks.
+B only if plan 15 needs a logprob provider ST cannot proxy.
+
+For decision 4 (if A-as-judge were wanted anyway): no judge use benefits from a verbalized cloud model enough to justify
+a contract per use; the off-path value is in the generative roles above, not in the judge.
+
+### Decisions for the user (this research)
+
+1. Route cloud models through ST Connection Manager profiles per role (option A), with OpenRouter documented as the
+   one-key path? **Rec: yes.**
+2. Add a "Lore creation" role for the curator create op (plan 12), defaulting to the curator's route? **Rec: yes, only
+   when plan 12 builds.** Also a separate "Critic" role? **Rec: optional, after the wizard work.**
+3. Spike native tool calls over CC profiles for the agentic wizard (OpenRouter + one direct source), then build the route
+   if it passes plan 11's agent checks? **Rec: yes.**
+4. Keep the harness at opencode with subscription logins only (no API-key providers, W27)? **Rec: keep.**
+5. Build our own provider seam in the plugin (option B)? **Rec: no**, unless plan 15 needs it for logprobs.
+6. Fix the 8192 context default for preset-less cloud CC profiles (per-source table)? **Rec: yes, small, v2.7 carry-in.**

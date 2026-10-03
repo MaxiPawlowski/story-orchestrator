@@ -11,11 +11,11 @@ anything v2.6 still owes, lands here. v2.6's code, gate records and seeds file s
 
 | # | Item | What | Source | Proposed gate |
 |---|---|---|---|---|
-| C1 | **SP5.b build** | the story-owned scenario (`effects.scenario` → `chat_metadata.scenario`), approved in v2.6 but never built. On the campaign it gives one story block instead of up to 7 card texts. C1–C5 passed ×1 | `16-spike-defers.md` §SP5; `v2.6/04-remaining-builds.md:26`; `v2.6/03-sp5-restated.md` | `npm run gates` + the SP5 recipe ×2 live; the scenario stays held while requirements are unmet (C3) |
+| C1 | **SP5.b build** | the story-owned scenario (`effects.scenario` → `chat_metadata.scenario`), approved in v2.6 but never built. On the campaign it gives one story block instead of up to 7 card texts. C1–C5 passed ×1 | `16a-sp5-story-scenario.md` (design); `v2.6/04-remaining-builds.md:26`; `v2.6/03-sp5-restated.md` | triage the T7 red first; `npm run gates` + the SP5 recipe ×2 live; the scenario stays held while requirements are unmet (C3) |
 | C2 | **Summarize / chat-vectors Repair row** | warn the author when ST's Summarize or Vector Storage chat vectors are on, because they put the whole transcript (unwitnessed scenes included) into every member's prompt. This bypasses per-member privacy | `22-sp9-witness-filter-v2.md` option A, decision 1; `v2.6/14-findings.md` T2-2 item 1 | pure `repair.ts` row + unit cases; live: toggle each extension and see the row appear and clear |
 | C3 | **Warden and lore-check timeouts** | pooled over the playtest sessions, warden calls timed out 7.2% and lore-check calls 3.9%, both above J2's 1-in-50 bar. Find out whether this is the 4000 ms budget, plugin queueing or provider latency before tuning anything | `11-warden-lore-one-request.md` decision 3 (ad hoc scan of session journals) | formal `so-judge timeouts` run (was v2.6's owed R4) ×2; the floor stays 1 in 50, never retuned |
 | C4 | **Separate-arm live checks owed** | the warden-lore runtime shipped as a separate call; R4, R6 and the G-L7 J8 on/off checks were owed to v2.6 plan 15 Part B | `11-warden-lore-one-request.md:22,70`; `v2.6/15-review.md:407-429` | as written in `v2.6/04-remaining-builds.md:536-540` |
-| C5 | **SP6 / SP1 / SP10 runs** | never run in v2.6. SP6 → plan 19 (complication pool as the game layer's pacing tool); SP1 parked; SP10 dropped with a README note | `16-spike-defers.md` | per that plan |
+| C5 | **SP6 / SP1 / SP10 runs** | never run in v2.6. SP6 measured, then built in plan 19 on PASS (`16b-sp6-complication-pool.md`); SP1 parked with a swipe-back counter (`16c-sp1-swipe-back-cache.md`); SP10 README note + probe removed (`16d-sp10-tool-call-turns.md`) | `16-spike-defers.md` (index) | per each file |
 
 Plugin-side findings the campaign cannot fix (`C:\dev\adolion-campaign\docs\FEATURE-COVERAGE.md` §Findings,
 re-checked against the current plugin before building):
@@ -41,5 +41,5 @@ their session dir or `14-findings.md` row as the source.
 
 ## Links
 
-`22-sp9-witness-filter-v2.md`, `16-spike-defers.md`, `11-warden-lore-one-request.md`, `19-quests-and-game-layer.md`
+`22-sp9-witness-filter-v2.md`, `16-spike-defers.md` (index; `16a`–`16d`), `11-warden-lore-one-request.md`, `19-quests-and-game-layer.md`
 (SP6).
