@@ -7,6 +7,7 @@ import { exportState } from "@runtime/stateExport";
 import { playingStory } from "@runtime/playingStory";
 import { removalRestore } from "@runtime/worldInfoScanHost";
 import { log } from "@utils/log";
+import { FieldLabel } from "./Field";
 
 interface StoryGroupProps {
   snapshot: RuntimeSnapshot;
@@ -86,7 +87,8 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
   return (
     <>
       <div className="flex flex-col gap-1 text-sm">
-        <label htmlFor="story-library-select">Story for this chat</label>
+        <FieldLabel htmlFor="story-library-select" label="Story for this chat"
+          help="Pick the story this chat plays. The chat keeps its own copy, so editing the story later never changes a run in progress. Switching keeps each story's progress." />
         <div className="flex items-center gap-2">
           <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy || Boolean(noChat)} onChange={(event) => void selectStory(event.target.value)}>
             <option value="">Select a story</option>
@@ -134,7 +136,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
       </div>
       {importOpen && (
         <div id="so-entry-import" className="flex flex-col gap-1 text-sm">
-          <label htmlFor="so-import-text">Import story (JSON)</label>
+          <FieldLabel htmlFor="so-import-text" label="Import story (JSON)" help="Paste a story file, or pick one below. It is saved to the library and loaded in this chat." />
           <textarea id="so-import-text" className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)}
             placeholder="Paste story JSON, or pick a file below" />
           <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy}

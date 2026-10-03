@@ -16,7 +16,8 @@
     "image.loras",
     "image.upscalers",
     "image.purposes",
-    "sprites.profileId"
+    "sprites.profileId",
+    "help"
   ],
   "settings": {
     "extraction": {

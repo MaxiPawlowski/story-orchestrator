@@ -12,6 +12,7 @@ import { OverviewTab } from "./tabs/OverviewTab";
 import { MemoryTab } from "./tabs/MemoryTab";
 import { isArcTemplateName } from "@pacing/index";
 import type { InlineActions } from "../inline/InlineDetail";
+import { CheckRow, FieldLabel } from "../settings/Field";
 
 const DriverPanel = lazyRetry(() => import("./DriverPanel"));
 const MessageInspector = lazyRetry(() => import("./MessageInspector"));
@@ -201,19 +202,18 @@ export const DrawerTabs = ({
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
         <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
           <div className="font-medium">Chat preferences <span className="opacity-70 font-normal">— this chat only</span></div>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
-            Speaker direction in group chats
-          </label>
-          <label className="flex flex-col gap-1">Dramatic shape
-            <select value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""}
+          <CheckRow id="so-talk-direction" setting="talk.enabled" checked={snapshot.talk.enabled} onChange={(on) => manager.setTalkDirectionEnabled(on)} />
+          <div className="flex flex-col gap-1">
+            <FieldLabel htmlFor="so-shape-override" label="Dramatic shape"
+              help="The rise and fall of tension this chat aims for. Use story default unless you want this chat paced differently." />
+            <select id="so-shape-override" value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""}
               onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
               <option value="">Use story default</option>
               <option value="rising">Rising to climax</option>
               <option value="fall_recovery">Fall then recovery</option>
               <option value="three_act">Three act</option>
             </select>
-          </label>
+          </div>
         </section>
         {imagePanel}
         </div>}

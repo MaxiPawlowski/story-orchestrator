@@ -18,6 +18,8 @@ import type { RuntimeExtras } from "./types";
 // The mutation contract spans every store, so the composition lives in one place
 // rather than in the manager's line budget. What is *not* here: the engine's own restore (it owns
 // the history) and the decision of what "unavailable" means to a player (narrative.ts).
+export type RollbackListener = (messageId: number, window: SharedReadWindow, kind?: RollbackKind) => void;
+
 export interface RollbackDeps {
   engine: StoryEngine;
   journal: SessionJournal;
@@ -36,7 +38,7 @@ export interface RollbackDeps {
   notify: () => void;
   notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null; lastOutcome?: RollbackRecord | null };
   setStatus: (status: string) => void;
-  onApplied: (messageId: number, window: SharedReadWindow) => void;
+  onApplied: RollbackListener;
 }
 
 export const LOST_CHECKPOINT = "the story reached a checkpoint its graph no longer has and resumed on its trail";
@@ -154,7 +156,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     deps.notices.lastRollback = { checkpointName, playerName: engine.activeCheckpoint?.player_name ?? null, at: new Date().toISOString(), ...(kind ? { kind } : {}) };
     deps.setStatus(`Stepped back to ${checkpointName}`);
   }
-  deps.onApplied(messageId, window);
+  deps.onApplied(messageId, window, kind);
   deps.notify();
   return { ok: true, result: "applied" };
 }

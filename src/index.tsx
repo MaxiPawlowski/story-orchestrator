@@ -32,8 +32,12 @@ import BranchNotice from "./components/drawer/BranchNotice";
 import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
+import { HelpButton } from "./components/help/HelpButton";
+import type { FeatureWhere } from "@features/registry";
 import "./styles.css";
 import { log } from "@utils/log";
+
+const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
 
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
@@ -263,6 +267,7 @@ const settingsHost: SettingsHost = {
   openGroup,
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
+  showFeature: (where) => showFeature(where),
 };
 
 const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
@@ -292,6 +297,7 @@ const branchAtFloor = async (messageId: number) => {
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const inspecting = useInspectTarget();
+  const [helpOpen, setHelpOpen] = useState(false);
   const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
@@ -300,13 +306,17 @@ const DrawerPanel = () => {
           <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
           {!snapshot.ready && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
         </div>
-        {snapshot.ready && (
-          <label className="flex items-center gap-1 text-xs whitespace-nowrap" title="Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.">
-            <input id="so-author-view" type="checkbox" checked={snapshot.ui.authorView} onChange={(event) => void toggleAuthorView(event.target.checked)} />
-            <span>Author view</span>
-          </label>
-        )}
+        <div className="flex items-center gap-2">
+          {snapshot.ready && (
+            <label className="flex items-center gap-1 text-xs whitespace-nowrap" title="Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.">
+              <input id="so-author-view" type="checkbox" checked={snapshot.ui.authorView} onChange={(event) => void toggleAuthorView(event.target.checked)} />
+              <span>Author view</span>
+            </label>
+          )}
+          <HelpButton id="so-help-toggle-drawer" open={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
+        </div>
       </div>
+      {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
       {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
       {snapshot.ready && (
         <DrawerTabs
@@ -368,6 +378,17 @@ const revealSetting = (id: string) => {
   element.scrollIntoView({ block: "center", behavior: "smooth" });
   element.classList.add("so-revealed");
   window.setTimeout(() => element.classList.remove("so-revealed"), 2000);
+};
+
+const showFeature = (where: FeatureWhere) => {
+  const id = where.selector.replace(/^#/, "");
+  if (where.surface === "settings") {
+    openStorySettings();
+    window.setTimeout(() => revealSetting(id), 250);
+  } else if (where.surface === "drawer") {
+    openSoDrawer();
+    window.setTimeout(() => revealSetting(id), 100);
+  }
 };
 
 // The HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the

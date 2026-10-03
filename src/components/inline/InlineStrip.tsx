@@ -2,17 +2,10 @@ import type { InlineItem } from "@runtime/inlineTimeline";
 import { INLINE_CATEGORY_LABELS } from "@runtime/messageInspector";
 import { INLINE_CATEGORIES, type InlineCategory, type InlineLevel } from "@runtime/settingsModel";
 import { InlineDetail, type InlineActions } from "./InlineDetail";
+import { INLINE_ICONS } from "./inlineIcons";
+import { InlineLegend } from "./InlineLegend";
 
-export const INLINE_ICONS: Record<InlineCategory, string> = {
-  progress: "fa-solid fa-route",
-  memory: "fa-solid fa-brain",
-  threads: "fa-solid fa-code-branch",
-  lore: "fa-solid fa-book",
-  cast: "fa-solid fa-users",
-  pacing: "fa-solid fa-heart-pulse",
-  calls: "fa-solid fa-microchip",
-  health: "fa-solid fa-triangle-exclamation",
-};
+export { INLINE_ICONS };
 
 export interface InlineStripProps {
   messageId: number;
@@ -21,9 +14,10 @@ export interface InlineStripProps {
   expanded: InlineCategory | null;
   onToggle: (category: InlineCategory) => void;
   actions?: InlineActions;
+  legend?: boolean;
 }
 
-export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actions }: InlineStripProps) => {
+export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actions, legend = false }: InlineStripProps) => {
   const groups = INLINE_CATEGORIES.map((category) => ({ category, items: items.filter((item) => item.category === category) })).filter((group) => group.items.length);
   if (!groups.length) return null;
   const open = groups.find((group) => group.category === expanded) ?? null;
@@ -59,6 +53,7 @@ export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actio
             <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
           </button>
         )}
+        {legend && <InlineLegend level={level} />}
       </div>
       {open && (
         <div data-so="inline-expanded" data-category={open.category} className="so-inline-panel">

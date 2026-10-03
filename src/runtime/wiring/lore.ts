@@ -1,4 +1,6 @@
 import { forceActivateEntries, getContext, getScannableEntries, settingsReady, willAddUserMessage } from "@services/STAPI";
+import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
+import { readCopiersWith } from "../transcriptCopiers";
 import { LoreSelector } from "../loreSelect";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
@@ -84,6 +86,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   if (__SO_DEV__) globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   const storyLore = startStoryLore({ chatId, ownedChat: () => runtimeManager.getLoadedChatId(), story: () => runtimeManager.getStory() });
   disposers.push(storyLore.dispose);
+  disposers.push(readCopiersWith(() => transcriptCopiersOn(getContext().extensionSettings)));
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),
     messageId: chatLastId,

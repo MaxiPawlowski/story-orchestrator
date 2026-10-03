@@ -10,6 +10,8 @@ import { isLapse } from "./modelError";
 import { isHarnessKey } from "@utils/harness";
 import type { ModelCall } from "./modelRoute";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
+import { ROLLBACK_REREAD_PREFIX, rollbackRereadReason } from "./rereadReason";
+import { CADENCE_WINDOW_FALLBACK, CADENCE_WINDOW_MAX, cadenceWindowFrom } from "./cadenceWindow";
 import type { RequestBudget } from "./tokenMeter";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
@@ -91,26 +93,11 @@ export interface SchedulerHost {
   readCursorSeed?(): number | null;
 }
 
-// Cadence counts BOUNDARIES, and the window used to count
-// MESSAGES: `cadence` of them ending at the stable end. At cadence 1 a read saw only the newest reply,
-// never the player's line before it; in a group, several replies per line pushed the player's own
-// words out of every window; in a solo chat at cadence 3, half the transcript was never read. A
-// cadence read now starts where the previous one ended. With no cursor (the first read, a new world,
-// or a chat a rollback made shorter than the cursor) it reads the same span the default shared read
-// does, and no read spans more than CADENCE_WINDOW_MAX messages, so a long pause cannot send the
-// whole chat as one prompt.
-export const CADENCE_WINDOW_FALLBACK = 8;
-export const CADENCE_WINDOW_MAX = 24;
-
-export const cadenceWindowFrom = (cursor: number | null, stableTo: number): number => {
-  const from = cursor !== null && cursor < stableTo ? cursor + 1 : stableTo - CADENCE_WINDOW_FALLBACK + 1;
-  return Math.max(0, from, stableTo - CADENCE_WINDOW_MAX + 1);
-};
-
 export const ANSWERED_SAMPLES = 8;
 
 export const REREAD_LAPSED_REASON = "reread:lapsed";
 export const RESUME_DROPPED_REASON = "resume:dropped";
+export { CADENCE_WINDOW_FALLBACK, CADENCE_WINDOW_MAX, cadenceWindowFrom, ROLLBACK_REREAD_PREFIX, rollbackRereadReason };
 export const REREAD_SETTLE_MAX_MS = 10_000;
 
 const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
@@ -135,6 +122,7 @@ export class ExtractionScheduler {
   private readonly profileProblems = new Map<string, string>();
   private readonly heavyQueue: SchedulerJob[] = [];
   private inFlight = false;
+  private running: SchedulerJob | null = null;
   private heavyInFlight = false;
   private lastError: string | null = null;
   private lastHeavyError: string | null = null;
@@ -467,6 +455,7 @@ export class ExtractionScheduler {
       queueDepth: this.queue.length,
       inFlight: this.inFlight,
       lastError: this.lastError,
+      rereadReason: [this.running, ...this.queue].find((job) => job?.reason.startsWith(ROLLBACK_REREAD_PREFIX))?.reason ?? null,
       heavyQueueDepth: this.heavyQueue.length,
       heavyInFlight: this.heavyInFlight,
       lastHeavyError: this.lastHeavyError,
@@ -492,6 +481,7 @@ export class ExtractionScheduler {
       return;
     }
     this.inFlight = true;
+    this.running = job;
     this.host.onSchedulerChange();
     let read: LapsedRead | null = null;
     try {
@@ -530,6 +520,7 @@ export class ExtractionScheduler {
     } finally {
       read?.ownership.release?.();
       this.inFlight = false;
+      this.running = null;
       this.host.onSchedulerChange();
       void this.pump();
       void this.pumpHeavy();

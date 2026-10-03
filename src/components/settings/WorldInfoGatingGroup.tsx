@@ -1,4 +1,6 @@
 import type { WiGatingStatus } from "@runtime/worldInfoMode";
+import { settingHelp } from "@features/settingsCopy";
+import { Advanced, CheckRow, FieldLabel } from "./Field";
 
 export interface WorldInfoGatingGroupProps {
   status: WiGatingStatus | null;
@@ -30,9 +32,6 @@ const WiGatingAuthorDetail = ({ status, unavailable }: { status: WiGatingStatus 
 // C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
 // re-normalise button is its one action.
-const SCAN_MEMORY_COPY = "Memory text can trigger lore: established facts, scene history and checkpoint guidance join every World Info scan, so a lorebook entry " +
-  "whose keys they mention can activate. What characters privately know and the state ledger never join it.";
-
 export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize, scanMemory, onScanMemory }: WorldInfoGatingGroupProps) {
   const mode = status?.mode ?? "file";
   const busy = status?.busy ?? false;
@@ -40,18 +39,18 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
   const fixable = [...(status?.drift ?? []), ...(status?.missingKey ?? [])];
   return (
     <div id="so-wi-gating" data-so="wi-gating" className="flex flex-col gap-1 text-sm">
-      <label htmlFor="so-wi-gating-mode">Lorebook gating</label>
-      <div className="flex flex-col gap-1">
+      <Advanced id="so-wi-gating-advanced">
+        <FieldLabel htmlFor="so-wi-gating-mode" setting="worldInfo.gatingMode" />
         <select id="so-wi-gating-mode" value={mode} disabled={busy} onChange={(event) => onChoose(event.target.value === "scan" ? "scan" : "file")}>
-          <option value="file">File writes</option>
-          <option value="scan">Per chat (scan)</option>
+          <option value="file">Change the lorebook files</option>
+          <option value="scan">Per chat</option>
         </select>
-      </div>
-      <div className="text-xs opacity-70">
-        {mode === "scan"
-          ? "Story lorebook entries rest off in their files; each chat sees its own story's entries switched on."
-          : "Story Orchestrator switches story lorebook entries on and off in their files as a chat moves."}
-      </div>
+        <div className="text-xs opacity-70">
+          {mode === "scan"
+            ? "Story lorebook entries rest off in their files; each chat sees its own story's entries switched on."
+            : "Story Orchestrator switches story lorebook entries on and off in their files as a chat moves."}
+        </div>
+      </Advanced>
       {mode === "scan" && status && (
         <div data-so="wi-ledger" className="text-xs opacity-70">
           {status.active ? "Active" : busy ? "Preparing" : "Not active"} · {plural(status.ledger.entries, "entry rests", "entries rest")} off in {plural(status.ledger.books, "lorebook", "lorebooks")}
@@ -60,10 +59,10 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
         </div>
       )}
       {authorView && (
-        <label data-so="wi-scan-memory" className="flex items-start gap-2 text-xs">
-          <input id="so-wi-scan-memory" type="checkbox" checked={scanMemory} onChange={(event) => onScanMemory(event.target.checked)} />
-          <span>{SCAN_MEMORY_COPY}</span>
-        </label>
+        <div data-so="wi-scan-memory" className="flex flex-col gap-1">
+          <CheckRow id="so-wi-scan-memory" setting="worldInfo.scanMemory" className="text-xs" checked={scanMemory} onChange={onScanMemory} />
+          <span className="text-xs opacity-70">{settingHelp("worldInfo.scanMemory")}</span>
+        </div>
       )}
       {unavailable && (
         <div data-so="wi-unavailable" className="text-xs so-warning-text">Per-chat gating is unavailable on this SillyTavern; lorebooks are gated by file writes.</div>

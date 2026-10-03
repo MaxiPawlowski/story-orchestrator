@@ -1,4 +1,4 @@
-import { ExtractionScheduler, probeModel, setAnsweredObserver, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
+import { ExtractionScheduler, probeModel, rollbackRereadReason, setAnsweredObserver, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { currentChatOwner, listConnectionProfiles, profileExists, subscribeToHostEvents } from "@services/STAPI";
 import { setFailoverGate } from "../modelCall";
 import { breakerWatchEntries } from "../breakerWatch";
@@ -67,8 +67,8 @@ export const startScheduler = (live: LiveParts, disposers: Disposers) => {
   disposers.push(runtimeManager.onBoundary((result) => {
     if (live.scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler: live.scheduler, ...(live.scene ? { scene: live.scene } : {}) });
   }));
-  disposers.push(runtimeManager.onRollback((messageId, window) => {
-    live.scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
+  disposers.push(runtimeManager.onRollback((messageId, window, kind) => {
+    live.scheduler?.schedule({ priority: 0, reason: rollbackRereadReason(messageId, kind), window });
   }));
   disposers.push(scheduleSceneBreak(live));
   disposers.push(runtimeManager.onArcsResolvedConfirmed((arcIds) => {

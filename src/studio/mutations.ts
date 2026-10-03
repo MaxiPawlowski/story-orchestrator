@@ -153,8 +153,9 @@ export const setRequirements = (draft: StoryDraft, requirements: StoryRequiremen
 // entirely — the safe default is a story that grants no background agent any lorebook.
 export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): StoryDraft => {
   const lorebooks = stagecraft.lorebooks ?? [];
+  const exclude = ("exclude" in stagecraft ? stagecraft.exclude : draft.stagecraft?.exclude) ?? [];
   const { stagecraft: _dropped, ...rest } = draft;
-  return lorebooks.length ? { ...rest, stagecraft: { lorebooks } } : rest;
+  return lorebooks.length || exclude.length ? { ...rest, stagecraft: { lorebooks, ...(exclude.length ? { exclude } : {}) } } : rest;
 };
 
 // The scene tracker's vocabulary, kept as typed (the parser trims on load), so a new

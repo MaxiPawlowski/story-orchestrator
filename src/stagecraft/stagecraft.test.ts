@@ -3,7 +3,7 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
 import { applyCuratorPatch, declinedOps, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
-import { curatorHasScope, curatorLorebooks, entriesForScope, isCheckpointGated, isCuratorWritable } from "./scope";
+import { curatorHasScope, curatorLorebooks, entriesForScope, isCheckpointGated, isCuratorExcluded, isCuratorHidden, isCuratorWritable } from "./scope";
 import type { CuratorEntryView, CuratorScope } from "./types";
 
 const entries = (): CuratorEntryView[] => [
@@ -11,7 +11,7 @@ const entries = (): CuratorEntryView[] => [
   { lorebook: "Story Lore", comment: "The ferryman", keys: ["ferryman"], content: "Nobody has seen the ferryman for a season.", disabled: true },
 ];
 
-const story = (stagecraft?: { lorebooks: string[] }) => parseStoryV2OrThrow({
+const story = (stagecraft?: Record<string, unknown>) => parseStoryV2OrThrow({
   format: 2,
   id: "curator-fixture",
   title: "Curator fixture",
@@ -46,6 +46,24 @@ describe("curator scope", () => {
     expect(isCuratorWritable(gated, "Story Lore", "The ferryman")).toBe(false);
     expect(isCuratorWritable(gated, "Story Lore", "The bridge")).toBe(true);
     expect(isCheckpointGated(gated, "Other Book", "The ferryman")).toBe(false);
+  });
+
+  it("C10: an excluded entry is hidden and never writable; its neighbours stay writable", () => {
+    const excluded = story({ lorebooks: ["Story Lore"], exclude: [{ lorebook: "Story Lore", comments: ["House style"] }] });
+    expect(isCuratorExcluded(excluded, "story lore", " house STYLE ")).toBe(true);
+    expect(isCuratorHidden(excluded, "Story Lore", "House style")).toBe(true);
+    expect(isCuratorWritable(excluded, "Story Lore", "House style")).toBe(false);
+    expect(isCuratorWritable(excluded, "Story Lore", "The bridge")).toBe(true);
+    expect(isCuratorExcluded(excluded, "Other Book", "House style")).toBe(false);
+    expect(isCuratorWritable(story({ lorebooks: ["Story Lore"] }), "Story Lore", "House style")).toBe(true);
+  });
+
+  it("C10: stagecraft.exclude parses trimmed, and a malformed exclusion is a load error", () => {
+    expect(story({ lorebooks: ["Story Lore"], exclude: [{ lorebook: " Story Lore ", comments: [" House style ", ""] }] }).stagecraft)
+      .toEqual({ lorebooks: ["Story Lore"], exclude: [{ lorebook: "Story Lore", comments: ["House style"] }] });
+    expect(() => story({ lorebooks: ["Story Lore"], exclude: "House style" })).toThrow(/stagecraft\.exclude/);
+    expect(() => story({ lorebooks: ["Story Lore"], exclude: [{ lorebook: "Story Lore", comments: [] }] })).toThrow(/at least one entry/);
+    expect(() => story({ lorebooks: ["Story Lore"], exclude: [{ book: "Story Lore", comments: ["x"] }] })).toThrow(/did you mean "lorebook"/);
   });
 
   it("reads host entries into the view the prompt and the planner share", () => {

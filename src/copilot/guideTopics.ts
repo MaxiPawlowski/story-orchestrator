@@ -192,9 +192,10 @@ export const GUIDE_TOPICS = {
   },
   stagecraft: {
     title: "Curator scope",
-    fields: "stagecraft.lorebooks",
+    fields: "stagecraft.lorebooks, stagecraft.exclude",
     text: "The only lorebooks the World Info curator may edit: the story's own books. The curator enables, disables, rewrites or patches existing entries; it cannot create one, "
-      + "so author every entry it should keep current. It never touches an entry a beat's world_info gates. An empty list means no curator writes.",
+      + "so author every entry it should keep current. It never touches an entry a beat's world_info gates. An empty list means no curator writes. "
+      + "exclude [{lorebook, comments}] names entries in those books it is never shown and never writes, such as a house-style entry.",
   },
   "lore-select": {
     title: "Lore select",
@@ -222,9 +223,10 @@ export const GUIDE_TOPICS = {
   },
   presentation: {
     title: "Illustrations and display",
-    fields: "illustrations, display.lore_names_public, effects.stage",
+    fields: "illustrations, checkpoints[].illustrate, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",
     text: "illustrations {checkpoints, scenes, style, appearances} asks for pictures of beats and scenes in one style, with each cast member's look; never describe a secret "
-      + "form there. effects.stage {framing, spotlight, cast} places sprites for a beat. "
+      + "form there. illustrate: false skips a beat's pictures; chapters[].illustrations {style, appearances} overrides the look for one chapter. A lore entry's look is "
+      + "used once it has fired in the chat, or always from a \"Public appearance:\" line. effects.stage {framing, spotlight, cast} places sprites for a beat. "
       + "display.lore_names_public lets players see lore entry names in the timeline; leave it off when a name is a spoiler.",
   },
 } as const satisfies Record<string, GuideTopic>;

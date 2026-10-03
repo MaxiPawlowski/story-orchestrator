@@ -12,7 +12,8 @@ import { pickImageCheckpoint, resolveImageRoute, type ImageArgs, type Route } fr
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
-import { visualLore } from "./lore";
+import { firedLoreKeys, visualLore } from "./lore";
+import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
 import { fnv1a } from "@runtime/hash";
 
 export interface ImagePlan {
@@ -64,9 +65,11 @@ export class StoryImageDirector {
     const settings = this.settings();
     const chat = imageChat();
     const snapshot = this.manager.getSnapshot();
-    const art = this.manager.getStory()?.illustrations;
+    const story = this.manager.getStory();
+    const art = story?.illustrations;
     if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || !snapshot.requirements.ready || !settings.enabled || this.override().paused
-      || !automationAllowsCues(settings.automation.mode) || !art?.[kind === "checkpoint" ? "checkpoints" : "scenes"]) return;
+      || !automationAllowsCues(settings.automation.mode) || !art?.[kind === "checkpoint" ? "checkpoints" : "scenes"]
+      || !beatIllustrated(story, kind === "checkpoint" ? name : snapshot.activeCheckpointId)) return;
     const key = `${chat.id}:${snapshot.storyId}:${snapshot.storyIdentity.playedVersion}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
     if (messageAlreadyDrawn(chat, at)) return;
@@ -75,7 +78,8 @@ export class StoryImageDirector {
     this.pending.add(key);
     if (target) this.pendingTargets.add(target);
     try {
-      await this.direct({ purpose: "scene", text: kind === "checkpoint" ? `Establishing shot of ${name}.` : `The scene moves to ${name}.`, messageId: at }, {}, key);
+      const label = kind === "checkpoint" ? beatLabel(story?.checkpointById[name]) : name;
+      await this.direct({ purpose: "scene", text: cueText(kind, label), messageId: at }, {}, key);
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.notify();
@@ -93,10 +97,10 @@ export class StoryImageDirector {
         const snapshot = this.manager.getSnapshot();
         if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || snapshot.boundary !== 0 || initialChat === chat.id) return;
         initialChat = chat.id;
-        void this.cue("checkpoint", null, snapshot.activeCheckpointName ?? "opening scene");
+        void this.cue("checkpoint", null, snapshot.activeCheckpointId ?? "opening");
       }),
       this.manager.onBoundary((result) => {
-        if (result.fired) void this.cue("checkpoint", result.context.lastMessageId, this.manager.getSnapshot().activeCheckpointName ?? result.activeCheckpointId);
+        if (result.fired) void this.cue("checkpoint", result.context.lastMessageId, result.activeCheckpointId);
       }),
       this.manager.onSceneBreakConfirmed((audit) => {
         if (audit.sceneBreak?.reason && audit.sceneBreak.reason !== "cast") void this.cue("scene", audit.window.to, audit.sceneBreak.reason);
@@ -133,21 +137,20 @@ export class StoryImageDirector {
     const settings = this.settings();
     const snapshot = this.manager.getSnapshot();
     const ownsStory = this.manager.ownsImageChat(chat.id) && snapshot.ready;
-    const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? snapshot.activeCheckpointName : null, ownsStory ? snapshot.scene?.facts?.location ?? null : null);
     const story = ownsStory ? this.manager.getStory() : null;
-    if (story?.illustrations) {
-      scene.visualStyle = story.illustrations.style;
-      scene.subjects = scene.subjects.map((subject) => {
-        const member = story.roster.find((entry) => entry.name?.toLowerCase() === subject.name.toLowerCase());
-        const appearance = member && story.illustrations?.appearances?.[member.id];
-        return appearance ? { ...subject, appearance } : subject;
-      });
+    const beat = story && snapshot.activeCheckpointId ? story.checkpointById[snapshot.activeCheckpointId] : null;
+    const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? beatLabel(beat) : null, ownsStory ? snapshot.scene?.facts?.location ?? null : null);
+    if (story) {
+      const look = lookFor(story, snapshot.activeCheckpointId);
+      if (look.style) scene.visualStyle = look.style;
+      scene.subjects = castForImage(scene.subjects, story, look);
     }
     if (story && snapshot.requirements.ready) {
       const scoped = [...(story.requirements?.lorebooks ?? []), ...(story.lore_select?.lorebooks ?? [])];
       const gates = worldInfoPlan(story, this.manager.getEngineState()?.visitedPath ?? []);
       const entries = await getScannableEntries();
-      scene.visualDetails = visualLore(entries, [...scoped, ...gates.map((gate) => gate.lorebook)], gates, [request.text, ...scene.messages.map((row) => row.text), scene.location ?? ""].join("\n"));
+      scene.visualDetails = visualLore(entries, [...scoped, ...gates.map((gate) => gate.lorebook)], gates,
+        [request.text, ...scene.messages.map((row) => row.text), scene.location ?? ""].join("\n"), firedLoreKeys(snapshot.lore?.fired ?? []));
     }
     const focus = chat.characters.find((character) => character.key === scene.focus);
     const binding = focus ? settings.characters[focus.key] ?? null : null;
