@@ -196,9 +196,14 @@ Records: `test/journeys/records/v2.5-plan04/`.
 | Gate | Arms | Green |
 |---|---|---|
 | J8.5 (existing) | judge-on ×2 (`--judge-uses warden,contradictionRelease`), judge-off ×1 | the four v2.4 criteria (`v2.4/07-judge.md:946-952`) still hold. If J1 is built, score it per held pair from J1's own judge-call records (`extras.judge.calls`, key `contradictionRelease`): for every pair the on arm held, record the release decision and probability and hand-label the claim agrees or contradicts. Green = 0 released contradictions over both on runs; every hand-labelled agreeing paraphrase's release outcome is recorded, and if neither run extracted one the release half is NOT EXERCISED (not green) and the batch is re-run. The off arm proves only that the key is off: 0 `contradictionRelease` calls, no release writes. No held-count comparison across runs |
-| `live-v25-04-negation.json` (new) | N1 on, judge off, ×2; en and es seeds | the explicit-negation claim is held; `held` names it; an agreeing control line is not held |
+| `live-v25-04-negation.json` (new) | N1 on, judge off, ×2; en and es seeds | the explicit-negation claim is held; `held` names it; an agreeing control line is ALSO held against the locked seed (user decision 2026-10-03, below) |
 | K0 cosine probe | once per bundle, recorded | brackets stored beside the fixture; any row that moved band is re-scored, never relabelled |
 | J2 (only if built) | judge-on ×2, off ×1 | below-band claim held; meter calls per write ≤ declared cap |
+
+**User decision 2026-10-03 (v2.6 final review):** agreeing paraphrases of an established fact stay held. That is the
+current `conflicts.ts` / write-path behaviour, so no code changes; the predeclared control flips instead: in
+`live-v25-04-negation.json` the agreeing Courier line is expected to queue a held pair naming the locked seed as the standing
+side, with the claim not live (assertion-only edit, no prompt change).
 
 ## Risks
 

@@ -501,7 +501,7 @@ export class MemoryCoordinator {
     const story = this.deps.getStory();
     if (!story || !this.enabled) return emptyMirrorSummary();
     const host = { ...this.deps.hosts.mirror, getChatId: this.deps.hosts.chat.chatId, ownership: this.deps.ownership };
-    const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
+    const result = await syncMemoryMirror({ title: story.title, entries: this.injector.restingEntries(this.state.entries), writes: this.state.wiWrites, book: this.state.wiBook }, host);
     if (!result) return emptyMirrorSummary();
     if (result.changed) {
       this.patch({ wiWrites: result.writes, wiBook: result.book }, false);

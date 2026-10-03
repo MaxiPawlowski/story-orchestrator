@@ -82,7 +82,8 @@ export function createStoryLore(sources: StoryLoreSources) {
       const scanned = scannedBooks(arrays);
       const skipped = wanted.filter((book) => scanned.has(bookKey(book)));
       const loaded = await Promise.all(wanted.filter((book) => !scanned.has(bookKey(book))).map(async (book) => ({ book, found: await sources.load(book) })));
-      if (ownedChatOf(sources.owner()) !== chat) {
+      const now = sources.owner();
+      if (ownedChatOf(now) !== chat || now.story !== owner.story) {
         last = { owner: "no-story", appended: 0, books: [], skipped: [], missing: [] };
         return last;
       }

@@ -1,3 +1,4 @@
+import { testOwnership } from "../../test/findings/testOwnership";
 import type { RuntimeExtras } from "./types";
 import { runRollback, type RollbackDeps } from "./rollback";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
@@ -36,6 +37,7 @@ function harness() {
   const notify = jest.fn();
   const revalidateExpansion = jest.fn();
   const deps = {
+    ownership: testOwnership(),
     engine: {
       shouldRollbackFromMessage: () => false,
       boundaryBeforeMessage: () => 0,

@@ -71,6 +71,7 @@ interface HarnessOptions {
   reply?: (prompt: string) => string;
   judge?: SealJudge | null;
   chapters?: Record<string, unknown>;
+  finish?: "length";
 }
 
 const harness = (options: HarnessOptions = {}) => {
@@ -82,6 +83,7 @@ const harness = (options: HarnessOptions = {}) => {
   } as unknown as MemoryRuntimeState;
   const prompts: string[] = [];
   const announced: string[] = [];
+  const journaled: string[] = [];
   let derivedId = 0;
   const story = options.story ?? castStory;
   const deps: ChapterSealDeps = {
@@ -90,7 +92,7 @@ const harness = (options: HarnessOptions = {}) => {
     memory: () => memory,
     patch: (next) => { memory = { ...memory, ...next }; },
     record: (input) => { derivedId += 1; memory = { ...memory, derived: [...memory.derived, { ...input, id: `d${derivedId}`, boundary: 0, messageId: input.messageId ?? 0 } as DerivedRecord] }; },
-    model: () => async (prompt: string) => { prompts.push(prompt); return { text: options.reply?.(prompt) ?? "" } as never; },
+    model: () => async (prompt: string) => { prompts.push(prompt); return { text: options.reply?.(prompt) ?? "", ...(options.finish ? { finish: options.finish } : {}) } as never; },
     ownership: () => ownership,
     closeScene: async () => {},
     sceneStart: (to) => to + 1,
@@ -99,11 +101,11 @@ const harness = (options: HarnessOptions = {}) => {
     save: async () => {},
     roster: () => ROSTER,
     playerName: () => "You",
-    journal: () => {},
+    journal: (summary, note) => { journaled.push(`${summary} | ${note ?? ""}`); },
     announce: async (text) => { announced.push(text); },
     judge: () => options.judge ?? null,
   };
-  return { seal: new ChapterSeal(deps), memory: () => memory, prompts, announced, context };
+  return { seal: new ChapterSeal(deps), memory: () => memory, prompts, announced, journaled, context };
 };
 
 const siege = castStory.chapterById!.siege;
@@ -152,6 +154,20 @@ describe("AS-14 map-reduce: an oversize chapter is reduced, never trimmed", () =
     const h = harness({ memory: { entries: [row("sc0", "scene_history", "a short scene at the gate", 1)] }, reply: () => recordReply("sc0") });
     expect((await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10)))?.status).toBe("sealed");
     expect(h.prompts.length).toBe(1);
+  });
+
+  it("Q-M7: the call budget is the plan floor, six (user decision 2026-10-03)", () => {
+    expect(SEAL_CALL_BUDGET).toBe(6);
+  });
+
+  it("Q-M7: a chapter that runs over the budget is refused with a reason, not sealed: every answer cut, at most six calls, degraded, nothing folded", async () => {
+    const h = harness({ memory: { entries: oversize(0) }, finish: "length" });
+    const sealed = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(h.prompts.length).toBe(SEAL_CALL_BUDGET);
+    expect(sealed?.status).toBe("degraded");
+    expect(sealed?.status).not.toBe("sealed");
+    expect(h.memory().entries.filter((entry) => entry.foldedInto)).toEqual([]);
+    expect(h.journaled.join("\n")).toContain("call budget of 6 spent, nothing more asked");
   });
 
   it("Q-M7: a final, oversize seal whose every answer fails makes at most SEAL_CALL_BUDGET model calls, era merges and saga included", async () => {
@@ -331,7 +347,7 @@ const recallPort = (options: RecallOptions = {}) => {
   const port = {
     recalled: false,
     host: {
-      coordinator: { updateInjection },
+      coordinator: { updateInjection, injector: { restingEntries: (entries: MemoryEntry[]) => entries } },
       memory: () => memory,
       deps: {
         getStory: () => castStory,

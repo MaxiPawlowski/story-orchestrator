@@ -126,6 +126,7 @@ describe("v2.6 plan 04 C12: the onEnter reply a transition posted belongs to tha
 
 describe("v2.6 plan 04 C12: a rollback forgets the posts it stepped back past", () => {
   const rollbackDeps = (extras: RuntimeExtras) => ({
+    ownership: testOwnership(),
     engine: { shouldRollbackFromMessage: () => false, boundaryBeforeMessage: () => 0, serialize: () => ({ boundary: 7 }), clampToChat: () => false, discardPendingFrom: () => [] },
     journal: {},
     context: () => ({ lastMessageId: 9, chatLength: 10, journal: { boundary: 1, messageId: 9 } }),

@@ -291,6 +291,21 @@ describe("the beat follows the drafted member (T3-1 fix wave)", () => {
     expect(beats()?.[0]).toMatchObject({ memberId: "luke", basedOnMessageId: 0 });
   });
 
+  it("finding 4: the token is minted before waiting on the in-flight pass, so a chat switch during that wait asks and writes nothing", async () => {
+    let release: (value: string) => void = () => {};
+    const held = new Promise<string>((resolve) => { release = resolve; });
+    const { deps, current, prompts, beats } = harness({ answers: [held, "still no format", "BEAT: Second ask."] });
+    const coordinator = new InnerCoordinator(deps);
+    const running = coordinator.run();
+    const ensured = coordinator.ensureFor("ponticius");
+    current.chatId = "chat-b";
+    release("no format");
+    await running;
+    expect(await ensured).toBe(false);
+    expect(prompts).toHaveLength(2);
+    expect(beats()).toBeUndefined();
+  });
+
   it("writes nothing when the chat changed while the draft-time call was out", async () => {
     let release: (value: string) => void = () => {};
     const held = new Promise<string>((resolve) => { release = resolve; });

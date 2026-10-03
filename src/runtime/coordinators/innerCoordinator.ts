@@ -125,15 +125,16 @@ export class InnerCoordinator {
     const chatId = this.deps.chatId() ?? "";
     const fresh = () => freshBeat(this.deps.getBeats(), rosterId, turnAnchor(chatId, state.activeCheckpointId, rows)) !== null;
     if (fresh()) return true;
+    const anchor = draftAnchor(rows, story.roster.find((member) => member.id === rosterId)?.name);
+    const run = beginRun(this.deps.ownership, { from: anchor, to: anchor });
     const pending = this.inflight.get(`${chatId}:${rosterId}`);
     if (pending) await pending.catch(() => undefined);
+    if (!run.stillOwns()) return false;
     if (fresh()) return true;
     const key = turnKey(chatId, rows);
     if (this.drafted.key !== key) this.drafted = { key, members: new Set() };
     if (this.drafted.members.has(`${state.activeCheckpointId}:${rosterId}`)) return false;
     this.drafted.members.add(`${state.activeCheckpointId}:${rosterId}`);
-    const anchor = draftAnchor(rows, story.roster.find((member) => member.id === rosterId)?.name);
-    const run = beginRun(this.deps.ownership, { from: anchor, to: anchor });
     await this.build(story, state, rosterId, anchor, run, key, false);
     return fresh();
   }

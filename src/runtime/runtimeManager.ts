@@ -295,10 +295,10 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   async activateCheckpoint(id: string) {
     if (!this.loaded) return false;
-    const kit = await loadChapterKit();
-    const jump = await kit.confirmChapterJump(this.memory.chapters, id);
-    if (jump === "cancel" || !this.loaded) { this.status = "Jump cancelled."; return false; }
     const run = beginRun(this.owner.ownership);
+    const kit = await loadChapterKit();
+    const jump = run.stillOwns() ? await kit.confirmChapterJump(this.memory.chapters, id, run) : "cancel";
+    if (jump === "cancel" || !this.loaded || !run.stillOwns()) { this.status = "Jump cancelled."; return false; }
     this.refreshRequirements();
     await this.effects.releaseStaging(this.loaded.story, this.extras, run);
     if (!run.stillOwns()) return false;

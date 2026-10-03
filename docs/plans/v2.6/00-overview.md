@@ -60,7 +60,8 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
 7. **Every live run is archived outside `.debug`** (`test/journeys/records/v2.6-<plan>/`), in the same commit that
    cites it.
 8. **Nothing new on the reply path by default.** Any on-path model call is opt-in, capped by a timeout, and falls back
-   to today's path. The inner beat (06) is off-path: a draft never waits for it.
+   to today's path. The inner beat (06) is off-path: a draft waits at most `INNER_DRAFT_WAIT_MS` (3 s) for a missing
+   beat and then goes ahead without it (`runtime/innerBeatHost.ts`).
 9. **Reasoning effort defaults to `default`**: nothing is sent, which is today's behaviour. Unlike the judge (rule 5),
    effort changes what the user's own backend spends, so a recommendation comes only from a measured floor (05 R3).
 10. **Intents and beats are private knowledge.** They are never World Info, never scannable, never on the player surface,
@@ -475,10 +476,10 @@ From the two user requests of 2026-09-30: a reasoning effort toggle, and "grab t
 | 06 | A–D built and on master, off by default; C3 is a measurement (ratings recorded for the user's review) |
 | 07 | code built and on master (UI leftovers `eba02fc8`), features off until the Q-M floors; Q-M runs in T2 |
 | 08 | built and on master; live rows in plan 14 |
-| 09 | approved, not run; I1–I6 in plan 14 T7 before the freeze |
+| 09 | run in plan 14 T7 (2026-10-03), not all rows complete: see `test/sessions/T7/SUITE.md` |
 | 10 | approved; reordered by plan 14, executed via plan 15 Part B (W26) |
 | 11 | built (tasks 1–4, local and harness routes); W1–W6 in plan 15 Part B, W6 recorded for the user's review |
 | 12 | Phase 0 + A built and on master; Phases B/C not started |
 | 13 | wave 1 + W25 on master; defect replay 30/30; the final suite runs inside plan 15 Part B |
 | 14 | approved; session tooling + 36 cards on master; executed by Claude in plan 15 Part B (W26) |
-| 15 | Part A in progress (reviews, model/prompt audits, review fixes); Part B after Part A closes |
+| 15 | Part A done; Part B ran through T7; v2.6 frozen 2026-10-03, owed items in `docs/plans/v2.7/02-v26-carry-in.md` |

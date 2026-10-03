@@ -460,6 +460,41 @@ test('CR-J2: the owned home is removed with retries, a home that stays is counte
     assert.match(swept[0], /"sweptHomes":1/);
 });
 
+test('review finding 10: the startup sweep deletes only homes whose owner process is dead, never a live instance\'s', () => {
+    const root = tempRoot();
+    const loginFile = path.join(root, 'real-login.json');
+    fs.writeFileSync(loginFile, JSON.stringify(LOGINS.claude(NOW + 5 * HOUR)));
+    const tmpRoot = path.join(root, 'tmp');
+    const other = plugin.openOwnedHome('claude', { tmpRoot, loginFile, pid: 4242 });
+    const dead = plugin.openOwnedHome('claude', { tmpRoot, loginFile, pid: 4343 });
+    const mine = plugin.openOwnedHome('claude', { tmpRoot, loginFile });
+    const unmarked = fs.mkdtempSync(path.join(tmpRoot, 'calls', 'claude-'));
+    assert.equal(plugin.homeOwner(other.root), 4242);
+    const swept = plugin.sweepCalls(tmpRoot, fs, { alive: (pid) => pid === 4242 });
+    assert.deepEqual(swept, { swept: 1, left: 0, kept: 3 });
+    assert.equal(fs.existsSync(other.root), true, 'another live instance keeps its working directory');
+    assert.equal(fs.existsSync(dead.root), false, 'a dead owner\'s directory is swept');
+    assert.equal(fs.existsSync(mine.root), true, 'a home this process still has open is kept');
+    assert.equal(fs.existsSync(unmarked), true, 'a fresh unmarked directory may be another instance mid-setup');
+    assert.deepEqual(plugin.sweepCalls(tmpRoot, fs, { alive: () => true, now: Date.now() + plugin.UNMARKED_STALE_MS + 60_000 }), { swept: 1, left: 0, kept: 2 });
+    assert.equal(fs.existsSync(unmarked), false, 'an unmarked directory past the stale age is swept');
+    plugin.closeOwnedHome(mine);
+    plugin.closeOwnedHome(other);
+    assert.equal(fs.existsSync(mine.root), false);
+});
+
+test('review finding 10: a home whose setup fails is removed, not leaked', () => {
+    const root = tempRoot();
+    const tmpRoot = path.join(root, 'tmp');
+    assert.throws(() => plugin.openOwnedHome('claude', { tmpRoot, loginFile: path.join(root, 'missing-login.json') }), /ENOENT/);
+    assert.deepEqual(fs.readdirSync(path.join(tmpRoot, 'calls')), []);
+    const loginFile = path.join(root, 'real-login.json');
+    fs.writeFileSync(loginFile, JSON.stringify(LOGINS.claude(NOW + 5 * HOUR)));
+    const failing = { ...fs, writeFileSync: (file, ...rest) => { if (String(file).endsWith('.credentials.json')) throw Object.assign(new Error('disk full'), { code: 'ENOSPC' }); return fs.writeFileSync(file, ...rest); } };
+    assert.throws(() => plugin.openOwnedHome('claude', { tmpRoot, loginFile, fsImpl: failing }), /disk full/);
+    assert.deepEqual(fs.readdirSync(path.join(tmpRoot, 'calls')), []);
+});
+
 test('CR-J6: a held harness says so in its status row, and a fresh login re-arms it without a restart', async () => {
     const holder = {};
     const { service, processes, loginFile } = setup({
