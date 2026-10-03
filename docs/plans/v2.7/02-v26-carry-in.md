@@ -310,3 +310,34 @@ Deviations: none beyond v2.7 14's (image director select not grouped).
 Open questions:
 - DeepSeek's row stays at 131,072 although ST now allows up to 1,000,000 for the source (`openai.js:5882-5888`); raising
   it would change the v2.6 role setup's input, so it waits for C14-b's measurement.
+
+## Gate record — C11-F1a display half (2026-10-03)
+
+**Short plan** (the row asked for one first). Problem: a judge-typed read quotes only the first 160 characters of the
+message it chose (`src/judge/extraction.ts`), so a rating or commitment held on that quote can look unexplained when
+the grounding words sit later in a long reply. Floor (predeclared): jest, the held row names the cut for a cut source
+and never for a short source or an LLM-read hold. Gate: `npm run gates`. Guard semantics unchanged (v2.8 01 C11-F1).
+
+**As built** (commit `ca79e142`):
+
+- `TYPED_EVIDENCE_CHARS` (160) named in `src/judge/extraction.ts`; a typed delta whose source text is longer carries
+  `sourceChars` (the full length). `runtime/typedRead.ts` passes it on to `ParsedDelta.sourceChars`.
+- `src/extraction/evidenceCut.ts` `evidenceCut(delta)`: both guards' held rows (`HeldCommitDelta`, `HeldRatingDelta`)
+  carry `sourceChars` + `messageId` only when the evidence was cut. Accept/hold decisions are unchanged.
+- `runtime/heldJournal.ts` `heldNote` adds `, evidence cut to the first 160 of <n> characters of message <id>` after the
+  reader's quote. It lives only in the journal record's `note` (author detail: `so-journal`, never player copy).
+- Model input: none (the evidence string and every prompt are byte-identical; only journal detail changes).
+
+**Tests:** `src/runtime/heldEvidenceCut.test.ts` (typed read of a long source records the length, a short one does not;
+rating and commitment holds on cut evidence name the cut and the message; a short source and an LLM-read hold never
+do). `heldJournal`, `judge/extraction`, `ratingGuard`, `commitHoldReason` suites green unchanged.
+
+**Gates** (one run for all three items, worktree `worktree-agent-adc7c17ca7267180d`, base master `795948c2`, node_modules
+junctioned): `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` -> **all green**: typecheck,
+typecheck:test, lint, test (525 suites passed, 1 skipped; 6355 tests passed, 1 skipped), build, build:dev, test:debug
+961/961, debug:typecheck, test:release 94 pass 2 skipped, test:replay 32 of 32 KILLED, test:plugin 89 pass 3 skipped.
+`test-storybook:ci` skipped by the flag; not run by hand because no component or story changed. Prod `dist/index.js`
+1,201,122 B (budget 1,250,000 B).
+
+**Live: NOT run** (no ST checks while the user playtests). Owed (16-test-plan row "02 C11-F1a"): `so-journal.mts show`
+on a seeded held judge-typed reading with a long source.

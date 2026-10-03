@@ -182,3 +182,21 @@ WI gating, global story lore, orphaned books) into `CHECKS`; today they sit besi
 Applied: A11 (the body now matches decision 4 and the built player-safe check; "author-only" survives only in the recommendation the user changed), F02/F04 context
 (the level moves to v2.8 01 §E), the Claude-A note on Links (deferred plans named as deferred, all refs
 version-qualified), Sol split item 2 (real-reply leg O9 in v2.8 01), B12/F36 (references).
+
+## Gate record — A11 copy fix (2026-10-03)
+
+The plan body was already corrected at review; the shipped guide said nothing about the warning at all. Commit
+`a17f05b1`: `docs/guide/player/troubleshooting.md` gains a `"check setup" on the HUD` section that says these alerts
+show in player mode too (Author view adds the detail) and quotes the built player copy (`THINKING_PLAYER_TEXT`), plus
+the transcript-copier alert (v2.7 02 C2) beside it. No code change (the plan asked for none). Drift test:
+`src/features/registry.test.ts` "v2.7 plan 08 (A11)" (the check is `audience: "player"`, the page quotes its player
+copy verbatim). Model input: none.
+
+**Gates** (one run for all three items, worktree `worktree-agent-adc7c17ca7267180d`, base master `795948c2`, node_modules
+junctioned): `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` -> **all green**: typecheck,
+typecheck:test, lint, test (525 suites passed, 1 skipped; 6355 tests passed, 1 skipped), build, build:dev, test:debug
+961/961, debug:typecheck, test:release 94 pass 2 skipped, test:replay 32 of 32 KILLED, test:plugin 89 pass 3 skipped.
+`test-storybook:ci` skipped by the flag; not run by hand because no component or story changed. Prod `dist/index.js`
+1,201,122 B (budget 1,250,000 B).
+
+Live: none needed (docs).

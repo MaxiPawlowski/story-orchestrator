@@ -194,3 +194,19 @@ Option A (the user's priority, decision 1) is not built here.
 Applied: F02 (A approved and scheduled in v2.8 01 §C, not parked), A12 refined and A15 refined (both applied in
 v2.8 01 §C, pointed to here), the Claude-A note on Links (deferred plans named as deferred), Sol split item 2 (O10 in
 v2.8 01), B12/F36 (references). Open in v2.7: the guide line.
+
+## Gate record — guide line (2026-10-03)
+
+Commit `27e7cb44`: the §Gates line, as written, in `docs/guide/player/drawer-and-hud.md` (chip row
+`catching up after your edit`) and `docs/guide/player/troubleshooting.md` (status row "Catching up after your edit…",
+what to do: wait before sending if the edit should count). Drift test: `src/features/registry.test.ts` "v2.7 plan 10"
+reads both strings from `runtime/pipeline.ts` (`hudChipLabel("catching-up")`, `EDIT_CATCH_UP_TEXT`). Model input: none.
+
+**Gates** (one run for all three items, worktree `worktree-agent-adc7c17ca7267180d`, base master `795948c2`, node_modules
+junctioned): `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` -> **all green**: typecheck,
+typecheck:test, lint, test (525 suites passed, 1 skipped; 6355 tests passed, 1 skipped), build, build:dev, test:debug
+961/961, debug:typecheck, test:release 94 pass 2 skipped, test:replay 32 of 32 KILLED, test:plugin 89 pass 3 skipped.
+`test-storybook:ci` skipped by the flag; not run by hand because no component or story changed. Prod `dist/index.js`
+1,201,122 B (budget 1,250,000 B).
+
+Live: the C row's live check (edit → `catching-up` → idle) is still owed, unchanged.
