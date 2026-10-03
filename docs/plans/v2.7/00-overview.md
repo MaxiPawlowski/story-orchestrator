@@ -21,6 +21,10 @@ numbers there). Test plan: `16-test-plan.md`.
 | 03 | the 10 solo story chats on the real install deleted (user-confirmed) | install, no commit |
 | 02 C14 + 14 | per-source/per-model context table; profile selects grouped by source, labelled local/cloud; cloud-model guide | merged after v2.6 freeze-2 (branch `8f850724`) |
 | 15 | B guide note; C SP10 probe removed (scenario file left, see its record) | merged after v2.6 freeze-2 (branch `8f850724`) |
+| 03 | no group, no story; solo-only code removed; make-a-group card | integrated on `worktree-agent-a534f301d5bc25f92`, live not run |
+| 04 | one check registry, drawer Setup section + Before you start, HUD setup counts, per-install dismissal | integrated on `worktree-agent-a534f301d5bc25f92`, live not run |
+| 05 | story + chapter briefing, Before you start modal (reads 04's findings), Studio editor, `storyKind` | integrated on `worktree-agent-a534f301d5bc25f92`, live not run |
+| 06 | plays index, badges, Continue list, chapter cards (05's chapter briefing), wand (+ Story briefing), Activity (+ 04 findings), panels | integrated on `worktree-agent-a534f301d5bc25f92`, live not run |
 
 Every merged row's **live gate is NOT run** (each gate record says so). Deterministic live checks close in v2.7
 (`16-test-plan.md`); real-model rows are owed to `v2.8/01-v27-carry-over.md` §A.
