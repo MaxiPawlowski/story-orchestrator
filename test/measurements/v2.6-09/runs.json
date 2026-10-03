@@ -88,10 +88,10 @@
           "source": "docs/plans/v2.6/03-spike-reevaluation.md (the include/defer/drop table)",
           "target": "spikes.<flag>",
           "status": "resolved",
-          "value": { "spikes": { "sp5Scenario": true, "sp8CuratorTiers": true } },
+          "value": {},
           "fallback": {},
           "fallbackMeans": "every spike flag off (shipped)",
-          "resolvedFrom": "2026-10-03 (T7 wave C): docs/plans/v2.6/03-spike-reevaluation.md include table: SP5.b and SP8.b include, still behind their spike flags (src/runtime/settingsModel.ts SPIKE_FLAGS); SP7.b and SP3.b are built into prod with no flag; every other spike is drop or undecided, so off."
+          "resolvedFrom": "2026-10-03 (T7 wave C): docs/plans/v2.6/03-spike-reevaluation.md include table: SP5.b and SP8.b include, still behind their spike flags (src/runtime/settingsModel.ts SPIKE_FLAGS); SP7.b and SP3.b are built into prod with no flag; every other spike is drop or undecided, so off. Since v2.7 02 C1 (SP5.b) and C13 (SP8.b) both are promoted out of SPIKE_FLAGS too, so nothing is written and the readback names neither."
         },
         {
           "id": "inner-voice",
@@ -145,8 +145,6 @@
         "judge.uses.expressions": true,
         "display.inline.level": 3,
         "worldInfo.gatingMode": "scan",
-        "spikes.sp5Scenario": true,
-        "spikes.sp8CuratorTiers": true,
         "image.enabled": false,
         "sprites.enabled": false
       }
@@ -176,8 +174,6 @@
         "judge.uses.loreExclusive": true,
         "display.inline.level": 1,
         "worldInfo.gatingMode": "file",
-        "spikes.sp5Scenario": false,
-        "spikes.sp8CuratorTiers": false,
         "spikes.reasoningEffect": false,
         "image.enabled": false,
         "sprites.enabled": false

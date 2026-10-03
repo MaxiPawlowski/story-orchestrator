@@ -164,7 +164,9 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
         Studio&apos;s Story tab.</div>}
       {settings.curatorEnabled && scope.length > 0 && (
         <div className="opacity-70">
-          Watching {scope.join(", ")} · {settings.acceptMode === "auto" ? "changes apply on their own" : settings.acceptMode === "off" ? "observing only, nothing is written" : "changes wait for you"}
+          Watching {scope.join(", ")} · {settings.acceptMode === "auto"
+            ? "changes to auto entries apply on their own, the rest wait for you"
+            : settings.acceptMode === "off" ? "observing only, nothing is written" : "changes wait for you"}
         </div>
       )}
       {settings.wardenEnabled && (

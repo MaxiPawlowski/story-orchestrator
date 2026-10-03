@@ -20,7 +20,7 @@
     if (open !== null) spans.push(text.slice(open));
     return spans;
   };
-  const state = { seeded: null, records: new Map(), settingsBefore: null, spikesBefore: null };
+  const state = { seeded: null, records: new Map(), settingsBefore: null };
   globalThis.__soV2509 = {
     MARKER,
     spansOf,
@@ -60,17 +60,14 @@
     },
     arm() {
       state.settingsBefore = { ...rt().getStagecraftState().settings };
-      state.spikesBefore = { ...(rt().getGlobalSettings().spikes ?? {}) };
       rt().setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' });
-      rt().setSpikeFlags({ sp8CuratorTiers: true });
       const settings = rt().getStagecraftState().settings;
-      if (!settings.curatorEnabled || settings.acceptMode !== 'auto' || rt().getGlobalSettings().spikes.sp8CuratorTiers !== true) throw new Error('the W3 arm did not land');
-      return { curator: settings, spikes: rt().getGlobalSettings().spikes };
+      if (!settings.curatorEnabled || settings.acceptMode !== 'auto') throw new Error('the W3 arm did not land');
+      return { curator: settings };
     },
     disarm() {
       if (state.settingsBefore) rt().setStagecraftSettings({ curatorEnabled: state.settingsBefore.curatorEnabled, acceptMode: state.settingsBefore.acceptMode });
-      rt().setSpikeFlags({ sp8CuratorTiers: state.spikesBefore?.sp8CuratorTiers === true });
-      return { curator: rt().getStagecraftState().settings, spikes: rt().getGlobalSettings().spikes };
+      return { curator: rt().getStagecraftState().settings };
     },
     async acceptAll() {
       let decided = 0;

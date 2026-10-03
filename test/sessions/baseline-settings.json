@@ -178,7 +178,6 @@
     "spikes": {
       "swipeBackCache": false,
       "sp6Complications": false,
-      "sp8CuratorTiers": false,
       "reasoningEffect": false
     }
   }

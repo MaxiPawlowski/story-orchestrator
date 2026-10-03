@@ -1,11 +1,11 @@
+import { createHash } from "crypto";
 import { recordingModel } from "../../../test/support/modelCall";
 import { SP8_CONTROLS, SP8_ENTRIES, SP8_VIOLATIONS, type Sp8Case } from "../../../test/support/curatorSpikeCases";
 import { testOwnership } from "../../../test/findings/testOwnership";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
-import type { CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
+import { buildWiCuratorPrompt, entriesForScope, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
-import { defaultSpikeSettings, type SpikeSettings } from "../settingsModel";
 import type { StagecraftRuntimeState } from "../types";
 
 type Entry = { uid: number; comment: string; key: string[]; content: string; disable: boolean };
@@ -18,9 +18,9 @@ const story = parseStoryV2OrThrow({
 
 const engineState = { activeCheckpointId: "cp1", boundary: 10, lastMessageId: 20, blackboard: { values: {}, versions: {}, latched: {} }, visitedAnchors: ["cp1"] } as unknown as EngineState;
 
-const flags = (on: Partial<SpikeSettings>): SpikeSettings => ({ ...defaultSpikeSettings(), ...on });
+const CANON = "The flood took the bridge.";
 
-function harness(entries: Entry[], options: { mode?: "auto" | "review"; spikes?: Partial<SpikeSettings> } = {}) {
+function harness(entries: Entry[], options: { mode?: "auto" | "review" } = {}) {
   const book = new Map(entries.map((entry) => [entry.uid, { ...entry }]));
   const writes: Array<{ uid: number; content?: string; disabled?: boolean }> = [];
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { ...createStagecraft().settings, curatorEnabled: true, acceptMode: options.mode ?? "review" } };
@@ -39,15 +39,21 @@ function harness(entries: Entry[], options: { mode?: "auto" | "review"; spikes?:
       if (patch.disabled !== undefined) entry.disable = patch.disabled;
       return { ok: true, confirmed: true };
     },
-    restoreWIEntryAt: async () => ({ ok: true, confirmed: true }),
+    restoreWIEntryAt: async ({ uid }: { uid: number }, image: { content: string; disabled: boolean }) => {
+      const entry = book.get(uid);
+      if (!entry) return { ok: false, reason: "gone" };
+      entry.content = image.content;
+      entry.disable = image.disabled;
+      return { ok: true, confirmed: true };
+    },
     setStoryExtensionPrompt: () => undefined,
     clearStoryExtensionPrompt: () => undefined,
   };
   const coordinator = new StagecraftCoordinator({
     hosts: { prompt: host, chat: { chatRows: () => [] }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => story, getState: () => engineState, getStagecraft: () => state, setStagecraft: (next) => { state = next; },
-    model, getCanon: () => "The flood took the bridge.", getOpenArcs: () => [], journal: () => undefined,
-    persist: async () => undefined, notify: () => undefined, ownership: testOwnership(), spikes: () => flags(options.spikes ?? {}),
+    model, getCanon: () => CANON, getOpenArcs: () => [], journal: () => undefined,
+    persist: async () => undefined, notify: () => undefined, ownership: testOwnership(),
   } as StagecraftCoordinatorDeps);
   return {
     coordinator, writes, book,
@@ -70,27 +76,31 @@ const passOne = async (run: ReturnType<typeof harness>, entry: Sp8Case) => {
 
 const REFUSED = /touches protected text|adds a curator marker/;
 
-describe("v2.5 plan 09 SP8 W1: protected spans through the coordinator", () => {
+const unmarked = (content: string) => content.replace(/\{\{\/\/\s*so:(auto|protect|end)\s*\}\}/gi, "");
+const PLAIN: Entry[] = SP8_ENTRIES.map((entry) => ({ ...entry, content: unmarked(entry.content) }));
+const MARKER_FREE_VIOLATIONS = SP8_VIOLATIONS.filter((entry) => ["v1", "v3", "v4", "v5", "v7", "v10"].includes(entry.id));
+
+describe("v2.7 02 C13 (SP8 W1): protected spans through the coordinator, no flag", () => {
   it.each(SP8_VIOLATIONS.map((entry) => [entry.id, entry] as const))("plan time: violation %s never becomes a card", async (_id, entry) => {
-    const run = harness(SP8_ENTRIES, { spikes: { sp8CuratorTiers: true } });
+    const run = harness(SP8_ENTRIES);
     const result = await passOne(run, entry);
     expect(result.cards).toBe(0);
     expect(result.dropped.some((reason: string) => REFUSED.test(reason))).toBe(true);
   });
 
   it.each(SP8_CONTROLS.map((entry) => [entry.id, entry] as const))("plan time: control %s becomes a card", async (_id, entry) => {
-    const run = harness(SP8_ENTRIES, { spikes: { sp8CuratorTiers: true } });
+    const run = harness(SP8_ENTRIES);
     expect((await passOne(run, entry)).cards).toBe(1);
   });
 
-  it("flag off (control): today every violation becomes a card", async () => {
+  it("control: on a book without markers the same changes become cards, as before the promotion", async () => {
     let cards = 0;
-    for (const entry of SP8_VIOLATIONS) cards += (await passOne(harness(SP8_ENTRIES), entry)).cards;
-    expect(cards).toBe(SP8_VIOLATIONS.length);
+    for (const entry of MARKER_FREE_VIOLATIONS) cards += (await passOne(harness(PLAIN), entry)).cards;
+    expect(cards).toBe(MARKER_FREE_VIOLATIONS.length);
   });
 
   it("write edge: an accepted violation that skipped the plan is refused, and the book is untouched", async () => {
-    const run = harness(SP8_ENTRIES, { spikes: { sp8CuratorTiers: true } });
+    const run = harness(SP8_ENTRIES);
     const id = run.inject(SP8_VIOLATIONS.map((entry) => ({ op: entry.op, status: "accepted" })));
     expect(await run.coordinator.applyAccepted()).toBe(0);
     const ops = run.read().proposals.find((record) => record.id === id)!.ops;
@@ -100,7 +110,7 @@ describe("v2.5 plan 09 SP8 W1: protected spans through the coordinator", () => {
   });
 
   it("write edge: accepted controls are written", async () => {
-    const run = harness(SP8_ENTRIES, { spikes: { sp8CuratorTiers: true } });
+    const run = harness(SP8_ENTRIES);
     for (const entry of SP8_CONTROLS) {
       run.inject([{ op: entry.op, status: "accepted" }]);
       expect(await run.coordinator.applyAccepted()).toBe(1);
@@ -110,17 +120,27 @@ describe("v2.5 plan 09 SP8 W1: protected spans through the coordinator", () => {
   });
 
   it("write edge: the check reads the entry as it is at the write, not as it was planned", async () => {
-    const run = harness(SP8_ENTRIES.map((entry) => (entry.comment === "The Ferry" ? { ...entry, content: "The ferry costs {{// so:protect}}one copper{{// so:end}}." } : entry)), { spikes: { sp8CuratorTiers: true } });
+    const run = harness(SP8_ENTRIES.map((entry) => (entry.comment === "The Ferry" ? { ...entry, content: "The ferry costs {{// so:protect}}one copper{{// so:end}}." } : entry)));
     run.inject([{ op: SP8_CONTROLS[3].op, status: "accepted" }]);
     expect(await run.coordinator.applyAccepted()).toBe(0);
     expect(run.writes).toEqual([]);
   });
 
-  it("flag off (control): the same accepted violations are written today", async () => {
-    const run = harness(SP8_ENTRIES);
+  it("control: on a book without markers an accepted disable is written", async () => {
+    const run = harness(PLAIN);
     run.inject([{ op: SP8_VIOLATIONS[6].op, status: "accepted" }]);
     expect(await run.coordinator.applyAccepted()).toBe(1);
     expect(run.book.get(1)!.disable).toBe(true);
+  });
+
+  it("rollback: an applied op on a protected entry is reverted to its before-image, span and markers included", async () => {
+    const run = harness(SP8_ENTRIES);
+    const before = run.book.get(1)!.content;
+    run.inject([{ op: SP8_CONTROLS[1].op, status: "accepted" }]);
+    expect(await run.coordinator.applyAccepted()).toBe(1);
+    expect(run.book.get(1)!.content).toContain("His heir is grown.");
+    expect(await run.coordinator.revertAppliedSince(20)).toBe(1);
+    expect(run.book.get(1)!.content).toBe(before);
   });
 });
 
@@ -142,8 +162,8 @@ const W2_PASSES = [
 
 const AUTO = new Set(["Market", "Weather", "Inn", "Bells"]);
 
-async function runW2(mode: "auto" | "review", spikes: Partial<SpikeSettings>) {
-  const run = harness(TIERED, { mode, spikes });
+async function runW2(mode: "auto" | "review", entries: Entry[] = TIERED) {
+  const run = harness(entries, { mode });
   for (const reply of W2_PASSES) {
     run.reply(reply);
     await run.coordinator.runCuratorPass("test");
@@ -151,12 +171,12 @@ async function runW2(mode: "auto" | "review", spikes: Partial<SpikeSettings>) {
   const decided = run.read().proposals.flatMap((record) => record.ops.map((entry) => ({ comment: (entry.op as { comment: string }).comment, status: entry.status })));
   await run.coordinator.applyAccepted();
   const after = run.read().proposals.flatMap((record) => record.ops.map((entry) => ({ comment: (entry.op as { comment: string }).comment, status: entry.status })));
-  return { decided, after, written: run.writes.map((write) => TIERED.find((entry) => entry.uid === write.uid)!.comment) };
+  return { decided, after, written: run.writes.map((write) => entries.find((entry) => entry.uid === write.uid)!.comment) };
 }
 
-describe("v2.5 plan 09 SP8 W2: tier routing through the coordinator", () => {
+describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", () => {
   it("in auto, exactly the auto-tier ops are accepted and applied; the review-tier ops wait and are not written", async () => {
-    const { decided, after, written } = await runW2("auto", { sp8CuratorTiers: true });
+    const { decided, after, written } = await runW2("auto");
     expect(decided).toHaveLength(8);
     expect(decided.filter((entry) => AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["accepted", "accepted", "accepted", "accepted"]);
     expect(decided.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["pending", "pending", "pending", "pending"]);
@@ -165,14 +185,22 @@ describe("v2.5 plan 09 SP8 W2: tier routing through the coordinator", () => {
     expect([...written].sort()).toEqual([...AUTO].sort());
   });
 
-  it("control: flag off in auto accepts all eight, as today", async () => {
-    const { decided } = await runW2("auto", {});
-    expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("accepted"));
-  });
-
-  it("control: flag on in review leaves all eight pending", async () => {
-    const { decided, written } = await runW2("review", { sp8CuratorTiers: true });
+  it("control: in review all eight wait, and nothing is written", async () => {
+    const { decided, written } = await runW2("review");
     expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("pending"));
     expect(written).toEqual([]);
+  });
+});
+
+const PROMPT_SHA256 = "b8befae37041b9d58467bb564f8ac4d56b8084ef6867cd96946b7ddc8c9ea359";
+
+describe("v2.7 02 C13: the curator request is byte-identical after the promotion (rule 6)", () => {
+  it("the prompt a pass sends is today's rendering of the shown entries, markers and all", async () => {
+    const run = harness(SP8_ENTRIES);
+    run.reply("NONE");
+    await run.coordinator.runCuratorPass("test");
+    const shown = entriesForScope("Story Lore", SP8_ENTRIES);
+    expect(run.prompt()).toBe(buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", objective: "Cross", canon: CANON, openArcs: [], entries: shown, declined: [] }));
+    expect(createHash("sha256").update(run.prompt()).digest("hex")).toBe(PROMPT_SHA256);
   });
 });

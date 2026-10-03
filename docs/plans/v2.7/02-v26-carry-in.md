@@ -206,6 +206,74 @@ C14 and C11), Sol split items 2 (owed real rows → v2.8 01 §A), 3 (C11 per ite
 v2.8 01), 4 (C13 exact promotion here, digest/prompt v2.8 01), 5 (C14 picker + table here, enlarged inputs keep a
 real-model row), the Claude-A note "C14 is missing from 02" (added), F15 (tiers per row), B12/F36 (references).
 
+## Gate record — C13 SP8.b exact promotion (2026-10-03)
+
+Branch `worktree-agent-ae7551aa254ed5d35` (base master `506a7ca4`). Built as §Items C13 decides and v2.6 04 SP8.b
+describes: tiers + protected spans out of the spike path, flag dropped, no prompt or digest change. C13-b (any digest or
+prompt change) is v2.8 01 and was not touched. Not merged into master.
+
+| Piece | Built |
+|---|---|
+| promotion | `src/stagecraft/curatorTiers.ts` unchanged, now exported from the `@stagecraft` barrel and reached statically. `StagecraftCoordinator` calls `refuseProtected` (plan time) and `routeByTier` (accept mode) on every pass; its `spikes` dep, `spikesOn`/`spikeModules` and the dynamic imports are gone (`managerWiring.ts` no longer passes it). `CuratorWriter.writeOp` calls `protectedRefusal` itself, so the write edge always re-checks spans against the entry it just read (the optional `guard` parameter is gone) |
+| flag | `sp8CuratorTiers` out of `SPIKE_FLAGS`; the sanitizer drops a stored value (`spikeFlags.test.ts`), `test/sessions/baseline-settings.json` no longer names it |
+| runs.json | `test/measurements/v2.6-09/runs.json` on-column `spikes-b` resolution writes nothing now and both readbacks drop `spikes.sp8CuratorTiers` **and `spikes.sp5Scenario`** (C1 left that residue; a readback of a dropped key could never match). `integrationRuns.test.mts` asserts the on column writes no spike |
+| live helper | `test/fixtures/interop/v25-09-sp8.js` arm/disarm no longer set or check the flag (arm would have thrown); W3 fixture notes updated (`live-v25-09-sp8-w3-safety.json`, `sp8-fixtures.mjs`) |
+| guide | `docs/authoring/story-guide.md` "Curator scope" + twin `guideTopics.ts` `stagecraft`: the markers, what they refuse, that auto mode now applies only `{{// so:auto}}` entries; `npm run docs:guide` regenerated `docs/guide/author/topics/stagecraft.md` |
+| UI copy | settings help for `stagecraft.acceptMode` (`settingsCopy.ts`) and the author drawer line in `StagecraftPanel.tsx` say "apply on their own" means marked entries; the rest wait. Settings UI unchanged otherwise |
+| rule 9 | registry feature `curator-markers` ("Protected and auto lore", area world, author, guide topic `stagecraft`, since 2.7.0, needs memory-profile); `registry.test.ts` green |
+| invariant | `.claude/rules/architecture.md` "Stagecraft proposes, it never writes" names the tiers and spans and the two refusal points |
+
+**Behaviour change, declared.** Accept mode `auto` used to accept every op; now only ops on entries carrying
+`{{// so:auto}}` are accepted on the spot, every other op waits as in `review` (SP8 W2 as measured; v2.5 report §SP8).
+An install on `auto` with an unmarked book therefore sees cards instead of writes. `review` and `off` are unchanged.
+Protected spans only remove writes.
+
+**Tests (D).**
+
+- `src/runtime/coordinators/curatorTiers.review.test.ts` (re-homed from `curatorTiersSpike.review.test.ts`, no flag):
+  W1 plan time 10/10 violations refused, 4/4 controls carded; write edge 10/10 refused with 0 host writes, controls
+  written, the check reads the entry at the write; **rollback**: an applied op on a protected entry reverts to its
+  before-image, span and markers included; W2 auto routes exactly the four auto entries; **flag-off controls, re-stated
+  without a flag**: on the same book with every marker removed, the six marker-free violations become cards and an
+  accepted disable is written (today's behaviour), and review leaves all eight pending.
+- **Payload invariance (rule 6)**: the prompt a pass sends equals `buildWiCuratorPrompt` of the shown entries and its
+  sha256 is pinned (`b8befae37041…`). `prompt.ts`, `scope.ts` and `types.ts` are untouched by this branch, and the prompt
+  never depended on the flag, so the pinned bytes are the pre-promotion bytes.
+- `src/stagecraft/curatorTiers.test.ts` unchanged (pure W1/W2).
+- Existing coordinator suites (`stagecraftCoordinator.test.ts`, `.review.test.ts`) used `auto` on unmarked books as a
+  shortcut to acceptance; they now accept every card through `test/support/curatorAccept.ts` (the author's acceptance,
+  in-state, no extra save) and keep their write/rollback/ownership assertions. "auto mode accepts on the spot" is split
+  into an auto-tier case and an unmarked control (pending, 0 writes).
+- Defect replay: new mutant `curator-writes-protected-span` (write-edge `protectedRefusal` → `null`) KILLED by
+  `curatorTiers.review.test.ts`.
+- `devOnly.guard.test.ts`: `curatorTiers.ts` leaves the dev-only list; new case asserts it ships in the entry graph and
+  is not dev-only; the planted-import control now plants `spikes/swipeBack` through the stagecraft barrel (still caught).
+
+**Gates** (worktree, node_modules junctioned to the main checkout):
+
+| Command | Result |
+|---|---|
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` | **all green** (second run; the first was RED at lint: one over-long line in `StagecraftPanel.tsx`, wrapped): typecheck, typecheck:test, lint; test 508 suites passed + 1 skipped, 6182 tests passed + 1 skipped; build; build:dev; test:debug 958/958; debug:typecheck; test:release 94 pass, 2 skipped; test:replay 31 of 31 KILLED; test:plugin 87 pass, 3 skipped. Storybook skipped by the flag, run below |
+| `npm run typecheck:test` | green (inside the gates run) |
+| `npm run storybook:build` → `.sb-static`; `npx http-server .sb-static -p 6065 -s -c-1 -a 127.0.0.1`; `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6065` | 71 suites, 450 tests passed; server stopped |
+| prod main entry `dist/index.js` | 1,123,671 B (master 1,122,865 B: +806 B), budget 1,250,000 B |
+
+**Live gate: NOT run** (no ST, lane, pod or ComfyUI in this session), so C13 is **not green for live use**. Owed: the
+16-test-plan C13 D row's mocked curator scenario (`stagecraft: {action: "curate"}` with
+`storyOrchestratorDebugCuratorResponse`: an op into a protected span refused, an applied op reverted by a swipe) and the
+payload capture on a scripted group chat; the real-model row is **v2.8 01 O14** (promotion under a real curator, CL).
+
+**Model input (rule 6), declared.** (1) Curator prompt: **none**: byte-identical (pinned hash above); the marker rule
+line was already in every curator prompt, and ST strips `{{// …}}` from World Info before any reply prompt. (2) Wizard /
+agent prompts: `readGuide("stagecraft")` returns the longer topic text (markers). No staged-stage topic list changed
+(`STAGE_GUIDE_TOPICS` untouched), so only an agent that reads that topic sees it. Real-model owner: none yet (same open
+question as C1 (2)). (3) What reaches a lorebook (not a prompt): `auto` mode writes fewer entries (above); O14 covers it.
+
+**Open.** (a) Owner for the wizard-prompt diff (2) (with C1's, v2.8 01 beside O13/O14?). (b) Should `auto` on a book
+with no `{{// so:auto}}` entry say so in Repair or the Studio (today only the settings help and drawer line say it)?
+(c) `test/findings/suite-decisions.json` still describes the v2.6 SP8 run "curator tiers flag per 03-sp8-restated.md";
+left as history.
+
 ## Gate record (C14)
 
 2026-10-03, branch `worktree-agent-a1eb7b669f3b8ce6a`, code commit `8f850724`, built with v2.7 14 (picker: its gate record).

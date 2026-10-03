@@ -1,4 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
+import { acceptEveryCard } from "../../../test/support/curatorAccept";
 // Promoted from the 2026-09-18 external review (scripts/review/reviewRegression.test.ts).
 // Each finding() states the contract the fix must satisfy; test/findings/ledger.json says whether
 // it is still open and, while open, the reason it must fail with. See v2.3 plan 01 §A.
@@ -98,6 +99,7 @@ function harness(options: { uidKnown?: boolean } = {}) {
     warden: { check: async (input: WardenCheckInput) => { const note = await wardenGate.check!(input.reply, input.facts); return note ? [{ family: "continuity" as const, ...note }] : null; }, facts: () => wardenFacts.current.map((text) => ({ id: text, text })), nudgeActive: () => false },
     ownership: { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) },
   } as never);
+  acceptEveryCard(coordinator, () => state, (next) => { state = next; });
   return {
     coordinator,
     get state() { return state; },

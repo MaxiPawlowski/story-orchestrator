@@ -148,7 +148,6 @@ export function wireCoordinators(port: ManagerPort) {
       },
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
-    spikes: () => getGlobalSettings().spikes,
     ...lifecycle,
   });
   const copilot: CopilotCoordinator = new CopilotCoordinator({
