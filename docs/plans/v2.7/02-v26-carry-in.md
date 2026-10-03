@@ -28,6 +28,8 @@ re-checked against the current plugin before building):
 | C9 | **Card fallback reads as a look** (F5) | a member with no image prompt falls back to 500 chars of the card description (the narrator's instructions) | campaign F5; `src/image/prompt.ts` | skip members whose roster role is narrator/system, or require an `appearance` |
 | C10 | **Curator vs the house-style meta entry** | the WI curator may propose edits to the book's house-style entry | campaign review | a per-entry curator exclusion (`stagecraft.exclude`) |
 | C11 | **F1/F2/F7 still open** | judge-typed evidence cut to 160 chars (F1); `commit_evidence` per quality, not per value (F2); chain voice ignores `no_repeat` (F7) | campaign F1, F2, F7 | each needs its own small plan before building; listed so they are not lost |
+| C12 | **Lore select costs 5 judge requests per turn** (campaign lab C11) | open in the plugin with no v2.7 row until now | `adolion-campaign/lab/README.md` findings table (2026-10-03 refresh) | measure the per-turn request count on the campaign, then batch the questions into fewer requests (plan 14 notes that extra questions on an existing call cost almost nothing) |
+| C13 | **SP8 tiers and spans approved but never built** | v2.6 approved them; the code still runs only behind its spike flag | `adolion-campaign/lab/README.md` v2.6 verdicts; `docs/plans/v2.6/03-sp8-restated.md` | build as approved (move out of `spikes/`, drop the flag), or record why not |
 
 v2.6 playtest findings that arrive from now on are appended as new rows here (or as their own plan when large), with
 their session dir or `14-findings.md` row as the source.
