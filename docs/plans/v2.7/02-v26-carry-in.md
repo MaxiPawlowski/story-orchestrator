@@ -192,11 +192,11 @@ diff); the C1–C5 ×2 acceptance on Adolion with both fixtures converted to gro
 was behind a dev-only flag, off by default). Real-model row: **v2.8 01 O13** (the scenario reaches the prompt and the
 reply follows it); plumbing ×2: v2.8 16. (2) Wizard/agent prompts: the agent's topic list gains `scenario`, the
 `experimental-effects` topic text changes, the `setCheckpointEffects` tool doc names `scenario`. No staged-stage topic
-list changed (`STAGE_GUIDE_TOPICS` untouched). This row has no v2.8 owner yet (open question below).
+list changed (`STAGE_GUIDE_TOPICS` untouched). Owner: v2.8 01 O13b (CL).
 
-**Open.** (a) An owner for the wizard-prompt diff (2) above (v2.8 01, beside O13?). (b) The toy fixture's C2 count and
-the Adolion T7 count (fixture, above) are v2.8 16's to change with the group conversion. (c) 16-test-plan's C1 row says
-"cleared on leave": a chat-scoped scenario is never written on leave (the chat keeps its own); the scenario above uses
+**Open.** (a) Closed: v2.8 01 O13b owns the wizard-prompt diff. (b) The toy fixture's C2 count and
+the Adolion T7 count (fixture, above) are v2.8 16's to change with the group conversion. (c) 16-test-plan's C1 row said
+"cleared on leave" (fixed 2026-10-03): a chat-scoped scenario is never written on leave (the chat keeps its own); the scenario above uses
 story removal (restore `exit`) instead.
 
 ## Review 2026-10-03
