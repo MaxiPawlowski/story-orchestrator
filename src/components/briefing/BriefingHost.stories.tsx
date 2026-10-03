@@ -9,6 +9,7 @@ const view = composeBriefing({ title: "The Road", player_intro: "You carry a sea
 
 const snapshotWith = (pending: boolean, enabled = true) => ({
   ready: true, storyId: "road", ui: { authorView: false },
+  extraction: { settings: { enabled: true, profileId: "memory" } },
   briefing: { storyId: "road", view, pending, enabled },
 }) as unknown as RuntimeSnapshot;
 

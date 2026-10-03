@@ -120,7 +120,7 @@ export function setupFindings(snapshot: RuntimeSnapshot, checks: readonly Check[
   const live = (steps: RepairStep[]) => steps.filter((step) => !isDismissed(step, dismissed));
   const all = [...of("blocks"), ...of("degrades"), ...of("info")];
   return {
-    blocks: of("blocks"),
+    blocks: beforeYouStart(snapshot, checks),
     degrades: live(of("degrades")),
     info: live(of("info")),
     dismissed: all.filter((step) => isDismissed(step, dismissed)),
@@ -138,7 +138,7 @@ export function setupCounts(snapshot: RuntimeSnapshot, checks: readonly Check[] 
   return { blocks: counted(findings.blocks), degrades: counted(findings.degrades) };
 }
 
-export const beforeYouStart = (snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): RepairStep[] => setupFindings(snapshot, checks).blocks;
+export const beforeYouStart = (snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): RepairStep[] => forViewer(snapshot, runChecks(snapshot, "blocks", checks));
 
 export const installFindings = (snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): RepairStep[] => {
   const install = checks.filter((check) => check.scope === "install");
