@@ -333,7 +333,7 @@ export const gettingStartedShown = (steps: readonly GettingStartedStep[], dismis
 export function viewerRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (snapshot.ui?.authorView) return nextRepairStep(snapshot);
   const step = repairSteps(snapshot).find((candidate) => candidate.player !== null);
-  return step ? { ...step, consequence: step.player as string } : null;
+  return step ? { ...step, consequence: step.player as string, detail: step.player as string } : null;
 }
 
 const SURFACED_ELSEWHERE: ReadonlySet<RepairArea> = new Set(["save"]);

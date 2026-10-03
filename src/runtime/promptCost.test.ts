@@ -81,6 +81,39 @@ describe("prompt cost cache (v2.4 plan 08 T19a)", () => {
     expect(cost.countOf("x".repeat(40))).toEqual({ tokens: 10, source: "estimate" });
   });
 
+  it("recounts every value when ST's tokenizer changes, so a count from the offline fallback never stands for the connected backend (T7 live-v24-08)", async () => {
+    const cost = new PromptCost();
+    let tokenizer = "textgenerationwebui|no_connection|99|";
+    let perChar = 3;
+    const { value, calls } = host({ count: async (text) => { calls.push(text); return text.length * perChar; }, tokenizer: () => tokenizer });
+    cost.attach(value);
+    cost.request(["alpha"]);
+    jest.advanceTimersByTime(PROMPT_COST_DEBOUNCE_MS);
+    await flush();
+    expect(cost.countOf("alpha")).toEqual({ tokens: 15, source: "host" });
+    tokenizer = "textgenerationwebui|artemis.gguf|99|";
+    perChar = 2;
+    expect(cost.countOf("alpha")).toBeNull();
+    jest.advanceTimersByTime(PROMPT_COST_DEBOUNCE_MS);
+    await flush();
+    expect(calls).toEqual(["alpha", "alpha"]);
+    expect(cost.countOf("alpha")).toEqual({ tokens: 10, source: "host" });
+  });
+
+  it("drops a count whose tokenizer changed while it was in flight and asks again", async () => {
+    const cost = new PromptCost();
+    let tokenizer = "a";
+    const { value, calls } = host({ count: async (text) => { calls.push(text); tokenizer = "b"; return calls.length === 1 ? 99 : text.length; }, tokenizer: () => tokenizer });
+    cost.attach(value);
+    cost.request(["alpha"]);
+    jest.advanceTimersByTime(PROMPT_COST_DEBOUNCE_MS);
+    await flush();
+    expect(cost.countOf("alpha")).toBeNull();
+    jest.advanceTimersByTime(PROMPT_COST_DEBOUNCE_MS);
+    await flush();
+    expect(cost.countOf("alpha")).toEqual({ tokens: 5, source: "host" });
+  });
+
   it("does not notify when nothing new was counted, so a notify cannot loop back into a count", async () => {
     const cost = new PromptCost();
     const { value, notified } = host();

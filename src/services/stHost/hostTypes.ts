@@ -86,7 +86,9 @@ export interface SillyTavernContext {
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
   // persona_description_lorebook: the persona's own book (world-info.js:4566); reasoning: the reasoning template, prefix/suffix (power-user.js:274-281).
-  powerUserSettings?: { personas?: Record<string, string>; persona_description_lorebook?: unknown; reasoning?: unknown };
+  powerUserSettings?: { personas?: Record<string, string>; persona_description_lorebook?: unknown; reasoning?: unknown; tokenizer?: number };
+  // `online_status` (st-context.js:133): the connected model's name, or "no_connection"; with power_user.tokenizer it picks the tokenizer getTokenCountAsync uses (tokenizers.js:285-335).
+  onlineStatus?: string;
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
   // Exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
   SlashCommandEnumValue: new (value: string, description?: string) => unknown;

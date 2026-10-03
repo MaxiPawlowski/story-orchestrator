@@ -15,6 +15,7 @@ export interface PromptCostHost {
   budget(): NextTurnBudget;
   notify(): void;
   busy(): boolean;
+  tokenizer?(): string;
 }
 
 export interface PromptCostView {
@@ -26,13 +27,15 @@ const keyOf = (value: string): string => `${value.length}:${fnv1a(value)}`;
 
 export class PromptCost {
   private host: PromptCostHost | null = null;
-  private readonly counts = new Map<string, TokenCount>();
+  private readonly counts = new Map<string, { value: string; counted: TokenCount }>();
   private readonly wanted = new Map<string, string>();
   private timer: ReturnType<typeof setTimeout> | null = null;
   private generationBudget: number | null = null;
+  private tokenizer: string | null = null;
 
   attach(host: PromptCostHost): () => void {
     this.host = host;
+    this.tokenizer = host.tokenizer?.() ?? null;
     return () => {
       if (this.host !== host) return;
       this.host = null;
@@ -43,11 +46,13 @@ export class PromptCost {
   }
 
   countOf(value: string): TokenCount | null {
-    return this.counts.get(keyOf(value)) ?? null;
+    this.followTokenizer();
+    return this.counts.get(keyOf(value))?.counted ?? null;
   }
 
   request(values: readonly string[]): void {
     if (!this.host) return;
+    this.followTokenizer();
     for (const value of values) {
       const key = keyOf(value);
       if (!this.counts.has(key)) this.wanted.set(key, value);
@@ -61,6 +66,15 @@ export class PromptCost {
 
   view(): PromptCostView {
     return { budget: this.host?.budget() ?? null, lastGenerationBudget: this.generationBudget };
+  }
+
+  private followTokenizer() {
+    const now = this.host?.tokenizer?.() ?? null;
+    if (now === this.tokenizer) return;
+    this.tokenizer = now;
+    for (const [key, entry] of this.counts) this.wanted.set(key, entry.value);
+    this.counts.clear();
+    if (this.host && this.wanted.size && this.timer === null) this.arm();
   }
 
   private arm() {
@@ -86,6 +100,8 @@ export class PromptCost {
     this.wanted.clear();
     let landed = 0;
     for (const [key, value] of batch) {
+      this.followTokenizer();
+      const tokenizer = this.tokenizer;
       let counted: TokenCount;
       try {
         const tokens = await host.count(value);
@@ -94,15 +110,20 @@ export class PromptCost {
         counted = { tokens: estimateTokens(value), source: "estimate" };
       }
       if (this.host !== host) return;
-      this.remember(key, counted);
+      this.followTokenizer();
+      if (this.tokenizer !== tokenizer) {
+        this.wanted.set(key, value);
+        continue;
+      }
+      this.remember(key, value, counted);
       landed += 1;
     }
     if (landed) host.notify();
     if (this.wanted.size && this.timer === null) this.arm();
   }
 
-  private remember(key: string, counted: TokenCount) {
-    this.counts.set(key, counted);
+  private remember(key: string, value: string, counted: TokenCount) {
+    this.counts.set(key, { value, counted });
     if (this.counts.size <= PROMPT_COST_CACHE_LIMIT) return;
     const oldest = this.counts.keys().next().value;
     if (oldest !== undefined) this.counts.delete(oldest);
