@@ -117,19 +117,6 @@ describe("authored drive and motive (v2.6 plan 06 A)", () => {
     coordinator.onMemberDrafted(0);
     expect(prompts.has(EPISTEMIC_INJECTION_KEY)).toBe(false);
   });
-
-  it("solo with a single cast member: the speaker's block carries its own aims at rest", () => {
-    const { coordinator } = harness({ group: false, roster: [{ id: "arin", name: "Arin", drive: "win back her father's sword" }] });
-    coordinator.updateInjection();
-    expect(block()).toContain("- What you want: win back her father's sword");
-  });
-
-  it("solo narrator voicing several members names whose aim is whose", () => {
-    const { coordinator } = harness({ group: false });
-    coordinator.updateInjection();
-    expect(block()).toContain("- Arin wants: win back her father's sword");
-    expect(block()).toContain("- Ponticius wants: keep the guild solvent");
-  });
 });
 
 describe("intends (v2.6 plan 06 B)", () => {
@@ -270,12 +257,6 @@ describe("narrator view (v2.6 plan 06 D, block-scoped privacy)", () => {
     expect(block()).toContain(`${NARRATOR_SELF_VOICED} Arin.`);
     expect(block()).toContain(NARRATOR_NAMED_FIRST);
     coordinator.onMemberDrafted(0);
-    expect(block()).not.toContain(NARRATOR_SELF_VOICED);
-  });
-
-  it("control: a solo narrator voices everyone, so it is told nothing about self-voiced members", () => {
-    const { coordinator } = harness({ group: false });
-    coordinator.updateInjection();
     expect(block()).not.toContain(NARRATOR_SELF_VOICED);
   });
 });

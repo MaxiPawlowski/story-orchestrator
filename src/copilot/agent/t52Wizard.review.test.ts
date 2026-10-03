@@ -98,7 +98,7 @@ describe("T5-2 MEDIUM: Continue after Out of budget grants a fresh slice", () =>
     expect(budgetSpent(resumed)).toBe(false);
     expect(resumed.budget).toEqual({ maxSteps: DEFAULT_AGENT_BUDGET.maxSteps, maxTokens: 2 * DEFAULT_AGENT_BUDGET.maxTokens + 500, usedTokens: DEFAULT_AGENT_BUDGET.maxTokens + 500 });
     const { route, prompts } = scriptedRoute([{ done: "finished" }]);
-    const next = await advanceAgent(resumed, agentContext(pawnbroker()), route, AT);
+    const next = await advanceAgent(resumed, agentContext(pawnbroker(), { ...emptyEnvironment(), groupNames: [pawnbroker().title] }), route, AT);
     expect(prompts).toHaveLength(1);
     expect(next.session.status).toBe("done");
   });

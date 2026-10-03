@@ -16,14 +16,14 @@ import { currentRecord } from "../../test/findings/currentRecord";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __foreignContext: { chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
+  var __foreignContext: { groupId?: string; chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
 }
 
 const story = (id: string) => currentRecord(id) as never;
 const chatA = () => ({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
 
 function open(chatId: string, blob: unknown) {
-  globalThis.__foreignContext = { chatId, chatMetadata: { story_orchestrator: blob }, saveMetadata: jest.fn() };
+  globalThis.__foreignContext = { groupId: "g-test", chatId, chatMetadata: { story_orchestrator: blob }, saveMetadata: jest.fn() };
 }
 const stored = () => globalThis.__foreignContext.chatMetadata.story_orchestrator as ReturnType<typeof chatA>;
 

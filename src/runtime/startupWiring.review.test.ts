@@ -21,7 +21,7 @@ const branchMetadata = () => ({
 
 const refusedSettingsSave = () => ({ requested: true, status: 500, ok: false, timedOut: false, failed: false });
 const mockHost = {
-  context: { chat: [] as unknown[], chatId: "branch-1", extensionSettings: {} as Record<string, unknown>, chatMetadata: {} as Record<string, unknown>, characters: [], groups: [], saveSettingsDebounced: () => {} },
+  context: { groupId: "g-test", chat: [] as unknown[], chatId: "branch-1", extensionSettings: {} as Record<string, unknown>, chatMetadata: {} as Record<string, unknown>, characters: [], groups: [], saveSettingsDebounced: () => {} },
   unbound: [] as string[],
   settingsSave: async () => refusedSettingsSave(),
 };

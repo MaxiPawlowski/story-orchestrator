@@ -343,8 +343,6 @@ export class SpriteStage {
 
   private generationStarted(type: unknown, dryRun: unknown): void {
     if (dryRun === true || withholds(type)) return;
-    const cast = spriteCast();
-    if (!cast.groupId && cast.members[0]) this.begin(cast.members[0].name);
   }
 
   private begin(speaker: string | null): void {

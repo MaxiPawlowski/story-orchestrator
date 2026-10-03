@@ -32,7 +32,8 @@ const RULES = [
   [
     "The player is the persona, never a cast member: if the premise or a greeting tells the player \"you are the pawnbroker\", there is no Pawnbroker card or roster member.",
     "effects.background names a file from the backgrounds listed under INSTALL; when none fits, leave the background out.",
-    "Every name in cast_changes and requirements.members needs a card on the install, and a story with a cast of two or more needs its group.",
+    "Every name in cast_changes and requirements.members needs a card on the install, and every story needs its group:",
+    "stories play in group chats only, even a one-character story (its character plus a narrator).",
   ].join(" "),
   [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",

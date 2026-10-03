@@ -27,6 +27,7 @@ import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
+import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
 import type { ScanGateView, WiGatingStatus } from "./worldInfoMode";
@@ -465,6 +466,8 @@ export interface RuntimeSnapshot {
   library: StoryLibraryRecord[];
   status: string;
   noChat?: { notice: string } | null;
+  noGroup?: NoGroupView | null;
+  dismissedChecks?: string[];
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;

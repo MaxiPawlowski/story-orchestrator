@@ -43,7 +43,7 @@ export function imageChat(): ImageChat | null {
   const groupId = typeof ctx.groupId === "string" ? ctx.groupId : null;
   const group = groupId ? ctx.groups.find((entry) => String(entry.id) === groupId) : null;
   const disabled = new Set(group?.disabled_members ?? []);
-  const avatars = (group ? group.members : [ctx.characters[Number(ctx.characterId)]?.avatar]).filter((avatar): avatar is string => typeof avatar === "string");
+  const avatars = (group?.members ?? []).filter((avatar): avatar is string => typeof avatar === "string");
   const sd = isRecord(ctx.extensionSettings.sd) ? ctx.extensionSettings.sd : {};
   const prompts = isRecord(sd.character_prompts) ? sd.character_prompts : {};
   const characters: ImageCharacter[] = avatars.flatMap((avatar) => {

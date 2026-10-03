@@ -32,6 +32,7 @@ export interface StoryUpdateDeps {
   journal: (outcome: StoryUpdateOutcome) => void;
   ownership: RunOwnership;
   chatOpen: () => boolean;
+  groupOpen?: () => boolean;
 }
 
 const versionLabel = (from: number | null, to: number | null) => (from !== null && to !== null && from !== to ? ` (v${from} → v${to})` : "");
@@ -112,6 +113,7 @@ const loadStoryDiff = async () => {
 
 export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibraryRecord): Promise<StoryUpdateOutcome> {
   if (!deps.chatOpen()) return emptyOutcome("no chat is open");
+  if (deps.groupOpen && !deps.groupOpen()) return emptyOutcome("this chat is not a group chat");
   const loading = beginRun(deps.ownership);
   const storyDiff = await loadStoryDiff();
   if (!storyDiff) return emptyOutcome("the story comparison could not load; reload SillyTavern and save again");

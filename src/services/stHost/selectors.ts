@@ -41,19 +41,14 @@ export interface HostLoreBindings {
 
 const withoutExtension = (file: string) => file.replace(/\.[^/.]+$/, "");
 
-// Who ST can draft here: a group's enabled members (group-chats.js:1003), or the open character.
+// Who ST can draft here: a group's enabled members (group-chats.js:1003).
 function draftableCharacters(): HostCharacter[] {
-  const { groupId, groups, characters, characterId } = getContext();
+  const { groupId, groups, characters } = getContext();
   const activeGroupId = trim(groupId == null ? "" : String(groupId));
-  if (activeGroupId) {
-    const group = groups.find((entry) => trim(entry.id) === activeGroupId);
-    if (!group) return [];
-    return group.members.filter((member) => !group.disabled_members.includes(member))
-      .flatMap((member): HostCharacter[] => characters.filter((character) => character.avatar === member).slice(0, 1));
-  }
-  const index = characterId === undefined || characterId === "" ? NaN : Number(characterId);
-  const character = Number.isInteger(index) ? characters[index] : undefined;
-  return character ? [character] : [];
+  const group = activeGroupId ? groups.find((entry) => trim(entry.id) === activeGroupId) : null;
+  if (!group) return [];
+  return group.members.filter((member) => !group.disabled_members.includes(member))
+    .flatMap((member): HostCharacter[] => characters.filter((character) => character.avatar === member).slice(0, 1));
 }
 
 // The books ST scans beyond the global selection: the chat slot, the persona's book and each draftable

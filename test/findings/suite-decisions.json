@@ -43,13 +43,6 @@
         "test/scenarios/live-two-ways-ferry.json"
       ],
       "reason": "the two routes of one fork story (99% identical steps)"
-    },
-    {
-      "paths": [
-        "test/scenarios/live-v24-08-preview-capture.json",
-        "test/scenarios/live-v24-08-preview-capture-solo.json"
-      ],
-      "reason": "group and solo arms of one preview-capture check (96% identical)"
     }
   ],
   "journeyMinutes": {

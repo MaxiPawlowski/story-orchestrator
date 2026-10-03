@@ -37,7 +37,15 @@ export const HUD_COPY = {
   steppedBack: "stepped back",
   fallbackScene: "Current scene",
   setupChip: "check setup",
+  setupBlocked: "fix setup",
 } as const;
+
+export const hudSetupText = (counts: { blocks: number; degrades: number }): string =>
+  `${counts.blocks ? HUD_COPY.setupBlocked : HUD_COPY.setupChip} (${counts.blocks + counts.degrades})`;
+
+export const hudSetupTitle = (counts: { blocks: number; degrades: number }): string =>
+  [counts.blocks ? `${counts.blocks} ${counts.blocks === 1 ? "thing stops" : "things stop"} the story.` : "",
+    counts.degrades ? `${counts.degrades} ${counts.degrades === 1 ? "thing weakens" : "things weaken"} it.` : ""].filter(Boolean).join(" ");
 
 const HUD_CHIP_LABELS: Partial<Record<PipelineState, string>> = {
   "catching-up": "catching up after your edit",

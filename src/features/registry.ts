@@ -100,7 +100,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has "
       + "happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
     where: settingsAt("#story-library-select", "This chat › Story for this chat"),
-    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
+    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["group-chat", "memory-profile"],
   },
   {
     id: "group-binding", name: "Group story", area: "play", audience: "player",
@@ -354,9 +354,10 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "repair", name: "Repair", area: "setup", audience: "player",
     oneLine: "Names the one thing missing and takes you to the setting that fixes it.",
-    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click.",
+    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click. "
+      + "The drawer's Setup list shows every finding while a story plays; one that only weakens the story can be dismissed, one that stops it cannot.",
     where: settingsAt("#so-entry-repair", "Repair"),
-    settings: [], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
+    settings: ["help.dismissedChecks"], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
   },
   {
     id: "getting-started", name: "Getting started", area: "setup", audience: "player",

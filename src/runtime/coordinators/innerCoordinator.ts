@@ -59,7 +59,7 @@ export class InnerCoordinator {
   constructor(private readonly deps: InnerCoordinatorDeps) {}
 
   candidates(story: NormalizedStoryV2, state: EngineState): string[] {
-    if (!this.deps.group()) return story.roster.length === 1 ? [story.roster[0].id] : [];
+    if (!this.deps.group()) return [];
     const control = story.checkpointById[state.activeCheckpointId]?.talk_control ?? {};
     const pool = buildCandidates(control, story.roster, this.deps.enabledIds());
     const limit = this.deps.fanOut() === "top2" ? 2 : 1;

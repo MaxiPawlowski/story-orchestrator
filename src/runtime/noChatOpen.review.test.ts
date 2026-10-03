@@ -12,6 +12,8 @@ jest.mock("./persistence", () => ({
   dropPersistedRuntime: jest.fn(),
   getSelectedStoryId: () => "ruins",
   hasOpenChat: () => host.chatOpen,
+  hasOpenGroup: () => true,
+  openChatId: () => "chat-a",
   loadPersistedRuntime: () => null,
   setSelectedStoryId: jest.fn(),
 }));

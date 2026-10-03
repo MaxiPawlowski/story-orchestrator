@@ -31,7 +31,7 @@ const wantsGroup = (session: AgentSession, draft: StoryV2, environment: Provisio
   const created = provisioned(session, "applied");
   const declined = provisioned(session, "rejected");
   const decided = [...created, ...declined].some((op) => op.kind === "createGroup");
-  return created.some((op) => op.kind === "createCharacterCard") && draft.roster.length > 1 && !decided && !has(environment.groupNames, draft.title);
+  return draft.roster.length > 0 && !decided && !has(environment.groupNames, draft.title);
 };
 
 const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provisioned(session, "applied").flatMap((op) => {

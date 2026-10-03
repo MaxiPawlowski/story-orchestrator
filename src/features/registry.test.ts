@@ -244,8 +244,8 @@ describe("v2.7 plan 01 what's new and getting started", () => {
   });
 
   it("stores the last seen version install-wide and keeps only a version", () => {
-    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false });
-    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true });
+    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [] });
+    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, dismissedChecks: [] });
     expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "soon" } }).help.lastSeenVersion).toBeNull();
   });
 
@@ -257,5 +257,18 @@ describe("v2.7 plan 01 what's new and getting started", () => {
     expect(gettingStartedShown(memory, false)).toBe(true);
     expect(gettingStartedShown(memory, true)).toBe(false);
     expect(gettingStartedShown(gettingStartedSteps({ memoryModel: true, judgeReady: true, imagesReady: true }), false)).toBe(false);
+  });
+});
+
+describe("v2.7 plan 03 (K3): stories play in group chats", () => {
+  it("the stories feature needs a group chat", () => {
+    expect(FEATURES.find((feature) => feature.id === "stories")?.needs).toContain("group-chat");
+  });
+
+  it("the guide says so up front and in the FAQ, and no longer says a one-on-one chat works", () => {
+    const faq = readFileSync(join(ROOT, "docs/guide/player/troubleshooting.md"), "utf-8").replace(/\r\n/g, "\n");
+    expect(faq).toContain("**Does it work in a one-on-one chat?** No: stories play in group chats.");
+    expect(faq).not.toMatch(/one-on-one chat\?\*\* Yes/);
+    expect(readFileSync(join(ROOT, "docs/guide/README.md"), "utf-8")).toContain("**Stories play in group chats.**");
   });
 });

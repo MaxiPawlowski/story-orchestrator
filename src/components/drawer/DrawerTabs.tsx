@@ -3,7 +3,7 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
-import { viewerRepairStep } from "@runtime/repair";
+import { setupFindings, viewerRepairStep, type OneClickFix, type ShowMe } from "@runtime/repair";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { chatUpdateSentence } from "@runtime/librarySave";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
@@ -58,6 +58,8 @@ export interface DrawerTabsProps {
   /** A cited "message N" scrolls the chat there through /chat-jump. */
   onJumpToMessage?: (messageId: number) => void;
   imagePanel?: ReactNode;
+  onShowMe?: (target: ShowMe) => void;
+  onFix?: (action: OneClickFix) => void;
   /** The author's click-through from an inline chip: one message's full detail. */
   inspect?: { messageId: number; onClose: () => void; actions?: InlineActions } | null;
 }
@@ -149,7 +151,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
 };
 
 export const DrawerTabs = ({
-  snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel, inspect,
+  snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel, inspect, onShowMe, onFix,
 }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // A warden card cites the message a fact was read from, so its button has to land on
@@ -198,6 +200,7 @@ export const DrawerTabs = ({
           onRetry={() => void manager.retryExtraction()}
           onBranchFromOldest={onBranchFromOldest}
           onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)}
+          setup={{ findings: setupFindings(snapshot), onShowMe, onFix, onDismiss: (check, dismissed) => manager.setCheckDismissed(check, dismissed) }}
         />}
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
         <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">

@@ -9,7 +9,7 @@ const chats: Record<string, { chat: Row[]; metadata: Record<string, unknown> }> 
 const saveGate = { held: null as Promise<void> | null };
 const mockContext = {
   chat: [] as Row[],
-  chatId: "chat-a" as string | undefined,
+  groupId: "g-test", chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),

@@ -6,12 +6,14 @@ import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { gettingStartedSteps, type RepairAction } from "@runtime/repair";
+import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
 import type { FeatureWhere } from "@features/registry";
 import { HelpButton } from "../help/HelpButton";
 import { GettingStarted } from "./GettingStarted";
 import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
+import MakeGroupCard from "./MakeGroupCard";
+import type { MakeGroupOutcome } from "@runtime/makeGroup";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
 import { authoringSettings, DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
@@ -34,11 +36,13 @@ export interface SettingsHost {
   openStudio: () => void;
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
-  repairCast?: (action: RepairAction) => void;
+  repairCast?: (action: OneClickFix) => void;
   openGroup?: () => void;
   openDrawer: () => void;
   openAuthorView?: () => void;
   showFeature: (where: FeatureWhere) => void;
+  makeGroup?: (storyId: string) => Promise<MakeGroupOutcome>;
+  fixGroupWithWizard?: (storyId: string, missing: string[]) => void;
 }
 
 interface SettingsPanelProps {
@@ -148,13 +152,17 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onFixWithWizard={host.openWizardForRequirements}
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
-            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting}
+            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
           />
           <details id="so-current-chat" className="so-settings-section" open>
             <summary>This chat <span className="opacity-70">— select and continue a story</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
+              {snapshot.noGroup && host.makeGroup && (
+                <MakeGroupCard view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={host.makeGroup}
+                  onFixWithWizard={(storyId, missing) => host.fixGroupWithWizard?.(storyId, missing)} />
+              )}
               <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
               <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
             </div>

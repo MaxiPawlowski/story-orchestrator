@@ -73,15 +73,19 @@ export interface GlobalSettings {
 export interface HelpSettings {
   lastSeenVersion: string | null;
   checklistDismissed: boolean;
+  dismissedChecks: string[];
 }
 
-export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false });
+export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [] });
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
 export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
   lastSeenVersion: isRecord(value) && typeof value.lastSeenVersion === "string" && VERSION_PATTERN.test(value.lastSeenVersion) ? value.lastSeenVersion : null,
   checklistDismissed: isRecord(value) && value.checklistDismissed === true,
+  dismissedChecks: isRecord(value) && Array.isArray(value.dismissedChecks)
+    ? [...new Set(value.dismissedChecks.filter((id): id is string => typeof id === "string").map((id) => id.trim()).filter(Boolean))]
+    : [],
 });
 
 export const SPIKE_FLAGS = [

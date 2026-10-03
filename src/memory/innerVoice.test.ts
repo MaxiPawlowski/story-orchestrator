@@ -4,7 +4,7 @@ import {
 } from "./innerVoice";
 import * as kRecipe from "../../test/measurements/v2.6-06/k-intent-lapse.json";
 import {
-  admitIntents, capIntents, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderCastAims, renderNarratorBlock, renderOwnAims,
+  admitIntents, capIntents, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderNarratorBlock, renderOwnAims,
 } from "./innerRender";
 import { parseInnerBeat, renderInnerBeatPrompt } from "./innerBeat";
 import { parseEpistemicLine } from "./parse";
@@ -148,10 +148,9 @@ describe("authored aims and the narrator view", () => {
     expect(castVoices(story, null)[1]).toEqual({ id: "lyria", name: "Lyria" });
   });
 
-  it("renders own aims in the second person and the cast's aims attributed; nothing when nothing is authored", () => {
+  it("renders own aims in the second person; nothing when nothing is authored", () => {
     expect(renderOwnAims({ id: "kael", name: "Kael", drive: "x", motive: "y", beat: "z" }).split("\n").slice(1)).toEqual(["- What you want: x", "- Right now: y", "- Your intent this turn: z"]);
     expect(renderOwnAims(undefined)).toBe("");
-    expect(renderCastAims(castVoices(story, "cp"))).toContain("- Lyria, right now: keep the map hidden");
   });
 
   it("the narrator block unions the others' hiding/intends/knows rows, capped per subject, and never its own", () => {

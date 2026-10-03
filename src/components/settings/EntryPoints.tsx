@@ -1,5 +1,5 @@
 import type { RuntimeSnapshot } from "@runtime/types";
-import { viewerRepairStep, type RepairAction, type RepairStep } from "@runtime/repair";
+import { viewerRepairStep, type OneClickFix, type RepairStep } from "@runtime/repair";
 import { REPAIR_PLAYER_COPY } from "@runtime/pipeline";
 import { playingLine, playingStory } from "@runtime/playingStory";
 
@@ -17,7 +17,7 @@ export interface EntryPointsProps {
   /** Reveal a settings control that already exists further down this panel. */
   onRevealSetting(id: string): void;
   onFixWithWizard(): void;
-  onRepairCast?(action: RepairAction): void;
+  onRepairCast?(action: OneClickFix): void;
   onOpenGroup?(): void;
   gettingStarted?: React.ReactNode;
 }
@@ -32,13 +32,13 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
 );
 
 const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }: {
-  repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void; onRepairCast?(action: RepairAction): void;
+  repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void; onRepairCast?(action: OneClickFix): void;
 }) => (
   <>
     <div data-so="repair-detail" className="text-xs opacity-70">{repair.detail}</div>
     {repair.action && onRepairCast && (
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => onRepairCast(repair.action as RepairAction)}>{repair.action.label}</button>
+        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => onRepairCast(repair.action as OneClickFix)}>{repair.action.label}</button>
       </div>
     )}
     {repair.provisionable && (

@@ -19,7 +19,7 @@ const mockPopupCloses = { count: 0 };
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatId: "chat-a" as string | undefined,
-  groupId: null as string | null,
+  groupId: "g-test" as string | null,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),
@@ -122,7 +122,7 @@ const resetHost = () => {
   mockContext.extensionSettings = {};
   // A chat is open in these tests: an unnamed chat is a state the runtime must not write to.
   mockContext.chatId = "chat-a";
-  mockContext.groupId = null;
+  mockContext.groupId = "g-test";
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
   Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
@@ -800,14 +800,14 @@ describe("RuntimeManager memory injection and cast", () => {
     }
   });
 
-  it("keeps a solo character's private knowledge at rest, but not for impersonate", async () => {
-    (getActiveGroup as jest.Mock).mockReturnValue(null);
+  it("v2.7 plan 03: the group's resting block never carries a member's private knowledge, and impersonate keeps it empty", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["kael.png", "mara.png"], disabled_members: [] });
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(castStory));
     mockContext.chat = [{ name: "Kael", mes: "Nothing to see.", is_user: false }];
     await manager.applyExtractionAudit(memoryAudit(), [], [], [], [{ tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" }]);
     manager.clearPrivateInjection();
-    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").not.toContain("the theft");
     manager.onGenerationStarted("impersonate");
     expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
   });

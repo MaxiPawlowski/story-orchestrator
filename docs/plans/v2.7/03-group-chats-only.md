@@ -145,3 +145,91 @@ legacy case + refusal tests), K3 (guide FAQ + registry `needs`), F08 (no solo te
 (built with v2.7 04; scripted gates), B12 (references).
 
 Round 3 (Sol): R3-16 applied.
+
+## Gate record (2026-10-03)
+
+Built together with v2.7 04 on branch `worktree-agent-a63e828dd1ddd52c3` (off master `506a7ca4`). Commits: `d112a730`
+(no group, no story + make-a-group card), `ecc61561` (solo removal, removal guard, payload golden), `0e4389d9` (K3,
+invariant, scenarios), `d3109389` (D7 scenario renamed off the word "legacy" for `legacyFree` S1), and the 04 commits.
+
+**As built**
+
+- **No group, no story.** `persistence.hasOpenGroup`/`openChatId`; `storySelection`: `loadSelectedStory` restores and
+  clears with `NO_GROUP_STATUS` in a one-on-one chat, `selectStory` refuses and remembers the refused id
+  (`noGroup.noteRefusedForGroup`), `importStoryJson` saves to the library and stops, `restartStory` refuses;
+  `applyStoryUpdate` refuses (`groupOpen` dep); `EffectsApplier.applyCheckpoint` refuses (`NO_OPEN_GROUP`); the loud
+  interceptor returns before anything runs outside a group. Restore on leave is unchanged.
+- **Snapshot `noGroup`** (`runtime/noGroup.ts`): non-null only for a one-on-one chat that holds a story id
+  (`selectedStoryId`) or had one refused; an ordinary solo chat stays quiet.
+- **`story-needs-group`** (v2.7 04 check, `blocks`, `engineFree: true`, action `make-group`): runs with no loaded story.
+- **Make-a-group card** (`components/settings/MakeGroupCard.tsx`, `#so-make-group` in "This chat",
+  `#so-make-group-drawer` in the drawer): `runtime/makeGroup.ts` plans a group of the story's own cast
+  (`draftCastNames`; a story with no cast takes this character), names a missing card (the narrator found by
+  `view: "omniscient"`, role or id) and offers Fix with wizard instead of a partial group (D4), validates with
+  `validateProvisioningOp`, asks the player, creates create-only (`stHost/provisioning.createGroup`), binds
+  (`groupStories`), opens (new `stHost/groups.openGroupById`) and selects the story; `RunGuard` checks before the create
+  and before the open (ownership census row added).
+- **Solo-only code removed (D1):** `renderSoloEpistemicBlock`, `renderAttributedEpistemicBlock`, `soloAims`,
+  `renderCastAims`, `MemoryInjector.onSoloGeneration`/`soloBlock` and the solo branches of `update()`/`voices()`/
+  `epistemicBlock()`/`stagedBlocks()`/`secrets()`, `PacingCoordinator.soloMember` + its wiring, the solo inner-beat
+  candidate, the solo loud-gate path, solo branches in `stHost/sprites.spriteCast`, `sprites/stage` generation start,
+  `stHost/image.imageChat`, `stHost/selectors.draftableCharacters`, `stHost/chatScenario.readCastScenarios`,
+  `stHost/persistence.readServerBoundary`. **Kept (shared cleanup/restore, D1):** `stHost/chatFiles` solo chat-file
+  probe (the mirror reaper still cleans books older solo runs left), `chatScenario` read/write (restore),
+  `roster.ts` (no solo branch left: `enabledCharacterIds`/`activeSpeakerId` already resolve only through the group;
+  the names fallback is a group fallback), `extractionCoordinator` compaction's group guard (unreachable outside a group,
+  not in the census; removing it only churned tests).
+- **D5:** wizard prompt says every story needs its group (a one-character story too); `finish.ts` `wantsGroup` no longer
+  needs a created card or a cast of two.
+- **K3:** guide FAQ (`docs/guide/player/troubleshooting.md`) now "No: stories play in group chats", the guide README
+  and `player/playing.md` say it up front, registry `stories` needs `group-chat`; tests in `features/registry.test.ts`.
+- **Invariant** "No group, no story" added to `.claude/rules/architecture.md`.
+- **Tests/fixtures:** solo tests rewritten as group tests or deleted with the reason "solo story play removed (v2.7 03)":
+  `epistemic.test` (solo renderer block deleted), `innerVoice.test`, `innerVoiceInjection.review` (3 solo cases deleted),
+  `epistemicMacro.review` (solo describe turned into the group drafted-block case), `memberGuidance.review`,
+  `memoryInjectionRefresh.review` (now a group draft), `memoryInjectorSecrets.recorded`, `secretSpread.review`,
+  `innerCoordinator.test`, `loudGenerationGate.test`, `chatScenario.test`, `loreBindings.test`, `runtimeManager.test`,
+  `loreForceWiring.review` (group context; releases the loud gate between cases), t52/t633 wizard tests (a group exists).
+  ~35 runtime test mocks gained a `groupId`. Scenarios deleted: `live-v24-02-e2-solo-epistemic.json`,
+  `live-v24-08-preview-capture-solo.json` + `live-v24-08-solo.story.json` (their group halves stay; suite-decisions pair
+  removed). New D7 scenario `test/scenarios/v27-03-no-group-solo-blob.json` (written, not run).
+
+**Gates**
+
+- Removal guard (D3, R3-16): `src/runtime/soloRemoval.guard.test.ts`: removed definitions (file + symbol) absent from
+  `src/` by a TypeScript declaration scan (tests included), import/call scan; controls: a planted unused re-declared
+  export in `src/utils/log.ts` fails the absence check (and passes the import check), a planted import fails the import
+  check, a planted call of a removed method fails it. No whole module was solo-only, so `REMOVED_MODULES` is empty.
+- Payload invariance: `src/runtime/groupPayloadInvariance.recorded.test.ts` drives the real `MemoryInjector` +
+  `PacingCoordinator` over the recorded T2-2 group memory (resting, drafted own view, drafted with a beat, drafted
+  omniscient narrator, withheld quiet run, resting again). Golden `test/goldens/v2.7-03-group-payload.json` was recorded
+  against the PRE-removal sources (`git show d112a730:` of the four touched files, `SO_RECORD_V27_03_PAYLOAD=1`) and
+  matches byte for byte after the removal.
+- Refusals: `noGroupOpen.review.test.ts` (select, import, restart, load; snapshot view; engine-free check quiet without
+  a story), `effectsApplier.test.ts`, `storyUpdate.test.ts`, `makeGroup.test.ts` (plan, narrator missing, cancel, lapsed,
+  failed create, failed open).
+- `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` → green, see the overall gates below.
+- Storybook: `test-storybook:ci` skipped in the gates run (the runner finds no stories under `.claude/worktrees`).
+  Ran instead: `npm run storybook:build`, `npx http-server .sb-static -p 6123 -s`,
+  `node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6123 --maxWorkers 1 --index-json`
+  → **73 suites, 471 tests passed** (MakeGroupCard: makes a group, narrator missing, wizard off, 390/768/1440).
+- **Live: NOT run** (lanes 0–5 busy; no ST check made by this build). Owed, tier D: D7 scenario ×2
+  (`so-scenario.mts run test/scenarios/v27-03-no-group-solo-blob.json --sandbox --group 1759606632088`),
+  `plan10-epistemic-ledger.json` and `v24-01-macro-group-rest.json` (group blocks unchanged), `assert-player-clean`.
+
+**Deviations**
+
+- Model input: none in a group chat (payload golden). Outside a group every injection stops by design. The wizard
+  agent prompt changed one rule line (D5): it reaches the authoring model, so its real-model row is owed to v2.8 01.
+- Image director and VN sprites no longer read a one-on-one chat's character (plan census row); manual image commands
+  in a plain solo chat now see no cast.
+- The D7 scenario seeds a v6 blob stamped for the chat with `stories: {}`; whether the runtime treats that exact shape
+  as readable was not verified live.
+
+**Overall gates (03 + 04 together, on `39262713`)**: `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook`
+→ all ok: typecheck, typecheck:test, lint, test (513 suites passed, 1 skipped; 6220 tests passed, 1 skipped), build,
+build:dev, test:debug (958 pass, 0 fail), debug:typecheck, test:release (94 pass), test:replay, test:plugin (87 pass);
+`test-storybook:ci` SKIPPED (`--no-storybook`: the runner finds no stories under `.claude/worktrees` paths; the
+Storybook run above was done by hand instead). Earlier runs: the first, without `ST_ROOT`, went red at `build`
+(the worktree has no `.st-root`; environment, not code); one went red at `test:debug` `legacyFree` (scenario name,
+fixed in `d3109389`).

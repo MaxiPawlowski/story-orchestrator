@@ -189,7 +189,7 @@ describe("V25: cadence reads cover the chat without gaps", () => {
     expect(await windows(scheduler, [[1, 11], [2, 13], [3, 14]])).toEqual([{ from: 4, to: 11 }, { from: 12, to: 13 }, { from: 14, to: 14 }]);
   });
 
-  it("at cadence 3 in a solo chat, three boundaries of two messages are all read", async () => {
+  it("at cadence 3, three boundaries of two messages each are all read", async () => {
     const scheduler = new ExtractionScheduler(makeHost({ cadence: 3, stabilityLag: 0 }));
     expect(await windows(scheduler, [[3, 11], [4, 13], [5, 15], [6, 17]])).toEqual([{ from: 4, to: 11 }, { from: 12, to: 17 }]);
   });

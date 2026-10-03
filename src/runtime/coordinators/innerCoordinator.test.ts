@@ -67,9 +67,9 @@ describe("inner beat candidates (v2.6 plan 06 C, Q3 arms)", () => {
     expect(new InnerCoordinator(top2.deps).candidates(story as never, { activeCheckpointId: "cp1" } as never)).toEqual(["ponticius", "luke"]);
   });
 
-  it("solo: the one cast member, and nobody when a narrator voices several", () => {
+  it("v2.7 plan 03: outside a group nobody is a candidate, even a one-member roster", () => {
     const solo = harness({ group: false });
-    expect(new InnerCoordinator(solo.deps).candidates({ ...story, roster: [story.roster[0]] } as never, { activeCheckpointId: "cp1" } as never)).toEqual(["arin"]);
+    expect(new InnerCoordinator(solo.deps).candidates({ ...story, roster: [story.roster[0]] } as never, { activeCheckpointId: "cp1" } as never)).toEqual([]);
     expect(new InnerCoordinator(solo.deps).candidates(story as never, { activeCheckpointId: "cp1" } as never)).toEqual([]);
   });
 });
