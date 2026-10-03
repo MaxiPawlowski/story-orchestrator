@@ -276,6 +276,12 @@ export class MemoryInjector {
     applyEpistemicInjection(this.hosts.prompt, this.soloBlock(story, known, beat), EPISTEMIC_INJECTION_DEPTH);
   }
 
+  heldSecretsKey(): string {
+    const story = this.deps.getStory();
+    const sorted = (values: Iterable<string>) => [...values].sort();
+    return JSON.stringify((story ? this.secrets(story) : []).map((secret) => [sorted(secret.knowers), secret.onlyFrom ? sorted(secret.onlyFrom) : null, secret.phrasings.map(sorted)]));
+  }
+
   restingEntries(entries: MemoryEntry[]): MemoryEntry[] {
     const story = this.deps.getStory();
     const view = sharedTierView(entries, story ? this.secrets(story) : [], null);

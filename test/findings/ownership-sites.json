@@ -193,9 +193,9 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited MemoryCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. Not everything with an await owes a check of its own: the in-memory patch and the injection update both run before the first await, so minting here would compare a token against the world it was just minted from and prove nothing."
     },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.syncWorldInfo": {
+    "src/runtime/memoryMirror.ts#MirrorSync.once": {
       "status": "delegate",
-      "note": "awaits syncMemoryMirror, which owns the check: it returns null when the world moved, and this function only patches extras when the result is non-null."
+      "note": "awaits syncMemoryMirror (v2.6 final review follow-up 2026-10-03). The body moved out of MemoryCoordinator.syncWorldInfo (now a one-line delegate) into this serialized runner, so a held-secret re-sync and a consolidation sync never interleave writes into one book. It awaits syncMemoryMirror, which owns the check (its own RunGuard, checked before each host write, null when the world moved), and commits the writes only when the result is non-null. A re-sync started by MemoryCoordinator.applyEpistemic carries the read's RunGuard and is dropped before anything runs when that world is gone (secretMirrorRecall.review.test.ts \"a chat switch before the re-sync writes nothing into the book\")."
     },
     "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.run": {
       "status": "checked",

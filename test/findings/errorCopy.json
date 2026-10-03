@@ -93,6 +93,16 @@
       "reason": "parse attempt"
     },
     {
+      "site": "src/runtime/memoryMirror.ts#MirrorSync.sync",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "serialization tail only; the promise returned to the caller still rejects"
+    },
+    {
       "site": "src/extraction/scheduler.ts#ExtractionScheduler.rereadAfterMutation",
       "kind": 3,
       "template": ".catch(() => undefined)",

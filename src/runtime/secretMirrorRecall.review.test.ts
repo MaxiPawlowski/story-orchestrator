@@ -45,17 +45,18 @@ const ENTRIES: MemoryEntry[] = [
 
 function mirrorBook() {
   const book = new Map<string, { content: string; disable: boolean }>();
+  const writes = { count: 0 };
   let created = false;
   const host = {
     ensureLorebook: async (name: string) => { const first = !created; created = true; return { name, created: first }; },
     loadLorebook: async () => ({ entries: Object.fromEntries([...book].map(([comment, entry], uid) => [uid, { uid, comment, content: entry.content, disable: entry.disable }])) }),
-    upsertWIEntry: async (_book: string, comment: string, content: string) => { const had = book.has(comment); book.set(comment, { content, disable: false }); return had ? "updated" : "created"; },
+    upsertWIEntry: async (_book: string, comment: string, content: string) => { writes.count += 1; const had = book.has(comment); book.set(comment, { content, disable: false }); return had ? "updated" : "created"; },
     disableWIEntry: async (_book: string, comments: string | string[]) => { [comments].flat().forEach((comment) => { const entry = book.get(comment); if (entry) entry.disable = true; }); return { ok: true, changed: true }; },
     bindChatLorebook: () => "bound",
     currentChatOwner: () => null,
   };
   const live = () => [...book].filter(([comment, entry]) => comment.startsWith("so_") && !entry.disable).map(([, entry]) => entry.content).join("\n");
-  return { book, host, live };
+  return { book, host, live, writes };
 }
 
 function coordinatorHarness(epistemic: EpistemicEntry[], entries: MemoryEntry[] = ENTRIES) {
@@ -89,7 +90,8 @@ function coordinatorHarness(epistemic: EpistemicEntry[], entries: MemoryEntry[] 
     notify: () => undefined,
   } as never);
   const learn = (next: EpistemicEntry[]) => { memory = { ...memory, epistemic: next }; };
-  return { coordinator, mirror, learn, ownership };
+  const switchChat = () => { context.chatId = "chat-b"; };
+  return { coordinator, mirror, learn, ownership, switchChat };
 }
 
 describe("T7-1 review: the World Info mirror is the resting view, because ST scans the mirror book for every member", () => {
@@ -125,6 +127,52 @@ describe("T7-1 review: the World Info mirror is the resting view, because ST sca
     await coordinator.syncWorldInfo();
     expect(mirror.book.get("so_whole")?.content).toBe(ENTRIES[0].text);
     expect(mirror.book.get("so_mixed")?.content).toBe(ENTRIES[1].text);
+  });
+});
+
+const LEARN_SECRET = [
+  { tag: "hiding" as const, subject: "Kel", hiddenFrom: "Bram", content: "that he carries a silver key to the old vault" },
+  { tag: "knows" as const, subject: "Aria", content: "Kel carries a silver key to the old vault" },
+];
+
+describe("review follow-up: a read that adds a held secret re-syncs the mirror in the same unit, without waiting for a consolidation", () => {
+  it("a row mirrored before the secret is redacted or switched off as soon as the knowledge lines apply", async () => {
+    const { coordinator, mirror } = coordinatorHarness([]);
+    await coordinator.syncWorldInfo();
+    expect(mirror.live()).toMatch(SECRET);
+    coordinator.applyEpistemic(LEARN_SECRET, 12);
+    await coordinator.mirror.settled();
+    expect(mirror.book.get("so_whole")?.disable).toBe(true);
+    expect(mirror.book.get("so_mixed")).toEqual({ content: "Kel trusts Aria with his life.", disable: false });
+    expect(mirror.live()).not.toMatch(SECRET);
+  });
+
+  it("a chat switch before the re-sync writes nothing into the book", async () => {
+    const { coordinator, mirror, switchChat } = coordinatorHarness([]);
+    await coordinator.syncWorldInfo();
+    const before = mirror.writes.count;
+    coordinator.applyEpistemic(LEARN_SECRET, 12);
+    switchChat();
+    await coordinator.mirror.settled();
+    expect(mirror.writes.count).toBe(before);
+    expect(mirror.book.get("so_whole")?.disable).toBe(false);
+  });
+
+  it("negative control: knowledge that changes no held secret starts no re-sync, so the book still holds the row (the assertions above can fail)", async () => {
+    const { coordinator, mirror } = coordinatorHarness([]);
+    await coordinator.syncWorldInfo();
+    const before = mirror.writes.count;
+    coordinator.applyEpistemic([{ tag: "knows", subject: "Aria", content: "the river ford is shallow near the willow grove" }], 12);
+    await coordinator.mirror.settled();
+    expect(mirror.writes.count).toBe(before);
+    expect(mirror.live()).toMatch(SECRET);
+  });
+
+  it("control: with no mirror book adopted yet, a learned secret starts no sync (nothing was mirrored to redact)", async () => {
+    const { coordinator, mirror } = coordinatorHarness([]);
+    coordinator.applyEpistemic(LEARN_SECRET, 12);
+    await coordinator.mirror.settled();
+    expect(mirror.writes.count).toBe(0);
   });
 });
 
