@@ -21,6 +21,10 @@ export const EPISTEMIC_MAX_RETIRES = 12;
 
 export const PRIVATE_TELLING_RULE = "When a character tells another something in private (out of others' earshot, or asks them to keep it), also write " +
   "[hiding] Teller from <whoever must not hear it, or everyone> | that thing.";
+export const SHARED_SUMMARY_PRIVACY_RULE = "Every character reads this summary. Leave out what one character told another in private or keeps from someone " +
+  "(a confidence, a secret, a hidden plan); at most say that they spoke privately.";
+export const PRIVATE_MEMORY_RULE = "Something told in private (out of others' earshot, or asked to be kept) is not shared knowledge: give its MEMORY line " +
+  "the character tag of the one cast member who heard it, or leave it out.";
 export const CLAIM_RULE = "A character's claim that something happened which the transcript does not show (\"she told me ...\") is not evidence " +
   "that it happened: record only that they said it (\"Ana says Ben told her ...\"), never the claimed event as known or as a fact.";
 
@@ -67,6 +71,7 @@ export function renderMemoryContractAddendum(openArcs: string[] = [], capable = 
     `Rate importance 1-3 (1=atmospheric/minor, 2=useful context, 3=critical/defining) and classify expiration as one of ${MEMORY_EXPIRATIONS.join("|")}.`,
     "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\". Add character=\"<roster id from the Cast line>\" only when the memory is private " +
       "to that one cast member (only they saw, know or feel it); a tagged memory is shown to that member alone, so shared knowledge carries no character tag.",
+    PRIVATE_MEMORY_RULE,
     CLAIM_RULE,
     "Output additional lines in this exact format:",
     "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
@@ -188,6 +193,7 @@ export function buildSceneSummaryPrompt(sceneText: string): string {
     SUMMARY_TASK,
     "Write a 2-3 sentence summary of the following scene for use as scene history.",
     `Write in past tense, narrative style. Capture what happened, where, and the emotional tone. Be concise. ${NAMES_RULE}`,
+    SHARED_SUMMARY_PRIVACY_RULE,
     "Output only the summary text. No notes, no commentary, no disclaimers.",
     "",
     "SCENE:",
@@ -201,6 +207,7 @@ export function buildSceneReducePrompt(partsText: string): string {
     SUMMARY_TASK,
     "Combine the part summaries into one 2-3 sentence summary of the whole scene for use as scene history.",
     `Write in past tense, narrative style. Keep what happened, where, and the emotional tone. Be concise. ${NAMES_RULE}`,
+    SHARED_SUMMARY_PRIVACY_RULE,
     "Output only the summary text. No notes, no commentary, no disclaimers.",
     "",
     "PART SUMMARIES:",
@@ -216,6 +223,7 @@ export function buildShortTermSummaryPrompt(previousSummary: string | null, rece
       ? "Update the existing summary with the new messages: keep what still matters, fold in what changed, drop what the new messages made irrelevant."
       : "Write the summary from the messages below.",
     `Write in past tense, narrative style. ${NAMES_RULE} Output only the updated summary text. No notes, no commentary.`,
+    SHARED_SUMMARY_PRIVACY_RULE,
     ...(previousSummary ? ["", "EXISTING SUMMARY:", previousSummary] : []),
     "",
     "NEW MESSAGES:",

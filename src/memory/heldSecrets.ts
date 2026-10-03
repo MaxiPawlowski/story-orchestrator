@@ -45,6 +45,32 @@ export const keptFrom = (text: string, secrets: readonly HeldSecret[], member: r
   return secrets.some((secret) => !allowed(secret, names) && secret.phrasings.some((phrasing) => restatesWords(phrasing, words)));
 };
 
+const SENTENCE_BREAK = /(?<=[.!?]["')\]]?)\s+|\n+/;
+
+const redacted = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): string | null => {
+  const sentences = text.split(SENTENCE_BREAK).map((sentence) => sentence.trim()).filter(Boolean);
+  const shown = sentences.filter((sentence) => !keptFrom(sentence, secrets, member));
+  const joined = shown.join(" ");
+  return shown.length && shown.length < sentences.length && !keptFrom(joined, secrets, member) ? joined : null;
+};
+
+export interface SharedTierView {
+  entries: MemoryEntry[];
+  withheld: Set<string>;
+}
+
+export function sharedTierView(entries: MemoryEntry[], secrets: readonly HeldSecret[], member: readonly string[] | null): SharedTierView {
+  const withheld = new Set<string>();
+  if (!secrets.length) return { entries, withheld };
+  const shown = entries.map((entry) => {
+    if (!keptFrom(entry.text, secrets, member)) return entry;
+    const text = redacted(entry.text, secrets, member);
+    if (text === null) withheld.add(entry.id);
+    return text === null ? entry : { ...entry, text };
+  });
+  return { entries: shown, withheld };
+}
+
 export function withheldEntryIds(entries: readonly MemoryEntry[], secrets: readonly HeldSecret[], member: readonly string[] | null): Set<string> {
   return new Set(secrets.length ? entries.filter((entry) => keptFrom(entry.text, secrets, member)).map((entry) => entry.id) : []);
 }

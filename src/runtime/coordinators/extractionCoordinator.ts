@@ -4,6 +4,7 @@ import { defaultContextLimit } from "@extraction/inputBudget";
 import { isLapse } from "@extraction/modelError";
 import { askText } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
+import { compactableEnd, readCoverageEnd } from "@extraction/readCursor";
 import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
 import { deriveScope } from "@extraction/scope";
 import { runSharedRead, sharedReadWindow } from "@extraction/sharedRead";
@@ -249,11 +250,11 @@ export class ExtractionCoordinator {
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
     if (intents) await intents;
     if (!run.stillOwns()) return;
+    if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
     memory.recordVerifyDrops(verified.dropped);
     const resolvedArcs = memoryEnabled && arcSignals.length ? memory.applyArcSignals(arcSignals, audit.window.to) : [];
-    if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     if (memory.capable && ledgerSignals.length) memory.applyLedger(ledgerSignals, audit.window.to);
     if (!this.state.audits.some((entry) => entry.id === audit.id)) this.state.audits = [...this.state.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) this.resolveReconciliation(audit);
@@ -382,13 +383,18 @@ export class ExtractionCoordinator {
 
   shouldCompactShortTerm(lastMessageId: number): boolean {
     if (!this.deps.getStory() || !this.deps.memory.enabled) return false;
-    return lastMessageId - this.deps.memory.shortTermSummaryEnd >= SHORT_TERM_COMPACTION_MESSAGES;
+    return this.compactableTo(lastMessageId) - this.deps.memory.shortTermSummaryEnd >= SHORT_TERM_COMPACTION_MESSAGES;
+  }
+
+  private compactableTo(lastId: number): number {
+    if (!this.deps.memory.capable || !this.deps.hosts.roster.getActiveGroup() || !this.state.settings.enabled) return lastId;
+    return compactableEnd(lastId, readCoverageEnd(this.state.audits), 2 * SHORT_TERM_COMPACTION_MESSAGES);
   }
 
   async runShortTermCompaction() {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !memory.enabled) return;
-    const lastId = this.deps.hosts.chat.chatRows().length - 1;
+    const lastId = this.compactableTo(this.deps.hosts.chat.chatRows().length - 1);
     if (!this.shouldCompactShortTerm(lastId)) return;
     const window = this.deps.hosts.chat.chatWindow(memory.shortTermSummaryEnd + 1, lastId);
     if (!window.messages.length) return;
