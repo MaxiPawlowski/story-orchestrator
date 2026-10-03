@@ -22,6 +22,10 @@
       "eval": "const details = document.getElementById('so-role-profiles'); if (!details) throw new Error('#so-role-profiles is not in the settings panel'); details.open = true; const target = details.querySelector('[data-role=\"director\"] [data-so=\"role-profile-test\"]'); if (!target) throw new Error('the director self-test button is not in #so-role-profiles'); target.scrollIntoView({ block: 'center' }); return true;"
     },
     {
+      "eval": "const sel = \"#so-role-profiles [data-role=\\\"director\\\"] [data-so=\\\"role-profile-test\\\"]\"; const end = Date.now() + 15000; let last = null; let stable = 0; let scrolls = 0; while (Date.now() < end) { const el = document.querySelector(sel); if (el) { const r = el.getBoundingClientRect(); const inView = r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth; if (!inView) { el.scrollIntoView({ block: 'center' }); scrolls += 1; stable = 0; last = null; } else { const pos = `${Math.round(r.top)}:${Math.round(r.left)}`; stable = pos === last ? stable + 1 : 0; last = pos; if (stable >= 2) return { inView: true, top: Math.round(r.top), viewport: window.innerHeight, scrolls }; } } await new Promise((resolve) => setTimeout(resolve, 250)); } const el = document.querySelector(sel); const r = el?.getBoundingClientRect(); throw new Error(`could not scroll ${sel} into view and hold it there (as a user would before clicking): ${JSON.stringify(el ? { top: Math.round(r.top), bottom: Math.round(r.bottom), viewport: window.innerHeight, scrolls } : 'missing')}`);",
+      "log": true
+    },
+    {
       "ui": {
         "action": "pointer-click",
         "selector": "#so-role-profiles [data-role=\"director\"] [data-so=\"role-profile-test\"]"
@@ -72,5 +76,6 @@
       "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ profiles: globalThis.__p08r?.before ?? {} }); delete globalThis.__p08r; return rt.getGlobalSettings().extraction.profiles ?? {};",
       "log": true
     }
-  ]
+  ],
+  "_v26": "T7 2026-10-03: the pointer-click's hit-test found the director self-test button offscreen (centre y 1711) although the step before had called scrollIntoView once, so the one-shot scroll did not leave it in view by the time of the click. The step before the pointer-click now scrolls the button into view and waits until it holds still inside the viewport, as a user would; pointer-click still hit-tests and clicks at the control's own centre."
 }

@@ -1,6 +1,7 @@
 {
   "name": "plan05-pin-quarantine",
   "objective": "v2.3 plan 05, the deterministic half of the J6 variant: a fact planted from a real message, PINNED, then its source message EDITED. The pin does not protect it from a source that no longer says it — the row goes `source-removed`, it leaves the injected facts block (excluded, not ranked lower), and the author's reconfirmation brings it back as `source: author`. Extraction is mocked on purpose here (the parser has its own live suites); the mechanism under test is the queue, the quarantine and the injection, none of which need a model. The real-LLM variant of this check is plan 05's live recipe — this file is plumbing, and it must never stand in for that gate.",
+  "requires": {"judge": "off", "why": "facts are planted through a mocked read on purpose (the subject is the queue/quarantine, not extraction); judge memoryVerify (on by default since v2.6 rule 5) drops planted lines the transcript does not support, so on a judge-on lane they never land (green x2 on the judge-off no-model lane, T7 SUITE)"},
   "steps": [
     {
       "import_story": {

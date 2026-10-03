@@ -1,5 +1,11 @@
 {
   "_note": "v2.5 plan 04 N1, LIVE (real memory model, judge uses all off; so-scenario --sandbox --group 1759606632088). One author-locked seed (en; the es seed went with v2.6 W25); a scripted Courier line negates it; a real extraction read after the line must store a claim that is HELD against the seed (standing side = the seed, claim not live), and at least one held claim must sit below the 0.4 Jaccard band, so the polarity screen is what held it. A final agreeing control line must store live rows and queue no new pair. A step that throws NOT EXERCISED is not a pass: re-run it. Plan 04 records this row green x1 (x2 in plan 10).",
+  "requires": {
+    "lane": "model",
+    "group": "1759606632088",
+    "judge": "off",
+    "why": "N1 is a real memory-model read with every judge use off (the polarity screen, not a judge verdict, must hold the claim); the note pins the toy group"
+  },
   "steps": [
     {
       "import_story": {

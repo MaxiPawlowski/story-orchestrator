@@ -1,4 +1,8 @@
 {
+  "requires": {
+    "lane": "no-model",
+    "why": "the case under test is a FAILED extraction pass: on a lane whose memory profile answers, the pass succeeds and the fixture correctly refuses as not the failed-pass case (T7 suite 2026-10-03; green x2 on no-model lane 5)"
+  },
   "steps": [
     { "import_story": { "format": 2, "id": "so-e2-sweep", "title": "SO-E2 Sweep", "description": "v2.6 plan 01 carry-over of v2.5 plan 03 E2 (live half): with the memory model unreachable, a real extraction pass fails, and the player surfaces still read clean (no ids, keys, boundaries or error internals in player mode).", "qualities": [{ "key": "location", "type": "enum", "values": ["hall", "vault"], "source": "extractor", "rubric": "Where is the party now?" }], "checkpoints": [{ "id": "start", "name": "The hall", "objective": "Explore the hall.", "type": "anchor", "start": true }], "transitions": [], "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" }] } },
     { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true;" },

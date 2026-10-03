@@ -63,6 +63,10 @@
     "J12": 3.9
   },
   "overheadMinutes": 3,
+  "defaultGroup": "1759606632088",
+  "armJourneys": {
+    "J13": "the 01-fixes row (on arm, --judge-uses houseRules --warden-mode auto) and the judge-off column (off arm, --judge-uses off)"
+  },
   "lanes": 2,
   "nightHours": 10,
   "cutNote": "Hand-row minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).",
@@ -167,7 +171,7 @@
         },
         {
           "id": "01-v25-06",
-          "what": "J13 judge-on arm (journeys section); curator row: `so-role-calibration.mts run --role curator --arm shared-<bundle>-r1` (+ `-r2`, `verdict`) to rename recommended-config.md's bundle",
+          "what": "J13 judge-on arm (the 01-fixes row; J13 is out of the journeys section, it needs an arm); curator row: `so-role-calibration.mts run --role curator --arm shared-<bundle>-r1` (+ `-r2`, `verdict`) to rename recommended-config.md's bundle",
           "minutes": 20,
           "capMinutes": 10,
           "note": "plan 14 tier T6",

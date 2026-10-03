@@ -37,7 +37,7 @@
       "findings": [
         "U6"
       ],
-      "goal": "with nothing installed, the drawer says what to do next",
+      "goal": "with nothing installed, the drawer says what to do next (copy since 544975fb: \"Choose a story in Extensions → Story Orchestrator.\"; the old \"Load a story from the extension settings.\" was the story-description fallback)",
       "steps": [
         {
           "ui": {
@@ -48,7 +48,7 @@
           "expect_ui": {
             "selector": "#drawer-manager",
             "contains": [
-              "Load a story from the extension settings."
+              "Choose a story in Extensions"
             ]
           }
         }
@@ -74,11 +74,14 @@
         "U1",
         "I3"
       ],
-      "goal": "the memory profile is an install-level setting, so it is not stored per chat",
+      "goal": "the memory profile is an install-level setting, so it is not stored per chat (the memory model controls sit in the collapsed General setup section since 544975fb, so the section is opened first: select-profile does not open it)",
       "requires": [
         "global-extraction-settings"
       ],
       "steps": [
+        {
+          "eval": "const details = document.getElementById('so-general-setup'); if (!details) throw new Error('the General setup section (#so-general-setup) is missing from the settings panel'); details.open = true; return { generalSetupOpen: details.open };"
+        },
         {
           "ui": {
             "action": "select-profile"
@@ -229,6 +232,9 @@
       "goal": "after configuring the memory model in the settings panel, the first real transition fires",
       "steps": [
         {
+          "eval": "const details = document.getElementById('so-general-setup'); if (!details) throw new Error('the General setup section (#so-general-setup) is missing from the settings panel'); details.open = true; return { generalSetupOpen: details.open };"
+        },
+        {
           "ui": {
             "action": "select-profile"
           }
@@ -281,16 +287,11 @@
       "findings": [
         "U6"
       ],
-      "goal": "the transition is announced to the player in chat (the note posts after cp2's awaited onEnter LLM reply, a real generation, so the assertion waits for it instead of a 5 s UI settle)",
+      "goal": "the transition is announced to the player inline, not as a chat note: since W11 (T0 sessions 2026-10-01, 14-findings §6, 7b7dc620) \"Also post a chat note\" (announceTransitions) defaults OFF and the inline timeline carries the transition. Asserts the default is off, that no /comment note was posted, and that the level-1 player chip for the cp1 -> cp2 transition exists; cp2 has no player_name, so the chip reads the neutral player copy and never the author name \"Accept the Mission\". The inline window is widened to 200 for the read (install-wide display setting, put back by the journey's restoreConfig) so a long J1.6 cannot push the transition out of the default 20-message window",
       "steps": [
         {
-          "expect_ui": {
-            "selector": "#chat",
-            "contains": [
-              "Accept the Mission"
-            ],
-            "timeoutMs": 180000
-          }
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setInlineSettings({ window: 200 }); await new Promise((done) => setTimeout(done, 500)); const snap = rt.getSnapshot(); if (snap.ui?.announceTransitions !== false) throw new Error(`the transition chat note is opt-in since W11, but this install reads announceTransitions=${JSON.stringify(snap.ui?.announceTransitions)}`); const notes = (SillyTavern.getContext().chat ?? []).filter((message) => message?.is_system && message?.extra?.type === 'comment'); if (notes.length) throw new Error(`a chat note was posted although \"Also post a chat note\" is off: ${JSON.stringify(notes.map((message) => String(message.mes).slice(0, 80)))}`); const items = Object.entries(snap.inline?.byMessage ?? {}).flatMap(([mesId, list]) => list.map((item) => ({ mesId: Number(mesId), ...item }))).filter((item) => item.id.startsWith('progress:transition:')); if (!items.length) throw new Error(`no inline transition chip under any message: inline level ${snap.inline?.level}, ${Object.keys(snap.inline?.byMessage ?? {}).length} message(s) with chips`); const leaked = items.filter((item) => item.text.includes('Accept the Mission')); if (leaked.length) throw new Error(`the author checkpoint name reached player copy: ${JSON.stringify(leaked.map((item) => item.text))}`); const chip = items[0]; if (chip.text !== 'The story moved on') throw new Error(`cp2 has no player_name, so the chip must read the neutral player copy: ${JSON.stringify(chip.text)}`); if (chip.level !== 1 || chip.persona !== 'player') throw new Error(`the transition chip is not level-1 player copy: ${JSON.stringify(chip)}`); return { chip: chip.text, mesId: chip.mesId, transitions: items.length, chatNotes: 0 };",
+          "log": true
         }
       ]
     },

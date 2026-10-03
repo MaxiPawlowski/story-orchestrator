@@ -5,6 +5,7 @@ import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskFlavourIssue } from './lib/bundleFlavour.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
+import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -18,12 +19,20 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   stop <n...>                  stop lane n's browser and server
   status                       list lanes and whether each is up
   env <n>                      print the environment that points a debug script at lane n
-  run <n> -- <node script args> run one debug script against lane n
-  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] <item...>
+  run <n> [--allow-load] -- <node script args> run one debug script against lane n (an integration
+                               play is refused under the same lane-load rule as batch)
+  no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
+                               copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
+  restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
+  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--allow-load] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
                                item that many times back to back on the SAME lane, so "twice" stays
-                               "two consecutive runs on one install".`;
+                               "two consecutive runs on one install". Refused while more than
+                               SO_MAX_LLM_LANES (default 2) lanes with a model are up: on 2026-10-03 five
+                               LLM lanes on one pod made a 4-token completion take 56 s and turned
+                               backend latency into red runs (T7 SUITE.md finding 4). No-model lanes do
+                               not count; --allow-load overrides.`;
 
 const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
@@ -149,11 +158,42 @@ async function status() {
   const entries = existsSync(LANES_ROOT) ? (await readdir(LANES_ROOT)).filter((name) => /^\d+$/.test(name)).map(Number).sort((a, b) => a - b) : [];
   return Promise.all(entries.map(async (n) => {
     const lane = lanePaths(n);
-    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: await isUp(lane.port), browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
+    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: await isUp(lane.port), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; automated: string | null; cleanup: string | null; record: string | null; failures: string[]; log: string; ms: number };
+type BatchResult = { item: string; lane: number; run: number; code: number; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number };
+
+async function setModelAccess(n: number, on: boolean) {
+  const lane = lanePaths(n);
+  if (await isUp(lane.port)) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites secrets.json and settings.json`);
+  const user = resolve(lane.data, 'default-user');
+  const secretsPath = resolve(user, 'secrets.json');
+  const backupPath = resolve(user, NO_MODEL_BACKUP);
+  const settingsPath = resolve(user, 'settings.json');
+  if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
+  let removed: string[] = [];
+  let restored = false;
+  if (!on) {
+    if (existsSync(backupPath)) throw new Error(`lane ${n} already holds ${NO_MODEL_BACKUP}: run restore-model ${n} first, or the real keys in it would be overwritten`);
+    if (existsSync(secretsPath)) {
+      const raw = await readFile(secretsPath, 'utf-8');
+      const stripped = stripModelSecrets(JSON.parse(raw));
+      await writeFile(backupPath, raw, 'utf-8');
+      await writeFile(secretsPath, JSON.stringify(stripped.next, null, 4), 'utf-8');
+      removed = stripped.removed;
+    }
+  } else if (existsSync(backupPath)) {
+    await cp(backupPath, secretsPath);
+    await rm(backupPath, { force: true });
+    restored = true;
+  }
+  const settings = withJudgeEnabled(JSON.parse(await readFile(settingsPath, 'utf-8')), on);
+  await writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
+  const judge = judgeEnabledIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
+  if (judge !== on) throw new Error(`lane ${n}: judge.enabled reads ${judge} after writing ${on}`);
+  return { lane: n, model: on ? 'restored' : 'removed', removedKeys: removed.length, secretsRestored: restored, judgeEnabled: judge };
+}
 
 // v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
 export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (/^J\d+$/i.test(item)
@@ -177,10 +217,11 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
           cleanup: output.match(/^cleanup: .*$/m)?.[0] ?? null,
           record: output.match(/Wrote JSON: (.*journey-J\d+\.json)/)?.[1]?.trim() ?? null,
+          notRunnable: output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null,
           failures: [...output.matchAll(/^(FAIL|BLOCKED)\s+(\S+)/gm)].map((match) => `${match[1]} ${match[2]}`).concat(/^J/i.test(item) ? [] : [...output.matchAll(/^\S+ \d+\/\d+ \S+ FAIL (.{0,160})/gm)].map((match) => match[1])),
         };
         results.push(result);
-        console.log(`lane ${n} ${item} run ${run}: code ${code}${result.automated ? ` · ${result.automated}` : ''} (${Math.round(result.ms / 1000)} s)`);
+        console.log(`lane ${n} ${item} run ${run}: code ${code}${result.automated ? ` · ${result.automated}` : ''}${result.notRunnable ? ` · NOT RUNNABLE: ${result.notRunnable}` : ''} (${Math.round(result.ms / 1000)} s)`);
       }
     }
   }));
@@ -202,6 +243,15 @@ export const lanePreflight = (extensionDir: string = SERVED_EXTENSION_DIR): stri
 
 export const batchExitCode = (out: { green: number; runs: number }): number => (out.runs > 0 && out.green === out.runs ? 0 : 1);
 
+export const DEFAULT_MAX_LLM_LANES = 2;
+
+export const isIntegrationPlay = (script: string[]) => /so-integration\.mts$/.test(script[0] ?? '') && script[1] === 'play';
+
+export function laneLoadProblem(lanes: Array<{ lane: number; serverUp: boolean; noModel?: boolean }>, max: number = DEFAULT_MAX_LLM_LANES): string | null {
+  const llm = lanes.filter((entry) => entry.serverUp && !entry.noModel).map((entry) => entry.lane);
+  return llm.length > max ? `${llm.length} lanes with a model are up (${llm.join(', ')}), more than ${max}: one pod serves LLM_PARALLEL requests and the rest queue, so backend latency would read as red runs (T7: a 4-token completion took 56 s under 5 lanes). Stop a lane, make it a no-model lane, or pass --allow-load` : null;
+}
+
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
   if (!command || command === '--help') { console.log(USAGE); return; }
@@ -210,13 +260,18 @@ async function main() {
   else if (command === 'start') out = await Promise.all(laneNumbers(rest).map((n) => start(n, rest.includes('--headed'))));
   else if (command === 'stop') out = await Promise.all(laneNumbers(rest).map(stop));
   else if (command === 'status') out = await status();
+  else if (command === 'no-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, false)));
+  else if (command === 'restore-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, true)));
   else if (command === 'env') {
     const [n] = laneNumbers(rest);
     out = Object.entries(laneEnv(n)).map(([key, value]) => `${key}=${value}`).join(' ');
   } else if (command === 'run') {
     const [n] = laneNumbers(rest.slice(0, 1));
     const at = rest.indexOf('--');
-    const { code } = await runNode(rest.slice(at + 1), laneEnv(n), { echo: true });
+    const script = rest.slice(at + 1);
+    const load = isIntegrationPlay(script) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
+    if (load) throw new Error(`run refused: ${load}`);
+    const { code } = await runNode(script, laneEnv(n), { echo: true });
     process.exitCode = code;
     return;
   } else if (command === 'batch') {
@@ -225,6 +280,8 @@ async function main() {
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
     const refused = lanePreflight();
     if (refused) throw new Error(`batch refused: ${refused}`);
+    const load = rest.includes('--allow-load') ? null : laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES));
+    if (load) throw new Error(`batch refused: ${load}`);
     const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'));
     process.exitCode = batchExitCode(result);
     out = result;

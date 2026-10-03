@@ -93,7 +93,7 @@
       "findings": [
         "U7"
       ],
-      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable",
+      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable (labels since 544975fb: \"Library description\" + \"Player introduction\" replaced \"Description\")",
       "requires": [
         "studio-requirements-editor"
       ],
@@ -110,7 +110,8 @@
             "contains": [
               "Story id",
               "Version",
-              "Description",
+              "Library description",
+              "Player introduction",
               "Dramatic shape",
               "Requirements",
               "Persona",

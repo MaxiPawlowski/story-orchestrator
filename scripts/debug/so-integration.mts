@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { REPO_ROOT } from '../lib/stRoot.mjs';
 import { evaluateInST } from './lib/evaluate.mts';
 import {
-  activeOutages, baselineOf, COLUMNS, columnSettings, deepMerge, diffReopen, engineHistoryFrom, freezeCheck, lineFor, mutationAfter, outageMatcher,
+  activeOutages, baselineOf, chatDriftStop, COLUMNS, columnSettings, deepMerge, IntegrationStop, mutationStop, diffReopen, engineHistoryFrom, freezeCheck, lineFor, mutationAfter, outageMatcher,
   outagePreflight, parseRouteBlobs, profileSignature, readbackProblems, splitBulkyEvidence, renderPlan, routeSlice, runById, stepReached, summarizeFindings, validateRuns, verifyRun,
   type Column, type Outage, type OutageContext, type ProfileSignature, type RouteDoc, type RunSpec, type RunsDoc, type StoryIndexLike,
 } from './lib/integrationRuns.mts';
@@ -230,6 +230,8 @@ export async function playRun(page: any, { doc, run, column, out, routes, deps }
   const exportProblems: string[] = [];
   try {
     const playTurn = async (line: string) => {
+      const drift = chatDriftStop((await readPage(page)).chatId, primary.chatId, `before turn ${turn + 1}`);
+      if (drift) throw new IntegrationStop(drift);
       turn += 1;
       current = activeOutages(run, turn);
       const row = await runTurn(page, line, deps, options);
@@ -250,6 +252,8 @@ export async function playRun(page: any, { doc, run, column, out, routes, deps }
         if (mutation.verb === 'switch-chat-mid-gen') { args.to = secondary[0]?.chatId ?? null; if (args.to) touched.add(String(args.to)); }
         const done = await runMutation(page, mutation.verb as MutationVerb, args, deps, options).catch((error) => ({ kind: 'mutation', verb: mutation.verb, ok: false, problems: [error instanceof Error ? error.message : String(error)] }));
         await append('turns.jsonl', { ...done, kind: 'mutation', verb: mutation.verb, afterTurn: turn });
+        const stop = mutationStop(mutation.verb, done as { ok?: boolean; problems?: string[] }, (await readPage(page)).chatId, primary.chatId);
+        if (stop) throw new IntegrationStop(stop);
       }
     };
     const cut = async (afterStep: number, expect: string) => {
@@ -290,6 +294,9 @@ export async function playRun(page: any, { doc, run, column, out, routes, deps }
       if ((run.cuts ?? []).includes(index)) await cut(index, step.expect);
     }
     while (drive.mode === 'turns' && turn < totalTurns) await playTurn(lineFor(doc, { checkpointName: null, turn: turn + 1, free: true }));
+  } catch (error) {
+    if (!(error instanceof IntegrationStop)) throw error;
+    await append('turns.jsonl', { kind: 'stop', turn, problems: [error.message] });
   } finally {
     if (run.outages) await page.unroute('**/api/**', handler).catch(() => undefined);
     for (const chatId of touched) {

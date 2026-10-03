@@ -152,15 +152,19 @@ test('negative control: a memory cut never aborts a main-profile request even wh
   assert.deepEqual(match(otherModel), { abort: false, service: null });
 });
 
-test('columns: on refuses pending resolutions unless the fallback is accepted; both columns force images and sprites off', () => {
+test('columns: the on column runs without --accept-fallback (T7 wave C resolved its four settings); a pending one still refuses; both columns force images and sprites off', () => {
   const doc = loadDoc();
-  const refused = columnSettings(doc, 'on');
-  assert.match(String(refused.refusal), /reasoning-effort/);
-  const on = columnSettings(doc, 'on', { acceptFallback: true });
+  const on = columnSettings(doc, 'on');
   assert.equal(on.refusal, null);
-  assert.deepEqual(on.fallbacksUsed, ['reasoning-effort', 'spikes-b', 'inner-voice', 'chapters']);
+  assert.deepEqual(on.fallbacksUsed, []);
+  for (const resolution of doc.columns.on.resolutions ?? []) assert.match(String((resolution as { resolvedFrom?: string }).resolvedFrom), /T7 wave C/, `${resolution.id} names where it was resolved from`);
+  assert.deepEqual(on.patch!.spikes, { sp5Scenario: true, sp8CuratorTiers: true });
   assert.equal(on.patch!.stagecraft.acceptMode, 'auto');
   assert.equal(on.patch!.image.enabled, false);
+  assert.deepEqual(readbackProblems(on.patch, {}, Object.fromEntries(Object.entries(doc.columns.on.readback ?? {}).filter(([path]) => path !== 'worldInfo.gatingMode'))), [], 'the on readback expects exactly what the patch writes (gating mode goes through the confirm, not the patch)');
+  const pending = { ...doc, columns: { ...doc.columns, on: { ...doc.columns.on, resolutions: [{ ...doc.columns.on.resolutions![0], status: 'pending' as const }] } } };
+  assert.match(String(columnSettings(pending, 'on').refusal), /reasoning-effort/);
+  assert.deepEqual(columnSettings(pending, 'on', { acceptFallback: true }).fallbacksUsed, ['reasoning-effort']);
   const defaults = columnSettings(doc, 'defaults');
   assert.equal(defaults.refusal, null);
   assert.deepEqual(defaults.patch, { image: { enabled: false }, sprites: { enabled: false, explicit: true } });

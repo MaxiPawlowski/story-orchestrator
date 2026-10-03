@@ -137,6 +137,10 @@
       }
     },
     {
+      "eval": "const sel = \"[data-so=\\\"agency-take-alternate\\\"]\"; const end = Date.now() + 15000; let last = null; let stable = 0; let scrolls = 0; while (Date.now() < end) { const el = document.querySelector(sel); if (el) { const r = el.getBoundingClientRect(); const inView = r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth; if (!inView) { el.scrollIntoView({ block: 'center' }); scrolls += 1; stable = 0; last = null; } else { const pos = `${Math.round(r.top)}:${Math.round(r.left)}`; stable = pos === last ? stable + 1 : 0; last = pos; if (stable >= 2) return { inView: true, top: Math.round(r.top), viewport: window.innerHeight, scrolls }; } } await new Promise((resolve) => setTimeout(resolve, 250)); } const el = document.querySelector(sel); const r = el?.getBoundingClientRect(); throw new Error(`could not scroll ${sel} into view and hold it there (as a user would before clicking): ${JSON.stringify(el ? { top: Math.round(r.top), bottom: Math.round(r.bottom), viewport: window.innerHeight, scrolls } : 'missing')}`);",
+      "log": true
+    },
+    {
       "ui": {
         "action": "hit-test",
         "selector": "[data-so=\"agency-take-alternate\"]"
@@ -193,5 +197,6 @@
       "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); if (snapshot.agencyRecovery) throw new Error(`the card outlived the accepted duel: ${JSON.stringify(snapshot.agencyRecovery)}`); return { active: snapshot.activeCheckpointId, agencyRecovery: null };",
       "log": true
     }
-  ]
+  ],
+  "_v26": "T7 2026-10-03: the hit-test found the control below the fold of the drawer's Scheduler tab (centre y 1270, outside the viewport) and failed as 'offscreen'. A user scrolls to a control before pressing it, so the step before the hit-test scrolls [data-so=\"agency-take-alternate\"] into view and waits until it holds still inside the viewport; the hit-test itself is kept and still fails on an overlay, a disabled control or a missing box."
 }

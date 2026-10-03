@@ -77,6 +77,53 @@ export const GENERATED = {
   }),
 };
 
+export const TOY_GROUP = '1759606632088';
+
+const describeRequires = (requires = {}) => [
+  requires.group ? `group ${requires.group}` : null,
+  requires.members?.length ? `members ${requires.members.join(', ')}` : null,
+  requires.authorView ? 'Author view' : null,
+  requires.judge === 'off' ? 'judge off' : null,
+  requires.mainApi ? `main API ${requires.mainApi}` : null,
+  requires.roleProfiles ? `every role on ${requires.roleProfiles}` : null,
+  typeof requires.macroEngine === 'boolean' ? `macro engine ${requires.macroEngine ? 'on' : 'off'}` : null,
+  typeof requires.vectorsWorldInfo === 'boolean' ? `Vectors World Info ${requires.vectorsWorldInfo ? 'on' : 'off'}` : null,
+].filter(Boolean).join('; ');
+
+export function noLlmSuiteRows(scenarios, { group = TOY_GROUP } = {}) {
+  const runnable = scenarios.filter((row) => !row.requires?.prior);
+  const noModel = runnable.filter((row) => row.requires?.lane === 'no-model');
+  const live = runnable.filter((row) => row.requires?.lane !== 'no-model');
+  const minutes = (list) => Math.round(list.reduce((sum, row) => sum + (row.est ?? 0), 0) / 60);
+  const batch = (list) => `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group ${group} ${list.map((row) => row.asset).join(' ')}`;
+  const rows = [];
+  if (noModel.length) rows.push({
+    id: `no-model lane (${noModel.length})`,
+    what: 'kept no-LLM scenarios with requires.lane no-model: the pass must fail or no extraction may run',
+    command: `node scripts/debug/st-lanes.mts stop <n>; node scripts/debug/st-lanes.mts no-model <n>; node scripts/debug/st-lanes.mts start <n>; ${batch(noModel)}; node scripts/debug/st-lanes.mts stop <n>; node scripts/debug/st-lanes.mts restore-model <n>`,
+    when: 'always',
+    config: `a lane with no model (api keys removed, judge off); each scenario's own requires (group, members, Author view) is established by so-scenario, its --group ${group} only where the file names none`,
+    artifacts: ['st-lanes batch summary', 'scenario log per run', 'run header before + `so-run-header.mts diff` after'],
+    tier: 'T7',
+    minutes: minutes(noModel),
+  });
+  if (live.length) rows.push({
+    id: `live lane (${live.length})`,
+    what: 'every other kept no-LLM scenario; those with requires.lane model need the model to answer',
+    command: batch(live),
+    when: 'always',
+    config: `a lane with the live model; each scenario's own requires is established by so-scenario (group by name, members re-enabled, Author view, judge off) or refused as not-runnable (main API, role profiles, macro engine, Vectors World Info); --group ${group} only where the file names none`,
+    artifacts: ['st-lanes batch summary', 'scenario log per run', 'run header before + `so-run-header.mts diff` after'],
+    tier: 'T7',
+    minutes: minutes(live),
+  });
+  return {
+    rows,
+    excluded: scenarios.filter((row) => row.requires?.prior).map((row) => ({ asset: row.asset, prior: row.requires.prior })),
+    preconditions: scenarios.filter((row) => row.requires && Object.keys(row.requires).length).map((row) => ({ asset: row.asset, lane: row.requires.lane ?? 'any', needs: describeRequires(row.requires), why: row.requires.why ?? row.requires.prior ?? '' })),
+  };
+}
+
 const REPO_PATH = /(?:^|[\s(])((?:scripts|test|src|docs)\/[^\s;,()`'"]+\.(?:mts|mjs|ts|json|md))/g;
 
 export function suiteRowProblems(row, exists = () => true) {

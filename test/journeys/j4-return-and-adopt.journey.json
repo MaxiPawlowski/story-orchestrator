@@ -101,7 +101,7 @@
       "id": "J4.3",
       "mode": "auto",
       "findings": [],
-      "goal": "the recap names the checkpoint the player left off at, then dismisses cleanly",
+      "goal": "the recap says where the player is in player copy, then dismisses cleanly. \"Where you are\" reads the checkpoint's player_name and falls back to \"Current scene\" (snapshotBuilder.ts, 544975fb; ui-review 2026-09-28 finding 2: raw objectives and author names never reach the player). sun-ruins cp1 has no player_name, so the author name \"Investigate the Job Board\" must NOT appear",
       "requires": [
         "away-recap"
       ],
@@ -110,11 +110,14 @@
           "expect_ui": {
             "selector": "dialog[open]",
             "contains": [
-              "Investigate the Job Board",
-              "Where you are"
+              "Where you are",
+              "Current scene"
             ],
             "timeoutMs": 30000
           }
+        },
+        {
+          "eval": "const dialog = document.querySelector('dialog[open]'); if (!dialog) throw new Error('the recap dialog is not open'); const text = (dialog.querySelector('.popup-content') ?? dialog).textContent ?? ''; if (text.includes('Investigate the Job Board')) throw new Error('the recap shows the author checkpoint name instead of player copy'); return { playerCopy: true, excerpt: text.replace(/\\s+/g, ' ').trim().slice(0, 160) };"
         },
         {
           "eval": "const button = document.querySelector('dialog[open] .popup-button-ok'); if (button) button.click(); await new Promise((done) => setTimeout(done, 500)); return { dismissed: !document.querySelector('dialog[open]') };"
@@ -160,13 +163,21 @@
       "findings": [
         "S3"
       ],
-      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it",
+      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it. The back-date is read back from the chat file before the reload (as J4.2 does; T7 r1 reloaded on an unverified back-date and no recap came), and any dialog left open is closed and asserted gone first, so the recap check cannot pass on J4.2's dialog (T7 r2 did)",
       "requires": [
         "away-recap"
       ],
       "steps": [
         {
-          "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const id = blob.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob))); blob.stories[id].extras.lastSessionAt = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); await ctx.saveMetadata(); return { id };"
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 3000,
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "eval": "const ctx = SillyTavern.getContext(); for (const dialog of document.querySelectorAll('dialog[open]')) dialog.querySelector('.popup-button-ok, .popup-button-cancel')?.click(); await new Promise((done) => setTimeout(done, 500)); const stale = document.querySelectorAll('dialog[open]').length; if (stale) throw new Error(`${stale} dialog(s) still open before the reload, so the recap check could pass on a stale one`); const blob = ctx.chatMetadata.story_orchestrator; const id = blob?.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob ?? {}))); const seeded = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[id].extras.lastSessionAt = seeded; await ctx.saveMetadata(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); const data = await response.json().catch(() => []); const onDisk = (Array.isArray(data) ? data[0] : null)?.chat_metadata?.story_orchestrator?.stories?.[id]?.extras?.lastSessionAt ?? null; if (onDisk !== seeded) throw new Error(`the gap never reached the chat file, so the recap cannot fire: memory ${seeded}, file ${onDisk}`); return { id, seeded, onDisk };",
+          "log": true
         },
         {
           "reload": {

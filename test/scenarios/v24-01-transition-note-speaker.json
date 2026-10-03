@@ -1,6 +1,13 @@
 {
   "name": "v24-01-transition-note-speaker",
   "objective": "v2.4 plan 01 T10, no backend. Our own transition note is a `/comment` (host fact 01-H9: name 'Note', is_system:true, extra.type:'comment'). After it, the active speaker must still be the member who spoke last. Red on v2.3: activeSpeakerId returns null at the first named non-user row, so the Note blanks the speaker. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "requires": {
+    "group": "1759606632088",
+    "members": [
+      "Luke"
+    ],
+    "why": "T10 needs Luke (sun-ruins roster little_brother) enabled in the toy group; an earlier cast change leaves him disabled"
+  },
   "steps": [
     {
       "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"

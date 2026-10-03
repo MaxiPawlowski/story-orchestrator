@@ -76,40 +76,44 @@
           "what": "reasoning effort per role at 05 R3's recommendations",
           "source": "docs/plans/v2.6/recommended-reasoning.md",
           "target": "extraction.routes.<role>.route.options.effort",
-          "status": "pending",
-          "value": null,
+          "status": "resolved",
+          "value": {},
           "fallback": {},
-          "fallbackMeans": "every role at 'default' (no effort written)"
+          "fallbackMeans": "every role at 'default' (no effort written)",
+          "resolvedFrom": "2026-10-03 (T7 wave C): docs/plans/v2.6/recommended-reasoning.md §Combined recommendation, DeepSeek column (the lanes route every orchestrator role to `deepseek 4.1 flash`): read and synthesis none, authoring and director include `default`, curator low/high withdrawn after T6-1. Every role stays at `default`, so no effort is written."
         },
         {
           "id": "spikes-b",
           "what": "every spike .b included by 03",
           "source": "docs/plans/v2.6/03-spike-reevaluation.md (the include/defer/drop table)",
           "target": "spikes.<flag>",
-          "status": "pending",
-          "value": null,
+          "status": "resolved",
+          "value": { "spikes": { "sp5Scenario": true, "sp8CuratorTiers": true } },
           "fallback": {},
-          "fallbackMeans": "every spike flag off (shipped)"
+          "fallbackMeans": "every spike flag off (shipped)",
+          "resolvedFrom": "2026-10-03 (T7 wave C): docs/plans/v2.6/03-spike-reevaluation.md include table: SP5.b and SP8.b include, still behind their spike flags (src/runtime/settingsModel.ts SPIKE_FLAGS); SP7.b and SP3.b are built into prod with no flag; every other spike is drop or undecided, so off."
         },
         {
           "id": "inner-voice",
           "what": "the inner voice (06) at the default its floors chose",
           "source": "test/measurements/v2.6-06/c-inner-beat-spike.json (verdict)",
           "target": "memory.innerBeat, memory.innerFanOut, memory.harvestReasoning",
-          "status": "pending",
-          "value": null,
+          "status": "resolved",
+          "value": {},
           "fallback": {},
-          "fallbackMeans": "inner beat and harvest absent (shipped off)"
+          "fallbackMeans": "inner beat and harvest absent (shipped off)",
+          "resolvedFrom": "2026-10-03 (T7 wave C): test/measurements/v2.6-06/c-inner-beat-spike.json status is not run, so no floor chose a default: the column runs the shipped default (inner beat and harvest absent)."
         },
         {
           "id": "chapters",
           "what": "chapters (07) at the defaults their floors chose",
           "source": "test/measurements/v2.6-07/recipe.json (verdict)",
           "target": "memory.chapters",
-          "status": "pending",
-          "value": null,
+          "status": "resolved",
+          "value": {},
           "fallback": {},
-          "fallbackMeans": "DEFAULT_CHAPTER_SETTINGS (seal, storySoFar, fold off; recap on)"
+          "fallbackMeans": "DEFAULT_CHAPTER_SETTINGS (seal, storySoFar, fold off; recap on)",
+          "resolvedFrom": "2026-10-03 (T7 wave C): test/measurements/v2.6-07/recipe.json status is declared, not run, so no floor chose a default: the column runs DEFAULT_CHAPTER_SETTINGS. Judge providers likewise stay at the TypeSafe default: every llama-logprob row in docs/plans/v2.6/12-provider-matrix.md was withdrawn after T6-2."
         }
       ],
       "readback": {
@@ -141,6 +145,8 @@
         "judge.uses.expressions": true,
         "display.inline.level": 3,
         "worldInfo.gatingMode": "scan",
+        "spikes.sp5Scenario": true,
+        "spikes.sp8CuratorTiers": true,
         "image.enabled": false,
         "sprites.enabled": false
       }
@@ -170,7 +176,8 @@
         "judge.uses.loreExclusive": true,
         "display.inline.level": 1,
         "worldInfo.gatingMode": "file",
-        "spikes.sp7Chance": false,
+        "spikes.sp5Scenario": false,
+        "spikes.sp8CuratorTiers": false,
         "spikes.reasoningEffect": false,
         "image.enabled": false,
         "sprites.enabled": false

@@ -1,12 +1,19 @@
 {
   "name": "live-v15-host-restore",
-  "objective": "v2.3 replan V15, live on a real group (no model): a checkpoint in chat A disables Luke on the group; LEAVING for chat B, which ALREADY plays another story, puts Luke back (before V15 only a storyless destination restored anything — the first draft of this check left for a fresh chat, took the storyless path, and passed with the fix removed, so the destination here is prepared first); RETURNING to A re-applies its cast from the mirror; RESTART puts Luke back again. Every step reads the group's own disabled_members.",
+  "objective": "v2.3 replan V15, live on a real group (no model): a checkpoint in chat A disables Luke on the group; LEAVING for chat B, which ALREADY plays another story, puts Luke back (before V15 only a storyless destination restored anything — the first draft of this check left for a fresh chat, took the storyless path, and passed with the fix removed, so the destination here is prepared first. Chat B plays an inline story with no effects and no roster: it used to play sun-ruins, whose start checkpoint disables Ponticius and Luke itself, which stayed inert only while its Xentar Checkpoints requirement read missing; since story-scoped lore (T5-2-2, f7342021, 2026-10-02) that requirement is met by source 'story', so chat B re-disabled Luke on its own hydrate and the T7 suite read that as the leave leaving him disabled); RETURNING to A re-applies its cast from the mirror; RESTART puts Luke back again. Every step reads the group's own disabled_members.",
+  "requires": {
+    "group": "1759606632088",
+    "members": [
+      "Luke"
+    ],
+    "why": "road disables Luke on the toy group and every leave/return/restart reads that group's disabled_members; the runner re-enables a Luke an earlier run left disabled"
+  },
   "steps": [
     {
       "eval": "const ctx = SillyTavern.getContext(); if (String(ctx.groupId) !== '1759606632088') throw new Error(`run this in group 1759606632088, not ${ctx.groupId}`); const group = ctx.groups.find((entry) => String(entry.id) === '1759606632088'); const luke = group.members.find((member) => /^luke/i.test(member)); if (!luke) throw new Error(`no Luke in ${JSON.stringify(group.members)}`); if ((group.disabled_members ?? []).includes(luke)) throw new Error('Luke is already disabled: the baseline must have him enabled'); globalThis.__v15 = { chatB: String(ctx.chatId), luke, baseline: [...(group.disabled_members ?? [])] }; return globalThis.__v15;",
       "log": true
     },
-    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "import_story": {"format": 2, "id": "so-v15-other", "version": 1, "title": "SO-V15 Other", "description": "v2.3 replan V15: chat B's own story. It sets no checkpoint effect and has no roster, so anything chat B's group shows disabled after the leave is chat A's leftover.", "qualities": [], "checkpoints": [{"id": "start", "name": "Elsewhere", "objective": "Wait.", "type": "anchor", "start": true}], "transitions": [], "roster": []} },
     { "slash": "/newchat", "adoptsNewChat": true },
     {
       "eval": "globalThis.__v15.chatA = String(SillyTavern.getContext().chatId); if (globalThis.__v15.chatA === globalThis.__v15.chatB) throw new Error('/newchat did not open a second chat'); return { chatA: globalThis.__v15.chatA };",
@@ -20,7 +27,7 @@
       "log": true
     },
     {
-      "eval": "const ctx = SillyTavern.getContext(); await ctx.openGroupChat('1759606632088', globalThis.__v15.chatB); for (let i = 0; i < 40 && (String(SillyTavern.getContext().chatId) !== globalThis.__v15.chatB || globalThis.storyOrchestratorRuntime.getSnapshot().storyId !== 'sun-ruins'); i += 1) await new Promise((resolve) => setTimeout(resolve, 250)); await new Promise((resolve) => setTimeout(resolve, 1500)); const now = SillyTavern.getContext(); if (String(now.chatId) !== globalThis.__v15.chatB) throw new Error(`could not open chat B: ${now.chatId}`); const story = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; if (story !== 'sun-ruins') throw new Error(`chat B is not playing its own story (${story}): the leave would take the storyless path this check exists to avoid`); const group = now.groups.find((entry) => String(entry.id) === '1759606632088'); if (group.disabled_members.includes(globalThis.__v15.luke)) throw new Error('leaving for a chat that plays ANOTHER story left Luke disabled on the shared group'); return { chatB: now.chatId, story, disabled: group.disabled_members };",
+      "eval": "const ctx = SillyTavern.getContext(); await ctx.openGroupChat('1759606632088', globalThis.__v15.chatB); for (let i = 0; i < 40 && (String(SillyTavern.getContext().chatId) !== globalThis.__v15.chatB || globalThis.storyOrchestratorRuntime.getSnapshot().storyId !== 'so-v15-other'); i += 1) await new Promise((resolve) => setTimeout(resolve, 250)); await new Promise((resolve) => setTimeout(resolve, 1500)); const now = SillyTavern.getContext(); if (String(now.chatId) !== globalThis.__v15.chatB) throw new Error(`could not open chat B: ${now.chatId}`); const story = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; if (story !== 'so-v15-other') throw new Error(`chat B is not playing its own story (${story}): the leave would take the storyless path this check exists to avoid`); const group = now.groups.find((entry) => String(entry.id) === '1759606632088'); const ownCast = (globalThis.storyOrchestratorRuntime.getSnapshot().effects?.ledger ?? []).filter((row) => row.effect === 'cast'); if (ownCast.length) throw new Error(`chat B's story sets no cast, yet its ledger holds cast rows, so a disabled Luke could be its own: ${JSON.stringify(ownCast)}`); if (group.disabled_members.includes(globalThis.__v15.luke)) throw new Error('leaving for a chat that plays ANOTHER story left Luke disabled on the shared group'); return { chatB: now.chatId, story, disabled: group.disabled_members };",
       "adoptsNewChat": true,
       "log": true
     },
@@ -33,5 +40,12 @@
       "eval": "const rt = globalThis.storyOrchestratorRuntime; const ok = await rt.restartStory(true); await new Promise((resolve) => setTimeout(resolve, 1000)); const ctx = SillyTavern.getContext(); const group = ctx.groups.find((entry) => String(entry.id) === '1759606632088'); if (!ok) throw new Error('restart did not run'); if (rt.getEngineState().activeCheckpointId !== 'start') throw new Error(`restart landed on ${rt.getEngineState().activeCheckpointId}`); if (group.disabled_members.includes(globalThis.__v15.luke)) throw new Error('restart left Luke disabled on the group'); const baseline = JSON.stringify([...globalThis.__v15.baseline].sort()); const now = JSON.stringify([...group.disabled_members].sort()); if (baseline !== now) throw new Error(`the group does not match its baseline: ${now} vs ${baseline}`); return { restarted: true, disabled: group.disabled_members };",
       "log": true
     }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const ctx = SillyTavern.getContext(); const id = '1759606632088'; const group = (ctx.groups ?? []).find((entry) => String(entry.id) === id); if (!group) return { skipped: 'the toy group is not loaded' }; const luke = (group.members ?? []).find((member) => /^luke/i.test(member)); const now = [...(group.disabled_members ?? [])]; const baseline = Array.isArray(globalThis.__v15?.baseline) ? [...globalThis.__v15.baseline] : now.filter((member) => member !== luke); const next = baseline.filter((member) => member !== luke); const sorted = (list) => JSON.stringify([...list].sort()); let wrote = false; if (sorted(now) !== sorted(next)) { const response = await fetch('/api/groups/edit', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ ...group, disabled_members: next }) }); if (!response.ok) throw new Error(`could not put the toy group back: HTTP ${response.status}`); group.disabled_members = next; wrote = true; } const all = await (await fetch('/api/groups/all', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}', cache: 'no-cache' })).json(); const stored = (Array.isArray(all) ? all : []).find((entry) => String(entry.id) === id); if (luke && (stored?.disabled_members ?? []).includes(luke)) throw new Error(`Luke is still disabled on the server copy of the toy group: ${JSON.stringify(stored?.disabled_members)}`); delete globalThis.__v15; return { wrote, before: now, after: stored?.disabled_members ?? null };"
+      }
+    ]
+  }
 }

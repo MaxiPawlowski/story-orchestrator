@@ -1,6 +1,9 @@
 {
   "steps": [
     {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugGenerationResponse = \"{\\\"beats\\\":[{\\\"objective\\\":\\\"Secure the key route\\\",\\\"guidance\\\":\\\"Let the player confirm the key matters and keep pressure rising.\\\",\\\"tension_target\\\":\\\"tense\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"key secured\\\",\\\"gate\\\":{\\\"q\\\":\\\"approach\\\",\\\"op\\\":\\\"!=\\\",\\\"v\\\":\\\"unknown\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"key_found\\\",\\\"v\\\":true}],\\\"progress\\\":{\\\"anchor\\\":\\\"finish\\\",\\\"amount\\\":1}}]},{\\\"objective\\\":\\\"Choose the safe approach\\\",\\\"guidance\\\":\\\"Frame a clear safe route toward the vault without resolving the anchor early.\\\",\\\"tension_target\\\":\\\"critical\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"safe route\\\",\\\"gate\\\":{\\\"q\\\":\\\"approach\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":\\\"safe\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"approach\\\",\\\"v\\\":\\\"safe\\\"}]}]}]}\"; return { extraction: 'SCENE_NONE', generation: 'planted' };"
+    },
+    {
       "import_story": {
         "file": "../fixtures/background-generation.story.json"
       }
@@ -105,5 +108,6 @@
       }
     }
   ],
-  "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal."
+  "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal.",
+  "_v26": "T7 2026-10-03: both runs went red on the race, not on the chain (the chain passes runCodeChecks on today's code). Step 2's /cp set commits a boundary, and boundary work 'expansion' (order 40) queues an ACTIVE generation for start->bridge_stub in the background; unplanted, that job made a real model call, and its `failed` landed after the expand step's `validated` (run 1 at step 6, run 2 at step 8). Step 1 now plants the same chain as storyOrchestratorDebugGenerationResponse (modelCallCore planted 'generation') so the background job is the same deterministic chain, and pins extraction to SCENE_NONE so no real read writes approach/key_found. The overwrite itself is a product race (an older generate() for the same key writes after a newer one finished: expansionCoordinator.ts generate checks run.stillOwns() but not liveJobs.get(key) === run), reported separately."
 }

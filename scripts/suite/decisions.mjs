@@ -8,7 +8,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { collect } from './inventory.mjs';
-import { decideAsset, GENERATED, journeyMinutes, suiteBudget, suiteRowProblems } from '../lib/suiteDecisions.mjs';
+import { decideAsset, GENERATED, journeyMinutes, noLlmSuiteRows, suiteBudget, suiteRowProblems } from '../lib/suiteDecisions.mjs';
 import { mdCell } from '../lib/suiteInventory.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -33,7 +33,7 @@ function main() {
     ...data.jestRows.map((row) => ({ tier: 'jest', asset: row.path, ...decideAsset('jest', row, config) })),
     ...data.stories.map((row) => ({ tier: 'storybook', asset: row.path, ...decideAsset('storybook', row, config) })),
     ...data.harness.map((row) => ({ tier: 'harness', asset: row.path, ...decideAsset('harness', row, config) })),
-    ...data.scenarios.filter((row) => row.shape).map((row) => ({ tier: row.shape.needsLlm ? 'LLM scenario' : 'no-LLM scenario', asset: row.path, est: row.est, ...decideAsset('scenario', row, config) })),
+    ...data.scenarios.filter((row) => row.shape).map((row) => ({ tier: row.shape.needsLlm ? 'LLM scenario' : 'no-LLM scenario', asset: row.path, est: row.est, requires: row.requires, ...decideAsset('scenario', row, config) })),
     ...data.journeys.map((row) => ({ tier: 'journey check', asset: row.id, journey: row.journey, llm: row.shape.needsLlm, ...decideAsset('journey', row, config) })),
     ...data.liveSuite.map((row) => ({ tier: 'live suite', asset: row.name, ...decideAsset('live', row, config) })),
     ...config.retired.map((row) => ({ tier: 'retired', asset: row.path, decision: row.decision, reason: row.reason })),
@@ -86,11 +86,13 @@ function main() {
     entry.estSeconds += row.est;
     journeys.set(row.journey, entry);
   }
-  const journeyRows = [...journeys.values()].sort((a, b) => Number(a.id.slice(1)) - Number(b.id.slice(1)) || a.id.localeCompare(b.id)).map((entry) => ({ ...entry, ...journeyMinutes(entry, config) }));
+  const armOnly = config.armJourneys ?? {};
+  const journeyRows = [...journeys.values()].filter((entry) => !armOnly[entry.id]).sort((a, b) => Number(a.id.slice(1)) - Number(b.id.slice(1)) || a.id.localeCompare(b.id)).map((entry) => ({ ...entry, ...journeyMinutes(entry, config) }));
   const llmScenarios = rows.filter((row) => row.tier === 'LLM scenario' && (row.decision === 'keep' || row.decision.startsWith('merge')));
   const noLlm = rows.filter((row) => row.tier === 'no-LLM scenario' && row.decision === 'keep');
+  const noLlmPlan = noLlmSuiteRows(noLlm, { group: config.defaultGroup });
   const sections = [
-    { name: 'no-LLM scenarios (phase F step 1, any lane)', minutes: Math.round(noLlm.reduce((sum, row) => sum + row.est, 0) / 60), llm: false, rows: [{ id: `${noLlm.length} fixtures`, what: 'every kept no-LLM scenario (13-decisions.md)', minutes: Math.round(noLlm.reduce((sum, row) => sum + row.est, 0) / 60), ...GENERATED.scenario('each kept no-LLM scenario file, --repeat 2') }] },
+    { name: 'no-LLM scenarios (phase F step 1, per-scenario lane)', minutes: Math.round(noLlm.reduce((sum, row) => sum + row.est, 0) / 60), llm: false, rows: noLlmPlan.rows },
     { name: 'journeys', llm: true, rows: journeyRows.map((entry) => ({ id: entry.id, what: `\`${entry.file}\`: ${entry.checks} checks (${entry.llm} need a model, ${entry.human} human, scored in plan 10's sessions)`, minutes: entry.minutes, note: entry.source, ...GENERATED.journey(entry.id) })) },
     { name: 'live scenarios kept by R3', llm: true, rows: llmScenarios.map((row) => ({ id: row.asset.split('/').pop().replace(/\.json$/, ''), what: row.decision === 'keep' ? 'kept' : row.decision, minutes: Math.round((row.est + config.overheadMinutes * 60) / 60), ...GENERATED.scenario(row.asset) })) },
     ...config.handRows.map((section) => ({ name: section.section, llm: true, rows: section.rows })),
@@ -143,6 +145,22 @@ function main() {
   for (const section of sections) {
     S.push(`## ${section.name}`);
     S.push('');
+    if (section.rows === noLlmPlan.rows) {
+      S.push(`Each scenario states the install it needs in a top-level \`requires\` (\`scripts/debug/lib/scenarioRequires.mts\`); so-scenario establishes group, members, Author view and judge off, and refuses the rest as \`not-runnable\` instead of failing as if the product were wrong (T7 SUITE.md systemic finding 1). ${noLlm.length} kept no-LLM scenarios.`);
+      S.push('');
+      if (noLlmPlan.preconditions.length) {
+        S.push('| Scenario | Lane | Needs | Why |');
+        S.push('|---|---|---|---|');
+        for (const row of noLlmPlan.preconditions) S.push(`| \`${row.asset}\` | ${row.lane} | ${mdCell(row.needs)} | ${mdCell(row.why)} |`);
+        S.push('');
+      }
+      for (const row of noLlmPlan.excluded) S.push(`- Not in a batch row: \`${row.asset}\` needs a prior step (${mdCell(row.prior)}); it runs in its owning hand row.`);
+      if (noLlmPlan.excluded.length) S.push('');
+    }
+    if (section.name === 'journeys') {
+      for (const [id, where] of Object.entries(armOnly)) S.push(`- ${id} is not in this section: it refuses without a judge arm and runs in ${where}.`);
+      if (Object.keys(armOnly).length) S.push('');
+    }
     S.push('| Row | What | Command | When | Config | Artifacts | Tier | Minutes | Phase F cap | Note |');
     S.push('|---|---|---|---|---|---|---|---|---|---|');
     for (const row of section.rows) S.push(`| ${row.id} | ${mdCell(row.what)} | ${mdCell(row.command)} | ${mdCell(row.when)} | ${mdCell(row.config ?? '')} | ${mdCell(row.artifacts.join('; '))} | ${row.tier}${row.originTier ? ` (from ${row.originTier})` : ''} | ${row.minutes} | ${typeof row.capMinutes === 'number' ? row.capMinutes : row.minutes} | ${mdCell([row.note, row.capReason].filter(Boolean).join('; '))} |`);

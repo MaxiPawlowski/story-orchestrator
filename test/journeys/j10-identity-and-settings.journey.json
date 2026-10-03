@@ -327,11 +327,14 @@
       "findings": [
         "T2"
       ],
-      "goal": "a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5)",
+      "goal": "a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5). 2026-10-03: judge memoryVerify is switched off for this check only and put back by its last step (the journey's global-config snapshot restores it if a step fails): the line-0 relationship fact is a mocked read the transcript does not support, the judge (on by default since v2.6 rule 5) dropped it, and with no relationship fact the mirror makes no book (memoryMirror.ts mirroredEntries, 01 diagnosis), so the unbind half had nothing to check (T7 SUITE J10.14)",
       "requires": [
         "story-identity"
       ],
       "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (!root?.settings?.judge?.uses) throw new Error('the judge settings could not be read'); globalThis.__j10Verify = { before: root.settings.judge.uses.memoryVerify, arm: globalThis.__soJudgeMode ?? null }; root.settings.judge.uses.memoryVerify = false; if (globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify !== false) throw new Error('memoryVerify did not switch off for this check'); return globalThis.__j10Verify;"
+        },
         {
           "eval": "await SillyTavern.getContext().executeSlashCommandsWithOptions('/newchat'); await new Promise((done) => setTimeout(done, 2500)); return { chatId: SillyTavern.getContext().chatId };",
           "adoptsNewChat": true
@@ -440,6 +443,9 @@
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const branch = globalThis.__v24Branch.chatId; const blob = ctx.chatMetadata.story_orchestrator; if (blob?.chatId !== branch) throw new Error(`after Continue the blob is still stamped for ${JSON.stringify(blob?.chatId)}, not the branch`); if (blob.integrity !== ctx.chatMetadata.integrity) throw new Error(`after Continue the blob integrity ${JSON.stringify(blob.integrity)} is not the branch's ${ctx.chatMetadata.integrity}`); await rt.syncWorldInfo(); const book = rt.getSnapshot().memory.wiBook; if (!book?.name || book.chatId !== branch || !book.name.endsWith(` - ${branch}`)) throw new Error(`the branch did not get its own mirror book: ${JSON.stringify(book)}`); if (ctx.chatMetadata.world_info !== book.name) throw new Error(`the branch's slot names ${ctx.chatMetadata.world_info}, not its own book ${book.name}`); const parent = globalThis.__v24Parent; const data = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: parent.chatId }) }).then((r) => r.json()); const parentBlob = Array.isArray(data) ? data[0]?.chat_metadata?.story_orchestrator : null; if (parentBlob?.chatId !== parent.chatId) throw new Error(`Continue touched the parent's blob: ${JSON.stringify(parentBlob?.chatId)}`); return { branchBook: book.name, parentBlob: parentBlob.chatId };",
           "log": true
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const saved = globalThis.__j10Verify; if (!saved) throw new Error('the memoryVerify switch was never captured'); root.settings.judge.uses.memoryVerify = saved.before; const now = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify; if (now !== saved.before) throw new Error(`memoryVerify was not put back: ${now} vs ${saved.before}`); return { memoryVerify: now };"
         }
       ]
     },
