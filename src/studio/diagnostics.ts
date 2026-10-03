@@ -276,21 +276,21 @@ const checkTalkAndAgency = (run: DiagnosticRun) => {
     rosterIdByRef.set(member.id.trim().toLowerCase(), member.id);
     if (member.name) rosterIdByRef.set(member.name.trim().toLowerCase(), member.id);
   });
-  const resolveRosterRef = (ref: string): string | null => rosterIdByRef.get(ref.trim().toLowerCase()) ?? null;
+  const resolveRosterRef = (ref: unknown): string | null => (typeof ref === "string" ? rosterIdByRef.get(ref.trim().toLowerCase()) ?? null : null);
 
   draft.checkpoints.forEach((checkpoint, index) => {
     const control = checkpoint.talk_control;
     const path = `checkpoints.${index}.talk_control`;
     if (control) {
       (control.speakers ?? []).forEach((speaker, speakerIndex) => {
-        if (!resolveRosterRef(speaker.member)) push("talk-member-unknown", "warning", `${path}.speakers.${speakerIndex}`, `speaker '${speaker.member}' is not a roster member`);
+        if (!resolveRosterRef(speaker?.member)) push("talk-member-unknown", "warning", `${path}.speakers.${speakerIndex}`, `speaker '${speaker?.member ?? ""}' is not a roster member`);
       });
       if (control.lead) {
         const leadId = resolveRosterRef(control.lead);
         if (!leadId) {
           push("talk-member-unknown", "warning", `${path}.lead`, `lead '${control.lead}' is not a roster member`);
         } else if (control.speakers?.length) {
-          const speakerIds = new Set(control.speakers.map((speaker) => resolveRosterRef(speaker.member)).filter(Boolean));
+          const speakerIds = new Set(control.speakers.map((speaker) => resolveRosterRef(speaker?.member)).filter(Boolean));
           if (!speakerIds.has(leadId)) push(
             "talk-lead-outside-speakers",
             "warning",

@@ -29,7 +29,7 @@ describe("T7 live-v5/v5b: the stored blob never aliases the live run", () => {
     stored().chatId = "so-v5-elsewhere";
     const before = JSON.stringify(stored());
     expect(getMetadataBlob().selectedStoryId).toBeNull();
-    live.extras.effects.ledger = [{ id: "an", status: "reverted" }];
+    live.extras.effects.ledger = [{ id: "an", status: "reverted" }] as typeof live.extras.effects.ledger;
     live.extras.journal.push("restored 1 host change(s)");
     (live.engineState as { boundary: number }).boundary = 7;
     expect(JSON.stringify(stored())).toBe(before);
@@ -49,7 +49,7 @@ describe("T7 live-v5/v5b: the stored blob never aliases the live run", () => {
     openOwnChat();
     const live = record();
     savePersistedRuntime(live);
-    live.extras.effects.ledger = [{ id: "an", status: "reverted" }];
+    live.extras.effects.ledger = [{ id: "an", status: "reverted" }] as typeof live.extras.effects.ledger;
     expect(loadPersistedRuntime("s1")?.extras).toEqual({ effects: { ledger: [{ id: "an", status: "applied" }] }, journal: [] });
     savePersistedRuntime(live);
     expect(loadPersistedRuntime("s1")?.extras).toEqual({ effects: { ledger: [{ id: "an", status: "reverted" }] }, journal: [] });

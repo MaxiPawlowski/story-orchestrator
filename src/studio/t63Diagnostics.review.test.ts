@@ -54,3 +54,12 @@ describe("T6-3 MEDIUM: a way out the start state already satisfies", () => {
     expect(codes(story, "gate-open-on-arrival")).toEqual([]);
   });
 });
+
+describe("T7 J14.1: a talk_control speaker the agent left without a member", () => {
+  it("is reported as an unknown member instead of crashing the diagnostics", () => {
+    const story = kingdom();
+    story.checkpoints[0]!.talk_control = { speakers: [{} as never, { member: "halden" }], lead: "halden" } as never;
+    expect(() => runDiagnostics(story)).not.toThrow();
+    expect(codes(story, "talk-member-unknown").map((diagnostic) => diagnostic.path)).toEqual(["checkpoints.0.talk_control.speakers.0"]);
+  });
+});

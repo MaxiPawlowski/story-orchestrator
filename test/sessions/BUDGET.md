@@ -55,12 +55,13 @@ DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by 
 | `test/sessions/T6/T6-3-2` | 1 | 2026-10-02T20:03:00.288Z | 0 | 0 / 0 | 0 / 0 | n/a | 0 (0) | 0 / 0 | n/a | 0 | 0 / 0 / 0 |
 | `test/sessions/T6/T6-3-3` | 1 | 2026-10-02T21:20:39.428Z | 167 | 1090526 / 40808 | 167 / 0 | n/a | 78 (2) | 172058 / 11727 | n/a | 19 | 23 / 0 / 0 |
 | `test/sessions/T6/T6-4-1` | 2 | 2026-10-02T16:09:04.298Z | 73 | 166951 / 27652 | 72 / 1 | n/a | 0 (0) | 0 / 0 | n/a | 23 | 73 / 0 / 0 |
-| **Total** | | | 4693 | 17589165 / 1926574 | | n/a | 8723 | 46175607 / 4514008 | n/a | 1272 | 609 / 0 / 14 |
+| `test/sessions/T7/T7-1` | 4 | 2026-10-03T07:18:49.563Z | 157 | 754973 / 70497 | 154 / 3 | n/a | 291 (3) | 1562799 / 174816 | n/a | 49 | 155 / 0 / 0 |
+| **Total** | | | 4850 | 18344138 / 1997071 | | n/a | 9014 | 47738406 / 4688824 | n/a | 1321 | 764 / 0 / 14 |
 <!-- sessions:end -->
 
 ## RunPod pod hours (the lead adds these by hand)
 
-Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), plus EUR 10 added by the user 2026-10-02, plus EUR 10 more added 2026-10-02 evening: EUR 40 (about USD 43.2); stop at about USD 42.
+Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), plus EUR 10 added by the user 2026-10-02, plus EUR 10 more added 2026-10-02 evening, plus EUR 10 more added 2026-10-03: EUR 50 (about USD 54); stop at about USD 53.
 Baseline: RunPod account spend 2026-10-01 before this work = USD 0.05 (storage only); 2026-09-29..30 spend (USD 14.40) was earlier sessions' and is not counted.
 Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds the Artemis GGUF); storage billing is pre-existing and not counted.
 
@@ -72,4 +73,4 @@ RunPod billing check 2026-10-02 04:30Z: this work's pods total USD 15.28 (5mmoei
 | 2026-10-01 | m4dmlnzn70qgj2 llm-pod-4500-so26-b (created this work, started 21:32:53Z; replaces 5mmoei8glfi1gu, whose host had no free GPU after the idle stop; the old pod terminated) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | run 1 21:32Z-~04:00Z, run 2 07:46Z-~12:45Z (idle auto-stop after T5); deleted 2026-10-02 13:54Z (host had no free GPU to restart) | $4.30 + ~$3.60 | same env, IDLE_MINUTES 60 |
 | 2026-10-01 | jlur25ufnngbia llm-pod-a100-so26-flags (created this work, started 15:18:15Z) | A100 SXM 80GB, EU-RO-1 | 1.59 | stopped (EXITED) after 129 min | ~$3.42 | server-flag A/B for Artemis loops/word-dropping (no RTX PRO 4500 free); IDLE_MINUTES 45, MAX_UPTIME 6 |
 | 2026-10-02 | vkheow0wtqxl0t llm-pod-4500-so26-think (created this work, 06:07:38Z, stopped 08:29Z, then terminated after the results were copied) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | 2.36 | ~$1.70 | thinking and model A/B (Artemis v1.1/v1.2, Cydonia 24B, Skyfall 31B) + blind pack `model-blind-20-think`; IDLE_MINUTES 45, MAX_UPTIME 4 |
-| 2026-10-02 | 56mm8ipo8octok llm-pod-4500-so26-c (created this work with the user's OK, started 13:53:43Z; replaces m4dmlnzn70qgj2) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | - | same env, IDLE_MINUTES 60; for T5-1 re-run, T6, T7 |
+| 2026-10-02 | 56mm8ipo8octok llm-pod-4500-so26-c (created this work with the user's OK, started 13:53:43Z; replaces m4dmlnzn70qgj2) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | runs 13:53-~17:10Z, 17:15-18:15Z, 19:17-~20:00Z (Oct 2), then 20:11Z Oct 2 - 14:05Z Oct 3 (17.9 h: R3 Artemis + Phase B, T6-1/T6-2, T7 session + final suite), stopped by Claude 2026-10-03 14:05Z for the T7 fix waves | ~$5.2 + ~$12.9 | same env, IDLE_MINUTES 60; for T5-1 re-run, T6, T7 |
