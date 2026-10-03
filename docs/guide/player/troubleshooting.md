@@ -25,6 +25,16 @@ A story only moves on what the chat shows. If a scene should be over but is not,
   **Show me the group** opens the member list.
 - "The story's background lore is not ready in this chat.": a lorebook it needs is missing. Import it.
 
+## "check setup" on the HUD
+
+The story still plays, but something in your setup weakens it. These show in player mode too, so a story you
+downloaded can tell you; Author view adds the technical detail.
+
+| You see | What it means | What to do |
+|---|---|---|
+| "Characters' private intentions are not being tracked, because the model is not thinking before it replies. Turn on reasoning (thinking) in your model's settings to play this as intended." | The last 5 replies in this chat carried no reasoning, so the inner voice has nothing to read. | Turn on reasoning for your model connection (or its preset or instruct template). It clears once a reply carries reasoning. |
+| "Summarize shares the whole chat with every character, …" (or Vector Storage) | Another extension puts the whole chat into every character's prompt, so a character can learn what was kept from them. | Switch that extension off while the story plays. |
+
 ## "changes not saved yet"
 
 SillyTavern did not confirm the last save. The changes go with the next save. If it stays, check that SillyTavern's

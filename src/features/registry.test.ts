@@ -9,6 +9,7 @@ import { HUD_COPY, PIPELINE_ACTION_COPY, REPAIR_PLAYER_COPY } from "@runtime/pip
 import { PLAYER_COPY } from "@runtime/narrative";
 import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, storyHelpText, soMemHelpText } from "@runtime/slashHelp";
 import { gettingStartedShown, gettingStartedSteps } from "@runtime/repair";
+import { THINKING_CHECK, THINKING_PLAYER_TEXT } from "@runtime/checks";
 import { GUIDE_TOPIC_IDS } from "@copilot/guideTopics";
 import {
   AREA_LABELS, FEATURE_AREAS, FEATURES, HOME_PAGE, NEED_LABELS, authorGuideDoc, compareVersions, coversSetting, featuresForSetting, guideUrl, newestSince,
@@ -271,5 +272,14 @@ describe("v2.7 plan 03 (K3): stories play in group chats", () => {
     expect(faq).toContain("**Does it work in a one-on-one chat?** No: stories play in group chats.");
     expect(faq).not.toMatch(/one-on-one chat\?\*\* Yes/);
     expect(readFileSync(join(ROOT, "docs/guide/README.md"), "utf-8")).toContain("**Stories play in group chats.**");
+  });
+});
+
+describe("v2.7 plan 08 (A11): the guide shows the thinking warning as players see it", () => {
+  it("the check is a player check, and the troubleshooting page quotes its player copy", () => {
+    expect(THINKING_CHECK.audience).toBe("player");
+    const faq = readFileSync(join(ROOT, "docs/guide/player/troubleshooting.md"), "utf-8").replace(/\r\n/g, "\n");
+    expect(faq).toContain(`"${THINKING_PLAYER_TEXT}"`);
+    expect(faq).toContain("These show in player mode too");
   });
 });
