@@ -1,0 +1,44 @@
+{
+  "format": 2,
+  "id": "so-v15-other",
+  "version": 1,
+  "title": "SO-V15 Other",
+  "description": "v2.3 replan V15 live check, chat B: another story that is playing but touches no cast, so the group's disabled_members after the leave say only what chat A's restore did. sun-ruins served here until story-scoped lore (f7342021) made it ready; its cp1 disables Luke itself on hydrate.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "end",
+      "name": "End",
+      "objective": "Never reached.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "end",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    }
+  ],
+  "roster": []
+}
