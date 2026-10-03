@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: "node",
-  roots: ["<rootDir>/src/constants", "<rootDir>/src/engine", "<rootDir>/src/extraction", "<rootDir>/src/pacing", "<rootDir>/src/generation", "<rootDir>/src/runtime", "<rootDir>/src/memory", "<rootDir>/src/studio", "<rootDir>/src/copilot", "<rootDir>/src/talk", "<rootDir>/src/wizard", "<rootDir>/src/stagecraft", "<rootDir>/src/judge", "<rootDir>/src/image", "<rootDir>/src/sprites", "<rootDir>/src/services", "<rootDir>/src/utils"],
+  roots: ["<rootDir>/src/constants", "<rootDir>/src/engine", "<rootDir>/src/extraction", "<rootDir>/src/pacing", "<rootDir>/src/generation", "<rootDir>/src/runtime", "<rootDir>/src/memory", "<rootDir>/src/studio", "<rootDir>/src/copilot", "<rootDir>/src/talk", "<rootDir>/src/wizard", "<rootDir>/src/stagecraft", "<rootDir>/src/judge", "<rootDir>/src/features", "<rootDir>/src/image", "<rootDir>/src/sprites", "<rootDir>/src/services", "<rootDir>/src/utils"],
   testMatch: ["**/*.test.ts"],
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.jest.json", diagnostics: false }],
@@ -21,6 +21,7 @@ module.exports = {
     "^@wizard/(.*)$": "<rootDir>/src/wizard/$1",
     "^@stagecraft/(.*)$": "<rootDir>/src/stagecraft/$1",
     "^@judge/(.*)$": "<rootDir>/src/judge/$1",
+    "^@features/(.*)$": "<rootDir>/src/features/$1",
     "\\.css$": "<rootDir>/test/support/styleStub.cjs",
   },
   reporters: ["default", "<rootDir>/scripts/jest-findings-reporter.cjs"],

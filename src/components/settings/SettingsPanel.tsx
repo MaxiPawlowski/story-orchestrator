@@ -147,8 +147,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>Author services <span className="opacity-70">— optional, shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               {authoringSettings(snapshot) && (
-                <CheckRow id="so-copilot-enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })}
-                  label="Enable the wizard (Studio wizard and author driver)" />
+                <CheckRow id="so-copilot-enabled" setting="copilot.enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })} />
               )}
               <LorebooksGroup snapshot={snapshot} manager={manager} />
               <StagecraftGroup snapshot={snapshot} manager={manager} />

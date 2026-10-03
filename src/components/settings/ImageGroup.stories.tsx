@@ -34,12 +34,12 @@ export const ChangesInstallSettings: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText("Image service"));
-    const permit = canvas.getByRole("checkbox", { name: "Permit automatic illustrations on this install" });
+    const permit = canvas.getByRole("checkbox", { name: "Allow automatic illustrations on this install" });
     await expect(permit).toBeChecked();
     await userEvent.click(permit);
     await expect(permit).not.toBeChecked();
     await expect(getGlobalSettings().image.enabled).toBe(false);
-    const mode = canvas.getByLabelText("Automation for all chats");
+    const mode = canvas.getByLabelText("When pictures are drawn");
     await expect(mode).toHaveValue("manual");
     await expect(canvas.queryByRole("spinbutton", { name: "Every N replies" })).toBeNull();
     await userEvent.selectOptions(mode, "everyN");
@@ -54,6 +54,6 @@ export const ListsTheChatCastForFallbackAppearance: Story = {
     await expect(canvas.getByText("Arin")).toBeInTheDocument();
     await expect(canvas.getByText("Companion")).toBeInTheDocument();
     await expect(canvas.getByLabelText("Image-prompt model")).toHaveAttribute("id", "so-image-profile");
-    await expect(canvas.getByLabelText("ComfyUI URL")).toHaveAttribute("placeholder", "http://127.0.0.1:8188");
+    await expect(canvas.getByLabelText("ComfyUI address")).toHaveAttribute("placeholder", "http://127.0.0.1:8188");
   },
 };
