@@ -46,6 +46,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | # | Plan | What gets built | Kind |
 |---|---|---|---|
 | 01 | `01-docs-and-in-app-guidance.md` | feature registry first (later features register into it), docs split, Help panel, plain-language pass, triage | user topic |
+| 31 | `31-story-health-center.md` | one check registry (Repair becomes its ordering) + one "Story setup" surface while a story is active; later plans add checks, not alert channels (numbered 31: builds right after 01) | user topic |
 | 02 | `02-v26-carry-in.md` | **C2** privacy Repair row, **C6–C10** image/curator fixes, **C11** small plans | carry-in |
 | 03 | `03-story-briefing.md` | briefing format, modal, Studio editor (the wizard's drafting is optional, later) | user topic |
 | 04 | `04-story-presence-ui.md` | plays index, list badges, Continue list, title card, wand entry (C5 suggestions need an LLM: tier 3) | user topic |
