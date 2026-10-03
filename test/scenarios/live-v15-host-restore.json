@@ -1,12 +1,12 @@
 {
   "name": "live-v15-host-restore",
-  "objective": "v2.3 replan V15, live on a real group (no model): a checkpoint in chat A disables Luke on the group; LEAVING for chat B, which ALREADY plays another story, puts Luke back (before V15 only a storyless destination restored anything — the first draft of this check left for a fresh chat, took the storyless path, and passed with the fix removed, so the destination here is prepared first); RETURNING to A re-applies its cast from the mirror; RESTART puts Luke back again. Every step reads the group's own disabled_members.",
+  "objective": "v2.3 replan V15, live on a real group (no model): a checkpoint in chat A disables Luke on the group; LEAVING for chat B, which ALREADY plays another story (so-v15-other, which touches no cast: sun-ruins disables Luke itself at cp1 once story-scoped lore, f7342021, makes it ready), puts Luke back (before V15 only a storyless destination restored anything — the first draft of this check left for a fresh chat, took the storyless path, and passed with the fix removed, so the destination here is prepared first); RETURNING to A re-applies its cast from the mirror; RESTART puts Luke back again. Every step reads the group's own disabled_members.",
   "steps": [
     {
       "eval": "const ctx = SillyTavern.getContext(); if (String(ctx.groupId) !== '1759606632088') throw new Error(`run this in group 1759606632088, not ${ctx.groupId}`); const group = ctx.groups.find((entry) => String(entry.id) === '1759606632088'); const luke = group.members.find((member) => /^luke/i.test(member)); if (!luke) throw new Error(`no Luke in ${JSON.stringify(group.members)}`); if ((group.disabled_members ?? []).includes(luke)) throw new Error('Luke is already disabled: the baseline must have him enabled'); globalThis.__v15 = { chatB: String(ctx.chatId), luke, baseline: [...(group.disabled_members ?? [])] }; return globalThis.__v15;",
       "log": true
     },
-    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "import_story": { "file": "../fixtures/v15-other.story.json" } },
     { "slash": "/newchat", "adoptsNewChat": true },
     {
       "eval": "globalThis.__v15.chatA = String(SillyTavern.getContext().chatId); if (globalThis.__v15.chatA === globalThis.__v15.chatB) throw new Error('/newchat did not open a second chat'); return { chatA: globalThis.__v15.chatA };",
@@ -20,7 +20,7 @@
       "log": true
     },
     {
-      "eval": "const ctx = SillyTavern.getContext(); await ctx.openGroupChat('1759606632088', globalThis.__v15.chatB); for (let i = 0; i < 40 && (String(SillyTavern.getContext().chatId) !== globalThis.__v15.chatB || globalThis.storyOrchestratorRuntime.getSnapshot().storyId !== 'sun-ruins'); i += 1) await new Promise((resolve) => setTimeout(resolve, 250)); await new Promise((resolve) => setTimeout(resolve, 1500)); const now = SillyTavern.getContext(); if (String(now.chatId) !== globalThis.__v15.chatB) throw new Error(`could not open chat B: ${now.chatId}`); const story = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; if (story !== 'sun-ruins') throw new Error(`chat B is not playing its own story (${story}): the leave would take the storyless path this check exists to avoid`); const group = now.groups.find((entry) => String(entry.id) === '1759606632088'); if (group.disabled_members.includes(globalThis.__v15.luke)) throw new Error('leaving for a chat that plays ANOTHER story left Luke disabled on the shared group'); return { chatB: now.chatId, story, disabled: group.disabled_members };",
+      "eval": "const ctx = SillyTavern.getContext(); await ctx.openGroupChat('1759606632088', globalThis.__v15.chatB); for (let i = 0; i < 40 && (String(SillyTavern.getContext().chatId) !== globalThis.__v15.chatB || globalThis.storyOrchestratorRuntime.getSnapshot().storyId !== 'so-v15-other'); i += 1) await new Promise((resolve) => setTimeout(resolve, 250)); await new Promise((resolve) => setTimeout(resolve, 1500)); const now = SillyTavern.getContext(); if (String(now.chatId) !== globalThis.__v15.chatB) throw new Error(`could not open chat B: ${now.chatId}`); const story = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; if (story !== 'so-v15-other') throw new Error(`chat B is not playing its own story (${story}): the leave would take the storyless path this check exists to avoid`); const group = now.groups.find((entry) => String(entry.id) === '1759606632088'); if (group.disabled_members.includes(globalThis.__v15.luke)) throw new Error('leaving for a chat that plays ANOTHER story left Luke disabled on the shared group'); return { chatB: now.chatId, story, disabled: group.disabled_members };",
       "adoptsNewChat": true,
       "log": true
     },
