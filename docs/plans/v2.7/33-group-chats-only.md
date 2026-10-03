@@ -90,3 +90,6 @@ All five taken as recommended. Old solo chats: the user asked to delete them. Fo
 metadata carries `story_orchestrator` (ST `data/default-user/chats`, 2023-12 to 2026-10). Deleting is confirmed with the
 user against that list before it runs (ST keeps per-save copies under `backups/`); then decision 4 becomes "deleted, no
 card needed for them", and the card still ships for any solo chat that gets a story later.
+
+2026-10-03: user confirmed; the 10 solo story chats were deleted from the real install (re-scan finds none left; no
+per-chat mirror lorebooks named for them). Decision 4 is moot for this install; the card still ships.
