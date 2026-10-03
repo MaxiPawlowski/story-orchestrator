@@ -90,7 +90,8 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: 260,
     live: "J11.20, J11.21",
     measuredOn: MEASURED_ON,
-    recommendation: "Needs the author to mark which story values it reads, or it does nothing. The rate is lower than first reported because it now counts the coverage family — how often the judge answers " +
+    recommendation: "Needs the author to mark which story values it reads, or it does nothing. " +
+      "The rate is lower than first reported because it now counts the coverage family — how often the judge answers " +
       "at all — whose own floor is 0.",
   },
   memoryPairs: { calibration: 0.931, latencyP50Ms: 254, live: "J11.9, J11.10", measuredOn: MEASURED_ON, recommendation: "Measured on the consolidation path." },
