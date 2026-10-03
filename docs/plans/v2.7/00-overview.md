@@ -49,6 +49,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | 31 | `31-story-health-center.md` | one check registry (Repair becomes its ordering) + one "Story setup" surface while a story is active; later plans add checks, not alert channels (numbered 31: builds right after 01) | user topic |
 | 02 | `02-v26-carry-in.md` | **C2** privacy Repair row, **C6–C10** image/curator fixes, **C11** small plans | carry-in |
 | 03 | `03-story-briefing.md` | briefing format, modal, Studio editor (the wizard's drafting is optional, later) | user topic |
+| 30 | `30-player-persona-and-start-setup.md` | story `player` profile + "Who are you in this story" step inside 03's "Before you start" modal (keep / switch+lock / create by the player's click only); spike S30-1 first (persona switch vs scripted opening); no RunPod, the injected block rides the final real-LLM suite (numbered 30: builds with 03) | user topic |
 | 04 | `04-story-presence-ui.md` | plays index, list badges, Continue list, title card, wand entry (C5 suggestions need an LLM: tier 3) | user topic |
 | 05 | `05-adolion-campaign.md` | **A1–A3** docs/check/pin, **A7** briefings (A4 lab data and A5/A6 follow later) | campaign |
 | 26 | `26-self-contained-images.md` | ST Image Generation route, ComfyUI model discovery, template prompt, broker optional + fail-open, probes/Repair, quiet defaults (numbered 26: arrived after the renumbering; builds here). Sprite generation = 26b after it | user topic |
