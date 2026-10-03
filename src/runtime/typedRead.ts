@@ -18,7 +18,8 @@ export const createTypedJudge = (getJudge: () => JudgeRuntime | null): TypedJudg
     delta: { q: delta.q, v: delta.v, source: "extractor" },
     evidence: delta.evidence,
     judge: delta.confidence,
-    ...(delta.messageId !== undefined ? { messageId: delta.messageId } : {})
+    ...(delta.messageId !== undefined ? { messageId: delta.messageId } : {}),
+    ...(delta.sourceChars !== undefined ? { sourceChars: delta.sourceChars } : {})
   }));
   return { deltas, answered: read.answered, model: result.model, confidences: Object.fromEntries(read.deltas.map((delta) => [delta.q, delta.confidence])) };
 };

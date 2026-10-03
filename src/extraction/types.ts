@@ -71,6 +71,7 @@ export interface ParsedDelta {
   /** The line the model wrote, when a parser read it. The audit shows this back. */
   line?: string;
   messageId?: number;
+  sourceChars?: number;
 }
 
 // What the judged typed read hands back. `answered` are the hinted qualities it

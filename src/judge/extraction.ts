@@ -36,7 +36,10 @@ export interface TypedDelta {
   confidence: number;
   evidence: string;
   messageId?: number;
+  sourceChars?: number;
 }
+
+export const TYPED_EVIDENCE_CHARS = 160;
 
 const msgKey = (message: TypedWindowMessage) => `msg_${message.id}`;
 
@@ -176,7 +179,8 @@ export function readTypedDeltas(answers: Record<string, JudgeAnswer>, plan: Type
     if (readsWorldEvidence(quality) && (!source || source.isUser)) continue;
     answered.push(decoder.key);
     if (read.value === undefined || !qualityAccepts(quality, read.value)) continue;
-    deltas.push({ q: decoder.key, v: read.value, confidence: read.confidence, evidence: (source?.text ?? "judged from the window").slice(0, 160), ...(messageId !== undefined ? { messageId } : {}) });
+    deltas.push({ q: decoder.key, v: read.value, confidence: read.confidence, evidence: (source?.text ?? "judged from the window").slice(0, TYPED_EVIDENCE_CHARS),
+      ...(messageId !== undefined ? { messageId } : {}), ...(source && source.text.length > TYPED_EVIDENCE_CHARS ? { sourceChars: source.text.length } : {}) });
   }
   return { deltas, answered };
 }

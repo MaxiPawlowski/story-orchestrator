@@ -1,6 +1,7 @@
 import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { log } from "@utils/log";
 import type { EvidenceMessage } from "./evidence";
+import { evidenceCut, type EvidenceCut } from "./evidenceCut";
 import type { ParsedDelta } from "./types";
 
 // A quality whose value only means something when the player COMMITTED to it can declare a
@@ -17,7 +18,7 @@ import type { ParsedDelta } from "./types";
 // own words. Values with no pattern keep today's behaviour.
 export type CommitStory = Pick<NormalizedStoryV2, "qualityByKey" | "transitions">;
 
-export interface HeldCommitDelta {
+export interface HeldCommitDelta extends EvidenceCut {
   key: string;
   value: string;
   evidence: string;
@@ -256,7 +257,7 @@ export const applyCommitEvidence = (
       const reading = playerReading(matcher, relevanceFor(story, delta.delta.q, delta.delta.v, partnerValues), messages ??= windowMessages());
       if (!reading.commits) {
         held.push({
-          key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "",
+          key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", ...evidenceCut(delta),
           ...(reading.reason ? { reason: reading.reason } : {}), ...(reading.playerLine !== undefined ? { playerLine: reading.playerLine } : {}),
         });
         continue;

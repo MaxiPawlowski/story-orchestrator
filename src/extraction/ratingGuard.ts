@@ -1,7 +1,8 @@
 import type { PrimitiveValue, Quality, QualityRatingLevel } from "@engine/index";
+import { evidenceCut, type EvidenceCut } from "./evidenceCut";
 import type { ParsedDelta } from "./types";
 
-export interface HeldRatingDelta {
+export interface HeldRatingDelta extends EvidenceCut {
   key: string;
   value: string;
   evidence: string;
@@ -55,7 +56,7 @@ export const applyRatingGrounding = (
   for (const delta of deltas) {
     const rule = ratingRule(qualityByKey[delta.delta.q]);
     const reason = rule ? refusal(rule, delta.delta.v, values[delta.delta.q], delta.evidence ?? "") : null;
-    if (reason) held.push({ key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", reason });
+    if (reason) held.push({ key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", reason, ...evidenceCut(delta) });
     else accepted.push(delta);
   }
   return { accepted, held };
