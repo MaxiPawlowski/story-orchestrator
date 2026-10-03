@@ -160,4 +160,6 @@ default changes.**
 | synthesis | none (no floor declared) | none (no floor declared) | none (no floor declared; default exhausts) |
 | authoring | default, off, low, high | default (effort refused on TC) | medium |
 | director | default, off, low, high | default (effort refused on TC) | off |
-| curator | low, high | default (effort refused on TC) | off, medium |
+| curator | **none** (R3 passed low, high; withdrawn after T6-1, see below) | default (effort refused on TC) | off, medium |
+
+**T6-1 play check (2026-10-03, `test/sessions/T6/SUMMARY.md` T6-1):** DeepSeek curator low and high were played on the T1-1 route (runs T6-1-1, T6-1-3, valid). In play DeepSeek ignores the budget and spends the whole max_tokens reasoning (896 tokens at low, about 6.5k at high): 9 of 11 and 5 of 7 curator calls produced nothing, 1 World Info proposal against T1-1's 5. The R3 curator fixtures are shorter than play prompts, so they did not show it. DeepSeek curator stays at `default` until R3 is re-measured on play-shaped prompts (v2.7).
