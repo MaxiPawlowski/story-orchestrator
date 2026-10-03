@@ -23,6 +23,8 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
   const [view, setView] = useState<Viewport>(() => viewport ?? windowViewport());
   const [geom, setGeom] = useState<PanelGeometry>(() => clampPanel(geometry, viewport ?? windowViewport()));
   const stop = useRef<(() => void) | null>(null);
+  const latest = useRef(geom);
+  latest.current = geom;
 
   useEffect(() => {
     if (viewport) {
@@ -49,10 +51,11 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
-    const from = geom;
+    const from = latest.current;
     let last = from;
     const move = (next: PointerEvent) => {
       last = clampPanel(dragged(kind, from, next.clientX - startX, next.clientY - startY), view);
+      latest.current = last;
       setGeom(last);
     };
     const up = () => {
@@ -73,7 +76,8 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
   const onBarKey = (event: ReactKeyboardEvent<HTMLElement>) => {
     if (isDocked || !isPanelKey(event.key)) return;
     event.preventDefault();
-    const next = movedBy(geom, event.key, view);
+    const next = movedBy(latest.current, event.key, view);
+    latest.current = next;
     setGeom(next);
     onChange(next);
   };

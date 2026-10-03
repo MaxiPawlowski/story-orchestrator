@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { mountStoryBadges, type StoryBadge } from "@services/stHost/charListBadges";
 import { mountStoryWand } from "@services/stHost/storyWand";
 
@@ -35,6 +35,7 @@ type Story = StoryObj<typeof Lists>;
 
 export const SagaAndStoryWithCard: Story = {
   play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelectorAll('[data-so="story-badge"]')).toHaveLength(3));
     const badges = [...canvasElement.querySelectorAll<HTMLElement>('[data-so="story-badge"]')];
     await expect(badges.map((badge) => badge.getAttribute("aria-label"))).toEqual(["Saga: Sun Ruins", "Story: Moon Well", "Saga: Sun Ruins"]);
     await expect(canvasElement.querySelector('[data-grid="g3"] [data-so="story-badge"]')).toBeNull();
