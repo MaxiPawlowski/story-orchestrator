@@ -24,7 +24,10 @@ export const defaultPresenceSettings = (): PresenceSettings => ({
 
 export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
   const source = isRecord(value) ? value : {};
-  return Object.fromEntries(PRESENCE_SETTING_KEYS.map((key) => [key, source[key] !== false])) as unknown as PresenceSettings;
+  const on = (key: keyof PresenceSettings) => source[key] !== false;
+  return {
+    listBadges: on("listBadges"), continueList: on("continueList"), groupCard: on("groupCard"), chapterCard: on("chapterCard"), wand: on("wand"), rollChips: on("rollChips"),
+  };
 };
 
 export const storyAllows = (display: StoryDisplay | null | undefined, toggle: PresenceToggle): boolean => display?.[STORY_TOGGLE_KEYS[toggle]] !== false;

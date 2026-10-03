@@ -6,6 +6,9 @@ import {
   readProfileContextLimit, readProfilePresetName, setGroupMembersDisabled, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
+import { inlinePresence } from "@runtime/presence";
+import { PRESENCE_TEXT } from "@features/presenceCopy";
+import { createPresenceUi, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
 import { getGlobalSettings } from "@runtime/settingsStore";
@@ -36,8 +39,6 @@ import { HelpButton } from "./components/help/HelpButton";
 import type { FeatureWhere } from "@features/registry";
 import "./styles.css";
 import { log } from "@utils/log";
-
-const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
 
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
@@ -268,9 +269,14 @@ const settingsHost: SettingsHost = {
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
   showFeature: (where) => showFeature(where),
+  openPlay: (row) => void openPlay(row),
+  toggleHelp: () => togglePanel("help"),
 };
 
-const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
+const SettingsRoot = () => {
+  const helpOpen = useOpenPanels().includes("help");
+  return <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={{ ...settingsHost, helpOpen }} />;
+};
 
 // Turning author view on is a one-way look behind the curtain for this chat: gates, future
 // checkpoints and what the cast is hiding. Confirm before spoiling a story you may not have
@@ -297,7 +303,7 @@ const branchAtFloor = async (messageId: number) => {
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const inspecting = useInspectTarget();
-  const [helpOpen, setHelpOpen] = useState(false);
+  const panels = useOpenPanels();
   const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
@@ -313,10 +319,13 @@ const DrawerPanel = () => {
               <span>Author view</span>
             </label>
           )}
-          <HelpButton id="so-help-toggle-drawer" open={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
+          {snapshot.ready && snapshot.ui.authorView && (
+            <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
+              aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />
+          )}
+          <HelpButton id="so-help-toggle-drawer" open={panels.includes("help")} onToggle={() => togglePanel("help")} />
         </div>
       </div>
-      {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
       {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
       {snapshot.ready && (
         <DrawerTabs
@@ -441,8 +450,13 @@ const mountHud = () => {
 const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
   const snapshot = useRuntimeSnapshot();
   if (!snapshot.ready) return null;
-  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} /></Lazy>;
+  const presence = inlinePresence(snapshot.inline.level, snapshot.ui.authorView, snapshot.presence, snapshot.rolls);
+  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} presence={presence} /></Lazy>;
 };
+
+const presenceUi = createPresenceUi({
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), jump: (messageId) => void jumpFromDrawer(messageId), openDrawer: () => openSoDrawer(),
+});
 
 const mountInline = () => {
   if (document.getElementById("so-inline-root")) return true;
@@ -478,12 +492,15 @@ const mount = (attempt = 0) => {
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
   mountStudioHost();
+  presenceUi.mountPanels(ui);
   const inlineMounted = mountInline();
 
   if ((!settingsRootContainer || !drawerMounted || !hudMounted || !inlineMounted) && attempt < 50) {
     ui.timeout(() => mount(attempt + 1), 100);
   }
 };
+
+presenceUi.mountMarks(ui);
 
 if (document.readyState === "loading") {
   ui.listen(document, "DOMContentLoaded", () => mount(), { once: true });

@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import { groupChatsModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { log } from "@utils/log";
 
 // A group chat file starts with a header row carrying `chat_metadata` (group-chats.js:633-640 writes
 // `[chatHeader, ...chat]`, :268-273 reads it back), and `/api/chats/group/get` answers the parsed file
@@ -13,7 +14,8 @@ export async function readGroupChatMetadata(chatId: string): Promise<Record<stri
     const header = Array.isArray(rows) ? rows[0] : null;
     const metadata = header && typeof header === "object" ? (header as { chat_metadata?: unknown }).chat_metadata : null;
     return metadata && typeof metadata === "object" ? metadata as Record<string, unknown> : null;
-  } catch {
+  } catch (error) {
+    log.warn("a group chat's metadata could not be read", error);
     return null;
   }
 }

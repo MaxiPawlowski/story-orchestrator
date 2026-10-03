@@ -2,6 +2,7 @@ import React from "react";
 import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
+import StoryDisplayEditor from "./StoryDisplayEditor";
 import { useDraftStore } from "../draft";
 import { slugifyStoryId } from "@engine/index";
 import { addArcBridge, removeArcBridge, setArcTemplate, setHouseRules, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge } from "../mutations";
@@ -391,6 +392,7 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
       <SceneReadSection draft={draft} mutate={mutate} />
       <ArcBridgesSection draft={draft} mutate={mutate} />
       <ChaptersEditor />
+      <StoryDisplayEditor />
     </div>
   );
 };

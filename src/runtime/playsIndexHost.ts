@@ -5,6 +5,10 @@ import { settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import { dropPlay, playRow, playRowFromBlob, sanitizePlays, upsertPlay, type PlayRow, type PlaysIndex } from "./playsIndex";
 import { planBackfill, runBackfill, sanitizeBackfill, type BackfillState } from "./playsBackfill";
 import { log } from "@utils/log";
+import { composeBadges, type BadgeMaps } from "./presenceBadges";
+import { readGroupStories } from "./groupStoryBindingEdit";
+import { listStoryRecords } from "./storyLibrary";
+import { getGlobalSettings } from "./settingsStore";
 
 export const PLAYS_KEY = "plays";
 export const BACKFILL_KEY = "playsBackfill";
@@ -19,6 +23,10 @@ export const onPlaysChanged = (listener: () => void): (() => void) => {
 };
 
 export const readPlaysIndex = (): PlaysIndex => sanitizePlays(settingsRoot()[PLAYS_KEY]);
+
+export const readBadgeMaps = (): BadgeMaps => composeBadges({
+  plays: readPlaysIndex(), bindings: readGroupStories(settingsRoot()), library: listStoryRecords(), settings: getGlobalSettings().display.presence, now: Date.now(),
+});
 
 const writePlays = (plays: PlaysIndex) => {
   writableSettingsRoot()[PLAYS_KEY] = plays;

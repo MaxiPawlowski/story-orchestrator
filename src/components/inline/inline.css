@@ -90,3 +90,48 @@
 :is(#chat .so-inline-host, #so-inspector) .so-inline-actions .menu_button {
   font-size: inherit;
 }
+
+#chat .so-inline-host .so-chapter-card {
+  margin: 6px 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--st-border) 60%, transparent);
+  background: color-mix(in srgb, var(--st-info) 10%, transparent);
+  text-align: center;
+  color: var(--SmartThemeBodyColor, inherit);
+}
+
+#chat .so-inline-host .so-chapter-card[data-chapter-kind="interlude"] {
+  background: color-mix(in srgb, var(--st-bg-tint) 60%, transparent);
+}
+
+#chat .so-inline-host .so-chapter-card-eyebrow {
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+#chat .so-inline-host .so-chapter-card-title {
+  font-size: 1.25em;
+  font-weight: 600;
+}
+
+#chat .so-inline-host .so-chapter-card-briefing {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+#chat .so-inline-host .so-roll-chip {
+  cursor: default;
+  opacity: 0.85;
+}
+
+#chat .so-inline-host .so-roll-chip[data-outcome="failure"] {
+  border-color: color-mix(in srgb, var(--st-error) 50%, transparent);
+}
+
+#chat .so-inline-host .so-roll-chip[data-outcome="success"] {
+  border-color: color-mix(in srgb, var(--st-success) 50%, transparent);
+}
