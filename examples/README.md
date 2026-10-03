@@ -21,11 +21,12 @@ chat pins the copy it plays: editing or deleting the library record never distur
 
 ### Setup
 
-1. Select a Connection Manager memory profile under **Memory LLM profile** in the Story Orchestrator
+1. Select a Connection Manager memory profile as the **Memory model profile** in the Story Orchestrator
    settings panel. It is install-wide — every chat, including new ones, inherits it, and extraction is
    on by default.
-2. Paste the contents of `quest-for-the-sun-ruins.json` into **Import format-2 JSON** and click
-   **Import and Load**.
+2. **Start → Import a story**: paste `quest-for-the-sun-ruins.json` or pick the file, and click
+   **Import and load**. With no chat open it is only saved to the library (**Save to library**); pick
+   it under **Continue → Choose a story** once the group chat from step 3 is open.
 3. Give the story what it requires:
    - **By hand** — import the four character cards (**Characters → Import**), create a **group chat**
      containing `DM Narrator`, `Arin`, `Ponticius` and `Luke`, and import `Xentar Checkpoints.json` as
@@ -47,4 +48,4 @@ riddle outcome vary the route between them.
 Stagecraft is demonstrated elsewhere: `test/journeys/j8-stagecraft.story.json` is the smallest story
 that shows both halves — an `effects.background` switch on a checkpoint (deterministic) and a
 `stagecraft.lorebooks` allowlist that bounds what the World Info curator may ever rewrite (the curator
-is off by default; turn it on under **Stagecraft** in the settings panel).
+is on by default in review mode, under **Stagecraft** in the settings panel).

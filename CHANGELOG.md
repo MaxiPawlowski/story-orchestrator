@@ -4,6 +4,63 @@ Versions are the extension's own `package.json` version, which is also what `man
 settings panel report. A version is "accepted" only when an acceptance run says so; the per-plan Gate
 records under `docs/plans/` are the as-built truth, and this file is the summary a reader starts from.
 
+## 2.5 – 2.7 (unreleased)
+
+Nothing after 2.4.0 has been released. v2.5 (plans in `docs/plans/v2.5/`) closed unreleased on 2026-09-30 and was
+folded into v2.6, which re-measured everything on the Adolion campaign and was played end to end by Claude on test
+lanes (not accepted: the user's review and human sessions are outstanding). v2.7 is planned (`docs/plans/v2.7/`), not built.
+`package.json` stays at 2.4.0 until a release.
+
+### Playing
+- **Notes under messages**: small icons under each message show what the story did there (scene change, memory,
+  threads, lore, cast, tension, problems), at five levels; the player levels never spoil. The `/comment` transition
+  note is now opt-in.
+- **Chapters**: a story can end chapters as it goes, with a **Previously** card, **Your story** in the drawer,
+  `/story chapters | chapter <n> | chronicle export`, and `{{story_chapter}}`, `{{story_so_far}}`,
+  `{{story_previously}}`. Folding and archive recall stay off until measured.
+- **Story openings**: a story can open a new chat with authored first lines; a group can be bound to a story.
+- **No chat, no story**: importing with no chat open only saves to the library; nothing else changes.
+- **Chance**: authored dice rolls, NPC reply chances and the speaker pick are seeded, so a swipe or a reopened chat
+  replays the same result.
+- **Branches**: a branch from a story chat offers **Continue from here** instead of taking the parent's run.
+
+### Memory and characters
+- **Private knowledge stays private** in shared summaries too: memory tiers are redacted per drafted member,
+  sentence by sentence, and summaries never run ahead of the reads in group chats.
+- **Contradictions**: a new claim against an established fact is held for review instead of stored live.
+- **Fallback memory profile** while the memory model is down; it switches back on its own.
+- **Models per task**: story reads, summaries, the wizard, speaker direction, the curator and inner voice can each
+  use their own profile, or a Claude Code / Codex / opencode login through the new harness server plugin.
+- **Inner voice** and per-character motives (inner voice off by default).
+- **Reply thinking**: a per-install thinking budget for the main reply on llama.cpp (Medium, 400 tokens, by default);
+  a thought cut short that leaked into the reply is moved back.
+
+### World and stagecraft
+- **A story's lorebooks reach only the chats that play it**; the wizard no longer selects them globally, and Repair
+  offers to deselect an old global selection.
+- **Per-chat lore gating** (scan mode) alongside the file mode; exclusive lore selection for stories that ask for it.
+- **Illustrations** through the user's ComfyUI with an image director, review of candidates, per-chat preferences, and
+  a sprite stage. An optional GPU broker plugin coordinates text and images on one specific single-GPU setup.
+- The World Info curator is **on by default** in review mode; declines are remembered.
+
+### Judge
+- **Every use on by default** except House rules (below its floor). New uses: Lore check (warden), Exclusive lore
+  selection, Sprite expressions; House rules and Lore check now see the scene and the fired lore.
+- Pluggable providers (TypeSafe by default, a local llama-server option); a use is sent only where it is calibrated
+  for that provider and model. TypeSafe's documented size and rate limits are enforced, never truncated.
+
+### Authoring
+- **Agentic wizard**: a story agent that plans, then works one reviewed change at a time through typed tools, can run
+  through opencode on the server, and never creates an asset without your confirmation.
+- **The author's guide** (`docs/authoring/story-guide.md`), shown per Studio tab as "How to write this" and read by
+  the wizard; Studio diagnostics name their consequence first.
+- A commit guard keeps a misread from advancing the story on one doubtful line.
+
+### Release and docs
+- Release zip from an allowlist (`npm run package`), `npm run stage` into SillyTavern, third-party notices, and the
+  repository moved outside SillyTavern. Legacy story-state formats removed (never released).
+- User docs reorganised under `docs/guide/` (player, author, setup) and `docs/dev/`.
+
 ## 2.4.0
 
 Correct under the host as it really is (plans in `docs/plans/v2.4/`): SillyTavern and other extensions
