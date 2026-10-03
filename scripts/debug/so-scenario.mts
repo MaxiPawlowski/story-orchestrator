@@ -669,11 +669,24 @@ async function expand(page, spec) {
   }, debugResponse);
 }
 
+export function evalFailureMessage(failure: { name?: string; message?: string; stack?: string }): string {
+  const head = `Evaluation failed in SillyTavern page: ${failure.message ?? 'unknown error'}`;
+  if (!failure.name || failure.name === 'Error' || !failure.stack) return head;
+  const frames = failure.stack.split('\n').filter((line) => /^\s+at /.test(line)).slice(0, 8).map((line) => line.trim());
+  return `${head} [${failure.name}; stack: ${frames.join(' | ') || failure.stack.slice(0, 600)}]`;
+}
+
 async function evalStep(page, code) {
-  return evaluateInST(page, (code) => {
-    const fn = new Function(`return (async () => { ${code} })();`);
-    return fn();
+  const result = await evaluateInST(page, async (code) => {
+    try {
+      const fn = new Function(`return (async () => { ${code} })();`);
+      return { value: await fn() };
+    } catch (error) {
+      return { failure: { name: error?.name ?? null, message: String(error?.message ?? error), stack: typeof error?.stack === 'string' ? error.stack : null } };
+    }
   }, code);
+  if (result?.failure) throw new Error(evalFailureMessage(result.failure));
+  return result?.value;
 }
 
 // v2.3 plan 06's blocked-save check. The block lives at the TRANSPORT (Playwright's route handler is

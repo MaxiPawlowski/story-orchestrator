@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
+import { captureReopenState, checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
 import { runById, verifyRun, type RouteDoc, type RunsDoc, type RunSpec } from './lib/integrationRuns.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
 
@@ -238,6 +238,16 @@ test('negative control for I4: a switch that lands and returns lets the run play
   const rows = readFileSync(join(out, 'turns.jsonl'), 'utf-8').trim().split('\n').map((line) => JSON.parse(line));
   assert.ok(!rows.some((row) => row.kind === 'stop'), JSON.stringify(rows.filter((row) => row.kind !== 'turn')));
   assert.ok(sends >= 4, `the run played on after a clean switch (${sends} sends)`);
+});
+
+test('reopen capture reads the stored engineState.visitedPath (not a state field that does not exist) and records whether its re-scan ran', async () => {
+  const fake = fakeWorld('Adolion - The Adventurer\'s Road');
+  const record = fake.ctx.chatMetadata.story_orchestrator.stories['adolion-adventurer'];
+  record.engineState = { visitedPath: ['guild-hall', 'road-to-wendhope'] };
+  record.state = { visitedPath: ['decoy'] };
+  const read = await captureReopenState(fakePage()) as { engine: { visitedPath: unknown }; wi: { scanError: unknown } };
+  assert.deepEqual(read.engine.visitedPath, ['guild-hall', 'road-to-wendhope']);
+  assert.equal(typeof read.wi.scanError, 'string', 'outside ST the world-info module cannot load, and the capture says so instead of reading a stale scan gate silently');
 });
 
 test('play refuses an outage run whose memory profile shares the main reply endpoint', async () => {

@@ -143,8 +143,16 @@ export async function readOutageContext(page: any): Promise<OutageContext> {
 }
 
 export async function captureReopenState(page: any) {
-  return evaluateInST(page, () => {
+  return evaluateInST(page, async () => {
     const ctx = (globalThis as any).SillyTavern.getContext();
+    let scan: string | null = null;
+    try {
+      const wi = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { getSortedEntries?: () => Promise<unknown> };
+      if (typeof wi.getSortedEntries === 'function') await wi.getSortedEntries();
+      else scan = 'getSortedEntries missing';
+    } catch (error) {
+      scan = String((error as Error)?.message ?? error);
+    }
     const rt = (globalThis as any).storyOrchestratorRuntime;
     const snapshot = rt?.getSnapshot?.() ?? {};
     const blob = ctx.chatMetadata?.story_orchestrator ?? null;
@@ -152,8 +160,8 @@ export async function captureReopenState(page: any) {
     const sprites = (globalThis as any).storyOrchestratorSprites;
     return {
       chatId: ctx.chatId ?? null,
-      engine: { activeCheckpointId: snapshot.activeCheckpointId ?? null, boundary: snapshot.boundary ?? null, blackboard: snapshot.blackboard ?? null, visitedPath: record?.state?.visitedPath ?? null },
-      wi: { gating: snapshot.wiGating ?? null, scanGate: snapshot.scanGate ?? null },
+      engine: { activeCheckpointId: snapshot.activeCheckpointId ?? null, boundary: snapshot.boundary ?? null, blackboard: snapshot.blackboard ?? null, visitedPath: record?.engineState?.visitedPath ?? null },
+      wi: { gating: snapshot.wiGating ?? null, scanGate: snapshot.scanGate ?? null, scanError: scan },
       sampler: snapshot.samplerOverlay ?? null,
       sprites: sprites?.view ? sprites.view() : null,
       timeline: snapshot.inline ?? null,

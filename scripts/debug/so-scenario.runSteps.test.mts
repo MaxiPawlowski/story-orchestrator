@@ -22,6 +22,15 @@ test('a verb that answers ok:false fails its step and names the verb (T2)', asyn
   assert.match(result.error ?? '', /^eval: reported ok:false — "import never landed"/);
 });
 
+test('J14.1: an in-page TypeError from an eval names its type and stack; a deliberate fixture Error keeps its plain message', async () => {
+  const crashed = await quiet(() => run([{ eval: 'const speaker = {}; return speaker.member.trim();' }]));
+  assert.equal(crashed.ok, false);
+  assert.match(crashed.error ?? '', /Evaluation failed in SillyTavern page: .*'trim'.* \[TypeError; stack: at /);
+  const deliberate = await quiet(() => run([{ eval: 'throw new Error("the opener fired twice");' }]));
+  assert.match(deliberate.error ?? '', /Evaluation failed in SillyTavern page: the opener fired twice$/);
+  assert.equal((await quiet(() => run([{ eval: 'return 7;' }]))).ok, true);
+});
+
 test('a step declared to fail passes when it fails, and fails when it succeeds', async () => {
   assert.equal((await quiet(() => run([{ eval: 'return { ok: false };', expectFail: true }]))).ok, true);
   const surprise = await quiet(() => run([{ eval: 'return { ok: true };', expectFail: true }]));

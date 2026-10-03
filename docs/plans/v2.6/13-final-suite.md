@@ -13,16 +13,16 @@ Lane time per row: a measured median where archived records hold one (journeys),
 | live scenarios kept by R3 | 3.3 | 3.3 |
 | carry-over rows (01) | 8.8 | 4.9 |
 | recommended-config rows (05, 11, 12) | 5.4 | 3.3 |
-| kept spike rows (03) | 8.1 | 2.9 |
+| kept spike rows (03) | 7.6 | 2.7 |
 | integration (09) | 7.8 | 6.7 |
 | judge-off column (10) | 1.2 | 0.8 |
-| **one pass (LLM rows)** | **37.5** | **24.7** |
-| **x2** | **75.1** | **49.4** |
+| **one pass (LLM rows)** | **37.0** | **24.5** |
+| **x2** | **74.1** | **48.9** |
 | capacity: 2 nights x 10 h x 2 lanes | 40.0 | 40.0 |
 
-The cut already applied by R3: 29 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 2.7 lane-hours per pass by the step estimate) and 1 duplicate retired. Hand-row minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
+The cut already applied by R3: 28 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 2.5 lane-hours per pass by the step estimate) and 1 duplicate retired. Hand-row minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
 
-**Does not fit, even at the caps**: x2 needs 49.4 of 40.0 lane-hours, 9.4 over (at the plans' own sizing: 75.1). The journeys and live scenarios take 12.4 lane-hours x2; the rest is the hand rows of plans 01, 03, 05, 09, 10, 11 and 12. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
+**Does not fit, even at the caps**: x2 needs 48.9 of 40.0 lane-hours, 8.9 over (at the plans' own sizing: 74.1). The journeys and live scenarios take 12.4 lane-hours x2; the rest is the hand rows of plans 01, 03, 05, 09, 10, 11 and 12. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
 
 ## Where it runs: plan 15 Part B (budget restated)
 
@@ -30,7 +30,7 @@ This suite runs **inside plan 15 Part B**: Claude plays plan 14's tiers and runs
 
 - **RunPod: EUR 20**, stop at EUR 19 (EUR 1 margin). At about EUR 0.66/h (the RTX PRO 4500 pod measured at $0.72/h, gotchas 2026-09-22), that is about **29 pod-hours**. The real price is stated before the pod is created and every hour is logged in `test/sessions/BUDGET.md`.
 - **DeepSeek**: per token, outside the RunPod budget, recorded in the same file. It carries every orchestrator pass, so lane time spent waiting on a pass is not pod time.
-- One pod serves 2 LLM-heavy lanes at once (`LLM_PARALLEL` 2), so lane-hours cost about 1/2 pod-hours: this list x2 at the caps is 49.4 lane-hours, about **25 pod-hours**, before any plan 14 session or measurement.
+- One pod serves 2 LLM-heavy lanes at once (`LLM_PARALLEL` 2), so lane-hours cost about 1/2 pod-hours: this list x2 at the caps is 48.9 lane-hours, about **24 pod-hours**, before any plan 14 session or measurement.
 - The list x2 fits in the pod-hours, but the sessions and measurements share them. Priority, highest first; whatever the budget leaves unrun is listed in `14-review-pack.md` as **not run: budget**, never dropped silently:
   1. T0 playable: its three charters and every blocker fix with its targeted re-run (nothing else counts until a session commits turns).
   2. The measurements a build waits on: 03 SP7 D4/D4b first (W17), then the 07 Q-M arms (T2), recorded for the user's review where a human rates them.
@@ -183,7 +183,6 @@ Each scenario states the install it needs in a top-level `requires` (`scripts/de
 | 03-SP6 | complication pool K2-K4 (the plan's longest run, its own lane overnight) | node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/live-v25-09-sp6-k2.json <campaign>/lab/complications/sp6-adolion.journey.json; node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "localStorage.getItem('so-sp6-records')" > sp6-records.json; node scripts/debug/so-sp6-score.mts sp6-records.json | only if 03 records SP6 include; its own lane overnight | adolion-fresh lane, pools from lab/complications/sp6-pools.json | st-lanes batch summary; sp6-records.json; so-sp6-score verdicts; run header before + `so-run-header.mts diff` after | T7 (from T2-1) | 180 | 60 | 03 states about 3 lane-hours; K2 regression leg; K3/K4 release counts are the 03 measurement |
 | 03-SP7 | D4/D4b seeded chance | node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/chance/live-adolion-sp7-d4.json <campaign>/lab/chance/live-adolion-sp7-d4b.json | SP7.b is built first (W17); the D4/D4b regression leg always runs once SP7.b is in | adolion-fresh lane | st-lanes batch summary; run header before + `so-run-header.mts diff` after | T7 (from T1-4) | 30 | 15 |  |
 | 03-SP8 | curator tiers W3/W4(b) | node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/curator/live-v25-09-sp8-w3-adolion.json; node scripts/debug/so-role-calibration.mts run --role curator --arm phaseF-sp8-r1 (then -r2, verdict) | only if 03 records SP8 include | adolion-fresh lane, curator tiers flag per 03-sp8-restated.md | st-lanes batch summary; curator calibration reports; run header before + `so-run-header.mts diff` after | T7 (from T3-5) | 60 | 20 |  |
-| 03-SP10 | tool-call turns Q1-Q3 (SP9 witness filter dropped by v2.6 03, 2026-10-01) | node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/v25-09-tool-turn.json | only if 03 records its include (SP10 tool-call turns) | adolion-fresh lane | st-lanes batch summary; run header before + `so-run-header.mts diff` after | T7 (from T2-2) | 30 | 15 |  |
 
 ## integration (09)
 
@@ -232,4 +231,3 @@ Each scenario states the install it needs in a top-level `requires` (`scripts/de
 - `test/scenarios/plan13-surfacing.json` (~1 min): LLM tier naming no invariant, defect or contract: nothing states why no cheaper tier sees it (R3 rule 3); out of the final suite until it names its guard, file kept
 - `test/scenarios/v24-pf-curator-same-chat.json` (~1 min): LLM tier naming no invariant, defect or contract: nothing states why no cheaper tier sees it (R3 rule 3); out of the final suite until it names its guard, file kept
 - `test/scenarios/v24-pf-curator-switch.json` (~1 min): LLM tier naming no invariant, defect or contract: nothing states why no cheaper tier sees it (R3 rule 3); out of the final suite until it names its guard, file kept
-- `test/scenarios/v25-09-tool-turn.json` (~8 min): v2.5 plan 09 spike leg (SP9 witness / SP10 tool-turn): a measurement (budget rule 4)

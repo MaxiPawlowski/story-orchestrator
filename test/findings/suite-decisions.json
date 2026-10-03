@@ -441,21 +441,6 @@
           ],
           "originTier": "T3-5",
           "tier": "T7"
-        },
-        {
-          "id": "03-SP10",
-          "what": "tool-call turns Q1-Q3 (SP9 witness filter dropped by v2.6 03, 2026-10-01)",
-          "minutes": 30,
-          "capMinutes": 15,
-          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/v25-09-tool-turn.json",
-          "when": "only if 03 records its include (SP10 tool-call turns)",
-          "config": "adolion-fresh lane",
-          "artifacts": [
-            "st-lanes batch summary",
-            "run header before + `so-run-header.mts diff` after"
-          ],
-          "originTier": "T2-2",
-          "tier": "T7"
         }
       ]
     },
