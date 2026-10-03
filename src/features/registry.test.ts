@@ -5,7 +5,7 @@ import type { ExtractionRuntimeSettings, MemoryRuntimeSettings } from "@runtime/
 import { DEFAULT_CHAPTER_SETTINGS } from "@runtime/chapters";
 import { JUDGE_USE_COPY } from "@judge/settings";
 import { JUDGE_READINESS_BY_PROVIDER } from "@judge/readiness";
-import { HUD_COPY, PIPELINE_ACTION_COPY, REPAIR_PLAYER_COPY } from "@runtime/pipeline";
+import { EDIT_CATCH_UP_TEXT, HUD_COPY, PIPELINE_ACTION_COPY, REPAIR_PLAYER_COPY, hudChipLabel } from "@runtime/pipeline";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, storyHelpText, soMemHelpText } from "@runtime/slashHelp";
 import { gettingStartedShown, gettingStartedSteps } from "@runtime/repair";
@@ -281,5 +281,14 @@ describe("v2.7 plan 08 (A11): the guide shows the thinking warning as players se
     const faq = readFileSync(join(ROOT, "docs/guide/player/troubleshooting.md"), "utf-8").replace(/\r\n/g, "\n");
     expect(faq).toContain(`"${THINKING_PLAYER_TEXT}"`);
     expect(faq).toContain("These show in player mode too");
+  });
+});
+
+describe("v2.7 plan 10 (C guide line): the guide explains catching up after an edit", () => {
+  it("the HUD page names the chip and the troubleshooting page quotes the status line", () => {
+    const read = (page: string) => readFileSync(join(ROOT, `docs/guide/player/${page}`), "utf-8").replace(/\r\n/g, "\n");
+    expect(read("drawer-and-hud.md")).toContain(`| \`${hudChipLabel("catching-up", false)}\` |`);
+    expect(read("troubleshooting.md")).toContain(`| "${EDIT_CATCH_UP_TEXT}" |`);
+    expect(read("troubleshooting.md")).toContain("a reply is built from the pre-edit state");
   });
 });

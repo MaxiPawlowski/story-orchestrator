@@ -9,6 +9,7 @@ open the drawer. It can also show:
 |---|---|
 | `N updates next turn` | The story noticed something; it takes effect after the next reply. |
 | `catching up…` | The story is re-checking recent scenes. Keep playing. |
+| `catching up after your edit` | You edited the last reply: the story stepped back to before it and is re-reading the edited text (a few seconds). A reply sent before then is built from the pre-edit state. |
 | `fix setup (N)` | Something stops the story (for example no memory model is chosen). Click it to open the Repair row. |
 | `check setup (N)` | Something weakens the story but it still plays. Click it to open the Repair row. |
 | `not keeping up` | Something went wrong reading the scene. See [Troubleshooting](troubleshooting.md). |

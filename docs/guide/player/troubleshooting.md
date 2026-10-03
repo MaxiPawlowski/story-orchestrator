@@ -13,6 +13,7 @@ once: the ones that stop the story first, then the ones that weaken it.
 | "The story will not move on its own — turn that on in the extension settings." | Story reading is switched off. | **Open story settings** and switch it on. |
 | "The memory model is not answering — the story will catch up when it does." | Your backend is down or busy. | Check your model is running, then **Try again**. |
 | "Catching up — re-checking recent scenes." | A scene is taking longer than expected. | Keep playing. It catches up on its own. |
+| "Catching up after your edit…" | Editing the last reply stepped the story back to before it; it is re-reading the edited text. Until that read lands (a few seconds), a reply is built from the pre-edit state. | Wait for it to clear before you send, if the edit should count for the next reply. |
 | "What happens next is yours to decide." | The story waits for you to act. | Do or say something in the scene. |
 
 A story only moves on what the chat shows. If a scene should be over but is not, write it happening in the chat
