@@ -52,6 +52,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | 05 | `05-adolion-campaign.md` | **A1–A3** docs/check/pin, **A7** briefings (A4 lab data and A5/A6 follow later) | campaign |
 | 26 | `26-self-contained-images.md` | ST Image Generation route, ComfyUI model discovery, template prompt, broker optional + fail-open, probes/Repair, quiet defaults (numbered 26: arrived after the renumbering; builds here). Sprite generation = 26b after it | user topic |
 | 27 | `27-wizard-assistant.md` | shipped knowledge base (plugin + author guide + condensed ST know-how), read-only Ask mode, character-building tutorial (needs plan 01's registry; cloud authoring profile, no RunPod) | user topic |
+| 28 | `28-talkinghead-review.md` | Talkinghead is gone (removed from ST in 1.12.13, Extras archived); instead: build-time blink/talk frames via the campaign's ComfyUI edit pipeline + a tiny animator in VnStage; spike S28 first (local ComfyUI, no RunPod) | user topic |
 | 06 | `06-thinking-per-story.md` | the Repair warning (the story/checkpoint level waits on R4: tier 3) | seed |
 | 07 | `07-commitment-double-negatives.md` | player line + hold reason in the author journal row | seed |
 | 08 | `08-sp2-recommit-v2.md` | option C: "catching up after your edit" status + README | seed |
