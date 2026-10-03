@@ -2,9 +2,14 @@ import React from "react";
 import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
+import BriefingEditor from "./BriefingEditor";
+import { composeBriefing } from "@engine/index";
+import { requestBriefing } from "@runtime/briefingRequest";
 import { useDraftStore } from "../draft";
 import { slugifyStoryId } from "@engine/index";
-import { addArcBridge, removeArcBridge, setArcTemplate, setHouseRules, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge } from "../mutations";
+import {
+  addArcBridge, removeArcBridge, setArcTemplate, setBriefing, setHouseRules, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge,
+} from "../mutations";
 
 export interface StoryEditorProps {
   personaNames?: string[];
@@ -14,6 +19,9 @@ export interface StoryEditorProps {
   // being editable there (spec addendum §Story identity).
   idLocked?: boolean;
 }
+
+const BRIEFING_HINT = "Shown to the player once, the first time the story starts in a chat: the world, who they are, who is with them, how to play. "
+  + "Never sent to the model. Without one, the player introduction is shown. Only write what the player may know at the start.";
 
 const ARC_TEMPLATE_LABELS: Record<ArcTemplateName, string> = {
   rising: "Rising to climax",
@@ -100,6 +108,9 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
         <textarea className="text_pole st-input min-h-[4rem]" aria-label="Player introduction" placeholder="A spoiler-safe premise and what the player can expect…" value={draft.player_intro ?? ""}
           onChange={(event) => mutate((current) => setStoryField(current, "player_intro", event.target.value || undefined))} />
       </Field>
+      <BriefingEditor name="Briefing" hint={BRIEFING_HINT} briefing={draft.briefing}
+        onChange={(next) => mutate((current) => setBriefing(current, next))}
+        onPreview={() => requestBriefing({ kind: "preview", view: composeBriefing(draft) })} />
       <Field label="Dramatic shape" hint="The tension curve the pacing hint steers toward across the story's anchors. A checkpoint's own tension_target always wins over the shape.">
         <select
           className="text_pole st-input"

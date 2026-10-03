@@ -13,4 +13,4 @@ Fields: `title`, `description` (both required), `id`, `version`, `player_intro` 
 
 ---
 
-[Author's guide](../README.md) · previous: [How a story plays](../how-a-story-plays.md) · next: [Dramatic shape](arc-template.md)
+[Author's guide](../README.md) · previous: [How a story plays](../how-a-story-plays.md) · next: [Briefing](briefing.md)

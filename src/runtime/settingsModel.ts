@@ -57,7 +57,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { alpha: number; hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; inline: InlineSettings };
+  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -74,9 +74,10 @@ export interface HelpSettings {
   lastSeenVersion: string | null;
   checklistDismissed: boolean;
   dismissedChecks: string[];
+  onboardingSeen: boolean;
 }
 
-export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [] });
+export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false });
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
@@ -86,6 +87,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
   dismissedChecks: isRecord(value) && Array.isArray(value.dismissedChecks)
     ? [...new Set(value.dismissedChecks.filter((id): id is string => typeof id === "string").map((id) => id.trim()).filter(Boolean))]
     : [],
+  onboardingSeen: isRecord(value) && value.onboardingSeen === true,
 });
 
 export const SPIKE_FLAGS = [
@@ -179,7 +181,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() },
+  display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
@@ -249,7 +251,10 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
-    display: { announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
+    display: {
+      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
+      inline: sanitizeInlineSettings(display.inline),
+    },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: sanitizeInnerVoice({
       ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },

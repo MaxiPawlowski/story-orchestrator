@@ -18,6 +18,18 @@ a one-on-one chat the story stays off and the panel offers **Make a group for th
 If the story needs characters, a lorebook or a persona this chat does not have, the drawer lists them under
 **This story still needs** and Repair names the first one.
 
+## The story briefing
+
+The first time a story starts in a group chat, a **Before you start** page opens over the chat: the author's
+briefing (the world, who you are, who is with you, how to play), and on your first story ever a short
+**How Story Orchestrator works** section about the status strip, the notes under messages and the drawer. The
+opening scene still posts behind it; close it with the button at the bottom (**Begin**, or the author's own word).
+
+Each chat shows it once, and remembers that across reloads, swipes and edits. **Restart story** shows it again. Re-open
+it any time with **Story briefing** at the bottom of the drawer's Overview, or `/story intro`. To stop it opening on
+its own, untick **Show the story briefing when a story starts** under **Display**, or tick **Don't show briefings**
+on the page itself. A story without a briefing shows its introduction instead, if it has one.
+
 ## Each chat keeps its own copy
 
 A chat keeps the exact version of the story it started with. Editing or deleting the story in the library never
@@ -59,6 +71,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story chapters` | The chapters that have ended, if the story uses chapters. |
 | `/story chapter <n>` | One ended chapter's summary. |
 | `/story chronicle export` | Copies the whole chronicle as Markdown. |
+| `/story intro` | Opens the story briefing again. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
 
 `/so-mem list`, `/so-mem pin <n> on|off` and `/so-mem exclude <n>` manage memories from the chat box (see

@@ -110,6 +110,16 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
   },
   {
+    id: "story-briefing", name: "Story briefing", area: "play", audience: "player",
+    oneLine: "A short \"Before you start\" page the first time a story starts in a chat.",
+    what: "The first time a story starts in a group chat, a page says who you are, where you are, who is with you and how to play, in the author's words. "
+      + "The opening scene still posts behind it. Each chat shows it once; Restart shows it again. Re-open it from Story briefing in the drawer or with /story intro. "
+      + "The first one also explains the status strip, the notes under messages and the drawer.",
+    where: settingsAt("#so-briefing-enabled", "Display › Show the story briefing"),
+    settings: ["display.briefing", "help.onboardingSeen"], guideTopic: "briefing", doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
+    isOn: (settings) => settings.display.briefing,
+  },
+  {
     id: "story-drawer", name: "Story drawer", area: "play", audience: "player",
     oneLine: "Where you are, what happened, and what you are remembered for.",
     what: "The route icon in the top bar opens the story drawer. Overview shows where the story is, what happened recently and what is still open; Memory lists what the story remembers.",

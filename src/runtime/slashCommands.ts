@@ -4,6 +4,7 @@ import { renderBlackboardMemo } from "./blackboardMemo";
 import { loadChapterKit } from "./chapterPort";
 import { isEstablished, type MemoryEntry } from "@memory/index";
 import { CP_AUTHOR_ONLY_TEXT, MEMORY_TIER_LABELS, SO_MEM_AUTHOR_ONLY_TEXT } from "./narrative";
+import { requestBriefing } from "./briefingRequest";
 import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, soMemHelpText, storyHelpText } from "./slashHelp";
 
 type SlashArgs = Record<string, unknown>;
@@ -132,6 +133,9 @@ async function memCommand(manager: RuntimeManager, value: string | string[]) {
   return dump(soMemHelpText());
 }
 
+export const NO_STORY_BRIEFING = "No story is playing in this chat.";
+export const NO_BRIEFING_WRITTEN = "This story has no briefing.";
+
 async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   const parts = partsOf(value);
   const command = parts[0] ?? "recap";
@@ -142,6 +146,13 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   if (command === "threads") {
     const threads = manager.getNarrativeStatus().sections.find((section) => section.id === "threads")?.lines ?? [];
     return dump(threads.length ? threads.map((thread) => `• ${thread}`).join("\n") : "No open threads right now.");
+  }
+  if (command === "intro") {
+    const briefing = manager.getSnapshot().briefing;
+    if (!briefing) return show(NO_STORY_BRIEFING);
+    if (!briefing.view) return show(NO_BRIEFING_WRITTEN);
+    requestBriefing();
+    return "";
   }
   if (command === "flag") {
     await manager.flagMoment(parts.slice(1).join(" "));

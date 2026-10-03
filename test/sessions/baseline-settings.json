@@ -35,6 +35,7 @@
     "display": {
       "announceTransitions": false,
       "hudEnabled": true,
+      "briefing": false,
       "inline": {
         "level": 1,
         "categories": {},

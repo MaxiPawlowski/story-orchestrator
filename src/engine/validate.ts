@@ -132,6 +132,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     title: json.title as string,
     description: json.description as string,
     ...(options.player_intro ? { player_intro: options.player_intro } : {}),
+    ...(options.briefing ? { briefing: options.briefing } : {}),
     ...(options.illustrations ? { illustrations: options.illustrations } : {}),
     qualities,
     checkpoints,

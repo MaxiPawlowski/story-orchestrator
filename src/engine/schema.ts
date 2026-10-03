@@ -243,6 +243,7 @@ export interface Chapter {
   seal?: ChapterSealPolicy;
   final?: boolean;
   illustrations?: IllustrationLook;
+  briefing?: StoryBriefing;
 }
 
 export const STORY_SO_FAR_MODES = ["block", "macro", "off"] as const;
@@ -365,6 +366,25 @@ export interface StoryLoreSelect {
   exclusive?: boolean;
 }
 
+export const BRIEFING_MAX_SECTIONS = 6;
+export const BRIEFING_SECTION_MAX_CHARS = 1200;
+export const BRIEFING_HEADING_MAX_CHARS = 80;
+export const BRIEFING_LINE_MAX_CHARS = 240;
+export const BRIEFING_LABEL_MAX_CHARS = 40;
+
+export interface BriefingSection {
+  heading: string;
+  text: string;
+}
+
+export interface StoryBriefing {
+  title?: string;
+  image?: string;
+  sections: BriefingSection[];
+  tone?: string;
+  start_label?: string;
+}
+
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 // The id is the story's identity: derived from the title until the author fixes it, and the library
@@ -384,6 +404,7 @@ export interface StoryV2 {
   title: string;
   description: string;
   player_intro?: string;
+  briefing?: StoryBriefing;
   illustrations?: StoryIllustrations;
   qualities: Quality[];
   checkpoints: Checkpoint[];
