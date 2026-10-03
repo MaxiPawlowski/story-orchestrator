@@ -27,7 +27,7 @@ export const PROD_GLOBAL_ALLOWLIST = [];
 
 export const surfaceNames = (text) => [...new Set(text.match(/storyOrchestrator[A-Z]\w*/g) ?? [])].sort();
 
-export const changelogTopVersion = (text) => /^## +v?(\S+)/m.exec(text)?.[1] ?? null;
+export const changelogTopVersion = (text) => /^## +v?(?![^\n]*\bunreleased\b)(\S+)/im.exec(text)?.[1] ?? null;
 
 export const versionIssues = ({ pkg, loader, build, changelog }) => [
   ...(loader === pkg ? [] : [`manifest.json version ${loader} != package.json ${pkg}`]),

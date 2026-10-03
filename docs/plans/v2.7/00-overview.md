@@ -71,7 +71,7 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 
 | # | Plan | What gets built | Kind |
 |---|---|---|---|
-| 16 | `16-spike-defers.md` | SP6 run (feeds 19), SP1 park, SP10 README; plus plan 02 **C1** SP5.b, **C3** judge timeouts, **C4** owed live checks, **C5** | seed + carry-in |
+| 16 | `16-spike-defers.md` (index) → `16a-sp5-story-scenario.md`, `16b-sp6-complication-pool.md`, `16c-sp1-swipe-back-cache.md`, `16d-sp10-tool-call-turns.md` | 16a SP5.b (plan 02 **C1**; no model call, could move to tier 1), 16b SP6 measurement (feeds 19), 16c SP1 park + swipe-back counter, 16d SP10 README note + probe removal (plan 02 **C5**); plus plan 02 **C3** judge timeouts, **C4** owed live checks | seed + carry-in |
 | 17 | `17-open-stretches.md` | open stub mode (its engine half is pure; the A/B needs the model) | user topic |
 | 18 | `18-character-life.md` | relationships, mood (reads); agendas and schedules are pure code but ride on the same measurement | user topic |
 | 19 | `19-quests-and-game-layer.md` | quests, visible qualities, checks, milestones, Journal (M1/M2 measure extraction load) | user topic |
@@ -104,7 +104,7 @@ Answers are written inline in each plan's decisions list; this is the index plus
 | 07 | hold; journal row; B if ever needed | — |
 | 08 | **the user edits replies and uses a post-processor: SP2 v2 (option A) is important** plus C now; held reply as recommended (loud only, 15 s cap); R5′ net of displaced reads | A moves from parked to built (tier 3, needs live legs) |
 | 09 | keep (c); defer E to the next version | — |
-| 10 | keep Artemis v1.1; write the switch checklist; all three triggers | — |
+| 10 | keep Artemis v1.1; switch checklist written (`10a-model-switch-checklist.md`); all three triggers | **changed:** the user funds one thinking A/B (Cydonia or Skyfall) in v2.7 — tier 3 |
 | 11 | A: keep separate, close | — |
 | 12 | **the user wants the create op**, properly made and tested; contract B, floors kept | **new:** its own model selector (cloud model, or a harness like opencode) |
 | 13 | not as a runtime judge; labelling aid yes; W27 kept | **new:** the user wants to connect multiple cloud providers for other roles (e.g. the wizard), which ST may not support; explore uses and come back with proposals |

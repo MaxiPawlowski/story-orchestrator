@@ -1,12 +1,14 @@
-# Architecture (v2)
+# Architecture
 
 Story Orchestrator runs a format-2 story as a deterministic checkpoint graph over a live
-SillyTavern chat. This is the current source-of-truth layout; the design rationale and per-plan
-build history live in [`plans/v2/`](plans/v2/), [`plans/v2.1/`](plans/v2.1/),
-[`plans/v2.2/`](plans/v2.2/) and [`plans/v2.3/`](plans/v2.3/).
+SillyTavern chat. This document describes the shape; the normative rules (every invariant, with the
+incident that taught it) live in `.claude/rules/architecture.md` and `.claude/rules/gotchas.md`, and
+win wherever this page disagrees. Design rationale and per-plan build history: the plan records
+(`docs/plans/`, moving to the private process repo).
 
-Current through **v2.3** (2026-09-22). The normative rules live in `.claude/rules/architecture.md`
-and `.claude/rules/gotchas.md`; this document describes the shape, not every rule.
+**Status (2026-10-03).** The layout and the v2.3 invariants below are as built. v2.4 to v2.6 added
+the pieces listed under [Since v2.3](#since-v23); v2.5 closed unreleased and was folded into v2.6.
+Release status per version: `.claude/CLAUDE.md` §Status and [`CHANGELOG.md`](../../CHANGELOG.md).
 
 ## Source layout
 
@@ -33,6 +35,9 @@ src/
   copilot/                  # authoring + in-play driver over the studio mutation API
                             #   stages: qualities, checkpoints, transitions, effects, provisioning;
                             #   a stage may answer with `questions` instead of ops (the interview)
+    agent/                  # v2.6 plan 11 (pure): the agentic wizard — typed tools, drive loop,
+                            #   local route + the harness tool bridge (lazy Studio chunk only)
+    guideTopics.ts          # the compact author's guide, drift-tested against docs/authoring/story-guide.md
   wizard/                   # pure wizard core: provisioning ops, create-only validation,
                             #   environment fold, interview/session helpers
   stagecraft/               # pure curator core: op types + accept modes, the curation prompt,
@@ -41,7 +46,9 @@ src/
   talk/                     # plan 14 (pure): speaker-direction rules, the director prompt + parser
   judge/                    # v2.2 (pure): the judge read model (questions, client, policy),
                             #   director + self-test; v2.3 plan 10 adds the MEASUREMENT files
-                            #   (loreScore/loreRanking/loreRelevanceCalibration — pickLore unchanged)
+                            #   (loreScore/loreRanking/loreRelevanceCalibration — pickLore unchanged);
+                            #   v2.6 plan 12: providers.ts, the DecisionProvider seam (per-use routing)
+  image/ sprites/           # illustrations (own ComfyUI graph through ST's proxy) and the sprite stage
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
                             #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster,
                             #   Diagnostics, Wizard (interview + staged proposals + provisioning cards)
@@ -83,8 +90,17 @@ src/
     faultMatrix.guard.test.ts # v2.3 plan 11: the fault-matrix census guard
     runToken.ts             # v2.3 plan 03: RunOwnership / RunToken / beginRun
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
+    inlineTimeline.ts messageInspector.ts loreFired.ts  # v2.6 plan 08: notes under each message
+    chapters.ts chapterPort.ts chapterKit.ts chapterSeal.ts # v2.6 plan 07: chapters (lazy chunk)
+    storyLore.ts storyLoreHost.ts # story-scoped lore: a story's books scanned only in its own chats
+    replyEffort*.ts thoughtLeak.ts # v2.6: the main reply's thinking budget (llama.cpp only)
+    samplerOverlay*.ts      # v2.4 plan 06: a preset effect as a per-request sampler overlay
+    worldInfoEvidence*.ts   # v2.4 plan 05: what World Info actually activated, observed
+    chance.ts talkControl.ts judge.ts
   components/
     studio/                 # 6 reused presentational primitives
+    settings/               # EntryPoints (Start/Continue/Repair/Author), CapabilitiesGroup, the setting groups
+    inline/                 # v2.6 plan 08: InlineLayer/InlineStrip/InlineDetail (notes under messages)
     drawer/                 # DrawerTabs (player Overview/Memory; author adds Blackboard/Scheduler/Payload),
                             #   PlayerOverview (narrative view + pipeline signal), HudStrip, DriverPanel (author),
                             #   StagecraftPanel (author: the curator review ring in the Scheduler tab)
@@ -148,8 +164,8 @@ src/
   memory, generation or pacing dependency, which is what makes "a curator can never move the
   blackboard or a memory tier" a fact rather than a promise; `architecture.test.ts` fails the build
   if that changes. Proposals and applications are journaled, each applied op records the entry's
-  pre-write state so a mutation rollback reverts it, and the curator ships capability-flagged off
-  with accept mode `review | auto | off`. Deterministic stagecraft comes first: `effects.background`
+  pre-write state so a mutation rollback reverts it, and the curator ships
+  with accept mode `review | auto | off` (on by default since v2.5 plan 19, accept mode `review`). Deterministic stagecraft comes first: `effects.background`
   is an ordinary checkpoint effect, applied idempotently on activate and hydrate.
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
   chatLength}`.
@@ -162,7 +178,8 @@ These are stated in full in `.claude/rules/architecture.md`; this is the shape.
 - **Every asynchronous writer takes a `RunOwnership`** (`runtime/runToken.ts`): a `RunToken` minted at
   the top of the unit and re-checked immediately before each write, because comparing the last message
   index cannot tell two chats apart at the same index. `ownership.guard.test.ts` +
-  `test/findings/ownership-sites.json` census every write-after-await in `runtime/` and `wizard/`.
+  `test/findings/ownership-sites.json` census every write-after-await in `runtime/`, `wizard/`, `extraction/`, `generation/` and
+  `copilot/agent/`.
 - **Provenance and pins** (plan 05): one `Provenance` envelope (`source/messageId/boundary/pass/
   validity`, `override`, `inputs`, `confidence`) rides memory entries, epistemic rows, ledger versions,
   scene reads, curator proposals and the canon's inputs. **Pin = retention, lock = truth.** A
@@ -181,8 +198,8 @@ These are stated in full in `.claude/rules/architecture.md`; this is the shape.
   `pending` row **before** the host call, reconciles it on hydrate by reading the host, and refuses the
   effect when that write-ahead row did not reach disk (the save-evidence seam in `saveHealth.ts`, since
   `persist()` cannot answer the question). Restore on leave is compare-and-set. A missing host feature
-  **blocks** rather than fails (`stHost/capabilities.ts`); preset effects are refused with a reason on
-  any non-textgen backend.
+  **blocks** rather than fails (`stHost/capabilities.ts`). (Preset effects were refused on non-textgen
+  backends here; v2.4 plan 06 replaced that with the per-request sampler overlay, see below.)
 - **Every generated outcome is a route** (plan 07, R9): `mergeExpansions` emits one transition per
   outcome, priority = declaration order descending (the engine sorts by priority desc and fires the
   first match); the anchor-entry threshold is the **minimum over routes** unless the anchor authors one;
@@ -207,6 +224,36 @@ These are stated in full in `.claude/rules/architecture.md`; this is the shape.
   **acceptance attestation** (`docs/release/<version>/attestation.json`) is the second file: which
   bundle was served and verified, on which host commit, browser, model, judge model and which journeys
   ran green — and it must declare drift when the tree has moved past the attested build.
+
+## Since v2.3
+
+One line each; the full rule is in `.claude/rules/architecture.md`.
+
+- **The host changes the chat under the story** (v2.4): hiding never rewinds; edit/delete/swipe roll
+  back exactly what the message fed; a branch shows *Continue from here*; a save asked for one chat
+  never lands in another (save evidence reads the server back).
+- **A preset is a per-request sampler overlay**, never an install write (v2.4 plan 06, X20). The
+  reply thinking budget (v2.6) is the one overlay that adds keys, five named ones, llama.cpp only.
+- **World Info activation is observed, not inferred** (v2.4 plan 05 T12). Checkpoint `world_info` is
+  rebuilt from the chat's path; a scan-time gating mode exists as a spike behind
+  `worldInfo.gatingMode`.
+- **A story's lorebooks reach only the chats that play it** (2026-10-02): `runtime/storyLore.ts`
+  appends them to each scan of the owning chat; nothing is selected globally.
+- **No chat, no story**: with no chat open an import only saves to the library and every effect is
+  refused.
+- **Judge** (v2.2, extended through v2.6): every use on by default except `houseRules`; a
+  `DecisionProvider` seam routes each use to a provider, refuses an uncalibrated route, and never
+  sends a request over the provider's documented size limits. The judge never blocks and never writes.
+- **Chance is seeded** (v2.6 SP7.b): rolls, NPC reply probability and the talk pick are drawn from
+  (chat, story, boundary, key), so rollback and reopen replay the same value.
+- **Inline timeline** (v2.6 plan 08): notes under each message, rendered into the DOM by
+  `stHost/inlineMount.ts`, never posted as messages; levels 0–4, author levels only in Author view.
+- **Chapters and the saga** (v2.6 plan 07): chapter seals, fold, "Previously…", chronicle; the
+  features beyond sealing stay off until their floors are measured.
+- **Agentic wizard** (v2.6 plan 11) writes only through typed tools, and only the author confirms an
+  asset. The harness plugin's tool bridge (opencode only) changes the transport, not the rule.
+- **Release packaging** (v2.5 plan 12): `npm run package` builds the allowlisted zip;
+  `npm run stage` installs it into a SillyTavern slot. The repo lives outside SillyTavern.
 
 ## Turn flow
 
@@ -313,7 +360,10 @@ already skips unchanged content.
 
 ## Packaging
 
-`manifest.json` loads the gitignored `dist/index.js` produced by `npm run build`. The
+`manifest.json` loads the gitignored `dist/index.js` produced by `npm run build` (prod; `build:dev`
+writes the dev bundle with debug handles to `dist-dev/`). `npm run package` builds the release zip
+from `scripts/release/artifact-allowlist.json`; `npm run stage` copies the same file list into a
+SillyTavern extension slot. The
 `generate_interceptor` (`talkControlInterceptor`) is the live speaker-direction enforcement point,
 assigned once inside `startRuntime()` (plan 14) — never re-assigned after startup, which silently
 disabled the feature once.

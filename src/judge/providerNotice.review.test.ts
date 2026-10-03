@@ -5,7 +5,7 @@ describe("CR-J3 (user decision 2026-10-01): no gate, so the notice states the co
     const notice = JUDGE_PROVIDERS[provider].notice;
     expect(notice).toMatch(/configured/i);
     expect(notice).toMatch(/\b(sends|go)\b/);
-    expect(notice).toContain("\"Use the judgment model\"");
+    expect(notice).toContain("\"Use the judge\"");
   });
 
   it("TypeSafe says the key is the consent", () => {
