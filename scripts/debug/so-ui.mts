@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
+import { dismissBriefing, readBriefingModal } from './lib/briefingHarness.mts';
 import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -1100,7 +1101,7 @@ export function errorStateFindings(texts: Array<{ tab: string; surface: string; 
 
 export const DRAWER_SURFACE = '#drawer-manager';
 export const SETTINGS_SURFACE = '#story-orchestrator-settings';
-export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content'];
+export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content', 'dialog#so-briefing[open]'];
 export const PLAYER_SELECTOR_SURFACES = [...PLAYER_TEXT_SURFACES, SETTINGS_SURFACE];
 export const RECORDED_SURFACES = PLAYER_SELECTOR_SURFACES;
 export const AUTHOR_AFFORDANCE_CONTROLS = ['so-author-view'];
@@ -1357,7 +1358,7 @@ export async function agentNewGoal(page) {
   return getAgentState(page);
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1370,6 +1371,8 @@ studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: s
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
 drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
+briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
+briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.
@@ -1479,6 +1482,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!label) throw new Error('drawer-tab requires a tab label (Overview|Blackboard|Memory|Scheduler|Payload)');
       const result = await switchDrawerTab(page, label);
       console.log('Switched drawer tab:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'briefing') {
+      const state = await readBriefingModal(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-briefing');
+    }
+
+    if (subcommand === 'briefing-dismiss') {
+      const result = await dismissBriefing(page, { dontShow: process.argv.includes('--dont-show') });
+      console.log(JSON.stringify(result, null, 2));
     }
 
     if (subcommand === 'pipeline') {
