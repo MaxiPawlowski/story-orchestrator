@@ -380,6 +380,9 @@ that adds a player-visible element adds a row here.
 | Pipeline status + stall/needs-setup/error signal + setup deep link | player | `#so-pipeline-status`, `#so-stall-signal`, `#so-hud-pipeline`, `#so-open-story-settings` |
 | Rollback notice after an edit/delete | player | `#so-rollback-notice`, HUD chip |
 | Missing requirements (persona / cast / lore) | player | `#so-player-requirements` |
+| Setup alert (v2.7): the first player-worded Repair consequence, as a HUD chip; today also "another extension shares the whole chat" (names Summarize / Vector Storage, never a secret or who holds one) and "the model is not thinking" | player | `#so-hud-setup` (title), drawer `#so-drawer-repair`, settings `#so-entry-repair` |
+| "Catching up after your edit…" while the edit's re-read runs (v2.7 plan 08 C) | player | `#so-pipeline-status`, `#so-hud-pipeline`, inline health chip (L2) |
+| Repair author detail for the privacy and thinking rows (how to switch each copier off; the harvest switch, `#so-inner-harvest-silent`) | author | settings `#so-entry-repair` author detail, drawer `[data-so="drawer-repair-detail"]`, Inner voice settings |
 | Memory curation of established facts (pin / edit / exclude, evidence tooltip), Memorize chat | player | drawer Memory tab |
 | ⚑ flag moment, display toggles, Restart story (`#so-restart-story-drawer`) | both | drawer Overview footer, settings panel |
 | "Edit story" (opens Studio on this chat's story) and "Update to v*N*" (takes a newer library version) | author | drawer Overview footer (`#so-edit-story`, `#so-update-story`) |

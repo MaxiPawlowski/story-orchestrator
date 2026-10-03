@@ -355,7 +355,7 @@ const playerItem = ({ detail: _detail, actions, ...item }: Omit<Draft, "messageI
   return kept?.length ? { ...item, actions: kept } : item;
 };
 
-const HEALTH_LIVE: Partial<Record<PipelineStatus["state"], true>> = { "stalled-rechecking": true, "not-configured": true, error: true };
+const HEALTH_LIVE: Partial<Record<PipelineStatus["state"], true>> = { "catching-up": true, "stalled-rechecking": true, "not-configured": true, error: true };
 
 function healthItems(sources: InlineSources, newest: number): Draft[] {
   const drafts: Draft[] = [];

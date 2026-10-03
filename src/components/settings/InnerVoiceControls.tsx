@@ -1,5 +1,6 @@
 import type { RuntimeManager } from "@runtime/index";
 import type { InnerFanOut, RuntimeSnapshot } from "@runtime/types";
+import { SILENT_REPLY_WINDOW } from "@runtime/thinkingSilence";
 import { CheckRow } from "./Field";
 
 interface GroupProps {
@@ -22,6 +23,9 @@ export const InnerVoiceControls = ({ snapshot, manager }: GroupProps) => {
         label="Read characters' reasoning for what they intend" help={HARVEST_HELP} />
       {settings.harvestReasoning === true && !settings.epistemicLedgerCapable ? (
         <div id="so-inner-harvest-idle" className="text-xs opacity-70">Idle: knowledge tracking is off for the memory model.</div>
+      ) : null}
+      {snapshot.thinkingSilent ? (
+        <div id="so-inner-harvest-silent" className="text-xs so-warning-text">Nothing to read: the last {SILENT_REPLY_WINDOW} replies carry no reasoning, so the model is not thinking.</div>
       ) : null}
       <CheckRow id="so-inner-beat" className="text-xs" checked={beat} onChange={(on) => manager.setMemorySettings({ innerBeat: on })}
         label="Prepare a private inner beat for the next speaker" help={BEAT_HELP} />

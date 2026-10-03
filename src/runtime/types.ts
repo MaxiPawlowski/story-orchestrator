@@ -360,7 +360,7 @@ export interface ExtractionRuntimeState {
   audits: SharedReadAudit[];
   reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
-  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null };
+  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null; rereadReason?: string | null };
   judgedReads: JudgedReadRecord[];
 }
 
@@ -488,6 +488,7 @@ export interface RuntimeSnapshot {
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
   secretLeaks?: string[];
+  thinkingSilent?: boolean;
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

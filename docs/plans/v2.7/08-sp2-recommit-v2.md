@@ -158,3 +158,32 @@ Predeclared, for A only. Committed before any code (v2.5 plan 09 rule 1).
 - 04 story presence, 19 quests, 18 character life, 25 new game plus, 20 J6d shadow record, 14 J7 judge ideas, 13 B10 CLI
   judge, 12 curator create op, 11 warden-lore one request, 07 commitment double negatives, 23 D6/T22 revisits, 10 model
   choice, 06 thinking per story, 15 open-source Jev alternative: no direct dependency.
+
+## Gate record — option C (2026-10-03)
+
+**As built:**
+
+- The rollback re-read's reason names the mutation kind: `rollback:<id>:<kind>` (`extraction/rereadReason.ts`
+  `rollbackRereadReason`; `RollbackDeps.onApplied` / `RuntimeManager.onRollback` pass the kind, typed
+  `RollbackListener`; `wiring/scheduler.ts` schedules with it). Kindless rollbacks keep `rollback:<id>`.
+- The scheduler snapshot reports `rereadReason`: the first queued or running job whose reason starts `rollback:`
+  (`running` tracked around `pump`). Hydrate still resets the scheduler slice to idle.
+- `runtime/pipeline.ts`: new state `catching-up` ("Catching up after your edit…", HUD chip "catching up after your
+  edit", `nextAction: wait`, author detail names the reason) while an `:edit` re-read is pending. Precedence: after
+  every problem (error, not configured, transport stall, stall re-check), before "Preparing the road ahead" and
+  "reading". Swipe/delete re-reads stay "reading". The inline health chip (L2) shows it too.
+- Only the "applied" rollback path schedules a re-read, so an edit that rolled nothing back shows nothing (nothing is
+  behind).
+- README untouched (another agent is rewriting it). Note for that rewrite: *editing the last reply steps the story
+  back to before it, then re-reads the edited text; until that read lands (a few seconds) the HUD says "catching up
+  after your edit", and a reply sent before then is built from the pre-edit state.*
+- To stay under the S3 file budget the cadence-window block moved from `scheduler.ts` to
+  `extraction/cadenceWindow.ts` (re-exported, unchanged).
+
+**Tests:** `src/runtime/editCatchUp.test.ts` (pipeline precedence and controls; scheduler queued → running → gone).
+
+**Gates:** see the plan 06 gate record (one run).
+
+**Live: NOT run** (no ST lane available to this agent). Owed: edit the newest reply in a playing chat →
+`so-ui.mts pipeline` shows `catching-up` until the re-read audit lands; `so-ui.mts assert-player-clean` green.
+Option A (the user's priority, decision 1) is not built here.
