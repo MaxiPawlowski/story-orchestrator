@@ -84,6 +84,13 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
       delete effects.reasoning;
     }
   }
+  if (value.scenario !== undefined) {
+    if (value.scenario === null || typeof value.scenario === "string") effects.scenario = (value.scenario ?? "").trim();
+    else {
+      addError(errors, `${path}.scenario`, "scenario must be text, or empty or null to clear it");
+      delete effects.scenario;
+    }
+  }
   if (value.npc_replies === undefined) return effects;
   if (!Array.isArray(value.npc_replies)) {
     addError(errors, `${path}.npc_replies`, "npc_replies must be an array");

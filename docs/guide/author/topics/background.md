@@ -13,4 +13,4 @@ Field: `effects.background`: a file name, or `{ name }` (`schema.ts` `Background
 
 ---
 
-[Author's guide](../README.md) · previous: [Preset](preset.md) · next: [Cast changes](cast-changes.md)
+[Author's guide](../README.md) · previous: [Preset](preset.md) · next: [Scenario](scenario.md)

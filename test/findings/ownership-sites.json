@@ -335,7 +335,7 @@
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyExtension": {
       "status": "checked",
-      "note": "v2.6 plan 03 spike follow-up 2 (2026-10-02): before planning, it awaits every cast write still in flight (castSettled), so a note reads the settled cast; the caller's run is checked right after that await, before the journal notes and the ledger row. Case: spikes/sp5CastSettle.review.test.ts."
+      "note": "v2.6 plan 03 spike follow-up 2 (2026-10-02): before planning, it awaits every cast write still in flight (castSettled), so a note reads the settled cast; the caller's run is checked right after that await, before the journal notes and the ledger row. Case: storyScenarioCastSettle.review.test.ts (v2.7 02 C1, moved from spikes/sp5CastSettle.review.test.ts)."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.fireNpcReplies": {
       "status": "checked",

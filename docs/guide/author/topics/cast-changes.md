@@ -13,4 +13,4 @@ Field: `effects.cast_changes`: `{ "enable": [card names], "disable": [card names
 
 ---
 
-[Author's guide](../README.md) · previous: [Background](background.md) · next: [The opening scene](opening-scene.md)
+[Author's guide](../README.md) · previous: [Scenario](scenario.md) · next: [The opening scene](opening-scene.md)

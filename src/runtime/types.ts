@@ -489,6 +489,7 @@ export interface RuntimeSnapshot {
   globalStoryLore?: string[];
   secretLeaks?: string[];
   thinkingSilent?: boolean;
+  competingScenarios?: string[];
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

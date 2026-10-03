@@ -54,17 +54,16 @@ jest.mock("@services/STAPI", () => ({
 
 import { parseStoryV2OrThrow } from "@engine/index";
 import { couldNot, wrote } from "@utils/writeResult";
-import { EffectsApplier } from "../effectsApplier";
-import { registerEffectExtension } from "../effectExtensions";
-import { readEffectTarget, restoreEffectTarget } from "../effectHost";
-import type { RuntimeExtras } from "../types";
-import { testOwnership } from "../../../test/findings/testOwnership";
-import { createScenarioExtension, type ScenarioHost } from "./sp5Scenario";
+import { EffectsApplier } from "./effectsApplier";
+import { registerEffectExtension } from "./effectExtensions";
+import { readEffectTarget, restoreEffectTarget } from "./effectHost";
+import type { RuntimeExtras } from "./types";
+import { testOwnership } from "../../test/findings/testOwnership";
+import { createScenarioExtension, type ScenarioHost } from "./storyScenario";
 
 const CARDS = [{ name: "Arin", scenario: "Arin's card scene." }, { name: "Tahlia", scenario: "Tahlia's card scene." }];
 
 const host: ScenarioHost = {
-  enabled: () => true,
   read: () => ({ chatId: world.chatId, text: "" }),
   write: (chatId, text) => (chatId === world.chatId ? wrote({ chatId, text }) : couldNot("not the open chat")),
   cast: () => CARDS.filter((card) => !world.group.disabled_members.includes(card.name)),
@@ -99,7 +98,7 @@ const harness = () => {
   return { applier, notes };
 };
 
-describe("SP5 competing-cards note reads the settled cast (spike follow-up 2)", () => {
+describe("story scenario: the competing-cards note reads the settled cast (SP5 follow-up 2)", () => {
   it("a story selected while the chat's hydrate is still disabling a member names the cast as it settles", async () => {
     const h = harness();
     holdCastWrites = true;

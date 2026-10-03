@@ -61,7 +61,7 @@ export const EDIT_TOOLS = {
   setCheckpointSnapshot: { backedBy: "setCheckpointSnapshot", doc: "Values the blackboard takes when the beat starts.", args: { id: ID, snapshot: req("object", "{qualityKey: value}") } },
   setCheckpointEffects: {
     backedBy: "setCheckpointEffects",
-    doc: "Replace a beat's effects: author_note, world_info, cast_changes, npc_replies, background.",
+    doc: "Replace a beat's effects: author_note, world_info, cast_changes, npc_replies, background, scenario.",
     args: { id: ID, effects: req("object", "the whole effects block") },
   },
   addTransition: { backedBy: "addTransition", doc: "Connect two beats with a gate.", args: { transition: req("object", `{from, to, gate: ${GATE}, priority, extraction_hint?}`) } },

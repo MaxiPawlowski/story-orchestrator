@@ -39,20 +39,7 @@
       return story.checkpoints.map(authored).filter((text) => text);
     },
     async flag(on) {
-      const settings = ctx().extensionSettings;
-      const root = ((settings['story-orchestrator'] ??= {}).settings ??= {});
-      const T = load();
-      if (!Object.prototype.hasOwnProperty.call(T, 'flagBefore')) save({ ...T, flagBefore: root.spikes?.sp5Scenario ?? null });
-      const before = load().flagBefore;
-      const spikes = { ...(root.spikes ?? {}) };
-      if (on) spikes.sp5Scenario = true;
-      else if (before === null) delete spikes.sp5Scenario;
-      else spikes.sp5Scenario = before;
-      if (Object.keys(spikes).length) root.spikes = spikes;
-      else delete root.spikes;
-      ctx().saveSettingsDebounced();
-      await sleep(2500);
-      return { spikes: root.spikes ?? null };
+      return { on, spikes: null, promoted: 'v2.7 02 C1: the scenario effect has no flag' };
     },
     plant() {
       const T = load();

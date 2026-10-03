@@ -21,6 +21,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
 import { secretLeaks, switchedOnCopiers } from "./transcriptCopiers";
+import { competingScenarios, scenarioFrame, type ScenarioFrame } from "./storyScenario";
 import { harvestWaitsOnThought, repliesCarryNoThought } from "./thinkingSilence";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
@@ -78,6 +79,7 @@ export interface SnapshotSources {
   extractionHealth?: ExtractionHealth | null;
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   copiersOn?: readonly string[];
+  scenarioFrame?: ScenarioFrame | null;
 }
 
 export interface SnapshotPort {
@@ -120,6 +122,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   fingerprints: port.fingerprints,
   characters: port.characters ?? [],
   copiersOn: switchedOnCopiers(),
+  scenarioFrame: scenarioFrame(),
 });
 
 const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
@@ -210,9 +213,10 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "thinkingSilent"> => ({
+export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "thinkingSilent" | "competingScenarios"> => ({
   secretLeaks: secretLeaks(Boolean(sources.loaded && sources.secretsHeld), sources.promptBlocks.foreign, sources.copiersOn),
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
+  competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
 });
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {

@@ -1337,6 +1337,41 @@ export const AuthorLoreBindings: Story = {
   },
 };
 
+// v2.7 02 C1: a story that sets no scenario, in a group whose cards each carry one, is framed by
+// every card at once. Author view names them beside the requirements; the player never sees it.
+export const AuthorCompetingScenarios: Story = {
+  render: () => {
+    const snapshot = sampleSnapshot() as unknown as Record<string, unknown>;
+    snapshot.competingScenarios = ["Arin", "Luke"];
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={derive(snapshot as unknown as RuntimeSnapshot)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const row = canvasElement.querySelector('[data-so="scenario-competing"]');
+    await expect(row?.textContent).toContain("2 character card scenario(s) frame this chat and the story sets none");
+    await expect(row?.textContent).toContain("Cards: Arin, Luke");
+  },
+};
+
+export const PlayerSeesNoCompetingScenarios: Story = {
+  render: () => {
+    const snapshot = playerSnapshot() as unknown as Record<string, unknown>;
+    snapshot.competingScenarios = ["Arin", "Luke"];
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={derive(snapshot as unknown as RuntimeSnapshot)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="scenario-competing"]')).toBeNull();
+    await expect(canvasElement.textContent).not.toMatch(/card scenario/i);
+  },
+};
+
 export const PlayerSeesNoLoreBindings: Story = {
   render: () => {
     const snapshot = playerSnapshot() as unknown as { requirements: Record<string, unknown> };

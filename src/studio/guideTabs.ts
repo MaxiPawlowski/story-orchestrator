@@ -5,7 +5,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   story: ["story-basics", "requirements", "arc-template", "arc-bridges", "stagecraft", "lore-select", "scene-read", "house-rules", "chapters", "presentation"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
-    "checkpoints", "objective-agency", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "cast-changes",
+    "checkpoints", "objective-agency", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "scenario", "cast-changes",
     "opening-scene", "npc-replies", "talk-control", "convergence", "experimental-effects",
   ],
   transitions: ["gates", "transitions", "convergence"],

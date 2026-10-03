@@ -203,6 +203,16 @@ Field: `effects.background`: a file name, or `{ name }` (`schema.ts` `Background
 - **Bad.** A background whose picture shows the twist; a name invented for the scene (`pawnshop_interior`) that no file carries.
 - **If wrong.** A name the install lacks does not switch anything (diagnostic `background-missing`: "The scene does not change: the install has no background by that name."; checked against the install's list, with or without the file extension, when the Studio knows it).
 
+### Scenario
+<!-- topic: scenario -->
+
+Field: `effects.scenario`: text, or `""` / `null` to clear (`schema.ts` `CheckpointEffects`, `validate/checkpoints.ts`, `runtime/storyScenario.ts`).
+
+- **What it does.** Sets the chat's own scenario text (`chat_metadata.scenario`) along the played path: text sets it, `""` or `null` clears it, and a beat without the key keeps what the path before it set. In a group SillyTavern then sends this one text instead of every member card's scenario. It waits with World Info until the story's requirements are met. A `/cp activate` jump plays the target's own value, so a jump target that authors none plays with the chat's scenario from before the story. A scenario the user typed into the chat is never overwritten; restarting or removing the story puts back what the chat held before.
+- **Good.** Framing only: genre, places, the arc's name (the campaign sets one per beat): `"scenario": "Aegis City in autumn. The guild hall is the party's base."`
+- **Bad.** A `scenario` with the final foe or a secret in it: every member's prompt carries it.
+- **If wrong.** A story that sets none leaves every member card's scenario in the prompt at once; the author view names those cards ("N character card scenario(s) frame this chat and the story sets none").
+
 ### Cast changes
 <!-- topic: cast-changes -->
 
@@ -236,11 +246,11 @@ Field: `effects.npc_replies[]`: `{ trigger, member, kind, text, instruction, max
 ### Experimental effects
 <!-- topic: experimental-effects -->
 
-Fields: `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), `effects.scenario` (`runtime/spikes/sp5Scenario.ts`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
+Fields: `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
 
-- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `scenario` replaces the chat's scenario text along the path; `complications` are lines released into a beat that has stalled. All three are research spikes behind a switch that is off by default. The parser accepts `reasoning`; the spikes read the other two from the authored record.
-- **Good.** A `scenario` that holds framing only: genre, places, the arc's name (the campaign sets one per beat).
-- **Bad.** A `scenario` with the final foe or a secret in it; a story that only works when a spike is on.
+- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `complications` are lines released into a beat that has stalled. Both are research spikes behind a switch that is off by default. The parser accepts `reasoning`; the spike reads `complications` from the authored record.
+- **Good.** A story that plays the same with both switches off; a spike only adds to it.
+- **Bad.** A story that only works when a spike is on.
 - **If wrong.** Where the switch is off nothing happens, so a story that depends on these does not play as written.
 
 ### Gates

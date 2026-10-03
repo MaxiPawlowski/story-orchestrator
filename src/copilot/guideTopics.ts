@@ -132,6 +132,12 @@ export const GUIDE_TOPICS = {
     text: "A SillyTavern background file the scene switches to when the beat starts: \"tavern night.jpg\" or {name}. Applied again on reopen. Use the exact file name on the "
       + "install (lookupBackgrounds), or leave the background out; a name the install lacks switches nothing.",
   },
+  scenario: {
+    title: "Scenario",
+    fields: "effects.scenario",
+    text: "The chat's scenario text from this beat on; in a group it replaces every member card's scenario. Text sets it, \"\" or null clears it, a beat without the key keeps "
+      + "the one before. Framing only: genre, place, the arc's name; never a secret, a twist or the final foe. Held until requirements are met; a scenario the user typed is never overwritten.",
+  },
   "cast-changes": {
     title: "Cast changes",
     fields: "effects.cast_changes",
@@ -154,9 +160,9 @@ export const GUIDE_TOPICS = {
   },
   "experimental-effects": {
     title: "Experimental effects",
-    fields: "effects.reasoning, effects.scenario, complications",
-    text: "reasoning (off, low, medium or high) asks for a reasoning effort on this beat's replies; scenario replaces the chat's scenario text; complications are lines "
-      + "released into a stalled beat. All three are spikes that run only where their switch is on. Do not rely on any of them for the story to work.",
+    fields: "effects.reasoning, complications",
+    text: "reasoning (off, low, medium or high) asks for a reasoning effort on this beat's replies; complications are lines "
+      + "released into a stalled beat. Both are spikes that run only where their switch is on. Do not rely on either for the story to work.",
   },
   gates: {
     title: "Gates",

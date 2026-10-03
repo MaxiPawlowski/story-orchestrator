@@ -4,6 +4,7 @@ import {
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
+import { startStoryScenario } from "./storyScenarioHost";
 import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
@@ -81,7 +82,7 @@ const registerHostSurfaces = () => {
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   if (__SO_DEV__) void import("./spikes/toolTurnProbe").then(({ registerToolTurnProbe }) => { if (started) registerToolTurnProbe(runtimeManager); });
-  if (__SO_DEV__) void import("./spikes/sp5ScenarioHost").then(({ registerScenarioSpike }) => { if (started) runtimeDisposers.push(registerScenarioSpike()); });
+  runtimeDisposers.push(startStoryScenario());
   if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
     if (!started) return;
     let unpublish = () => {};
