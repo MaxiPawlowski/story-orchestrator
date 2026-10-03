@@ -8,7 +8,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ chat: host.chat, chatId: "chat-a", name1: "You", extensionSettings: {}, chatMetadata: {}, characters: [] }),
+  getContext: () => ({ groupId: "g-test", chat: host.chat, chatId: "chat-a", name1: "You", extensionSettings: {}, chatMetadata: {}, characters: [] }),
   executeSlashCommands: async (command: string) => {
     host.slash.push(command);
     if (command.startsWith("/sendas")) host.chat.push({ mes: command });

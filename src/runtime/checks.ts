@@ -1,7 +1,7 @@
 import type { RuntimeSnapshot } from "./types";
 import { SILENT_REPLY_WINDOW } from "./thinkingSilence";
 
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group";
 
 export type CheckScope = "install" | "chat" | "story";
 export type CheckAudience = "player" | "author";
@@ -20,6 +20,7 @@ export interface Check {
   scope: CheckScope;
   audience: CheckAudience;
   severity: CheckSeverity;
+  engineFree?: boolean;
   applies?: (snapshot: RuntimeSnapshot) => boolean;
   detect: (snapshot: RuntimeSnapshot) => CheckFinding | null;
 }
@@ -83,9 +84,26 @@ export const THINKING_CHECK: Check = {
   } : null),
 };
 
-export const CHECKS: readonly Check[] = [SECRET_LEAK_CHECK, THINKING_CHECK];
+export const STORY_NEEDS_GROUP_PLAYER = "Stories play in group chats. Make a group for this story, or open one that plays it.";
 
-const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(snapshot.storyId);
+export const STORY_NEEDS_GROUP_CHECK: Check = {
+  id: "story-needs-group",
+  area: "group",
+  scope: "chat",
+  audience: "player",
+  severity: "blocks",
+  engineFree: true,
+  detect: (snapshot) => (snapshot.noGroup ? {
+    consequence: "This story does not play here: stories play in group chats, and this is a one-on-one chat.",
+    detail: `${snapshot.noGroup.storyTitle ? `"${snapshot.noGroup.storyTitle}"` : `The story "${snapshot.noGroup.storyId}"`} is selected in a one-on-one chat, so nothing runs: `
+      + "no reads, no memory, no effects. Make a group with the story's cast, or open a group that plays it.",
+    player: STORY_NEEDS_GROUP_PLAYER,
+  } : null),
+};
+
+export const CHECKS: readonly Check[] = [STORY_NEEDS_GROUP_CHECK, SECRET_LEAK_CHECK, THINKING_CHECK];
+
+const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(check.engineFree) || Boolean(snapshot.storyId);
 
 export function runCheck(check: Check, snapshot: RuntimeSnapshot): CheckResult | null {
   if (!inScope(check, snapshot) || (check.applies && !check.applies(snapshot))) return null;

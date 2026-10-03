@@ -11,6 +11,8 @@ jest.mock("./persistence", () => ({
   blobMismatch: () => null,
   dropPersistedRuntime: jest.fn(),
   hasOpenChat: () => true,
+  hasOpenGroup: () => true,
+  openChatId: () => "chat-a",
   getSelectedStoryId: () => "s1",
   loadPersistedRuntime: () => null,
   setSelectedStoryId: jest.fn(),

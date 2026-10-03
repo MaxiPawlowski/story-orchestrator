@@ -150,7 +150,10 @@ export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 
 type EffectScope = { checkpointId: string | null; boundary: number; messageId: number };
 
+export const NO_OPEN_GROUP = "the effect was not applied: stories play in group chats, and this chat is not one";
+
 const openChatId = () => String(getContext().chatId ?? "");
+const openGroupId = () => String(getContext().groupId ?? "");
 
 export class EffectsApplier {
   private speaking = 0;
@@ -220,6 +223,7 @@ export class EffectsApplier {
   ): Promise<void> {
     if (!checkpoint) return;
     if (!openChatId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_CHAT);
+    if (!openGroupId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_GROUP);
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
     if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) return running.done;

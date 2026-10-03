@@ -1,7 +1,7 @@
 import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
-import { EffectsApplier, NO_OPEN_CHAT, PENDING_NOT_SAVED } from "./effectsApplier";
+import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "./effectsApplier";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
 import { castInPlay } from "./castInPlay";
@@ -9,7 +9,7 @@ import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from ".
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const mockContext: { chat: Array<{ mes: string }>; chatId?: string } = { chat: [{ mes: "one" }, { mes: "two" }], chatId: "chat-a" };
+const mockContext: { chat: Array<{ mes: string }>; chatId?: string; groupId?: string | null } = { chat: [{ mes: "one" }, { mes: "two" }], groupId: "g-test", chatId: "chat-a" };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -326,6 +326,24 @@ describe("background effect", () => {
     expect(disableWIEntry).not.toHaveBeenCalled();
     expect(extras.effects.ledger).toEqual([]);
     expect(journal).toHaveBeenCalledWith("checkpoint effects were not applied", NO_OPEN_CHAT);
+  });
+
+  it("v2.7 plan 03: in a one-on-one chat no checkpoint effect touches the host", async () => {
+    const journal = jest.fn();
+    const extras = readyExtras();
+    const applier = new EffectsApplier(testOwnership(), { journal });
+    const checkpoint = { id: "cp", name: "CP", objective: "", type: "anchor", effects: { background: { name: "tavern day.jpg" }, author_note: "Keep it tense." } } as unknown as Checkpoint;
+    mockContext.groupId = null;
+    try {
+      await applier.applyCheckpoint(story, checkpoint, extras, snapshot, "activate", ["cp"]);
+    } finally {
+      mockContext.groupId = "g-test";
+    }
+    expect(applyBackground).not.toHaveBeenCalled();
+    expect(applyCharacterAN).not.toHaveBeenCalled();
+    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(extras.effects.ledger).toEqual([]);
+    expect(journal).toHaveBeenCalledWith("checkpoint effects were not applied", NO_OPEN_GROUP);
   });
 
   it("leaves the background alone when the checkpoint says nothing about it", async () => {

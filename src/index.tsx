@@ -29,6 +29,8 @@ import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
+import MakeGroupCard from "./components/settings/MakeGroupCard";
+import { makeGroupFor } from "@runtime/makeGroupHost";
 import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
@@ -81,10 +83,10 @@ const studioDiagnostics = () => ({
   personaNames: listPersonas,
 });
 
-const openStudio = async (intent?: StudioOpenIntent) => {
+const openStudio = async (intent?: StudioOpenIntent, storyId?: string) => {
   const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   const snapshot = manager.getSnapshot();
-  const active = snapshot.library.find((story) => story.id === snapshot.storyId);
+  const active = snapshot.library.find((story) => story.id === (storyId ?? snapshot.storyId));
   const source = (active?.raw ?? manager.getPlayedStoryRaw()) as StoryDraft | null;
   const store = useDraftStore.getState();
   const resumable = store.dirty && store.sourceHash === (active?.hash ?? null);
@@ -268,6 +270,8 @@ const settingsHost: SettingsHost = {
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
   showFeature: (where) => showFeature(where),
+  makeGroup: (storyId) => makeGroupFor(manager, storyId),
+  fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
 };
 
 const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
@@ -304,7 +308,7 @@ const DrawerPanel = () => {
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
-          {!snapshot.ready && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
+          {!snapshot.ready && !snapshot.noGroup && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
         </div>
         <div className="flex items-center gap-2">
           {snapshot.ready && (
@@ -318,6 +322,10 @@ const DrawerPanel = () => {
       </div>
       {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
       {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
+      {!snapshot.ready && snapshot.noGroup && (
+        <MakeGroupCard id="so-make-group-drawer" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={(storyId) => makeGroupFor(manager, storyId)}
+          onFixWithWizard={(storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId)} />
+      )}
       {snapshot.ready && (
         <DrawerTabs
           snapshot={snapshot}

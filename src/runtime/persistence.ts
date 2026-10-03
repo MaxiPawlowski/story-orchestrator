@@ -11,12 +11,17 @@ export const BLOB_VERSION = 6;
 // map would grow chat_metadata without limit.
 export const STORY_STATE_RETENTION = 5;
 
-const openChatId = (): string | null => {
+export const openChatId = (): string | null => {
   const id = getContext().chatId;
   return id === undefined || id === null ? null : String(id);
 };
 
 export const hasOpenChat = (): boolean => Boolean(openChatId());
+
+export const hasOpenGroup = (): boolean => {
+  const id = getContext().groupId;
+  return id !== undefined && id !== null && String(id) !== "";
+};
 
 export type ChatWriteKind = "select" | "drop" | "replace" | "restamp";
 

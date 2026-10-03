@@ -11,6 +11,7 @@ type Handler = (...args: unknown[]) => unknown;
 
 export const spikeContext = {
   chat: [] as SpikeRow[],
+  groupId: "g-test" as string | undefined,
   chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,

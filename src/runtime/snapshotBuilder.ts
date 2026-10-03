@@ -12,7 +12,8 @@ import { firstLines } from "./castInPlay";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { playerSaveNotice } from "./saveHealth";
-import { blobMismatch, hasOpenChat, hasPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
+import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersistedRuntime, openChatId, UNREADABLE_NOTICE } from "./persistence";
+import { noGroupView } from "./noGroup";
 import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
@@ -151,6 +152,11 @@ const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 |
 };
 
 export const CHAT_LOADING_STATUS = "Loading this chat's story";
+
+const noGroupOf = () => noGroupView({
+  chatOpen: hasOpenChat(), groupOpen: hasOpenGroup(), chatId: openChatId(), selectedStoryId: hasOpenGroup() ? null : getSelectedStoryId(),
+  titleOf: (id) => findStoryRecord(id)?.title ?? null,
+});
 
 let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
 
@@ -322,7 +328,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     requirements: extras.requirements,
     validationErrors: sources.validationErrors,
     library: listStoryRecords(),
-    status: sources.status, noChat: noChatView(hasOpenChat()),
+    status: sources.status, noChat: noChatView(hasOpenChat()), noGroup: loaded ? null : noGroupOf(),
     extraction: extras.extraction,
     expansion: extras.expansion,
     memory: extras.memory,

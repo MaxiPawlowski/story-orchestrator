@@ -68,7 +68,9 @@ export {
   listSlashCommands,
 } from "@services/stHost/selectors";
 export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
-export { addGroupMembers, getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled } from "@services/stHost/groups";
+export {
+  addGroupMembers, getActiveGroup, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
+} from "@services/stHost/groups";
 export { guardHostStream, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";

@@ -9,7 +9,7 @@ type Message = { mes: string; name: string; is_user: boolean };
 
 const mockContext = {
   chat: [] as Message[],
-  chatId: "chat-1",
+  groupId: "g-test", chatId: "chat-1",
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),

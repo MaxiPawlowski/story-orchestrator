@@ -22,7 +22,7 @@ import { currentEngineState, currentRecord } from "../../test/findings/currentRe
 
 declare global {
   // eslint-disable-next-line no-var
-  var __unreadableContext: { chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
+  var __unreadableContext: { groupId?: string; chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
 }
 
 const record = (id: string) => currentRecord(id) as never;
@@ -44,7 +44,7 @@ const SHAPES: Array<[string, () => unknown, number | string | null]> = [
 ];
 
 function open(blob: unknown, chatId = "chat-a") {
-  globalThis.__unreadableContext = { chatId, chatMetadata: { story_orchestrator: blob, integrity: "i-1" }, saveMetadata: jest.fn() };
+  globalThis.__unreadableContext = { groupId: "g-test", chatId, chatMetadata: { story_orchestrator: blob, integrity: "i-1" }, saveMetadata: jest.fn() };
 }
 const bytes = () => JSON.stringify(globalThis.__unreadableContext.chatMetadata);
 const stored = () => globalThis.__unreadableContext.chatMetadata.story_orchestrator as Record<string, unknown>;

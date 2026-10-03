@@ -217,6 +217,7 @@ export interface RossModsHostModule {
 
 export interface GroupChatsHostModule {
   editGroup: (id: string, immediately: boolean, reload?: boolean) => Promise<void>;
+  openGroupById: (groupId: string) => Promise<boolean>;
   [key: string]: unknown;
 }
 

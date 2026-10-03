@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [] }),
+  getContext: () => ({ groupId: "g-test", chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [] }),
   applyBackground: async (name: string) => { host.calls.push(`bg:${name}`); host.background = name; return { ok: true, changed: true, from: "", to: name }; },
   applyCharacterAN: async (text: string) => { host.calls.push(`an:${text}`); host.an = text; return { ok: true, text }; },
   clearCharacterAN: async () => { host.calls.push("an:"); host.an = ""; return { ok: true, text: "" }; },

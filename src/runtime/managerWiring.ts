@@ -25,6 +25,7 @@ import type { InnerBeatHost } from "./innerBeatHost";
 import { loadInnerRender } from "@memory/index";
 import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
+import { hasOpenGroup } from "./persistence";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -170,6 +171,7 @@ export function wireCoordinators(port: ManagerPort) {
     getHistory: () => (port.loaded() ? engine.serializeHistory() : null),
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership,
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
+    groupOpen: hasOpenGroup,
   };
   return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, rollbackDeps, storyUpdateDeps };
 }

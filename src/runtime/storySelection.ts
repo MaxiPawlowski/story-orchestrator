@@ -1,9 +1,10 @@
 import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
 import {
-  adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, hasOpenChat, loadPersistedRuntime,
-  replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored,
+  adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, hasOpenChat, hasOpenGroup, loadPersistedRuntime,
+  openChatId, replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored,
 } from "./persistence";
+import { NO_GROUP_STATUS, noteRefusedForGroup } from "./noGroup";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import { savedToLibrarySentence } from "./librarySave";
@@ -54,9 +55,20 @@ const refusedWithoutChat = (deps: StorySelectionDeps, id: string): boolean => {
   return true;
 };
 
+const refusedWithoutGroup = (deps: StorySelectionDeps, id: string, status = NO_GROUP_STATUS): boolean => {
+  if (hasOpenGroup()) return false;
+  noteRefusedForGroup(openChatId(), id);
+  deps.setStatus(status, `selecting '${id}' refused: this chat is not a group chat`);
+  return true;
+};
+
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
   noteSavedWithoutChat(null);
   await deps.restoreEffects?.("leave");
+  if (hasOpenChat() && !hasOpenGroup()) {
+    await deps.clearStory(getSelectedStoryId() ? NO_GROUP_STATUS : "No story selected for this chat");
+    return false;
+  }
   const id = getSelectedStoryId();
   if (!id) {
     const found = blobMismatch();
@@ -92,6 +104,7 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
     deps.setStatus(sentence);
     return false;
   }
+  if (refusedWithoutGroup(deps, saved.record.id, `${savedToLibrarySentence(saved.record)} ${NO_GROUP_STATUS}.`)) return false;
   // After the load: loading a story starts its journal, so a warning recorded before it was wiped
   // (found live).
   const selected = await selectStory(deps, saved.record.id);
@@ -104,7 +117,7 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 // (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
 // library holds right now. Reset lives only in restartStory().
 export async function selectStory(deps: StorySelectionDeps, id: string, chosen = true): Promise<boolean> {
-  if (refusedWithoutChat(deps, id)) return false;
+  if (refusedWithoutChat(deps, id) || refusedWithoutGroup(deps, id)) return false;
   if (chosen && !adoptChatState()) {
     const found = unreadableStored();
     if (found) {
@@ -142,7 +155,7 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
 // The only reset path. Drops this chat's progress for the story and re-pins the latest library
 // version, so a restart also adopts whatever the author changed meanwhile.
 export async function restartStory(deps: StorySelectionDeps, currentId: string | null, alreadyConfirmed = false): Promise<boolean> {
-  if (!hasOpenChat()) return false;
+  if (!hasOpenChat() || !hasOpenGroup()) return false;
   const unreadable = currentId ? null : unreadableStored();
   const refused = unreadable && refusedSelection?.chat === unreadable.openChat ? refusedSelection.storyId : null;
   const id = currentId ?? (unreadable ? refused : getSelectedStoryId());

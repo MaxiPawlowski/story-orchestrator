@@ -19,7 +19,7 @@ const mockPopupCloses = { count: 0 };
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatId: "chat-a" as string | undefined,
-  groupId: null as string | null,
+  groupId: "g-test" as string | null,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),
@@ -122,7 +122,7 @@ const resetHost = () => {
   mockContext.extensionSettings = {};
   // A chat is open in these tests: an unnamed chat is a state the runtime must not write to.
   mockContext.chatId = "chat-a";
-  mockContext.groupId = null;
+  mockContext.groupId = "g-test";
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
   Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
