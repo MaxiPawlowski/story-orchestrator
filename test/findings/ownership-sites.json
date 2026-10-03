@@ -679,7 +679,8 @@
     },
     "src/runtime/makeGroup.ts#makeGroupForStory": {
       "status": "checked",
-      "note": "v2.7 plan 03: the player's make-a-group flow re-checks that the open chat is still the one the player asked from after the confirm (before the create) and after the create (before the group is opened). The binding is install-wide, not chat-scoped, so it stands once the group exists. Cases: makeGroup.test.ts \"creates nothing when the player says no, or the chat changed while they decided\".",
+      "note": "v2.7 plan 03: the player's make-a-group flow re-checks that the open chat is still the one the player asked from after the confirm (before the create) and after the create (before the group is opened). The binding is install-wide, not chat-scoped, so it stands once the group exists. Cases: makeGroup.test.ts \"creates nothing when the player says no, or the chat changed while they decided\"."
+    },
     "src/runtime/playsBackfill.ts#runBackfill": {
       "status": "local",
       "note": "v2.7 06 A (2026-10-03): the plays-index backfill. It reads one group chat file per step and writes only install-wide rows keyed by THAT file's own chat id (never the open chat, never chat metadata), plus its own progress record; deps.alive() is re-read after every await and stops the loop when the runtime stops. A chat switch mid-run cannot misattribute a row, because the key is the file it read."
