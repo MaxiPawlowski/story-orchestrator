@@ -67,6 +67,7 @@ const host = (): SettingsHost => ({
   revealSetting: fn(),
   openDrawer: fn(),
   openAuthorView: fn(),
+  showFeature: fn(),
 });
 
 const meta: Meta<typeof SettingsPanel> = {

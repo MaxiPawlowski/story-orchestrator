@@ -188,3 +188,63 @@ The triage table is filled in during build and reviewed with the user before any
 ## Links
 
 04 (C6 wand entry, C8 onboarding), 03 briefing (first-run section), 02 carry-in (judge readiness leak).
+
+## Triage proposal
+
+PROPOSED (2026-10-03, in-app half). Nothing below has been hidden or removed; the "advanced" rows already sit under an
+"Advanced" disclosure as part of decision 4, every other change waits for the review with the user (decision 5). One row
+per registry feature (`src/features/registry.ts`) or per control group; judge uses are one row.
+
+| Feature / control | Audience | Now | Proposal | Why |
+|---|---|---|---|---|
+| Stories (select, import, restart) | player | visible | **keep** | the core task |
+| Group story binding | player | visible | **keep** | one select, only in a group |
+| Story drawer, Memory tab | player | visible | **keep** | the player surface |
+| Status strip (HUD) toggle | player | visible | **keep** | one checkbox people do switch off |
+| Notes under messages: level | player | visible | **keep** | the one inline control a player needs |
+| Notes under messages: kinds + window | player | advanced | **advanced** | 9 controls almost nobody changes |
+| Chat note when the story moves on | player | visible | **advanced** | off by default and costs the swipe; the notes under messages say the same |
+| Chapters: "Previously…" recap | player | visible | **keep** | player-facing, on by default |
+| Chapters: seal / story so far / fold / budget | author | advanced | **dev-only** until the Q-M floors pass | off until measured; no player benefit yet |
+| Speaker direction (per chat) | player | visible (drawer) | **keep** | group play depends on it |
+| Several voices per turn + max | player | visible | **keep** | |
+| Chain: stop on scene change, hold reading | author | advanced | **fixed default** | both defaults were chosen deliberately; nobody should need to flip them |
+| Pacing: steer the tension | author | visible | **keep** | |
+| Pacing: smoothing (α) | author | advanced | **fixed default** | a tuning constant, not a preference |
+| Memory model, fallback | setup | visible | **keep** | the one required step |
+| Reply thinking | setup | visible | **keep** | measured, user-facing trade-off |
+| Reading cadence | setup | advanced | **advanced** | a real cost knob for slow/paid models |
+| Look further back when stuck (reconcile ×) | setup | advanced | **fixed default** | no session has needed another value |
+| Wait before newest messages (lag) | setup | advanced | **advanced** | useful to heavy re-rollers; default 0 |
+| Track what each character knows | author | advanced | **advanced** | the self-test switches it; rarely by hand |
+| Models per task (+ harness, effort, on failure) | setup | advanced | **advanced** | power users and the harness only |
+| Memory model test | setup | visible | **keep** | the setup check |
+| Inner voice (harvest, beat, fan-out) | author | visible (author) | **dev-only** | "off until its measured floor passes"; no floor measured yet |
+| Continuity warden + mode | author | visible (author) | **keep** | measured, review mode recommended |
+| Lorebook curator + mode | author | visible (author) | **keep** | |
+| Lorebook switching mode (file / per chat) | author | advanced | **advanced** | one-time choice with a confirm |
+| Memory can trigger lore | author | visible (author) | **advanced** | on by default; turning it off is a tuning act |
+| Story lorebooks selected globally (Repair row) | author | visible when it applies | **keep** | it is a Repair row, not a setting |
+| Judge: key, on/off | setup | visible | **keep** | |
+| Judge uses list (on by default) | setup | advanced | **advanced** | each says what it sends; the default is right for most |
+| Judge uses below floor: house rules | author | advanced | **keep advanced, off** | below its floor, already off by default |
+| Judge uses unmeasured: exclusive lore selection, sprite expressions | author/setup | advanced | **dev-only** until measured | the readiness rows say "not measured yet, keep it off" |
+| Judge provider per use | setup | advanced | **advanced** | only one calibrated provider today |
+| Outlines per gap + picked by | author | visible (author) | **advanced** | 1 is the shipped default; extra outlines cost story-model runs |
+| Wizard switch | author | visible | **keep** | |
+| Illustrations: on, when, every N, prompt model, ComfyUI address, safe mode | setup | visible (collapsed group) | **keep** | needed to set up images at all |
+| Illustrations: picture types, fallback looks | setup | advanced | **advanced** | install tuning |
+| Sprite stage: on, show the stage | player | visible | **keep** | |
+| Sprite stage: expression model, dim, breathing | player | advanced | **advanced** | cosmetic tuning |
+| Host capabilities, copy for a bug report | setup | visible (Diagnostics) | **keep** | |
+| Experiments (`spikes.*`) | author | no prod control | **dev-only** | already dev-only; keep it that way |
+| Memory tier budgets, injection depths, score weights, judge model/timeout | — | no control | **fixed default** | already fixed; keep them out of the UI |
+
+Count after the proposal: about 25 controls in a fresh player's default view (story select + import, group story,
+HUD, notes level, recap, speaker direction, voices on + max, memory model, fallback, reply thinking, memory test, judge
+key + on, images on/when/prompt model/ComfyUI/safe mode, sprites on/stage, wizard), which is decision 4's target.
+
+Unresolved for the review:
+
+- Should "dev-only" mean not rendered in the prod bundle (like `spikes`), or rendered only in Author view?
+- Fixed defaults: remove the setting key too (a sanitizer migration), or keep the key and only drop the control?

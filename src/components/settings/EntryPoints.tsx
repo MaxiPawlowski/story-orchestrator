@@ -19,6 +19,7 @@ export interface EntryPointsProps {
   onFixWithWizard(): void;
   onRepairCast?(action: RepairAction): void;
   onOpenGroup?(): void;
+  gettingStarted?: React.ReactNode;
 }
 
 export const WIZARD_OFF_REASON = "Turn on the wizard under Author services first.";
@@ -57,7 +58,7 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
 );
 
 export default function EntryPoints(props: EntryPointsProps) {
-  const { snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup } = props;
+  const { snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, gettingStarted } = props;
   const repair = viewerRepairStep(snapshot);
   const playing = playingStory(snapshot);
   const wizardOn = snapshot.copilot.enabled;
@@ -79,6 +80,7 @@ export default function EntryPoints(props: EntryPointsProps) {
           <button id="so-entry-import-toggle" type="button" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
         </div>
         <div className="text-xs opacity-70">{wizardOn ? "Build a story with the wizard, or bring your own JSON." : `Bring your own JSON. ${WIZARD_OFF_REASON}`}</div>
+        {gettingStarted}
       </Row>
       <Row title="Continue">
         <div id="so-entry-continue" className="text-xs opacity-80">

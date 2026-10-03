@@ -29,5 +29,6 @@ export const SO_MEM_HELP_STRING = `Story Orchestrator memory: ${SO_MEM_VERBS.map
 
 export const soMemHelpText = (): string => ["Memory commands:", ...SO_MEM_VERBS.map((entry) => `• ${entry.usage}: ${entry.what}`)].join("\n");
 
-export const CP_HELP_STRING = "Story Orchestrator author tools (spoils the story; players want /story): list, state, activate <id>, set <quality> <value>, converge, chapters, seal, unseal <recordId>; "
+export const CP_HELP_STRING = "Story Orchestrator author tools (spoils the story; players want /story): "
+  + "list, state, activate <id>, set <quality> <value>, converge, chapters, seal, unseal <record>; "
   + "debug: extract [response], expand [response]";

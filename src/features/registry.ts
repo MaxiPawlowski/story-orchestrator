@@ -1,7 +1,7 @@
 import { JUDGE_USE_COPY, JUDGE_USE_KEYS, AUTHOR_JUDGE_USES, type JudgeUseKey } from "@judge/settings";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
-import manifest from "../../manifest.json";
+import * as manifestModule from "../../manifest.json";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
@@ -72,13 +72,15 @@ const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters",
 };
 
+const AUTHOR_FACING_USES: readonly JudgeUseKey[] = ["lookahead", "curatorFilter"];
+
 const judgeUseFeature = (use: JudgeUseKey): Feature => {
   const copy = JUDGE_USE_COPY[use];
   return {
     id: `judge-use-${kebab(use)}`,
     name: copy.label,
     area: JUDGE_USE_AREA[use] ?? "judge",
-    audience: AUTHOR_JUDGE_USES.includes(use) ? "author" : "setup",
+    audience: AUTHOR_JUDGE_USES.includes(use) || AUTHOR_FACING_USES.includes(use) ? "author" : "setup",
     oneLine: copy.description,
     what: `${copy.description} Sends: ${copy.sends}.`,
     where: settingsAt(`#so-judge-use-${kebab(use)}`, `Judge › ${copy.label}`),
@@ -95,7 +97,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "stories", name: "Stories", area: "play", audience: "player",
     oneLine: "Play an authored story on top of an ordinary chat.",
-    what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
+    what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has "
+      + "happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
     where: settingsAt("#story-library-select", "This chat › Story for this chat"),
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
   },
@@ -140,7 +143,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "recap", name: "Recap and welcome back", area: "play", audience: "player",
     oneLine: "Coming back after a break shows where you left off; /story recap asks any time.",
-    what: "When you reopen a chat after a while, a short recap says where the story is. Type /story recap for the same at any time, /story threads for what is still open, and /story help for every command.",
+    what: "When you reopen a chat after a while, a short recap says where the story is. Type /story recap for the same at any "
+      + "time, /story threads for what is still open, and /story help for every command.",
     where: drawerAt("#so-player-overview", "Overview"),
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.1.0", needs: ["story"],
   },
@@ -162,7 +166,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "memory", name: "Story memory", area: "memory", audience: "player",
     oneLine: "Remembers what happened so characters stay consistent.",
-    what: "After replies, the memory model reads the chat, notes facts and scenes, and moves the story on when its goals are met. What it remembers rides the prompt, so characters keep track of what happened.",
+    what: "After replies, the memory model reads the chat, notes facts and scenes, and moves the story on when its goals are "
+      + "met. What it remembers rides the prompt, so characters keep track of what happened.",
     where: settingsAt("#so-extraction-profile", "General setup › Memory model"),
     settings: [
       "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.reconciliationMultiplier", "extraction.stabilityLag",
@@ -181,7 +186,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "chapters", name: "Chapters", area: "memory", audience: "player",
     oneLine: "Long stories write up each finished chapter and recap it when you return.",
-    what: "For stories that declare chapters, a finished chapter becomes one written record. The record can stand in for its messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
+    what: "For stories that declare chapters, a finished chapter becomes one written record. The record can stand in for its "
+      + "messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
     where: settingsAt("#so-chapter-recap", "Display › Chapters"),
     settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "off-by-default", since: "2.6.0", needs: ["story", "memory-profile"],
     isOn: (settings) => settings.memory.chapters?.recap === true || settings.memory.chapters?.seal === true,
@@ -189,7 +195,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "continuity-warden", name: "Continuity warden", area: "memory", audience: "author",
     oneLine: "Catches a reply that breaks an established fact and restates the fact for the next reply.",
-    what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, the next reply's prompt restates that fact once, after your approval or on its own.",
+    what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, the "
+      + "next reply's prompt restates that fact once, after your approval or on its own.",
     where: settingsAt("#so-warden-enabled", "Author services › Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "judge.provider.warden"], doc: "author/topics/house-rules.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
     isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
@@ -221,7 +228,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "inner-voice", name: "Inner voice", area: "characters", audience: "author",
     oneLine: "Characters prepare a private intent before they speak.",
-    what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that character. It can also read a reply's reasoning for what the character intends.",
+    what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
+      + "character. It can also read a reply's reasoning for what the character intends.",
     where: settingsAt("#so-inner-beat", "Author services › Inner voice"),
     settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: "author/topics/drives-motives.md", status: "off-by-default", since: "2.6.0",
     needs: ["memory-profile", "author-view"],
@@ -284,7 +292,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "judge", name: "Judge", area: "judge", audience: "setup",
     oneLine: "A second, fast model for yes/no and pick-one decisions.",
-    what: "The judge answers small questions for the story: who speaks next, whether a memory is right, which lore matters. Each use can be switched off and says what it sends; without a key every use falls back to its usual path.",
+    what: "The judge answers small questions for the story: who speaks next, whether a memory is right, which lore matters. Each use can be "
+      + "switched off and says what it sends; without a key every use falls back to its usual path.",
     where: settingsAt("#so-judge-enabled", "Author services › Judge"),
     settings: ["judge.enabled", "judge.model", "judge.timeoutMs", "judge.noticesSeen"], doc: "setup/judge.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
     isOn: (settings) => settings.judge.enabled,
@@ -402,7 +411,9 @@ export const matchesQuery = (feature: Feature, query: string): boolean => {
   return words.every((word) => haystack.includes(word));
 };
 
-export const HOME_PAGE: string = String((manifest as { homePage?: unknown }).homePage ?? "").replace(/\/blob\/.*$/, "").replace(/\/+$/, "");
+const manifest = ((manifestModule as { default?: unknown }).default ?? manifestModule) as { homePage?: unknown };
+
+export const HOME_PAGE: string = String(manifest.homePage ?? "").replace(/\/blob\/.*$/, "").replace(/\/+$/, "");
 
 export const GUIDE_BRANCH = "master";
 

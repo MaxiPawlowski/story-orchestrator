@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
-import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import type { RepairAction } from "@runtime/repair";
+import { gettingStartedSteps, type RepairAction } from "@runtime/repair";
+import type { FeatureWhere } from "@features/registry";
+import { HelpButton } from "../help/HelpButton";
+import { GettingStarted } from "./GettingStarted";
 import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
@@ -19,6 +22,8 @@ const ImageGroup = lazyRetry(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
 const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
+const HelpHost = lazyRetry(() => import("../help/HelpHost"));
+const WhatsNewHost = lazyRetry(() => import("../help/WhatsNewHost"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 
 export interface SettingsHost {
@@ -33,6 +38,7 @@ export interface SettingsHost {
   openGroup?: () => void;
   openDrawer: () => void;
   openAuthorView?: () => void;
+  showFeature: (where: FeatureWhere) => void;
 }
 
 interface SettingsPanelProps {
@@ -103,14 +109,32 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   }, [recheck, probe]);
 
   const wardenOn = snapshot.stagecraft.settings.wardenEnabled && snapshot.stagecraft.settings.wardenAcceptMode !== "off";
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [checklistDismissed, setChecklistDismissed] = useState(() => getGlobalSettings().help.checklistDismissed);
+  const image = getGlobalSettings().image;
+  const extraction = snapshot.extraction.settings;
+  const steps = gettingStartedSteps({
+    memoryModel: extraction.enabled && Boolean(extraction.profileId),
+    judgeReady: judge.judge.enabled && typeof judge.status === "object" && judge.status !== null && judge.status.configured,
+    imagesReady: image.enabled && Boolean(image.comfyUrl) && Boolean(image.directorProfileId),
+  });
+  const toggleHelp = (event: MouseEvent<HTMLButtonElement>) => {
+    const content = event.currentTarget.closest(".inline-drawer")?.querySelector<HTMLElement>(".inline-drawer-content");
+    const panelOpen = Boolean(content && content.offsetParent !== null);
+    if (panelOpen) event.stopPropagation();
+    setHelpOpen(panelOpen ? !helpOpen : true);
+  };
 
   return (
     <div id="story-orchestrator-settings">
       <div className="inline-drawer">
         <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
           <b>Story Orchestrator</b>
+          <HelpButton id="so-help-toggle" open={helpOpen} onToggle={toggleHelp} />
         </div>
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
+          {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
+          <Lazy fallback={null}><WhatsNewHost configured={Boolean(extraction.profileId)} authorView={snapshot.ui.authorView} onShowMe={host.showFeature} /></Lazy>
           <EntryPoints
             snapshot={snapshot}
             busy={busy}
@@ -124,6 +148,8 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onFixWithWizard={host.openWizardForRequirements}
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
+            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting}
+              onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
           />
           <details id="so-current-chat" className="so-settings-section" open>
             <summary>This chat <span className="opacity-70">— select and continue a story</span></summary>

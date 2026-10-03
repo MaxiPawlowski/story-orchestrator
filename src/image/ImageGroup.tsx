@@ -100,8 +100,10 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
               {option(PLACEMENTS)}
             </select>
             <FieldLabel htmlFor={routeId("candidates")} setting="image.purposes.*.candidates" />
-            <input id={routeId("candidates")} className="text_pole" type="number" min={1} max={4} value={entry.candidates} onChange={(event) => route(selectedPurpose, { candidates: Number(event.target.value) })} />
-            <CheckRow id={routeId("override")} setting="image.purposes.*.directorMayOverride" checked={entry.directorMayOverride} onChange={(on) => route(selectedPurpose, { directorMayOverride: on })} />
+            <input id={routeId("candidates")} className="text_pole" type="number" min={1} max={4} value={entry.candidates}
+              onChange={(event) => route(selectedPurpose, { candidates: Number(event.target.value) })} />
+            <CheckRow id={routeId("override")} setting="image.purposes.*.directorMayOverride" checked={entry.directorMayOverride}
+              onChange={(on) => route(selectedPurpose, { directorMayOverride: on })} />
             <FieldLabel htmlFor={routeId("positive")} setting="image.purposes.*.extraPositive" />
             <input id={routeId("positive")} className="text_pole" value={entry.extraPositive} onChange={(event) => route(selectedPurpose, { extraPositive: event.target.value })} />
             <FieldLabel htmlFor={routeId("negative")} setting="image.purposes.*.extraNegative" />
@@ -114,7 +116,8 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             const selected = settings.characters[person.key];
             return <details key={person.key} className="rounded border p-1"><summary>{person.name}</summary>
               <FieldLabel htmlFor={bindingId(person.key, "tags")} setting="image.characters.*.appearanceTags" />
-              <textarea id={bindingId(person.key, "tags")} className="text_pole" value={selected?.appearanceTags ?? ""} onChange={(event) => binding(person.key, { appearanceTags: event.target.value })} />
+              <textarea id={bindingId(person.key, "tags")} className="text_pole" value={selected?.appearanceTags ?? ""}
+                onChange={(event) => binding(person.key, { appearanceTags: event.target.value })} />
               <FieldLabel htmlFor={bindingId(person.key, "always")} setting="image.characters.*.alwaysTags" />
               <input id={bindingId(person.key, "always")} className="text_pole" value={selected?.alwaysTags ?? ""} onChange={(event) => binding(person.key, { alwaysTags: event.target.value })} />
               <FieldLabel htmlFor={bindingId(person.key, "never")} setting="image.characters.*.neverTags" />

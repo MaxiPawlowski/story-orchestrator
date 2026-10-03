@@ -943,6 +943,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="curator-diff"]', '[data-so="curator-text"]', '[data-so="curator-last-pass"]',
   '[data-so="repair-detail"]', '[data-so="drawer-repair-detail"]', '#so-entry-fix-with-wizard', '[data-so="wi-author-detail"]', '[data-so="engine-status"]',
   '#so-curator-enabled', '#so-curator-accept-mode', '#so-copilot-enabled', '[data-so="self-test-error-detail"]',
+  // v2.7 plan 01: the Help panel lists author features and the author's guide only in Author view.
+  '[data-so="help-feature"][data-audience="author"]', '[data-so="help-guide-topics"]', '[data-so="whats-new-feature"][data-audience="author"]',
 ];
 
 const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];
@@ -1159,6 +1161,20 @@ export async function assertPlayerClean(page) {
     records.push(await recordPlayerSurfaces(page, tab));
   }
   findings.push(...recoveryControlFindings(recoveryControls));
+  const helpOpened = await evaluateInST(page, async () => {
+    const toggle = document.getElementById('so-help-toggle-drawer');
+    if (!toggle || toggle.getAttribute('aria-expanded') === 'true') return false;
+    toggle.click();
+    for (let tries = 0; tries < 40 && !document.querySelector('#drawer-manager [data-so="help-panel"]'); tries += 1) await new Promise((resolve) => setTimeout(resolve, 50));
+    return true;
+  });
+  const helpHits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+  for (const hit of helpHits ?? []) {
+    findings.push({ tab: 'help', needle: `${hit.selector} reachable in ${hit.surface}` });
+    sweep.push({ tab: 'help', ...hit });
+  }
+  records.push(await recordPlayerSurfaces(page, 'help'));
+  if (helpOpened) await evaluateInST(page, () => { document.getElementById('so-help-toggle-drawer')?.click(); });
   const tokens = rawValueTokens(await evaluateInST(page, () => {
     const story = globalThis.storyOrchestratorRuntime?.getStory?.();
     return story ? { checkpoints: story.checkpoints.map((checkpoint) => ({ id: checkpoint.id })), qualities: story.qualities.map((quality) => ({ type: quality.type, values: quality.values, player_labels: quality.player_labels })) } : null;
