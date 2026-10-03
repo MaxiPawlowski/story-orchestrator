@@ -9,7 +9,8 @@ open the drawer. It can also show:
 |---|---|
 | `N updates next turn` | The story noticed something; it takes effect after the next reply. |
 | `catching up…` | The story is re-checking recent scenes. Keep playing. |
-| `needs setup` | Nothing is following the story yet. Click it to open the settings. |
+| `fix setup (N)` | Something stops the story (for example no memory model is chosen). Click it to open the Repair row. |
+| `check setup (N)` | Something weakens the story but it still plays. Click it to open the Repair row. |
 | `not keeping up` | Something went wrong reading the scene. See [Troubleshooting](troubleshooting.md). |
 | `stepped back` | You swiped, edited or deleted a message and the story moved back to match. |
 | `branch — continue?` | This chat is a branch; click to pick the story up here. |
@@ -22,6 +23,10 @@ The story drawer is the route icon in SillyTavern's top bar. In player mode it h
 
 **Overview**, top to bottom:
 
+- **Setup**, only when something needs doing: what each problem costs the story, a **Show me** button and, where
+  one exists, a one-click fix. Before the first message it starts with **Before you start**, the things that stop
+  the story. A problem that only weakens the story has **I know, keep it**, which hides it on this install until
+  you bring it back; one that stops the story cannot be hidden.
 - **Where you are**: the scene, the place, what is going on, and how tense things are ("The scene is calm." up to
   "Everything is at breaking point."). "What happens next is yours to decide." means the story is waiting on you.
 - **About this story**: the story's introduction.

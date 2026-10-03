@@ -244,8 +244,8 @@ describe("v2.7 plan 01 what's new and getting started", () => {
   });
 
   it("stores the last seen version install-wide and keeps only a version", () => {
-    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false });
-    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true });
+    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [] });
+    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, dismissedChecks: [] });
     expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "soon" } }).help.lastSeenVersion).toBeNull();
   });
 

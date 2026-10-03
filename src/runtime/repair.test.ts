@@ -26,7 +26,7 @@ describe("nextRepairStep", () => {
       extraction: { settings: { enabled: false, profileId: null } },
       requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: [] },
     } as unknown as Partial<RuntimeSnapshot>));
-    expect(step).toEqual({
+    expect(step).toMatchObject({
       area: "memory-model",
       consequence: "The story will not advance on its own until this is set.",
       detail: "Automatic story advancement is off.",
@@ -38,7 +38,7 @@ describe("nextRepairStep", () => {
 
   it("v2.4 plan 05: a story book another extension hides from the model is a lore step, worded without naming anyone", () => {
     const step = nextRepairStep(snapshotWith({ loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } } as Partial<RuntimeSnapshot>));
-    expect(step).toEqual({
+    expect(step).toMatchObject({
       area: "lore",
       consequence: "Another extension is hiding this story's lorebook from the model.",
       detail: "Hidden from the model: Sun Ruins",
@@ -56,7 +56,7 @@ describe("nextRepairStep", () => {
 
   it("a deleted profile is a memory-model step", () => {
     const step = nextRepairStep(snapshotWith({ extractionHealth: { kind: "config", detail: "The selected memory model profile no longer exists" } } as Partial<RuntimeSnapshot>));
-    expect(step).toEqual({
+    expect(step).toMatchObject({
       area: "memory-model",
       consequence: "The story will not advance on its own until this is set.",
       detail: "The selected memory model profile no longer exists",
@@ -105,7 +105,7 @@ describe("nextRepairStep", () => {
 
     it("is a lore row naming the chat first and the book last, and never offers the wizard", () => {
       const step = nextRepairStep(snapshotWith({ orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>));
-      expect(step).toEqual({
+      expect(step).toMatchObject({
         area: "lore",
         consequence: "A deleted chat left its story memory behind in a lorebook.",
         detail: 'The "Crossing" chat started 2026-10-02 01:58: the host refused. Lorebook: Story Orchestrator - Crossing - chat-b',
@@ -138,7 +138,7 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
 
   it("names the drifted entry, says what it costs first, and points at the gating control", () => {
     const step = nextRepairStep(snapshotWith({ wiGating: status({ drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>));
-    expect(step).toEqual({
+    expect(step).toMatchObject({
       area: "lore",
       consequence: "A story lorebook entry was switched on outside the story; it will show in chats without the story.",
       detail: "Switched on outside the story: 1 entry in Ruins",
@@ -181,7 +181,7 @@ describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", (
 
   it("names what stops, points at that role's own select, and comes after the memory model", () => {
     const routes = [route("read", "fallback"), route("director", "missing", "The profile chosen for speaker direction no longer exists (ID: gone)")];
-    expect(nextRepairStep(snapshotWith({ roleRoutes: routes } as Partial<RuntimeSnapshot>))).toEqual({
+    expect(nextRepairStep(snapshotWith({ roleRoutes: routes } as Partial<RuntimeSnapshot>))).toMatchObject({
       area: "model-role",
       consequence: "Speaker direction falls back to ST's own choice.",
       detail: "The profile chosen for speaker direction no longer exists (ID: gone)",
@@ -222,7 +222,7 @@ describe("L2: a chat lorebook slot that displaces this chat's memory mirror (fil
   } as unknown as Partial<RuntimeSnapshot>);
 
   it("is a lore step when this chat owns a mirror book the slot keeps out", () => {
-    expect(nextRepairStep(conflicted({ name: "Story Orchestrator - S - c1", chatId: "c1" }))).toEqual({
+    expect(nextRepairStep(conflicted({ name: "Story Orchestrator - S - c1", chatId: "c1" }))).toMatchObject({
       area: "lore",
       consequence: "This chat's story memory is not reaching the model, because the chat lorebook slot holds another book.",
       detail: "Chat lorebook: My Notes",

@@ -1,7 +1,8 @@
 # Troubleshooting and FAQ
 
 Start with the drawer's **Status** line and the settings panel's **Repair** row. Repair always names the single most
-important thing to fix, and **Show me** takes you to the control.
+important thing to fix, and **Show me** takes you to the control. The drawer's **Setup** list shows every problem at
+once: the ones that stop the story first, then the ones that weaken it.
 
 ## The story does not move
 

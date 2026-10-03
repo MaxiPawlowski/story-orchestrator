@@ -20,7 +20,7 @@ import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
 import { runCastRepair } from "@runtime/castRepair";
-import { provisionableMissing, withoutPersonas, type RepairAction } from "@runtime/repair";
+import { provisionableMissing, withoutPersonas, type OneClickFix, type RepairAction, type ShowMe } from "@runtime/repair";
 import { saveStoryRecord } from "@runtime/storyLibrary";
 import type { WriteResult } from "@utils/writeResult";
 import type { StudioOpenIntent } from "./studio/StudioModal";
@@ -152,6 +152,18 @@ const openGroup = () => {
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
+const fixSetup = async (action: OneClickFix) => {
+  if (action.kind !== "make-group") return repairCast(action);
+  const outcome = await makeGroupFor(manager, action.storyId);
+  if (!outcome.ok && outcome.reason !== "cancelled") window.toastr?.info?.(outcome.message, "Story Orchestrator");
+};
+
+const showSetupTarget = (target: ShowMe) => {
+  if (target.kind === "group-members") return openGroup();
+  openStorySettings();
+  window.setTimeout(() => revealSetting(target.id), 250);
+};
+
 const studioFailed = (error: unknown) => {
   log.warn("the Studio could not open", error);
   setStudioOpen(false);
@@ -265,7 +277,7 @@ const settingsHost: SettingsHost = {
   openStudio: launch(() => openStudio()),
   openWizardForRequirements: launch(openWizardForRequirements),
   revealSetting: (id) => revealSetting(id),
-  repairCast: (action) => void repairCast(action),
+  repairCast: (action) => void fixSetup(action),
   openGroup,
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
@@ -336,6 +348,8 @@ const DrawerPanel = () => {
           onFixWithWizard={launch(openWizardForRequirements)}
           onOpenRepair={openRepairStep}
           onNewStory={launch(openWizard)}
+          onShowMe={showSetupTarget}
+          onFix={(action) => void fixSetup(action)}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
           onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
           inspect={inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions }}

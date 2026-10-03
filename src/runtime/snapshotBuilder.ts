@@ -14,6 +14,7 @@ import { derivePipelineStatus, expansionInFlight, playerPendingCount, type Pipel
 import { playerSaveNotice } from "./saveHealth";
 import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersistedRuntime, openChatId, UNREADABLE_NOTICE } from "./persistence";
 import { noGroupView } from "./noGroup";
+import { getGlobalSettings } from "./settingsStore";
 import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
@@ -328,7 +329,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     requirements: extras.requirements,
     validationErrors: sources.validationErrors,
     library: listStoryRecords(),
-    status: sources.status, noChat: noChatView(hasOpenChat()), noGroup: loaded ? null : noGroupOf(),
+    status: sources.status, noChat: noChatView(hasOpenChat()), noGroup: loaded ? null : noGroupOf(), dismissedChecks: getGlobalSettings().help.dismissedChecks,
     extraction: extras.extraction,
     expansion: extras.expansion,
     memory: extras.memory,

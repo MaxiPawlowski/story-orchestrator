@@ -2,6 +2,8 @@ import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
 import PlayerOverview from "../PlayerOverview";
+import SetupSection, { type SetupHandlers } from "../SetupSection";
+import type { SetupFindings } from "@runtime/repair";
 import ScenePanel from "../ScenePanel";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -145,7 +147,7 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
   </div>
 );
 
-export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest, onFlagChapter }: {
+export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest, onFlagChapter, setup }: {
   snapshot: RuntimeSnapshot;
   authorView: boolean;
   onOpenSettings?: () => void;
@@ -155,8 +157,10 @@ export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWiz
   onRetry?: () => void;
   onBranchFromOldest?: (messageId: number) => void;
   onFlagChapter?: (title: string) => void;
+  setup?: { findings: SetupFindings } & SetupHandlers;
 }) => (
   <div className="flex flex-col gap-3">
+    {setup && <SetupSection authorView={authorView} beforeStart={snapshot.boundary === 0} {...setup} />}
     <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} onFlagChapter={onFlagChapter} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
   </div>

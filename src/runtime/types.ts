@@ -467,6 +467,7 @@ export interface RuntimeSnapshot {
   status: string;
   noChat?: { notice: string } | null;
   noGroup?: NoGroupView | null;
+  dismissedChecks?: string[];
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;

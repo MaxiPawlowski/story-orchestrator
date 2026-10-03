@@ -345,9 +345,10 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "repair", name: "Repair", area: "setup", audience: "player",
     oneLine: "Names the one thing missing and takes you to the setting that fixes it.",
-    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click.",
+    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click. "
+      + "The drawer's Setup list shows every finding while a story plays; one that only weakens the story can be dismissed, one that stops it cannot.",
     where: settingsAt("#so-entry-repair", "Repair"),
-    settings: [], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
+    settings: ["help.dismissedChecks"], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
   },
   {
     id: "getting-started", name: "Getting started", area: "setup", audience: "player",

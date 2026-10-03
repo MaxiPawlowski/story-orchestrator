@@ -6,7 +6,7 @@ import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { gettingStartedSteps, type RepairAction } from "@runtime/repair";
+import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
 import type { FeatureWhere } from "@features/registry";
 import { HelpButton } from "../help/HelpButton";
 import { GettingStarted } from "./GettingStarted";
@@ -36,7 +36,7 @@ export interface SettingsHost {
   openStudio: () => void;
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
-  repairCast?: (action: RepairAction) => void;
+  repairCast?: (action: OneClickFix) => void;
   openGroup?: () => void;
   openDrawer: () => void;
   openAuthorView?: () => void;
@@ -152,7 +152,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onFixWithWizard={host.openWizardForRequirements}
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
-            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting}
+            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
           />
           <details id="so-current-chat" className="so-settings-section" open>
