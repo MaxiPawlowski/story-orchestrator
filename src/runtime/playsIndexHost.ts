@@ -1,4 +1,4 @@
-import { getContext, isHostGeneratingFlag, listGroupChats, readGroupChatMetadata, subscribeToHostEvents } from "@services/STAPI";
+import { getContext, isHostGeneratingFlag, listGroupChats, readGroupChatMetadata, settingsAreLoaded, subscribeToHostEvents } from "@services/STAPI";
 import type { NormalizedStoryV2 } from "@engine/index";
 import { blobMismatch, getSelectedStoryId } from "./persistence";
 import { settingsRoot, writableSettingsRoot } from "./settingsRoot";
@@ -28,10 +28,12 @@ export const readBadgeMaps = (): BadgeMaps => composeBadges({
   plays: readPlaysIndex(), bindings: readGroupStories(settingsRoot()), library: listStoryRecords(), settings: getGlobalSettings().display.presence, now: Date.now(),
 });
 
-const writePlays = (plays: PlaysIndex) => {
+const writePlays = (plays: PlaysIndex): boolean => {
+  if (!settingsAreLoaded()) return false;
   writableSettingsRoot()[PLAYS_KEY] = plays;
   getContext().saveSettingsDebounced?.();
   listeners.forEach((listener) => listener());
+  return true;
 };
 
 export interface PlaysPort {
@@ -56,21 +58,18 @@ export function syncOpenChatPlay(port: PlaysPort, now = new Date().toISOString()
   const storyId = port.storyId();
   if (port.loadedChatId() === chatId && groupId && story && storyId) {
     const next = upsertPlay(plays, chatId, playRow({ story, storyId, activeCheckpointId: port.activeCheckpointId(), groupId }), now);
-    if (next.changed) writePlays(next.plays);
-    return next.changed;
+    return next.changed && writePlays(next.plays);
   }
   if (port.loadedChatId() !== null || port.loading() || blobMismatch() !== null || getSelectedStoryId()) return false;
   const next = dropPlay(plays, chatId);
-  if (next.changed) writePlays(next.plays);
-  return next.changed;
+  return next.changed && writePlays(next.plays);
 }
 
 export function forgetChatPlay(chatId: unknown): boolean {
   const id = text(chatId);
   if (!id) return false;
   const next = dropPlay(readPlaysIndex(), id);
-  if (next.changed) writePlays(next.plays);
-  return next.changed;
+  return next.changed && writePlays(next.plays);
 }
 
 const putBackfilledPlay = (chatId: string, row: PlayRow) => {
@@ -83,6 +82,7 @@ const readBackfillState = (): BackfillState => sanitizeBackfill(settingsRoot()[B
   ?? planBackfill(listGroupChats(), new Set(Object.keys(readPlaysIndex())));
 
 const saveBackfillState = (state: BackfillState) => {
+  if (!settingsAreLoaded()) return;
   writableSettingsRoot()[BACKFILL_KEY] = state;
   getContext().saveSettingsDebounced?.();
 };
@@ -104,6 +104,7 @@ export function startPlaysIndex(port: PlaysPort): () => void {
     { eventName: "GROUP_CHAT_DELETED", handler: onDeleted },
   ]);
   const backfill = setTimeout(() => {
+    if (!settingsAreLoaded()) return;
     const state = readBackfillState();
     if (state.done || !alive) return;
     saveBackfillState(state);
