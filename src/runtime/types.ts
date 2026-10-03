@@ -9,6 +9,7 @@ import type {
 import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
+import type { BriefingRecord, BriefingState } from "./briefing";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
@@ -27,6 +28,7 @@ import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
+import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
 import type { ScanGateView, WiGatingStatus } from "./worldInfoMode";
@@ -38,6 +40,9 @@ import type { BLOB_VERSION } from "./persistence";
 import type { LoreRuntimeState } from "./loreFired";
 import type { InlineView } from "./inlineTimeline";
 import type { InlineSettings } from "./settingsModel";
+import type { PresenceSettings } from "./displayToggles";
+import type { ChanceRuntimeState, RollRecord } from "./rolls";
+import type { PresenceView } from "./presence";
 
 export interface PayloadCapture {
   at: string;
@@ -144,10 +149,13 @@ export interface RuntimeExtras {
   judge: JudgeRuntimeState;
   /** Which World Info entries each rendered reply's scans activated, by message. */
   lore: LoreRuntimeState;
+  /** NPC reply and talk draws, by message; quality rolls are reconstructed instead. */
+  chance?: ChanceRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
   branchedFrom?: BranchOrigin;
+  briefing?: BriefingRecord;
   updatedAt: string;
 }
 
@@ -164,7 +172,9 @@ export interface UiRuntimeSettings {
   authorView: boolean;
   announceTransitions: boolean;
   hudEnabled: boolean;
+  briefing?: boolean;
   inline: InlineSettings;
+  presence?: PresenceSettings;
 }
 
 export interface PendingDeltaReadout {
@@ -465,6 +475,8 @@ export interface RuntimeSnapshot {
   library: StoryLibraryRecord[];
   status: string;
   noChat?: { notice: string } | null;
+  noGroup?: NoGroupView | null;
+  dismissedChecks?: string[];
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;
@@ -493,6 +505,7 @@ export interface RuntimeSnapshot {
   secretsHeld?: boolean;
   thinkingSilent?: boolean;
   competingScenarios?: string[];
+  briefing?: BriefingState | null;
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
@@ -547,6 +560,9 @@ export interface RuntimeSnapshot {
   lore: LoreRuntimeState;
   /** The inline timeline: every item anchored under the message it is about, before the level filter. */
   inline: InlineView;
+  /** One roll store: quality rolls reconstructed from the seed, NPC and talk draws from the ring. Author-only surfaces. */
+  rolls?: RollRecord[];
+  presence?: PresenceView;
 }
 
 export interface LoadedStory {

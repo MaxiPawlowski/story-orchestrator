@@ -149,8 +149,6 @@ export function renderPrivateEpistemicBlock(entries: EpistemicEntry[], names: st
   return ["Your private knowledge (stay in character — never narrate what you conceal or do not know):", ...lines].join("\n");
 }
 
-const ATTRIBUTED_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "unaware", "hiding", "intends"];
-
 export function attributedEpistemicLine(subject: string, entry: EpistemicEntry): string {
   switch (entry.tag) {
     case "knows": return `- ${subject} knows: ${entry.content}`;
@@ -160,30 +158,6 @@ export function attributedEpistemicLine(subject: string, entry: EpistemicEntry):
     case "hiding": return entry.hiddenFrom ? `- ${subject} is concealing from ${entry.hiddenFrom}: ${entry.content}` : `- ${subject} is concealing: ${entry.content}`;
     case "intends": return `- ${subject} intends: ${entry.content}`;
   }
-}
-
-// One solo narrator voices every roster member, so a merged second-person block told it
-// "You are concealing" one member's secret while "You know" another's. Each line names its subject.
-export function renderAttributedEpistemicBlock(entries: EpistemicEntry[], names: string[]): string {
-  const active = activeEpistemic(entries);
-  const seen = new Set<string>();
-  const lines: string[] = [];
-  for (const name of names) {
-    const key = normalize(name);
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    const theirs = active.filter((entry) => normalize(entry.subject) === key);
-    for (const tag of ATTRIBUTED_TAGS) {
-      for (const entry of theirs.filter((candidate) => candidate.tag === tag)) lines.push(attributedEpistemicLine(name.trim(), entry));
-    }
-  }
-  if (!lines.length) return "";
-  return ["What each character privately knows (voice each character accordingly — a character acts only on what they know, and never reveal what one of them conceals):", ...lines].join("\n");
-}
-
-export function renderSoloEpistemicBlock(entries: EpistemicEntry[], names: string[]): string {
-  const distinct = new Set(names.map(normalize).filter(Boolean));
-  return distinct.size > 1 ? renderAttributedEpistemicBlock(entries, names) : renderPrivateEpistemicBlock(entries, names);
 }
 
 export function setEpistemicPinned(entries: EpistemicEntry[], id: string, pinned: boolean): EpistemicEntry[] {

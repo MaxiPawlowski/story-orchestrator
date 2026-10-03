@@ -25,6 +25,7 @@ import type { InnerBeatHost } from "./innerBeatHost";
 import { loadInnerRender } from "@memory/index";
 import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
+import { hasOpenGroup } from "./persistence";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -125,10 +126,6 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
-    soloMember: () => {
-      const story = view.getStory();
-      return story && story.roster.length === 1 && !view.hosts.roster.getActiveGroup() ? story.roster[0].id : null;
-    },
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,
@@ -148,7 +145,6 @@ export function wireCoordinators(port: ManagerPort) {
       },
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
-    spikes: () => getGlobalSettings().spikes,
     ...lifecycle,
   });
   const copilot: CopilotCoordinator = new CopilotCoordinator({
@@ -170,6 +166,7 @@ export function wireCoordinators(port: ManagerPort) {
     getHistory: () => (port.loaded() ? engine.serializeHistory() : null),
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership,
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
+    groupOpen: hasOpenGroup,
   };
   return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, rollbackDeps, storyUpdateDeps };
 }

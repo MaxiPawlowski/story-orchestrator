@@ -51,12 +51,15 @@ describe("LoudGenerationGate (T1-2 payloads #39/#40: one request posted twice)",
     expect(gate.isHeld()).toBe(true);
   });
 
-  it("never gates solo chats or non-normal generations", async () => {
+  it("v2.7 plan 03: does nothing in a one-on-one chat, where no story runs; never gates non-normal generations", async () => {
     const gate = new LoudGenerationGate();
     const aborts: boolean[] = [];
-    const solo = gatedInterceptor(gate, () => false, async () => undefined);
+    const inner = jest.fn(async () => undefined);
+    const solo = gatedInterceptor(gate, () => false, inner);
     await solo([], 1, (immediate) => aborts.push(immediate), "normal");
     await solo([], 1, (immediate) => aborts.push(immediate), "normal");
+    expect(inner).not.toHaveBeenCalled();
+    expect(gate.isHeld()).toBe(false);
     const group = gatedInterceptor(gate, () => true, async () => undefined);
     await group([], 1, (immediate) => aborts.push(immediate), "normal");
     for (const type of ["quiet", "swipe", "continue", "impersonate", "regenerate"]) await group([], 1, (immediate) => aborts.push(immediate), type);

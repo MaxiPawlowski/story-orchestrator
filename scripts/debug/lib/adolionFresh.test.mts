@@ -156,6 +156,7 @@ test('a lane with image or sprite generation on fails, and the strip switches bo
   const plan = stripPlan(manifest, { worlds: [], characters: [], chatDirs: [], groups: [], groupChats: [], settings: { extension_settings: { 'story-orchestrator': { settings: { image: { enabled: true, comfyUrl: 'x' } } } } } });
   assert.deepEqual(plan.media, { image: true, sprites: true });
   assert.deepEqual(plan.settings.extension_settings['story-orchestrator'].settings.image, { enabled: false, comfyUrl: 'x' });
+  assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.display.briefing, false, 'the lane never opens a briefing over a scripted import');
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.enabled, false);
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.explicit, true);
 });

@@ -4,7 +4,7 @@ const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
-  chatId: "chat-manual",
+  groupId: "g-test", chatId: "chat-manual",
   saveMetadata: jest.fn(async () => undefined),
   saveMetadataDebounced: jest.fn(),
   saveSettingsDebounced: jest.fn(),

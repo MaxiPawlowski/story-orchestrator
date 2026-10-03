@@ -294,6 +294,16 @@ describe("applyStoryUpdate", () => {
     expect(h.restart).not.toHaveBeenCalled();
   });
 
+  it("v2.7 plan 03: takes nothing in a one-on-one chat", async () => {
+    const next = storyV1();
+    next.description = "Edited from a solo chat.";
+    const h = harness(next);
+    h.deps.groupOpen = () => false;
+    expect(await applyStoryUpdate(h.deps)).toMatchObject({ applied: false, reason: "this chat is not a group chat" });
+    expect(h.swapped).toEqual([]);
+    expect(h.restart).not.toHaveBeenCalled();
+  });
+
   it("refuses a record that is a different story", async () => {
     const { deps } = harness(storyV1());
     const other = record({ ...storyV1(), id: "somewhere-else" }, 1, "hash-x");

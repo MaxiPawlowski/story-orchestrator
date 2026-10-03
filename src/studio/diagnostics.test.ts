@@ -97,6 +97,7 @@ const seeded: StoryV2 = {
   lore_select: { lorebooks: ["Unlisted Lore"] },
   house_rules: ["No guns; no swords.", "Magic cannot heal wounds."],
   requirements: { members: ["warden"] },
+  briefing: { sections: [{ heading: "Ahead", text: "Mind the Cache." }] },
 };
 
 const anchor = (id: string, chapter?: string, start = false) => ({ id, name: id, objective: "", type: "anchor" as const, ...(chapter ? { chapter } : {}), ...(start ? { start } : {}) });

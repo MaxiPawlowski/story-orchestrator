@@ -68,10 +68,19 @@ describe("T6-3-3 HIGH: the done check names a checkpoint the story passes straig
     const draft = map();
     draft.checkpoints = [...draft.checkpoints, { id: "choice", name: "Choice", objective: "Choose.", type: "anchor" }];
     draft.transitions = [...draft.transitions, { from: "raid", to: "choice", priority: 1, gate: { q: "pen_control", op: "in", v: ["contested", "apprentice_held"] } }];
-    const missing = missingAtDone(running(), draft, emptyEnvironment());
+    const missing = missingAtDone(running(), draft, { ...emptyEnvironment(), groupNames: [draft.title] });
     expect(missing).toHaveLength(1);
     expect(missing[0]).toContain("'raid' is passed straight through");
     expect(missing[0]).toContain("gate-open-on-arrival at transitions.1.gate");
-    expect(missingAtDone(running(), map(), emptyEnvironment())).toEqual([]);
+    expect(missingAtDone(running(), map(), { ...emptyEnvironment(), groupNames: [map().title] })).toEqual([]);
+    expect(missingAtDone(running(), map(), emptyEnvironment())).toEqual(["no group for the cast (createGroup with every card)"]);
+  });
+});
+
+describe("v2.7 plan 03 (D5): every story needs its group", () => {
+  it("a one-member story built only from cards that already exist still needs a group; an existing group named for it satisfies it", () => {
+    expect(map().roster).toHaveLength(1);
+    expect(missingAtDone(running(), map(), emptyEnvironment())).toContain("no group for the cast (createGroup with every card)");
+    expect(missingAtDone(running(), map(), { ...emptyEnvironment(), groupNames: [map().title] })).toEqual([]);
   });
 });

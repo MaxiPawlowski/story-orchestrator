@@ -174,3 +174,76 @@ contract in v2.8 10; the saga/act indicator has a rule and a gate), A8 (decision
 moves to v2.8 10 with model-input spoiler protection), A13 (line refs; the briefing reads `player_intro` directly), the
 Claude-A note on 03's fallback refs, Sol split item 1 (static half here, LLM drafting v2.8), B10 (registry gate), B12
 (references).
+
+## Gate record
+
+**2026-10-03, branch of master `506a7ca4` (worktree `agent-abbbe3c6726b4b7d0`).** Static half built. LLM drafting
+(v2.8 10) and the identity step (v2.8 03) not built, as scoped.
+
+### As built
+
+- **Format.** `StoryV2.briefing` and `Chapter.briefing` = `StoryBriefing {title?, image?, sections[{heading, text}], tone?,
+  start_label?}` (`engine/schema.ts`). Validator `engine/validate/briefing.ts`: unknown keys refused, 1–6 sections,
+  section text ≤ 1,200 chars, heading ≤ 80, title/tone/image ≤ 240, start label ≤ 40, `{{macro}}` refused (shown as
+  written). Chapters read it in `validate/chapters.ts`.
+- **View.** `engine/briefing.ts`: `composeBriefing` (authored, else one section from `player_intro`; `description` never
+  read), `composeChapterBriefing` (for v2.7 06's C3 card), `briefingParagraphs`, **`storyKind`** (≥ 2 chapters = `saga`,
+  else `story`; exported from `@engine` for v2.7 06's badge).
+- **Diagnostic `briefing-spoiler-risk`** (`studio/briefingDiagnostics.ts`, warning, consequence declared): story briefing
+  vs later checkpoints (names, `player_name`s, id-shaped ids), enum values the start does not set, members the start
+  checkpoint's `cast_changes.disable` mutes (with aliases); a chapter briefing vs checkpoints not yet reached at that
+  chapter's entry. Word-boundary match, 4+ chars. `background-missing` now also checks briefing pictures.
+- **Activation frame** (`runtime/briefing.ts`): `ACTIVATION_STEPS` = chat, story, before-you-start, identity (empty slot
+  for v2.8 03), briefing, opener; `activationPanes`; `briefingState`/`briefingDue`. The modal never holds the opener: no
+  write waits for it.
+- **Once per chat.** `extras.briefing = {seen}`: `createExtras` writes `{seen: false}`, so exactly the fresh-extras loads
+  (new chat in a bound group, select of a story new to the chat, Restart) owe one; a hydrate keeps what the chat saved,
+  so rollback, reopen and a story update never re-show it, and a chat from before this build (no record) is never
+  interrupted. Pending only in an open group chat (`getActiveGroup`). Closing writes `seen: true` through
+  `setUiSettings({briefingSeen: true})` (settingsControl → persist).
+- **Settings.** `display.briefing` (install-wide, default on, Display group `#so-briefing-enabled`), `help.onboardingSeen`
+  (C8 section once per install). Both owned by registry feature `story-briefing` (player, since 2.7.0, needs group-chat +
+  story).
+- **UI.** `components/briefing/BriefingModal.tsx` (native `<dialog id="so-briefing">` + `showModal()`, labelled title,
+  Escape closes, one primary button `#so-briefing-start`, "Don't show briefings" `#so-briefing-optout`, Before-you-start
+  pane = `runChecks(snapshot, "blocks")` player lines, collapsible C8 "How Story Orchestrator works", picture from
+  `backgrounds/`), `BriefingHost.tsx` mounted in its own `#so-briefing-root` (CSS scope list + Storybook
+  `mountRootFor`). Re-open: drawer footer `#so-story-briefing` (both personas) and `/story intro`
+  (`runtime/briefingRequest.ts` signal). Drawer with no story: `#so-drawer-no-story` says what to do + opens settings.
+- **Studio.** Story tab `BriefingEditor` (title, button, tone, picture, sections, Preview briefing), chapter rows carry a
+  "Chapter briefing" editor + preview. `mutations.setBriefing` (no agent tool: listed in `MUTATIONS_WITHOUT_A_TOOL`).
+- **Docs.** Guide topic `briefing` in `story-guide.md` + compact twin `guideTopics.ts` (drift test green), Studio Story tab
+  topic, `npm run docs:guide` regenerated (35 topics), player page `docs/guide/player/playing.md` §The story briefing +
+  `/story intro`.
+- **Harness.** `scripts/debug/lib/briefingHarness.mts`: so-scenario and so-journey switch `display.briefing` off for a run
+  and restore it (journey: captured before setup, suppressed after it, restored with extraction); adolion-fresh lanes seed
+  it off; `test/sessions/baseline-settings.json` has it off. `so-ui.mts briefing | briefing-dismiss [--dont-show]` and
+  scenario `ui` actions `briefing`, `briefing-dismiss`; `assert-player-clean` text surfaces include `dialog#so-briefing[open]`.
+
+### Deviations
+
+1. `extras.briefing = {seen}` instead of `extras.ui.briefingSeen = {storyId, version}`: `extras.ui` is rebuilt from the
+   install settings on hydrate and stripped to `authorView` on persist, and the per-chat blob is already keyed by story
+   id. Writing the record in `createExtras` (not in `loadStory`) keeps `RuntimeManager` at its 700-line budget (it was at
+   700 on master).
+2. "A story update that changes the briefing … the drawer offers it instead": the drawer's Story briefing button is
+   always there while the story has a briefing; no separate "updated" cue.
+3. `background-missing` covers briefing pictures with its existing consequence line ("the scene does not change").
+4. C6 wand entry: owned by v2.7 06 (it calls `requestBriefing()`).
+
+### Gates
+
+- `npm run gates -- --no-storybook`: all green on `7a8e7c3f`: typecheck, typecheck:test, lint, test (6198 passed, 1 skipped), build, build:dev, test:debug, debug:typecheck, test:release, test:replay, test:plugin; `test-storybook:ci` skipped (`--no-storybook`). An earlier run was RED at test:release: the split-guide control hard-codes arc-template's neighbour pages, and the new `briefing` topic sits between them; fixed in `7a8e7c3f`.
+- New tests: `engine/briefing.test.ts` (format, fallback never `description`, chapter view, `storyKind`),
+  `studio/briefingDiagnostics.test.ts` (spoiler positives, controls, chapter horizon, picture), seeded-error story in
+  `diagnostics.test.ts` carries the code once, `runtime/briefingActivation.test.ts` (pane order; bound-group new chat
+  once + saved + reopen not shown; select, rollback not re-shown, Restart re-shows; story update stays closed; pre-build
+  chat not interrupted; solo and switch-off controls; fallback; **payload invariance**: injected prompt blocks
+  byte-identical with/without briefing, after closing, and with the switch off), `scripts/debug/lib/briefingHarness.test.mts`.
+- Prod bundle `dist/index.js` 1,143,865 B (budget 1,250,000).
+- **Storybook NOT run** (`test-storybook:ci` does not run under `.claude/worktrees`): stories written for
+  `Briefing/BriefingModal` (briefing only, Before you start only, both, first run, chapter, Escape, 390/768/1440),
+  `Briefing/BriefingHost` (opens on activation + opt-out, already seen, switched off), `Studio/BriefingEditor`.
+- **Live (D) rows NOT run** (lanes busy): new chat in a bound group once / reopen no / Restart yes / drawer button and
+  `/story intro` / setting off / Before you start first / dry-run payload capture of the first activation / harness
+  default off on a journey, ×2. Owed.

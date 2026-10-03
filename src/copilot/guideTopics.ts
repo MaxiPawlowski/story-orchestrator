@@ -16,6 +16,13 @@ export const GUIDE_TOPICS = {
       + "(a lowercase slug the library keys by), and version counts the author's saves. Good: \"The Pawnbroker's Debt\" with a two-sentence premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },
+  briefing: {
+    title: "Briefing",
+    fields: "briefing, chapters[].briefing",
+    text: "Player copy shown once when the story first starts in a group chat: {title, image, sections: [{heading, text}], tone, start_label}, at most 6 sections of 1200 "
+      + "characters, plain text, no macros. Never sent to the model. Without it, player_intro shows as one section; description never does. A chapter's briefing opens that "
+      + "chapter. Write only what the player may know then: no later beat, outcome, or character the start keeps off stage.",
+  },
   "arc-template": {
     title: "Dramatic shape",
     fields: "arc_template",
@@ -201,7 +208,9 @@ export const GUIDE_TOPICS = {
     fields: "stagecraft.lorebooks, stagecraft.exclude",
     text: "The only lorebooks the World Info curator may edit: the story's own books. The curator enables, disables, rewrites or patches existing entries; it cannot create one, "
       + "so author every entry it should keep current. It never touches an entry a beat's world_info gates. An empty list means no curator writes. "
-      + "exclude [{lorebook, comments}] names entries in those books it is never shown and never writes, such as a house-style entry.",
+      + "exclude [{lorebook, comments}] names entries in those books it is never shown and never writes, such as a house-style entry. "
+      + "In an entry, {{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; {{// so:auto}} lets its changes apply without review in auto mode. "
+      + "SillyTavern drops these markers before the prompt.",
   },
   "lore-select": {
     title: "Lore select",
@@ -233,7 +242,7 @@ export const GUIDE_TOPICS = {
     text: "illustrations {checkpoints, scenes, style, appearances} asks for pictures of beats and scenes in one style, with each cast member's look; never describe a secret "
       + "form there. illustrate: false skips a beat's pictures; chapters[].illustrations {style, appearances} overrides the look for one chapter. A lore entry's look is "
       + "used once it has fired in the chat, or always from a \"Public appearance:\" line. effects.stage {framing, spotlight, cast} places sprites for a beat. "
-      + "display.lore_names_public lets players see lore entry names in the timeline; leave it off when a name is a spoiler.",
+      + "display.lore_names_public shows lore entry names in the timeline; off when a name spoils. display.continue_list|group_card|chapter_card|wand|roll_chips false hides it.",
   },
 } as const satisfies Record<string, GuideTopic>;
 
@@ -289,6 +298,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "requirement-persona-missing": "requirements",
   "gate-open-on-arrival": "gates",
   "cast-member-never-enabled": "cast-changes",
+  "briefing-spoiler-risk": "briefing",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

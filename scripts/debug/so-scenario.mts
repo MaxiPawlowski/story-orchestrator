@@ -12,6 +12,7 @@ import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
 import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
+import { dismissBriefing, readBriefingModal, restoreBriefing, suppressBriefing } from './lib/briefingHarness.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptForeignChat, adoptNewSandboxChat, assertInSandbox, cleanupForeignChats, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
@@ -799,6 +800,8 @@ async function uiStep(page, spec) {
   if (action === 'memory-queue') return spec?.op ? memoryQueueAction(page, { action: spec.op, key: spec.key ?? null, side: spec.side ?? 0, index: spec.index ?? 0 }) : getMemoryQueueState(page);
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
+  if (action === 'briefing') return readBriefingModal(page);
+  if (action === 'briefing-dismiss') return dismissBriefing(page, { dontShow: spec?.dontShow === true });
   if (action === 'next-turn') return getNextTurnState(page);
   if (action === 'memory-fates') return getMemoryFates(page);
   if (action === 'model-calls') return getModelCallsState(page);
@@ -1215,6 +1218,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let libraryBefore: LibraryCapture | null = null;
   let extractionBefore = null;
   let judgeBefore = null;
+  let briefingBefore: boolean | null = null;
   const requires = requiresOf(scenario);
   const pinned = requiredGroup(requires, group);
   let reenabled: string[] = [];
@@ -1235,6 +1239,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     extractionBefore = await readExtractionSettings(page);
     // v2.4 plan 07: the judge settings are install-wide too, and a live judge scenario turns them on.
     judgeBefore = await readJudgeConfig(page);
+    briefingBefore = (await suppressBriefing(page)).before;
   }
 
   try {
@@ -1263,6 +1268,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
       cleanup.judge = await restoreJudgeConfig(page, judgeBefore).catch((error) => ({ error: error.message }));
+      cleanup.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
       const residue = await sweepResidue(page, residueBefore).catch((error) => ({ swept: false, clean: false, error: error.message }));
       cleanup.residue = residue;
       if ('plan' in residue && residue.plan && residueCount(residue.plan)) console.log(`residue swept (this fixture left it behind): ${JSON.stringify(residue.plan)}`);

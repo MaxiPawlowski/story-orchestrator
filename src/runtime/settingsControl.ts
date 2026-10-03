@@ -3,6 +3,8 @@ import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { TalkChainSettings } from "./settingsModel";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
+export type UiSettingsPatch = Partial<UiRuntimeSettings> & { briefingSeen?: true };
+
 export interface SettingsControlDeps {
   extras: () => RuntimeExtras;
   updateSteering: () => void;
@@ -53,11 +55,12 @@ export class SettingsControl {
     this.deps.notify();
   }
 
-  ui(settings: Partial<UiRuntimeSettings>) {
-    const { authorView, ...display } = settings;
+  ui(settings: UiSettingsPatch) {
+    const { authorView, briefingSeen, ...display } = settings;
     if (Object.keys(display).length) setGlobalSettings({ display });
     const extras = this.deps.extras();
     if (authorView !== undefined) extras.ui = { ...extras.ui, authorView };
+    if (briefingSeen && extras.briefing?.seen === false) extras.briefing = { seen: true };
     this.refresh();
   }
 

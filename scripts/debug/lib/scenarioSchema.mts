@@ -70,7 +70,7 @@ export const UI_ACTIONS = new Set([
   'studio-tab', 'studio-save', 'flag', 'screenshot', 'pipeline', 'assert-player-clean', 'hit-test', 'pointer-click',
   'open-wizard', 'new-story-wizard', 'wizard-run', 'wizard-answer', 'wizard-apply', 'wizard-state',
   'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue', 'branch-continue',
-  'next-turn', 'memory-fates', 'jump', 'model-calls', 'gate-replay', 'inline', 'inline-level',
+  'next-turn', 'memory-fates', 'jump', 'model-calls', 'gate-replay', 'inline', 'inline-level', 'briefing', 'briefing-dismiss',
 ]);
 
 export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept-op', 'reject-op', 'apply', 'state']);

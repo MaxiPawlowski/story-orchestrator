@@ -52,6 +52,9 @@ export {
 } from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
+export { isHostGeneratingFlag, listGroupChats, openStoryGroupChat, readGroupChatMetadata, type HostGroupChats } from "@services/stHost/groupChatFiles";
+export { BADGE_REFRESH_EVENTS, mountStoryBadges, type StoryBadge, type StoryBadgeHandle, type StoryBadgeSource } from "@services/stHost/charListBadges";
+export { mountStoryWand, type WandEntry, type WandHandle } from "@services/stHost/storyWand";
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";
@@ -68,7 +71,9 @@ export {
   listSlashCommands,
 } from "@services/stHost/selectors";
 export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
-export { addGroupMembers, getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled } from "@services/stHost/groups";
+export {
+  addGroupMembers, getActiveGroup, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
+} from "@services/stHost/groups";
 export { guardHostStream, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";

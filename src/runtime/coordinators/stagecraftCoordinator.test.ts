@@ -1,4 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
+import { acceptEveryCard } from "../../../test/support/curatorAccept";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { CURATOR_OP_REVERTED, DECLINE_MEMORY_BOUNDARIES } from "@stagecraft/index";
@@ -71,7 +72,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   visitedAnchors: ["cp1"],
 } as unknown as EngineState);
 
-const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
+const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean; authorAccepts?: boolean } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } as StagecraftRuntimeState["settings"] };
   const journal: string[] = [];
   let writes = 0;
@@ -103,6 +104,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     notify: () => undefined,
     ...(ownership ? { ownership } : {}),
   } as StagecraftCoordinatorDeps);
+  if (options.authorAccepts ?? options.settings?.acceptMode === "auto") acceptEveryCard(coordinator, () => state, (next) => { state = next; });
   return {
     coordinator,
     journal,
@@ -225,13 +227,23 @@ describe("StagecraftCoordinator", () => {
     expect(journal.some((entry) => entry.includes("applied 1 change(s)"))).toBe(true);
   });
 
-  it("auto mode accepts on the spot so the next boundary writes it", async () => {
-    const { coordinator } = harness({ settings: { acceptMode: "auto" } });
+  it("v2.7 02 C13: auto mode accepts an op on an auto-tier entry on the spot so the next boundary writes it", async () => {
+    book.current = lorebook("{{// so:auto}}The bridge stands, its ropes new and taut.");
+    const { coordinator } = harness({ settings: { acceptMode: "auto" }, authorAccepts: false });
     respond("[disable] The bridge");
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes new and taut.", disabled: true });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true });
+  });
+
+  it("v2.7 02 C13 control: in auto mode an op on an unmarked entry waits for the author and is not written", async () => {
+    const { coordinator } = harness({ settings: { acceptMode: "auto" }, authorAccepts: false });
+    respond("[disable] The bridge");
+    const { record } = await coordinator.runCuratorPass();
+    expect(record?.ops[0].status).toBe("pending");
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
   });
 
   it("fails a switch whose entry or book is gone by the time the boundary writes it", async () => {

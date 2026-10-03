@@ -110,6 +110,13 @@ export function mediaOff(root: Record<string, any>) {
   return was;
 }
 
+export function briefingOff(root: Record<string, any>) {
+  if (!root.settings || typeof root.settings !== 'object') root.settings = {};
+  const was = record(root.settings.display).briefing !== false;
+  root.settings.display = { ...record(root.settings.display), briefing: false };
+  return was;
+}
+
 export const IMAGE_EXTENSION = 'stable-diffusion';
 
 const imageExtensionDisabled = (settings: Record<string, any>) => {
@@ -203,6 +210,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const settings = structuredClone(disk.settings);
   const root = record(record(settings.extension_settings)['story-orchestrator']);
   const media = mediaOff(root);
+  briefingOff(root);
   const swipes = swipesOn(settings);
   const imageExtension = imageExtensionOff(settings);
   const profiles = laneProfiles(settings);

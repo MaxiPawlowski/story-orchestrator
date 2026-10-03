@@ -9,7 +9,8 @@ open the drawer. It can also show:
 |---|---|
 | `N updates next turn` | The story noticed something; it takes effect after the next reply. |
 | `catching up…` | The story is re-checking recent scenes. Keep playing. |
-| `needs setup` | Nothing is following the story yet. Click it to open the settings. |
+| `fix setup (N)` | Something stops the story (for example no memory model is chosen). Click it to open the Repair row. |
+| `check setup (N)` | Something weakens the story but it still plays. Click it to open the Repair row. |
 | `not keeping up` | Something went wrong reading the scene. See [Troubleshooting](troubleshooting.md). |
 | `stepped back` | You swiped, edited or deleted a message and the story moved back to match. |
 | `branch — continue?` | This chat is a branch; click to pick the story up here. |
@@ -22,6 +23,10 @@ The story drawer is the route icon in SillyTavern's top bar. In player mode it h
 
 **Overview**, top to bottom:
 
+- **Setup**, only when something needs doing: what each problem costs the story, a **Show me** button and, where
+  one exists, a one-click fix. Before the first message it starts with **Before you start**, the things that stop
+  the story. A problem that only weakens the story has **I know, keep it**, which hides it on this install until
+  you bring it back; one that stops the story cannot be hidden.
 - **Where you are**: the scene, the place, what is going on, and how tense things are ("The scene is calm." up to
   "Everything is at breaking point."). "What happens next is yours to decide." means the story is waiting on you.
 - **About this story**: the story's introduction.
@@ -40,6 +45,13 @@ The story drawer is the route icon in SillyTavern's top bar. In player mode it h
 
 The ⚑ button flags a moment for the author ("What happened here?"). It does not change the story.
 
+The ? button opens Help in a panel you can drag, resize and close with Escape; it remembers where you left it.
+On a narrow screen it docks along the bottom. While a story plays, the extensions wand beside where you type
+also offers **Story recap**, **Story briefing** (when the story has one), **Flag this moment** and **Open the story drawer**.
+
+In Author view, the list button next to ? opens the **Activity** panel: what the machine did behind each recent
+message, rolls included, each linked to its message.
+
 ## Notes under messages
 
 Small icons under each message show what the story did at that point. Click an icon to read its notes.
@@ -54,6 +66,9 @@ Small icons under each message show what the story did at that point. Click an i
 | heart-pulse | Tension changed. |
 | chip | What the memory model noticed. |
 | warning triangle | The story stepped back, or had trouble. |
+
+When the story enters a new chapter, a title card with the chapter's name appears under that message. In Author
+view at Behind the scenes or higher, each dice roll and background draw also shows as a chip under its message.
 
 Inside a note: a spinner means in progress, a clock means waiting for the next turn, a check means applied, a
 crossed circle means refused.

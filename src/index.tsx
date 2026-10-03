@@ -6,9 +6,12 @@ import {
   readProfileContextLimit, readProfilePresetName, setGroupMembersDisabled, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
+import { inlinePresence } from "@runtime/presence";
+import { PRESENCE_TEXT } from "@features/presenceCopy";
+import { createPresenceUi, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
-import { getGlobalSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
@@ -20,7 +23,7 @@ import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
 import { runCastRepair } from "@runtime/castRepair";
-import { provisionableMissing, withoutPersonas, type RepairAction } from "@runtime/repair";
+import { provisionableMissing, withoutPersonas, type OneClickFix, type RepairAction, type ShowMe } from "@runtime/repair";
 import { saveStoryRecord } from "@runtime/storyLibrary";
 import type { WriteResult } from "@utils/writeResult";
 import type { StudioOpenIntent } from "./studio/StudioModal";
@@ -29,15 +32,17 @@ import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
+import MakeGroupCard from "./components/settings/MakeGroupCard";
+import { makeGroupFor } from "@runtime/makeGroupHost";
 import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import { HelpButton } from "./components/help/HelpButton";
+import BriefingHost from "./components/briefing/BriefingHost";
+import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
 import "./styles.css";
 import { log } from "@utils/log";
-
-const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
 
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
@@ -81,10 +86,10 @@ const studioDiagnostics = () => ({
   personaNames: listPersonas,
 });
 
-const openStudio = async (intent?: StudioOpenIntent) => {
+const openStudio = async (intent?: StudioOpenIntent, storyId?: string) => {
   const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   const snapshot = manager.getSnapshot();
-  const active = snapshot.library.find((story) => story.id === snapshot.storyId);
+  const active = snapshot.library.find((story) => story.id === (storyId ?? snapshot.storyId));
   const source = (active?.raw ?? manager.getPlayedStoryRaw()) as StoryDraft | null;
   const store = useDraftStore.getState();
   const resumable = store.dirty && store.sourceHash === (active?.hash ?? null);
@@ -148,6 +153,18 @@ const repairCast = async (action: RepairAction) => {
 const openGroup = () => {
   const opened = openGroupMemberList();
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
+};
+
+const fixSetup = async (action: OneClickFix) => {
+  if (action.kind !== "make-group") return repairCast(action);
+  const outcome = await makeGroupFor(manager, action.storyId);
+  if (!outcome.ok && outcome.reason !== "cancelled") window.toastr?.info?.(outcome.message, "Story Orchestrator");
+};
+
+const showSetupTarget = (target: ShowMe) => {
+  if (target.kind === "group-members") return openGroup();
+  openStorySettings();
+  window.setTimeout(() => revealSetting(target.id), 250);
 };
 
 const studioFailed = (error: unknown) => {
@@ -263,14 +280,21 @@ const settingsHost: SettingsHost = {
   openStudio: launch(() => openStudio()),
   openWizardForRequirements: launch(openWizardForRequirements),
   revealSetting: (id) => revealSetting(id),
-  repairCast: (action) => void repairCast(action),
+  repairCast: (action) => void fixSetup(action),
   openGroup,
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
   showFeature: (where) => showFeature(where),
+  makeGroup: (storyId) => makeGroupFor(manager, storyId),
+  fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
+  openPlay: (row) => void openPlay(row),
+  toggleHelp: () => togglePanel("help"),
 };
 
-const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
+const SettingsRoot = () => {
+  const helpOpen = useOpenPanels().includes("help");
+  return <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={{ ...settingsHost, helpOpen }} />;
+};
 
 // Turning author view on is a one-way look behind the curtain for this chat: gates, future
 // checkpoints and what the cast is hiding. Confirm before spoiling a story you may not have
@@ -297,14 +321,19 @@ const branchAtFloor = async (messageId: number) => {
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const inspecting = useInspectTarget();
-  const [helpOpen, setHelpOpen] = useState(false);
+  const panels = useOpenPanels();
   const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
-          {!snapshot.ready && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
+          {!snapshot.ready && !snapshot.noGroup && (
+            <div id="so-drawer-no-story" className="flex flex-col items-start gap-1 text-xs opacity-80">
+              <span>{BRIEFING_COPY.noStory}</span>
+              <button type="button" className="menu_button" onClick={openStorySettings}>{BRIEFING_COPY.openSettings}</button>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {snapshot.ready && (
@@ -313,11 +342,18 @@ const DrawerPanel = () => {
               <span>Author view</span>
             </label>
           )}
-          <HelpButton id="so-help-toggle-drawer" open={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
+          {snapshot.ready && snapshot.ui.authorView && (
+            <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
+              aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />
+          )}
+          <HelpButton id="so-help-toggle-drawer" open={panels.includes("help")} onToggle={() => togglePanel("help")} />
         </div>
       </div>
-      {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
       {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
+      {!snapshot.ready && snapshot.noGroup && (
+        <MakeGroupCard id="so-make-group-drawer" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={(storyId) => makeGroupFor(manager, storyId)}
+          onFixWithWizard={(storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId)} />
+      )}
       {snapshot.ready && (
         <DrawerTabs
           snapshot={snapshot}
@@ -328,6 +364,8 @@ const DrawerPanel = () => {
           onFixWithWizard={launch(openWizardForRequirements)}
           onOpenRepair={openRepairStep}
           onNewStory={launch(openWizard)}
+          onShowMe={showSetupTarget}
+          onFix={(action) => void fixSetup(action)}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
           onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
           inspect={inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions }}
@@ -441,8 +479,13 @@ const mountHud = () => {
 const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
   const snapshot = useRuntimeSnapshot();
   if (!snapshot.ready) return null;
-  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} /></Lazy>;
+  const presence = inlinePresence(snapshot.inline.level, snapshot.ui.authorView, snapshot.presence, snapshot.rolls);
+  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} presence={presence} /></Lazy>;
 };
+
+const presenceUi = createPresenceUi({
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), jump: (messageId) => void jumpFromDrawer(messageId), openDrawer: () => openSoDrawer(),
+});
 
 const mountInline = () => {
   if (document.getElementById("so-inline-root")) return true;
@@ -456,6 +499,23 @@ const mountInline = () => {
   ui.root(root, <InlineMount hosts={mounted.hosts} />);
   if (__SO_DEV__) ui.global("storyOrchestratorInline", { attachTimes: () => mounted.hosts.attachTimes() });
   return true;
+};
+
+const BriefingRoot = () => (
+  <BriefingHost
+    snapshot={useRuntimeSnapshot()}
+    setUi={(patch) => manager.setUiSettings(patch)}
+    onboardingSeen={() => getGlobalSettings().help.onboardingSeen}
+    markOnboardingSeen={() => { setGlobalSettings({ help: { onboardingSeen: true } }); }}
+  />
+);
+
+const mountBriefingHost = () => {
+  if (document.getElementById("so-briefing-root")) return;
+  const root = ui.element(document.createElement("div"));
+  root.id = "so-briefing-root";
+  document.body.appendChild(root);
+  ui.root(root, <BriefingRoot />);
 };
 
 const mountStudioHost = () => {
@@ -478,12 +538,16 @@ const mount = (attempt = 0) => {
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
   mountStudioHost();
+  mountBriefingHost();
+  presenceUi.mountPanels(ui);
   const inlineMounted = mountInline();
 
   if ((!settingsRootContainer || !drawerMounted || !hudMounted || !inlineMounted) && attempt < 50) {
     ui.timeout(() => mount(attempt + 1), 100);
   }
 };
+
+presenceUi.mountMarks(ui);
 
 if (document.readyState === "loading") {
   ui.listen(document, "DOMContentLoaded", () => mount(), { once: true });

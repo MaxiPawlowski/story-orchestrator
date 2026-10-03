@@ -15,6 +15,10 @@ import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wiza
 import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
 import type { JournalRecordKind } from "./journal";
+import { withDismissal } from "./checks";
+import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
+import type { ChanceDraw } from "./chance";
+import { createChance, recordChanceDraw } from "./rolls";
 
 type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 
@@ -51,6 +55,17 @@ export abstract class CoordinatorDelegates {
   }
   abstract noteRecap(summary: string, detail: string, kind?: JournalRecordKind): void;
   abstract notify(): void;
+  setCheckDismissed(check: string, dismissed: boolean) {
+    setGlobalSettings({ help: { dismissedChecks: withDismissal(getGlobalSettings().help.dismissedChecks, check, dismissed) } });
+    this.notify();
+  }
+  abstract getLoadedChatId(): string | null;
+  recordChanceDraw(draw: ChanceDraw, messageId: number) {
+    if (draw.chatId !== this.getLoadedChatId()) return;
+    const extras = this.co.rollbackDeps.extras();
+    extras.chance = recordChanceDraw(extras.chance ?? createChance(), draw, messageId);
+    this.notify();
+  }
   clearCopilotNudge() { this.co.copilot.clearNudge(); }
   reapplyCopilotNudge() { this.co.copilot.reapplyNudge(); }
   getActiveNudge(): string | null { return this.co.copilot.getActiveNudge(); }

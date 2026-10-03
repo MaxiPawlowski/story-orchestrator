@@ -7,7 +7,7 @@ import {
   buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCuratorHidden,
   isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
-  forgetDecline, mergeDeclined, rememberDecline, standingDeclines,
+  forgetDecline, mergeDeclined, refuseProtected, rememberDecline, routeByTier, standingDeclines,
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts,
@@ -16,7 +16,6 @@ import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
-import type { SpikeSettings } from "../settingsModel";
 import type { EstablishedFact } from "../continuity";
 import { CuratorWriter } from "../curatorWriter";
 import { withholds } from "../generationLifecycle";
@@ -44,7 +43,6 @@ export interface StagecraftCoordinatorDeps {
     nudgeActive: () => boolean;
   };
   journal: (summary: string, note?: string) => void;
-  spikes?: () => SpikeSettings;
   persist: () => Promise<void>;
   notify: () => void;
   // A curator pass reads the world, awaits a model for seconds, then writes
@@ -134,15 +132,6 @@ export class StagecraftCoordinator {
     return this.state;
   }
 
-  private spikesOn(): boolean {
-    const flags = this.deps.spikes?.();
-    return Boolean(flags?.sp8CuratorTiers);
-  }
-
-  private async spikeModules() {
-    return { tiers: this.spikesOn() ? await import("@stagecraft/curatorTiers") : null };
-  }
-
   get curatorEnabled(): boolean {
     return this.state.settings.curatorEnabled && curatorHasScope(this.deps.getStory());
   }
@@ -187,7 +176,6 @@ export class StagecraftCoordinator {
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
       const declined = mergeDeclined(declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0, { rejected: false }),
           standingDeclines(this.state.declines ?? [], entries, state.boundary));
-      const spikes = this.spikesOn() ? await this.spikeModules() : { tiers: null };
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
       const response = await askText(this.deps.model, prompt, {
         role: "curator", pass: "curator",
@@ -205,7 +193,7 @@ export class StagecraftCoordinator {
       }
       const proposal = parseCuratorResponse(response, shown);
       const planned = planCuratorProposal(proposal, shown, { mode: this.state.settings.acceptMode, declined });
-      const plan = spikes.tiers ? spikes.tiers.refuseProtected(planned, shown) : planned;
+      const plan = refuseProtected(planned, shown);
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
@@ -230,7 +218,7 @@ export class StagecraftCoordinator {
         mode,
         // "auto" accepts on the spot so the next boundary writes it; "review" and "off" wait, and
         // "off" never leaves the ring at all.
-        ops: spikes.tiers ? spikes.tiers.routeByTier(plan.records, shown, mode) : plan.records.map((entry) => (mode === "auto" ? { ...entry, status: "accepted" as const } : entry)),
+        ops: routeByTier(plan.records, shown, mode),
         dropped: plan.dropped,
         refused: plan.refused,
         provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary,
@@ -305,7 +293,6 @@ export class StagecraftCoordinator {
   private async applyInTurn(run: RunGuard): Promise<number> {
     const story = this.deps.getStory();
     if (!story || !this.state.proposals.some((record) => acceptedOps(record).length)) return 0;
-    const guard = this.deps.spikes?.().sp8CuratorTiers ? (await import("@stagecraft/curatorTiers")).protectedRefusal : undefined;
     if (run.lapsed()) return 0;
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
     let applied = 0;
@@ -319,7 +306,7 @@ export class StagecraftCoordinator {
           ops.push(entry);
           continue;
         }
-        const result = await this.writer.writeOp(story, entry, run, messageId, async (pending) => this.writer.markWriteAhead(record.id, index, pending), guard);
+        const result = await this.writer.writeOp(story, entry, run, messageId, async (pending) => this.writer.markWriteAhead(record.id, index, pending));
         if (result.lapsed) return applied;
         if (result.ok) applied += 1;
         ops.push(result.record);

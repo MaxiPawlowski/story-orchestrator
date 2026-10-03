@@ -35,10 +35,19 @@
     "display": {
       "announceTransitions": false,
       "hudEnabled": true,
+      "briefing": false,
       "inline": {
         "level": 1,
         "categories": {},
         "window": 20
+      },
+      "presence": {
+        "listBadges": true,
+        "continueList": true,
+        "groupCard": true,
+        "chapterCard": true,
+        "wand": true,
+        "rollChips": true
       }
     },
     "copilot": {
@@ -178,7 +187,6 @@
     "spikes": {
       "swipeBackCache": false,
       "sp6Complications": false,
-      "sp8CuratorTiers": false,
       "reasoningEffect": false
     }
   }

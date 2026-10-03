@@ -1,6 +1,6 @@
 import type {
   ArcBridge, ArcTemplate, Chapter, ChapterSealPolicy, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
-  StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
+  StoryBriefing, StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
 
@@ -186,6 +186,11 @@ export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): S
 };
 
 // Kept as typed so a rule can be written word by word; validation trims and caps it.
+export const setBriefing = (draft: StoryDraft, briefing: StoryBriefing | undefined): StoryDraft => {
+  const { briefing: _dropped, ...rest } = draft;
+  return briefing ? { ...rest, briefing } : rest;
+};
+
 export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft => {
   const { house_rules: _dropped, ...rest } = draft;
   return rules.length ? { ...rest, house_rules: rules } : rest;

@@ -1,6 +1,6 @@
 # Plan 06 — Story presence in ST's lists, and the story UI that needs no model
 
-**Status (2026-10-03): v2.7 plan 06 (was old v2.7 04). APPROVED; not built.** Scope: A plays index, B list badges, and
+**Status (2026-10-03): v2.7 plan 06 (was old v2.7 04). BUILT on a branch: gates green except Storybook (skipped), live D not run (Gate record).** Scope: A plays index, B list badges, and
 from §C (moved here from `v2.8/04-story-presence-panels.md`, user-approved 2026-10-03): C1 Continue list, C2 story card
 on hover, C3 chapter title card, C6 wand-menu entry, C9 (b) the author Activity panel with the production roll store
 (author-only), the draggable-panel frame and the per-story toggles. **C4, C5, C7 and C9 (a) public roll chips stay in
@@ -207,3 +207,66 @@ v2.8 18), A9 (no playtest prerequisite; C8 in v2.7 05), F08 + v2.7 03 (no solo m
 (registry gate), B12 (references).
 
 Round 3 (Sol): R3-05, R3-17 applied.
+
+## Gate record
+
+**2026-10-03, branch `worktree-agent-a7a0642ba1bdef861` off master `506a7ca4`.** Built: A plays index + backfill, B
+badges + C2 card, C1 Continue list, C3 chapter card, C6 wand entries, C9 (b) roll store + author roll chips +
+Activity panel, panel frame (Help moved in), install + per-story toggles. Not built (v2.8 04): player roll chips,
+C4, C5, C7.
+
+**As built**
+
+| Item | Where |
+|---|---|
+| A index | `runtime/playsIndex.ts` (pure: rows, cap 500, F14, saga = 2+ chapters, Continue rows, group view), `runtime/playsIndexHost.ts` (written on manager notifications when a field changes; dropped when the open chat settles with no story, and on `CHAT_DELETED`/`GROUP_CHAT_DELETED`; no write before ST loads extension settings); key `extensionSettings["story-orchestrator"].plays` |
+| A backfill | `runtime/playsBackfill.ts` (pure runner: cap 200, one chat per 1.5 s, paused while `body[data-generating]`, resumable, never repeated once `done`), started 15 s after load; reads the `/api/chats/group/get` header row (`stHost/groupChatFiles.ts`); key `playsBackfill` |
+| B badges + C2 | `stHost/charListBadges.ts` (group list, welcome recent chats, past chats; on `.ch_name`, never `.avatar`; card on hover/focus, Escape closes; `dispose` removes all), composed by `runtime/presenceBadges.ts`; CSS exception `.so-story-badge` / `.so-story-card` + tokens `--so-badge-story` / `--so-badge-saga`; `architecture.test.ts` pins it as the only list-DOM toucher |
+| C1 | `components/settings/ContinueList.tsx` in the Continue entry point (`#so-continue-list`); opens via `openStoryGroupChat` (the welcome screen's path: `openGroupById`, then `openGroupChat`) |
+| C3 | `runtime/chapterCards.ts` (from the boundary log, so a swipe or rollback takes the card), `components/inline/ChapterCard.tsx` rendered by `InlineLayer` into the existing inline hosts; `briefing` slot present, filled by v2.7 05 |
+| C6 | `stHost/storyWand.ts` (`#extensionsMenu`): Story recap, Flag this moment, Open the story drawer; shown while a story plays and the toggle allows |
+| C9 (b) | `runtime/rolls.ts`: one `RollRecord` store `snapshot.rolls` = quality rolls reconstructed from (chat, story, `checkpointStartedBoundary`, key) at every checkpoint start the log holds + `extras.chance.draws` (cap 100, no text; recorded via `onChanceDraw` in `CoordinatorDelegates.recordChanceDraw`, rolled back by message in `rollback.ts`, sanitized in `extras.ts`). Author chips `components/inline/RollChips.tsx` only with Author view AND level >= 2 (`runtime/presence.ts` `inlinePresence`). Activity: `runtime/activityFeed.ts` (inline items + rolls) in `components/panels/ActivityPanel.tsx`, opened by `#so-open-activity` (Author view only) |
+| Panels | `components/panels/PanelFrame.tsx` + `runtime/panelGeometry.ts` (clamp, dock under 768 px, arrow keys move, Escape closes, no trap) + `runtime/panelStore.ts` (`panels[id] = {x,y,w,h}`); root `#so-panels-root` in the CSS scope list and `mountRootFor` (`Panels/`); `src/presenceUi.tsx` hosts Help + Activity |
+| Toggles | `runtime/displayToggles.ts`: `shown = story AND install`, absent story key = on; install keys `display.presence.{listBadges, continueList, groupCard, chapterCard, wand, rollChips}` (Display group, `PresenceControls.tsx`); story keys `display.{continue_list, group_card, chapter_card, wand, roll_chips}` (validator `storyOptions.ts` `readDisplay`, Studio Story tab `StoryDisplayEditor.tsx`, diff code `story-presence-changed`) |
+| Registry | 7 features in `features/presenceFeatures.ts`, 6 `SETTING_COPY` rows; guide topic `presentation`, `story-guide.md`, player pages `playing.md`, `drawer-and-hud.md` |
+
+**Commands (all on this branch)**
+
+- `npm run gates -- --no-storybook`: **all green**. typecheck, typecheck:test, lint, test (6258 passed, 1 skipped), build
+  (prod `dist/index.js` 1 162 092 B, budget 1 250 000), build:dev, test:debug, debug:typecheck, test:release, test:replay,
+  test:plugin. **`test-storybook:ci` SKIPPED**: Storybook does not run under `.claude/worktrees`. The new stories
+  (`Panels/PanelFrame` at 1440/768/390, `Panels/ActivityPanel`, `Inline/ChapterCard` with and without a briefing,
+  `Inline/RollChips`, `Settings/ContinueList`, `Settings/PresenceControls`, `Studio/StoryDisplayEditor`,
+  `Presence/StoryBadges` incl. the wand entries) are typechecked and linted; their play/a11y runs are NOT green until run
+  from the main checkout.
+- New jest: `displayToggles.test.ts` (truth table for every key, incl. the story-true/install-false named case),
+  `rolls.test.ts` (reconstruction = the engine's seeded blackboard value; rollback = replay 4 seeds x 60 cuts; reopen; two
+  replies in one checkpoint; another-chat control; draws ring rollback = replay 4 x 80, with the no-rollback negative
+  control failing), `presenceIndex.test.ts` (index writes, cap, F14, backfill throttle/pause/resume/done, chapter cards
+  incl. rollback), `playsIndexHost.test.ts`, `charListBadges.test.ts` (fake list DOM, page turn re-applies, dispose removes
+  all), `storyWand.test.ts`, two `architecture.test.ts` guards (list-DOM toucher; presence modules never import a prompt
+  seam).
+- `so-ui.mts` sweep: `PLAYER_FORBIDDEN_SELECTORS` gains the Activity panel, its opener, roll chips and the roll-chip
+  switch; text surfaces gain the panels root, Continue list, chapter cards, wand entries, badges and cards; Help is now
+  looked for in `#so-panels-root` (`so-ui.test.mts` case).
+
+**Live (tier D): NOT run** (lanes busy, per the build instructions): two group chats in two stories (saga + act), list
+paging across two pages, Continue lists both, library delete keeps a pinned row, a deleted chat drops its row
+(`v24-02-chat-delete-reap.json`), chapter card on a seeded chapter entry, wand targets, per-story off, panel position
+after reload, `assert-player-clean` at player L2, and the **payload-invariance** dry-run capture with every item on and
+off. Only the static half of payload invariance is green (the architecture guard: no new module reaches an injection
+seam). Acceptance stays open until these run x2.
+
+**Deviations**
+
+- Install keys are nested `display.presence.*`, not flat `display.*`: they ride the existing `setUiSettings` path with no
+  manager lines (the manager is at its 700-line budget). Story keys are snake_case like the rest of the format.
+- `storyKind` lives in `runtime/playsIndex.ts` (v2.7 05 may move it). The chapter-card `briefing` and a wand "briefing"
+  entry wait for v2.7 05.
+- Quality rolls are reconstructed for every rolled `source: code` quality at each checkpoint start the boundary log holds,
+  not only the active checkpoint's, so past checkpoints keep their chips.
+- A draw is anchored at the chat's last message id when drawn. The Activity feed is the inline timeline's author items
+  (window-bound) plus rolls; v2.7 04 check findings join when 04 lands.
+- Backfill reads `/api/chats/group/get` (one file per 1.5 s) rather than `/recent` with metadata, which reads every file in
+  one request and cannot be throttled.
+- The Help panel moved from inline (settings + drawer) into the floating frame; both `?` buttons toggle the one panel.

@@ -20,8 +20,10 @@ const stapi = {
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
-  getActiveGroup: () => null,
-  getCharacterNameById: () => null,
+  getActiveGroup: () => ({ id: "g1", members: ["ponticius.png"], disabled_members: [] }),
+  resolveGroupMemberId: (name: string) => (name === "Ponticius" ? "ponticius.png" : null),
+  getCharacterNameById: (id: number) => (id === 0 ? "Ponticius" : null),
+  readInjectedPromptBlocks: () => [],
   countTokens: () => 4,
   bindChatLorebook: async () => {},
   ensureLorebook: async () => {},
@@ -89,8 +91,10 @@ const injected = () => (setStoryExtensionPrompt as jest.Mock).mock.calls.map((ca
 describe("a stored epistemic signal is injected in the same call (plan 05)", () => {
   beforeEach(() => (setStoryExtensionPrompt as jest.Mock).mockClear());
 
-  it("refreshes the private block when the epistemic read lands, without the caller asking", () => {
+  it("refreshes the drafted member's private block when the epistemic read lands, without the caller asking", () => {
     const env = harness();
+    env.coordinator.updateInjection();
+    env.coordinator.onMemberDrafted(0);
     env.coordinator.applyEpistemic([{ tag: "hiding", subject: "Ponticius", content: SECRET, hiddenFrom: "Arin" }], 5);
     expect(env.epistemic().map((entry) => entry.content)).toEqual([SECRET]);
     expect(injected().some((text) => text.includes(SECRET))).toBe(true);
@@ -101,6 +105,8 @@ describe("a stored epistemic signal is injected in the same call (plan 05)", () 
   // nothing about per-member staging.
   it("does not inject a secret for a member the signal did not name", () => {
     const env = harness();
+    env.coordinator.updateInjection();
+    env.coordinator.onMemberDrafted(0);
     env.coordinator.applyEpistemic([{ tag: "hiding", subject: "Someone Else", content: SECRET, hiddenFrom: "Arin" }], 5);
     expect(injected().some((text) => text.includes(SECRET))).toBe(false);
   });

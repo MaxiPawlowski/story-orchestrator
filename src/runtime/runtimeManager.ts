@@ -26,7 +26,7 @@ import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
-import { SettingsControl } from "./settingsControl";
+import { SettingsControl, type UiSettingsPatch } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal, type RollbackListener } from "./rollback";
@@ -381,7 +381,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
   setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) { this.settingsControl.copilot(settings); }
-  setUiSettings(settings: Partial<UiRuntimeSettings>) { this.settingsControl.ui(settings); }
+  setUiSettings(settings: UiSettingsPatch) { this.settingsControl.ui(settings); }
 
   getActiveTalkControl(): TalkControl | null {
     if (!this.loaded || !this.extras.requirements.ready || !this.extras.talk.enabled) return null;
@@ -486,7 +486,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       validationErrors: this.validationErrors, status: elsewhere ? CHAT_LOADING_STATUS : this.status,
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
-      characters: getContext().characters ?? [],
+      characters: getContext().characters ?? [], chatId: this.loadedChatId,
     }));
   }
 
@@ -585,7 +585,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
-    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); this.memory.injector.onSoloGeneration(); }
+    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); }
     this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
   }

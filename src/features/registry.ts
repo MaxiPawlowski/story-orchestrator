@@ -2,6 +2,7 @@ import { JUDGE_USE_COPY, JUDGE_USE_KEYS, AUTHOR_JUDGE_USES, type JudgeUseKey } f
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import * as manifestModule from "../../manifest.json";
+import { PRESENCE_FEATURES } from "./presenceFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
@@ -100,7 +101,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has "
       + "happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
     where: settingsAt("#story-library-select", "This chat › Story for this chat"),
-    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
+    settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["group-chat", "memory-profile"],
   },
   {
     id: "group-binding", name: "Group story", area: "play", audience: "player",
@@ -108,6 +109,16 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "Choose a story for a group, and each new chat in that group starts playing it. Existing chats keep whatever they play.",
     where: settingsAt("#so-group-story-select", "This chat › New chats start with"),
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
+  },
+  {
+    id: "story-briefing", name: "Story briefing", area: "play", audience: "player",
+    oneLine: "A short \"Before you start\" page the first time a story starts in a chat.",
+    what: "The first time a story starts in a group chat, a page says who you are, where you are, who is with you and how to play, in the author's words. "
+      + "The opening scene still posts behind it. Each chat shows it once; Restart shows it again. Re-open it from Story briefing in the drawer or with /story intro. "
+      + "The first one also explains the status strip, the notes under messages and the drawer.",
+    where: settingsAt("#so-briefing-enabled", "Display › Show the story briefing"),
+    settings: ["display.briefing", "help.onboardingSeen"], guideTopic: "briefing", doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
+    isOn: (settings) => settings.display.briefing,
   },
   {
     id: "story-drawer", name: "Story drawer", area: "play", audience: "player",
@@ -267,6 +278,15 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
   },
   {
+    id: "curator-markers", name: "Protected and auto lore", area: "world", audience: "author",
+    oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
+    what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
+      + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
+    where: settingsAt("#so-curator-accept-mode", "Author services › Background helpers"),
+    settings: [], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped", since: "2.7.0",
+    needs: ["memory-profile"],
+  },
+  {
     id: "backgrounds", name: "Backgrounds", area: "world", audience: "author",
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",
@@ -345,9 +365,10 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "repair", name: "Repair", area: "setup", audience: "player",
     oneLine: "Names the one thing missing and takes you to the setting that fixes it.",
-    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click.",
+    what: "When something stops the story, Repair says what will not happen until it is fixed, then shows you the setting, or fixes it in one click. "
+      + "The drawer's Setup list shows every finding while a story plays; one that only weakens the story can be dismissed, one that stops it cannot.",
     where: settingsAt("#so-entry-repair", "Repair"),
-    settings: [], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
+    settings: ["help.dismissedChecks"], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
   },
   {
     id: "getting-started", name: "Getting started", area: "setup", audience: "player",
@@ -401,7 +422,7 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

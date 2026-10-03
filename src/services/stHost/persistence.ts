@@ -327,17 +327,16 @@ export const boundaryInBlob = (blob: Record<string, unknown> | null | undefined)
  * it cannot be read, which the caller treats as unconfirmed, never as agreement.
  */
 export async function readServerBoundary(): Promise<number | null> {
-  const context = getContext() as unknown as { chatId?: unknown; groupId?: unknown; characterId?: unknown; characters?: Array<{ avatar?: string }>; getRequestHeaders?: () => Record<string, string> };
+  const context = getContext() as unknown as { chatId?: unknown; groupId?: unknown; getRequestHeaders?: () => Record<string, string> };
   const chatId = typeof context.chatId === "string" ? context.chatId : null;
   if (!chatId || typeof context.getRequestHeaders !== "function") return null;
   const group = typeof context.groupId === "string" && context.groupId ? context.groupId : null;
-  const avatar = group ? null : context.characters?.[Number(context.characterId)]?.avatar ?? null;
-  if (!group && !avatar) return null;
+  if (!group) return null;
   try {
-    const response = await fetch(group ? "/api/chats/group/get" : "/api/chats/get", {
+    const response = await fetch("/api/chats/group/get", {
       method: "POST",
       headers: context.getRequestHeaders(),
-      body: JSON.stringify(group ? { id: chatId } : { avatar_url: avatar, file_name: chatId }),
+      body: JSON.stringify({ id: chatId }),
     });
     if (!response.ok) return null;
     const lines = (await response.json()) as unknown;

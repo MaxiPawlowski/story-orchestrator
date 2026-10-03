@@ -6,6 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { PLAYER_TEXT_SURFACES } from './so-ui.mts';
 import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
@@ -184,6 +185,16 @@ test('jump refuses when no citation matches instead of clicking nothing', async 
 test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay, calls, buckets, inspector)', () => {
   for (const selector of ['[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '#so-inspector']) {
     assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+});
+
+test('v2.7 plan 06: the player-clean sweep forbids the Activity panel and roll chips, and reads the presence surfaces', () => {
+  for (const selector of ['#so-open-activity', '#so-panel-activity', '[data-so="activity"]', '#so-presence-roll-chips', '[data-so="roll-chip"]']) {
+    assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+  for (const selector of ['[data-so="roll-chips"]', '[data-so="roll-chip"]']) assert.ok(INLINE_PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  for (const surface of ['#so-panels-root', '#so-continue-list', '#chat [data-so="chapter-card"]', '#extensionsMenu [data-so="story-wand"]', '.so-story-badge', '.so-story-card']) {
+    assert.ok(PLAYER_TEXT_SURFACES.includes(surface), surface);
   }
 });
 

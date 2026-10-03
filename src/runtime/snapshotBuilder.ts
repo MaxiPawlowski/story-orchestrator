@@ -12,7 +12,9 @@ import { firstLines } from "./castInPlay";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { playerSaveNotice } from "./saveHealth";
-import { blobMismatch, hasOpenChat, hasPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
+import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersistedRuntime, openChatId, UNREADABLE_NOTICE } from "./persistence";
+import { noGroupView } from "./noGroup";
+import { getGlobalSettings } from "./settingsStore";
 import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
@@ -31,7 +33,12 @@ import { buildModelCalls } from "./modelCalls";
 import type { InlineSources, InlineView } from "./inlineTimeline";
 import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
+import { briefingState } from "./briefing";
 import { chapterKit, storyEnded } from "./chapterPort";
+import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
+import { buildPresence } from "./presence";
+import { readPlaysIndex } from "./playsIndexHost";
+import type { PlaysIndex } from "./playsIndex";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
 import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
@@ -81,6 +88,8 @@ export interface SnapshotSources {
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   copiersOn?: readonly string[];
   scenarioFrame?: ScenarioFrame | null;
+  chatId?: string | null;
+  plays?: PlaysIndex;
 }
 
 export interface SnapshotPort {
@@ -99,6 +108,7 @@ export interface SnapshotPort {
   promptBlocks: ExtensionPromptBlocks;
   chat: readonly unknown[];
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
+  chatId?: string | null;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -124,6 +134,8 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   characters: port.characters ?? [],
   copiersOn: switchedOnCopiers(),
   scenarioFrame: scenarioFrame(),
+  chatId: port.loaded ? port.chatId ?? null : null,
+  plays: readPlaysIndex(),
 });
 
 const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
@@ -151,6 +163,11 @@ const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 |
 };
 
 export const CHAT_LOADING_STATUS = "Loading this chat's story";
+
+const noGroupOf = () => noGroupView({
+  chatOpen: hasOpenChat(), groupOpen: hasOpenGroup(), chatId: openChatId(), selectedStoryId: hasOpenGroup() ? null : getSelectedStoryId(),
+  titleOf: (id) => findStoryRecord(id)?.title ?? null,
+});
 
 let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
 
@@ -214,11 +231,29 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios"> => ({
+type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios" | "briefing";
+
+export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, SetupSlices> => ({
   ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
+  briefing: briefingState({
+    story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
+    chatOpen: hasOpenChat(),
+  }),
 });
+
+const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+  const storyId = sources.loaded?.record.id;
+  const ids = storyId && sources.chatId ? { chatId: sources.chatId, storyId } : null;
+  const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
+  return {
+    rolls: composeRolls(quality, sources.extras.chance ?? createChance()),
+    presence: buildPresence({
+      story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
+    }),
+  };
+};
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
@@ -322,7 +357,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     requirements: extras.requirements,
     validationErrors: sources.validationErrors,
     library: listStoryRecords(),
-    status: sources.status, noChat: noChatView(hasOpenChat()),
+    status: sources.status, noChat: noChatView(hasOpenChat()), noGroup: loaded ? null : noGroupOf(), dismissedChecks: getGlobalSettings().help.dismissedChecks,
     extraction: extras.extraction,
     expansion: extras.expansion,
     memory: extras.memory,
@@ -366,7 +401,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline, castNames,
+    inline, castNames, ...presenceSlices(sources, story, state),
     ...modelCallSlices(extras),
   };
 }

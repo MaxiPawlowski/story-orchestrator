@@ -26,7 +26,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
+  getContext: () => ({ groupId: "g-test", chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
   startSaveWatcherSurface: () => () => {},
@@ -39,7 +39,7 @@ jest.mock("@services/STAPI", () => ({
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
   getPlayerName: () => "Max",
-  getActiveGroup: () => null,
+  getActiveGroup: () => ({ id: "g-test", members: [], disabled_members: [] }),
   getActiveCharacterId: () => null,
   getCharacterNameById: () => null,
   getScannableEntries: async () => [],
@@ -79,6 +79,7 @@ describe("runtime/index.ts lore force point (v2.4 plan 05 T12c)", () => {
   });
 
   afterEach(async () => {
+    await emit("GENERATION_ENDED");
     const { stopRuntime } = await import("./index");
     stopRuntime();
     jest.restoreAllMocks();

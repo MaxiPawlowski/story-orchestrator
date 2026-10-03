@@ -138,3 +138,14 @@ export async function addGroupMembers(names: string[]): Promise<WriteResult<{ ad
   if (held && !avatars.every((avatar) => held.includes(avatar))) return couldNot(`group ${group.id} was saved, but the server does not hold ${avatars.join(", ")}`);
   return wrote({ added: found.filter((entry) => avatars.includes(entry.avatar as string)).map((entry) => entry.name) });
 }
+
+export async function openGroupById(groupId: string): Promise<WriteResult<{ group: string }>> {
+  if (!groupById(groupId)) return couldNot(`group ${groupId} is not on this install`);
+  try {
+    const opened = await groupChatsModule.openGroupById(groupId);
+    if (opened && trim(getContext().groupId) === trim(groupId)) return wrote({ group: groupId });
+    return couldNot(`SillyTavern did not open group ${groupId}: a chat may still be saving or a reply is being written`);
+  } catch (error) {
+    return couldNot(`group ${groupId} could not be opened: ${error instanceof Error ? error.message : "the host refused"}`);
+  }
+}

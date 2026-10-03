@@ -9,6 +9,7 @@ import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSe
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
+import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSettings } from "./displayToggles";
 
 // The system default for answering one player message with several voices. A checkpoint's own
 // `talk_control.chain` overrides each field; absent fields fall back here.
@@ -57,7 +58,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { alpha: number; hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; inline: InlineSettings };
+  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings; presence: PresenceSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -73,19 +74,25 @@ export interface GlobalSettings {
 export interface HelpSettings {
   lastSeenVersion: string | null;
   checklistDismissed: boolean;
+  dismissedChecks: string[];
+  onboardingSeen: boolean;
 }
 
-export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false });
+export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false });
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
 export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
   lastSeenVersion: isRecord(value) && typeof value.lastSeenVersion === "string" && VERSION_PATTERN.test(value.lastSeenVersion) ? value.lastSeenVersion : null,
   checklistDismissed: isRecord(value) && value.checklistDismissed === true,
+  dismissedChecks: isRecord(value) && Array.isArray(value.dismissedChecks)
+    ? [...new Set(value.dismissedChecks.filter((id): id is string => typeof id === "string").map((id) => id.trim()).filter(Boolean))]
+    : [],
+  onboardingSeen: isRecord(value) && value.onboardingSeen === true,
 });
 
 export const SPIKE_FLAGS = [
-  "swipeBackCache", "sp6Complications", "sp8CuratorTiers",
+  "swipeBackCache", "sp6Complications",
   "reasoningEffect",
 ] as const;
 
@@ -175,7 +182,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() },
+  display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
@@ -245,7 +252,11 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
-    display: { announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
+    display: {
+      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
+      inline: sanitizeInlineSettings(display.inline),
+      presence: sanitizePresenceSettings(display.presence),
+    },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: sanitizeInnerVoice({
       ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },

@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
+import { dismissBriefing, readBriefingModal } from './lib/briefingHarness.mts';
 import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -969,6 +970,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-curator-enabled', '#so-curator-accept-mode', '#so-copilot-enabled', '[data-so="self-test-error-detail"]',
   // v2.7 plan 01: the Help panel lists author features and the author's guide only in Author view.
   '[data-so="help-feature"][data-audience="author"]', '[data-so="help-guide-topics"]', '[data-so="whats-new-feature"][data-audience="author"]',
+  // v2.7 plan 06: the Activity panel, its opener and the roll-chip switch are Author view only (roll chips are swept under #chat).
+  '#so-open-activity', '#so-panel-activity', '#so-activity', '[data-so="activity"]', '[data-so="activity-row"]', '#so-presence-roll-chips', '[data-so="roll-chip"]',
 ];
 
 const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];
@@ -1010,7 +1013,7 @@ export function rawValueFindings(texts: Array<{ tab: string; surface: string; te
 // v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
 // copy only; details, actions, the inspector button and any level-3/4 row are author view.
 export const INLINE_PLAYER_FORBIDDEN_SELECTORS = [
-  '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]',
+  '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]', '[data-so="roll-chips"]', '[data-so="roll-chip"]',
   '[data-so="inline-item"][data-level="3"]', '[data-so="inline-item"][data-level="4"]', '[data-so="inline-strip"][data-level="3"]', '[data-so="inline-strip"][data-level="4"]',
 ];
 
@@ -1100,7 +1103,9 @@ export function errorStateFindings(texts: Array<{ tab: string; surface: string; 
 
 export const DRAWER_SURFACE = '#drawer-manager';
 export const SETTINGS_SURFACE = '#story-orchestrator-settings';
-export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content'];
+export const PANELS_SURFACE = '#so-panels-root';
+export const PRESENCE_SURFACES = ['#so-continue-list', '#chat [data-so="chapter-card"]', '#extensionsMenu [data-so="story-wand"]', '.so-story-badge', '.so-story-card'];
+export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content', 'dialog#so-briefing[open]', PANELS_SURFACE, ...PRESENCE_SURFACES];
 export const PLAYER_SELECTOR_SURFACES = [...PLAYER_TEXT_SURFACES, SETTINGS_SURFACE];
 export const RECORDED_SURFACES = PLAYER_SELECTOR_SURFACES;
 export const AUTHOR_AFFORDANCE_CONTROLS = ['so-author-view'];
@@ -1189,7 +1194,7 @@ export async function assertPlayerClean(page) {
     const toggle = document.getElementById('so-help-toggle-drawer');
     if (!toggle || toggle.getAttribute('aria-expanded') === 'true') return false;
     toggle.click();
-    for (let tries = 0; tries < 40 && !document.querySelector('#drawer-manager [data-so="help-panel"]'); tries += 1) await new Promise((resolve) => setTimeout(resolve, 50));
+    for (let tries = 0; tries < 40 && !document.querySelector('#so-panels-root [data-so="help-panel"]'); tries += 1) await new Promise((resolve) => setTimeout(resolve, 50));
     return true;
   });
   const helpHits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
@@ -1357,7 +1362,7 @@ export async function agentNewGoal(page) {
   return getAgentState(page);
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1370,6 +1375,8 @@ studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: s
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
 drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
+briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
+briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.
@@ -1479,6 +1486,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!label) throw new Error('drawer-tab requires a tab label (Overview|Blackboard|Memory|Scheduler|Payload)');
       const result = await switchDrawerTab(page, label);
       console.log('Switched drawer tab:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'briefing') {
+      const state = await readBriefingModal(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-briefing');
+    }
+
+    if (subcommand === 'briefing-dismiss') {
+      const result = await dismissBriefing(page, { dontShow: process.argv.includes('--dont-show') });
+      console.log(JSON.stringify(result, null, 2));
     }
 
     if (subcommand === 'pipeline') {

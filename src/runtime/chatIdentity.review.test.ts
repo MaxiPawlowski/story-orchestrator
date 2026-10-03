@@ -12,7 +12,7 @@ interface Row { name: string; is_user: boolean; mes: string; send_date?: string 
 const mockHandlers = new Map<string, (...args: unknown[]) => unknown>();
 const mockContext = {
   chat: [] as Row[],
-  chatId: "chat-a" as string | undefined,
+  groupId: "g-test", chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),

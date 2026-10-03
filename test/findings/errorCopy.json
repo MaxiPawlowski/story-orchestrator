@@ -1341,6 +1341,26 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "a draft-time beat must never block ST's draft; the reply generates without one"
+    },
+    {
+      "site": "src/runtime/makeGroupHost.ts#safe",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers an empty list; the planner then names every card as missing instead of creating a partial group"
+    },
+    {
+      "site": "src/services/stHost/groups.ts#openGroupById",
+      "kind": 2,
+      "template": "`group ${groupId} could not be opened: ${error instanceof Error ? error.message : \"the host refused\"}`",
+      "surface": "console",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "WriteResult reason: logged by the make-a-group flow; the player card shows a fixed sentence"
     }
   ]
 }

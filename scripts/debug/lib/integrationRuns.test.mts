@@ -158,7 +158,7 @@ test('columns: the on column runs without --accept-fallback (T7 wave C resolved 
   assert.equal(on.refusal, null);
   assert.deepEqual(on.fallbacksUsed, []);
   for (const resolution of doc.columns.on.resolutions ?? []) assert.match(String((resolution as { resolvedFrom?: string }).resolvedFrom), /T7 wave C/, `${resolution.id} names where it was resolved from`);
-  assert.deepEqual(on.patch!.spikes, { sp5Scenario: true, sp8CuratorTiers: true });
+  assert.equal(on.patch!.spikes, undefined, 'SP5.b and SP8.b ship without a flag (v2.7 02 C1, C13), so the on column writes no spike');
   assert.equal(on.patch!.stagecraft.acceptMode, 'auto');
   assert.equal(on.patch!.image.enabled, false);
   assert.deepEqual(readbackProblems(on.patch, {}, Object.fromEntries(Object.entries(doc.columns.on.readback ?? {}).filter(([path]) => path !== 'worldInfo.gatingMode'))), [], 'the on readback expects exactly what the patch writes (gating mode goes through the confirm, not the patch)');

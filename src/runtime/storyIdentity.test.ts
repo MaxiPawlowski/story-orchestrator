@@ -6,7 +6,7 @@ import type { StoryOrchestratorMetadataBlob } from "./types";
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
 const mockContext = {
   chat: [] as Array<{ mes: string }>,
-  chatId: "chat-1",
+  groupId: "g-test", chatId: "chat-1",
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),

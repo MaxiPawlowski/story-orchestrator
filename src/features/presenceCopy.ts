@@ -1,0 +1,23 @@
+export const PRESENCE_STORY_HINT = "A story can switch any of these off for itself. The install-wide switch always wins: a story can hide an item, never force it on.";
+
+export const PRESENCE_TEXT = {
+  continueHeading: "Your stories",
+  continueEmpty: "No story chats yet. Pick a story for a group chat and it appears here.",
+  continueOpen: "Open",
+  continueOpenNow: "Open now",
+  wandRecap: "Story recap",
+  wandFlag: "Flag this moment",
+  wandDrawer: "Open the story drawer",
+  flagged: "Flagged this moment.",
+  chapter: "Chapter",
+  interlude: "Interlude",
+  finalChapter: "Final chapter",
+  activityTitle: "Activity",
+  activityOpen: "Activity",
+  activityEmpty: "Nothing happened behind the scenes in the recent messages.",
+  activityEverything: "Everything",
+  activityShow: "Show",
+  activitySetup: "Setup",
+  rollsLabel: "Rolls and draws",
+  helpTitle: "Help",
+};

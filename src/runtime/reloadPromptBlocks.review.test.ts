@@ -13,7 +13,7 @@ interface Prompt { value: string; position: number; depth: number; scan: boolean
 const mockHandlers = new Map<string, (...args: unknown[]) => unknown>();
 const mockContext = {
   chat: [] as Row[],
-  chatId: "chat-a" as string | undefined,
+  groupId: "g-test", chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   extensionPrompts: {} as Record<string, Prompt | undefined>,

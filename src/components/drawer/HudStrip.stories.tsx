@@ -47,15 +47,19 @@ export const CatchingUp: Story = {
 };
 
 export const NeedsSetup: Story = {
-  args: { snapshot: baseSnapshot({ pipeline: {
-    state: "not-configured",
-    text: "Nothing is following the story yet — choose a memory model in the extension settings.",
-    detail: null,
-    needsSetup: true,
-  } }) },
+  args: { snapshot: baseSnapshot({
+    storyId: "quest",
+    extraction: { settings: { enabled: true, profileId: null } },
+    requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
+    pipeline: { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true },
+  }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText("needs setup"));
+    await expect(canvasElement.querySelector("#so-hud-pipeline")).toBeNull();
+    const chip = canvas.getByText("fix setup (1)");
+    await expect(chip.getAttribute("data-blocks")).toBe("1");
+    await expect(chip.getAttribute("title")).toMatch(/1 thing stops the story/);
+    await userEvent.click(chip);
     await expect(args.onOpenSettings).toHaveBeenCalledTimes(1);
   },
 };
@@ -125,7 +129,8 @@ export const SetupAlertForAPlayer: Story = {
   args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const chip = canvas.getByText("check setup");
+    const chip = canvas.getByText("check setup (1)");
+    await expect(chip.getAttribute("data-degrades")).toBe("1");
     await expect(chip.getAttribute("title")).toMatch(/the model is not thinking/);
     await expect(chip.getAttribute("title")).not.toMatch(/harvest|Inner voice/);
     await userEvent.click(chip);
@@ -137,7 +142,7 @@ export const PipelineChipWinsOverSetupAlert: Story = {
   args: { snapshot: baseSnapshot({ ...playing, secretLeaks: ["Summarize"], pipeline: { state: "catching-up", text: "Catching up after your edit…", detail: null, needsSetup: false } }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.queryByText("check setup")).toBeNull();
+    await expect(canvasElement.querySelector("#so-hud-setup")).toBeNull();
     await userEvent.click(canvas.getByText("catching up after your edit"));
     await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
   },
@@ -146,8 +151,27 @@ export const PipelineChipWinsOverSetupAlert: Story = {
 export const NoSetupAlertWhenNothingIsMissing: Story = {
   args: { snapshot: baseSnapshot(playing) },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.queryByText("check setup")).toBeNull();
+    await expect(canvasElement.querySelector("#so-hud-setup")).toBeNull();
+  },
+};
+
+export const ManyFindingsCountBySeverity: Story = {
+  args: { snapshot: baseSnapshot({
+    ...playing, thinkingSilent: true, secretLeaks: ["Summarize"],
+    requirements: { ...playing.requirements, ready: false, missingMembers: ["Belle"], absentMembers: [] },
+  }) },
+  play: async ({ canvasElement }) => {
+    const chip = canvasElement.querySelector("#so-hud-setup");
+    await expect(chip?.textContent).toBe("fix setup (3)");
+    await expect(chip?.getAttribute("data-blocks")).toBe("1");
+    await expect(chip?.getAttribute("data-degrades")).toBe("2");
+  },
+};
+
+export const DismissedFindingLeavesTheChip: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true, dismissedChecks: ["model-not-thinking"] }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-hud-setup")).toBeNull();
   },
 };
 

@@ -69,6 +69,34 @@ export const SETTING_COPY = {
     "Also post a chat note when the story moves on",
     "Posts a short note in the chat when the story reaches a new turning point. Off by default: the note sits after the reply and stops you swiping that reply.",
   ),
+  "display.briefing": copy(
+    "Show the story briefing when a story starts",
+    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from the drawer.",
+  ),
+  "display.presence.listBadges": copy(
+    "Mark story groups in the lists",
+    "A small icon beside each group, recent chat and past chat that plays a story. A saga, a story with two or more chapters, gets its own icon.",
+  ),
+  "display.presence.continueList": copy(
+    "Your stories list",
+    "Under Continue: the chats that play a story, newest first, with where each one is. One click opens the chat.",
+  ),
+  "display.presence.groupCard": copy(
+    "Story card on hover",
+    "Hovering or focusing a group's story icon shows the story, its chapter and when you last played it.",
+  ),
+  "display.presence.chapterCard": copy(
+    "Chapter title cards",
+    "A full-width card under the message where a new chapter opens, instead of a small note.",
+  ),
+  "display.presence.wand": copy(
+    "Story entries in the wand menu",
+    "Story recap, the story briefing (when the story has one), flag this moment and the story drawer, from the extensions wand beside where you type.",
+  ),
+  "display.presence.rollChips": copy(
+    "Roll chips in Author view",
+    "Author view only: each dice roll and background draw under the message it belongs to, and in the Activity panel. Players never see them.",
+  ),
   "display.hudEnabled": copy(
     "Show story status above the chat input",
     "A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer.",
@@ -161,7 +189,8 @@ export const SETTING_COPY = {
   ),
   "stagecraft.acceptMode": copy(
     "Curator changes",
-    "Ask me first: you approve each change. Apply on their own: changes land at the next reply. Never apply: only show what it would do.",
+    "Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. "
+      + "Never apply: only show what it would do.",
   ),
   "stagecraft.wardenEnabled": copy(
     "Continuity warden",

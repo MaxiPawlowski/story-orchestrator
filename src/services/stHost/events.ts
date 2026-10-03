@@ -37,6 +37,9 @@ export interface HostEventPayloads {
   // Every entry a non-dry scan activated; not emitted when nothing fired.
   WORLD_INFO_ACTIVATED: [entries: HostScannableEntry[]];
   GROUP_UPDATED: [];
+  // Script.js:1067, after each character-list page renders (the list is emptied first).
+  CHARACTER_PAGE_LOADED: [];
+  APP_READY: [];
   SETTINGS_UPDATED: [];
   PERSONA_CHANGED: [avatar: string];
   // Script.js:9902, slash-commands.js:5437.

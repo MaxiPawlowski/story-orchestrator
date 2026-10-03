@@ -7,6 +7,7 @@ import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
+import { defaultPresenceSettings } from "./displayToggles";
 import { control } from "../../test/findings/ledger";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
@@ -19,7 +20,7 @@ const mockPopupCloses = { count: 0 };
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatId: "chat-a" as string | undefined,
-  groupId: null as string | null,
+  groupId: "g-test" as string | null,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),
@@ -122,7 +123,7 @@ const resetHost = () => {
   mockContext.extensionSettings = {};
   // A chat is open in these tests: an unnamed chat is a state the runtime must not write to.
   mockContext.chatId = "chat-a";
-  mockContext.groupId = null;
+  mockContext.groupId = "g-test";
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
   Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
@@ -800,14 +801,14 @@ describe("RuntimeManager memory injection and cast", () => {
     }
   });
 
-  it("keeps a solo character's private knowledge at rest, but not for impersonate", async () => {
-    (getActiveGroup as jest.Mock).mockReturnValue(null);
+  it("v2.7 plan 03: the group's resting block never carries a member's private knowledge, and impersonate keeps it empty", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["kael.png", "mara.png"], disabled_members: [] });
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(castStory));
     mockContext.chat = [{ name: "Kael", mes: "Nothing to see.", is_user: false }];
     await manager.applyExtractionAudit(memoryAudit(), [], [], [], [{ tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" }]);
     manager.clearPrivateInjection();
-    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").not.toContain("the theft");
     manager.onGenerationStarted("impersonate");
     expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
   });
@@ -1431,7 +1432,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("defaults ui settings on hydrate and persists overrides", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
-    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() });
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
     const storyId = Object.keys(metadata.stories)[0];

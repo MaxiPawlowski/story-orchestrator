@@ -2,8 +2,8 @@ import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
   buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, openArcTexts, withoutExcludedThreads,
-  renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
-  type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
+  renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, type LedgerBinding, type LedgerView, type MemoryTier,
+  type ScoreContext, castVoices, hasInnerVoice, innerRender, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
   heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, writeMemoryBlocks, type HeldSecret,
 } from "@memory/index";
@@ -11,7 +11,7 @@ import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DE
 import type { ChapterPort } from "./chapterPort";
 
 import { buildScoreContext } from "./scoreContext";
-import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
+import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
@@ -90,7 +90,7 @@ export class MemoryInjector {
 
   private stagedBlocks(): StagedPrivateBlock[] {
     const story = this.deps.getStory();
-    if (!story || this.withheld || !this.hosts.roster.getActiveGroup()) return [];
+    if (!story || this.withheld) return [];
     return [...this.stagedPrivate].filter(([, staged]) => staged.epistemic).map(([id, staged]) => ({
       key: EPISTEMIC_INJECTION_KEY, depth: EPISTEMIC_INJECTION_DEPTH, role: 0, value: staged.epistemic, target: nameForRosterId(story, id),
     }));
@@ -108,7 +108,6 @@ export class MemoryInjector {
 
   private voices(story: NormalizedStoryV2): CastVoice[] {
     const voices = castVoices(story, this.deps.getState()?.activeCheckpointId ?? null);
-    if (!this.hosts.roster.getActiveGroup()) return voices;
     const enabled = new Set(enabledCharacterIds(story, this.hosts.roster));
     return voices.map((voice) => (enabled.has(voice.id) ? { ...voice, selfVoiced: true } : voice));
   }
@@ -118,11 +117,6 @@ export class MemoryInjector {
     const privateBlock = known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "";
     const render = innerRender();
     return render ? render.memberAimsBlock(this.voices(story), id, beat, known, privateBlock) : privateBlock;
-  }
-
-  private soloBlock(story: NormalizedStoryV2, knowledge: string, beat = ""): string {
-    const render = innerRender();
-    return render ? joinBlocks(render.soloAims(this.voices(story), beat), knowledge) : knowledge;
   }
 
   memberPrivateBlock(rosterId: string): string {
@@ -176,11 +170,8 @@ export class MemoryInjector {
       }
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
-      const solo = () => this.soloBlock(story, capable ? renderSoloEpistemicBlock(knowledge, enabledCharacterNames(story, this.hosts.roster)) : "");
-      const group = Boolean(this.hosts.roster.getActiveGroup());
-      const speakerBlock = this.withheld || group ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : solo();
-      applyEpistemicInjection(this.hosts.prompt, speakerBlock, EPISTEMIC_INJECTION_DEPTH);
-      if (group && this.draft) this.restageDraft(this.draft.rosterId);
+      applyEpistemicInjection(this.hosts.prompt, "", EPISTEMIC_INJECTION_DEPTH);
+      if (this.draft) this.restageDraft(this.draft.rosterId);
     } else {
       clearEpistemicInjection(this.hosts.prompt);
     }
@@ -198,7 +189,7 @@ export class MemoryInjector {
   }
 
   private secrets(story: NormalizedStoryV2): HeldSecret[] {
-    if (!this.deps.capable() || !this.hosts.roster.getActiveGroup()) return [];
+    if (!this.deps.capable()) return [];
     return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)));
   }
 
@@ -267,15 +258,6 @@ export class MemoryInjector {
     this.setPrivateBlocks(staged.shared, epistemic);
   }
 
-  onSoloGeneration() {
-    const story = this.deps.getStory();
-    if (!story || this.withheld || this.hosts.roster.getActiveGroup() || !this.deps.enabled()) return;
-    const beat = story.roster.length === 1 ? this.deps.beatFor(story.roster[0].id) : "";
-    if (!beat) return;
-    const known = this.deps.capable() ? renderSoloEpistemicBlock(this.knowledge(), enabledCharacterNames(story, this.hosts.roster)) : "";
-    applyEpistemicInjection(this.hosts.prompt, this.soloBlock(story, known, beat), EPISTEMIC_INJECTION_DEPTH);
-  }
-
   blocks(): Record<MemoryTier, string> {
     const story = this.deps.getStory();
     const entries = story && this.deps.enabled() ? this.state.entries : [];
@@ -285,12 +267,7 @@ export class MemoryInjector {
 
   epistemicBlock(): string {
     const story = this.deps.getStory();
-    if (!story || !this.deps.capable()) return "";
-    if (this.hosts.roster.getActiveGroup()) return this.appliedEpistemicBlock();
-    const speaker = activeSpeakerId(story, this.hosts.roster);
-    return speaker
-      ? renderPrivateEpistemicBlock(this.knowledge(), namesForRosterId(story, speaker))
-      : renderSoloEpistemicBlock(this.knowledge(), enabledCharacterNames(story, this.hosts.roster));
+    return story && this.deps.capable() ? this.appliedEpistemicBlock() : "";
   }
 
   /** What ST's next prompt ACTUALLY holds, not a re-render for whoever speaks next (in a group the
