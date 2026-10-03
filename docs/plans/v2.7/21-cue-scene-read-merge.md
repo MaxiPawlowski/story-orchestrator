@@ -85,12 +85,12 @@ control test changes, on purpose.
 
 ## Decisions for the user
 
-1. Merge cue + scene reads? **Recommended: not yet. Measure first (D, with the A/B).**
+1. Merge cue + scene reads? **Recommended: not yet. Measure first (D, with the A/B).** Lets do as you recommend
 2. If merging, which shape? **Recommended: A** (boundary batch, scene reason primary, cue pairs in a field). It keeps
-   J11 unchanged and leaves `scene:judge` as its own read.
+   J11 unchanged and leaves `scene:judge` as its own read. Lets do as you recommend
 3. Is a ~5% read-model spend saving worth a recall risk at all, or should spend work go to narrowing campaign
-   `extractor_trigger`s instead (open since `v2.6/15-review.md:401`, campaign repo)? **Recommended: triggers first.**
-4. Keep J11.12/J11.15's exact-reason assertions as the contract (no fixture edit)? **Recommended: yes.**
+   `extractor_trigger`s instead (open since `v2.6/15-review.md:401`, campaign repo)? **Recommended: triggers first.** Lets do as you recommend
+4. Keep J11.12/J11.15's exact-reason assertions as the contract (no fixture edit)? **Recommended: yes.** yes
 
 ## Floor and measurement before building
 

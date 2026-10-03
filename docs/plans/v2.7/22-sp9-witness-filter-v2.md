@@ -108,13 +108,13 @@ until a witness source clears F4. **C not before B passes.**
 ## Decisions for the user
 
 1. Build A (Repair row warning about ST Summarize / chat vectors in group stories that hold secrets)?
-   **Recommended: yes.** (Carried into v2.7 as `02-v26-carry-in.md` C2; v2.6 takes no more changes.)
+   **Recommended: yes.** (Carried into v2.7 as `02-v26-carry-in.md` C2; v2.6 takes no more changes.) yes
 2. Is message-level privacy ("a member never sees a scene it was absent from") a product goal, or is block-level privacy
    ("secrets live in private blocks; the transcript is shared") the permanent stance? **Recommended: block-level stays.
-   Revisit only if sessions show characters acting on scenes they missed in the transcript (not only on secrets).**
-3. If 2 = goal: run B as a measurement-only spike? **Recommended: yes, offline first (lab labels), no filter code.**
+   Revisit only if sessions show characters acting on scenes they missed in the transcript (not only on secrets).** Ok, lets keep it around as a candidate for next version
+3. If 2 = goal: run B as a measurement-only spike? **Recommended: yes, offline first (lab labels), no filter code.** as you recommend
 4. If C is ever built: should a story be able to require Summarize / chat vectors off (a requirement that blocks), or only
-   warn? **Recommended: warn only. They are the user's install-wide tools.**
+   warn? **Recommended: warn only. They are the user's install-wide tools.**  Lets do as you recommend
 
 ## Floor and measurement before building
 

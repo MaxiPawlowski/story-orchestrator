@@ -125,7 +125,13 @@
 
 ## Unresolved questions
 
-1. How much game? Quests + journal only (Q1, Q5), or also stats/inventory (Q2), checks (Q3) and milestones (Q4)?
-2. Should rolls be visible to the player (Q3 `narrate: public`), or should chance stay invisible as today?
-3. Are side quests authored only, or may the wizard/curator *propose* them (author-reviewed)?
-4. Does Adolion get a game-layer pilot story, or a new small test story?
+1. How much game? Quests + journal only (Q1, Q5), or also stats/inventory (Q2), checks (Q3) and milestones (Q4)? All
+2. Should rolls be visible to the player (Q3 `narrate: public`), or should chance stay invisible as today? sure, they can be visible
+3. Are side quests authored only, or may the wizard/curator *propose* them (author-reviewed)? both
+4. Does Adolion get a game-layer pilot story, or a new small test story? should we? maybe a saga? i liked adolion bcs its much more real than a small controlled scenario.
+
+   **Answer (2026-10-03): Adolion, staged act then saga.** Pilot on one act first (the academy act, plan 05), then
+   promote to the Saga once the floors pass. Why: the Saga already carries 179 qualities, and quests add read scope on
+   every turn. Measuring M1 (extraction load) on one act tells us the cost before we multiply it by 157 checkpoints. It
+   is still real campaign data, not a toy scenario. Answers above: all of Q1–Q5, rolls visible, side quests authored plus
+   wizard/curator-proposed (author-reviewed).

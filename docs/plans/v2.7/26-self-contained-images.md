@@ -158,14 +158,46 @@ install.
 
 ## Decisions for the user
 
-1. Route A (ST Image Generation) as the default, ComfyUI graph as an opt-in advanced route? **Recommended: yes.**
+1. Route A (ST Image Generation) as the default, ComfyUI graph as an opt-in advanced route? **Recommended: yes.** yes
 2. Discover models from the user's ComfyUI and turn today's hardcoded checkpoints into setup-doc suggestions?
-   **Recommended: yes.**
-3. A template-prompt fallback when no director profile is set? **Recommended: yes.**
+   **Recommended: yes.** yes
+3. A template-prompt fallback when no director profile is set? **Recommended: yes.** yes
 4. GPU broker: optional package plus fail-open plus adapters, or remove it from the public package entirely?
-   **Recommended: optional, fail-open, documented as advanced.** Your machine still needs it.
-5. Default automation: story-authored illustrations only, with "every N replies" opt-in? **Recommended: yes.**
-6. Sprite generation: out of scope for v2.7? **Recommended: yes**, as a seed.
+   **Recommended: optional, fail-open, documented as advanced.** Your machine still needs it.  Lets do as you recommend
+5. Default automation: story-authored illustrations only, with "every N replies" opt-in? **Recommended: yes.** yes
+6. Sprite generation: out of scope for v2.7? Lets review what this implies, i think we have most of the work already done
+
+   **Review (2026-10-03): most of the work exists, but in the campaign repo and bound to your machine.**
+   - **What exists.**
+     - `adolion-campaign/scripts/render_sprites.py` (809 lines) builds expression packs per sprite set through ComfyUI:
+       - crop the card art, edit with a Qwen image-edit graph (`qwen21-edit.api.json`), cut out with alpha
+         (`SplitImageWithAlpha`), auto-pick the base, upscale the reference;
+       - `sets.json` per character, skip-if-exists, a queue, locks;
+       - night runs on the 3090 and on pods.
+     - On the plugin side, `src/sprites/` already does everything at runtime: stage, direction, framing and the
+       expression classifier.
+   - **What ties it to your machine.**
+     - Hardcoded `C:\dev\ComfyUI` and your Python path; it starts ComfyUI itself (`render_sprites.py:102-125`).
+     - A specific edit model and graph (Qwen image edit), plus a background remover.
+     - Build-time Python with numpy and PIL, outside the extension.
+     - Adolion-specific heuristics (skin/eye scoring for base picks).
+   - **What "in the plugin" would mean.** A Studio **Sprites** tab that builds a pack for one cast member:
+     - pick the card art or a reference;
+     - choose expressions (ST's standard set);
+     - render through plan 26's ComfyUI advanced route, with the edit model discovered from `/object_info`, or say
+       plainly that one is needed;
+     - preview, then save to ST's sprite folder via `/api/sprites/upload`.
+     - The Python heuristics (base pick, alpha checks) move to TypeScript or become manual "pick the best of 4" steps.
+       The night-run queue is out of scope: one character at a time, in the page.
+   - **What it implies.**
+     - It depends on plan 26's route B (model discovery, probes). It cannot work on route A, because ST's Image
+       Generation backends do image *generation*, not reference-based *edits*, for most sources.
+     - It adds an image-edit recipe (needs an edit-capable model: Qwen image edit, FLUX Kontext, or similar).
+     - A new Studio tab plus a stHost upload module.
+     - About an M-L build, measured on the Adolion cast against the existing packs, which become the golden.
+   - **Recommendation:** plan it as **26b, after 26 ships**. Until then the campaign script stays the Adolion tool, with
+     its paths moved to settings/env so it runs on another machine (a small campaign-side change, plan 05).
+
 
 ## Links
 

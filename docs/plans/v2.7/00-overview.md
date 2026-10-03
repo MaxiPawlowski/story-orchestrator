@@ -50,7 +50,8 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | 03 | `03-story-briefing.md` | briefing format, modal, Studio editor (the wizard's drafting is optional, later) | user topic |
 | 04 | `04-story-presence-ui.md` | plays index, list badges, Continue list, title card, wand entry (C5 suggestions need an LLM: tier 3) | user topic |
 | 05 | `05-adolion-campaign.md` | **A1–A3** docs/check/pin, **A7** briefings (A4 lab data and A5/A6 follow later) | campaign |
-| 26 | `26-self-contained-images.md` | ST Image Generation route, ComfyUI model discovery, template prompt, broker optional + fail-open, probes/Repair, quiet defaults (numbered 26: arrived after the renumbering; builds here) | user topic |
+| 26 | `26-self-contained-images.md` | ST Image Generation route, ComfyUI model discovery, template prompt, broker optional + fail-open, probes/Repair, quiet defaults (numbered 26: arrived after the renumbering; builds here). Sprite generation = 26b after it | user topic |
+| 27 | `27-wizard-assistant.md` | shipped knowledge base (plugin + author guide + condensed ST know-how), read-only Ask mode, character-building tutorial (needs plan 01's registry; cloud authoring profile, no RunPod) | user topic |
 | 06 | `06-thinking-per-story.md` | the Repair warning (the story/checkpoint level waits on R4: tier 3) | seed |
 | 07 | `07-commitment-double-negatives.md` | player line + hold reason in the author journal row | seed |
 | 08 | `08-sp2-recommit-v2.md` | option C: "catching up after your edit" status + README | seed |
@@ -77,10 +78,11 @@ A plan with rows in two tiers is listed where its first buildable part sits; its
 | 19 | `19-quests-and-game-layer.md` | quests, visible qualities, checks, milestones, Journal (M1/M2 measure extraction load) | user topic |
 | 20 | `20-j6d-shadow-record.md` | offline replay judge vs extractor | seed |
 | 21 | `21-cue-scene-read-merge.md` | A/B on labelled windows | seed |
-| 22 | `22-sp9-witness-filter-v2.md` | witness-source measurement (the Repair row already shipped in 02 C2) | seed |
+| 22 | `22-sp9-witness-filter-v2.md` | **deferred to the next version** (kept as a candidate; the Repair row ships in 02 C2) | seed |
 | 23 | `23-d6-t22-revisits.md` | one session with the warden on `auto` | seed |
-| 24 | `24-living-story-director.md` | M1 spike, then the director | user topic |
-| 25 | `25-new-game-plus.md` | waits until a run reaches a final chapter | seed |
+| 24 | `24-living-story-director.md` | M1 spike; if it passes, M1–M3 ship with proper UI | user topic |
+| 25 | `25-new-game-plus.md` | **deferred to the next version** (user, 2026-10-03) | seed |
+| Z | close-out | regenerate settings reference + README feature table, second feature triage for review, guide pages checked against the UI, "What's new" for 2.7 (plan 01's answer to "build docs first or last": both) | process |
 
 Also tier 3: plan 04 C5 (suggestions), plan 05 A4 (lab data runs), plan 06's story/checkpoint level (R4), plan 15's
 play-load check.
@@ -110,6 +112,22 @@ Answers are written inline in each plan's decisions list; this is the index plus
 | 13 | not as a runtime judge; labelling aid yes; W27 kept | **new:** the user wants to connect multiple cloud providers for other roles (e.g. the wizard), which ST may not support; explore uses and come back with proposals |
 | 14 | Phase A for J7.1, J7.2 (+J7.7); recommendations otherwise | **new:** review `github.com/mossyfield/ST-jeved` for new judge use cases (cheap, fast, works well); build a test set for the unanswered ideas and run them as spikes/POCs behind settings |
 | 15 | build the local provider, opt-in, all uses in the first measurement | **new:** investigate `github.com/fstandhartinger/jevbench` first; our own evals for our use cases across options |
+
+### Decisions on 16–26 (user, 2026-10-03)
+
+| Plan | Decided | Scope change |
+|---|---|---|
+| 16a–16d | not yet answered | — |
+| 17 | not yet answered | — |
+| 18 | relationships both toward the player and between NPCs; meters author-visible, private for players; agendas authored + curator-proposed | schedules drop members from speaker candidates (no cast change); answer written in the plan |
+| 19 | all of Q1–Q5; rolls visible; side quests authored + proposed | pilot: Adolion academy act, then the Saga |
+| 20 | option C offline replay only; recommendations | — |
+| 21 | measure first; triggers first; J11 contract kept | — |
+| 22 | the Repair row (02 C2) yes; the rest deferred | **deferred to the next version** |
+| 23 | not yet answered | — |
+| 24 | all recommendations; M1 first, then M1–M3 with proper UI | **new plan 27:** the wizard as a docs-aware assistant with a character-building tutorial |
+| 25 | — | **deferred to the next version** |
+| 26 | all recommendations | sprite generation reviewed in the plan: becomes 26b after 26 (campaign script is the base) |
 
 ## Status
 

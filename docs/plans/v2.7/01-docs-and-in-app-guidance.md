@@ -185,6 +185,17 @@ The triage table is filled in during build and reviewed with the user before any
 6. Where "Read more" points: the GitHub repo's `docs/guide/` (zero hosting), or a docs site? **Recommended: the repo
    first.** as you recommend.
 
+user concern: should this be built after all development? or should we have a second update plan at the end?
+
+**Answer (2026-10-03): both, in that order.** The registry, its tests and the guide layout go first, because they are
+the frame every later plan writes into. Each later plan's gate then includes "registered in the registry, guide page
+written, help strings plain", and the tests fail the build otherwise. So the docs cannot fall behind silently, and
+there is no big rewrite at the end. A short **close-out step at the end of v2.7** (overview §Build order, row Z) then:
+- regenerates the settings reference and the README feature table;
+- runs the feature triage again with everything v2.7 added, for your review;
+- checks every guide page against the shipped UI;
+- writes "What's new" for 2.7.
+
 ## Links
 
 04 (C6 wand entry, C8 onboarding), 03 briefing (first-run section), 02 carry-in (judge readiness leak).

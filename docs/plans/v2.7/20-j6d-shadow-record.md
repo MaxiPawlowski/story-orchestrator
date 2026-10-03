@@ -79,14 +79,14 @@ signal, and the C numbers become its baseline.
 
 ## Decisions for the user
 
-1. Build J6d at all in v2.7? **Rec: yes, as option C (offline replay) only.**
+1. Build J6d at all in v2.7? **Rec: yes, as option C (offline replay) only.** C
 2. If C shows a disagreement rate above a threshold, build A (live author-only shadow)? Threshold proposed: ≥ 10 % of
-   judge-answered keys disagree on the replay corpus. **Rec: yes, at that threshold.**
+   judge-answered keys disagree on the replay corpus. **Rec: yes, at that threshold.** yes as you recommend
 3. Who arbitrates a disagreement (which side was right)? Options: the user labels a sample; a second model labels; no
    arbitration, rate only. **Rec: the user labels a 20-row sample from the disagreements; rate alone says nothing about
-   which side to trust.**
+   which side to trust.** Sure
 4. Where does the live shadow (if A) show? **Rec: author view only, inline timeline level 3 (Author) detail plus the
-   Scheduler tab; never player mode (spoiler checklist row).**
+   Scheduler tab; never player mode (spoiler checklist row).**  As you recommend
 
 ## Floor and measurement before building
 

@@ -159,14 +159,18 @@ library. **Playing becomes a way of authoring**, and the Studio can then edit th
 
 1. Allow a director that writes the story's future during play (overturning the v2 "no auto-pilot" non-goal), with
    `suggest` and `auto` tiers? **Recommended: yes, behind the M1 floors**, `suggest` default for authors and `auto` for
-   living stories started by a player.
+   living stories started by a player.  Lets do as you recommend
 2. Generated anchors live only in the chat's pinned copy, with an explicit "Save as story" export to the library?
-   **Recommended: yes.**
+   **Recommended: yes.** yess
 3. Hybrid stories (`authored_until`), so authored stories can continue past their end? **Recommended: yes.** It shares
-   all the machinery.
+   all the machinery. yesss
 4. The director may propose new characters (provisioning, confirmed by a person) but in `auto` only uses existing
-   cards? **Recommended: yes.**
-5. Start with the M1 spike before any UI? **Recommended: yes.**
+   cards? **Recommended: yes.** yess, it should be integrated with a proper tutorial on how to build a character. In fact, i was hopping the wizzard to have a lot of this plugin documentation and sillytavern's documentation and be able to answer questions or recommend stuff
+
+   **Noted (2026-10-03):** the wizard as an in-app assistant that answers questions from this plugin's docs and
+   SillyTavern's docs, with a character-building tutorial, is its own plan: `27-wizard-assistant.md`. Decision 5: M1 first;
+   if it passes, M1–M3 ship with proper UI.
+5. Start with the M1 spike before any UI? **Recommended: yes.** yes, in fact, if it goes well, lets do everything from m1 to m3 with proper UI
 
 ## Links
 

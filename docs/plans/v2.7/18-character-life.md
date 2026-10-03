@@ -110,8 +110,28 @@ v2.6's measurements. L6 waits for a fixture.
 
 ## Unresolved questions
 
-1. Relationships toward the player only, or also between NPCs (cost grows with the cast squared)?
-2. May relationship meters ever be player-visible, or private always?
-3. Agendas: authored steps only, or allow the curator to propose meanwhile events?
+1. Relationships toward the player only, or also between NPCs (cost grows with the cast squared)? Both
+2. May relationship meters ever be player-visible, or private always? Author visible, private for players
+3. Agendas: authored steps only, or allow the curator to propose meanwhile events? Both
 4. Should a schedule disable a member (a cast change, visible in ST's group panel) or only drop them from speaker
-   candidates?
+   candidates? wdyt? what does it implies for the rest of the project?
+
+   **Answer (2026-10-03): drop them from speaker candidates; do not disable them.** Why:
+   - **Cast changes leak across chats.** They write the group's `disabled_members`, which outlives the chat and every
+     sandbox (`.claude/rules/debug-scripts.md`). The ledger restores them, but it is a host write per scene change, and
+     the restore can be lost on a reload.
+   - **The player sees it.** A schedule flipping members on and off in ST's group panel is a visible mechanism.
+   - **Dropping from candidates is pure.** The talk rules read the schedule from the blackboard (time and place
+     qualities), so rollback ≡ replay holds for free and no host state changes.
+
+   What it implies for the rest of the project:
+   - **Talk.** The director prompt and `talk/rules.ts` take an "away" set. A member addressed by name while away is
+     answered by the narrator ("X is not here"), never voiced.
+   - **Memory.** The away member's private block still receives what they learn later, through epistemic reads.
+     Nothing is written while they are away, which fits plan 22's witness work.
+   - **Briefing and HUD.** "Who is here" can be shown from the same data (player-safe names only).
+   - **Authors.** `cast_changes` stays the tool for a deliberate, authored exit or entry; schedules are for routine
+     whereabouts.
+   - **Answers above:** relationships both toward the player and between NPCs (cap: axes read only for members present
+     in the window, per M2); meters visible in Author view, private for players; agendas authored plus curator-proposed
+     (author-reviewed, the stagecraft discipline).

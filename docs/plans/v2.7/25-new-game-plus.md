@@ -88,6 +88,8 @@ use it. Add E as a by-product if plan 04's plays index is built. C only behind i
 
 ## Decisions for the user
 
+**User 2026-10-03: deferred to the next version.** Kept as a seed; nothing built in v2.7.
+
 1. Keep NG+ a seed until a playthrough reaches a final chapter with `seal` on? **Recommended: yes.**
 2. What does "outcome" mean? (a) typed outcome keys the author declares; (b) the epilogue text; (c) both.
    **Recommended: (a) first;** the epilogue stays a display, not an input.
