@@ -133,3 +133,66 @@ registry), D9 (C2 and 08 shipped; v2.7 03 and v2.8 03 checks listed with their v
 then `degrades`), F34 (blockers cannot be dismissed; complete live fixture; privacy leg with and without held secrets
 after K1), the Claude-D note on Getting started (it reads the `install` checks), Sol split item 6 (built with v2.7 03),
 B12 (references).
+
+## Gate record (2026-10-03)
+
+Built after v2.7 03 on branch `worktree-agent-a63e828dd1ddd52c3` (off master `506a7ca4`), sharing its
+`story-needs-group` check. Commits: `4d87d2f1` (registry, migration, dismissal, Setup section, HUD chip, Getting
+started), `39262713` (one Fix with wizard control; AgentWizard stories give the scripted draft its group).
+
+**As built**
+
+- **Contract** (`runtime/checks.ts`): `Check {id, area, scope, audience, severity: blocks | degrades | info,
+  engineFree?, feature?, applies?, detect}`, `CheckResult` adds `consequence`, `detail`, `targetId`, `target`
+  (`{kind: "setting" | "group" | "drawer", id}`), `provisionable`, `player`, `action`, `opensGroup`, `dismissable`.
+  A check whose `feature` is off is not run.
+- **Migration** (`runtime/checksSetup.ts`): every `repair.ts` step is a check, in the old order: `memory-model`,
+  `model-role`, `story-needs-group` (03), `cast-absent`, `cast-unbound`, `cast-muted`, `lore-absent`,
+  `lore-unscanned`, `lore-hidden`, `persona-absent`, `persona-unselected`, `memory-slot-taken`, `save-unconfirmed`,
+  then the degrading ones `transcript-copiers`, `model-not-thinking`, `chapter-unsummarized`, `wi-gating-drift`,
+  `story-lore-global`, `orphaned-lorebooks`. `repair.ts` keeps its exports (`repairSteps`, `nextRepairStep`,
+  `viewerRepairStep`, the cast one-click fixes) as a view over the registry, so EntryPoints, castRepair and the HUD
+  did not change shape.
+- **Ordering (F33):** Repair = every `blocks` result, then every `degrades`, each in registry order; a degrade never
+  outranks a block whatever its position (`checksRegistry.test.ts`, with a planted early degrade as the control).
+- **Dismissal (F34):** `help.dismissedChecks` (install-wide, registry feature `repair` owns it),
+  `setCheckDismissed(id, bool)` on the manager (`managerDelegates`). A dismissed `degrades`/`info` result moves to
+  `dismissed` and can be restored; a `blocks` result is never dismissable and an id in the list is ignored for it
+  (test plants `memory-model` in the list).
+- **Story setup surface:** drawer Overview `SetupSection` (`#so-setup`, rows `[data-so="setup-row"]` with
+  `data-check`/`data-severity`, Show me, the one-click fix where the check has one, "I know, keep it" for
+  dismissable rows, a dismissed disclosure with Restore); `#so-before-you-start` at boundary 0 in the player view
+  lists blockers only. Author view adds `detail`. HUD: `#so-hud-setup` chip "fix setup (n)" / "check setup (n)" with
+  `data-blocks`/`data-degrades` replaces the `needs setup` pipeline chip. Getting started reads the install checks.
+- **Privacy leg:** `transcript-copiers` says the same words whether or not a secret is held (story + jest).
+- Docs: guide README, `player/troubleshooting.md`, `player/drawer-and-hud.md`; `live-v19-repair-deep-link.json`
+  selector moved to `#so-hud-setup`.
+
+**Gates**
+
+- Jest: `checksRegistry.test.ts` (contract, order, F33, F34, engine-free run with no story, feature gating),
+  `repair.test.ts` and the Repair/castRepair/EntryPoints/HUD tests kept passing over the migrated steps.
+- `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` → green, see the overall gates below.
+- Storybook (same out-of-gates run as 03): 73 suites, 471 tests passed, including `Drawer/SetupSection` (nothing
+  found, one block not dismissable, one degrade dismissed, many with a one-click fix, info row, author detail,
+  dismissed comes back, before you start blockers only, privacy leg, 390/768/1440) and the HudStrip chip stories.
+- **Live: NOT run** (lanes 0–5 busy). Owed: the 04 live fixture ×2 (Setup section, Show me, one-click fix,
+  dismissal survives reload, blocks cannot be dismissed), `so-ui.mts assert-player-clean` with findings shown,
+  `live-v19-repair-deep-link.json` with the new selector.
+
+**Deviations / not done**
+
+- No `info` check ships yet: the "What's new" check belongs to v2.7 05; the info row is covered by a story only.
+- `story-lore-global` keeps its Repair row actions; no new one-click deselect was added.
+- "Before you start" is an inline section here; the modal is v2.7 05.
+- No per-row Fix with wizard: the author requirements panel's `#so-fix-with-wizard` stays the one control
+  (a second one broke the DrawerTabs story's single-button query and duplicated the control).
+- Model input unchanged: the registry only reads state.
+
+**Overall gates (03 + 04 together, on `39262713`)**: `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook`
+→ all ok: typecheck, typecheck:test, lint, test (513 suites passed, 1 skipped; 6220 tests passed, 1 skipped), build,
+build:dev, test:debug (958 pass, 0 fail), debug:typecheck, test:release (94 pass), test:replay, test:plugin (87 pass);
+`test-storybook:ci` SKIPPED (`--no-storybook`: the runner finds no stories under `.claude/worktrees` paths; the
+Storybook run above was done by hand instead). Earlier runs: the first, without `ST_ROOT`, went red at `build`
+(the worktree has no `.st-root`; environment, not code); one went red at `test:debug` `legacyFree` (scenario name,
+fixed in `d3109389`).
