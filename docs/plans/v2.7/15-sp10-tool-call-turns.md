@@ -138,3 +138,35 @@ version. Decisions 2 and 3 are taken as recommended.
 
 Applied: B9 (the note targets `docs/guide/setup/memory-model.md`, not the README), the Claude-B note "16d moves to tier 1"
 (v2.7, deterministic), option A deferred to v2.9 05.2, B12/F36 (references).
+
+## Gate record
+
+2026-10-03, branch `worktree-agent-a1eb7b669f3b8ce6a`, code commit `8f850724`. Not merged into master.
+
+| Item | Built |
+|---|---|
+| B guide note | `docs/guide/setup/memory-model.md` §When changes apply, the note as drafted above, verbatim. No feature registry entry (a host-interaction note, as the plan says) |
+| C probe removal | deleted `src/runtime/spikes/toolTurnProbe.ts`, `toolTurnSummary.ts` and their tests, the `__SO_DEV__` import in `src/runtime/index.ts`, its stop call, `storyOrchestratorToolTurnProbe` from `RUNTIME_GLOBALS`, the probe case in `stopRuntime.test.ts`, and `test/fixtures/v25-09-tool-fold.story.json`. `devOnly.guard.test.ts`: both modules out of `SPIKES`, into `DROPPED_SPIKES`, and into the dropped-spike planted-import control (a planted import reaches no module); the SP10 live-probe planted control went with the module |
+
+**Model input (rule 6): none.**
+
+Gates (tier D), all on the branch after the code commit:
+
+| Command | Result |
+|---|---|
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` | all green: typecheck, typecheck:test, lint, test (502 suites passed, 1 skipped; 6141 tests passed, 1 skipped), build, build:dev, test:debug (87 pass, 3 skipped), debug:typecheck, test:release, test:replay, test:plugin; Storybook skipped by the flag and run separately below |
+| `npm run typecheck:test` | green (inside the gates run) |
+| `npm run storybook:build` (to `.sb-static`), `npx http-server .sb-static -p 6063 -s -c-1 -a 127.0.0.1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6063` | 71 suites, 447 tests passed (includes the new `Settings/RoleProfilesGroup` `GroupedBySource` story with its a11y check); server stopped |
+| prod bundle `dist/index.js` | 1,117,438 B (budget 1,250,000 B) |
+
+Live gate: **NOT run**. `v24-01-toolcall-run.json` (the delete-decode guard this plan keeps) was not run live; its
+16-test-plan row is still owed.
+
+Deviations:
+- **`test/scenarios/v25-09-tool-turn.json` is NOT deleted.** The plan lists it; the build brief put `test/scenarios`
+  out of bounds (another agent owns it). It now drives a probe global that no longer exists, so a run of it fails at its
+  first probe step. `test/findings/suite-decisions.json:446` still cites it. Whoever owns `test/scenarios` deletes the
+  file and that suite-decisions row.
+
+Open questions:
+- Delete `v25-09-tool-turn.json` and its `suite-decisions.json` row in the `test/scenarios` owner's next change?
