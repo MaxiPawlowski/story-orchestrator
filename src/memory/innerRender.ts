@@ -87,14 +87,6 @@ export const renderOwnAims = (voice: CastVoice | undefined): string => {
   return lines.length ? ["Your private aims (act on them in character; never announce them):", ...lines].join("\n") : "";
 };
 
-export const renderCastAims = (voices: CastVoice[]): string => {
-  const lines = voices.flatMap((voice) => [
-    voice.drive ? `- ${voice.name} wants: ${voice.drive}` : "",
-    voice.motive ? `- ${voice.name}, right now: ${voice.motive}` : "",
-  ]).filter(Boolean);
-  return lines.length ? ["What each character privately wants (voice each accordingly; never announce it):", ...lines].join("\n") : "";
-};
-
 const NARRATOR_TAGS: EpistemicTag[] = ["hiding", "intends", "knows"];
 
 export const NARRATOR_HEADER = "What the cast privately holds (use this to foreshadow; reveal nothing a character conceals unless the scene reveals it):";
@@ -176,9 +168,6 @@ export const memberAimsBlock = (voices: CastVoice[], id: string, beat: string, k
   const own = renderOwnAims(voice && beat ? { ...voice, beat } : voice);
   return joinBlocks(own, voice?.omniscient ? renderNarratorBlock(known, voices, id) : privateBlock);
 };
-
-export const soloAims = (voices: CastVoice[], beat = ""): string =>
-  voices.length === 1 ? renderOwnAims(beat ? { ...voices[0], beat } : voices[0]) : renderCastAims(voices);
 
 export interface BeatPorts {
   beats: InnerBeat[];

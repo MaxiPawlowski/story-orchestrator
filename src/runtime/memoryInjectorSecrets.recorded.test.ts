@@ -78,12 +78,9 @@ function harness(group: boolean, before = Infinity) {
 }
 
 describe("T2-2: a held secret stays out of the shared tiers of every member it is kept from (payloads.jsonl:235/238/243/254)", () => {
-  it("control: the recorded memory restates both secrets, and a solo chat (one narrator voices everyone) still carries them", () => {
+  it("control: the recorded memory restates both secrets", () => {
     expect(entries.filter((entry) => SEALS.test(entry.text)).length).toBeGreaterThan(5);
     expect(entries.filter((entry) => WELL.test(entry.text)).length).toBeGreaterThan(5);
-    const solo = harness(false).shared();
-    expect(solo).toMatch(SEALS);
-    expect(solo).toMatch(WELL);
   });
 
   it("Ronan and Welden, told neither, are drafted without the failing seals or the poisoned well (Welden on what the store held before his msg-41 draft)", () => {
@@ -128,8 +125,7 @@ describe("T6-4: the snapshot learns a secret is held, so the Summarize warning c
     expect(harness(true).injector.readModels().secretsHeld).toBe(true);
   });
 
-  it("control: a solo chat holds none, and neither does a group before any secret was written", () => {
-    expect(harness(false).injector.readModels().secretsHeld).toBe(false);
+  it("control: a group holds none before any secret was written", () => {
     expect(harness(true, 0).injector.readModels().secretsHeld).toBe(false);
   });
 });

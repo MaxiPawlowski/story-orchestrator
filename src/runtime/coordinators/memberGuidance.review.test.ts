@@ -24,7 +24,7 @@ const raw = (guidance: unknown) => ({
 
 const story = parseStoryV2OrThrow(raw({ all: "The duel is at noon.", members: { Haley: "You rigged the blade.", forre: "You owe the duke money." } }));
 
-function harness(loaded: NormalizedStoryV2, soloMember: string | null = null) {
+function harness(loaded: NormalizedStoryV2) {
   const blocks = new Map<string, string>();
   const prompt = {
     setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
@@ -40,7 +40,6 @@ function harness(loaded: NormalizedStoryV2, soloMember: string | null = null) {
     setTension: (next) => { tension = next; },
     getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: false }),
     hosts: { prompt },
-    soloMember: () => soloMember,
   });
   return { pacing, block: () => blocks.get(KEY) ?? "" };
 }
@@ -81,14 +80,11 @@ describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", (
     expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
   });
 
-  it("a solo chat whose roster is one member hears that member's part at rest, and a withheld run still does not", () => {
-    const { pacing, block } = harness(story, "forre");
-    pacing.updateSteering();
-    expect(block()).toContain("You owe the duke money.");
-    expect(block()).not.toContain("You rigged the blade.");
-    pacing.withholdGuidance();
+  it("v2.7 plan 03: at rest no member part is carried, whoever spoke last; only a draft stages one", () => {
+    const { pacing, block } = harness(story);
     pacing.updateSteering();
     expect(block()).not.toContain("You owe the duke money.");
+    expect(block()).not.toContain("You rigged the blade.");
   });
 
   it("a withheld generation (quiet, impersonate) never carries a member part, until the hold is released", () => {

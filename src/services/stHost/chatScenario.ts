@@ -24,9 +24,7 @@ export function readCastScenarios(context: ScenarioContext): Array<{ name: strin
   const card = (avatar: string | undefined) => context.characters.find((character) => character.avatar === avatar);
   const groupId = String(context.groupId ?? "");
   const group = groupId ? context.groups.find((entry) => String(entry.id) === groupId) : null;
-  const cards = group
-    ? group.members.filter((member) => !(group.disabled_members ?? []).includes(member)).map(card)
-    : [context.characters[Number(context.characterId)]];
+  const cards = (group?.members ?? []).filter((member) => !(group?.disabled_members ?? []).includes(member)).map(card);
   return cards
     .filter((character): character is NonNullable<typeof character> => Boolean(character))
     .map((character) => ({ name: text(character.name), scenario: text(character.scenario).trim() }))

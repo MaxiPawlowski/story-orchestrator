@@ -28,8 +28,8 @@ describe("the chat scenario override seam (ST chat_metadata.scenario)", () => {
     expect(context.chatMetadata).toEqual({});
   });
 
-  it("the cards that frame a chat: the solo character, or every enabled group member with a scenario", () => {
-    expect(readCastScenarios(solo())).toEqual([{ name: "Arin", scenario: "Arin's card scene." }]);
+  it("the cards that frame a chat: every enabled group member with a scenario; a one-on-one chat frames nothing (v2.7 plan 03)", () => {
+    expect(readCastScenarios(solo())).toEqual([]);
     expect(readCastScenarios(group()).map((entry) => entry.name)).toEqual(["Arin", "Ponticius"]);
     expect(readCastScenarios(group(["Ponticius.png"])).map((entry) => entry.name)).toEqual(["Arin"]);
   });

@@ -49,17 +49,11 @@ export function spriteCast(): SpriteCast {
   const chatId = typeof ctx.chatId === "string" && ctx.chatId ? ctx.chatId : null;
   const groupId = typeof ctx.groupId === "string" && ctx.groupId ? ctx.groupId : null;
   const all = cards();
-  if (groupId) {
-    const group = ctx.groups.find((entry) => entry.id === groupId);
-    if (!group) return { chatId, groupId, members: [] };
-    const disabled = new Set(group.disabled_members ?? []);
-    const members = group.members.map((avatar) => member(all.find((card) => card.avatar === avatar), disabled.has(avatar)));
-    return { chatId, groupId, members: members.filter((entry): entry is SpriteCastMember => entry !== null) };
-  }
-  const raw = ctx.characterId;
-  const index = typeof raw === "number" ? raw : typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN;
-  const solo = Number.isInteger(index) ? member(all[index], false) : null;
-  return { chatId, groupId, members: solo ? [solo] : [] };
+  const group = groupId ? ctx.groups.find((entry) => entry.id === groupId) : null;
+  if (!group) return { chatId, groupId, members: [] };
+  const disabled = new Set(group.disabled_members ?? []);
+  const members = group.members.map((avatar) => member(all.find((card) => card.avatar === avatar), disabled.has(avatar)));
+  return { chatId, groupId, members: members.filter((entry): entry is SpriteCastMember => entry !== null) };
 }
 
 export function spriteDraftedName(characterId: number | [number]): string | null {

@@ -6,8 +6,8 @@ export class LoudGenerationGate {
   private held = false;
   private refusedCount = 0;
 
-  enter(type: string, group: boolean): "gated" | "ungated" | "refused" {
-    if (type !== GATED_TYPE || !group) return "ungated";
+  enter(type: string): "gated" | "ungated" | "refused" {
+    if (type !== GATED_TYPE) return "ungated";
     if (this.held) {
       this.refusedCount += 1;
       return "refused";
@@ -34,7 +34,8 @@ export const gatedInterceptor = (
 ): GenerationInterceptor =>
   async (chat, contextSize, abort, type) => {
     await hold?.();
-    const entry = gate.enter(type, isGroup());
+    if (!isGroup()) return;
+    const entry = gate.enter(type);
     if (entry === "refused") {
       onRefused?.();
       abort(true);

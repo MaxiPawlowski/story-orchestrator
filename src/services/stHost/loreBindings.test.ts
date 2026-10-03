@@ -48,10 +48,10 @@ describe("readLoreBindings (v25-08-H2..H4, H9)", () => {
     expect(readLoreBindings()).toMatchObject({ chat: null, persona: null });
   });
 
-  it("solo: the open character is the only draftable member", () => {
+  it("v2.7 plan 03: a one-on-one chat drafts no story member, so its character lore is not read", () => {
     host.context.groupId = null;
     host.context.characterId = "0";
-    expect(readLoreBindings().characters).toEqual([{ name: "Arin", books: ["Arin Lore"] }]);
+    expect(readLoreBindings().characters).toEqual([]);
   });
 
   it("no chat and no character: no character lore", () => {

@@ -5,7 +5,6 @@ import {
   epistemicForSubject,
   removeEpistemic,
   renderPrivateEpistemicBlock,
-  renderSoloEpistemicBlock,
   rollbackEpistemic,
   setEpistemicPinned,
 } from "./epistemic";
@@ -133,68 +132,6 @@ describe("renderPrivateEpistemicBlock", () => {
 
   it("returns empty when the subject has no active knowledge", () => {
     expect(renderPrivateEpistemicBlock(build(), ["Fen"])).toBe("");
-  });
-});
-
-describe("renderSoloEpistemicBlock (v2.4 E2)", () => {
-  const build = (): EpistemicEntry[] => applyEpistemicSignals([], [
-    sig("hiding", "Arin", "the north road washed out", "Ponticius"),
-    sig("knows", "Ponticius", "the relic is a forgery"),
-    sig("suspects", "Arin", "Ponticius lies about the relic"),
-    sig("believes", "Ponticius", "Arin trusts him"),
-    sig("unaware", "Arin", "the bridge was rebuilt"),
-    sig("knows", "Arin", "the password is ember"),
-  ], ctx(1)).entries;
-
-  it("keeps one name's block byte-identical to the second-person block", () => {
-    const entries = build();
-    const block = renderSoloEpistemicBlock(entries, ["Arin"]);
-    expect(block).toBe(renderPrivateEpistemicBlock(entries, ["Arin"]));
-    expect(block).toBe([
-      "Your private knowledge (stay in character — never narrate what you conceal or do not know):",
-      "- You know: the password is ember",
-      "- You suspect: Ponticius lies about the relic",
-      "- You are concealing from Ponticius: the north road washed out",
-    ].join("\n"));
-  });
-
-  it("names each line's subject when the narrator voices several characters", () => {
-    expect(renderSoloEpistemicBlock(build(), ["Arin", "Ponticius"])).toBe([
-      "What each character privately knows (voice each character accordingly — a character acts only on what they know, and never reveal what one of them conceals):",
-      "- Arin knows: the password is ember",
-      "- Arin suspects Ponticius lies about the relic",
-      "- Arin is unaware that the bridge was rebuilt",
-      "- Arin is concealing from Ponticius: the north road washed out",
-      "- Ponticius knows: the relic is a forgery",
-      "- Ponticius believes Arin trusts him",
-    ].join("\n"));
-  });
-
-  it("never tells the one narrator 'You' about a merged roster", () => {
-    expect(renderSoloEpistemicBlock(build(), ["Arin", "Ponticius"])).not.toMatch(/^- You /m);
-  });
-
-  it("counts names case-insensitively, so one member's two spellings stay second person", () => {
-    const entries = build();
-    expect(renderSoloEpistemicBlock(entries, ["Arin", "arin"])).toBe(renderPrivateEpistemicBlock(entries, ["Arin", "arin"]));
-  });
-
-  it("uses the roster's spelling for the subject and leaves out non-roster subjects", () => {
-    const entries = applyEpistemicSignals([], [sig("knows", "arin", "the password is ember"), sig("knows", "Fen", "a stranger's fact")], ctx(1)).entries;
-    const block = renderSoloEpistemicBlock(entries, ["Arin", "Ponticius"]);
-    expect(block).toContain("- Arin knows: the password is ember");
-    expect(block).not.toContain("stranger");
-  });
-
-  it("returns empty when no roster member holds active knowledge", () => {
-    expect(renderSoloEpistemicBlock(build(), ["Fen", "Luke"])).toBe("");
-  });
-
-  it("leaves out a retired row, as the second-person block does", () => {
-    const entries = build();
-    const password = entries.find((entry) => entry.content === "the password is ember")!;
-    const retired = applyEpistemicSignals(entries, [], ctx(2), [password.id]).entries;
-    expect(renderSoloEpistemicBlock(retired, ["Arin", "Ponticius"])).not.toContain("the password is ember");
   });
 });
 

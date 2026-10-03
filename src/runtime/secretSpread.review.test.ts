@@ -134,7 +134,4 @@ ${ENTRIES[0].text}`);
     expect(rest).toMatch(SECRET);
   });
 
-  it("control: a solo chat is unchanged, the narrator voices everyone", () => {
-    expect(harness(SECRET_KNOWLEDGE, false).shared()).toMatch(SECRET);
-  });
 });
