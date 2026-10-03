@@ -9,26 +9,37 @@ export interface ConnectionProfileSummary {
   name: string;
   api?: string;
   model?: string;
+  kind?: "chat" | "text";
+  source?: string;
+  apiUrl?: string;
 }
+
+const summarize = (profile: Record<string, unknown>, id: string, name: string): ConnectionProfileSummary => {
+  const api = typeof profile.api === "string" ? profile.api : undefined;
+  const map = api ? getContext().CONNECT_API_MAP?.[api] : undefined;
+  const kind = map?.selected === "openai" ? "chat" : map?.selected === "textgenerationwebui" ? "text" : undefined;
+  const source = kind === "chat" ? map?.source : kind === "text" ? map?.type : undefined;
+  const url = profile["api-url"];
+  return {
+    id,
+    name,
+    api,
+    model: typeof profile.model === "string" ? profile.model : undefined,
+    kind,
+    source: typeof source === "string" && source ? source : api,
+    apiUrl: typeof url === "string" && url.trim() ? url.trim() : undefined,
+  };
+};
 
 export function listConnectionProfiles(): ConnectionProfileSummary[] {
   try {
-    return extensionsSharedModule.ConnectionManagerRequestService.getSupportedProfiles().map((profile) => ({
-      id: String(profile.id),
-      name: String(profile.name ?? profile.id),
-      api: typeof profile.api === "string" ? profile.api : undefined,
-      model: typeof profile.model === "string" ? profile.model : undefined,
-    }));
+    return extensionsSharedModule.ConnectionManagerRequestService.getSupportedProfiles().map((profile) => summarize(profile, String(profile.id), String(profile.name ?? profile.id)));
   } catch {
     const root = getContext().extensionSettings as Record<string, unknown>;
     const settings = isRecord(root.connectionManager) ? root.connectionManager : {};
     const profiles = Array.isArray(settings.profiles) ? settings.profiles : [];
-    return profiles.filter(isRecord).map((profile) => ({
-      id: String(profile.id ?? ""),
-      name: String(profile.name ?? profile.id ?? ""),
-      api: typeof profile.api === "string" ? profile.api : undefined,
-      model: typeof profile.model === "string" ? profile.model : undefined,
-    })).filter((profile) => profile.id && profile.name);
+    return profiles.filter(isRecord).map((profile) => summarize(profile, String(profile.id ?? ""), String(profile.name ?? profile.id ?? "")))
+      .filter((profile) => profile.id && profile.name);
   }
 }
 

@@ -1,5 +1,6 @@
 import type { ConnectionProfileSummary } from "@services/STAPI";
 import { FieldLabel } from "./Field";
+import { ProfileOptions } from "./ProfileOptions";
 
 export interface FallbackProfileFieldProps {
   value: string | null;
@@ -17,7 +18,7 @@ export const FallbackProfileField = ({ value, primary, profiles, onChange }: Fal
       <select id="so-extraction-fallback" value={value ?? ""} disabled={!primary} onChange={(event) => onChange(event.target.value || null)}>
         <option value="">No fallback</option>
         {missing && <option value={value ?? ""}>{value} (no longer exists)</option>}
-        {choices.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
+        <ProfileOptions profiles={choices} />
       </select>
     </div>
   );

@@ -15,6 +15,7 @@ import { GroupHeader } from "./GroupHeader";
 import { Advanced, CheckRow, FieldLabel } from "./Field";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
 import { FallbackProfileField } from "./FallbackProfileField";
+import { ProfileOptions } from "./ProfileOptions";
 import { ReplyThinkingField } from "./ReplyThinkingField";
 import { log } from "@utils/log";
 
@@ -169,7 +170,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <FieldLabel htmlFor="so-extraction-profile" setting="extraction.profileId" />
         <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
           <option value="">No profile selected</option>
-          {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
+          <ProfileOptions profiles={profiles} />
         </select>
       </div>
       <FallbackProfileField value={settings.fallbackProfileId ?? null} primary={settings.profileId} profiles={profiles}

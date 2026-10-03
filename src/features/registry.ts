@@ -372,7 +372,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "models-per-task", name: "Models per task", area: "setup", audience: "setup",
     oneLine: "Send each kind of background work to its own model.",
-    what: "Story reads, summaries, the wizard, speaker direction, the curator and the inner voice can each use their own profile, or a cloud harness through the harness plugin.",
+    what: "Story reads, summaries, the wizard, speaker direction, the curator and the inner voice can each use their own profile, or a cloud harness through the harness plugin. "
+      + "Profiles are grouped by provider and labelled local or cloud, and a task on a cloud profile says what it sends.",
     where: settingsAt("#so-role-profiles", "General setup › Models per task"),
     settings: ["extraction.profiles", "extraction.routes", "extraction.reasoningBudget"], doc: "setup/memory-model.md", status: "shipped", since: "2.5.0",
   },

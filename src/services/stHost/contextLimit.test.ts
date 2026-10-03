@@ -2,16 +2,17 @@ const mockHost: { context: Record<string, unknown> } = { context: {} };
 
 jest.mock("./context", () => ({ getContext: () => mockHost.context }));
 
-import { contextLimitFromPreset, readProfileContextLimit } from "./contextLimit";
+import { inputBudget } from "@extraction/inputBudget";
+import { CONTEXT_TABLE, contextLimitFromPreset, contextLimitFromTable, readProfileContextLimit } from "./contextLimit";
 
 const PRESETS: Record<string, Record<string, Record<string, unknown>>> = {
   textgenerationwebui: { "Artemis Extraction": { max_length: 98304, temp: 0.1 }, Bare: { temp: 0.7 } },
-  openai: { "Orchestrator-Gemma4-v1.0": { openai_max_context: 32768 } },
+  openai: { "Orchestrator-Gemma4-v1.0": { openai_max_context: 32768 }, "No size": { temp: 1 } },
 };
 
 const host = (profiles: Array<Record<string, unknown>>, overrides: Record<string, unknown> = {}) => ({
   extensionSettings: { disabledExtensions: [], connectionManager: { profiles } },
-  CONNECT_API_MAP: { llamacpp: { selected: "textgenerationwebui", type: "llamacpp" }, openai: { selected: "openai", source: "openai" }, deepseek: { selected: "openai", source: "deepseek" }, kobold: { selected: "kobold" } },
+  CONNECT_API_MAP: { llamacpp: { selected: "textgenerationwebui", type: "llamacpp" }, openai: { selected: "openai", source: "openai" }, deepseek: { selected: "openai", source: "deepseek" }, claude: { selected: "openai", source: "claude" }, google: { selected: "openai", source: "makersuite" }, custom: { selected: "openai", source: "custom" }, openrouter: { selected: "openai", source: "openrouter" }, kobold: { selected: "kobold" } },
   getPresetManager: (api: string) => (PRESETS[api] ? { getCompletionPresetByName: (name: string) => PRESETS[api][name] } : null),
   ...overrides,
 });
@@ -32,9 +33,65 @@ describe("v2.4 plan 03 H12: the extraction profile's context limit", () => {
     expect(readProfileContextLimit("ds")).toEqual({ value: 131072, source: "source", reason: expect.stringContaining("deepseek") });
   });
 
-  it("a CC profile with no preset and an unlisted source keeps the default", () => {
+  it("a CC profile with no preset and no model is budgeted at its source row", () => {
     mockHost.context = host([{ id: "oa", api: "openai" }]);
-    expect(readProfileContextLimit("oa")).toEqual({ value: 8192, source: "default", reason: expect.stringContaining("no settings preset") });
+    expect(readProfileContextLimit("oa")).toEqual({ value: 128000, source: "source", reason: "known for openai; the profile names no settings preset" });
+  });
+
+  describe("v2.7 02 C14: the per-source, per-model context table", () => {
+    it("a model row wins over its source row", () => {
+      mockHost.context = host([{ id: "g4", api: "openai", model: "gpt-4" }, { id: "g5", api: "openai", model: "gpt-5-mini" }]);
+      expect(readProfileContextLimit("g4")).toEqual({ value: 8191, source: "source", reason: "known for gpt-4 on openai; the profile names no settings preset" });
+      expect(readProfileContextLimit("g5")).toMatchObject({ value: 400000, source: "source" });
+    });
+
+    it("an unknown model on a known source takes the source row", () => {
+      mockHost.context = host([{ id: "c", api: "claude", model: "claude-unreleased-9" }, { id: "gm", api: "google", model: "unknown-model" }]);
+      expect(readProfileContextLimit("c")).toEqual({ value: 200000, source: "source", reason: "known for claude; the profile names no settings preset" });
+      expect(readProfileContextLimit("gm")).toMatchObject({ value: 128000, source: "source" });
+    });
+
+    it("an unknown source keeps the 8192 default with its reason", () => {
+      mockHost.context = host([{ id: "cu", api: "custom", model: "gpt-5" }, { id: "or", api: "openrouter", model: "deepseek/deepseek-v4" }]);
+      expect(readProfileContextLimit("cu")).toEqual({ value: 8192, source: "default", reason: "the profile names no settings preset" });
+      expect(readProfileContextLimit("or")).toEqual({ value: 8192, source: "default", reason: "the profile names no settings preset" });
+    });
+
+    it("a preset value wins over the table", () => {
+      mockHost.context = host([{ id: "p", api: "claude", model: "claude-opus-5", preset: "Orchestrator-Gemma4-v1.0" }]);
+      expect(readProfileContextLimit("p")).toEqual({ value: 32768, source: "preset" });
+    });
+
+    it("a CC preset without a usable size falls to the table, naming why", () => {
+      mockHost.context = host([{ id: "p", api: "deepseek", preset: "No size" }, { id: "q", api: "deepseek", preset: "Deleted" }]);
+      expect(readProfileContextLimit("p")).toEqual({ value: 131072, source: "source", reason: 'known for deepseek; the preset "No size" has no usable openai_max_context' });
+      expect(readProfileContextLimit("q")).toEqual({ value: 131072, source: "source", reason: 'known for deepseek; the preset "Deleted" could not be read' });
+    });
+
+    it("a TC profile is untouched by the table", () => {
+      mockHost.context = host([{ id: "tc", api: "llamacpp", model: "gpt-5" }, { id: "tcb", api: "llamacpp", preset: "Bare", model: "claude-opus-5" }]);
+      expect(readProfileContextLimit("tc")).toEqual({ value: 8192, source: "default", reason: "the profile names no settings preset" });
+      expect(readProfileContextLimit("tcb")).toEqual({ value: 8192, source: "default", reason: expect.stringContaining("no usable max_length") });
+    });
+
+    it("the input budget truncates at the table's limit", () => {
+      mockHost.context = host([{ id: "c", api: "claude" }]);
+      const budget = inputBudget(readProfileContextLimit("c"), 512);
+      expect(budget).toMatchObject({ maxTokens: 512, margin: 20000, input: 200000 - 512 - 20000 });
+      expect(inputBudget(readProfileContextLimit("missing"), 512).input).toBe(8192 - 512 - 820);
+    });
+
+    it("every row is a positive integer, and each source has at most one source row, after its model rows", () => {
+      const sources = new Set(CONTEXT_TABLE.map((row) => row.source));
+      for (const source of sources) {
+        const rows = CONTEXT_TABLE.filter((row) => row.source === source);
+        expect(rows.filter((row) => !row.model)).toHaveLength(1);
+        expect(rows.findIndex((row) => !row.model)).toBe(rows.length - 1);
+      }
+      expect(CONTEXT_TABLE.every((row) => Number.isInteger(row.value) && row.value > 0)).toBe(true);
+      expect(contextLimitFromTable(undefined, "gpt-5")).toBeNull();
+      expect(contextLimitFromTable("deepseek", undefined)).toMatchObject({ value: 131072 });
+    });
   });
 
   it("unreadable preset → default 8192, reported", () => {
