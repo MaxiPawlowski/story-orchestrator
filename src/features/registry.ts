@@ -267,6 +267,15 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
   },
   {
+    id: "curator-markers", name: "Protected and auto lore", area: "world", audience: "author",
+    oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
+    what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
+      + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
+    where: settingsAt("#so-curator-accept-mode", "Author services › Background helpers"),
+    settings: [], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped", since: "2.7.0",
+    needs: ["memory-profile"],
+  },
+  {
     id: "backgrounds", name: "Backgrounds", area: "world", audience: "author",
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",

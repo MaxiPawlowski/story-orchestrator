@@ -1,8 +1,6 @@
 import { join } from "path";
 import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/support/codeHealth";
 
-const PLAN_09_SPIKES = ["src/stagecraft/curatorTiers.ts"];
-
 const DEV_ONLY = [
   "src/runtime/liveSuite.ts",
   "src/runtime/judgeHarness.ts",
@@ -10,7 +8,6 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
-  ...PLAN_09_SPIKES,
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
@@ -62,17 +59,11 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
     expect(staticReach(files, read).filter((path) => LAZY_SHIPPED.includes(path))).toEqual(expect.arrayContaining(LAZY_SHIPPED));
   });
 
-  it("plan 09 spike modules load only behind their own flag, never with the entry (rule 2)", () => {
-    expect(staticReach(files).filter((path) => PLAN_09_SPIKES.includes(path))).toEqual([]);
-    const present = new Set(files.map(rel));
-    expect(PLAN_09_SPIKES.filter((path) => !present.has(path))).toEqual([]);
-  });
-
-  it("control: a planted static import of a spike module fails", () => {
+  it("control: a planted static import of a spike module from the stagecraft barrel fails", () => {
     const store = join(SRC, "stagecraft", "index.ts");
     const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "./curatorTiers";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter((path) => PLAN_09_SPIKES.includes(path))).toContain("src/stagecraft/curatorTiers.ts");
+    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "../runtime/spikes/swipeBack";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/spikes/swipeBack.ts");
   });
 
   it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {
@@ -143,6 +134,11 @@ import "./runtime/spikes/toolTurnSummary";
   it("SP5.b (v2.7 02 C1): the story scenario ships in the prod entry graph, and its spike modules are gone", () => {
     expect(staticReach(files)).toEqual(expect.arrayContaining(["src/runtime/storyScenario.ts", "src/runtime/storyScenarioHost.ts", "src/services/stHost/chatScenario.ts"]));
     expect(files.map(rel).filter((path) => /spikes\/sp5/.test(path))).toEqual([]);
+  });
+
+  it("SP8.b (v2.7 02 C13): the curator tiers ship in the prod entry graph, through the stagecraft barrel, and are not dev-only", () => {
+    expect(staticReach(files)).toContain("src/stagecraft/curatorTiers.ts");
+    expect(isDevOnly("src/stagecraft/curatorTiers.ts")).toBe(false);
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {

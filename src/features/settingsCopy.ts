@@ -161,7 +161,8 @@ export const SETTING_COPY = {
   ),
   "stagecraft.acceptMode": copy(
     "Curator changes",
-    "Ask me first: you approve each change. Apply on their own: changes land at the next reply. Never apply: only show what it would do.",
+    "Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. "
+      + "Never apply: only show what it would do.",
   ),
   "stagecraft.wardenEnabled": copy(
     "Continuity warden",

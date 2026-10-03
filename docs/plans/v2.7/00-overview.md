@@ -141,7 +141,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | Plan | State |
 |---|---|
 | 01 | BUILT (both halves merged); triage proposal awaits the user's review; live D checks owed (16-test-plan) |
-| 02 | PARTLY BUILT: C2, C6–C10, C1 and C14 merged (gates green, live NOT run); K1/K2 fixed in the v2.6 T7 wave B (step 0); C11-F1 display, C13 not built |
+| 02 | PARTLY BUILT: C2, C6–C10, C1 and C14 merged (gates green, live NOT run); K1/K2 fixed in the v2.6 T7 wave B (step 0); C13 built on its branch (gates green, live NOT run, curator prompt byte-identical, real row v2.8 01 O14), not merged; C11-F1 display not built |
 | 03 | APPROVED (all five decisions); not built |
 | 04 | APPROVED; seed registry in `checks.ts`; extension and migration not built |
 | 05 | APPROVED (static half); not built |

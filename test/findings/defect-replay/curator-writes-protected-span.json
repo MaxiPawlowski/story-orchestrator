@@ -1,0 +1,12 @@
+{
+  "id": "curator-writes-protected-span",
+  "defect": "a curator op accepted past the plan-time check (a replayed or edited card, or an entry that gained a protected span after the plan) rewrote, patched or switched off protected lore",
+  "guards": ".claude/rules/architecture.md: \"Stagecraft proposes, it never writes ... an op that touches a protected span or adds a marker is refused at plan time (`refuseProtected`) and again at the write edge\" (v2.7 02 C13, SP8 W1)",
+  "fixCommit": "v2.7 02 C13 promotion of 544975fb (v2.5 plan 09 SP8 W1 write-edge guard)",
+  "file": "src/runtime/curatorWriter.ts",
+  "find": "    const refused = protectedRefusal(op, live.content);",
+  "replace": "    const refused = null;",
+  "tests": [
+    "src/runtime/coordinators/curatorTiers.review.test.ts"
+  ]
+}

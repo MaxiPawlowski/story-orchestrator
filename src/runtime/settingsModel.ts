@@ -85,7 +85,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
 });
 
 export const SPIKE_FLAGS = [
-  "swipeBackCache", "sp6Complications", "sp8CuratorTiers",
+  "swipeBackCache", "sp6Complications",
   "reasoningEffect",
 ] as const;
 
