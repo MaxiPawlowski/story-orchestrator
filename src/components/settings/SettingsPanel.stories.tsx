@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, waitFor, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import { createSaveHealth } from "@runtime/saveHealth";
 import { getGlobalSettings } from "@runtime/settingsStore";
@@ -83,7 +83,7 @@ export const PlayerWithAStoryHidesAuthorControls: Story = {
   args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByLabelText("Memory model profile")).toBeInTheDocument();
+    await expect(await canvas.findByLabelText("Memory model")).toBeInTheDocument();
     await expect(canvas.getByLabelText("Story for this chat")).toHaveValue("sun-ruins");
     await expect(canvasElement.querySelector("#so-curator-enabled")).toBeNull();
     await expect(canvasElement.querySelector("#so-copilot-enabled")).toBeNull();
@@ -95,10 +95,23 @@ export const AuthorViewShowsAuthorControls: Story = {
   args: { snapshot: snapshot(true), manager: fakeManager(), host: host() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByLabelText("Memory model profile")).toBeInTheDocument();
+    await expect(await canvas.findByLabelText("Memory model")).toBeInTheDocument();
     await expect(canvasElement.querySelector("#so-curator-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-copilot-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("[data-so='engine-status']")).toHaveTextContent("Hydrated The Quest for the Sun Ruins");
+  },
+};
+
+export const HelpOpensFromTheHeader: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Help: what each part does" }));
+    await waitFor(() => expect(canvasElement.querySelector('[data-so="help-panel"]')).not.toBeNull());
+    await expect(canvasElement.querySelector('[data-so="help-feature"][data-audience="author"]')).toBeNull();
+    const memory = canvasElement.querySelector('[data-so="help-feature"][data-feature="memory"]') as HTMLElement;
+    await userEvent.click(within(memory).getByRole("button", { name: "Show me" }));
+    await expect(args.host.showFeature).toHaveBeenCalledWith(expect.objectContaining({ selector: "#so-extraction-profile" }));
   },
 };
 
