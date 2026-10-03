@@ -10,6 +10,7 @@ export const mountRootFor = (title: string) => {
   if (title.startsWith("Sprites/")) return "so-vn-root";
   if (title.startsWith("Image/Review")) return "so-image-review-root";
   if (title.startsWith("Briefing/")) return "so-briefing-root";
+  if (title.startsWith("Panels/")) return "so-panels-root";
   return "so-studio-root";
 };
 

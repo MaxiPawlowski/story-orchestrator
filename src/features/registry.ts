@@ -2,6 +2,7 @@ import { JUDGE_USE_COPY, JUDGE_USE_KEYS, AUTHOR_JUDGE_USES, type JudgeUseKey } f
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import * as manifestModule from "../../manifest.json";
+import { PRESENCE_FEATURES } from "./presenceFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
@@ -421,7 +422,7 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

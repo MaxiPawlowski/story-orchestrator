@@ -8,6 +8,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
 import type { FeatureWhere } from "@features/registry";
+import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";
 import { GettingStarted } from "./GettingStarted";
 import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
@@ -43,6 +44,9 @@ export interface SettingsHost {
   showFeature: (where: FeatureWhere) => void;
   makeGroup?: (storyId: string) => Promise<MakeGroupOutcome>;
   fixGroupWithWizard?: (storyId: string, missing: string[]) => void;
+  openPlay?: (row: ContinueRow) => void;
+  helpOpen?: boolean;
+  toggleHelp?: () => void;
 }
 
 interface SettingsPanelProps {
@@ -125,8 +129,9 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   const toggleHelp = (event: MouseEvent<HTMLButtonElement>) => {
     const content = event.currentTarget.closest(".inline-drawer")?.querySelector<HTMLElement>(".inline-drawer-content");
     const panelOpen = Boolean(content && content.offsetParent !== null);
-    if (panelOpen) event.stopPropagation();
-    setHelpOpen(panelOpen ? !helpOpen : true);
+    if (panelOpen || host.toggleHelp) event.stopPropagation();
+    if (host.toggleHelp) host.toggleHelp();
+    else setHelpOpen(panelOpen ? !helpOpen : true);
   };
 
   return (
@@ -134,10 +139,10 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
       <div className="inline-drawer">
         <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
           <b>Story Orchestrator</b>
-          <HelpButton id="so-help-toggle" open={helpOpen} onToggle={toggleHelp} />
+          <HelpButton id="so-help-toggle" open={host.toggleHelp ? host.helpOpen === true : helpOpen} onToggle={toggleHelp} />
         </div>
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
-          {helpOpen && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
+          {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
           <Lazy fallback={null}><WhatsNewHost configured={Boolean(extraction.profileId)} authorView={snapshot.ui.authorView} onShowMe={host.showFeature} /></Lazy>
           <EntryPoints
             snapshot={snapshot}
@@ -152,6 +157,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onFixWithWizard={host.openWizardForRequirements}
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
+            onOpenPlay={host.openPlay}
             gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
           />

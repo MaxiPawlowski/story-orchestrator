@@ -5,6 +5,7 @@ import ChaptersEditor from "./ChaptersEditor";
 import BriefingEditor from "./BriefingEditor";
 import { composeBriefing } from "@engine/index";
 import { requestBriefing } from "@runtime/briefingRequest";
+import StoryDisplayEditor from "./StoryDisplayEditor";
 import { useDraftStore } from "../draft";
 import { slugifyStoryId } from "@engine/index";
 import {
@@ -402,6 +403,7 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
       <SceneReadSection draft={draft} mutate={mutate} />
       <ArcBridgesSection draft={draft} mutate={mutate} />
       <ChaptersEditor />
+      <StoryDisplayEditor />
     </div>
   );
 };

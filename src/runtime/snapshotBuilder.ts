@@ -35,6 +35,10 @@ import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
 import { briefingState } from "./briefing";
 import { chapterKit, storyEnded } from "./chapterPort";
+import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
+import { buildPresence } from "./presence";
+import { readPlaysIndex } from "./playsIndexHost";
+import type { PlaysIndex } from "./playsIndex";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
 import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
@@ -84,6 +88,8 @@ export interface SnapshotSources {
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   copiersOn?: readonly string[];
   scenarioFrame?: ScenarioFrame | null;
+  chatId?: string | null;
+  plays?: PlaysIndex;
 }
 
 export interface SnapshotPort {
@@ -102,6 +108,7 @@ export interface SnapshotPort {
   promptBlocks: ExtensionPromptBlocks;
   chat: readonly unknown[];
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
+  chatId?: string | null;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -127,6 +134,8 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   characters: port.characters ?? [],
   copiersOn: switchedOnCopiers(),
   scenarioFrame: scenarioFrame(),
+  chatId: port.loaded ? port.chatId ?? null : null,
+  plays: readPlaysIndex(),
 });
 
 const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
@@ -233,6 +242,18 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
     chatOpen: hasOpenChat(), groupChat: sources.groupChat === true,
   }),
 });
+
+const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+  const storyId = sources.loaded?.record.id;
+  const ids = storyId && sources.chatId ? { chatId: sources.chatId, storyId } : null;
+  const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
+  return {
+    rolls: composeRolls(quality, sources.extras.chance ?? createChance()),
+    presence: buildPresence({
+      story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
+    }),
+  };
+};
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
@@ -380,7 +401,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline, castNames,
+    inline, castNames, ...presenceSlices(sources, story, state),
     ...modelCallSlices(extras),
   };
 }

@@ -12,6 +12,7 @@ import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
 import StoryLoreGlobal from "./StoryLoreGlobal";
 import { GroupHeader } from "./GroupHeader";
 import { Advanced, CheckRow, FieldLabel } from "./Field";
+import { PresenceControls } from "./PresenceControls";
 
 const InlineControls = lazyRetry(() => import("./InlineControls"));
 const ChapterControls = lazyRetry(() => import("./ChapterControls"));
@@ -34,6 +35,7 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
     <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} onChange={(on) => manager.setUiSettings({ hudEnabled: on })} />
     <CheckRow id="so-briefing-enabled" setting="display.briefing" checked={snapshot.ui.briefing !== false} onChange={(on) => manager.setUiSettings({ briefing: on })} />
     <CheckRow id="so-announce-transitions" setting="display.announceTransitions" checked={snapshot.ui.announceTransitions} onChange={(on) => manager.setUiSettings({ announceTransitions: on })} />
+    <PresenceControls snapshot={snapshot} onChange={(presence) => manager.setUiSettings({ presence })} />
   </div>
 );
 

@@ -111,6 +111,8 @@ export interface SillyTavernContext {
   getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
   // Re-renders one message from its chat row, text and reasoning (script.js:2033, st-context.js:238).
   updateMessageBlock?: (messageId: number, message: unknown) => void;
+  // Opens a chat the group lists; silent for any other id (group-chats.js:2195-2210, st-context.js:157).
+  openGroupChat?: (groupId: string, chatId: string) => Promise<void>;
   [key: string]: unknown;
 }
 

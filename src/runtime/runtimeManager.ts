@@ -486,7 +486,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       validationErrors: this.validationErrors, status: elsewhere ? CHAT_LOADING_STATUS : this.status,
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
-      characters: getContext().characters ?? [],
+      characters: getContext().characters ?? [], chatId: this.loadedChatId,
     }));
   }
 

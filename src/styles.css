@@ -12,9 +12,11 @@
   --st-error: var(--SmartThemeErrorColor, var(--SmartThemeQuoteColor, currentColor));
   --st-warning: var(--SmartThemeWarningColor, var(--SmartThemeQuoteColor, currentColor));
   --st-info: var(--SmartThemeQuoteColor, var(--SmartThemeBodyColor, currentColor));
+  --so-badge-story: var(--st-info);
+  --so-badge-saga: var(--st-warning);
 }
 
-:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing) {
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root) {
   @apply text-base;
 
   @tailwind utilities source(none);
@@ -535,13 +537,13 @@ dialog#so-briefing::backdrop {
   color: var(--st-info);
 }
 
-:is(#drawer-manager, #story-orchestrator-settings) .so-help-list {
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-:is(#drawer-manager, #story-orchestrator-settings) .so-help-panel {
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-panel {
   padding: 0.5rem;
   border: 1px solid var(--st-border);
   border-radius: 0.5rem;
@@ -550,7 +552,141 @@ dialog#so-briefing::backdrop {
   overflow-y: auto;
 }
 
-:is(#drawer-manager, #story-orchestrator-settings) .so-help-feature {
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-feature {
   padding-bottom: 0.4rem;
   border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+}
+
+#so-panels-root .so-panel {
+  position: fixed;
+  z-index: 3500;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
+  backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
+  border: 1px solid var(--st-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+  text-align: left;
+}
+
+#so-panels-root .so-panel--docked {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 60vh;
+  border-radius: 8px 8px 0 0;
+}
+
+#so-panels-root .so-panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--st-border);
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+}
+
+#so-panels-root .so-panel--docked .so-panel-bar {
+  cursor: default;
+}
+
+#so-panels-root .so-panel-bar:focus-visible {
+  outline: 2px solid var(--st-hover);
+  outline-offset: -2px;
+}
+
+#so-panels-root .so-panel-title {
+  font-weight: 600;
+}
+
+#so-panels-root .so-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+
+#so-panels-root .so-panel-body .so-help-panel {
+  max-height: none;
+  border: none;
+  padding: 0;
+}
+
+#so-panels-root .so-panel-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: linear-gradient(135deg, transparent 50%, var(--st-border) 50%);
+  border-bottom-right-radius: 8px;
+}
+
+#so-panels-root .so-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#so-panels-root .so-activity-row {
+  padding-bottom: 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+}
+
+#so-panels-root .so-activity-text {
+  overflow-wrap: anywhere;
+}
+
+/* The one exception to the mount-root scope (v2.7 06 B): marks inside ST's own lists, never touching .avatar. */
+.so-story-badge {
+  margin-left: 0.35em;
+  font-size: 0.8em;
+  color: var(--so-badge-story);
+  opacity: 0.9;
+}
+
+.so-story-badge--saga {
+  color: var(--so-badge-saga);
+}
+
+.so-story-badge:focus-visible {
+  outline: 2px solid var(--st-hover);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.so-story-card {
+  position: fixed;
+  z-index: 3600;
+  max-width: 18rem;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  line-height: 1.4;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
+  border: 1px solid var(--st-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+}
+
+.so-story-card--saga {
+  border-color: var(--so-badge-saga);
+}
+
+.so-story-card-title {
+  font-weight: 600;
+}
+
+.so-story-card-kind {
+  opacity: 0.75;
 }

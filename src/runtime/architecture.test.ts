@@ -105,6 +105,29 @@ describe("architecture guards", () => {
     expect(MESSAGE_DOM.test('document.querySelector(`.mes[mesid="3"] .mes_text`)')).toBe(true);
   });
 
+  it("lets only the badge module touch ST's character, recent-chat and past-chat lists (v2.7 06 B)", () => {
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    const LIST_DOM = /\.group_select\b|\.recentChat[.[]|\.select_chat_block\b|rm_print_characters_block|select_chat_div/;
+    const touchers = walk(SRC).filter((path) => !path.endsWith(".stories.tsx") && LIST_DOM.test(readFileSync(path, "utf8"))).map(relative).sort();
+    expect(touchers).toEqual(["services/stHost/charListBadges.ts"]);
+    expect(LIST_DOM.test('document.querySelector(".group_select[data-grid]")')).toBe(true);
+    expect(LIST_DOM.test("context.recentChat")).toBe(false);
+  });
+
+  it("keeps the story presence UI away from everything sent to a model (v2.7 06 payload invariance, static half)", () => {
+    const PRESENCE = [
+      "runtime/rolls.ts", "runtime/playsIndex.ts", "runtime/playsIndexHost.ts", "runtime/playsBackfill.ts", "runtime/presence.ts", "runtime/presenceBadges.ts",
+      "runtime/chapterCards.ts", "runtime/displayToggles.ts", "runtime/activityFeed.ts", "runtime/panelGeometry.ts", "runtime/panelStore.ts",
+      "services/stHost/charListBadges.ts", "services/stHost/storyWand.ts", "services/stHost/groupChatFiles.ts", "presenceUi.tsx",
+      "components/panels/PanelFrame.tsx", "components/panels/ActivityPanel.tsx", "components/inline/ChapterCard.tsx", "components/inline/RollChips.tsx",
+      "components/settings/ContinueList.tsx", "components/settings/PresenceControls.tsx", "studio/components/StoryDisplayEditor.tsx",
+    ];
+    const PROMPT_SEAM = /setStoryExtensionPrompt|clearStoryExtensionPrompt|setExtensionPrompt|INJECTION_REGISTRY|updateInjection|GENERATE_AFTER_DATA|registerHostMacro|chat_metadata\.note/;
+    const offenders = PRESENCE.filter((file) => PROMPT_SEAM.test(readFileSync(join(SRC, file), "utf8")));
+    expect(offenders).toEqual([]);
+    expect(PROMPT_SEAM.test("setStoryExtensionPrompt(key, text)")).toBe(true);
+  });
+
   it("keeps engine purity: no host imports below src/engine", () => {
     for (const path of walk(join(SRC, "engine"))) {
       const offenders = importsOf(path).filter((specifier) => specifier.includes("@services") || specifier.includes("STAPI"));

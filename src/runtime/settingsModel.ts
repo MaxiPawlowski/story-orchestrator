@@ -9,6 +9,7 @@ import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSe
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
+import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSettings } from "./displayToggles";
 
 // The system default for answering one player message with several voices. A checkpoint's own
 // `talk_control.chain` overrides each field; absent fields fall back here.
@@ -57,7 +58,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { alpha: number; hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings };
+  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings; presence: PresenceSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -181,7 +182,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings() },
+  display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
@@ -254,6 +255,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
       inline: sanitizeInlineSettings(display.inline),
+      presence: sanitizePresenceSettings(display.presence),
     },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: sanitizeInnerVoice({

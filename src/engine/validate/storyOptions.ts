@@ -1,6 +1,7 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
   HOUSE_RULE_MAX_CHARS, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
+  STORY_DISPLAY_TOGGLES, type StoryDisplay,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
@@ -174,9 +175,15 @@ const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["displa
     addError(errors, "display", "display must be an object");
     return undefined;
   }
-  rejectUnknownKeys(value, ["lore_names_public"], "display", errors);
+  rejectUnknownKeys(value, ["lore_names_public", ...STORY_DISPLAY_TOGGLES], "display", errors);
   if (value.lore_names_public !== undefined && typeof value.lore_names_public !== "boolean") addError(errors, "display.lore_names_public", "lore_names_public must be true or false");
-  return value.lore_names_public === true ? { lore_names_public: true } : undefined;
+  const display: StoryDisplay = value.lore_names_public === true ? { lore_names_public: true } : {};
+  for (const key of STORY_DISPLAY_TOGGLES) {
+    const flag = value[key];
+    if (typeof flag === "boolean") display[key] = flag;
+    else if (flag !== undefined) addError(errors, `display.${key}`, `${key} must be true or false`);
+  }
+  return Object.keys(display).length ? display : undefined;
 };
 
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
