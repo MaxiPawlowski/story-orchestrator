@@ -30,7 +30,7 @@ gate runs, and are listed here only so nothing is lost. If v2.7 freezes without 
 | O9 | v2.7 08 warning | `fix` overlay + harvest on → row, HUD chip and harvest line after 5 real replies, in player and author view; `thinking` overlay → none | RP | `v2.7/08-thinking-per-story.md` §Gate record |
 | O10 | v2.7 10 option C | edit the newest reply in a playing chat → pipeline `catching-up` until the re-read audit lands | CL (read role) | `v2.7/10-sp2-recommit-v2.md` §Gate record |
 | O11 | v2.7 09 commitment | `so-journal.mts show` on a held commitment row from real play | CL | `v2.7/09-commitment-double-negatives.md` §Gate record |
-| O13 | v2.7 02 C1 | the SP5.b story-owned scenario in real replies (the scenario reaches the prompt and the reply follows it), beyond v2.8 16's C1–C5 dry-run plumbing (tier D there); the real-reply acceptance of SP5 (recommended; pending user) | RP | `v2.7/02-v26-carry-in.md` C1; v2.8 16 |
+| O13 | v2.7 02 C1 | the SP5.b story-owned scenario in real replies (the scenario reaches the prompt and the reply follows it), beyond v2.8 16's C1–C5 dry-run plumbing (tier D there); the real-reply acceptance of SP5 (decided by the user 2026-10-03, as recommended) | RP | `v2.7/02-v26-carry-in.md` C1; v2.8 16 |
 | O13b | v2.7 02 C1 | wizard/agent model input changed by C1: the guide topic list gains `scenario`, the `experimental-effects` topic text changes, `setCheckpointEffects` tool doc names `scenario`. Acceptance: one agentic-wizard authoring run on a cloud profile proposes a valid `effects.scenario` when asked and never otherwise (W1-style checks, ×2) | CL (authoring profile) | `v2.7/02-v26-carry-in.md` C1 |
 | O14 | v2.7 02 C13 | promoted SP8 curator tiers under a real curator pass (C13-b covers prompt changes only) | CL (curator profile) | `v2.7/02-v26-carry-in.md` C13 |
 | O12 | every merged v2.7 plan | its own "Live: NOT run" line, as recorded at merge | per row | each gate record |
@@ -177,4 +177,4 @@ measurements, §F), C3 (inner-voice promotion owner, §F), C9 refined (Claude's 
 refined (actual post-processor, Recast-shaped fixtures, §C step 0), A15 refined (`buildChecks.mjs` + named build, §C),
 Sol split items 2, 3, 4, 5 (§A, §B), F15 (tiers per row). Not placed here: K1/K2/K3 and C14's picker (v2.7).
 
-Round 3 (Sol): R3-02 (O15), R3-08, R3-20 (O13; recommended; pending user) applied.
+Round 3 (Sol): R3-02 (O15), R3-08, R3-20 (O13; decided by the user 2026-10-03, as recommended) applied.

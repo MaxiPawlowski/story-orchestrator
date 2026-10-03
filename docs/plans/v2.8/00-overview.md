@@ -64,14 +64,14 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 06 | `06-sprite-generation.md` | 26b (new) | in-plugin sprite builder contract | D | LI |
 | 07 | `07-talking-sprites.md` | 28 | blink/talk frames, animator, mouth setting | D + LI (spike S28) | LI + a streamed reply on a named backend (RP or CL) |
 | 08 | `08-living-cards.md` | 32 | per-chat card/persona overlay, look sprites | D | RP (S32-1), LI (looks) |
-| 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; recommended; pending user) | D | CL (DeepSeek CC profile) |
+| 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; decided 2026-10-03) | D | CL (DeepSeek CC profile) |
 | 10 | `10-briefing-drafting.md` | 03 decision 1 | wizard drafts a briefing (auto on the fly, Premise step) | D | CL |
 | 11 | `11-curator-create-op.md` | 12 | curator `create` op, contract B, Lore-creation role | D | CL (frozen fixtures) |
 | 12 | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
 | 13 | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
 | 14 | `14-open-source-jev.md` | 15 | local judge provider (systemone, then NLI), our own evals | D | LT; RP for the play-load check |
 | 15 | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
-| 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | D (C1–C5 dry-run plumbing, no model call); real-reply acceptance = v2.8 01 O13, RP (recommended; pending user) |
+| 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | D (C1–C5 dry-run plumbing, no model call); real-reply acceptance = v2.8 01 O13, RP (decided 2026-10-03) |
 | 17 | `17-sp6-complication-pool.md` | 16b | SP6 measurement | — | RP |
 | 18 | `18-quests-and-game-layer.md` | 19 | quests, visible qualities, checks, milestones, Journal; production complications (Q6) | D | CL (M1/M2 reads) + RP |
 | 19 | `19-open-stretches.md` | 17 | open stub mode, pressure, encounter pool | D (engine half) | RP (A/B) |
@@ -122,6 +122,22 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 21 | 29 | group chats only; offline only | **E0** ranking evaluation (5 arms, predeclared floors) before the spike; runtime verbatim recall → v2.9 05 |
 | 22 | 24 | all recommendations; M1 first, then M1–M3 with proper UI | new plan v2.8 09 (wizard assistant) came from its decision 4 |
 
+### Open questions decided (user, 2026-10-03: as recommended)
+
+| Question | Decided | Where |
+|---|---|---|
+| Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v2.9 (`v2.9/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.8 08 decision 11, v2.8 14 decision 7 |
+| Native tool calls over CC profiles (v2.7 14 decision 3) | v2.8 09 §F (decided); rows indexed in v2.8 23 | v2.8 09 §F |
+| `/story ask` for players vs rule 4 (09 decision 3) | the user's yes counts as the explicit decision rule 4 needs; player Ask ships dev-only, then off by default (rule 9) | v2.8 09 §E |
+| Living director "Save as story" (22) | drops unreached generated checkpoints by default; the player is not asked | v2.8 22 §Spoilers |
+| Blind ratings of Adolion excerpts (22 M2 and anywhere else) | a second model rates them; never the user (rule 11) | v2.8 22 M2, v2.8 19 M2, v2.8 23 §Blind rating packs, v2.7 12 |
+| SP5 acceptance tiers (16, Sol r3 R3-20) | C1–C5 dry-run plumbing acceptance is D on a lane; real-reply acceptance is v2.8 01 O13 (RP) | v2.8 16, v2.8 01 O13, v2.8 23 row 16 |
+| Character life M1 floors (20) | direction accuracy ≥ 0.80, stuck rate ≤ 0.10, hiding the current value costs ≤ 5 points, curator-proposal in-goal ≥ 0.85; frozen before the first run | v2.8 20 §Measurement |
+| Agenda effects and cast changes (20) | agenda effects exclude cast changes | v2.8 20 §Agendas |
+| Shared origin-tagged rollback (`revertOriginSince`, 18 + 20) | whichever plan builds first builds it; the other reuses it and adds its origin | v2.8 18 §Rewards and rollback, v2.8 20 §Agendas |
+| v2.8 RunPod budget (23) | EUR 20 cap, as v2.6; stop and ask the user before exceeding it | v2.8 23 §Cost and budget |
+| Earlier minor proposals | stand as written: J7.1 `SCENE_CONFIRM_P` = 0.40 (13); env names `SO_JUDGE_MODELS_DIR`, `SO_JUDGE_LOCAL_URL` and provider `systemone-local` (14) | v2.8 13 J7.1, v2.8 14 |
+
 ## Status
 
 | Plan | State |
@@ -160,4 +176,4 @@ public relationship meters), A4 (rows rewritten from decisions), B10 (registry r
 2026-10-03 (later): the 04 row reflects the user-approved move of C1, C2, C3, C6, C9 (b), the panel frame and the
 per-story toggles to v2.7 06; plan 23 (test plan) added as the last row.
 
-Round 3 (Sol): R3-15, R3-20 (recommended; pending user) applied.
+Round 3 (Sol): R3-15, R3-20 applied; both decided by the user 2026-10-03 (as recommended, §Decisions).

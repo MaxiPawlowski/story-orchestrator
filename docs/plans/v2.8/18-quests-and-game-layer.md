@@ -185,6 +185,9 @@ knows quest rewards.
   the existing rewind (`rewindNpcReplies`): the fired marker rewinds so the reply can fire again; a posted reply message
   stays chat text, as today's `npc_replies` do. It runs on both rollback paths (engine restored, and noop with
   quarantine).
+- **Shared with v2.8 20** (agenda effects, origin `agenda`). Whichever plan builds first builds the origin-tagged ledger
+  rows and `revertOriginSince`; the other reuses it and adds its origin (decided by the user 2026-10-03, as
+  recommended).
 - **Re-apply.** After a rollback, a reward whose latch survives is not re-dispatched (its ledger row stands).
 - **Tests:** jest with a fake host: reward fires (WI on, quality latched), swipe of the rewarding reply → WI off and the
   latch gone; edit before it → same; reopen → same host state as a continuous run; an `externally-changed` WI entry is
@@ -297,3 +300,6 @@ Adolion, staged: the academy act first (v2.8 02 lab copy), then the Saga once M1
   `settingsModel.ts:37`, `rollback.ts:89-103,109,130,146,150`, `extractionCoordinator.ts:167-184`.
 
 Round 3 (Sol): R3-05, R3-06, R3-19 applied.
+
+2026-10-03 (user: as recommended): the shared origin-tagged rollback is built once, by whichever of v2.8 18 / v2.8 20
+builds first (§Rewards and rollback).

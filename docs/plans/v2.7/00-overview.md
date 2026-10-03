@@ -125,6 +125,15 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 14 | 13 | not a runtime judge; labelling aid yes; W27 kept; profiles per role; Lore-creation role with the create op; native-tool spike; no own provider seam; fix the 8192 default | the user has Claude and Codex subscriptions and DeepSeek, no OpenRouter (review B6) |
 | 15 | 16d | no CC function calling in story chats: B + C now | A → v2.9 05.2 |
 
+### Open questions decided (user, 2026-10-03: as recommended)
+
+| Question | Decided | Where |
+|---|---|---|
+| Homes for v2.7 14 research decisions 2 and 3 (Sol r3 R3-15) | native tool calls over CC profiles = v2.8 09 §F (rows in v2.8 23); optional Critic role = v2.9 05 §05.6 | v2.7 14, v2.8 09, v2.9 05 |
+| 01 triage: what "dev-only" means; what a fixed default removes | dev-only = left out of the release build, behind `__SO_DEV__` like the spike modules; a fixed default loses the control **and** the setting key (no-legacy rule) | v2.7 01 §D, §Triage proposal |
+| 16 live smoke | 5 real turns on the DeepSeek CC profile, no pod; plumbing check only, not acceptance; small spend accepted | v2.7 16 §Live smoke |
+| 05/06 saga rule (earlier proposal) | stands as written: a saga = a story with ≥ 2 chapters | v2.7 05 §Saga vs act, v2.7 06 B |
+
 ## Status
 
 | Plan | State |
@@ -146,18 +155,10 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 15 | APPROVED (B + C); not built |
 | 16 | written |
 
-## Unresolved questions
-
-- Native tool calls over CC profiles for the wizard (v2.7 14 research decision 3, "sure"): placed in v2.8 09 §F, its
-  rows indexed in v2.8 23 (recommended; pending user). Optional "Critic" role (decision 2): placed in v2.9 05 §05.6
-  (recommended; pending user). Confirm both homes.
-- 01 triage: "dev-only" = not in the prod bundle, or Author view only? Fixed defaults: drop the key too, or only the
-  control?
-
 ## Review 2026-10-03
 
 Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),
 B12/F36 (rule 12), K1–K3 (step 0), Sol split items 2 (owed rows → v2.8 01), 6 (03 + 04 together), 7 (A6 here). Per-plan
 findings are listed in each plan's own "Review 2026-10-03" section.
 
-Round 3 (Sol): R3-15 (recommended; pending user) applied.
+Round 3 (Sol): R3-15 applied; its homes decided by the user 2026-10-03 (as recommended, §Decisions).

@@ -20,7 +20,7 @@ closes.** No plan is approved or built. Old → new numbers: `docs/plans/v2.7/RE
 
 | # | Item | Source (old v2.7 → new home) | Why deferred | What would reopen it | Depends on |
 |---|---|---|---|---|---|
-| 01 | `01-sp1-swipe-back-cache.md` SP1 swipe-back cache | old 16c (child of the removed 16 index) → v2.9 01 | S4 (≥ 3 natural swipe-backs per 100 player turns) is the deciding bar and only hand play can score it; S3's control made 0 reads; ST cannot swipe a non-last message | S4 ≥ 3 in the user's own play (≥ 300 turns), or a swipe-back left wrong state, or ST allows non-last swipes. **Otherwise auto-drop at the v2.9 freeze** (recommended option (b); open for the user) | v2.8 01 (SP2 option A owns the mutation seam first); user's hand-played sessions |
+| 01 | `01-sp1-swipe-back-cache.md` SP1 swipe-back cache | old 16c (child of the removed 16 index) → v2.9 01 | S4 (≥ 3 natural swipe-backs per 100 player turns) is the deciding bar and only hand play can score it; S3's control made 0 reads; ST cannot swipe a non-last message | S4 ≥ 3 in the user's own play (≥ 300 turns), or a swipe-back left wrong state, or ST allows non-last swipes. **Otherwise auto-drop at the v2.9 freeze** (option (b), no counter; decided by the user 2026-10-03) | v2.8 01 (SP2 option A owns the mutation seam first); user's hand-played sessions |
 | 02 | `02-sp9-witness-filter-v2.md` SP9 witness filter v2 | old 22 → v2.9 02 (its option A shipped as v2.7 02 C2; K1/K2 fix in v2.7) | no accurate witness source (presence 4/40); host channels (Summarize, Vector Storage) leak regardless; stance change would promise privacy the host does not keep | sessions show characters acting on scenes they missed (not only secrets), and the user makes message-level privacy a goal; then B (extraction witness, offline, W4 ≥ 0.9) before any filter (C) | v2.7 02 C2 + **K1 fixed**; v2.8 21's offline presence-proxy result |
 | 03 | `03-new-game-plus.md` New game plus | old 25 → v2.9 03 | the epilogue it would consume has never run live (`seal` off, no final chapter reached); nobody asked for it | the Q-M floors pass and `seal` ships (or an author opts in) **and** one live run reaches a `final` chapter; then B (typed outcome carry into a declared sequel) | v2.8 01 Q-M ratings; v2.7 06 plays index; v2.7 06 Continue list (option E) |
 | 04 | `04-d6-t22-revisits.md` D6/T22 revisits (decision only) | old 23 → v2.9 04; the over-steer charter card, its completion contract and the sessions → v2.8 01 | D6/T22 defaults were reserved for a player session that has not happened; 1–3 decided (keep), 4 and 6 wait | the v2.8 01 over-steer session(s) (Claude's card + the user's play) hand over their digest; floors already predeclared in the plan | v2.8 01 card + sessions |
@@ -28,8 +28,8 @@ closes.** No plan is approved or built. Old → new numbers: `docs/plans/v2.7/RE
 | 05.2 | SP10 tool-call turns, the rest | old 16d option A → v2.7 15 (B + C there) | nobody plays story chats with CC function calling | CC + tools in story chats, or a session finding on multi-boundary tool turns | v2.7 15 (probe removed; recipe in the v2.5 report) |
 | 05.3 | C4 report-only staging panel | old 09 option E → v2.7 11 (close) | no author session asked for it | an author session finds jump staging wrong and painful to fix | v2.7 04 check registry (lands as a finding with an action) |
 | 05.4 | Runtime verbatim recall | old 29 B/P1/P5 → v2.8 21 (E0 + offline only) | in groups, recall needs a witness filter; unmeasured | E0 picks a winning arm (hit@4 ≥ 0.80), current VR1 and VR2 pass together on a fixture meeting v2.8 21 §6.2's minimums (≥ 20 positives, ≥ 20 nonce exclusions, ≥ 3 members, ≥ 2 secret scenes, ≥ 2 sessions), and a reversible witness record exists (old VR6 retired) | v2.8 21; v2.9 02 option B; v2.8 01 Q-M5 + P3 |
-| 05.6 | Optional "Critic" role | v2.7 14 research decision 2 (recommended; pending user) | "after the wizard work" (v2.8 09) | v2.8 09 built, and the critic passes chains a different model rejects | v2.8 09; v2.7 14 role map |
-| 05.5 | "Not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.8 03 / 08 / 14 | written before the split; placement not confirmed | per item, see `05-deferred-items.md` §05.5 | parent v2.8 plan |
+| 05.6 | Optional "Critic" role | v2.7 14 research decision 2 (home decided by the user 2026-10-03) | "after the wizard work" (v2.8 09) | v2.8 09 built, and the critic passes chains a different model rejects | v2.8 09; v2.7 14 role map |
+| 05.5 | "Not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.8 03 / 08 / 14 | written before the split; placed in v2.9 by the user 2026-10-03 | per item, see `05-deferred-items.md` §05.5 | parent v2.8 plan |
 
 ## Order if reopened
 
@@ -43,14 +43,14 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 01–04 | DEFERRED (user, 2026-10-03); user answers recorded inline; not scheduled before v2.8 closes |
 | 05 | DEFERRED; entries recorded |
 
-## Unresolved questions
+## Decisions (user, 2026-10-03: as recommended)
 
-- 01: park mechanism (a) dev counter vs (b) auto-drop at the v2.9 freeze? Recommended (b). And decision 2 (do you swipe
-  back to earlier versions?): "rarely" drops it now.
-- 05.5: are the three "not in v2.7" items inside v2.8 plans v2.8 scope or v2.9?
-- Optional "Critic" role (v2.7 14 decision 2, "after the wizard work"): placed here as 05.6 (recommended; pending
-  user).
+| Question | Decided | Where |
+|---|---|---|
+| 01 park mechanism: (a) dev counter or (b) auto-drop | (b): no counter; auto-drop at the next freeze via `DROPPED_SPIKES` with a planted-import control, unless S4 data exists | v2.9 01 §Park mechanism |
+| 05.5: the three "not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.9 scope; entries decided; v2.8 03 / 08 / 14 point here | v2.9 05 §05.5 |
+| Optional "Critic" role (v2.7 14 decision 2, "after the wizard work") | here, as 05.6 | v2.9 05 §05.6 |
 
 ## Review 2026-10-03
 
-Round 3 (Sol): R3-14, R3-15 (recommended; pending user) applied.
+Round 3 (Sol): R3-14, R3-15 applied; R3-15's homes decided by the user 2026-10-03.

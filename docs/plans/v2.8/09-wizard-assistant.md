@@ -115,9 +115,10 @@ answer 1).
 Ask is a new runtime model use. It ships **dev-only** until the Q&A floor passes twice on the named profile, then as an
 **off-by-default** switch (`assistant.ask`, install-wide). The tutorial's "Draft it for me" uses the existing agent
 loop and is not a new use. Player Ask (`/story ask` and the Help Ask box in player mode) is the player-visible surface:
-decision 3 is the user's explicit yes to it (v2.8 rule 4); see the open question at the end.
+decision 3 is the user's explicit yes to it (v2.8 rule 4; confirmed by the user 2026-10-03, as recommended). Player
+Ask follows the same rollout: dev-only, then off by default (rule 9).
 
-### F. Native tool calls over CC profiles (v2.7 14 research decision 3, "sure"; recommended; pending user)
+### F. Native tool calls over CC profiles (v2.7 14 research decision 3, "sure"; home decided by the user 2026-10-03)
 
 Owner of the spike v2.7 14 approved (Sol r3 R3-15). The agentic wizard on a CC profile today speaks the text JSON
 protocol (`localRoute`, `route.ts:38-57`; `requestModelReply` reads text only, `modelReply.ts:180`); the opencode route
@@ -164,14 +165,12 @@ already has native tools through the MCP bridge (`harnessRoute`).
 
 (Decision 5 in v2.8 terms: after v2.7 01, which is built; its acceptance is CL, not the old "tier 3" RunPod work.)
 
-## Open question
+## Decided 2026-10-03 (user: as recommended)
 
-- Does decision 3 count as the explicit decision v2.8 rule 4 needs for the player Ask surface, or should player Ask wait
-  for a session card that asks for it? This plan assumes it counts; the author half is unaffected either way.
-
-- Homes for two v2.7 14 research decisions (Sol r3 R3-15; **recommended; pending user**): the CC native tool-call
-  spike (decision 3) is this plan's §F; the optional Critic role (decision 2, "after the wizard work") is
-  `v2.9/05-deferred-items.md` §05.6.
+- Decision 3 counts as the explicit decision v2.8 rule 4 needs for the player Ask surface. Player Ask ships dev-only,
+  then off by default (rule 9, §E).
+- Homes for two v2.7 14 research decisions (Sol r3 R3-15): the CC native tool-call spike (decision 3) is this plan's
+  §F; the optional Critic role (decision 2, "after the wizard work") is `v2.9/05-deferred-items.md` §05.6.
 
 ## Links
 
@@ -190,6 +189,6 @@ role route), v2.8 22 living story director (shares the agent loop), v2.8 05 imag
 - **F15:** gate tiers stated per row.
 - **B10:** registry + Help gate row added.
 - **Rule 9:** Ask ships dev-only, then off by default.
-- Not applied: none. Assumption flagged: rule 4 for player Ask (open question).
+- Not applied: none. Rule 4 for player Ask: decided by the user 2026-10-03 (decision 3 counts).
 
-Round 3 (Sol): R3-15 (§F native tool-call spike; recommended; pending user), R3-19 (Critic = research decision 2) applied.
+Round 3 (Sol): R3-15 (§F native tool-call spike; decided by the user 2026-10-03), R3-19 (Critic = research decision 2) applied.

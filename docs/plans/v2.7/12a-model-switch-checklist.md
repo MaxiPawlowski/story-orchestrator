@@ -38,8 +38,8 @@ A switch is a measured, costed step, never a preset edit.
       - thinking that never closes.
       - Baseline: v1.1 with the opener after the name, 0/20 damage.
 - [ ] **Speed:** tok/s at 4 lanes. Baseline 28.6 tok/s.
-- [ ] **Rating:** build the blind packs, rated by Astra (delegated), as with `model-blind-20(-think)`. The user rates only
-      if they choose to (Adolion content).
+- [ ] **Rating:** build the blind packs, rated by Astra (delegated), as with `model-blind-20(-think)`. Never rated by the
+      user (Adolion content; decided by the user 2026-10-03).
 
 ## 3. If the candidate wins: what changes, in order
 

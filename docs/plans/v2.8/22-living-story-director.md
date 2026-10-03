@@ -169,7 +169,7 @@ rules apply in full:
   the held-secret restatement filter (`memory/heldSecrets.ts`, the shared-tier rule) and the agency policy; a field that
   restates a secret or a private agenda is regenerated, never shown. Objectives stay world pressure.
 - **Save as story.** By default the export holds the authored part plus generated anchors the player reached; unreached
-  generated anchors are dropped. Private inputs are never written into story fields. In Author view the author may opt to
+  generated anchors are dropped (decided by the user 2026-10-03, as recommended; the player is not asked). Private inputs are never written into story fields. In Author view the author may opt to
   include unreached anchors (the Studio is an author surface).
 - **Referentially closed projection (Sol r3 R3-12).** Dropping an anchor drops everything that names it: transitions
   whose `to` (or any gate/route reference) is an excluded anchor, generated checkpoints between a reached and an
@@ -239,7 +239,8 @@ library (with the spoiler rules above). **Playing becomes a way of authoring**, 
   arm), asserted from the run header's `stagecraft` path before and after each batch; chapter seals stay off as
   shipped. A curator-on column is a later M3 question, not M1.
 - **M2, blind:** pairs of excerpts, authored vs living, rated for coherence and "felt free". The floor is set before the
-  run. Adolion excerpts are rated by Astra (delegated) or a second model, never the user (v2.8 rule 11).
+  run. Adolion excerpts are rated by a second model (e.g. Astra, delegated), never the user (v2.8 rule 11; decided by
+  the user 2026-10-03, as recommended); no non-Adolion M2 story is added for the user to rate.
 - **M3, hybrid:** an authored act continued by the director past its end. Does it hold the act's threads?
 
 ## Gates
@@ -275,12 +276,11 @@ library (with the spoiler rules above). **Playing becomes a way of authoring**, 
    Decision 5: M1 first; if it passes, M1–M3 ship with proper UI.
 5. Start with the M1 spike before any UI? **Recommended: yes.** yes, in fact, if it goes well, lets do everything from m1 to m3 with proper UI
 
-## Open questions
+## Decided 2026-10-03 (user: as recommended)
 
-- Save as story drops unreached generated anchors by default (F27). Is that the export the user wants, or should the
-  player be asked?
-- M2's raters: Astra or a second model for Adolion excerpts; does the user want a non-Adolion story for M2 so they can
-  rate it themselves?
+- Save as story drops unreached generated anchors by default (F27); the player is not asked. In Author view the author
+  may still include them.
+- M2's Adolion excerpts are rated by a second model, never the user (no-spoiler rule, v2.8 rule 11).
 
 ## Links
 

@@ -346,6 +346,8 @@ Adolion text. W27 (the harness plugin offers opencode only, no logins) is kept.
    **Answer:** A5 is the *same* Jev model sold by other hosts (OpenRouter, NanoGPT, Rout, classifier.dev), not a
    different judge. Measuring it would only show those hosts give the same answers as TypeSafe, as a fallback if
    TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7 (nor v2.8).
+   **Decided 2026-10-03 (user: as recommended): deferred to v2.9**, `v2.9/05-deferred-items.md` §05.5 (reopen trigger:
+   TypeSafe changes price, limits or availability).
    **Also recorded:** local models are stored off `C:` (another drive; the path becomes a setting); every local server
    this plan adds gets a tray entry (`C:\dev\tray\items\story-orchestrator.json`). Both are now §Deployment rules
    and gates above.

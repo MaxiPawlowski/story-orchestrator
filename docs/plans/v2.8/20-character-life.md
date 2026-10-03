@@ -84,8 +84,8 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
   `source: code` step-index quality, so the step itself rolls back with the blackboard). A one-line "meanwhile" fact
   goes into the member's private block and, if the author marks it public, into the shared world facts.
 - **Agenda effects are host writes (review F25).** A step's `effect` may use `world_info` and `npc_replies` only.
-  Cast changes stay checkpoint effects: an agenda that adds or removes a member would write the group's
-  `disabled_members` off screen, the leak L4 avoids.
+  Cast changes stay checkpoint effects (decided by the user 2026-10-03, as recommended): an agenda that adds or
+  removes a member would write the group's `disabled_members` off screen, the leak L4 avoids.
   - Dispatch: a boundary-work entry `agenda-steps` (`runtime/boundaryWork.ts`) dispatches the effects of steps that
     advanced at this boundary through `EffectsApplier.withLedger`, each ledger row tagged `{kind: "agenda", memberId,
     agendaId, step, boundary, messageId}`, with a `RunOwnership` re-check before each write. Host writes never move into
@@ -95,7 +95,7 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
     (`externally-changed` recorded, never clobbered); NPC replies follow `rewindNpcReplies` (the marker rewinds; a posted
     reply stays chat text, as today).
   - Shared with v2.8 18's quest rewards (origin `quest`). Whichever plan builds first builds the origin-tagged ledger
-    and `revertOriginSince`; the other adds its origin.
+    and `revertOriginSince`; the other reuses it and adds its origin (decided by the user 2026-10-03, as recommended).
   - Tests: host state checked with the blackboard (an advanced step's WI entry is off again after a swipe of the
     advancing reply; reopen equals a continuous run).
 - **Curator-proposed meanwhile events** (decision 3, second half; review C2, F24). Approved now, not "later":
@@ -161,7 +161,8 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
 - **M1 relationship read accuracy (CL).** About 20 labelled academy/7-member-act lab windows (v2.8 02 A4; labels from
   session evidence get a second-model check, never the user). Arms: (a) extractor, current value hidden; (b) extractor,
   current value shown; (c) the typed judge read, Score per axis (v2.8 13 N8 judge arm). Read model: DeepSeek (CL); judge:
-  TypeSafe (CL). **Floors, frozen in this file before the first run and never retuned:** direction accuracy ≥ 0.80;
+  TypeSafe (CL). **Floors (decided by the user 2026-10-03, as recommended), frozen in this file before the first run
+and never retuned:** direction accuracy ≥ 0.80;
   stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points
   below arm (b) on direction accuracy (else the anchoring guard is reconsidered, not the floor). The arm that passes
   decides the read path's default (judge first only if (c) passes).
@@ -247,6 +248,12 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
   RP. Answers (both directions, author-visible meters, agendas both, schedules drop) consistent with the body.
 - Line refs re-verified on `c7967323`: `sharedRead.ts:217-230`, `extractionCoordinator.ts:167-184`, `scope.ts:22-84`,
   `judge/settings.ts:256`, `rollback.ts:109,130,146`.
-- Not applied: none. The M1 floor numbers are proposals frozen here; the user can change them before the first run.
+- Not applied: none. The M1 floor numbers were proposals; the user accepted them on 2026-10-03 (direction accuracy
+  ≥ 0.80, stuck rate ≤ 0.10, hiding the current value costs ≤ 5 points, curator-proposal in-goal ≥ 0.85), frozen before
+  the first run.
 
 Round 3 (Sol): R3-09 applied.
+
+2026-10-03 (user: as recommended): M1 floors and the L3 curator-proposal floor accepted as written; agenda effects
+exclude cast changes; the origin-tagged rollback (`revertOriginSince`) is built by whichever of v2.8 18 / v2.8 20 builds
+first and reused by the other.

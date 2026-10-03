@@ -82,23 +82,24 @@ source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overvi
 - **Source.** `docs/plans/v2.8/21-smart-context-harvest.md` §6.2 (VR1–VR5; VR1 + VR2 joint), §Review of the answers;
   v2.8 overview row 21.
 
-## 05.5 Items marked "not in v2.7" inside v2.8 plans (placement not confirmed)
+## 05.5 Items marked "not in v2.7" inside v2.8 plans (placed in v2.9: user, 2026-10-03)
 
-These were written as "not in v2.7" before the split moved their parent plans to v2.8. None says "next version", so
-whether each is v2.8 scope or v2.9 is open (question for the user). Listed here so they are not lost.
+These were written as "not in v2.7" before the split moved their parent plans to v2.8. **Decided 2026-10-03 (user: as
+recommended): all three are v2.9**, deferred with the reopen triggers below; the parent v2.8 plans point here.
 
 | Item | Parent | Decision so far | Reopen trigger | Source |
 |---|---|---|---|---|
-| Judge "does this persona fit the story" check | v2.8 03 player persona | "not in v2.7": no calibrated use; deterministic fit check (C) only | a calibrated judge use (20-case fixture + provider row) and a session where the deterministic check missed a misfit | `v2.8/03-player-persona-and-start-setup.md` options row C (`:111`), "No judge fit check" (`:167`), decision 5 (`:255`) |
-| Per-chat avatars (`force_avatar`) | v2.8 08 living cards | "not in v2.7"; revisit with on-demand images | v2.8 08's on-demand look sprites exist (after v2.8 06), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.8/08-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
-| Same-Jev other hosts (A5) | v2.8 14 open-source Jev | "not in v2.7" unless TypeSafe pricing or availability changes | TypeSafe changes price, limits or availability | `v2.8/14-open-source-jev.md` research note 7 (`:260`), options row A5 (`:297`), decision 7 (`:344-348`) |
+| Judge "does this persona fit the story" check | v2.8 03 player persona | deferred to v2.9 (2026-10-03); v2.8 03 ships the deterministic fit check (C) only | a calibrated judge use (20-case fixture + provider row) and a session where the deterministic check missed a misfit | `v2.8/03-player-persona-and-start-setup.md` options row C (`:111`), "No judge fit check" (`:167`), decision 5 (`:255`) |
+| Per-chat avatars (`force_avatar`) | v2.8 08 living cards | deferred to v2.9 (2026-10-03); revisit with on-demand images | v2.8 08's on-demand look sprites exist (after v2.8 06), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.8/08-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
+| Same-Jev other hosts (A5) | v2.8 14 open-source Jev | deferred to v2.9 (2026-10-03); not measured unless TypeSafe pricing or availability changes | TypeSafe changes price, limits or availability | `v2.8/14-open-source-jev.md` research note 7 (`:260`), options row A5 (`:297`), decision 7 (`:344-348`) |
 
-## 05.6 Optional "Critic" role (v2.7 14 research decision 2; recommended; pending user)
+## 05.6 Optional "Critic" role (v2.7 14 research decision 2; placed here by the user 2026-10-03)
 
 - **Context.** The generation critic inherits the `authoring` role (`generation/critic.ts:105`), so it grades with the
   generator's own model. An optional eighth role would let it run on a different model and reduce self-grading.
 - **Decision so far.** v2.7 14 research decision 2: "optional, after the wizard work", answered "sure". The wizard work
-  is v2.8 09, so the role cannot land before v2.8 closes; placed here (Sol r3 R3-15, recommended; pending user).
+  is v2.8 09, so the role cannot land before v2.8 closes; placed here (Sol r3 R3-15; decided by the user 2026-10-03,
+  as recommended).
 - **Reopen trigger.** v2.8 09 is built and accepted, and an author session or an expansion review shows the critic
   passing chains a different model rejects. First gate: the critic's existing golden on two models (same and
   different from the generator), predeclared floor, CL.
@@ -110,4 +111,5 @@ whether each is v2.8 scope or v2.9 is open (question for the user). Listed here 
 Created at the split. Applied from `docs/plans/v2.7/review-2026-10-03.md` (old numbers there): split item 9 (05.4),
 **F29** (05.4 reopen trigger), **B12**/**F36** (version-qualified refs). Group-only per v2.7 03.
 
-Round 3 (Sol): R3-14, R3-15 (05.6 Critic; recommended; pending user), R3-19, R3-21 applied.
+Round 3 (Sol): R3-14, R3-15 (05.6 Critic; decided by the user 2026-10-03), R3-19, R3-21 applied. 2026-10-03 (user: as
+recommended): 05.5 placed in v2.9, 05.6 confirmed.

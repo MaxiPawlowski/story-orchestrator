@@ -138,7 +138,8 @@ Used by the funded A/B in v2.8 01 §D, unchanged. A switch is a measurement, not
 - damage (hand-read) and loops ≤ the incumbent's on the same bodies and seeds (incumbent: 0/20 damage, 0/20 loops,
   `stga` thinking arm);
 - with thinking: empty replies ≤ 2/20 on the blind turns and wrong speaker 0 in group bodies;
-- blind preference ≥ 60 % over the incumbent on 20 turns (rater: Astra, delegated, unless you rate);
+- blind preference ≥ 60 % over the incumbent on 20 turns (rater: a second model, Astra delegated; never the user, since
+  the turns are Adolion content: decided by the user 2026-10-03);
 - then the T-tier subset that touches the reply path (T0 playable, T1 features, T3 surfaces) ×1 on the new model.
 
 Data needed: the 20 blind turns (exist), the A/B bodies (exist), pod time.

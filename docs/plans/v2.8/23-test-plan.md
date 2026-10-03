@@ -45,7 +45,7 @@ owed here through `01-v27-carry-over.md`.
 | 13 J7 ideas | CL | Phase A per idea (fixture, offline replay, dev-only until ×2) | uses that shipped off by default: on/off columns |
 | 14 open-source Jev | LT, RP | own evals; local provider rows | play-load check on the pod |
 | 15 cue/scene merge | CL | A/B on labelled windows | — |
-| 16 SP5 | D, RP | C1–C5 dry-run plumbing in groups ×2 (D, no model call) | D: C1–C5 regression; RP: v2.8 01 O13, the scenario block in real replies (recommended; pending user) |
+| 16 SP5 | D, RP | C1–C5 dry-run plumbing in groups ×2 (D, no model call) | D: C1–C5 regression; RP: v2.8 01 O13, the scenario block in real replies (decided by the user 2026-10-03) |
 | 17 SP6 | RP | SP6 measurement | — |
 | 18 quests | CL, RP | M1/M2 reads on the academy lab copy | Journal, visible qualities, public rolls in real play |
 | 19 open stretches | RP | stubs measured first; A/B | open mode on the lab stubs |
@@ -107,8 +107,8 @@ Session evidence goes to the private `so-sessions` repo (`npm run sessions:archi
   written by `so-session stop` / `budget`.
 - Known costs: one thinking A/B ≈ 2–3 pod-hours (the v2.6 one took 2.36 h, about USD 1.70); an RTX PRO 4500 pod is about
   USD 0.72/h (`.claude/rules/gotchas.md`). Other RP blocks are estimated in their plans.
-- The user sets the total RunPod budget for v2.8 before the final suite (v2.6 ran on EUR 20). When a block would exceed
-  it, stop and ask; never trim a ×2 to fit.
+- **RunPod budget for v2.8: EUR 20 cap**, as v2.6 (user, 2026-10-03, as recommended). Before any block that would
+  exceed it, stop and ask the user; never trim a ×2 to fit.
 - LT and LI are local (GPU time only; one at a time on the GPU via the broker).
 
 ## Freeze and attestation
@@ -130,4 +130,4 @@ New file. Applied: F15 (tiers), Sol split item 2 (v2.7's owed rows run here thro
 over-steer card with its completion contract), B4 (second-model raters for Adolion), D10/F17 (the frozen v2.6
 measurements' packs listed).
 
-Round 3 (Sol): R3-01, R3-02, R3-08, R3-09, R3-10, R3-15 (recommended; pending user), R3-20 (recommended; pending user) applied.
+Round 3 (Sol): R3-01, R3-02, R3-08, R3-09, R3-10, R3-15, R3-20 applied (both decided by the user 2026-10-03, as recommended).

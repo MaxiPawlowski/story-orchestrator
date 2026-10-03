@@ -73,14 +73,16 @@ What it does, exactly:
 1. `adolion-fresh seed <lane>` with the step-0b pin; dev build served; `so-run-header capture`.
 2. Open one bound Adolion group (headed browser); start a new chat: the activation modal shows Before you start (if any)
    and the briefing; dismiss it; the group badge and hover card show; the HUD shows no setup chip.
-3. Play **5 player turns** with real replies on the lane's configured profiles (main reply and roles as recorded in the
-   header; DeepSeek for roles, the pod or a named CC profile for the reply).
+3. Play **5 player turns** with real replies on the **DeepSeek CC profile** (`deepseek 4.1 flash`) for the main reply
+   and the roles, as recorded in the header. **No pod** (user, 2026-10-03, as recommended): the small DeepSeek spend is
+   accepted and written by `so-session stop` / `budget`.
 4. Assert only plumbing: every reply rendered, a boundary committed per reply, no console error, no stall or error
    pipeline state, save health ok, `assert-player-clean` green, the Activity panel lists the turn's work in Author view,
    the plays index row updated, no ComfyUI call.
 5. `so-run-header diff`, `so-session`-style evidence to the private `so-sessions` repo (`npm run sessions:archive`).
 
-It proves the build runs end to end on a real install. **It is not acceptance of model behaviour**: reply quality,
+It proves the build runs end to end on a real install: a plumbing check only (user, 2026-10-03). **It is not
+acceptance of model behaviour**: reply quality,
 extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it finds becomes a deterministic check (rule 6).
 
 ## What v2.7 does NOT prove
@@ -136,3 +138,6 @@ New file. Applied: F15 (tiers), Sol split items 2 (owed real rows → v2.8 01), 
 privacy leg with and without held secrets), B10 (registry gates).
 
 Round 3 (Sol): R3-01, R3-02, R3-16, R3-17 applied.
+
+2026-10-03 (user: as recommended): the live smoke runs 5 real turns on the DeepSeek CC profile, no pod; plumbing only,
+not acceptance; small spend accepted.

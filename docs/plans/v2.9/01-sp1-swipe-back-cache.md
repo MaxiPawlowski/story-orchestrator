@@ -85,7 +85,7 @@ your edit" status) is built as **v2.7 10**.
 2. **Seam ownership:** v2.8 01 (SP2 option A), when built, owns `setMutationSeam`. Its install asks SP2's handler first
    (edit/update), then SP1's (swipe), as v2.5 ordered them (`v2.5/09-sp1-spike-report.md:87`). SP2 must not delete the
    SwipeBack hook while SP1 is parked.
-3. **The S4 counter (the only new work, if the user picks (a) below).** A swipe-back event = `MESSAGE_SWIPED` on the
+3. **The S4 counter (not built: the user chose (b) below, 2026-10-03; kept as the recipe if S4 data is ever wanted).** A swipe-back event = `MESSAGE_SWIPED` on the
    newest reply to a swipe index that already holds text (a version the player has seen), not a new generation
    (`Generate('swipe')`, ST `script.js:10315-10320`). Count them per chat with player turns, and report "swipe-backs per
    100 player turns" in `so-session digest` and in `so-journal` exports. Dev tooling only (the TurnBridge already sees
@@ -107,7 +107,7 @@ your edit" status) is built as **v2.7 10**.
 
 **What closes it:** at the decision point, S4 below 3 (or no S4 data) → drop (option C) with its planted-import control.
 
-## Park mechanism: (a) or (b) (review B, 2026-10-03; open for the user)
+## Park mechanism: (b) (review B; decided by the user 2026-10-03, as recommended)
 
 The review asked to pick one of:
 
@@ -116,14 +116,14 @@ The review asked to pick one of:
 - **(b) Auto-drop at the next freeze.** Build nothing. At the v2.9 freeze, if no S4 data exists, run option C. The
   v2.6 note "drop if still unmeasured at that freeze" (v2.7 overview, decision 16c) already says this.
 
-**Recommended: (b).** No version before v2.9 has a slot for the counter, and the user's hand-played turns before the
-v2.9 freeze are unlikely to reach 300. The code costs nothing in prod. If the user answers decision 2 below with
-"often", take (a) instead.
+**Decided: (b)** (user, 2026-10-03: as recommended). No counter is built. At the v2.9 freeze, unless S4 data exists,
+option C runs: `DROPPED_SPIKES` gains `swipeBack.ts` and `swipeCache.ts`, with a planted-import control. Why: no version
+before v2.9 has a slot for the counter, and the user's hand-played turns before the v2.9 freeze are unlikely to reach
+300; the code costs nothing in prod.
 
 ## Recommendation
 
-**A (parked), closed by (b): drop at the v2.9 freeze unless S4 data exists.** Drop earlier (C) if the user answers
-decision 2 "rarely": the code costs nothing in prod, but each later refactor of the bridge has to carry it.
+**A (parked), closed by (b): drop at the v2.9 freeze unless S4 data exists** (decided 2026-10-03).
 
 ## Decisions for the user
 allright, lets move this to next version
@@ -133,8 +133,9 @@ allright, lets move this to next version
    habit; a clear "rarely" is enough to drop now.**
 3. Decision point: 300 of your player turns or v2.7 freeze, whichever is first? **Recommended: yes.**
 
-(Answer above kept verbatim. After the split, "v2.7 freeze" in 1 and 3 reads "v2.9 freeze". Open: decision 2, and the
-park mechanism (a)/(b) above.)
+(Answer above kept verbatim. After the split, "v2.7 freeze" in 1 and 3 reads "v2.9 freeze". 2026-10-03: the user took
+the recommendations: park mechanism (b), no counter. Decision 2 no longer gates anything: with no counter there is no
+S4 data, so the drop runs at the v2.9 freeze.)
 
 ## Floor and measurement before building
 
@@ -146,8 +147,8 @@ park mechanism (a)/(b) above.)
 
 ## Gates
 
-- Counter (a only): debug tooling: `npm run test:debug` + `npm run debug:typecheck`; `npm run gates` if it touches `src/`.
-- Drop: `npm run gates`; `DROPPED_SPIKES` gains `swipeBack.ts`, `swipeCache.ts` with a planted-import control
+- Counter: not built ((b) decided 2026-10-03).
+- Drop (at the v2.9 freeze, unless S4 data exists): `npm run gates`; `DROPPED_SPIKES` gains `swipeBack.ts`, `swipeCache.ts` with a planted-import control
   (`devOnly.guard.test.ts`); the seam stays for v2.8 01.
 - Build (only after reopening): runtime tier `npm run gates`, live S3 ×2, J6 ×2, ownership census row for `SwipeBack.restore`.
 
@@ -160,6 +161,6 @@ park mechanism (a)/(b) above.)
 ## Review 2026-10-03
 
 Applied from `docs/plans/v2.7/review-2026-10-03.md` (old numbers there): **F07** (status: deferred, not active work),
-**B** "16c: pick (a) or (b)" (recorded as an open choice, (b) recommended), **B11** (`SPIKE_FLAGS` at
+**B** "16c: pick (a) or (b)" ((b), decided by the user 2026-10-03), **B11** (`SPIKE_FLAGS` at
 `settingsModel.ts:87-90`), **B12** (version-qualified plan refs), **F36** (cross-refs to new numbers). Group-only per
 v2.7 03.

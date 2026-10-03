@@ -146,7 +146,8 @@ authoring is `pull_after` (how much pure freedom), and `pace` presets cover most
   - **Floors, predeclared:** 0 narrated player decisions in open stretches; the player reaches the destination by their
     own move in at least 90% of runs; every run past `pull_after` player turns shows at least one hook within the pull
     window.
-  - **Human rating:** "felt free" vs "felt steered", blind, on paired excerpts.
+  - **Blind rating:** "felt free" vs "felt steered", on paired excerpts, rated by a second model, never the user (the
+    excerpts are campaign stubs; v2.8 rule 11, decided by the user 2026-10-03).
 - **M3:** sessions. Does the user feel the stretches as corridors today? Evidence for ranking, not a build gate (the
   user decided 1–3).
 

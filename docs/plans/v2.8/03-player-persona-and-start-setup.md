@@ -164,7 +164,7 @@ what's expected. Or maybe some sort of setup on story start?"
    - `persona-switch`, audience player, `degrades`: the selected persona is not the one `playerSetup` locked. Copy:
      "This story was started as X; switching mid-story breaks what characters know about you." One action: "Switch
      back" (select the locked avatar). Nothing else changes silently.
-   - No judge fit check (decision 5).
+   - No judge fit check (decision 5); it is deferred to v2.9 (`v2.9/05-deferred-items.md` §05.5, user 2026-10-03).
 
 ## Activation sequence (one sequence for new chat, `selectStory` and `restartStory`)
 
@@ -253,7 +253,7 @@ in.
 4. `requirements.personas`: keep for named-persona stories, steer authors to `player` instead? **Recommended: keep,
    guide says prefer `player`.**
 5. Judge "does this persona fit the story" check? **Recommended: not in this plan** (no calibrated use; deterministic
-   checks only).
+   checks only). **Decided 2026-10-03 (user: as recommended): deferred to v2.9**, `v2.9/05-deferred-items.md` §05.5.
 6. Adolion: give each of the nine stories a `player` block (campaign step, content review by another model, not the
    user)? **Recommended: yes**, after this plan's format lands (v2.8 02).
 7. Show the step before the opener on a new chat (needs S30-1)? **Recommended: yes.** Superseded in part by the

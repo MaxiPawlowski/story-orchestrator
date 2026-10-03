@@ -26,12 +26,12 @@ decision 1). So:
 
 Not in v2.7 (each needs a model or a later plan):
 - **Lore-creation role** (research decision 2): built with the curator create op, `v2.8/11-curator-create-op.md`.
-- **Optional Critic role** (decision 2, "after the wizard work"): `v2.9/05-deferred-items.md` §05.6 (recommended;
-  pending user).
+- **Optional Critic role** (decision 2, "after the wizard work"): `v2.9/05-deferred-items.md` §05.6 (decided by the
+  user 2026-10-03, as recommended).
 - **Native tool calls over CC profiles** for the agentic wizard (decision 3): a CL spike on the DeepSeek API CC profile
   plus the opencode subscription route (which already has native tools via the MCP bridge), floor = v2.6 plan 11's agent
   checks on the same fixture. Owner: `v2.8/09-wizard-assistant.md` §F, acceptance rows indexed in
-  `v2.8/23-test-plan.md` (recommended; pending user).
+  `v2.8/23-test-plan.md` (decided by the user 2026-10-03, as recommended).
 - **Labelling aid** (decision 2): offline, per fixture plan in v2.8 (12, 13, 14); the labelling model is never
   calibrated on its own labels; Adolion-derived rows are checked by a second model, never the user (review B4).
 
@@ -319,4 +319,4 @@ spike: questions), F36 ("plan 11 agent checks" = v2.6 plan 11), Sol split item 5
 enlarged extraction inputs keep a real-model row in v2.8 01), B4 (labels from Adolion evidence checked by a second
 model), B12 (references).
 
-Round 3 (Sol): R3-15 (recommended; pending user) applied.
+Round 3 (Sol): R3-15 applied; its homes decided by the user 2026-10-03 (as recommended).

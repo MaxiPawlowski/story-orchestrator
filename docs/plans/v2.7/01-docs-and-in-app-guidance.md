@@ -160,10 +160,11 @@ docs/
 ## D. Feature triage (the "absurd" part)
 
 The registry makes the count visible. Each feature is classified **keep visible**, **advanced** (behind a disclosure),
-**dev-only** (not in prod settings) or **remove**:
+**dev-only** (left out of the release build, behind `__SO_DEV__` like the spike modules) or **remove**:
 
 - Spikes and off-by-default experiments with no measured floor are candidates for dev-only.
-- Settings nobody should touch become fixed defaults.
+- Settings nobody should touch become fixed defaults: the control **and** the setting key go (no-legacy rule; the
+  sanitizer drops the stored key).
 
 The triage table is filled in during build and reviewed with the user before anything is hidden or removed.
 
@@ -262,10 +263,14 @@ Count after the proposal: about 25 controls in a fresh player's default view (st
 HUD, notes level, recap, speaker direction, voices on + max, memory model, fallback, reply thinking, memory test, judge
 key + on, images on/when/prompt model/ComfyUI/safe mode, sprites on/stage, wizard), which is decision 4's target.
 
-Unresolved for the review:
+Decided 2026-10-03 (user: as recommended):
 
-- Should "dev-only" mean not rendered in the prod bundle (like `spikes`), or rendered only in Author view?
-- Fixed defaults: remove the setting key too (a sanitizer migration), or keep the key and only drop the control?
+- **"dev-only"** = left out of the release build: behind `__SO_DEV__`, like the spike modules (not an Author-view-only
+  control).
+- **Fixed defaults** lose both the control and the setting key (no-legacy rule: the sanitizer drops the stored key; no
+  compatibility shim).
+
+The table itself is still a proposal for the review with the user (decision 5).
 
 ## Gate record (in-app half)
 
@@ -361,3 +366,6 @@ Applied: A13 (33 author's-guide topics, not 34), decision 3 recorded (internal r
 close-out item), Sol split item 2 (the fresh-install real reply is v2.8 01 O1; the deterministic half stays here), B10
 (this registry is the gate every feature plan uses), B12/F36 (links version-qualified). K3 (the guide's solo FAQ line)
 is fixed with v2.7 03.
+
+2026-10-03 (user: as recommended): the two triage questions are decided (§Triage proposal): dev-only = out of the
+release build behind `__SO_DEV__`; a fixed default drops the control and the setting key.
