@@ -78,6 +78,15 @@ Solo chats are half-supported, which is the worst of both:
 5. Build position: tier 1, before plans 03, 04 and 30, because they each have solo branches to drop.
    **Recommended: yes.**
 
+Lets do as you recommend on all your questions, you can delete any old solo chat so we close that for good.
+
 ## Links
 
 04, 29, 30, 31, 32; `.claude/rules/architecture.md` "No chat, no story".
+
+## Review of the answers (2026-10-03)
+
+All five taken as recommended. Old solo chats: the user asked to delete them. Found 10 solo chats on the real install whose
+metadata carries `story_orchestrator` (ST `data/default-user/chats`, 2023-12 to 2026-10). Deleting is confirmed with the
+user against that list before it runs (ST keeps per-save copies under `backups/`); then decision 4 becomes "deleted, no
+card needed for them", and the card still ships for any solo chat that gets a story later.
