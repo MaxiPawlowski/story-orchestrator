@@ -1,0 +1,237 @@
+{
+  "summary": {
+    "use": "memory-pairs",
+    "fixture": "memory-pairs",
+    "right": 28,
+    "total": 29,
+    "rate": 0.9655,
+    "p50LatencyMs": 1393,
+    "p95LatencyMs": 1665,
+    "timeouts": 0,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": true
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:06:25.212Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 29,
+    "right": 28,
+    "p50LatencyMs": 1393,
+    "rows": [
+      {
+        "id": "M01",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.9534411812860634 same=0.999359106003049",
+        "latencyMs": 1678
+      },
+      {
+        "id": "M02",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9949249185667962 same=0.9385787114849125",
+        "latencyMs": 1665
+      },
+      {
+        "id": "M03",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.9864014730977297 same=0.004371480549887128",
+        "latencyMs": 1403
+      },
+      {
+        "id": "M04",
+        "right": true,
+        "picked": "unrelated",
+        "detail": "unrelated@0.9966427247161881 same=0.0008039406768887023",
+        "latencyMs": 1403
+      },
+      {
+        "id": "M05",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.9838705902954553 same=0.9996816600455484",
+        "latencyMs": 1450
+      },
+      {
+        "id": "M06",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9936892892343479 same=0.9992541337443686",
+        "latencyMs": 1449
+      },
+      {
+        "id": "M07",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.994525702791334 same=0.8293667796420529",
+        "latencyMs": 1451
+      },
+      {
+        "id": "M08",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.8454200575449963 same=0.006952907447392591",
+        "latencyMs": 1427
+      },
+      {
+        "id": "M09",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9940147491099246 same=0.9965100325104042",
+        "latencyMs": 1385
+      },
+      {
+        "id": "M10",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.978858844854144 same=0.9978439652398775",
+        "latencyMs": 1386
+      },
+      {
+        "id": "M11",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.9809442087653311 same=0.004980275452010239",
+        "latencyMs": 1335
+      },
+      {
+        "id": "M12",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9939945325300714 same=0.9964670858681567",
+        "latencyMs": 1335
+      },
+      {
+        "id": "M13",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.6434268715699052 same=0.7674125023075683",
+        "latencyMs": 1388
+      },
+      {
+        "id": "M14",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9856346700833503 same=0.9032095362565283",
+        "latencyMs": 1388
+      },
+      {
+        "id": "M15",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.8249781520694399 same=0.0007115057072656911",
+        "latencyMs": 1453
+      },
+      {
+        "id": "M16",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.9797048147713375 same=0.9987877488999503",
+        "latencyMs": 1453
+      },
+      {
+        "id": "M17",
+        "right": false,
+        "picked": "distinct",
+        "detail": "update@0.9730379837902573 same=0.001883910664782346",
+        "latencyMs": 1333
+      },
+      {
+        "id": "M18",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.9490066987789454 same=0.5813263019251473",
+        "latencyMs": 1334
+      },
+      {
+        "id": "M19",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9564697659337578 same=0.9961992608738843",
+        "latencyMs": 1343
+      },
+      {
+        "id": "M20",
+        "right": true,
+        "picked": "unrelated",
+        "detail": "unrelated@0.996111046698162 same=0.0003239749345282923",
+        "latencyMs": 1343
+      },
+      {
+        "id": "P21",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.9525955497621105 same=0.0020482839091287824",
+        "latencyMs": 1482
+      },
+      {
+        "id": "P22",
+        "right": true,
+        "picked": "distinct",
+        "detail": "update@0.4645032662756256 same=0.3296525562427335",
+        "latencyMs": 1481
+      },
+      {
+        "id": "P23",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.8839225968237107 same=0.0629298778914891",
+        "latencyMs": 1425
+      },
+      {
+        "id": "P24",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9938662152777562 same=0.9964291108384188",
+        "latencyMs": 1425
+      },
+      {
+        "id": "P25",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.9781082225041369 same=0.9995958476690403",
+        "latencyMs": 1390
+      },
+      {
+        "id": "P26",
+        "right": true,
+        "picked": "duplicate",
+        "detail": "duplicate@0.9523516542649223 same=0.9990084534670985",
+        "latencyMs": 1390
+      },
+      {
+        "id": "P27",
+        "right": true,
+        "picked": "update",
+        "detail": "update@0.9842336512445373 same=0.9923114849555764",
+        "latencyMs": 1393
+      },
+      {
+        "id": "P28",
+        "right": true,
+        "picked": "unrelated",
+        "detail": "unrelated@0.9931141506574915 same=0.0003476759165219967",
+        "latencyMs": 1393
+      },
+      {
+        "id": "P29",
+        "right": true,
+        "picked": "distinct",
+        "detail": "distinct@0.7496251501928161 same=0.008690698499762695",
+        "latencyMs": 934
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

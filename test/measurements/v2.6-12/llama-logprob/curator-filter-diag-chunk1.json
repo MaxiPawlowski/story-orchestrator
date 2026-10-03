@@ -1,0 +1,177 @@
+{
+  "summary": {
+    "use": "curator-filter",
+    "fixture": "curator-filter",
+    "right": 17,
+    "total": 18,
+    "rate": 0.9444,
+    "families": [
+      {
+        "family": "recall",
+        "right": 10,
+        "total": 10,
+        "floor": 0.9,
+        "ok": true
+      },
+      {
+        "family": "narrowed",
+        "right": 7,
+        "total": 8,
+        "floor": 0,
+        "ok": true
+      }
+    ],
+    "p50LatencyMs": 2646,
+    "p95LatencyMs": 2653,
+    "timeouts": 0,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": true
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:15:37.721Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 18,
+    "right": 17,
+    "p50LatencyMs": 2646,
+    "rows": [
+      {
+        "id": "sun-ruins.recall:0",
+        "right": true,
+        "picked": "p=0.9732178097382389",
+        "detail": "Sun Ruins Gate",
+        "latencyMs": 2646
+      },
+      {
+        "id": "sun-ruins.recall:1",
+        "right": true,
+        "picked": "p=0.7968914201167724",
+        "detail": "Guild Reward",
+        "latencyMs": 2646
+      },
+      {
+        "id": "sun-ruins.recall:2",
+        "right": true,
+        "picked": "p=0.8728264243494015",
+        "detail": "Luke",
+        "latencyMs": 2646
+      },
+      {
+        "id": "sun-ruins.narrowed:3",
+        "right": true,
+        "picked": "p=0.013155771303328977",
+        "detail": "Desert Weather",
+        "latencyMs": 2646
+      },
+      {
+        "id": "sun-ruins.narrowed:4",
+        "right": true,
+        "picked": "p=0.006936740393629877",
+        "detail": "Arin's Blade",
+        "latencyMs": 2646
+      },
+      {
+        "id": "sun-ruins.recall:5",
+        "right": true,
+        "picked": "p=0.29395591759564826",
+        "detail": "Bitterroot",
+        "latencyMs": 2646
+      },
+      {
+        "id": "ship.recall:0",
+        "right": true,
+        "picked": "p=0.9780944322486352",
+        "detail": "Reactor Status",
+        "latencyMs": 2597
+      },
+      {
+        "id": "ship.recall:1",
+        "right": true,
+        "picked": "p=0.29689280956121644",
+        "detail": "HALO",
+        "latencyMs": 2597
+      },
+      {
+        "id": "ship.narrowed:2",
+        "right": true,
+        "picked": "p=0.13239155339143857",
+        "detail": "Pell",
+        "latencyMs": 2597
+      },
+      {
+        "id": "ship.narrowed:3",
+        "right": true,
+        "picked": "p=0.044226183230461846",
+        "detail": "Escape Pods",
+        "latencyMs": 2597
+      },
+      {
+        "id": "ship.recall:4",
+        "right": true,
+        "picked": "p=0.5898310236612127",
+        "detail": "Kepler Station",
+        "latencyMs": 2597
+      },
+      {
+        "id": "ship.narrowed:5",
+        "right": false,
+        "picked": "p=0.5876991526590105",
+        "detail": "Captain's Log",
+        "latencyMs": 2597
+      },
+      {
+        "id": "manor.recall:0",
+        "right": true,
+        "picked": "p=0.9258250055015675",
+        "detail": "The Portraits",
+        "latencyMs": 2653
+      },
+      {
+        "id": "manor.narrowed:1",
+        "right": true,
+        "picked": "p=0.014826280023539104",
+        "detail": "Graves",
+        "latencyMs": 2653
+      },
+      {
+        "id": "manor.recall:2",
+        "right": true,
+        "picked": "p=0.9760803265965663",
+        "detail": "Family Records",
+        "latencyMs": 2653
+      },
+      {
+        "id": "manor.recall:3",
+        "right": true,
+        "picked": "p=0.3223123649776714",
+        "detail": "The Carriage",
+        "latencyMs": 2653
+      },
+      {
+        "id": "manor.narrowed:4",
+        "right": true,
+        "picked": "p=0.14850012768517323",
+        "detail": "The Library",
+        "latencyMs": 2653
+      },
+      {
+        "id": "manor.narrowed:5",
+        "right": true,
+        "picked": "p=0.1927149707790248",
+        "detail": "The Sale",
+        "latencyMs": 2653
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    },
+    "chunks": 3
+  }
+}

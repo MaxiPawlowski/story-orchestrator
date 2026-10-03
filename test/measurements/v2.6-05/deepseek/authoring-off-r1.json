@@ -1,0 +1,1565 @@
+{
+  "role": "authoring",
+  "arm": "deepseek-off-r1",
+  "profile": {
+    "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "name": "deepseek 4.1 flash"
+  },
+  "routeDuringRun": {
+    "role": "authoring",
+    "label": "Wizard and road ahead",
+    "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "state": "untested",
+    "detail": "Wizard and road ahead: not tested yet",
+    "effort": "default",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    }
+  },
+  "effort": "off",
+  "reasoning": {
+    "effort": "off",
+    "state": "untested",
+    "reasoning": {
+      "effort": "off",
+      "applied": true,
+      "supported": true,
+      "sent": "thinking=disabled",
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Wizard and road ahead: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T20:25:46.168Z",
+  "cases": 12,
+  "summary": {
+    "role": "authoring",
+    "overall": {
+      "cases": 12,
+      "metrics": {
+        "validity": {
+          "passed": 11,
+          "total": 12,
+          "rate": 0.9166666666666666,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 11,
+          "total": 12,
+          "rate": 0.9166666666666666,
+          "floor": 0.8,
+          "ok": true
+        },
+        "firstTry": {
+          "passed": 8,
+          "total": 12,
+          "rate": 0.6666666666666666,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": true
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "authoring",
+      "id": "a01",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added a boolean extractor quality tracking whether the bank alarm has been tripped, so later beats can gate on the heist going loud.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"alarm_tripped\",\n        \"type\": \"bool\",\n        \"source\": \"extractor\",\n        \"rubric\": \"Has the bank alarm been triggered? true only when the prose shows the alarm sounding, lights flashing, or guards reacting to a tripped alarm.\",\n        \"read_as\": \"choice\"\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1198,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setStoryField",
+          "addQuality",
+          "updateQuality",
+          "removeQuality"
+        ],
+        "kinds": [
+          "addQuality"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a01",
+        "lang": "en",
+        "stage": "qualities",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add a bool quality for whether the alarm has been tripped.",
+        "require": {
+          "kind": "addQuality",
+          "min": 1,
+          "match": {
+            "type": "bool"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a02",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an int quality 'guards_knocked_out' that counts how many guards the crew has knocked out, sourced from the extractor with a monotonic flag so the count only rises as the story progresses.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"guards_knocked_out\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"rubric\": \"How many guards has the crew knocked out so far in the story? Count each distinct guard the prose shows being knocked out; do not count guards merely threatened or avoided.\",\n        \"monotonic\": true\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1184,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setStoryField",
+          "addQuality",
+          "updateQuality",
+          "removeQuality"
+        ],
+        "kinds": [
+          "addQuality"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a02",
+        "lang": "en",
+        "stage": "qualities",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add an int quality counting how many guards the crew has knocked out.",
+        "require": {
+          "kind": "addQuality",
+          "min": 1,
+          "match": {
+            "type": "int"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a03",
+      "lang": "en",
+      "responses": [
+        "{\"summary\":\"Added a location enum quality tracking where the crew currently is: street, lobby, or vault.\",\"ops\":[{\"kind\":\"addQuality\",\"quality\":{\"key\":\"crew_location\",\"type\":\"enum\",\"source\":\"extractor\",\"values\":[\"street\",\"lobby\",\"vault\"],\"rubric\":\"Where is the crew right now? Answer street if they are outside the bank, lobby if inside the public area, vault if inside or at the vault room.\",\"read_as\":\"choice\"}}]}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 899,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setStoryField",
+          "addQuality",
+          "updateQuality",
+          "removeQuality"
+        ],
+        "kinds": [
+          "addQuality"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a03",
+        "lang": "en",
+        "stage": "qualities",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add an enum quality for where the crew is: street, lobby or vault.",
+        "require": {
+          "kind": "addQuality",
+          "min": 1,
+          "match": {
+            "type": "enum"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a04",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"I'll propose a compact quality set for a blank format-2 story: a few extractor-read dramatic state qualities (tension, trust, commitment, danger, and a boolean for whether the protagonist has crossed a point of no return), plus a code-driven chance roll for an ambush-style beat. Since the premise is still blank, these are deliberately generic and easy to rename or prune once the story's specifics arrive.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"tension\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"rubric\": \"How tense is the current scene? 0 = calm and safe, 1 = mild unease, 2 = open conflict or imminent threat, 3 = life-or-death stakes in the immediate moment.\",\n        \"read_as\": \"rating\"\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"trust\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"rubric\": \"How much does the protagonist trust the main companion right now? 0 = active distrust, 1 = wary, 2 = neutral, 3 = trusting, 4 = would risk their life on them.\",\n        \"read_as\": \"rating\",\n        \"monotonic\": true\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"commitment\",\n        \"type\": \"enum\",\n        \"source\": \"extractor\",\n        \"rubric\": \"What has the protagonist openly committed to doing in this story? Answer 'none' if they have not stated a goal aloud, 'personal' if they have named a private goal, 'shared' if they have agreed to a goal with another character, 'oath' if they have sworn a binding promise.\",\n        \"values\": [\"none\", \"personal\", \"shared\", \"oath\"],\n        \"read_as\": \"choice\",\n        \"latching\": true\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"danger\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"rubric\": \"How much immediate physical danger is the protagonist in? 0 = safe, 1 = a known threat nearby, 2 = being actively hunted or pursued, 3 = in combat or trapped with an enemy.\",\n        \"read_as\": \"rating\"\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"point_of_no_return\",\n        \"type\": \"bool\",\n        \"source\": \"extractor\",\n        \"rubric\": \"Has the protagonist done something that cannot be undone — burned a bridge, killed someone, revealed a secret, or crossed a threshold they cannot walk back? true only when the prose shows the act itself, not a plan to do it.\",\n        \"read_as\": \"choice\",\n        \"latching\": true\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"ambush_roll\",\n        \"type\": \"bool\",\n        \"source\": \"code\",\n        \"rubric\": \"Seeded chance roll: true when the die comes up 1 or 2 on a d6, meaning an ambush triggers on this beat.\",\n        \"roll\": { \"sides\": 6, \"target\": 2 }\n      }\n    }\n  ]\n}",
+        "{\n  \"summary\": \"Declared the core dramatic qualities for the story: tension (rated 1-5), trust (rated 1-5), a latching boolean for whether the protagonist has committed to the journey, and danger (rated 1-5). These give the extractor clear, prose-visible questions to answer each turn.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"tension\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"read_as\": \"rating\",\n        \"rubric\": \"from 1 (calm, nothing at stake) to 5 (peak, immediate threat or irreversible choice)\",\n        \"criteria\": {\n          \"levels\": [\n            { \"value\": 1, \"label\": \"calm\", \"description\": \"Nothing is at stake; the scene is relaxed or routine.\" },\n            { \"value\": 2, \"label\": \"stirring\", \"description\": \"A hint of unease or anticipation, but no real pressure yet.\" },\n            { \"value\": 3, \"label\": \"tense\", \"description\": \"Clear stakes and friction; characters are on edge or at odds.\" },\n            { \"value\": 4, \"label\": \"critical\", \"description\": \"Imminent danger or a decision that cannot be walked back.\" },\n            { \"value\": 5, \"label\": \"peak\", \"description\": \"Immediate threat or an irreversible choice happening right now.\" }\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"trust\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"read_as\": \"rating\",\n        \"monotonic\": true,\n        \"rubric\": \"from 1 (wary, withholding) to 5 (fully trusting, would risk themselves for the other)\",\n        \"criteria\": {\n          \"levels\": [\n            { \"value\": 1, \"label\": \"wary\", \"description\": \"Openly guarded; expects betrayal or hidden motives.\" },\n            { \"value\": 2, \"label\": \"cautious\", \"description\": \"Willing to talk, but keeps secrets and watches for lies.\" },\n            { \"value\": 3, \"label\": \"cooperative\", \"description\": \"Works together on shared goals without full openness.\" },\n            { \"value\": 4, \"label\": \"reliant\", \"description\": \"Shares real fears and plans; counts on the other in danger.\" },\n            { \"value\": 5, \"label\": \"devoted\", \"description\": \"Would risk themselves for the other without hesitation.\" }\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"committed\",\n        \"type\": \"bool\",\n        \"source\": \"extractor\",\n        \"read_as\": \"choice\",\n        \"latching\": true,\n        \"rubric\": \"Has the protagonist agreed aloud to undertake the journey or quest? true only when they say yes in dialogue or narration, not merely when they consider it.\"\n      }\n    },\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"danger\",\n        \"type\": \"int\",\n        \"source\": \"extractor\",\n        \"read_as\": \"rating\",\n        \"rubric\": \"from 1 (safe, no threat present) to 5 (lethal, death or ruin is imminent)\",\n        \"criteria\": {\n          \"levels\": [\n            { \"value\": 1, \"label\": \"safe\", \"description\": \"No threat present; the environment is secure.\" },\n            { \"value\": 2, \"label\": \"uneasy\", \"description\": \"Something feels wrong, but no threat has shown itself.\" },\n            { \"value\": 3, \"label\": \"threatened\", \"description\": \"A known danger is near or a hostile party is present.\" },\n            { \"value\": 4, \"label\": \"perilous\", \"description\": \"Violence or disaster is likely within the scene.\" },\n            { \"value\": 5, \"label\": \"lethal\", \"description\": \"Death or ruin is imminent and unavoidable without action.\" }\n          ]\n        }\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 7802,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setStoryField",
+          "addQuality",
+          "updateQuality",
+          "removeQuality"
+        ],
+        "kinds": [
+          "addQuality",
+          "addQuality",
+          "addQuality",
+          "addQuality"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "a04",
+        "lang": "en",
+        "stage": "qualities",
+        "draft": {
+          "format": 2,
+          "id": "cal-blank",
+          "title": "Untitled",
+          "description": "",
+          "qualities": [],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Start",
+              "objective": "Begin.",
+              "type": "anchor",
+              "start": true
+            }
+          ],
+          "transitions": [],
+          "roster": []
+        },
+        "ask": "allowed",
+        "message": "Set up the qualities.",
+        "require": {
+          "kind": "addQuality",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a05",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an intermediate checkpoint 'The Lobby Door' between Casing the Bank and The Vault, where the crew cracks the lobby door. Wired transitions so the start can reach the lobby, and the lobby leads to the vault once the door is open. Introduced a 'lobby_door_open' quality to gate the lobby-to-vault transition.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"lobby_door_open\",\n        \"type\": \"bool\",\n        \"source\": \"extractor\",\n        \"rubric\": \"Has the crew opened or bypassed the bank's lobby door?\"\n      }\n    },\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"lobby\",\n        \"name\": \"The Lobby Door\",\n        \"objective\": \"Crack the bank's lobby door and get the crew inside.\",\n        \"type\": \"intermediate\",\n        \"tension_target\": \"tense\"\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"start\",\n        \"to\": \"lobby\",\n        \"priority\": 1,\n        \"gate\": { \"q\": \"has_key\", \"op\": \"==\", \"v\": true }\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"lobby\",\n        \"to\": \"vault\",\n        \"priority\": 1,\n        \"gate\": { \"q\": \"lobby_door_open\", \"op\": \"==\", \"v\": true }\n      }\n    }\n  ]\n}",
+        "{\"summary\":\"Added an intermediate checkpoint 'lobby' between start and vault where the crew cracks the lobby door. No new qualities or transitions were added in this stage; the existing has_key quality and start→vault transition remain untouched.\",\"ops\":[{\"kind\":\"addCheckpoint\",\"checkpoint\":{\"id\":\"lobby\",\"name\":\"The Lobby Door\",\"objective\":\"Crack the lobby door without tripping the alarm.\",\"type\":\"intermediate\",\"tension_target\":\"tense\",\"guidance\":\"The crew works the lock and the watchman's rounds; the world presses, the player decides how to proceed.\"}},{\"kind\":\"updateCheckpoint\",\"id\":\"start\",\"patch\":{\"objective\":\"Case the bank and get the vault key.\",\"tension_target\":\"stirring\"}},{\"kind\":\"updateCheckpoint\",\"id\":\"vault\",\"patch\":{\"objective\":\"Open the vault.\",\"tension_target\":\"peak\"}}]}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 3325,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "updateCheckpoint"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "a05",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add an intermediate checkpoint between the start and the vault where the crew cracks the lobby door.",
+        "require": {
+          "kind": "addCheckpoint",
+          "min": 1,
+          "match": {
+            "type": "intermediate"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a06",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added a final anchor checkpoint 'Getaway' where the crew escapes the city with the gold, and wired a transition from 'The Vault' to it gated on the crew having the gold.\",\n  \"ops\": [\n    {\n      \"kind\": \"addQuality\",\n      \"quality\": {\n        \"key\": \"has_gold\",\n        \"type\": \"bool\",\n        \"source\": \"extractor\",\n        \"rubric\": \"Does the crew have the gold from the vault?\"\n      }\n    },\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"getaway\",\n        \"name\": \"Getaway\",\n        \"objective\": \"Escape the city with the gold.\",\n        \"type\": \"anchor\",\n        \"tension_target\": \"peak\"\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"vault\",\n        \"to\": \"getaway\",\n        \"priority\": 1,\n        \"gate\": { \"q\": \"has_gold\", \"op\": \"==\", \"v\": true }\n      }\n    }\n  ]\n}",
+        "{\n  \"summary\": \"Added a final anchor checkpoint 'Getaway' where the crew escapes the city with the gold. It follows the vault beat and uses the existing has_key quality in its snapshot to reflect the crew's readiness to flee.\",\n  \"ops\": [\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"getaway\",\n        \"name\": \"Getaway\",\n        \"objective\": \"Escape the city with the gold before the alarm locks down the streets.\",\n        \"type\": \"anchor\",\n        \"tension_target\": \"peak\",\n        \"state_snapshot\": {\n          \"has_key\": true\n        }\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"vault\",\n        \"to\": \"getaway\",\n        \"priority\": 1,\n        \"gate\": {\n          \"q\": \"has_key\",\n          \"op\": \"==\",\n          \"v\": true\n        }\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 2779,
+      "score": {
+        "valid": false,
+        "status": "failed",
+        "shape": false,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "addCheckpoint",
+          "addTransition"
+        ],
+        "repaired": true,
+        "issues": [
+          "ops.1: addTransition is not allowed in the checkpoints stage; the transitions stage allows it"
+        ]
+      },
+      "case": {
+        "id": "a06",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add a final anchor checkpoint called Getaway, where the crew escapes the city with the gold.",
+        "require": {
+          "kind": "addCheckpoint",
+          "min": 1,
+          "match": {
+            "type": "anchor"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a07",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an intermediate checkpoint 'The Sun Door' between the Ruins and the Inner Chamber, where the party must solve the sun door puzzle. It bridges the two anchors and carries the torch_lit quality forward as a state snapshot.\",\n  \"ops\": [\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"sun_door\",\n        \"name\": \"The Sun Door\",\n        \"objective\": \"Solve the sun door puzzle to open the way into the inner chamber.\",\n        \"type\": \"intermediate\",\n        \"tension_target\": \"tense\",\n        \"state_snapshot\": {\n          \"torch_lit\": true\n        },\n        \"guidance\": \"The sun door is a massive stone slab carved with a solar disc and rotating rings. Light must be cast through the correct alignment to trigger the mechanism. The party has a lit torch; the puzzle can be solved by positioning the torch and rotating the rings. If the torch is not lit, the door cannot be opened until a light source is found.\"\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"ruins\",\n        \"to\": \"sun_door\",\n        \"gate\": {\n          \"q\": \"torch_lit\",\n          \"op\": \"==\",\n          \"v\": true\n        },\n        \"priority\": 1\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"sun_door\",\n        \"to\": \"chamber\",\n        \"gate\": {\n          \"q\": \"torch_lit\",\n          \"op\": \"==\",\n          \"v\": true\n        },\n        \"priority\": 1\n      }\n    }\n  ]\n}",
+        "{\"summary\":\"Added an intermediate checkpoint 'The Sun Door' between the Ruins and the Inner Chamber, where the party must solve the sun door puzzle. No transitions added in this stage.\",\"ops\":[{\"kind\":\"addCheckpoint\",\"checkpoint\":{\"id\":\"sun_door\",\"name\":\"The Sun Door\",\"objective\":\"Solve the sun door puzzle to open the way into the inner chamber.\",\"type\":\"intermediate\",\"tension_target\":\"tense\",\"guidance\":\"The sun door is a massive stone slab carved with a sun motif and rotating dials; the party must figure out the alignment that opens it.\",\"state_snapshot\":{\"torch_lit\":true}}}]}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 3625,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "addCheckpoint"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "a07",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-ruins",
+          "title": "The Sun Ruins",
+          "description": "A party of adventurers takes a guild job to explore desert ruins.",
+          "qualities": [
+            {
+              "key": "agreed_to_go",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the party agreed to take the job?"
+            },
+            {
+              "key": "torch_lit",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Is the party's torch lit?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "camp",
+              "name": "The Camp",
+              "objective": "Decide whether to take the job.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "ruins",
+              "name": "The Ruins",
+              "objective": "Enter the ruins.",
+              "type": "anchor"
+            },
+            {
+              "id": "chamber",
+              "name": "The Inner Chamber",
+              "objective": "Find the artifact.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": [
+            {
+              "id": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman"
+            }
+          ]
+        },
+        "ask": "never",
+        "message": "Add an intermediate checkpoint between the ruins and the inner chamber: the party solves the sun door puzzle.",
+        "require": {
+          "kind": "addCheckpoint",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a08",
+      "lang": "en",
+      "responses": [
+        "{\"summary\":\"Wired the start beat to the vault with a single gated transition: the crew moves on once has_key is true.\",\"ops\":[{\"kind\":\"addTransition\",\"transition\":{\"from\":\"start\",\"to\":\"vault\",\"gate\":{\"q\":\"has_key\",\"op\":\"==\",\"v\":true},\"priority\":1,\"effects\":{\"progress\":{\"anchor\":\"vault\",\"amount\":1}},\"extraction_hint\":\"the crew has the vault key in hand and heads for the vault\"}}]}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1044,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addTransition",
+          "updateTransition",
+          "setTransitionGate"
+        ],
+        "kinds": [
+          "addTransition"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a08",
+        "lang": "en",
+        "stage": "transitions",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist-open",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Wire the start to the vault: the crew moves on once they have the key.",
+        "require": {
+          "kind": "addTransition",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a09",
+      "lang": "en",
+      "responses": [
+        "{\"summary\":\"Wired the two requested exits: camp→ruins gated on agreed_to_go, and ruins→chamber gated on torch_lit. Both carry a progress effect toward their target anchor so the convergence threshold is reachable.\",\"ops\":[{\"kind\":\"addTransition\",\"transition\":{\"from\":\"camp\",\"to\":\"ruins\",\"gate\":{\"q\":\"agreed_to_go\",\"op\":\"==\",\"v\":true},\"priority\":1,\"effects\":{\"progress\":{\"anchor\":\"ruins\",\"amount\":1}},\"extraction_hint\":\"the party agrees to take the job and sets out for the ruins\"}},{\"kind\":\"addTransition\",\"transition\":{\"from\":\"ruins\",\"to\":\"chamber\",\"gate\":{\"q\":\"torch_lit\",\"op\":\"==\",\"v\":true},\"priority\":1,\"effects\":{\"progress\":{\"anchor\":\"chamber\",\"amount\":1}},\"extraction_hint\":\"the torch is lit and the party descends into the inner chamber\"}}]}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1279,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addTransition",
+          "updateTransition",
+          "setTransitionGate"
+        ],
+        "kinds": [
+          "addTransition",
+          "addTransition"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a09",
+        "lang": "en",
+        "stage": "transitions",
+        "draft": {
+          "format": 2,
+          "id": "cal-ruins",
+          "title": "The Sun Ruins",
+          "description": "A party of adventurers takes a guild job to explore desert ruins.",
+          "qualities": [
+            {
+              "key": "agreed_to_go",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the party agreed to take the job?"
+            },
+            {
+              "key": "torch_lit",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Is the party's torch lit?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "camp",
+              "name": "The Camp",
+              "objective": "Decide whether to take the job.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "ruins",
+              "name": "The Ruins",
+              "objective": "Enter the ruins.",
+              "type": "anchor"
+            },
+            {
+              "id": "chamber",
+              "name": "The Inner Chamber",
+              "objective": "Find the artifact.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": [
+            {
+              "id": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman"
+            }
+          ]
+        },
+        "ask": "never",
+        "message": "Connect the camp to the ruins when the party agrees to go, and the ruins to the inner chamber once the torch is lit.",
+        "require": {
+          "kind": "addTransition",
+          "min": 2
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a10",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an author's note to the vault checkpoint instructing the narrator that the alarm bells are ringing.\",\n  \"ops\": [\n    {\n      \"kind\": \"setCheckpointEffects\",\n      \"id\": \"vault\",\n      \"effects\": {\n        \"author_note\": \"The alarm bells are ringing.\"\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 789,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setCheckpointEffects",
+          "addRosterMember",
+          "updateRosterMember",
+          "removeRosterMember",
+          "setRequirements",
+          "setStagecraft",
+          "setSceneRead",
+          "setLoreSelect",
+          "setArcTemplate",
+          "setArcBridges",
+          "setStoryField"
+        ],
+        "kinds": [
+          "setCheckpointEffects"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a10",
+        "lang": "en",
+        "stage": "effects",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Give the vault checkpoint an author's note telling the narrator that the alarm bells are ringing.",
+        "require": {
+          "kind": "setCheckpointEffects",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a11",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added Vex to the roster as the crew's lockpick — nervous but brilliant. No checkpoint effects or cast_changes yet, since the draft has no card names or entry beats defined; Vex is present from the start by default.\",\n  \"ops\": [\n    {\n      \"kind\": \"addRosterMember\",\n      \"member\": {\n        \"id\": \"vex\",\n        \"name\": \"Vex\",\n        \"role\": \"The crew's lockpick — cracks safes and tumbles cylinders under pressure.\",\n        \"drive\": \"Prove she's the best in the city before her nerve gives out.\"\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1374,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setCheckpointEffects",
+          "addRosterMember",
+          "updateRosterMember",
+          "removeRosterMember",
+          "setRequirements",
+          "setStagecraft",
+          "setSceneRead",
+          "setLoreSelect",
+          "setArcTemplate",
+          "setArcBridges",
+          "setStoryField"
+        ],
+        "kinds": [
+          "addRosterMember"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a11",
+        "lang": "en",
+        "stage": "effects",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add Vex to the roster: the crew's lockpick, nervous but brilliant.",
+        "require": {
+          "kind": "addRosterMember",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "a12",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"The story's own lorebook 'Vault Job Lore' already exists, so no lorebook creation is needed. The only cast member named by the draft is Vex, who is not on this install, so I'll create her card with a first message for the opening 'Casing the Bank' scene. I'll also create the group that plays the story, listing Vex as its member. No lorebook entries are specified by the draft, so none are added.\",\n  \"ops\": [\n    {\n      \"kind\": \"createCharacterCard\",\n      \"name\": \"Vex\",\n      \"description\": \"Vex is the crew's lockpick: a wiry, sharp-eyed thief with quick hands and a quicker tongue. She reads locks the way other people read faces, and she's never met a door she couldn't talk her way through — given enough time and the right tools.\",\n      \"role\": \"The crew's lockpick\",\n      \"personality\": \"Wry, impatient, precise. Talks while she works. Distrusts anyone who won't get their hands dirty.\",\n      \"scenario\": \"Vex is casing the city bank with the crew, scouting the vault door and the guards' routines before the job.\",\n      \"first_mes\": \"*Vex crouches by the bank's side entrance, a slim pick already turning between her fingers. She glances up as you approach.*\\n\\n\\\"There you are. I've been staring at this door for ten minutes and I'm bored out of my mind. It's a good lock — too good for a bank this size, which means somebody upstairs is paranoid.\\\" *She nods toward the main hall.* \\\"Guards change shift at the top of the hour. We've got a window. What's the plan — do we go in quiet, or do you want to make some noise?\\\"\",\n      \"tags\": [\"thief\", \"lockpick\", \"heist\"]\n    },\n    {\n      \"kind\": \"createGroup\",\n      \"name\": \"The Vault Job Crew\",\n      \"members\": [\"Vex\"]\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 3250,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "createCharacterCard",
+          "createStoryLorebook",
+          "upsertLorebookEntry",
+          "createGroup"
+        ],
+        "kinds": [
+          "createCharacterCard",
+          "createGroup"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "a12",
+        "lang": "en",
+        "stage": "provisioning",
+        "draft": {
+          "format": 2,
+          "id": "cal-heist-cast",
+          "title": "The Vault Job",
+          "description": "A crew of thieves breaks into the city bank's vault.",
+          "qualities": [
+            {
+              "key": "has_key",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Does the crew have the vault key?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "start",
+              "name": "Casing the Bank",
+              "objective": "Case the bank and get the vault key.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "vault",
+              "name": "The Vault",
+              "objective": "Open the vault.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "start",
+              "to": "vault",
+              "priority": 1,
+              "gate": {
+                "q": "has_key",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": [
+            {
+              "id": "vex",
+              "name": "Vex",
+              "role": "The crew's lockpick"
+            }
+          ],
+          "requirements": {
+            "members": [
+              "Vex"
+            ],
+            "lorebooks": [
+              "Vault Job Lore"
+            ]
+          }
+        },
+        "ask": "never",
+        "message": "Create what this story still needs on this install.",
+        "require": {
+          "kind": "createCharacterCard",
+          "min": 1
+        },
+        "environment": {
+          "characterNames": [
+            "Assistant",
+            "Arin",
+            "Ponticius"
+          ],
+          "lorebookNames": [
+            "Adolion"
+          ],
+          "groupNames": [
+            "Sun Ruins Party"
+          ],
+          "storyLorebooks": [
+            "Vault Job Lore"
+          ],
+          "ownedLorebooks": [],
+          "grantedLorebooks": []
+        }
+      }
+    }
+  ],
+  "holdout": {
+    "cases": 5,
+    "validity": {
+      "passed": 5,
+      "total": 5
+    },
+    "opShape": {
+      "passed": 5,
+      "total": 5
+    },
+    "misses": []
+  },
+  "holdoutRecords": [
+    {
+      "role": "authoring",
+      "id": "h06",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an intermediate checkpoint 'The Ossuary' between the entrance and the crypt, where the party discovers the relic is a fake. It sits on the existing door_open transition path, so the entrance still gates on the door, and the ossuary now bridges to the crypt.\",\n  \"ops\": [\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"ossuary\",\n        \"name\": \"The Ossuary\",\n        \"objective\": \"The party finds the relic in the ossuary and realizes it is a fake.\",\n        \"type\": \"intermediate\",\n        \"tension_target\": \"stirring\",\n        \"guidance\": \"The ossuary is a side chamber of stacked bones. The relic the party sought is here, but it is a forgery — a gilded copy. Let the discovery land before the party pushes on toward the crypt.\"\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"entrance\",\n        \"to\": \"ossuary\",\n        \"priority\": 1,\n        \"gate\": { \"q\": \"door_open\", \"op\": \"==\", \"v\": true }\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"ossuary\",\n        \"to\": \"crypt\",\n        \"priority\": 1\n      }\n    }\n  ]\n}",
+        "{\"summary\":\"Adds an intermediate checkpoint, The Ossuary, between the Entrance and the Crypt, where the party discovers the relic is a fake. No new qualities or transitions are introduced in this stage.\",\"ops\":[{\"kind\":\"addCheckpoint\",\"checkpoint\":{\"id\":\"ossuary\",\"name\":\"The Ossuary\",\"objective\":\"Discover that the relic the party seeks is a fake.\",\"type\":\"intermediate\",\"tension_target\":\"stirring\",\"guidance\":\"The party finds the relic in the ossuary and realizes it is a forgery; the world presses this revelation on them without deciding how they react.\"}}]}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 3085,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "addCheckpoint"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "h06",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-crypt",
+          "title": "The Abbey Crypt",
+          "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
+          "qualities": [
+            {
+              "key": "door_open",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Is the crypt door open?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "entrance",
+              "name": "The Entrance",
+              "objective": "Find a way to open the crypt.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "crypt",
+              "name": "The Crypt",
+              "objective": "Recover the relic.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "entrance",
+              "to": "crypt",
+              "priority": 1,
+              "gate": {
+                "q": "door_open",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add an intermediate checkpoint, The Ossuary, where the party discovers the relic is a fake.",
+        "require": {
+          "kind": "addCheckpoint",
+          "min": 1,
+          "match": {
+            "type": "intermediate"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "h07",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added a final anchor checkpoint, 'The Wreck', where the crew abandons the drifting ship carrying the captain's log. It follows the Captain's Cabin and is gated on having read the log, with a tense tension target and a state snapshot latching log_read to true.\",\n  \"ops\": [\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"wreck\",\n        \"name\": \"The Wreck\",\n        \"objective\": \"Abandon the ship, carrying the captain's log.\",\n        \"type\": \"anchor\",\n        \"tension_target\": \"tense\",\n        \"state_snapshot\": {\n          \"log_read\": true\n        }\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"cabin\",\n        \"to\": \"wreck\",\n        \"gate\": {\n          \"q\": \"log_read\",\n          \"op\": \"==\",\n          \"v\": true\n        },\n        \"priority\": 1\n      }\n    }\n  ]\n}",
+        "{\n  \"summary\": \"Added a final anchor checkpoint, The Wreck, where the crew abandons the ship carrying the captain's log. No transitions added at this stage.\",\n  \"ops\": [\n    {\n      \"kind\": \"addCheckpoint\",\n      \"checkpoint\": {\n        \"id\": \"wreck\",\n        \"name\": \"The Wreck\",\n        \"objective\": \"Abandon the drifting ship, carrying the captain's log.\",\n        \"type\": \"anchor\",\n        \"tension_target\": \"peak\",\n        \"state_snapshot\": {\n          \"boarded\": true,\n          \"log_read\": true\n        }\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 2339,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "addCheckpoint"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "h07",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-ghost-ship",
+          "title": "The Drifting Ship",
+          "description": "A crew boards a ship found drifting through thick fog.",
+          "qualities": [
+            {
+              "key": "boarded",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew boarded the drifting ship?"
+            },
+            {
+              "key": "log_read",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew read the captain's log?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "fog",
+              "name": "The Fog",
+              "objective": "Reach the drifting ship.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "deck",
+              "name": "The Deck",
+              "objective": "Search the ship.",
+              "type": "anchor"
+            },
+            {
+              "id": "cabin",
+              "name": "The Captain's Cabin",
+              "objective": "Find out what happened to the crew.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Add a final anchor, The Wreck, where the crew abandons the ship carrying the captain's log.",
+        "require": {
+          "kind": "addCheckpoint",
+          "min": 1,
+          "match": {
+            "type": "anchor"
+          }
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "h08",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added a latching boolean quality `door_open` (already present) and set a state snapshot on The Crypt so that arriving there forces `door_open` to true. This guarantees the door counts as open once the party reaches the crypt, regardless of how they got in.\",\n  \"ops\": [\n    {\n      \"kind\": \"updateQuality\",\n      \"key\": \"door_open\",\n      \"patch\": {\n        \"latching\": true\n      }\n    },\n    {\n      \"kind\": \"setCheckpointSnapshot\",\n      \"id\": \"crypt\",\n      \"snapshot\": {\n        \"door_open\": true\n      }\n    }\n  ]\n}",
+        "{\"summary\":\"Set the door_open snapshot on The Crypt so the door counts as open once the party reaches it.\",\"ops\":[{\"kind\":\"setCheckpointSnapshot\",\"id\":\"crypt\",\"snapshot\":{\"door_open\":true}}]}"
+      ],
+      "finishes": [
+        "stop",
+        "stop"
+      ],
+      "latencyMs": 1816,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addCheckpoint",
+          "updateCheckpoint",
+          "setStartCheckpoint",
+          "setCheckpointSnapshot"
+        ],
+        "kinds": [
+          "setCheckpointSnapshot"
+        ],
+        "repaired": true,
+        "issues": []
+      },
+      "case": {
+        "id": "h08",
+        "lang": "en",
+        "stage": "checkpoints",
+        "draft": {
+          "format": 2,
+          "id": "cal-crypt",
+          "title": "The Abbey Crypt",
+          "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
+          "qualities": [
+            {
+              "key": "door_open",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Is the crypt door open?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "entrance",
+              "name": "The Entrance",
+              "objective": "Find a way to open the crypt.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "crypt",
+              "name": "The Crypt",
+              "objective": "Recover the relic.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [
+            {
+              "from": "entrance",
+              "to": "crypt",
+              "priority": 1,
+              "gate": {
+                "q": "door_open",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "When the story reaches The Crypt, the door should already count as open.",
+        "require": {
+          "kind": "setCheckpointSnapshot",
+          "min": 1
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "h09",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Wired the two requested transitions: fog→deck gated on the crew having boarded, and deck→cabin gated on the captain's log having been read. Both carry a progress effect toward their target anchor so the convergence threshold is reachable.\",\n  \"ops\": [\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"fog\",\n        \"to\": \"deck\",\n        \"gate\": { \"q\": \"boarded\", \"op\": \"==\", \"v\": true },\n        \"priority\": 1,\n        \"effects\": { \"progress\": { \"anchor\": \"deck\", \"amount\": 1 } },\n        \"extraction_hint\": \"the crew steps off the boat and onto the drifting ship's deck\"\n      }\n    },\n    {\n      \"kind\": \"addTransition\",\n      \"transition\": {\n        \"from\": \"deck\",\n        \"to\": \"cabin\",\n        \"gate\": { \"q\": \"log_read\", \"op\": \"==\", \"v\": true },\n        \"priority\": 1,\n        \"effects\": { \"progress\": { \"anchor\": \"cabin\", \"amount\": 1 } },\n        \"extraction_hint\": \"the captain's log is opened and its final entries are read\"\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1434,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "addTransition",
+          "updateTransition",
+          "setTransitionGate"
+        ],
+        "kinds": [
+          "addTransition",
+          "addTransition"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "h09",
+        "lang": "en",
+        "stage": "transitions",
+        "draft": {
+          "format": 2,
+          "id": "cal-ghost-ship",
+          "title": "The Drifting Ship",
+          "description": "A crew boards a ship found drifting through thick fog.",
+          "qualities": [
+            {
+              "key": "boarded",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew boarded the drifting ship?"
+            },
+            {
+              "key": "log_read",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew read the captain's log?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "fog",
+              "name": "The Fog",
+              "objective": "Reach the drifting ship.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "deck",
+              "name": "The Deck",
+              "objective": "Search the ship.",
+              "type": "anchor"
+            },
+            {
+              "id": "cabin",
+              "name": "The Captain's Cabin",
+              "objective": "Find out what happened to the crew.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Connect the fog to the deck once the crew has boarded, and the deck to the captain's cabin once they have read the log.",
+        "require": {
+          "kind": "addTransition",
+          "min": 2
+        }
+      }
+    },
+    {
+      "role": "authoring",
+      "id": "h10",
+      "lang": "en",
+      "responses": [
+        "{\n  \"summary\": \"Added an author's note to The Fog checkpoint: the fog swallows every sound.\",\n  \"ops\": [\n    {\n      \"kind\": \"setCheckpointEffects\",\n      \"id\": \"fog\",\n      \"effects\": {\n        \"author_note\": \"The fog swallows every sound.\"\n      }\n    }\n  ]\n}"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1063,
+      "score": {
+        "valid": true,
+        "status": "ok",
+        "shape": true,
+        "allowedKinds": [
+          "setCheckpointEffects",
+          "addRosterMember",
+          "updateRosterMember",
+          "removeRosterMember",
+          "setRequirements",
+          "setStagecraft",
+          "setSceneRead",
+          "setLoreSelect",
+          "setArcTemplate",
+          "setArcBridges",
+          "setStoryField"
+        ],
+        "kinds": [
+          "setCheckpointEffects"
+        ],
+        "repaired": false,
+        "issues": []
+      },
+      "case": {
+        "id": "h10",
+        "lang": "en",
+        "stage": "effects",
+        "draft": {
+          "format": 2,
+          "id": "cal-ghost-ship",
+          "title": "The Drifting Ship",
+          "description": "A crew boards a ship found drifting through thick fog.",
+          "qualities": [
+            {
+              "key": "boarded",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew boarded the drifting ship?"
+            },
+            {
+              "key": "log_read",
+              "type": "bool",
+              "source": "extractor",
+              "rubric": "Has the crew read the captain's log?"
+            }
+          ],
+          "checkpoints": [
+            {
+              "id": "fog",
+              "name": "The Fog",
+              "objective": "Reach the drifting ship.",
+              "type": "anchor",
+              "start": true
+            },
+            {
+              "id": "deck",
+              "name": "The Deck",
+              "objective": "Search the ship.",
+              "type": "anchor"
+            },
+            {
+              "id": "cabin",
+              "name": "The Captain's Cabin",
+              "objective": "Find out what happened to the crew.",
+              "type": "anchor"
+            }
+          ],
+          "transitions": [],
+          "roster": []
+        },
+        "ask": "never",
+        "message": "Give The Fog an author's note: the fog swallows every sound.",
+        "require": {
+          "kind": "setCheckpointEffects",
+          "min": 1
+        }
+      }
+    }
+  ],
+  "holdoutIncomplete": []
+}

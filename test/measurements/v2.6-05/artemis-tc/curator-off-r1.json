@@ -1,0 +1,152 @@
+{
+  "role": "curator",
+  "arm": "artemis-tc-off-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "routeDuringRun": {
+    "role": "curator",
+    "label": "World Info curator",
+    "profileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "state": "untested",
+    "detail": "World Info curator: not tested yet",
+    "effort": "default"
+  },
+  "effort": "off",
+  "reasoning": {
+    "effort": "off",
+    "state": "untested",
+    "reasoning": {
+      "effort": "off",
+      "applied": false,
+      "supported": false,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": "Text Completion sends a raw prompt",
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "World Info curator: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T21:32:02.073Z",
+  "cases": 1,
+  "summary": {
+    "role": "curator",
+    "overall": {
+      "cases": 1,
+      "metrics": {
+        "validity": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": 0.85,
+          "ok": true
+        },
+        "decision": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": 0.7,
+          "ok": true
+        }
+      }
+    },
+    "meetsFloors": true
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "curator",
+      "id": "c01",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Old Tunnel\"\n[why] The party has entered the collapsed mining tunnel, making it relevant to the current scene."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1978,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Old Tunnel"
+        ],
+        "dropped": []
+      },
+      "case": {
+        "id": "c01",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: the party entered the place the entry describes",
+        "scope": {
+          "storyTitle": "Under the Hills",
+          "checkpointName": "The Tunnel",
+          "objective": "Find the way through the old mine.",
+          "canon": "The party left the river camp at dawn. Bel lit the brass lantern and led them into the collapsed mining tunnel under the hills. The camp is far behind them now.",
+          "openArcs": [
+            "Where does the tunnel come out?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Hills Lore",
+              "comment": "The Old Tunnel",
+              "keys": [
+                "tunnel",
+                "mine"
+              ],
+              "content": "A collapsed mining tunnel under the hills. Damp, narrow, lit only by what the party carries.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Hills Lore",
+              "comment": "Bel",
+              "keys": [
+                "Bel"
+              ],
+              "content": "Bel is the party's guide, a former miner who knows the hills.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Old Tunnel",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Bel"
+        ]
+      }
+    }
+  ]
+}

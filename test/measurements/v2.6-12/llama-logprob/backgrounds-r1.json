@@ -1,0 +1,183 @@
+{
+  "summary": {
+    "use": "backgrounds",
+    "fixture": "backgrounds",
+    "right": 3,
+    "total": 19,
+    "rate": 0.1579,
+    "families": [
+      {
+        "family": "pick",
+        "right": 0,
+        "total": 16,
+        "floor": 0.85,
+        "ok": false
+      },
+      {
+        "family": "none",
+        "right": 3,
+        "total": 3,
+        "floor": 1,
+        "ok": true
+      }
+    ],
+    "p50LatencyMs": 0,
+    "p95LatencyMs": 0,
+    "timeouts": 0,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:unknown",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:unknown",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:04:02.398Z",
+    "model": "llama-server:unknown",
+    "total": 19,
+    "right": 3,
+    "p50LatencyMs": 0,
+    "rows": [
+      {
+        "id": "B01.pick",
+        "right": false,
+        "picked": null,
+        "detail": "tavern day.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B02.pick",
+        "right": false,
+        "picked": null,
+        "detail": "sun_ruins.jpg | sun_ruins2.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B03.pick",
+        "right": false,
+        "picked": null,
+        "detail": "cityscape medieval night.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B04.pick",
+        "right": false,
+        "picked": null,
+        "detail": "landscape mountain lake.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B05.pick",
+        "right": false,
+        "picked": null,
+        "detail": "landscape beach night.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B06.pick",
+        "right": false,
+        "picked": null,
+        "detail": "royal.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B07.pick",
+        "right": false,
+        "picked": null,
+        "detail": "bedroom clean.jpg | bedroom red.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B08.pick",
+        "right": false,
+        "picked": null,
+        "detail": "cityscape postapoc.jpg | landscape postapoc.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B09.pick",
+        "right": false,
+        "picked": null,
+        "detail": "landscape winter lake house.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B10.pick",
+        "right": false,
+        "picked": null,
+        "detail": "bedroom cyberpunk.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "B11.none",
+        "right": true,
+        "picked": null,
+        "detail": "none",
+        "latencyMs": 0
+      },
+      {
+        "id": "B12.none",
+        "right": true,
+        "picked": null,
+        "detail": "none",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX01.pick",
+        "right": false,
+        "picked": null,
+        "detail": "tavern day.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX02.pick",
+        "right": false,
+        "picked": null,
+        "detail": "sun_ruins.jpg | sun_ruins2.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX03.pick",
+        "right": false,
+        "picked": null,
+        "detail": "cityscape medieval night.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX04.pick",
+        "right": false,
+        "picked": null,
+        "detail": "landscape mountain lake.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX05.pick",
+        "right": false,
+        "picked": null,
+        "detail": "royal.jpg",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX06.none",
+        "right": true,
+        "picked": null,
+        "detail": "none",
+        "latencyMs": 0
+      },
+      {
+        "id": "BX10.pick",
+        "right": false,
+        "picked": null,
+        "detail": "japan classroom.jpg | japan classroom side.jpg",
+        "latencyMs": 0
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:unknown"
+    }
+  }
+}

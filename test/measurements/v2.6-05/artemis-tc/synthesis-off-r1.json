@@ -1,0 +1,105 @@
+{
+  "role": "synthesis",
+  "arm": "artemis-tc-off-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "routeDuringRun": {
+    "role": "synthesis",
+    "label": "Summaries and canon",
+    "profileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "state": "untested",
+    "detail": "Summaries and canon: not tested yet",
+    "effort": "default"
+  },
+  "effort": "off",
+  "reasoning": {
+    "effort": "off",
+    "state": "untested",
+    "reasoning": {
+      "effort": "off",
+      "applied": false,
+      "supported": false,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": "Text Completion sends a raw prompt",
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Summaries and canon: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T21:31:02.602Z",
+  "cases": 1,
+  "summary": {
+    "role": "synthesis",
+    "overall": {
+      "cases": 1,
+      "metrics": {
+        "validity": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": null
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "synthesis",
+      "id": "s01",
+      "lang": "en",
+      "responses": [
+        "Max lit a brass lantern and followed Bel into the tunnel. Bel led the way as they descended together."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1984,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s01",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I pick up the brass lantern from the crate and light it."
+          },
+          {
+            "speaker": "Bel",
+            "text": "Bel nods. \"Then we go down.\" She leads the way into the tunnel."
+          },
+          {
+            "speaker": "Max",
+            "text": "I follow Bel into the tunnel, lantern raised."
+          }
+        ]
+      }
+    }
+  ]
+}

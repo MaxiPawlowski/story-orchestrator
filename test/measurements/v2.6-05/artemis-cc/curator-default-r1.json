@@ -1,0 +1,469 @@
+{
+  "role": "curator",
+  "arm": "artemis-cc-default-r1",
+  "profile": {
+    "id": "9466b99d-1e8b-49aa-b7f8-9d90d8353e8c",
+    "name": "Artemis RunPod CC"
+  },
+  "routeDuringRun": {
+    "role": "curator",
+    "label": "World Info curator",
+    "profileId": "9466b99d-1e8b-49aa-b7f8-9d90d8353e8c",
+    "state": "untested",
+    "detail": "World Info curator: not tested yet",
+    "effort": "default"
+  },
+  "effort": "default",
+  "reasoning": {
+    "effort": "default",
+    "state": "reasoning-exhausted",
+    "reasoning": null,
+    "detail": "The model spent its whole budget thinking — lower the effort for World Info curator or raise the budget."
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "ed5e9cf20d0a",
+  "runAt": "2026-10-02T23:49:50.795Z",
+  "cases": 6,
+  "summary": {
+    "role": "curator",
+    "overall": {
+      "cases": 6,
+      "metrics": {
+        "validity": {
+          "passed": 6,
+          "total": 6,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1,
+          "floor": 0.85,
+          "ok": true
+        },
+        "decision": {
+          "passed": 6,
+          "total": 6,
+          "rate": 1,
+          "floor": 0.7,
+          "ok": true
+        }
+      }
+    },
+    "meetsFloors": true
+  },
+  "incomplete": [
+    {
+      "id": "c02",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1462 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    },
+    {
+      "id": "c03",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1553 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    },
+    {
+      "id": "c07",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1454 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    },
+    {
+      "id": "c09",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1607 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    },
+    {
+      "id": "c11",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1578 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    },
+    {
+      "id": "c12",
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (1586 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async Object.curator (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:7237)\n    at async $ (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:8277)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "notGreen": [
+    "incomplete: c02, c03, c07, c09, c11, c12"
+  ],
+  "records": [
+    {
+      "role": "curator",
+      "id": "c01",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Old Tunnel\"\n[why] The party has entered the collapsed mining tunnel, making this entry relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 8914,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Old Tunnel"
+        ],
+        "dropped": []
+      },
+      "case": {
+        "id": "c01",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: the party entered the place the entry describes",
+        "scope": {
+          "storyTitle": "Under the Hills",
+          "checkpointName": "The Tunnel",
+          "objective": "Find the way through the old mine.",
+          "canon": "The party left the river camp at dawn. Bel lit the brass lantern and led them into the collapsed mining tunnel under the hills. The camp is far behind them now.",
+          "openArcs": [
+            "Where does the tunnel come out?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Hills Lore",
+              "comment": "The Old Tunnel",
+              "keys": [
+                "tunnel",
+                "mine"
+              ],
+              "content": "A collapsed mining tunnel under the hills. Damp, narrow, lit only by what the party carries.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Hills Lore",
+              "comment": "Bel",
+              "keys": [
+                "Bel"
+              ],
+              "content": "Bel is the party's guide, a former miner who knows the hills.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Old Tunnel",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Bel"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c04",
+      "lang": "en",
+      "responses": [
+        "NONE"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 12401,
+      "score": {
+        "valid": true,
+        "opLines": 0,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": []
+      },
+      "case": {
+        "id": "c04",
+        "lang": "en",
+        "label": "none",
+        "why": "every entry agrees with what has happened",
+        "scope": {
+          "storyTitle": "The Salt Road",
+          "checkpointName": "Crossing the Delta",
+          "objective": "Reach the far bank.",
+          "canon": "Mira and Tolan reached the delta at dusk and hired the ferryman Oskar to take them across the reeds.",
+          "openArcs": [
+            "Can Oskar be trusted?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "The Delta",
+              "keys": [
+                "delta",
+                "reeds"
+              ],
+              "content": "A drowned plain of reeds and channels between the salt flats and the sea. Only a ferry crosses it safely.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "Oskar",
+              "keys": [
+                "Oskar",
+                "ferryman"
+              ],
+              "content": "Oskar is an old ferryman who charges one silver coin per crossing.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Delta",
+          "Oskar"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c05",
+      "lang": "en",
+      "responses": [
+        "NONE"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 10488,
+      "score": {
+        "valid": true,
+        "opLines": 0,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": []
+      },
+      "case": {
+        "id": "c05",
+        "lang": "en",
+        "label": "none",
+        "why": "stable geography; nothing the story did touches it",
+        "scope": {
+          "storyTitle": "Winter Pass",
+          "checkpointName": "The Climb",
+          "objective": "Reach the monastery before the snow.",
+          "canon": "The travellers left the valley village and began the long climb up the switchback road. The wind is picking up but the road is still clear.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Switchback Road",
+              "keys": [
+                "road",
+                "switchback"
+              ],
+              "content": "A narrow road that zigzags up the mountain to the monastery. It closes when heavy snow falls.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Monastery",
+              "keys": [
+                "monastery",
+                "monks"
+              ],
+              "content": "A stone monastery near the summit where monks shelter travellers for the night.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Switchback Road",
+          "The Monastery"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c06",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Drowned Bell\"\n[why] The party heard the drowned bell ring, making the legend relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 9448,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Drowned Bell"
+        ],
+        "dropped": []
+      },
+      "case": {
+        "id": "c06",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: a legend the party has now witnessed",
+        "scope": {
+          "storyTitle": "Lake Morrow",
+          "checkpointName": "The Shore at Night",
+          "objective": "Find out what rings beneath the lake.",
+          "canon": "At midnight the party heard a bell ringing from under the black water of Lake Morrow, exactly as the villagers' old story says. Nobody has rung a bell there in a hundred years.",
+          "openArcs": [
+            "What rings the drowned bell?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "The Drowned Bell",
+              "keys": [
+                "bell",
+                "drowned"
+              ],
+              "content": "Village legend: the chapel bell sank with the old village when the valley flooded, and it rings before a death.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "Lake Morrow",
+              "keys": [
+                "lake",
+                "Morrow"
+              ],
+              "content": "A deep, cold lake that flooded the old valley village a century ago.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Drowned Bell",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Lake Morrow"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c08",
+      "lang": "en",
+      "responses": [
+        "NONE"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 12040,
+      "score": {
+        "valid": true,
+        "opLines": 0,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": []
+      },
+      "case": {
+        "id": "c08",
+        "lang": "en",
+        "label": "none",
+        "why": "an off entry about a place the story is nowhere near",
+        "scope": {
+          "storyTitle": "Southport",
+          "checkpointName": "The Docks",
+          "objective": "Find a ship heading east.",
+          "canon": "The crew arrived in the southern port city and spent the day asking captains along the docks about passage east.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Southport Lore",
+              "comment": "The Northern Wastes",
+              "keys": [
+                "wastes",
+                "north"
+              ],
+              "content": "A frozen desert far to the north where nothing grows.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Southport Lore",
+              "comment": "Southport Docks",
+              "keys": [
+                "docks",
+                "ships"
+              ],
+              "content": "The busy docks of Southport, where ships from every coast take on cargo and passengers.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Northern Wastes",
+          "Southport Docks"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c10",
+      "lang": "en",
+      "responses": [
+        "NONE"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 9270,
+      "score": {
+        "valid": true,
+        "opLines": 0,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": []
+      },
+      "case": {
+        "id": "c10",
+        "lang": "en",
+        "label": "none",
+        "why": "style bait: terse but accurate text is not a change",
+        "scope": {
+          "storyTitle": "The Long Road",
+          "checkpointName": "The Inn",
+          "objective": "Rest before the ride.",
+          "canon": "The riders stopped at the Grey Mare inn for the night and stabled their horses.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Road Lore",
+              "comment": "The Grey Mare",
+              "keys": [
+                "Grey Mare",
+                "inn"
+              ],
+              "content": "Roadside inn. Stables. Cheap beds.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Grey Mare"
+        ]
+      }
+    }
+  ]
+}

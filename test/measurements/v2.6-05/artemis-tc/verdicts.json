@@ -1,0 +1,382 @@
+[
+ {
+  "role": "authoring",
+  "level": "default",
+  "runs": [
+   {
+    "meets": true,
+    "cases": 12,
+    "metrics": {
+     "validity": "12/12",
+     "opShape": "12/12",
+     "firstTry": "9/12"
+    },
+    "holdout": {
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    "p50": 6761,
+    "p95": 32487,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   },
+   {
+    "meets": true,
+    "cases": 12,
+    "metrics": {
+     "validity": "12/12",
+     "opShape": "12/12",
+     "firstTry": "9/12"
+    },
+    "holdout": {
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    "p50": 6955,
+    "p95": 34991,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   }
+  ],
+  "verdict": {
+   "verdict": "recommended",
+   "reason": "both runs meet every floor and every hold-out row"
+  }
+ },
+ {
+  "role": "authoring",
+  "level": "off",
+  "runs": [
+   {
+    "meets": true,
+    "cases": 1,
+    "metrics": {
+     "validity": "1/1",
+     "opShape": "1/1",
+     "firstTry": "1/1"
+    },
+    "holdout": {
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    "p50": 5971,
+    "p95": 5971,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": "Text Completion sends a raw prompt",
+    "collapsed": false
+   }
+  ]
+ },
+ {
+  "role": "curator",
+  "level": "default",
+  "runs": [
+   {
+    "meets": true,
+    "cases": 12,
+    "metrics": {
+     "validity": "12/12",
+     "opShape": "8/8",
+     "decision": "12/12"
+    },
+    "holdout": null,
+    "p50": 2360,
+    "p95": 3475,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   },
+   {
+    "meets": true,
+    "cases": 12,
+    "metrics": {
+     "validity": "12/12",
+     "opShape": "8/8",
+     "decision": "12/12"
+    },
+    "holdout": null,
+    "p50": 2544,
+    "p95": 3543,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   }
+  ],
+  "verdict": {
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "curator",
+  "level": "off",
+  "runs": [
+   {
+    "meets": true,
+    "cases": 1,
+    "metrics": {
+     "validity": "1/1",
+     "opShape": "1/1",
+     "decision": "1/1"
+    },
+    "holdout": null,
+    "p50": 1978,
+    "p95": 1978,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": "Text Completion sends a raw prompt",
+    "collapsed": false
+   }
+  ]
+ },
+ {
+  "role": "director",
+  "level": "default",
+  "runs": [
+   {
+    "meets": true,
+    "cases": 25,
+    "metrics": {
+     "correct": "24/25",
+     "answerCorrect": "24/25"
+    },
+    "holdout": null,
+    "p50": 967,
+    "p95": 1070,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   },
+   {
+    "meets": true,
+    "cases": 25,
+    "metrics": {
+     "correct": "24/25",
+     "answerCorrect": "24/25"
+    },
+    "holdout": null,
+    "p50": 960,
+    "p95": 1086,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   }
+  ],
+  "verdict": {
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "director",
+  "level": "off",
+  "runs": [
+   {
+    "meets": false,
+    "cases": 1,
+    "metrics": {
+     "correct": "1/1 BELOW",
+     "answerCorrect": "1/1"
+    },
+    "holdout": null,
+    "p50": 2200,
+    "p95": 2200,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": "Text Completion sends a raw prompt",
+    "collapsed": false
+   }
+  ]
+ },
+ {
+  "role": "read",
+  "level": "default",
+  "runs": [
+   {
+    "ok": false,
+    "total": 43,
+    "plot": 0.9767,
+    "tiers": {
+     "deltas": 0.9767,
+     "facts": 0.4,
+     "rejected": 0.9722,
+     "arcs": 1,
+     "epistemic": 1,
+     "ledger": 1,
+     "intents": 0.9
+    },
+    "notGreen": [
+     "facts accuracy 0.4 is below its floor 0.85"
+    ],
+    "p50": 6794,
+    "p95": 10892,
+    "exhausted": 0,
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   },
+   {
+    "ok": false,
+    "total": 43,
+    "plot": 0.9767,
+    "tiers": {
+     "deltas": 0.9767,
+     "facts": 0.4,
+     "rejected": 0.9444,
+     "arcs": 1,
+     "epistemic": 1,
+     "ledger": 1,
+     "intents": 0.8889
+    },
+    "notGreen": [
+     "facts accuracy 0.4 is below its floor 0.85"
+    ],
+    "p50": 6732,
+    "p95": 12036,
+    "exhausted": 0,
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   }
+  ]
+ },
+ {
+  "role": "read",
+  "level": "off",
+  "runs": [
+   {
+    "ok": true,
+    "total": 1,
+    "plot": 1,
+    "tiers": {
+     "deltas": 1,
+     "facts": 1,
+     "rejected": 1,
+     "arcs": 1
+    },
+    "notGreen": [],
+    "p50": 5279,
+    "p95": 5279,
+    "exhausted": 0,
+    "rchars": 0,
+    "sent": null,
+    "unsupported": "Text Completion sends a raw prompt",
+    "collapsed": false
+   }
+  ]
+ },
+ {
+  "role": "synthesis",
+  "level": "default",
+  "runs": [
+   {
+    "meets": null,
+    "cases": 5,
+    "metrics": {
+     "validity": "5/5"
+    },
+    "holdout": null,
+    "p50": 2094,
+    "p95": 2161,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   },
+   {
+    "meets": null,
+    "cases": 5,
+    "metrics": {
+     "validity": "5/5"
+    },
+    "holdout": null,
+    "p50": 2012,
+    "p95": 2243,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": null,
+    "collapsed": false
+   }
+  ],
+  "verdict": {
+   "verdict": "not recommended",
+   "reason": "run 1 and 2 below a floor"
+  }
+ },
+ {
+  "role": "synthesis",
+  "level": "off",
+  "runs": [
+   {
+    "meets": null,
+    "cases": 1,
+    "metrics": {
+     "validity": "1/1"
+    },
+    "holdout": null,
+    "p50": 1984,
+    "p95": 1984,
+    "exhausted_or_length": 0,
+    "incomplete": [],
+    "rchars": 0,
+    "sent": null,
+    "unsupported": "Text Completion sends a raw prompt",
+    "collapsed": false
+   }
+  ]
+ }
+]

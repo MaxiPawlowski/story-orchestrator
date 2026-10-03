@@ -1,0 +1,192 @@
+{
+  "summary": {
+    "use": "curator-filter",
+    "fixture": "curator-filter",
+    "right": 10,
+    "total": 18,
+    "rate": 0.5556,
+    "families": [
+      {
+        "family": "recall",
+        "right": 10,
+        "total": 10,
+        "floor": 0.9,
+        "ok": true
+      },
+      {
+        "family": "narrowed",
+        "right": 0,
+        "total": 8,
+        "floor": 0,
+        "ok": true
+      }
+    ],
+    "p50LatencyMs": 5015,
+    "p95LatencyMs": null,
+    "timeouts": 18,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": null,
+    "modelVerdict": "unknown",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T02:57:35.140Z",
+    "model": null,
+    "total": 18,
+    "right": 10,
+    "p50LatencyMs": 5015,
+    "rows": [
+      {
+        "id": "sun-ruins.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "Sun Ruins Gate",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "sun-ruins.recall:1",
+        "right": true,
+        "picked": null,
+        "detail": "Guild Reward",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "sun-ruins.recall:2",
+        "right": true,
+        "picked": null,
+        "detail": "Luke",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "sun-ruins.narrowed:3",
+        "right": false,
+        "picked": null,
+        "detail": "Desert Weather",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "sun-ruins.narrowed:4",
+        "right": false,
+        "picked": null,
+        "detail": "Arin's Blade",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "sun-ruins.recall:5",
+        "right": true,
+        "picked": null,
+        "detail": "Bitterroot",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "Reactor Status",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.recall:1",
+        "right": true,
+        "picked": null,
+        "detail": "HALO",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.narrowed:2",
+        "right": false,
+        "picked": null,
+        "detail": "Pell",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.narrowed:3",
+        "right": false,
+        "picked": null,
+        "detail": "Escape Pods",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.recall:4",
+        "right": true,
+        "picked": null,
+        "detail": "Kepler Station",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "ship.narrowed:5",
+        "right": false,
+        "picked": null,
+        "detail": "Captain's Log",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "The Portraits",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.narrowed:1",
+        "right": false,
+        "picked": null,
+        "detail": "Graves",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.recall:2",
+        "right": true,
+        "picked": null,
+        "detail": "Family Records",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.recall:3",
+        "right": true,
+        "picked": null,
+        "detail": "The Carriage",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.narrowed:4",
+        "right": false,
+        "picked": null,
+        "detail": "The Library",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      },
+      {
+        "id": "manor.narrowed:5",
+        "right": false,
+        "picked": null,
+        "detail": "The Sale",
+        "latencyMs": 5010,
+        "fallback": "timeout"
+      }
+    ],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

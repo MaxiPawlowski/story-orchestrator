@@ -1,0 +1,371 @@
+{
+  "total": 43,
+  "passed": 0,
+  "plotDeltaAccuracy": 0,
+  "min": 0.9,
+  "tiers": {},
+  "floors": {
+    "facts": {
+      "floor": 0.85,
+      "from": "default"
+    },
+    "rejected": {
+      "floor": 0.9,
+      "from": "default"
+    },
+    "epistemic": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "ledger": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "arcs": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "intents": {
+      "floor": 0,
+      "from": "given"
+    }
+  },
+  "expectCount": 43,
+  "incomplete": [
+    "extractor",
+    "extractor-intents01",
+    "extractor-intents02",
+    "extractor-intents03",
+    "extractor-intents04",
+    "extractor-intents05",
+    "extractor-intents06",
+    "extractor-intents07",
+    "extractor-intents08",
+    "extractor-intents09",
+    "extractor-intents10",
+    "extractor-intents11",
+    "extractor-intents12",
+    "extractor-intents13",
+    "extractor-intents14",
+    "extractor2",
+    "extractor3",
+    "extractor4",
+    "extractor5",
+    "extractor6",
+    "extractor7",
+    "extractor8",
+    "extractor9",
+    "extractor10",
+    "extractor11",
+    "extractor12",
+    "extractor13",
+    "extractor14",
+    "extractor15",
+    "extractor16",
+    "extractor17",
+    "extractor18",
+    "extractor19",
+    "extractor20",
+    "extractor21",
+    "extractor22",
+    "extractor23",
+    "extractor24",
+    "extractor25",
+    "extractor26",
+    "extractor27",
+    "extractor28",
+    "extractor29"
+  ],
+  "notGreen": [
+    "plot-delta accuracy 0.0000 is below --min 0.9",
+    "incomplete fixture(s): extractor, extractor-intents01, extractor-intents02, extractor-intents03, extractor-intents04, extractor-intents05, extractor-intents06, extractor-intents07, extractor-intents08, extractor-intents09, extractor-intents10, extractor-intents11, extractor-intents12, extractor-intents13, extractor-intents14, extractor2, extractor3, extractor4, extractor5, extractor6, extractor7, extractor8, extractor9, extractor10, extractor11, extractor12, extractor13, extractor14, extractor15, extractor16, extractor17, extractor18, extractor19, extractor20, extractor21, extractor22, extractor23, extractor24, extractor25, extractor26, extractor27, extractor28, extractor29"
+  ],
+  "ok": false,
+  "recorded": false,
+  "judge": false,
+  "arm": "deepseek-low-r1",
+  "profile": {
+    "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "name": "deepseek 4.1 flash"
+  },
+  "profilesRestored": {
+    "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+  },
+  "effort": "low",
+  "reasoning": {
+    "effort": "low",
+    "state": "reasoning-exhausted",
+    "reasoning": null,
+    "detail": "The model spent its whole budget thinking — lower the effort for Story reads or raise the budget."
+  },
+  "effortsRestored": {},
+  "latency": {
+    "p50": 5610,
+    "p95": 6093,
+    "n": 43
+  },
+  "results": [
+    {
+      "name": "extractor",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4230 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 4949
+    },
+    {
+      "name": "extractor-intents01",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4360 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5180
+    },
+    {
+      "name": "extractor-intents02",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4358 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5223
+    },
+    {
+      "name": "extractor-intents03",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4476 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5723
+    },
+    {
+      "name": "extractor-intents04",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4440 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5945
+    },
+    {
+      "name": "extractor-intents05",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4216 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5586
+    },
+    {
+      "name": "extractor-intents06",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4479 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5974
+    },
+    {
+      "name": "extractor-intents07",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4786 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 6238
+    },
+    {
+      "name": "extractor-intents08",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4364 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5333
+    },
+    {
+      "name": "extractor-intents09",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4441 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 6070
+    },
+    {
+      "name": "extractor-intents10",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4387 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5678
+    },
+    {
+      "name": "extractor-intents11",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4495 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5394
+    },
+    {
+      "name": "extractor-intents12",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4571 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5524
+    },
+    {
+      "name": "extractor-intents13",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4455 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5452
+    },
+    {
+      "name": "extractor-intents14",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4577 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5610
+    },
+    {
+      "name": "extractor2",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4613 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5526
+    },
+    {
+      "name": "extractor3",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4525 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5599
+    },
+    {
+      "name": "extractor4",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4473 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5436
+    },
+    {
+      "name": "extractor5",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4553 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5868
+    },
+    {
+      "name": "extractor6",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4800 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5697
+    },
+    {
+      "name": "extractor7",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4667 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5673
+    },
+    {
+      "name": "extractor8",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4524 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5523
+    },
+    {
+      "name": "extractor9",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4374 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5922
+    },
+    {
+      "name": "extractor10",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4528 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5797
+    },
+    {
+      "name": "extractor11",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4371 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5858
+    },
+    {
+      "name": "extractor12",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4733 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5698
+    },
+    {
+      "name": "extractor13",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4342 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5854
+    },
+    {
+      "name": "extractor14",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4467 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5293
+    },
+    {
+      "name": "extractor15",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4702 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5476
+    },
+    {
+      "name": "extractor16",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4819 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5636
+    },
+    {
+      "name": "extractor17",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4563 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5601
+    },
+    {
+      "name": "extractor18",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4561 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5591
+    },
+    {
+      "name": "extractor19",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4467 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5717
+    },
+    {
+      "name": "extractor20",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4575 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5373
+    },
+    {
+      "name": "extractor21",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4381 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5627
+    },
+    {
+      "name": "extractor22",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4499 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 6113
+    },
+    {
+      "name": "extractor23",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4501 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 6093
+    },
+    {
+      "name": "extractor24",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4409 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5490
+    },
+    {
+      "name": "extractor25",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4438 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5471
+    },
+    {
+      "name": "extractor26",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4546 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5980
+    },
+    {
+      "name": "extractor27",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4536 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5959
+    },
+    {
+      "name": "extractor28",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4483 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5137
+    },
+    {
+      "name": "extractor29",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (4353 chars, 1024 tokens, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 5017
+    }
+  ]
+}

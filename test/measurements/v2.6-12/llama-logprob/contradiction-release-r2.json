@@ -1,0 +1,401 @@
+{
+  "summary": {
+    "use": "contradiction-release",
+    "fixture": "contradiction-release",
+    "rows": 21,
+    "modes": [
+      "jaccard",
+      "vectors:fd8efa441c80"
+    ],
+    "brackets": [
+      "contradictions.cosine.fd8efa441c80.json"
+    ],
+    "passing": [
+      "a",
+      "b"
+    ],
+    "p50LatencyMs": 1104,
+    "provider": "llama-logprob",
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "ok": true
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:14:16.062Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 42,
+    "right": 38,
+    "p50LatencyMs": 1104,
+    "rows": [
+      {
+        "id": "K01.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9952187777368976,\"probabilities\":{\"duplicate\":0.003218317697454977,\"update\":0.9952187777368976,\"distinct\":0.0005003685317858461,\"unrelated\":0.0010625360338615407}}",
+        "latencyMs": 1871
+      },
+      {
+        "id": "K01.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9967550318612429,\"probabilities\":{\"agrees\":0.0013893903912571355,\"contradicts\":0.9967550318612429,\"update\":0.001069897087811488,\"distinct\":0.0007856806596885218}}",
+        "latencyMs": 1104
+      },
+      {
+        "id": "K02.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9933661500282321,\"probabilities\":{\"duplicate\":0.0036851974200257836,\"update\":0.9933661500282321,\"distinct\":0.0012371727453698211,\"unrelated\":0.001711479806372232}}",
+        "latencyMs": 1406
+      },
+      {
+        "id": "K02.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9930862589222798,\"probabilities\":{\"agrees\":0.0025639582494080258,\"contradicts\":0.9930862589222798,\"update\":0.003555511370401688,\"distinct\":0.0007942714579105355}}",
+        "latencyMs": 614
+      },
+      {
+        "id": "K03.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9859066152012074,\"probabilities\":{\"duplicate\":0.007302559600494292,\"update\":0.9859066152012074,\"distinct\":0.00546608165715277,\"unrelated\":0.0013247435411454583}}",
+        "latencyMs": 1598
+      },
+      {
+        "id": "K03.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9917493082293869,\"probabilities\":{\"agrees\":0.004135435960858463,\"contradicts\":0.9917493082293869,\"update\":0.0039145528998785935,\"distinct\":0.00020070290987609111}}",
+        "latencyMs": 787
+      },
+      {
+        "id": "K04.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9940277973402432,\"probabilities\":{\"duplicate\":0.0050391160585515115,\"update\":0.9940277973402432,\"distinct\":0.000536665601398969,\"unrelated\":0.0003964209998063125}}",
+        "latencyMs": 1536
+      },
+      {
+        "id": "K04.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9946604530056092,\"probabilities\":{\"agrees\":0.001954832429228614,\"contradicts\":0.9946604530056092,\"update\":0.003049412410475292,\"distinct\":0.0003353021546868461}}",
+        "latencyMs": 776
+      },
+      {
+        "id": "K07.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.99567390742829,\"probabilities\":{\"duplicate\":0.00305204781143868,\"update\":0.99567390742829,\"distinct\":0.0005575818528197946,\"unrelated\":0.0007164629074515272}}",
+        "latencyMs": 1611
+      },
+      {
+        "id": "K07.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9886636139567243,\"probabilities\":{\"agrees\":0.0011502308852237044,\"contradicts\":0.9886636139567243,\"update\":0.010010188681048984,\"distinct\":0.00017596647700309441}}",
+        "latencyMs": 802
+      },
+      {
+        "id": "K08.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9688445968479019,\"probabilities\":{\"duplicate\":0.017462850846569778,\"update\":0.9688445968479019,\"distinct\":0.011503154323336135,\"unrelated\":0.0021893979821922464}}",
+        "latencyMs": 1544
+      },
+      {
+        "id": "K08.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9976984146128473,\"probabilities\":{\"agrees\":0.0015701093923237812,\"contradicts\":0.9976984146128473,\"update\":0.0006299671263789562,\"distinct\":0.0001015088684500478}}",
+        "latencyMs": 786
+      },
+      {
+        "id": "K09.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9930569225187675,\"probabilities\":{\"duplicate\":0.00457251377896946,\"update\":0.9930569225187675,\"distinct\":0.0008511972502446646,\"unrelated\":0.0015193664520183866}}",
+        "latencyMs": 1580
+      },
+      {
+        "id": "K09.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9975638762058966,\"probabilities\":{\"agrees\":0.0013339812925657554,\"contradicts\":0.9975638762058966,\"update\":0.0006726582346559954,\"distinct\":0.00042948426688166406}}",
+        "latencyMs": 767
+      },
+      {
+        "id": "K10.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9946853791240479,\"probabilities\":{\"duplicate\":0.004210014468815467,\"update\":0.9946853791240479,\"distinct\":0.0005251391477510967,\"unrelated\":0.000579467259385541}}",
+        "latencyMs": 1510
+      },
+      {
+        "id": "K10.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.989910104286764,\"probabilities\":{\"agrees\":0.0037776801438115714,\"contradicts\":0.989910104286764,\"update\":0.005881136022024464,\"distinct\":0.00043107954740006756}}",
+        "latencyMs": 748
+      },
+      {
+        "id": "K15.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9469954678233138,\"probabilities\":{\"duplicate\":0.01738237760525046,\"update\":0.9469954678233138,\"distinct\":0.021736083472024114,\"unrelated\":0.013886071099411633}}",
+        "latencyMs": 1574
+      },
+      {
+        "id": "K15.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9421150631680809,\"probabilities\":{\"agrees\":0.002710985142028571,\"contradicts\":0.9421150631680809,\"update\":0.05441860239517509,\"distinct\":0.0007553492947154608}}",
+        "latencyMs": 773
+      },
+      {
+        "id": "K16.a",
+        "right": false,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9764076530286838,\"probabilities\":{\"duplicate\":0.016257040360421977,\"update\":0.9764076530286838,\"distinct\":0.004332184230801928,\"unrelated\":0.0030031223800921687}}",
+        "latencyMs": 1470
+      },
+      {
+        "id": "K16.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9938932776194291,\"probabilities\":{\"agrees\":0.0025985753868983693,\"contradicts\":0.9938932776194291,\"update\":0.003180641274434086,\"distinct\":0.00032750571923825165}}",
+        "latencyMs": 720
+      },
+      {
+        "id": "K17.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.572995894805755,\"probabilities\":{\"duplicate\":0.0047602456155352735,\"update\":0.572995894805755,\"distinct\":0.40260276888072627,\"unrelated\":0.019641090697983525}}",
+        "latencyMs": 1549
+      },
+      {
+        "id": "K17.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.9767694404471611,\"probabilities\":{\"agrees\":0.005226994035110187,\"contradicts\":0.9767694404471611,\"update\":0.01748827124354339,\"distinct\":0.0005152942741852842}}",
+        "latencyMs": 781
+      },
+      {
+        "id": "K20.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.8243929196997855,\"probabilities\":{\"duplicate\":0.8243929196997855,\"update\":0.12253675170312206,\"distinct\":0.052008569452809905,\"unrelated\":0.0010617591442825876}}",
+        "latencyMs": 1422
+      },
+      {
+        "id": "K20.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.9622619755047205,\"probabilities\":{\"agrees\":0.9622619755047205,\"contradicts\":0.03552866381900275,\"update\":0.0017870854972776274,\"distinct\":0.00042227517899916624}}",
+        "latencyMs": 654
+      },
+      {
+        "id": "K21.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.9772109374363405,\"probabilities\":{\"duplicate\":0.9772109374363405,\"update\":0.021849461068105296,\"distinct\":0.000337560588445808,\"unrelated\":0.0006020409071084362}}",
+        "latencyMs": 1561
+      },
+      {
+        "id": "K21.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.9887392654654941,\"probabilities\":{\"agrees\":0.9887392654654941,\"contradicts\":0.011021103738349495,\"update\":0.0002396307961564676,\"distinct\":0}}",
+        "latencyMs": 789
+      },
+      {
+        "id": "K22.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.9693177774296078,\"probabilities\":{\"duplicate\":0.9693177774296078,\"update\":0.02869068566918983,\"distinct\":0.0007343105789730888,\"unrelated\":0.0012572263222294286}}",
+        "latencyMs": 1476
+      },
+      {
+        "id": "K22.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.9770346823440251,\"probabilities\":{\"agrees\":0.9770346823440251,\"contradicts\":0.022053660546403234,\"update\":0.0006605066851109566,\"distinct\":0.0002511504244606694}}",
+        "latencyMs": 703
+      },
+      {
+        "id": "K23.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.9822037071741975,\"probabilities\":{\"duplicate\":0.9822037071741975,\"update\":0.017590570207245127,\"distinct\":0.00012207142698007274,\"unrelated\":0.00008365119157732982}}",
+        "latencyMs": 1566
+      },
+      {
+        "id": "K23.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.9832163030590989,\"probabilities\":{\"agrees\":0.9832163030590989,\"contradicts\":0.016402152952749896,\"update\":0.00026908724702424594,\"distinct\":0.00011245674112690061}}",
+        "latencyMs": 748
+      },
+      {
+        "id": "K24.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.9666737876272115,\"probabilities\":{\"duplicate\":0.9666737876272115,\"update\":0.03169290217724422,\"distinct\":0.0005635541262160457,\"unrelated\":0.0010697560693281988}}",
+        "latencyMs": 1472
+      },
+      {
+        "id": "K24.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.981529589355123,\"probabilities\":{\"agrees\":0.981529589355123,\"contradicts\":0.018093633021108353,\"update\":0.0003767776237685771,\"distinct\":0}}",
+        "latencyMs": 654
+      },
+      {
+        "id": "K27.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9983826188335693,\"probabilities\":{\"duplicate\":0.001123299425913587,\"update\":0.9983826188335693,\"distinct\":0.0004004242638412517,\"unrelated\":0.00009365747667585938}}",
+        "latencyMs": 1413
+      },
+      {
+        "id": "K27.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9664511114270461,\"probabilities\":{\"agrees\":0.0017421810478190172,\"contradicts\":0.030390653945018303,\"update\":0.9664511114270461,\"distinct\":0.0014160535801165288}}",
+        "latencyMs": 789
+      },
+      {
+        "id": "K28.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9983037031237346,\"probabilities\":{\"duplicate\":0.001271230060490991,\"update\":0.9983037031237346,\"distinct\":0.0003237324185305345,\"unrelated\":0.00010133439724375302}}",
+        "latencyMs": 1283
+      },
+      {
+        "id": "K28.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.9615388977625648,\"probabilities\":{\"agrees\":0.0015479008223861289,\"contradicts\":0.036474445323501484,\"update\":0.9615388977625648,\"distinct\":0.00043875609154755}}",
+        "latencyMs": 659
+      },
+      {
+        "id": "K31.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.5000314907478303,\"probabilities\":{\"duplicate\":0.0025497297420081504,\"update\":0.5000314907478303,\"distinct\":0.4915905153313074,\"unrelated\":0.005828264178854146}}",
+        "latencyMs": 1548
+      },
+      {
+        "id": "K31.b",
+        "right": false,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.5351133907508864,\"probabilities\":{\"agrees\":0.02687027473397469,\"contradicts\":0.5351133907508864,\"update\":0.03113159878868565,\"distinct\":0.40688473572645334}}",
+        "latencyMs": 747
+      },
+      {
+        "id": "K32.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.8310729126426535,\"probabilities\":{\"duplicate\":0.01931433544722544,\"update\":0.1454845088786342,\"distinct\":0.8310729126426535,\"unrelated\":0.004128243031486945}}",
+        "latencyMs": 1442
+      },
+      {
+        "id": "K32.b",
+        "right": false,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.6949957716845176,\"probabilities\":{\"agrees\":0.019716492828417195,\"contradicts\":0.25685556318023045,\"update\":0.028432172306834674,\"distinct\":0.6949957716845176}}",
+        "latencyMs": 641
+      },
+      {
+        "id": "K33.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.9873534355917296,\"probabilities\":{\"duplicate\":0.005027304503135922,\"update\":0.00688773153655161,\"distinct\":0.9873534355917296,\"unrelated\":0.000731528368582792}}",
+        "latencyMs": 1398
+      },
+      {
+        "id": "K33.b",
+        "right": false,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.6690377527106404,\"probabilities\":{\"agrees\":0.3088158262916681,\"contradicts\":0.020155694454742964,\"update\":0.001990726542948539,\"distinct\":0.6690377527106404}}",
+        "latencyMs": 752
+      }
+    ],
+    "phaseA": {
+      "modes": [
+        {
+          "mode": "jaccard",
+          "measured": true,
+          "arms": [
+            {
+              "wording": "a",
+              "releaseErr": {
+                "hit": 0,
+                "total": 4
+              },
+              "paraphraseRelease": {
+                "hit": 4,
+                "total": 4
+              },
+              "ok": true
+            },
+            {
+              "wording": "b",
+              "releaseErr": {
+                "hit": 0,
+                "total": 4
+              },
+              "paraphraseRelease": {
+                "hit": 4,
+                "total": 4
+              },
+              "ok": true
+            }
+          ]
+        },
+        {
+          "mode": "vectors:fd8efa441c80",
+          "measured": true,
+          "arms": [
+            {
+              "wording": "a",
+              "releaseErr": {
+                "hit": 0,
+                "total": 7
+              },
+              "paraphraseRelease": {
+                "hit": 4,
+                "total": 4
+              },
+              "ok": true
+            },
+            {
+              "wording": "b",
+              "releaseErr": {
+                "hit": 0,
+                "total": 7
+              },
+              "paraphraseRelease": {
+                "hit": 4,
+                "total": 4
+              },
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "passing": [
+        "a",
+        "b"
+      ],
+      "ok": true
+    },
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

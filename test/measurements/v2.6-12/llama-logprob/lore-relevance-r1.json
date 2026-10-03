@@ -1,0 +1,212 @@
+{
+  "summary": {
+    "use": "lore-relevance",
+    "fixture": "lore-relevance",
+    "rows": 17,
+    "labelled": 17,
+    "provider": "llama-logprob",
+    "requestedModel": null,
+    "model": null,
+    "modelVerdict": "unknown",
+    "disagreements": 0,
+    "floor": {
+      "precisionAt4": 0.85,
+      "tieRate": 0.05
+    },
+    "arms": [
+      {
+        "arm": "noul",
+        "precisionAt4": null,
+        "ndcgAt4": 0,
+        "tieRate": null,
+        "boundaryTieRate": null,
+        "meanStateChars": 822.9,
+        "floorChecks": {
+          "precisionAt4": false,
+          "tieRate": false
+        },
+        "ok": false
+      },
+      {
+        "arm": "score",
+        "precisionAt4": null,
+        "ndcgAt4": 0,
+        "tieRate": null,
+        "boundaryTieRate": null,
+        "meanStateChars": 822.9,
+        "floorChecks": {
+          "precisionAt4": false,
+          "tieRate": false
+        },
+        "ok": false
+      }
+    ]
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:04:45.736Z",
+    "model": null,
+    "noul": {
+      "arm": "noul",
+      "turns": 17,
+      "precisionAt4": null,
+      "ndcgAt4": 0,
+      "tieRate": null,
+      "boundaryTieRate": null,
+      "meanStateChars": 822.9,
+      "top": [
+        {
+          "id": "R01",
+          "picks": []
+        },
+        {
+          "id": "R02",
+          "picks": []
+        },
+        {
+          "id": "R03",
+          "picks": []
+        },
+        {
+          "id": "R04",
+          "picks": []
+        },
+        {
+          "id": "R05",
+          "picks": []
+        },
+        {
+          "id": "R06",
+          "picks": []
+        },
+        {
+          "id": "R07",
+          "picks": []
+        },
+        {
+          "id": "R08",
+          "picks": []
+        },
+        {
+          "id": "R09",
+          "picks": []
+        },
+        {
+          "id": "R10",
+          "picks": []
+        },
+        {
+          "id": "R11",
+          "picks": []
+        },
+        {
+          "id": "R12",
+          "picks": []
+        },
+        {
+          "id": "R13",
+          "picks": []
+        },
+        {
+          "id": "R14",
+          "picks": []
+        },
+        {
+          "id": "R15",
+          "picks": []
+        },
+        {
+          "id": "R16",
+          "picks": []
+        },
+        {
+          "id": "R24",
+          "picks": []
+        }
+      ]
+    },
+    "score": {
+      "arm": "score",
+      "turns": 17,
+      "precisionAt4": null,
+      "ndcgAt4": 0,
+      "tieRate": null,
+      "boundaryTieRate": null,
+      "meanStateChars": 822.9,
+      "top": [
+        {
+          "id": "R01",
+          "picks": []
+        },
+        {
+          "id": "R02",
+          "picks": []
+        },
+        {
+          "id": "R03",
+          "picks": []
+        },
+        {
+          "id": "R04",
+          "picks": []
+        },
+        {
+          "id": "R05",
+          "picks": []
+        },
+        {
+          "id": "R06",
+          "picks": []
+        },
+        {
+          "id": "R07",
+          "picks": []
+        },
+        {
+          "id": "R08",
+          "picks": []
+        },
+        {
+          "id": "R09",
+          "picks": []
+        },
+        {
+          "id": "R10",
+          "picks": []
+        },
+        {
+          "id": "R11",
+          "picks": []
+        },
+        {
+          "id": "R12",
+          "picks": []
+        },
+        {
+          "id": "R13",
+          "picks": []
+        },
+        {
+          "id": "R14",
+          "picks": []
+        },
+        {
+          "id": "R15",
+          "picks": []
+        },
+        {
+          "id": "R16",
+          "picks": []
+        },
+        {
+          "id": "R24",
+          "picks": []
+        }
+      ]
+    },
+    "disagreements": 0,
+    "exchanges": [],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

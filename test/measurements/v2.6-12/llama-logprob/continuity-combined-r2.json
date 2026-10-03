@@ -1,0 +1,524 @@
+{
+  "summary": {
+    "use": "continuity",
+    "fixture": "continuity-combined",
+    "right": 59,
+    "total": 67,
+    "rate": 0.8806,
+    "families": [
+      {
+        "family": "reply",
+        "right": 18,
+        "total": 23,
+        "floor": 0.9,
+        "ok": false
+      },
+      {
+        "family": "broken",
+        "right": 9,
+        "total": 12,
+        "floor": 0.85,
+        "ok": false
+      },
+      {
+        "family": "consistent",
+        "right": 32,
+        "total": 32,
+        "floor": 0.966,
+        "ok": true
+      }
+    ],
+    "p50LatencyMs": 3802,
+    "p95LatencyMs": 4631,
+    "timeouts": 21,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:08:06.400Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 67,
+    "right": 59,
+    "p50LatencyMs": 3802,
+    "rows": [
+      {
+        "id": "C01.reply",
+        "right": true,
+        "picked": "Pell's left arm is broken and in a sling.",
+        "latencyMs": 3953
+      },
+      {
+        "id": "C01.broken:0",
+        "right": true,
+        "picked": "p=0.9988025014979236",
+        "detail": "Pell's left arm is broken and in a sling.",
+        "latencyMs": 3953
+      },
+      {
+        "id": "C01.consistent:1",
+        "right": true,
+        "picked": "p=0.00121878540443277",
+        "detail": "The reactor is unstable.",
+        "latencyMs": 3953
+      },
+      {
+        "id": "C02.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3980
+      },
+      {
+        "id": "C02.consistent:0",
+        "right": true,
+        "picked": "p=0.0007781697150376809",
+        "detail": "Pell's left arm is broken and in a sling.",
+        "latencyMs": 3980
+      },
+      {
+        "id": "C02.consistent:1",
+        "right": true,
+        "picked": "p=0.0004711313496972119",
+        "detail": "The reactor is unstable.",
+        "latencyMs": 3980
+      },
+      {
+        "id": "C03.reply",
+        "right": true,
+        "picked": "Maeve does not know that Max has the ledger.",
+        "latencyMs": 3940
+      },
+      {
+        "id": "C03.consistent:0",
+        "right": true,
+        "picked": "p=0.13523654541440225",
+        "detail": "The ledger is in Max's coat pocket.",
+        "latencyMs": 3940
+      },
+      {
+        "id": "C03.broken:1",
+        "right": true,
+        "picked": "p=0.9982544291468101",
+        "detail": "Maeve does not know that Max has the ledger.",
+        "latencyMs": 3940
+      },
+      {
+        "id": "C04.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3941
+      },
+      {
+        "id": "C04.consistent:0",
+        "right": true,
+        "picked": "p=0.00018222668611933015",
+        "detail": "The ledger is in Max's coat pocket.",
+        "latencyMs": 3941
+      },
+      {
+        "id": "C04.consistent:1",
+        "right": true,
+        "picked": "p=0.0009112436719022574",
+        "detail": "Maeve does not know that Max has the ledger.",
+        "latencyMs": 3941
+      },
+      {
+        "id": "C05.reply",
+        "right": true,
+        "picked": "Luke died in the sphinx's chamber.",
+        "latencyMs": 2993
+      },
+      {
+        "id": "C05.broken:0",
+        "right": true,
+        "picked": "p=0.9985446290710943",
+        "detail": "Luke died in the sphinx's chamber.",
+        "latencyMs": 2993
+      },
+      {
+        "id": "C06.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 2992
+      },
+      {
+        "id": "C06.consistent:0",
+        "right": true,
+        "picked": "p=0.0017258478100934487",
+        "detail": "Luke died in the sphinx's chamber.",
+        "latencyMs": 2992
+      },
+      {
+        "id": "C07.reply",
+        "right": true,
+        "picked": "It is night and raining heavily.",
+        "latencyMs": 3442
+      },
+      {
+        "id": "C07.broken:0",
+        "right": true,
+        "picked": "p=0.9996648877125409",
+        "detail": "It is night and raining heavily.",
+        "latencyMs": 3442
+      },
+      {
+        "id": "C07.consistent:1",
+        "right": true,
+        "picked": "p=0.006706495994278095",
+        "detail": "The party is in the guild hall.",
+        "latencyMs": 3442
+      },
+      {
+        "id": "C08.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 2864
+      },
+      {
+        "id": "C08.consistent:0",
+        "right": true,
+        "picked": "p=0",
+        "detail": "Brandt drives a black sedan.",
+        "latencyMs": 2864
+      },
+      {
+        "id": "C09.reply",
+        "right": true,
+        "picked": "Arin distrusts Max since the lie about the map.",
+        "latencyMs": 3365
+      },
+      {
+        "id": "C09.broken:0",
+        "right": true,
+        "picked": "p=0.9925045322529931",
+        "detail": "Arin distrusts Max since the lie about the map.",
+        "latencyMs": 3365
+      },
+      {
+        "id": "C10.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3606
+      },
+      {
+        "id": "C10.consistent:0",
+        "right": true,
+        "picked": "p=0.00047615628995825856",
+        "detail": "Arin distrusts Max since the lie about the map.",
+        "latencyMs": 3606
+      },
+      {
+        "id": "C11.reply",
+        "right": true,
+        "picked": "The hull breach on deck three is sealed.",
+        "latencyMs": 3862
+      },
+      {
+        "id": "C11.broken:0",
+        "right": true,
+        "picked": "p=0.9931729416663589",
+        "detail": "The hull breach on deck three is sealed.",
+        "latencyMs": 3862
+      },
+      {
+        "id": "C11.consistent:1",
+        "right": true,
+        "picked": "p=0.0009510909470349863",
+        "detail": "Two crew members are injured.",
+        "latencyMs": 3862
+      },
+      {
+        "id": "C12.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3802
+      },
+      {
+        "id": "C12.consistent:0",
+        "right": true,
+        "picked": "p=0.0005911350627352148",
+        "detail": "The hull breach on deck three is sealed.",
+        "latencyMs": 3802
+      },
+      {
+        "id": "C12.consistent:1",
+        "right": true,
+        "picked": "p=0.0005719074128364372",
+        "detail": "Two crew members are injured.",
+        "latencyMs": 3802
+      },
+      {
+        "id": "C13.reply",
+        "right": true,
+        "picked": "In the portrait, Lord Ashworth's painted hand now points at the door.",
+        "latencyMs": 3801
+      },
+      {
+        "id": "C13.consistent:0",
+        "right": true,
+        "picked": "p=0.0007915571213976169",
+        "detail": "Graves is loyal to Lady Ashworth.",
+        "latencyMs": 3801
+      },
+      {
+        "id": "C13.broken:1",
+        "right": true,
+        "picked": "p=0.99689568362604",
+        "detail": "In the portrait, Lord Ashworth's painted hand now points at the door.",
+        "latencyMs": 3801
+      },
+      {
+        "id": "C15.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3094
+      },
+      {
+        "id": "C15.consistent:0",
+        "right": true,
+        "picked": "p=0.00016077682681203947",
+        "detail": "Mae Hollis is left-handed.",
+        "latencyMs": 3094
+      },
+      {
+        "id": "C16.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3119
+      },
+      {
+        "id": "C16.consistent:0",
+        "right": true,
+        "picked": "p=0.00032905421956440833",
+        "detail": "Luke is twelve years old.",
+        "latencyMs": 3119
+      },
+      {
+        "id": "C17.reply",
+        "right": true,
+        "picked": "Max has never met Lieutenant Brandt.",
+        "latencyMs": 3067
+      },
+      {
+        "id": "C17.broken:0",
+        "right": true,
+        "picked": "p=0.998419088906161",
+        "detail": "Max has never met Lieutenant Brandt.",
+        "latencyMs": 3067
+      },
+      {
+        "id": "C18.reply",
+        "right": true,
+        "picked": "no note",
+        "latencyMs": 3342
+      },
+      {
+        "id": "C18.consistent:0",
+        "right": true,
+        "picked": "p=0.011063287401065412",
+        "detail": "Max has never met Lieutenant Brandt.",
+        "latencyMs": 3342
+      },
+      {
+        "id": "CX01.reply",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX01.broken:0",
+        "right": false,
+        "picked": null,
+        "detail": "Arin was badly cut in the gate collapse and is bleeding.",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX01.consistent:1",
+        "right": true,
+        "picked": null,
+        "detail": "The reward is 500 crowns.",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX01.consistent:2",
+        "right": true,
+        "picked": null,
+        "detail": "Luke joined the expedition.",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX01.consistent:3",
+        "right": true,
+        "picked": null,
+        "detail": "The sphinx's riddle was answered wrong.",
+        "latencyMs": 5015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX02.reply",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5014,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX02.consistent:0",
+        "right": true,
+        "picked": null,
+        "detail": "Arin was badly cut in the gate collapse and is bleeding.",
+        "latencyMs": 5014,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX02.consistent:1",
+        "right": true,
+        "picked": null,
+        "detail": "The reward is 500 crowns.",
+        "latencyMs": 5014,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX02.consistent:2",
+        "right": true,
+        "picked": null,
+        "detail": "Luke joined the expedition.",
+        "latencyMs": 5014,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX03.reply",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX03.broken:0",
+        "right": false,
+        "picked": null,
+        "detail": "The reward is 500 crowns.",
+        "latencyMs": 5012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX03.consistent:1",
+        "right": true,
+        "picked": null,
+        "detail": "Ponticius signed the contract.",
+        "latencyMs": 5012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX03.consistent:2",
+        "right": true,
+        "picked": null,
+        "detail": "The party entered the ruins through a side tunnel.",
+        "latencyMs": 5012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX04.reply",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX04.broken:0",
+        "right": false,
+        "picked": null,
+        "detail": "The front gate of the ruins collapsed.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX04.consistent:1",
+        "right": true,
+        "picked": null,
+        "detail": "The party entered the ruins through a side tunnel.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX04.consistent:2",
+        "right": true,
+        "picked": null,
+        "detail": "It is night outside the ruins.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX05.reply",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX05.consistent:0",
+        "right": true,
+        "picked": null,
+        "detail": "Luke joined the expedition.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX05.consistent:1",
+        "right": true,
+        "picked": null,
+        "detail": "Luke is twelve years old.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX05.consistent:2",
+        "right": true,
+        "picked": null,
+        "detail": "Luke is afraid of the dark.",
+        "latencyMs": 5013,
+        "fallback": "timeout"
+      },
+      {
+        "id": "CX06.reply",
+        "right": true,
+        "picked": "Arin does not know where the Sun's Heart is.",
+        "latencyMs": 4631
+      },
+      {
+        "id": "CX06.consistent:0",
+        "right": true,
+        "picked": "p=0.010748985841111029",
+        "detail": "Max carries the Sun's Heart in his pack.",
+        "latencyMs": 4631
+      },
+      {
+        "id": "CX06.broken:1",
+        "right": true,
+        "picked": "p=0.9654358141302561",
+        "detail": "Arin does not know where the Sun's Heart is.",
+        "latencyMs": 4631
+      },
+      {
+        "id": "CX06.consistent:2",
+        "right": true,
+        "picked": "p=0.00044752751192723273",
+        "detail": "The inner chamber is flooded.",
+        "latencyMs": 4631
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

@@ -1,7 +1,9 @@
 # Plan 12 Phase B — provider matrix
 
-**Status: SKELETON 2026-10-02. Judge-off column and call census MEASURED (no model call). Local logprob column NOT RUN (needs
-the pod to itself). Open-classifier column BLOCKED (provider not built, model not on disk).** Plan: `12-open-judge.md` §Phase B.
+**Status: llama-logprob column RUN ×2 2026-10-03 (lane 5, pod to itself); PARTIAL: 11 fixtures measured cleanly ×2, 8 not measurable
+cleanly because of the calibration harness's own concurrency (busy / queue timeouts, see §Results), 1 not answerable as built
+(backgrounds, > 20 options). Judge-off column and call
+census MEASURED (no model call). Open-classifier column NOT BUILT: deferred to v2.7 by the user.** Plan: `12-open-judge.md` §Phase B.
 Survey: `12-survey.md`. Floors are the fixtures' own (`test/fixtures/judge/*.json`), unchanged; a floor is never retuned.
 
 ## Columns
@@ -9,8 +11,8 @@ Survey: `12-survey.md`. Floors are the fixtures' own (`test/fixtures/judge/*.jso
 | Column | Provider | State | Where it runs | Leaves the machine |
 |---|---|---|---|---|
 | TypeSafe | `typesafe` (Jev, native) | recorded: `test/goldens/judge/*.calibration.json` (2026-09-22 to 2026-10-02, `jev-1.13.0`) | hosted (US) | yes: J4 terms (`12-survey.md`) |
-| llama-logprob | `llama-logprob` (Artemis on the pod's llama-server, logprob over the answer tokens) | **not run** | RunPod pod through the SSH tunnel `127.0.0.1:18080` | to the user's own pod only. The plugin's `local` reads `true` because the URL is loopback; that is the tunnel, not this machine (12 §Open) |
-| open classifier | none built (survey F4: mDeBERTa-v3 xnli / bge-m3-zeroshot / English-only NLI via `sillytavern-transformers`) | **blocked** | would be CPU, inside the ST server | no |
+| llama-logprob | `llama-logprob` (Artemis on the pod's llama-server, logprob over the answer tokens) | **run ×2 2026-10-03, partial** (below) | RunPod pod through the SSH tunnel `127.0.0.1:18080` | to the user's own pod only. The plugin's `local` reads `true` because the URL is loopback; that is the tunnel, not this machine (12 §Open) |
+| open classifier | none built (survey F4: mDeBERTa-v3 xnli / bge-m3-zeroshot / English-only NLI via `sillytavern-transformers`) | **not built: deferred to v2.7 (user decision)** | would be CPU, inside the ST server | no |
 | judge-off | no answer: every probe falls back (`disabled`) | **measured** (below) | none | no |
 
 ## Judge-off column (measured 2026-10-02, 0 calls)
@@ -102,7 +104,7 @@ Pod time, estimated from the census (0.15–0.4 s per question with a cached sta
 16–45 min per pass, **32–90 min for ×2**, plus ~5 min setup: **about $0.45–1.15 at $0.72/h**. Calls: 9,010 llama `/completion`
 (1-token). No paid API.
 
-## Run plan — open classifier column (blocked)
+## Run plan — open classifier column (not built; deferred to v2.7 by the user)
 
 Needs, in order, each a user decision: (1) a build: a `nli` provider in `judge/providers.ts` and a plugin route that runs
 `sillytavern-transformers` `ZeroShotClassificationPipeline` server-side (survey §F4, finding 8; the readiness table gains its
@@ -110,31 +112,63 @@ provider row); (2) approval to download the model (none is in `data/_cache/Xenov
 Once both exist it runs on CPU with no pod and no paid API: the same step-5 loop with `--provider nli`, ×2. Calls = TypeSafe column
 per use for `noul`/`choice` (one forward pass per hypothesis set); latency on this machine's CPU is unmeasured.
 
-## Results (to fill)
+## Results — llama-logprob ×2 (2026-10-03 02:55–03:15 UTC, plus one serial diagnostic to 03:31)
 
-| Use | Floor (fixture) | TypeSafe (golden) | llama-logprob r1 / r2 | p95 vs timeout | classifier r1 / r2 | judge-off | Meets ×2 |
+Run: lane 5 (adolion-fresh, `check 5` clean bar the known `extraction.enabled` drift), server started with
+`SO_JUDGE_LLAMA_URL=http://127.0.0.1:18080` (`so-judge status`: `llama-logprob.configured: true`), served dev bundle
+`5b74e2aafe0b`. The pod (Artemis 31B v1.1 Q4_K_M, llama-server b11046) was used by this run alone. Each use ran
+`so-judge calibrate --use U [--fixture F] --provider llama-logprob --split 8`, as in the run plan. r1 then r2, with
+`st-session reload` before each run, so r2 is not cache hits (r2 p50s match r1). Model verdict: `resolved` to
+`llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf`. Records:
+`test/measurements/v2.6-12/llama-logprob/<fixture>-r<n>.json`, plus the `*-diag-chunk1.json` diagnostics.
+
+**Harness finding (blocks a clean column for 6 uses).** Every calibration fires all its rows at once (`Promise.all` in
+`src/judge/selfTest.ts` and the `*Calibration.ts` runners). The judge plugin admits 2 calls in flight per user, queues
+the rest and refuses the overflow as `busy` (`server-plugin/story-orchestrator-judge/index.mjs`, limiter, also on the
+llama route). Queue time counts toward the page's 5 s probe timeout, and `--split` slices hold a slot each in turn. A
+use with many rows or many questions therefore reads `busy` (the run is refused, never recorded) or `timeout` for rows
+whose own latency is fine. Proof, one serial run each (`--chunk 1`, one row per slice):
+- curator-filter went from 18/18 timeouts (r1) and 18/18 busy (r2) to 17/18 right, every family floor met, p95 2.7 s.
+- lore went from 30/30 timeouts to recall 28/30 and precision 28/35, both floors met, p95 31.7 s.
+
+`--chunk` pauses a fixed 61 s per slice (it was sized for TypeSafe's 60/min). A serial ×2 of the six contaminated uses
+would cost ~3 h of pod time, so it was not run. A no-pause serial mode for local providers is a harness change, and
+this run makes no code edits.
+
+| Use (fixture) | Floor | TypeSafe (golden) | llama-logprob r1 / r2 (rate; families) | p95 r1 / r2 vs use timeout | Floor ×2 | Fits budget | judge-off |
 |---|---|---|---|---|---|---|---|
-| director | 0.85 | 0.88 | | | | 0.00 | |
-| memory-verify | fixture | 0.97 | | | | 0.58 | |
-| memory-pairs | fixture | 0.93 | | | | 0.00 | |
-| scene | families | 0.97 | | | | 0.00 | |
-| curator-filter | families | 0.89 | | | | 0.56 | |
-| continuity | families | 0.97 | | | | 0.64 | |
-| typed | families | 0.83 | | | | 0.00 | |
-| stall | families | 1.00 | | | | 0.00 | |
-| critic | families | 0.99 | | | | 0.00 | |
-| variants | families | 1.00 | | | | 0.00 | |
-| agency | families | 1.00 | | | | 0.00 | |
-| house-rules | families | 0.99 | | | | 0.00 | |
-| warden-lore | families | 1.00 | | | | 0.00 | |
-| lore | families | 0.90 | | | | 0.00 | |
-| backgrounds | families | 0.84 (pick below floor) | | | | 0.16 | |
-| contradiction-release | Phase A per wording | ok | | | | 0.62 raw | |
-| lore-relevance | precision@4, tie rate | golden | | | | nDCG 0 | |
+| director | 0.85 | 0.88 | 0.88 / 0.88 (22/25 ×2) | 5.3 / 5.3 s vs 1.5 s (reply path) | yes | **no** | 0.00 |
+| memory-verify | fixture | 0.97 | 1.00 / 1.00 | 3.9 / 3.9 s vs 3.0 s | yes | **no** | 0.58 |
+| memory-pairs | fixture | 0.93 | 0.97 / 0.97 | 1.7 / 1.7 s vs 3.0 s | yes | yes | 0.00 |
+| scene | families | 0.97 | refused ×2 (busy 180 / 148, timeouts 34 / 66) | — | **not measured (harness)** | — | 0.00 |
+| curator-filter | families | 0.89 | r1 18/18 timeouts; r2 refused (busy 18); serial diag ×1: 0.94, recall 10/10, narrowed 7/8 | diag 2.7 s vs 4.0 s | not shown ×2 (harness) | yes (diag) | 0.56 |
+| continuity | families | 0.97 | 1.00 / 1.00 (every family) | 2.6 / 3.8 s vs 4.0 s | yes | yes | 0.64 |
+| continuity (combined) | families | — | 0.85 / 0.88; reply 17/23, 18/23 and broken 8/12, 9/12 below; timeouts 25 / 21 | 4.1 / 4.6 s vs 4.0 s | no (contaminated) | no | 0.48 |
+| typed | families | 0.83 | 0.85 / 0.85 (answered 55/57 ×2) | 4.1 / 3.9 s vs 5.0 s | yes | yes | 0.00 |
+| stall | families | 1.00 | 1.00 / 1.00 | 3.5 / 3.5 s vs 4.0 s | yes | yes | 0.00 |
+| critic | families | 0.99 | 0.93 / 0.93; verdict 30/34 < 1.0 ×2 (0 timeouts) | 3.0 / 2.9 s vs 2.5 s | **no** | no | 0.00 |
+| variants | families | 1.00 | 0.81 / 0.81; rejected 5/8 < 1.0 ×2 (0 timeouts) | 3.0 / 2.9 s vs 1.5 s (assumed) | **no** | no | 0.00 |
+| agency | families | 1.00 | 0.98 / 0.98 (writes 17/18, clean 23/23) | 1.7 / 1.8 s vs 4.0 s | yes | yes | 0.00 |
+| house-rules | families | 0.99 | 0.78 / 0.78; broken 11/15, untouched 40/54 below; timeouts 16 / 16 | 3.3 / 3.1 s vs 4.0 s | no (contaminated) | — | 0.00 |
+| house-rules (adolion) | families | — | refused ×2 (busy 72 / 56) | — | **not measured (harness)** | — | 0.00 |
+| warden-lore | families | 1.00 | r1 refused (busy 47); r2 0.82, every family below, 11 timeouts | r2 2.8 s vs 4.0 s | no (contaminated) | — | 0.00 |
+| warden-lore-facts | families | — | 1.00 / 1.00 | 4.2 / 4.3 s vs 4.0 s | yes | **no** (just over) | 0.00 |
+| lore | families | 0.90 | r1 refused (busy 5); r2 30/30 timeouts; serial diag ×1: recall 28/30, precision 28/35 (floors met) | diag 31.7 s vs 1.5 s (reply path) | not shown ×2 | **no** (prediction confirmed) | 0.00 |
+| backgrounds | families | 0.84 (pick below floor) | pick 0/16 ×2, none 3/3: the fixture offers 25 backgrounds and the provider refuses > 20 options (`LLAMA_TOP_N`) | 0 ms (never sent) | **no (not answerable as built)** | — | 0.16 |
+| contradiction-release (K0) | Phase A per wording | ok | ok ×2: wordings a and b pass in every band mode (jaccard, vectors `fd8efa441c80`) | 1.6 / 1.6 s vs 3.0 s | yes | yes | 0.62 raw |
+| lore-relevance | precision@4, tie rate | golden | no answer either run (34 requests × 64 questions in parallel; r1 no exchanges, r2 precision@4 0) | — | **not measured (harness)** | — | nDCG 0 |
 
-Defaults change only where a provider meets a use's floor ×2 **and** the user accepts the switch (W2).
+**Meets floor ×2 AND fits the use's timeout:** memory-pairs, continuity, typed, stall, agency, contradiction-release
+(6 uses). They meet the floor but miss the budget on director (5.3 s vs 1.5 s, reply path), memory-verify (3.9 vs 3.0 s)
+and warden-lore-facts (4.2–4.3 vs 4.0 s). The floor itself is missed on critic and variants (genuine: no timeouts). The
+six contaminated uses (scene, curator-filter, continuity-combined, house-rules ×2 fixtures, warden-lore) and lore and
+lore-relevance need the serial re-run. No default changes (W2: TypeSafe stays the shipped default; a switch also needs
+the user).
+
+Pod time: 02:55–03:31 UTC, ~36 min (r1 + r2 ~20 min, serial diagnostic ~16 min). ~4,500 one-token `/completion` calls per
+pass (census), all on the user's own pod. No paid API call: the run never reached TypeSafe.
 
 ## Unresolved
 
-- Build the classifier provider, and which model (English-only NLI is eligible since W25)?
+- Build the classifier provider, and which model (English-only NLI is eligible since W25)? Deferred to v2.7 (user).
 - The plugin's `local: true` for a tunnelled loopback URL: label it before any privacy notice relies on it.

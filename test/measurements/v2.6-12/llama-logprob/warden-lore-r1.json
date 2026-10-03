@@ -1,0 +1,540 @@
+{
+  "busy": [
+    "L06.contradicts:0",
+    "L06.untouched:1",
+    "L07.consistent:0",
+    "L07.untouched:1",
+    "L08.contradicts:0",
+    "L08.untouched:1",
+    "L09.consistent:0",
+    "L09.untouched:1",
+    "L10.consistent:0",
+    "L10.untouched:1",
+    "L10.untouched:2",
+    "L11.contradicts:0",
+    "L11.untouched:1",
+    "L12.contradicts:0",
+    "L12.untouched:1",
+    "L13.consistent:0",
+    "L13.consistent:1",
+    "L14.contradicts:0",
+    "L14.untouched:1",
+    "L15.consistent:0",
+    "L15.untouched:1",
+    "L16.untouched:0",
+    "L16.untouched:1",
+    "L16.untouched:2",
+    "L17.untouched:0",
+    "L17.untouched:1",
+    "L18.contradicts:0",
+    "L18.untouched:1",
+    "L27.contradicts:0",
+    "L27.untouched:1",
+    "L28.consistent:0",
+    "L28.untouched:1",
+    "L29.contradicts:0",
+    "L29.untouched:1",
+    "L30.consistent:0",
+    "L30.consistent:1",
+    "L30.untouched:2",
+    "L31.untouched:0",
+    "L31.untouched:1",
+    "L31.untouched:2",
+    "L32.untouched:0",
+    "L32.untouched:1",
+    "L33.contradicts:0",
+    "L33.contradicts:1",
+    "L34.consistent:0",
+    "L34.consistent:1",
+    "L34.untouched:2"
+  ],
+  "report": {
+    "ranAt": "2026-10-03T03:03:09.756Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 60,
+    "right": 4,
+    "p50LatencyMs": 12017,
+    "rows": [
+      {
+        "id": "L01.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Old stone bridge",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.consistent:1",
+        "right": false,
+        "picked": null,
+        "detail": "Arin's weapons",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Elves",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Luke's gear",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.consistent:1",
+        "right": false,
+        "picked": null,
+        "detail": "Old stone bridge",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Upstream ferry",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.contradicts:1",
+        "right": false,
+        "picked": null,
+        "detail": "Silent forest",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Guild fees",
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.contradicts:0",
+        "right": true,
+        "picked": "p=0.970299497162489",
+        "detail": "Queen Ilsa",
+        "latencyMs": 4833
+      },
+      {
+        "id": "L04.untouched:1",
+        "right": true,
+        "picked": "p=0.004963799532722571",
+        "detail": "Harbour",
+        "latencyMs": 4833
+      },
+      {
+        "id": "L05.consistent:0",
+        "right": true,
+        "picked": "p=0.0015429055409965197",
+        "detail": "Queen Ilsa",
+        "latencyMs": 3638
+      },
+      {
+        "id": "L05.untouched:1",
+        "right": true,
+        "picked": "p=0.001371958333968785",
+        "detail": "Harbour",
+        "latencyMs": 3638
+      },
+      {
+        "id": "L06.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Mira's magic",
+        "latencyMs": 2008,
+        "fallback": "busy"
+      },
+      {
+        "id": "L06.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The tower",
+        "latencyMs": 2008,
+        "fallback": "busy"
+      },
+      {
+        "id": "L07.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Mira's magic",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L07.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The tower",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L08.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "The tower",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L08.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Mira's magic",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L09.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "The tower",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L09.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Mira's magic",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L10.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Currency",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L10.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Night city",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L10.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "The river",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L11.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Night city",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L11.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Currency",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L12.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Captain Voss",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L12.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The border fort",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L13.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Captain Voss",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L13.consistent:1",
+        "right": false,
+        "picked": null,
+        "detail": "The border fort",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L14.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons",
+        "latencyMs": 12018,
+        "fallback": "busy"
+      },
+      {
+        "id": "L14.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The guild",
+        "latencyMs": 12018,
+        "fallback": "busy"
+      },
+      {
+        "id": "L15.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons",
+        "latencyMs": 12018,
+        "fallback": "busy"
+      },
+      {
+        "id": "L15.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The guild",
+        "latencyMs": 12018,
+        "fallback": "busy"
+      },
+      {
+        "id": "L16.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L16.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Currency",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L16.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Night city",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L17.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "Captain Voss",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L17.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "The river",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L18.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "The river",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L18.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Old stone bridge",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L27.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Arryn",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L27.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Adventurer ranks",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L28.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Arryn",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L28.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Adventurer ranks",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L29.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Elder Vampires",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L29.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Castle Bathorya",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L30.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Elder Vampires",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L30.consistent:1",
+        "right": false,
+        "picked": null,
+        "detail": "Holy relics",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L30.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Castle Bathorya",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L31.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "Kazzym",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L31.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Dwarves",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L31.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Market District",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L32.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "The Darklands",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L32.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Drow",
+        "latencyMs": 12017,
+        "fallback": "busy"
+      },
+      {
+        "id": "L33.contradicts:0",
+        "right": false,
+        "picked": null,
+        "detail": "Ellie",
+        "latencyMs": 12016,
+        "fallback": "busy"
+      },
+      {
+        "id": "L33.contradicts:1",
+        "right": false,
+        "picked": null,
+        "detail": "Fiana",
+        "latencyMs": 12016,
+        "fallback": "busy"
+      },
+      {
+        "id": "L34.consistent:0",
+        "right": false,
+        "picked": null,
+        "detail": "Bloody Hand Tribe",
+        "latencyMs": 12016,
+        "fallback": "busy"
+      },
+      {
+        "id": "L34.consistent:1",
+        "right": false,
+        "picked": null,
+        "detail": "Darran Kingdom",
+        "latencyMs": 12016,
+        "fallback": "busy"
+      },
+      {
+        "id": "L34.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Minotaurs",
+        "latencyMs": 12016,
+        "fallback": "busy"
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

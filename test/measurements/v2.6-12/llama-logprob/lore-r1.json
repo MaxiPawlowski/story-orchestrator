@@ -1,0 +1,231 @@
+{
+  "busy": [
+    "W2.recall:spike-sun-ruins.2",
+    "W2.recall:spike-sun-ruins.3",
+    "W3.recall:spike-sun-ruins.4",
+    "W4.recall:spike-noir.0",
+    "W4.recall:spike-noir.1"
+  ],
+  "report": {
+    "ranAt": "2026-10-03T03:04:00.476Z",
+    "model": null,
+    "total": 30,
+    "right": 0,
+    "p50LatencyMs": 12039,
+    "rows": [
+      {
+        "id": "L01.recall:SO-J11 Adolion World.18",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.5",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.3",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.13",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.44",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.43",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.42",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.41",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22056,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.10",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.40",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.17",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.12",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.26",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.25",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.29",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12039,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.4",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12039,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.9",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12039,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.57",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12038,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.58",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12038,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.59",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12038,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.63",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7026,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.62",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7026,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.61",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7026,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W1.recall:spike-sun-ruins.0",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W1.recall:spike-sun-ruins.1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W2.recall:spike-sun-ruins.2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2016,
+        "fallback": "busy"
+      },
+      {
+        "id": "W2.recall:spike-sun-ruins.3",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2016,
+        "fallback": "busy"
+      },
+      {
+        "id": "W3.recall:spike-sun-ruins.4",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2022,
+        "fallback": "busy"
+      },
+      {
+        "id": "W4.recall:spike-noir.0",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22050,
+        "fallback": "busy"
+      },
+      {
+        "id": "W4.recall:spike-noir.1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22050,
+        "fallback": "busy"
+      }
+    ],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

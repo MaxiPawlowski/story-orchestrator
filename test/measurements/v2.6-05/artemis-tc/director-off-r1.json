@@ -1,0 +1,133 @@
+{
+  "role": "director",
+  "arm": "artemis-tc-off-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "routeDuringRun": {
+    "role": "director",
+    "label": "Speaker direction",
+    "profileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "state": "untested",
+    "detail": "Speaker direction: not tested yet",
+    "effort": "default"
+  },
+  "effort": "off",
+  "reasoning": {
+    "effort": "off",
+    "state": "untested",
+    "reasoning": {
+      "effort": "off",
+      "applied": false,
+      "supported": false,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": "Text Completion sends a raw prompt",
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Speaker direction: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-19",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T21:31:56.624Z",
+  "cases": 1,
+  "summary": {
+    "role": "director",
+    "overall": {
+      "cases": 1,
+      "metrics": {
+        "correct": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": 0.88,
+          "ok": false
+        },
+        "answerCorrect": {
+          "passed": 1,
+          "total": 1,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": false
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "director",
+      "id": "D01",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2200,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D01",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"Gold wax. That's Ponticius's seal.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Ponticius, what does the Sun Ruins job pay?\""
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

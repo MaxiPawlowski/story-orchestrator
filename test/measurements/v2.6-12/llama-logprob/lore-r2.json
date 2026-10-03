@@ -1,0 +1,251 @@
+{
+  "summary": {
+    "use": "lore",
+    "fixture": "lore",
+    "right": 0,
+    "total": 30,
+    "rate": 0,
+    "families": [
+      {
+        "family": "recall",
+        "right": 0,
+        "total": 30,
+        "floor": 0.8,
+        "ok": false
+      }
+    ],
+    "p50LatencyMs": 12022,
+    "p95LatencyMs": null,
+    "timeouts": 30,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": null,
+    "modelVerdict": "unknown",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:13:48.104Z",
+    "model": null,
+    "total": 30,
+    "right": 0,
+    "p50LatencyMs": 12022,
+    "rows": [
+      {
+        "id": "L01.recall:SO-J11 Adolion World.18",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.5",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.3",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L01.recall:SO-J11 Adolion World.13",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7015,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.44",
+        "right": false,
+        "picked": null,
+        "latencyMs": 27043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.43",
+        "right": false,
+        "picked": null,
+        "latencyMs": 27043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.42",
+        "right": false,
+        "picked": null,
+        "latencyMs": 27043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L02.recall:SO-J11 Adolion World.41",
+        "right": false,
+        "picked": null,
+        "latencyMs": 27043,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.10",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.40",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L03.recall:SO-J11 Adolion World.17",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.12",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.26",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L04.recall:SO-J11 Adolion World.25",
+        "right": false,
+        "picked": null,
+        "latencyMs": 22042,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.29",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17034,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.4",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17034,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L05.recall:SO-J11 Adolion World.9",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17034,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.57",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17035,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.58",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17035,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L08.recall:SO-J11 Adolion World.59",
+        "right": false,
+        "picked": null,
+        "latencyMs": 17035,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.63",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12022,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.62",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12022,
+        "fallback": "timeout"
+      },
+      {
+        "id": "L09.recall:SO-J11 Adolion World.61",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12022,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W1.recall:spike-sun-ruins.0",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W1.recall:spike-sun-ruins.1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5004,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W2.recall:spike-sun-ruins.2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W2.recall:spike-sun-ruins.3",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W3.recall:spike-sun-ruins.4",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W4.recall:spike-noir.0",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "W4.recall:spike-noir.1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      }
+    ],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

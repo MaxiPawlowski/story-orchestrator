@@ -1,0 +1,633 @@
+{
+  "summary": {
+    "use": "house-rules",
+    "fixture": "house-rules",
+    "right": 62,
+    "total": 80,
+    "rate": 0.775,
+    "families": [
+      {
+        "family": "broken",
+        "right": 11,
+        "total": 15,
+        "floor": 0.85,
+        "ok": false
+      },
+      {
+        "family": "kept",
+        "right": 11,
+        "total": 11,
+        "floor": 0.95,
+        "ok": true
+      },
+      {
+        "family": "untouched",
+        "right": 40,
+        "total": 54,
+        "floor": 0.966,
+        "ok": false
+      }
+    ],
+    "p50LatencyMs": 2579,
+    "p95LatencyMs": 3256,
+    "timeouts": 16,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:02:10.359Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 80,
+    "right": 62,
+    "p50LatencyMs": 2579,
+    "rows": [
+      {
+        "id": "H01.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H01.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H01.broken:2",
+        "right": false,
+        "picked": null,
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H01.untouched:3",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H02.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H02.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "There are no horses in this world.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H02.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H02.untouched:3",
+        "right": false,
+        "picked": null,
+        "detail": "No character is killed on screen.",
+        "latencyMs": 5003,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H03.untouched:0",
+        "right": false,
+        "picked": null,
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H03.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H03.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H03.untouched:3",
+        "right": false,
+        "picked": null,
+        "detail": "The narrator never addresses the reader directly.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H04.broken:0",
+        "right": false,
+        "picked": null,
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H04.untouched:1",
+        "right": false,
+        "picked": null,
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H04.untouched:2",
+        "right": false,
+        "picked": null,
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H04.untouched:3",
+        "right": false,
+        "picked": null,
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 5016,
+        "fallback": "timeout"
+      },
+      {
+        "id": "H05.kept:0",
+        "right": true,
+        "picked": "p=0.003883509161406161",
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 3256
+      },
+      {
+        "id": "H05.untouched:1",
+        "right": true,
+        "picked": "p=0.00022152770135322553",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 3256
+      },
+      {
+        "id": "H05.untouched:2",
+        "right": true,
+        "picked": "p=0.0002626853576541429",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 3256
+      },
+      {
+        "id": "H05.untouched:3",
+        "right": true,
+        "picked": "p=0.00020231740434958602",
+        "detail": "There are no horses in this world.",
+        "latencyMs": 3256
+      },
+      {
+        "id": "H06.broken:0",
+        "right": true,
+        "picked": "p=0.998767385177544",
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 3225
+      },
+      {
+        "id": "H06.untouched:1",
+        "right": true,
+        "picked": "p=0.0012105058476372735",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 3225
+      },
+      {
+        "id": "H06.untouched:2",
+        "right": true,
+        "picked": "p=0.013283161067077333",
+        "detail": "The reply never describes graphic gore.",
+        "latencyMs": 3225
+      },
+      {
+        "id": "H06.untouched:3",
+        "right": true,
+        "picked": "p=0.000330169743165945",
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 3225
+      },
+      {
+        "id": "H07.kept:0",
+        "right": true,
+        "picked": "p=0.0010103821778823315",
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H07.untouched:1",
+        "right": true,
+        "picked": "p=0.0003040678000251367",
+        "detail": "The reply never describes graphic gore.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H07.untouched:2",
+        "right": true,
+        "picked": "p=0",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H07.untouched:3",
+        "right": true,
+        "picked": "p=0",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H08.broken:0",
+        "right": true,
+        "picked": "p=0.9994156185961626",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H08.untouched:1",
+        "right": true,
+        "picked": "p=0.0008174340367885381",
+        "detail": "It is always night in the city of Vael.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H08.untouched:2",
+        "right": true,
+        "picked": "p=0.0004952185295650858",
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H08.untouched:3",
+        "right": true,
+        "picked": "p=0.0014002650500406805",
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 2638
+      },
+      {
+        "id": "H09.broken:0",
+        "right": true,
+        "picked": "p=0.99868743726928",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H09.broken:1",
+        "right": true,
+        "picked": "p=0.9985287410295975",
+        "detail": "The reply never describes graphic gore.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H09.untouched:2",
+        "right": true,
+        "picked": "p=0.0006760168639513681",
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H09.untouched:3",
+        "right": true,
+        "picked": "p=0.0016644934940463262",
+        "detail": "There are no horses in this world.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H10.kept:0",
+        "right": true,
+        "picked": "p=0.00029872375679641973",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H10.kept:1",
+        "right": true,
+        "picked": "p=0",
+        "detail": "The reply never describes graphic gore.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H10.untouched:2",
+        "right": true,
+        "picked": "p=0",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H10.kept:3",
+        "right": true,
+        "picked": "p=0",
+        "detail": "The reply is written in the past tense.",
+        "latencyMs": 2449
+      },
+      {
+        "id": "H11.broken:0",
+        "right": true,
+        "picked": "p=0.9995271229788465",
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 2579
+      },
+      {
+        "id": "H11.broken:1",
+        "right": true,
+        "picked": "p=0.9961228970304056",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2579
+      },
+      {
+        "id": "H11.untouched:2",
+        "right": true,
+        "picked": "p=0.0005423438619515802",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 2579
+      },
+      {
+        "id": "H11.untouched:3",
+        "right": true,
+        "picked": "p=0.0005568961833770507",
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 2579
+      },
+      {
+        "id": "H12.kept:0",
+        "right": true,
+        "picked": "p=0.0012597506448860179",
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 2578
+      },
+      {
+        "id": "H12.kept:1",
+        "right": true,
+        "picked": "p=0.0001537317537195629",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2578
+      },
+      {
+        "id": "H12.untouched:2",
+        "right": true,
+        "picked": "p=0.00042559660185239413",
+        "detail": "There are no horses in this world.",
+        "latencyMs": 2578
+      },
+      {
+        "id": "H12.untouched:3",
+        "right": true,
+        "picked": "p=0.00028299123354028543",
+        "detail": "It is always night in the city of Vael.",
+        "latencyMs": 2578
+      },
+      {
+        "id": "H13.broken:0",
+        "right": true,
+        "picked": "p=0.9996915878796361",
+        "detail": "There are no horses in this world.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H13.untouched:1",
+        "right": true,
+        "picked": "p=0.0003638108435791222",
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H13.untouched:2",
+        "right": true,
+        "picked": "p=0.0004171224025772753",
+        "detail": "The narrator never addresses the reader directly.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H13.untouched:3",
+        "right": true,
+        "picked": "p=0.00030770719193777763",
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H14.kept:0",
+        "right": true,
+        "picked": "p=0.0016073120815645477",
+        "detail": "There are no horses in this world.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H14.untouched:1",
+        "right": true,
+        "picked": "p=0.00027442251328584115",
+        "detail": "Coins are called marks, never gold pieces or dollars.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H14.untouched:2",
+        "right": true,
+        "picked": "p=0.00013479703413631447",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H14.untouched:3",
+        "right": true,
+        "picked": "p=0.00017047815156000568",
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 2423
+      },
+      {
+        "id": "H15.broken:0",
+        "right": true,
+        "picked": "p=0.9995197475365144",
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 2662
+      },
+      {
+        "id": "H15.untouched:1",
+        "right": true,
+        "picked": "p=0.16574918543343403",
+        "detail": "It is always night in the city of Vael.",
+        "latencyMs": 2662
+      },
+      {
+        "id": "H15.untouched:2",
+        "right": true,
+        "picked": "p=0.0009670341109496377",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 2662
+      },
+      {
+        "id": "H15.untouched:3",
+        "right": true,
+        "picked": "p=0.0002631360027349321",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 2662
+      },
+      {
+        "id": "H16.broken:0",
+        "right": true,
+        "picked": "p=0.9994939965678984",
+        "detail": "It is always night in the city of Vael.",
+        "latencyMs": 2602
+      },
+      {
+        "id": "H16.untouched:1",
+        "right": true,
+        "picked": "p=0.0003215396658627853",
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 2602
+      },
+      {
+        "id": "H16.untouched:2",
+        "right": true,
+        "picked": "p=0.0003614622118860737",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2602
+      },
+      {
+        "id": "H16.kept:3",
+        "right": true,
+        "picked": "p=0.00021795584381259378",
+        "detail": "The reply is written in the past tense.",
+        "latencyMs": 2602
+      },
+      {
+        "id": "H17.broken:0",
+        "right": true,
+        "picked": "p=0.9991574924283045",
+        "detail": "The narrator never addresses the reader directly.",
+        "latencyMs": 2401
+      },
+      {
+        "id": "H17.broken:1",
+        "right": false,
+        "picked": "p=0.11888447912229497",
+        "detail": "The reply is written in the past tense.",
+        "latencyMs": 2401
+      },
+      {
+        "id": "H17.untouched:2",
+        "right": true,
+        "picked": "p=0.00043651474958804196",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 2401
+      },
+      {
+        "id": "H17.untouched:3",
+        "right": true,
+        "picked": "p=0.0004944468711301734",
+        "detail": "The reply never describes graphic gore.",
+        "latencyMs": 2401
+      },
+      {
+        "id": "H18.broken:0",
+        "right": false,
+        "picked": "p=0.4955378912369378",
+        "detail": "The reply is written in the past tense.",
+        "latencyMs": 2400
+      },
+      {
+        "id": "H18.untouched:1",
+        "right": true,
+        "picked": "p=0.0007267894016246163",
+        "detail": "The narrator never addresses the reader directly.",
+        "latencyMs": 2400
+      },
+      {
+        "id": "H18.untouched:2",
+        "right": true,
+        "picked": "p=0.0002116155874785248",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 2400
+      },
+      {
+        "id": "H18.kept:3",
+        "right": true,
+        "picked": "p=0.0003409138085070383",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2400
+      },
+      {
+        "id": "H19.broken:0",
+        "right": true,
+        "picked": "p=0.9978721171914863",
+        "detail": "No character drinks alcohol.",
+        "latencyMs": 2435
+      },
+      {
+        "id": "H19.untouched:1",
+        "right": true,
+        "picked": "p=0.001483611659964249",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 2435
+      },
+      {
+        "id": "H19.untouched:2",
+        "right": true,
+        "picked": "p=0.0005200459563534415",
+        "detail": "No character uses a gun, rifle or any gunpowder weapon.",
+        "latencyMs": 2435
+      },
+      {
+        "id": "H19.untouched:3",
+        "right": true,
+        "picked": "p=0.0003285495601316865",
+        "detail": "Magic cannot heal wounds.",
+        "latencyMs": 2435
+      },
+      {
+        "id": "H20.kept:0",
+        "right": true,
+        "picked": "p=0.00039058910044736565",
+        "detail": "Characters never swear or use profanity.",
+        "latencyMs": 2447
+      },
+      {
+        "id": "H20.untouched:1",
+        "right": true,
+        "picked": "p=0.00024716487633694704",
+        "detail": "No character mentions phones, computers or any modern technology.",
+        "latencyMs": 2447
+      },
+      {
+        "id": "H20.untouched:2",
+        "right": true,
+        "picked": "p=0.0001546093122966835",
+        "detail": "No character is killed on screen.",
+        "latencyMs": 2447
+      },
+      {
+        "id": "H20.untouched:3",
+        "right": true,
+        "picked": "p=0",
+        "detail": "Dragons are extinct: none appears alive in the present day.",
+        "latencyMs": 2447
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "summary": {
+    "use": "variants",
+    "fixture": "variants",
+    "right": 13,
+    "total": 16,
+    "rate": 0.8125,
+    "families": [
+      {
+        "family": "pick",
+        "right": 8,
+        "total": 8,
+        "floor": 0.8,
+        "ok": true
+      },
+      {
+        "family": "rejected",
+        "right": 5,
+        "total": 8,
+        "floor": 1,
+        "ok": false
+      }
+    ],
+    "p50LatencyMs": 2655,
+    "p95LatencyMs": 2937,
+    "timeouts": 0,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:10:33.683Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 16,
+    "right": 13,
+    "p50LatencyMs": 2655,
+    "rows": [
+      {
+        "id": "V01.pick",
+        "right": true,
+        "picked": "clean (c=0.0002941556900430462 a=1 n=0.00043194901802883043 s=0.9691301814312776)",
+        "latencyMs": 2937
+      },
+      {
+        "id": "V01.rejected",
+        "right": true,
+        "picked": "c=0.8760280941168801 a=0.928349071149125 n=0.07383375429675831 s=0.9227637217341078",
+        "latencyMs": 2937
+      },
+      {
+        "id": "V02.pick",
+        "right": true,
+        "picked": "clean (c=0.0004251903969635407 a=1 n=0 s=0.9148915519567461)",
+        "latencyMs": 2929
+      },
+      {
+        "id": "V02.rejected",
+        "right": true,
+        "picked": "c=0.997368806899948 a=0.5722825735759599 n=0.00041039839667851406 s=0",
+        "latencyMs": 2929
+      },
+      {
+        "id": "V03.pick",
+        "right": true,
+        "picked": "clean (c=0.0006488741823563307 a=1 n=0.0003435454683691223 s=0.8940668024531516)",
+        "latencyMs": 2807
+      },
+      {
+        "id": "V03.rejected",
+        "right": true,
+        "picked": "c=0.9951085029552447 a=0.8900456529734064 n=0.001044519376611971 s=0.7779785543628392",
+        "latencyMs": 2807
+      },
+      {
+        "id": "V04.pick",
+        "right": true,
+        "picked": "clean (c=0.0009013037198672638 a=1 n=0.0007643470225512324 s=0.9090400525230854)",
+        "latencyMs": 2807
+      },
+      {
+        "id": "V04.rejected",
+        "right": true,
+        "picked": "c=0.9927099001736297 a=0.9881340997805276 n=0.0017862387738842214 s=0.6615242065062006",
+        "latencyMs": 2807
+      },
+      {
+        "id": "V05.pick",
+        "right": true,
+        "picked": "clean (c=0.004680354481559959 a=1 n=0.00026432424761274473 s=0.8972250532806875)",
+        "latencyMs": 2563
+      },
+      {
+        "id": "V05.rejected",
+        "right": true,
+        "picked": "c=0.9939230603720408 a=0.994015882535936 n=0.0014586478270504127 s=0.8474670396701423",
+        "latencyMs": 2563
+      },
+      {
+        "id": "V06.pick",
+        "right": true,
+        "picked": "clean (c=0.00039242846699924803 a=0.9995183328674332 n=0.00022406015583989805 s=0.9766337935050038)",
+        "latencyMs": 2563
+      },
+      {
+        "id": "V06.rejected",
+        "right": false,
+        "picked": "c=0.2906504433462297 a=0.9918587673581184 n=0.0006381830366836135 s=0.9481097871436053",
+        "latencyMs": 2563
+      },
+      {
+        "id": "V09.pick",
+        "right": true,
+        "picked": "clean (c=0.0006771917422588673 a=1 n=0.0007804901926755052 s=0.8991326179198401)",
+        "latencyMs": 2655
+      },
+      {
+        "id": "V09.rejected",
+        "right": false,
+        "picked": "c=0.20200993997585154 a=0.9985645546371078 n=0.040044734467890405 s=0.9138867712111916",
+        "latencyMs": 2655
+      },
+      {
+        "id": "V10.pick",
+        "right": true,
+        "picked": "clean (c=0.00024901014515577735 a=1 n=0.0004099137728134011 s=0.9364267548464594)",
+        "latencyMs": 2653
+      },
+      {
+        "id": "V10.rejected",
+        "right": false,
+        "picked": "c=0.027089069794416 a=1 n=0.0003629558045534196 s=0.9160901871859242",
+        "latencyMs": 2653
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

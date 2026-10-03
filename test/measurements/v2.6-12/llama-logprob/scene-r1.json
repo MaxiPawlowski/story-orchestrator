@@ -1,0 +1,1746 @@
+{
+  "busy": [
+    "R08.present:captain_okafor",
+    "R08.present:pell",
+    "R08.location",
+    "R08.time",
+    "R08.heading:r1",
+    "R08.heading:r2",
+    "R09.present:captain_okafor",
+    "R09.present:pell",
+    "R09.location",
+    "R09.time",
+    "R09.heading:r1",
+    "R09.heading:r2",
+    "R10.present:captain_okafor",
+    "R10.present:pell",
+    "R10.location",
+    "R10.time",
+    "R10.heading:r1",
+    "R10.heading:r2",
+    "R12.present:mae_hollis",
+    "R12.present:maeve",
+    "R12.present:lt_brandt",
+    "R12.location",
+    "R12.time",
+    "R12.heading:r1",
+    "R12.heading:r2",
+    "R13.present:mae_hollis",
+    "R13.present:maeve",
+    "R13.present:lt_brandt",
+    "R13.location",
+    "R13.time",
+    "R13.heading:r1",
+    "R13.heading:r2",
+    "R14.present:mae_hollis",
+    "R14.present:maeve",
+    "R14.present:lt_brandt",
+    "R14.location",
+    "R14.time",
+    "R14.heading:r1",
+    "R14.heading:r2",
+    "R15.present:mae_hollis",
+    "R15.present:maeve",
+    "R15.present:lt_brandt",
+    "R15.location",
+    "R15.time",
+    "R15.heading:r1",
+    "R15.heading:r2",
+    "R17.present:lady_ashworth",
+    "R17.present:graves",
+    "R17.location",
+    "R17.time",
+    "R17.heading:r1",
+    "R17.heading:r2",
+    "R18.present:lady_ashworth",
+    "R18.present:graves",
+    "R18.location",
+    "R18.time",
+    "R18.heading:r1",
+    "R18.heading:r2",
+    "R19.present:lady_ashworth",
+    "R19.present:graves",
+    "R19.location",
+    "R19.time",
+    "R19.heading:r1",
+    "R19.heading:r2",
+    "R20.present:lady_ashworth",
+    "R20.present:graves",
+    "R20.location",
+    "R20.time",
+    "R20.heading:r1",
+    "R20.heading:r2",
+    "R22.present:ellie",
+    "R22.present:arryn",
+    "R22.present:dalan",
+    "R22.location",
+    "R22.time",
+    "R22.heading:r1",
+    "R22.heading:r2",
+    "R23.present:ellie",
+    "R23.present:arryn",
+    "R23.present:dalan",
+    "R23.location",
+    "R23.time",
+    "R23.heading:r1",
+    "R23.heading:r2",
+    "R24.present:ellie",
+    "R24.present:arryn",
+    "R24.present:dalan",
+    "R24.location",
+    "R24.time",
+    "R24.heading:r1",
+    "R24.heading:r2",
+    "R25.present:gabriel",
+    "R25.present:karos",
+    "R25.present:belle",
+    "R25.location",
+    "R25.time",
+    "R25.heading:r1",
+    "R25.heading:r2",
+    "R26.present:gabriel",
+    "R26.present:karos",
+    "R26.present:belle",
+    "R26.location",
+    "R26.time",
+    "R26.heading:r1",
+    "R26.heading:r2",
+    "R27.present:gabriel",
+    "R27.present:karos",
+    "R27.present:belle",
+    "R27.location",
+    "R27.time",
+    "R27.heading:r1",
+    "R27.heading:r2",
+    "R28.present:sister_maren",
+    "R28.present:tobin",
+    "R28.present:the_abbot",
+    "R28.location",
+    "R28.time",
+    "R28.heading:r1",
+    "R28.heading:r2",
+    "R29.present:sister_maren",
+    "R29.present:tobin",
+    "R29.present:the_abbot",
+    "R29.location",
+    "R29.time",
+    "R29.heading:r1",
+    "R29.heading:r2",
+    "R30.present:sister_maren",
+    "R30.present:tobin",
+    "R30.present:the_abbot",
+    "R30.location",
+    "R30.time",
+    "R30.heading:r1",
+    "R30.heading:r2",
+    "R31.present:sister_maren",
+    "R31.present:tobin",
+    "R31.present:the_abbot",
+    "R31.location",
+    "R31.time",
+    "R31.heading:r1",
+    "R31.heading:r2",
+    "S01.break",
+    "S01t.break",
+    "S02.nobreak",
+    "S02t.nobreak",
+    "S03.break",
+    "S03t.break",
+    "S04.nobreak",
+    "S04t.nobreak",
+    "S05.break",
+    "S05t.break",
+    "S06.break",
+    "S06t.break",
+    "S07.nobreak",
+    "S07t.nobreak",
+    "S08.break",
+    "S08t.break",
+    "S09.nobreak",
+    "S09t.nobreak",
+    "S10.break",
+    "S10t.break",
+    "S11.nobreak",
+    "S11t.nobreak",
+    "S12.nobreak",
+    "S12t.nobreak",
+    "S13.break",
+    "S13t.break",
+    "S16.nobreak",
+    "S16t.nobreak",
+    "S17.break",
+    "S17t.break",
+    "S18.break",
+    "S18t.break",
+    "S19.nobreak",
+    "S19t.nobreak",
+    "S20.break",
+    "S20t.break",
+    "S21.nobreak",
+    "S21t.nobreak",
+    "S22.break",
+    "S22t.break"
+  ],
+  "report": {
+    "ranAt": "2026-10-03T02:57:23.219Z",
+    "model": null,
+    "total": 214,
+    "right": 0,
+    "p50LatencyMs": null,
+    "rows": [
+      {
+        "id": "R01.present:arin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.present:ponticius",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.present:luke",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.location",
+        "right": false,
+        "picked": null,
+        "detail": "label guild hall",
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.time",
+        "right": false,
+        "picked": null,
+        "detail": "label evening",
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R01.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.present:arin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.present:ponticius",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.present:luke",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.location",
+        "right": false,
+        "picked": null,
+        "detail": "label guild hall",
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.time",
+        "right": false,
+        "picked": null,
+        "detail": "label morning",
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R02.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12023,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.present:arin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.present:ponticius",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.present:luke",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.location",
+        "right": false,
+        "picked": null,
+        "detail": "label town gate",
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.time",
+        "right": false,
+        "picked": null,
+        "detail": "label dawn",
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R03.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.present:arin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.present:ponticius",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.present:luke",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.location",
+        "right": false,
+        "picked": null,
+        "detail": "label desert road",
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.time",
+        "right": false,
+        "picked": null,
+        "detail": "label midday",
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R04.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 7012,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.present:captain_okafor",
+        "right": false,
+        "picked": null,
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.present:pell",
+        "right": false,
+        "picked": null,
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.location",
+        "right": false,
+        "picked": null,
+        "detail": "label engine room",
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.time",
+        "right": false,
+        "picked": null,
+        "detail": "label unclear",
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R07.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 10021,
+        "fallback": "timeout"
+      },
+      {
+        "id": "R08.present:captain_okafor",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R08.present:pell",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R08.location",
+        "right": false,
+        "picked": null,
+        "detail": "label bridge",
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R08.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R08.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R08.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 2009,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.present:captain_okafor",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.present:pell",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.location",
+        "right": false,
+        "picked": null,
+        "detail": "label cargo bay",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.time",
+        "right": false,
+        "picked": null,
+        "detail": "label unclear",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R09.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.present:captain_okafor",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.present:pell",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.location",
+        "right": false,
+        "picked": null,
+        "detail": "label crew quarters",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R10.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.present:mae_hollis",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.present:maeve",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.present:lt_brandt",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.location",
+        "right": false,
+        "picked": null,
+        "detail": "label Blue Anchor nightclub",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R12.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.present:mae_hollis",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.present:maeve",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.present:lt_brandt",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.location",
+        "right": false,
+        "picked": null,
+        "detail": "label harbor docks",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.time",
+        "right": false,
+        "picked": null,
+        "detail": "label dawn",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R13.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.present:mae_hollis",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.present:maeve",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.present:lt_brandt",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.location",
+        "right": false,
+        "picked": null,
+        "detail": "label police station",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.time",
+        "right": false,
+        "picked": null,
+        "detail": "label afternoon",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R14.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.present:mae_hollis",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.present:maeve",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.present:lt_brandt",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.location",
+        "right": false,
+        "picked": null,
+        "detail": "label Mercer Street",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R15.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12030,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.present:lady_ashworth",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.present:graves",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.location",
+        "right": false,
+        "picked": null,
+        "detail": "label portrait gallery",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R17.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.present:lady_ashworth",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.present:graves",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.location",
+        "right": false,
+        "picked": null,
+        "detail": "label library",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.time",
+        "right": false,
+        "picked": null,
+        "detail": "label afternoon",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R18.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.present:lady_ashworth",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.present:graves",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.location",
+        "right": false,
+        "picked": null,
+        "detail": "label kitchens",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.time",
+        "right": false,
+        "picked": null,
+        "detail": "label dawn",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R19.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.present:lady_ashworth",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.present:graves",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.location",
+        "right": false,
+        "picked": null,
+        "detail": "label garden",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.time",
+        "right": false,
+        "picked": null,
+        "detail": "label evening",
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R20.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12029,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.present:ellie",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.present:arryn",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.present:dalan",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.location",
+        "right": false,
+        "picked": null,
+        "detail": "label guild hall",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.time",
+        "right": false,
+        "picked": null,
+        "detail": "label morning",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R22.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.present:ellie",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.present:arryn",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.present:dalan",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.location",
+        "right": false,
+        "picked": null,
+        "detail": "label Brittleforest road",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.time",
+        "right": false,
+        "picked": null,
+        "detail": "label midday",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R23.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.present:ellie",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.present:arryn",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.present:dalan",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.location",
+        "right": false,
+        "picked": null,
+        "detail": "label goblin warren",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R24.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.present:gabriel",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.present:karos",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.present:belle",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.location",
+        "right": false,
+        "picked": null,
+        "detail": "label castle gates",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.time",
+        "right": false,
+        "picked": null,
+        "detail": "label evening",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R25.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.present:gabriel",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.present:karos",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.present:belle",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.location",
+        "right": false,
+        "picked": null,
+        "detail": "label great hall",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R26.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.present:gabriel",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.present:karos",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.present:belle",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.location",
+        "right": false,
+        "picked": null,
+        "detail": "label Gragow ruins",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.time",
+        "right": false,
+        "picked": null,
+        "detail": "label afternoon",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R27.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.present:sister_maren",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.present:tobin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.present:the_abbot",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.location",
+        "right": false,
+        "picked": null,
+        "detail": "label abbey courtyard",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.time",
+        "right": false,
+        "picked": null,
+        "detail": "label dawn",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R28.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.present:sister_maren",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.present:tobin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.present:the_abbot",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.location",
+        "right": false,
+        "picked": null,
+        "detail": "label abbot's study",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.time",
+        "right": false,
+        "picked": null,
+        "detail": "label evening",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R29.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.present:sister_maren",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.present:tobin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.present:the_abbot",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.location",
+        "right": false,
+        "picked": null,
+        "detail": "label flooded crypt",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.time",
+        "right": false,
+        "picked": null,
+        "detail": "label night",
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R30.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12028,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.present:sister_maren",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.present:tobin",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.present:the_abbot",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.location",
+        "right": false,
+        "picked": null,
+        "detail": "label village",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.time",
+        "right": false,
+        "picked": null,
+        "detail": "label morning",
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.heading:r1",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "R31.heading:r2",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12027,
+        "fallback": "busy"
+      },
+      {
+        "id": "S01.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S01t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S02.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S02t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S03.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S03t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S04.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12026,
+        "fallback": "busy"
+      },
+      {
+        "id": "S04t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S05.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S05t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S06.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S06t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S07.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S07t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S08.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S08t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S09.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S09t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S10.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S10t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S11.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S11t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S12.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S12t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S13.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S13t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S16.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S16t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12025,
+        "fallback": "busy"
+      },
+      {
+        "id": "S17.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S17t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S18.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S18t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S19.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S19t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S20.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S20t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S21.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S21t.nobreak",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S22.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      },
+      {
+        "id": "S22t.break",
+        "right": false,
+        "picked": null,
+        "latencyMs": 12024,
+        "fallback": "busy"
+      }
+    ],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

@@ -1,0 +1,1268 @@
+{
+  "total": 43,
+  "passed": 32,
+  "plotDeltaAccuracy": 0.7442,
+  "min": 0.9,
+  "tiers": {
+    "deltas": {
+      "scored": 34,
+      "passed": 32,
+      "accuracy": 0.9412,
+      "ok": true,
+      "vacuous": []
+    },
+    "facts": {
+      "scored": 17,
+      "passed": 7,
+      "accuracy": 0.4118,
+      "floor": 0.85,
+      "ok": false,
+      "vacuous": []
+    },
+    "rejected": {
+      "scored": 27,
+      "passed": 26,
+      "accuracy": 0.963,
+      "floor": 0.9,
+      "ok": true,
+      "vacuous": []
+    },
+    "arcs": {
+      "scored": 2,
+      "passed": 2,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "epistemic": {
+      "scored": 1,
+      "passed": 1,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "ledger": {
+      "scored": 2,
+      "passed": 2,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "intents": {
+      "scored": 9,
+      "passed": 3,
+      "accuracy": 0.6667,
+      "floor": 0,
+      "ok": true,
+      "vacuous": [],
+      "intents": {
+        "expected": 7,
+        "matched": 2,
+        "spurious": 1,
+        "playerAttributed": 0,
+        "precision": 0.6667,
+        "recall": 0.2857
+      },
+      "failures": []
+    }
+  },
+  "floors": {
+    "facts": {
+      "floor": 0.85,
+      "from": "default"
+    },
+    "rejected": {
+      "floor": 0.9,
+      "from": "default"
+    },
+    "epistemic": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "ledger": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "arcs": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "intents": {
+      "floor": 0,
+      "from": "given"
+    }
+  },
+  "expectCount": 43,
+  "incomplete": [
+    "extractor-intents01",
+    "extractor-intents02",
+    "extractor-intents05",
+    "extractor-intents12",
+    "extractor-intents13",
+    "extractor9",
+    "extractor21",
+    "extractor24",
+    "extractor25"
+  ],
+  "notGreen": [
+    "plot-delta accuracy 0.7442 is below --min 0.9",
+    "facts accuracy 0.4118 is below its floor 0.85",
+    "incomplete fixture(s): extractor-intents01, extractor-intents02, extractor-intents05, extractor-intents12, extractor-intents13, extractor9, extractor21, extractor24, extractor25"
+  ],
+  "ok": false,
+  "recorded": false,
+  "judge": false,
+  "arm": "artemis-cc-medium-r1",
+  "profile": {
+    "id": "9466b99d-1e8b-49aa-b7f8-9d90d8353e8c",
+    "name": "Artemis RunPod CC"
+  },
+  "profilesRestored": {
+    "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+  },
+  "effort": "medium",
+  "reasoning": {
+    "effort": "medium",
+    "state": "untested",
+    "reasoning": {
+      "effort": "medium",
+      "applied": true,
+      "supported": true,
+      "sent": "enable_thinking=true",
+      "observed": true,
+      "collapsed": true,
+      "unsupported": null,
+      "budget": 2048,
+      "chars": 2482,
+      "tokens": null
+    },
+    "detail": "Story reads: not tested yet"
+  },
+  "effortsRestored": {},
+  "latency": {
+    "p50": 47838,
+    "p95": 83955,
+    "n": 43
+  },
+  "results": [
+    {
+      "name": "extractor",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[mara_trust=3, player_has_key=true] live=[mara_trust=3, player_has_key=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"brass key\""
+        }
+      ],
+      "expected": [
+        "mara_trust=3",
+        "player_has_key=true"
+      ],
+      "live": [
+        "mara_trust=3",
+        "player_has_key=true"
+      ],
+      "ms": 63299
+    },
+    {
+      "name": "extractor-intents01",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9530 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83755
+    },
+    {
+      "name": "extractor-intents02",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9788 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83943
+    },
+    {
+      "name": "extractor-intents03",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bag_packed=true] live=[bag_packed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": false,
+          "detail": "expected no rejections, got unrecognized line"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Sela (coast | leave | escape | flee | run away | gone)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "bag_packed=true"
+      ],
+      "live": [
+        "bag_packed=true"
+      ],
+      "ms": 83815
+    },
+    {
+      "name": "extractor-intents04",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[plan_agreed=true] live=[plan_agreed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "unclaimed intent: Corvin | get his cut up front",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 1,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "plan_agreed=true"
+      ],
+      "live": [
+        "plan_agreed=true"
+      ],
+      "ms": 36603
+    },
+    {
+      "name": "extractor-intents05",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9754 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83789
+    },
+    {
+      "name": "extractor-intents06",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[feast_begun=true] live=[feast_begun=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "feast_begun=true"
+      ],
+      "live": [
+        "feast_begun=true"
+      ],
+      "ms": 36799
+    },
+    {
+      "name": "extractor-intents07",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bridge_crossed=true] live=[bridge_crossed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Nell (village | medicine | plague)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "bridge_crossed=true"
+      ],
+      "live": [
+        "bridge_crossed=true"
+      ],
+      "ms": 65417
+    },
+    {
+      "name": "extractor-intents08",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[lesson_started=true] live=[lesson_started=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Tamsin (teach | read)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "lesson_started=true"
+      ],
+      "live": [
+        "lesson_started=true"
+      ],
+      "ms": 65535
+    },
+    {
+      "name": "extractor-intents09",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[soup_served=true] live=[soup_served=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "0 of 0 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 0,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "soup_served=true"
+      ],
+      "live": [
+        "soup_served=true"
+      ],
+      "ms": 77086
+    },
+    {
+      "name": "extractor-intents10",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[watch_posted=true] live=[watch_posted=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "0 of 0 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 0,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "watch_posted=true"
+      ],
+      "live": [
+        "watch_posted=true"
+      ],
+      "ms": 57646
+    },
+    {
+      "name": "extractor-intents11",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[library_entered=true] live=[library_entered=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Ilse (map | library)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "library_entered=true"
+      ],
+      "live": [
+        "library_entered=true"
+      ],
+      "ms": 64226
+    },
+    {
+      "name": "extractor-intents12",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (10046 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83849
+    },
+    {
+      "name": "extractor-intents13",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9820 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83980
+    },
+    {
+      "name": "extractor-intents14",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[climb_started=true] live=[climb_started=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Petra (paid | pay | coin | money)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "climb_started=true"
+      ],
+      "live": [
+        "climb_started=true"
+      ],
+      "ms": 69706
+    },
+    {
+      "name": "extractor2",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[district=\"docks\", threat_level=2] live=[district=\"docks\", threat_level=2]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"docks\""
+        }
+      ],
+      "expected": [
+        "district=\"docks\"",
+        "threat_level=2"
+      ],
+      "live": [
+        "district=\"docks\"",
+        "threat_level=2"
+      ],
+      "ms": 52744
+    },
+    {
+      "name": "extractor3",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[rats_seen=3, torch_lit=true] live=[rats_seen=3, torch_lit=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"torch\""
+        }
+      ],
+      "expected": [
+        "rats_seen=3",
+        "torch_lit=true"
+      ],
+      "live": [
+        "rats_seen=3",
+        "torch_lit=true"
+      ],
+      "ms": 42789
+    },
+    {
+      "name": "extractor4",
+      "pass": false,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": false,
+          "detail": "expected=[crew_morale=8, signal_strength=0.9] live=[crew_morale=9, signal_strength=0.9]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "2 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "crew_morale=8",
+        "signal_strength=0.9"
+      ],
+      "live": [
+        "crew_morale=9",
+        "signal_strength=0.9"
+      ],
+      "ms": 59690
+    },
+    {
+      "name": "extractor5",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[torch_lit=true] live=[torch_lit=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"torch\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "torch_lit=true"
+      ],
+      "live": [
+        "torch_lit=true"
+      ],
+      "ms": 15415
+    },
+    {
+      "name": "extractor6",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[supplies=3] live=[supplies=3]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "supplies=3"
+      ],
+      "live": [
+        "supplies=3"
+      ],
+      "ms": 17928
+    },
+    {
+      "name": "extractor7",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[hull_integrity=0.6] live=[hull_integrity=0.6]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "hull_integrity=0.6"
+      ],
+      "live": [
+        "hull_integrity=0.6"
+      ],
+      "ms": 39533
+    },
+    {
+      "name": "extractor8",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[weather=\"fog\"] live=[weather=\"fog\"]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "weather=\"fog\""
+      ],
+      "live": [
+        "weather=\"fog\""
+      ],
+      "ms": 14953
+    },
+    {
+      "name": "extractor9",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9367 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 82305
+    },
+    {
+      "name": "extractor10",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[alarm=true, door_open=true, guards=2] live=[alarm=true, door_open=true, guards=2]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "alarm=true",
+        "door_open=true",
+        "guards=2"
+      ],
+      "live": [
+        "alarm=true",
+        "door_open=true",
+        "guards=2"
+      ],
+      "ms": 40810
+    },
+    {
+      "name": "extractor11",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bridge_lowered=true] live=[bridge_lowered=true]"
+        }
+      ],
+      "expected": [
+        "bridge_lowered=true"
+      ],
+      "live": [
+        "bridge_lowered=true"
+      ],
+      "ms": 14420
+    },
+    {
+      "name": "extractor12",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[pact_sealed=true] live=[pact_sealed=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"pact\""
+        }
+      ],
+      "expected": [
+        "pact_sealed=true"
+      ],
+      "live": [
+        "pact_sealed=true"
+      ],
+      "ms": 23061
+    },
+    {
+      "name": "extractor13",
+      "pass": false,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": false,
+          "detail": "expected=[] live=[chest_found=false]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [],
+      "live": [
+        "chest_found=false"
+      ],
+      "ms": 39876
+    },
+    {
+      "name": "extractor14",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[rope_cut=true] live=[rope_cut=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "rope_cut=true"
+      ],
+      "live": [
+        "rope_cut=true"
+      ],
+      "ms": 18963
+    },
+    {
+      "name": "extractor15",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[gate_breached=true] live=[gate_breached=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"gate\""
+        }
+      ],
+      "expected": [
+        "gate_breached=true"
+      ],
+      "live": [
+        "gate_breached=true"
+      ],
+      "ms": 33943
+    },
+    {
+      "name": "extractor16",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[tension_current~0.75±0.3] live=[tension_current=0.75]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "tension_current~0.75±0.3"
+      ],
+      "live": [
+        "tension_current=0.75"
+      ],
+      "ms": 14479
+    },
+    {
+      "name": "extractor17",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[password=\"nightingale\"] live=[password=\"nightingale\"]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"nightingale\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "password=\"nightingale\""
+      ],
+      "live": [
+        "password=\"nightingale\""
+      ],
+      "ms": 12232
+    },
+    {
+      "name": "extractor18",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[ally_wounded=true] live=[ally_wounded=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"toma\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "ally_wounded=true"
+      ],
+      "live": [
+        "ally_wounded=true"
+      ],
+      "ms": 21339
+    },
+    {
+      "name": "extractor19",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bribe_taken=true] live=[bribe_taken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"official\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "bribe_taken=true"
+      ],
+      "live": [
+        "bribe_taken=true"
+      ],
+      "ms": 57187
+    },
+    {
+      "name": "extractor20",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[location=\"cave\"] live=[location=\"cave\"]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "location=\"cave\""
+      ],
+      "live": [
+        "location=\"cave\""
+      ],
+      "ms": 47838
+    },
+    {
+      "name": "extractor21",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9190 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83264
+    },
+    {
+      "name": "extractor22",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[seal_broken=true] live=[seal_broken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "missing \"seal\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "seal_broken=true"
+      ],
+      "live": [
+        "seal_broken=true"
+      ],
+      "ms": 68296
+    },
+    {
+      "name": "extractor23",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[ledger_taken=true] live=[ledger_taken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "epistemic",
+          "scored": true,
+          "pass": true,
+          "detail": "4 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "ledger_taken=true"
+      ],
+      "live": [
+        "ledger_taken=true"
+      ],
+      "ms": 38124
+    },
+    {
+      "name": "extractor24",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9568 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 84609
+    },
+    {
+      "name": "extractor25",
+      "pass": false,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the model spent its whole budget thinking (9696 chars, finish length)\n    at http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:147257\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:542949)\n    at async u (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137883)\n    at async h (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:137976)\n    at async Object.runFixture (http://127.0.0.1:8105/scripts/extensions/third-party/story-orchestrator/dist/7856.index.js:1:3839)\n    at async <anonymous>:316:30",
+      "ms": 83955
+    },
+    {
+      "name": "extractor26",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[cellar_reached=true] live=[cellar_reached=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "ledger",
+          "scored": true,
+          "pass": true,
+          "detail": "2 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "cellar_reached=true"
+      ],
+      "live": [
+        "cellar_reached=true"
+      ],
+      "ms": 47366
+    },
+    {
+      "name": "extractor27",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[lantern_broken=true] live=[lantern_broken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "ledger",
+          "scored": true,
+          "pass": true,
+          "detail": "3 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "lantern_broken=true"
+      ],
+      "live": [
+        "lantern_broken=true"
+      ],
+      "ms": 36023
+    },
+    {
+      "name": "extractor28",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[courier_missing=true] live=[courier_missing=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "4 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "arcs",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "courier_missing=true"
+      ],
+      "live": [
+        "courier_missing=true"
+      ],
+      "ms": 39300
+    },
+    {
+      "name": "extractor29",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[courier_found=true] live=[courier_found=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "arcs",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "courier_found=true"
+      ],
+      "live": [
+        "courier_found=true"
+      ],
+      "ms": 27381
+    }
+  ]
+}

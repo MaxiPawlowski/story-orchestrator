@@ -1,0 +1,269 @@
+{
+  "role": "synthesis",
+  "arm": "artemis-tc-default-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "routeDuringRun": {
+    "role": "synthesis",
+    "label": "Summaries and canon",
+    "profileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "state": "untested",
+    "detail": "Summaries and canon: not tested yet",
+    "effort": "default"
+  },
+  "effort": "default",
+  "reasoning": {
+    "effort": "default",
+    "state": "untested",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Summaries and canon: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T21:43:03.485Z",
+  "cases": 5,
+  "summary": {
+    "role": "synthesis",
+    "overall": {
+      "cases": 5,
+      "metrics": {
+        "validity": {
+          "passed": 5,
+          "total": 5,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": null
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "synthesis",
+      "id": "s01",
+      "lang": "en",
+      "responses": [
+        "Max lit a brass lantern and followed Bel into the tunnel. Bel led the way as they descended together."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2131,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s01",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I pick up the brass lantern from the crate and light it."
+          },
+          {
+            "speaker": "Bel",
+            "text": "Bel nods. \"Then we go down.\" She leads the way into the tunnel."
+          },
+          {
+            "speaker": "Max",
+            "text": "I follow Bel into the tunnel, lantern raised."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s02",
+      "lang": "en",
+      "responses": [
+        "Ponticius offered Max and Arin two hundred and fifty gold to retrieve an artifact from the Sun Ruins. After brief negotiation, Max accepted the deal and took the initial payment."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1612,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s02",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Two hundred gold for the Sun Ruins. Half now, half when you bring back the artifact.\" He slides a pouch across the counter."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Make it three hundred and we leave tonight.\""
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "He scowls, then laughs. \"Two fifty. Final offer.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Take it, Max. We need the coin.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Deal.\" I take the pouch."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s03",
+      "lang": "en",
+      "responses": [
+        "In an abandoned mill during a rainstorm, Lady Ashworth met with Max and handed him a sealed letter proving the governor ordered the fire. She warned him that he had been followed and instructed him to guard the evidence with his life."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2161,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s03",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Rain hammers the roof of the abandoned mill. Somewhere below, the wheel groans in the flood."
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"You were followed. I told you to come alone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Nobody followed me. What do you have for me?\""
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "She hands over a sealed letter. \"Proof that the governor ordered the fire. Guard it with your life.\""
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s04",
+      "lang": "en",
+      "responses": [
+        "Max searched the fallen guard's pockets and found keys and a duty roster. Vex urged them to move quickly before the next patrol arrived. Max unlocked the cell and freed the prisoner, who whispered the name Corvin."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2094,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s04",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I kneel by the fallen guard and check his pockets."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "You find a ring of iron keys and a folded duty roster."
+          },
+          {
+            "speaker": "Vex",
+            "text": "\"The roster says the next patrol is in ten minutes. Move.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I unlock the cell door and pull the prisoner out."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "The prisoner, a thin old man, clutches your arm and whispers a name: Corvin."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s05",
+      "lang": "en",
+      "responses": [
+        "Arin expressed distrust of Oskar for lying about the map, but Max insisted they still needed his boat. Oskar pushed off from the bank in silence as the reeds closed behind them."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1811,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s05",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Arin",
+            "text": "\"I don't trust him. He lied about the map.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Then we watch him. We still need his boat.\""
+          },
+          {
+            "speaker": "Oskar",
+            "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat."
+          }
+        ]
+      }
+    }
+  ]
+}

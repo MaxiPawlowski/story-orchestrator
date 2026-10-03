@@ -1,0 +1,281 @@
+{
+  "role": "synthesis",
+  "arm": "deepseek-default-r2",
+  "profile": {
+    "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "name": "deepseek 4.1 flash"
+  },
+  "routeDuringRun": {
+    "role": "synthesis",
+    "label": "Summaries and canon",
+    "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "state": "untested",
+    "detail": "Summaries and canon: not tested yet",
+    "effort": "default",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    }
+  },
+  "effort": "default",
+  "reasoning": {
+    "effort": "default",
+    "state": "untested",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Summaries and canon: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "b63f42bfe26e",
+  "runAt": "2026-10-02T20:18:49.849Z",
+  "cases": 5,
+  "summary": {
+    "role": "synthesis",
+    "overall": {
+      "cases": 5,
+      "metrics": {
+        "validity": {
+          "passed": 5,
+          "total": 5,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": null
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "synthesis",
+      "id": "s01",
+      "lang": "en",
+      "responses": [
+        "Max picked up the brass lantern from the crate and lit it. Bel nodded and led the way into the tunnel, with Max following close behind, lantern raised. The mood was quiet and resolute as they descended together."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1238,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s01",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I pick up the brass lantern from the crate and light it."
+          },
+          {
+            "speaker": "Bel",
+            "text": "Bel nods. \"Then we go down.\" She leads the way into the tunnel."
+          },
+          {
+            "speaker": "Max",
+            "text": "I follow Bel into the tunnel, lantern raised."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s02",
+      "lang": "en",
+      "responses": [
+        "At the Rusty Anchor, Ponticius hired Max and Arin to retrieve an artifact from the Sun Ruins, negotiating the fee down to two hundred fifty gold with half paid upfront. Though Max pushed for three hundred, Arin urged him to accept, and Max took the pouch, sealing the deal with a mix of tension and reluctant pragmatism."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1120,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s02",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Two hundred gold for the Sun Ruins. Half now, half when you bring back the artifact.\" He slides a pouch across the counter."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Make it three hundred and we leave tonight.\""
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "He scowls, then laughs. \"Two fifty. Final offer.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Take it, Max. We need the coin.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Deal.\" I take the pouch."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s03",
+      "lang": "en",
+      "responses": [
+        "During a rainstorm at the abandoned mill, Lady Ashworth accused Max of being followed despite her instruction to come alone. Max denied it and asked what she had for him, and she handed him a sealed letter proving the governor ordered the fire, warning him to guard it with his life."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 896,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s03",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Rain hammers the roof of the abandoned mill. Somewhere below, the wheel groans in the flood."
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"You were followed. I told you to come alone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Nobody followed me. What do you have for me?\""
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "She hands over a sealed letter. \"Proof that the governor ordered the fire. Guard it with your life.\""
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s04",
+      "lang": "en",
+      "responses": [
+        "Max knelt by the fallen guard and found iron keys and a duty roster. Vex warned the next patrol was in ten minutes, so Max unlocked the cell and pulled out a thin old prisoner who whispered the name Corvin."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1010,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s04",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I kneel by the fallen guard and check his pockets."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "You find a ring of iron keys and a folded duty roster."
+          },
+          {
+            "speaker": "Vex",
+            "text": "\"The roster says the next patrol is in ten minutes. Move.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I unlock the cell door and pull the prisoner out."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "The prisoner, a thin old man, clutches your arm and whispers a name: Corvin."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s05",
+      "lang": "en",
+      "responses": [
+        "Arin told Max he did not trust the ferryman because he had lied about the map, and Max replied that they would watch him since they still needed his boat. Oskar pushed off from the bank without a word as the reeds closed behind the boat, leaving a tense and wary mood."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 861,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s05",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Arin",
+            "text": "\"I don't trust him. He lied about the map.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Then we watch him. We still need his boat.\""
+          },
+          {
+            "speaker": "Oskar",
+            "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat."
+          }
+        ]
+      }
+    }
+  ]
+}

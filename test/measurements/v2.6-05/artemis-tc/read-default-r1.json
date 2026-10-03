@@ -1,0 +1,1517 @@
+{
+  "total": 43,
+  "passed": 42,
+  "plotDeltaAccuracy": 0.9767,
+  "min": 0.9,
+  "tiers": {
+    "deltas": {
+      "scored": 43,
+      "passed": 42,
+      "accuracy": 0.9767,
+      "ok": true,
+      "vacuous": []
+    },
+    "facts": {
+      "scored": 20,
+      "passed": 8,
+      "accuracy": 0.4,
+      "floor": 0.85,
+      "ok": false,
+      "vacuous": []
+    },
+    "rejected": {
+      "scored": 36,
+      "passed": 35,
+      "accuracy": 0.9722,
+      "floor": 0.9,
+      "ok": true,
+      "vacuous": []
+    },
+    "arcs": {
+      "scored": 2,
+      "passed": 2,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "epistemic": {
+      "scored": 3,
+      "passed": 3,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "ledger": {
+      "scored": 2,
+      "passed": 2,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    },
+    "intents": {
+      "scored": 14,
+      "passed": 10,
+      "accuracy": 0.9,
+      "floor": 0,
+      "ok": true,
+      "vacuous": [],
+      "intents": {
+        "expected": 12,
+        "matched": 9,
+        "spurious": 1,
+        "playerAttributed": 1,
+        "precision": 0.9,
+        "recall": 0.75
+      },
+      "failures": []
+    }
+  },
+  "floors": {
+    "facts": {
+      "floor": 0.85,
+      "from": "default"
+    },
+    "rejected": {
+      "floor": 0.9,
+      "from": "default"
+    },
+    "epistemic": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "ledger": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "arcs": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "intents": {
+      "floor": 0,
+      "from": "given"
+    }
+  },
+  "expectCount": 43,
+  "incomplete": [],
+  "notGreen": [
+    "facts accuracy 0.4 is below its floor 0.85"
+  ],
+  "ok": false,
+  "recorded": false,
+  "judge": false,
+  "arm": "artemis-tc-default-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "profilesRestored": {
+    "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+  },
+  "effort": "default",
+  "reasoning": {
+    "effort": "default",
+    "state": "untested",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Story reads: not tested yet"
+  },
+  "effortsRestored": {},
+  "latency": {
+    "p50": 6794,
+    "p95": 10892,
+    "n": 43
+  },
+  "results": [
+    {
+      "name": "extractor",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[mara_trust=3, player_has_key=true] live=[mara_trust=3, player_has_key=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"brass key\""
+        }
+      ],
+      "expected": [
+        "mara_trust=3",
+        "player_has_key=true"
+      ],
+      "live": [
+        "mara_trust=3",
+        "player_has_key=true"
+      ],
+      "ms": 5379
+    },
+    {
+      "name": "extractor-intents01",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[granary_reached=true] live=[granary_reached=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "granary_reached=true"
+      ],
+      "live": [
+        "granary_reached=true"
+      ],
+      "ms": 10892
+    },
+    {
+      "name": "extractor-intents02",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[pass_entered=true] live=[pass_entered=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "2 of 2 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 2,
+            "matched": 2,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "pass_entered=true"
+      ],
+      "live": [
+        "pass_entered=true"
+      ],
+      "ms": 10421
+    },
+    {
+      "name": "extractor-intents03",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bag_packed=true] live=[bag_packed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "bag_packed=true"
+      ],
+      "live": [
+        "bag_packed=true"
+      ],
+      "ms": 9563
+    },
+    {
+      "name": "extractor-intents04",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[plan_agreed=true] live=[plan_agreed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "player-attributed intent: Max | rob the Merchant Bank on market day",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 1,
+            "playerAttributed": 1
+          }
+        }
+      ],
+      "expected": [
+        "plan_agreed=true"
+      ],
+      "live": [
+        "plan_agreed=true"
+      ],
+      "ms": 10806
+    },
+    {
+      "name": "extractor-intents05",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[tourney_entered=true] live=[tourney_entered=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "tourney_entered=true"
+      ],
+      "live": [
+        "tourney_entered=true"
+      ],
+      "ms": 9591
+    },
+    {
+      "name": "extractor-intents06",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[feast_begun=true] live=[feast_begun=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "feast_begun=true"
+      ],
+      "live": [
+        "feast_begun=true"
+      ],
+      "ms": 10866
+    },
+    {
+      "name": "extractor-intents07",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bridge_crossed=true] live=[bridge_crossed=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Nell (village | medicine | plague)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "bridge_crossed=true"
+      ],
+      "live": [
+        "bridge_crossed=true"
+      ],
+      "ms": 8409
+    },
+    {
+      "name": "extractor-intents08",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[lesson_started=true] live=[lesson_started=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "lesson_started=true"
+      ],
+      "live": [
+        "lesson_started=true"
+      ],
+      "ms": 8889
+    },
+    {
+      "name": "extractor-intents09",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[soup_served=true] live=[soup_served=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "0 of 0 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 0,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "soup_served=true"
+      ],
+      "live": [
+        "soup_served=true"
+      ],
+      "ms": 8004
+    },
+    {
+      "name": "extractor-intents10",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[watch_posted=true] live=[watch_posted=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "0 of 0 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 0,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "watch_posted=true"
+      ],
+      "live": [
+        "watch_posted=true"
+      ],
+      "ms": 7320
+    },
+    {
+      "name": "extractor-intents11",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[library_entered=true] live=[library_entered=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "1 of 1 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 1,
+            "matched": 1,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "library_entered=true"
+      ],
+      "live": [
+        "library_entered=true"
+      ],
+      "ms": 7142
+    },
+    {
+      "name": "extractor-intents12",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[harbor_reached=true] live=[harbor_reached=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Orrin (daughter | harbor | harbour)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "harbor_reached=true"
+      ],
+      "live": [
+        "harbor_reached=true"
+      ],
+      "ms": 6321
+    },
+    {
+      "name": "extractor-intents13",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[letter_read=true] live=[letter_read=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": true,
+          "detail": "0 of 0 intent(s) matched, nothing spurious",
+          "counts": {
+            "expected": 0,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "letter_read=true"
+      ],
+      "live": [
+        "letter_read=true"
+      ],
+      "ms": 8110
+    },
+    {
+      "name": "extractor-intents14",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[climb_started=true] live=[climb_started=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "scored": true,
+          "pass": false,
+          "detail": "missing intent for Petra (paid | pay | coin | money)",
+          "counts": {
+            "expected": 1,
+            "matched": 0,
+            "spurious": 0,
+            "playerAttributed": 0
+          }
+        }
+      ],
+      "expected": [
+        "climb_started=true"
+      ],
+      "live": [
+        "climb_started=true"
+      ],
+      "ms": 6794
+    },
+    {
+      "name": "extractor2",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[district=\"docks\", threat_level=2] live=[district=\"docks\", threat_level=2]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"docks\""
+        }
+      ],
+      "expected": [
+        "district=\"docks\"",
+        "threat_level=2"
+      ],
+      "live": [
+        "district=\"docks\"",
+        "threat_level=2"
+      ],
+      "ms": 8046
+    },
+    {
+      "name": "extractor3",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[rats_seen=3, torch_lit=true] live=[rats_seen=3, torch_lit=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"torch\""
+        }
+      ],
+      "expected": [
+        "rats_seen=3",
+        "torch_lit=true"
+      ],
+      "live": [
+        "rats_seen=3",
+        "torch_lit=true"
+      ],
+      "ms": 6195
+    },
+    {
+      "name": "extractor4",
+      "pass": false,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": false,
+          "detail": "expected=[crew_morale=8, signal_strength=0.9] live=[crew_morale=10, signal_strength=0.9]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"beacon\""
+        }
+      ],
+      "expected": [
+        "crew_morale=8",
+        "signal_strength=0.9"
+      ],
+      "live": [
+        "crew_morale=10",
+        "signal_strength=0.9"
+      ],
+      "ms": 5661
+    },
+    {
+      "name": "extractor5",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[torch_lit=true] live=[torch_lit=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"torch\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "torch_lit=true"
+      ],
+      "live": [
+        "torch_lit=true"
+      ],
+      "ms": 4736
+    },
+    {
+      "name": "extractor6",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[supplies=3] live=[supplies=3]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "supplies=3"
+      ],
+      "live": [
+        "supplies=3"
+      ],
+      "ms": 4685
+    },
+    {
+      "name": "extractor7",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[hull_integrity=0.6] live=[hull_integrity=0.6]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "hull_integrity=0.6"
+      ],
+      "live": [
+        "hull_integrity=0.6"
+      ],
+      "ms": 4057
+    },
+    {
+      "name": "extractor8",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[weather=\"fog\"] live=[weather=\"fog\"]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "weather=\"fog\""
+      ],
+      "live": [
+        "weather=\"fog\""
+      ],
+      "ms": 4807
+    },
+    {
+      "name": "extractor9",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[stance=\"wary\"] live=[stance=\"wary\"]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "stance=\"wary\""
+      ],
+      "live": [
+        "stance=\"wary\""
+      ],
+      "ms": 5478
+    },
+    {
+      "name": "extractor10",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[alarm=true, door_open=true, guards=2] live=[alarm=true, door_open=true, guards=2]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "alarm=true",
+        "door_open=true",
+        "guards=2"
+      ],
+      "live": [
+        "alarm=true",
+        "door_open=true",
+        "guards=2"
+      ],
+      "ms": 6886
+    },
+    {
+      "name": "extractor11",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bridge_lowered=true] live=[bridge_lowered=true]"
+        }
+      ],
+      "expected": [
+        "bridge_lowered=true"
+      ],
+      "live": [
+        "bridge_lowered=true"
+      ],
+      "ms": 4011
+    },
+    {
+      "name": "extractor12",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[pact_sealed=true] live=[pact_sealed=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"pact\""
+        }
+      ],
+      "expected": [
+        "pact_sealed=true"
+      ],
+      "live": [
+        "pact_sealed=true"
+      ],
+      "ms": 5474
+    },
+    {
+      "name": "extractor13",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[] live=[]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [],
+      "live": [],
+      "ms": 2441
+    },
+    {
+      "name": "extractor14",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[rope_cut=true] live=[rope_cut=true]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "rope_cut=true"
+      ],
+      "live": [
+        "rope_cut=true"
+      ],
+      "ms": 4386
+    },
+    {
+      "name": "extractor15",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[gate_breached=true] live=[gate_breached=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"gate\""
+        }
+      ],
+      "expected": [
+        "gate_breached=true"
+      ],
+      "live": [
+        "gate_breached=true"
+      ],
+      "ms": 4929
+    },
+    {
+      "name": "extractor16",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[tension_current~0.75±0.3] live=[tension_current=0.75]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "tension_current~0.75±0.3"
+      ],
+      "live": [
+        "tension_current=0.75"
+      ],
+      "ms": 4580
+    },
+    {
+      "name": "extractor17",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[password=\"nightingale\"] live=[password=\"nightingale\"]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"nightingale\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "password=\"nightingale\""
+      ],
+      "live": [
+        "password=\"nightingale\""
+      ],
+      "ms": 4824
+    },
+    {
+      "name": "extractor18",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[ally_wounded=true] live=[ally_wounded=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"toma\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "ally_wounded=true"
+      ],
+      "live": [
+        "ally_wounded=true"
+      ],
+      "ms": 4928
+    },
+    {
+      "name": "extractor19",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[bribe_taken=true] live=[bribe_taken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "expected at least 1 line(s), got 0; missing \"official\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "bribe_taken=true"
+      ],
+      "live": [
+        "bribe_taken=true"
+      ],
+      "ms": 4792
+    },
+    {
+      "name": "extractor20",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[location=\"cave\"] live=[location=\"cave\"]"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "location=\"cave\""
+      ],
+      "live": [
+        "location=\"cave\""
+      ],
+      "ms": 4739
+    },
+    {
+      "name": "extractor21",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[gate_opened=true, watch_alerted=false] live=[gate_opened=true, watch_alerted=false]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "missing \"gate\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "gate_opened=true",
+        "watch_alerted=false"
+      ],
+      "live": [
+        "gate_opened=true",
+        "watch_alerted=false"
+      ],
+      "ms": 6399
+    },
+    {
+      "name": "extractor22",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[seal_broken=true] live=[seal_broken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": false,
+          "detail": "missing \"seal\""
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        }
+      ],
+      "expected": [
+        "seal_broken=true"
+      ],
+      "live": [
+        "seal_broken=true"
+      ],
+      "ms": 6706
+    },
+    {
+      "name": "extractor23",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[ledger_taken=true] live=[ledger_taken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "epistemic",
+          "scored": true,
+          "pass": true,
+          "detail": "4 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "ledger_taken=true"
+      ],
+      "live": [
+        "ledger_taken=true"
+      ],
+      "ms": 10305
+    },
+    {
+      "name": "extractor24",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[feast_invitation=true] live=[feast_invitation=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "epistemic",
+          "scored": true,
+          "pass": true,
+          "detail": "4 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "feast_invitation=true"
+      ],
+      "live": [
+        "feast_invitation=true"
+      ],
+      "ms": 12043
+    },
+    {
+      "name": "extractor25",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[map_bought=true] live=[map_bought=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "epistemic",
+          "scored": true,
+          "pass": true,
+          "detail": "5 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "map_bought=true"
+      ],
+      "live": [
+        "map_bought=true"
+      ],
+      "ms": 12252
+    },
+    {
+      "name": "extractor26",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[cellar_reached=true] live=[cellar_reached=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "ledger",
+          "scored": true,
+          "pass": true,
+          "detail": "3 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "cellar_reached=true"
+      ],
+      "live": [
+        "cellar_reached=true"
+      ],
+      "ms": 8529
+    },
+    {
+      "name": "extractor27",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[lantern_broken=true] live=[lantern_broken=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "ledger",
+          "scored": true,
+          "pass": true,
+          "detail": "3 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "lantern_broken=true"
+      ],
+      "live": [
+        "lantern_broken=true"
+      ],
+      "ms": 7268
+    },
+    {
+      "name": "extractor28",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[courier_missing=true] live=[courier_missing=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": false,
+          "detail": "expected no rejections, got unrecognized line, unrecognized line"
+        },
+        {
+          "tier": "arcs",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "courier_missing=true"
+      ],
+      "live": [
+        "courier_missing=true"
+      ],
+      "ms": 9923
+    },
+    {
+      "name": "extractor29",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[courier_found=true] live=[courier_found=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "arcs",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "courier_found=true"
+      ],
+      "live": [
+        "courier_found=true"
+      ],
+      "ms": 7350
+    }
+  ]
+}

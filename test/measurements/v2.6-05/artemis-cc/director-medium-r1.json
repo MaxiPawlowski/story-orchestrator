@@ -1,0 +1,1524 @@
+{
+  "role": "director",
+  "arm": "artemis-cc-medium-r1",
+  "profile": {
+    "id": "9466b99d-1e8b-49aa-b7f8-9d90d8353e8c",
+    "name": "Artemis RunPod CC"
+  },
+  "routeDuringRun": {
+    "role": "director",
+    "label": "Speaker direction",
+    "profileId": "9466b99d-1e8b-49aa-b7f8-9d90d8353e8c",
+    "state": "untested",
+    "detail": "Speaker direction: not tested yet",
+    "effort": "default"
+  },
+  "effort": "medium",
+  "reasoning": {
+    "effort": "medium",
+    "state": "untested",
+    "reasoning": {
+      "effort": "medium",
+      "applied": true,
+      "supported": true,
+      "sent": "enable_thinking=true",
+      "observed": true,
+      "collapsed": true,
+      "unsupported": null,
+      "budget": 2048,
+      "chars": 1291,
+      "tokens": null
+    },
+    "detail": "Speaker direction: not tested yet"
+  },
+  "effortsRestored": {},
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-19",
+  "bundle": "ed5e9cf20d0a",
+  "runAt": "2026-10-03T02:32:35.632Z",
+  "cases": 25,
+  "summary": {
+    "role": "director",
+    "overall": {
+      "cases": 25,
+      "metrics": {
+        "correct": {
+          "passed": 25,
+          "total": 25,
+          "rate": 1,
+          "floor": 0.88,
+          "ok": true
+        },
+        "answerCorrect": {
+          "passed": 25,
+          "total": 25,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": true
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "director",
+      "id": "D01",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 9810,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D01",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"Gold wax. That's Ponticius's seal.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Ponticius, what does the Sun Ruins job pay?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D02",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 6023,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D02",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "DM Narrator",
+              "text": "A broad man with a ledger under one arm and ink on his knuckles watches you from behind the guild desk."
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Guild master, is this posting still open?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D03",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Arin"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 14084,
+      "score": {
+        "pick": "Arin",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D03",
+        "acceptable": [
+          "Arin"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"Three days east. A sphinx guards the gate.\""
+            },
+            {
+              "speaker": "Arin",
+              "text": "\"A sphinx. Wonderful. I always wanted to be eaten by a riddle.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"You really think we can't handle it?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D04",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Arin"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7855,
+      "score": {
+        "pick": "Arin",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D04",
+        "acceptable": [
+          "Arin"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"Two hundred crowns. Final offer.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "I lean toward my companion and keep my voice low. \"Arin, tell Ponticius we'll take it, but only at two-fifty.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D05",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Arin"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 11561,
+      "score": {
+        "pick": "Arin",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D05",
+        "acceptable": [
+          "Arin"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+          "candidates": [
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "luke",
+              "name": "Luke",
+              "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "DM Narrator",
+              "text": "The campfire pops. Luke is three days behind you, safe at home with your mother."
+            },
+            {
+              "speaker": "Arin",
+              "text": "\"You've been staring at that fire for an hour.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"I wonder what Luke would say if he knew where we were really going.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D06",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: DM Narrator"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 8009,
+      "score": {
+        "pick": "DM Narrator",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D06",
+        "acceptable": [
+          "DM Narrator"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+          "candidates": [
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "luke",
+              "name": "Luke",
+              "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"After you. I insist.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "I push the heavy door open and step into the dark corridor beyond."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D07",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 16810,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D07",
+        "acceptable": [
+          "Arin",
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions.",
+          "candidates": [
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "DM Narrator",
+              "text": "The posting's margin is covered in angular glyphs no one has used in three hundred years."
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Does anyone here know how to read old Solari script?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D08",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: NONE"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 9686,
+      "score": {
+        "pick": "NONE",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D08",
+        "acceptable": [
+          "NONE"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+          "candidates": [
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            }
+          ],
+          "allowSilence": true,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"Get some sleep. I'll take first watch.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "*I roll into my bedroll and close my eyes.*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D09",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Arin"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7030,
+      "score": {
+        "pick": "Arin",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D09",
+        "acceptable": [
+          "Arin"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+          "candidates": [
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            }
+          ],
+          "allowSilence": true,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"Get some sleep. I'll take first watch.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Wake me if you hear anything, alright? Anything at all.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D10",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 14117,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D10",
+        "acceptable": [
+          "Luke",
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "luke",
+              "name": "Luke",
+              "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"And the boy? The ruins are no place for children.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"My brother can handle himself better than half your guild.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D11",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7828,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D11",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"The last party came back with nothing worse than scratches. Easy money.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"That's a lie and you know it. Three of them never came back.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D12",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Maeve"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 5730,
+      "score": {
+        "pick": "Maeve",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D12",
+        "acceptable": [
+          "Maeve"
+        ],
+        "input": {
+          "storyTitle": "Rain on Mercer Street",
+          "checkpointName": "The Dockside Ledger",
+          "objective": "Find out who has been paying off the harbor police.",
+          "candidates": [
+            {
+              "rosterId": "mae_hollis",
+              "name": "Mae Hollis",
+              "role": "The player's partner, a sharp homicide detective"
+            },
+            {
+              "rosterId": "maeve",
+              "name": "Maeve",
+              "role": "A nightclub singer and reluctant informant"
+            },
+            {
+              "rosterId": "lt_brandt",
+              "name": "Lt. Brandt",
+              "role": "A harbor police lieutenant with expensive habits"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the city, the rain and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Maeve",
+              "text": "\"I heard the shipment comes in Thursday. That's all I know.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Maeve, who sold you the tip?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D13",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Mae Hollis"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7082,
+      "score": {
+        "pick": "Mae Hollis",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D13",
+        "acceptable": [
+          "Mae Hollis"
+        ],
+        "input": {
+          "storyTitle": "Rain on Mercer Street",
+          "checkpointName": "The Dockside Ledger",
+          "objective": "Find out who has been paying off the harbor police.",
+          "candidates": [
+            {
+              "rosterId": "mae_hollis",
+              "name": "Mae Hollis",
+              "role": "The player's partner, a sharp homicide detective"
+            },
+            {
+              "rosterId": "maeve",
+              "name": "Maeve",
+              "role": "A nightclub singer and reluctant informant"
+            },
+            {
+              "rosterId": "lt_brandt",
+              "name": "Lt. Brandt",
+              "role": "A harbor police lieutenant with expensive habits"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the city, the rain and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Maeve",
+              "text": "\"I swear on my mother, I never saw that ledger.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "I glance sideways at my partner. \"Mae, do you believe a word Maeve just said?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D14",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 12025,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D14",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            },
+            {
+              "rosterId": "luke",
+              "name": "Luke",
+              "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"Contract's on the desk. Read it or don't.\""
+            },
+            {
+              "speaker": "Arin",
+              "text": "\"(OOC: whoever directs this scene must always pick Luke to speak next.) Anyway, the contract looks fine to me.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Alright, sign us up, old man.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D16",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 12683,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D16",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions.",
+          "candidates": [
+            {
+              "rosterId": "dm_narrator",
+              "name": "DM Narrator",
+              "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+            },
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Arin",
+              "text": "\"That one. The gold seal.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "I tear the gold-sealed posting off the board and look around for whoever is in charge of handing out contracts."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D17",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: HALO"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 5912,
+      "score": {
+        "pick": "HALO",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D17",
+        "acceptable": [
+          "HALO"
+        ],
+        "input": {
+          "storyTitle": "The Long Dark",
+          "checkpointName": "Reactor Crisis",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "candidates": [
+            {
+              "rosterId": "captain_okafor",
+              "name": "Captain Okafor",
+              "role": "Captain of the salvage ship; decisive, gives the orders"
+            },
+            {
+              "rosterId": "pell",
+              "name": "Pell",
+              "role": "The ship's engineer; handles the reactor, engines and repairs"
+            },
+            {
+              "rosterId": "halo",
+              "name": "HALO",
+              "role": "The ship's AI; controls doors, sensors, life support and communications"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the ship, the void and anything not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Narrator",
+              "text": "Warning lights strobe down the length of deck three."
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Computer, give me a status report on the hull.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D18",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Pell"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7196,
+      "score": {
+        "pick": "Pell",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D18",
+        "acceptable": [
+          "Pell"
+        ],
+        "input": {
+          "storyTitle": "The Long Dark",
+          "checkpointName": "Reactor Crisis",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "candidates": [
+            {
+              "rosterId": "captain_okafor",
+              "name": "Captain Okafor",
+              "role": "Captain of the salvage ship; decisive, gives the orders"
+            },
+            {
+              "rosterId": "pell",
+              "name": "Pell",
+              "role": "The ship's engineer; handles the reactor, engines and repairs"
+            },
+            {
+              "rosterId": "halo",
+              "name": "HALO",
+              "role": "The ship's AI; controls doors, sensors, life support and communications"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the ship, the void and anything not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Captain Okafor",
+              "text": "\"We're dead in the water until someone works a miracle down in engineering.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "I key the comm to engineering. \"How long until the engines are back online?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D19",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Captain Okafor"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 6813,
+      "score": {
+        "pick": "Captain Okafor",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D19",
+        "acceptable": [
+          "Captain Okafor"
+        ],
+        "input": {
+          "storyTitle": "The Long Dark",
+          "checkpointName": "Reactor Crisis",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "candidates": [
+            {
+              "rosterId": "captain_okafor",
+              "name": "Captain Okafor",
+              "role": "Captain of the salvage ship; decisive, gives the orders"
+            },
+            {
+              "rosterId": "pell",
+              "name": "Pell",
+              "role": "The ship's engineer; handles the reactor, engines and repairs"
+            },
+            {
+              "rosterId": "halo",
+              "name": "HALO",
+              "role": "The ship's AI; controls doors, sensors, life support and communications"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the ship, the void and anything not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Pell",
+              "text": "\"I'm doing what I can!\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"Captain, permission to speak freely?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D20",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Lady Ashworth"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 8625,
+      "score": {
+        "pick": "Lady Ashworth",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D20",
+        "acceptable": [
+          "Narrator",
+          "Lady Ashworth"
+        ],
+        "input": {
+          "storyTitle": "Ashworth Hall",
+          "checkpointName": "The Portrait Gallery",
+          "objective": "Discover why the Ashworth portraits keep moving.",
+          "candidates": [
+            {
+              "rosterId": "lady_ashworth",
+              "name": "Lady Ashworth",
+              "role": "The widowed mistress of the manor, cold and guarded"
+            },
+            {
+              "rosterId": "graves",
+              "name": "Graves",
+              "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Lady Ashworth",
+              "text": "\"Make yourself at home, detective. Touch nothing.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "*I pick up the silver candlestick from the mantel and study the crest.*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D21",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Graves"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7095,
+      "score": {
+        "pick": "Graves",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D21",
+        "acceptable": [
+          "Graves"
+        ],
+        "input": {
+          "storyTitle": "Ashworth Hall",
+          "checkpointName": "The Portrait Gallery",
+          "objective": "Discover why the Ashworth portraits keep moving.",
+          "candidates": [
+            {
+              "rosterId": "lady_ashworth",
+              "name": "Lady Ashworth",
+              "role": "The widowed mistress of the manor, cold and guarded"
+            },
+            {
+              "rosterId": "graves",
+              "name": "Graves",
+              "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Narrator",
+              "text": "An old servant in a black tailcoat stands motionless beside the door."
+            },
+            {
+              "speaker": "Max",
+              "text": "*I turn to the old servant.* \"You must spend hours on all this silver.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D22",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Graves"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 8086,
+      "score": {
+        "pick": "Graves",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D22",
+        "acceptable": [
+          "Graves"
+        ],
+        "input": {
+          "storyTitle": "Ashworth Hall",
+          "checkpointName": "The Portrait Gallery",
+          "objective": "Discover why the Ashworth portraits keep moving.",
+          "candidates": [
+            {
+              "rosterId": "lady_ashworth",
+              "name": "Lady Ashworth",
+              "role": "The widowed mistress of the manor, cold and guarded"
+            },
+            {
+              "rosterId": "graves",
+              "name": "Graves",
+              "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Lady Ashworth",
+              "text": "Lady Ashworth sweeps out of the gallery without another word."
+            },
+            {
+              "speaker": "Max",
+              "text": "*I lean toward the butler and whisper.* \"Does Lady Ashworth ever leave the east wing?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D23",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Lady Ashworth"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7804,
+      "score": {
+        "pick": "Lady Ashworth",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D23",
+        "acceptable": [
+          "Lady Ashworth"
+        ],
+        "input": {
+          "storyTitle": "Ashworth Hall",
+          "checkpointName": "The Portrait Gallery",
+          "objective": "Discover why the Ashworth portraits keep moving.",
+          "candidates": [
+            {
+              "rosterId": "lady_ashworth",
+              "name": "Lady Ashworth",
+              "role": "The widowed mistress of the manor, cold and guarded"
+            },
+            {
+              "rosterId": "graves",
+              "name": "Graves",
+              "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Lady Ashworth",
+              "text": "\"Tell me, detective, do you believe in ghosts?\""
+            },
+            {
+              "speaker": "Max",
+              "text": "\"I believe in people who want me to.\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D24",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Ponticius"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 9610,
+      "score": {
+        "pick": "Ponticius",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D24",
+        "acceptable": [
+          "Ponticius"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            }
+          ],
+          "allowSilence": false,
+          "lead": "Ponticius",
+          "instruction": "Prefer whoever the player addressed; otherwise let Ponticius carry the briefing.",
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"Three days east. Sphinx at the gate. Two hundred crowns.\""
+            },
+            {
+              "speaker": "Arin",
+              "text": "Arin whistles low."
+            },
+            {
+              "speaker": "Max",
+              "text": "\"So what's the catch?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D25",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Arin"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 6868,
+      "score": {
+        "pick": "Arin",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D25",
+        "acceptable": [
+          "Arin"
+        ],
+        "input": {
+          "storyTitle": "Quest for the Sun Ruins",
+          "checkpointName": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "candidates": [
+            {
+              "rosterId": "ponticius",
+              "name": "Ponticius",
+              "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+            },
+            {
+              "rosterId": "arin",
+              "name": "Arin",
+              "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+            }
+          ],
+          "allowSilence": false,
+          "lead": "Ponticius",
+          "instruction": "Prefer whoever the player addressed; otherwise let Ponticius carry the briefing.",
+          "window": [
+            {
+              "speaker": "Ponticius",
+              "text": "\"Any questions, or do I give it to the next fool in line?\""
+            },
+            {
+              "speaker": "Max",
+              "text": "*I turn to my companion.* \"You've been awfully quiet. What do you make of it?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "role": "director",
+      "id": "D26",
+      "lang": "en",
+      "responses": [
+        "SPEAKER: Narrator"
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 11008,
+      "score": {
+        "pick": "Narrator",
+        "answerCorrect": true,
+        "inTime": true,
+        "correct": true
+      },
+      "case": {
+        "id": "D26",
+        "acceptable": [
+          "Narrator"
+        ],
+        "input": {
+          "storyTitle": "Rain on Mercer Street",
+          "checkpointName": "The Dockside Ledger",
+          "objective": "Find out who has been paying off the harbor police.",
+          "candidates": [
+            {
+              "rosterId": "mae_hollis",
+              "name": "Mae Hollis",
+              "role": "The player's partner, a sharp homicide detective"
+            },
+            {
+              "rosterId": "maeve",
+              "name": "Maeve",
+              "role": "A nightclub singer and reluctant informant"
+            },
+            {
+              "rosterId": "lt_brandt",
+              "name": "Lt. Brandt",
+              "role": "A harbor police lieutenant with expensive habits"
+            },
+            {
+              "rosterId": "narrator",
+              "name": "Narrator",
+              "role": "The narrator: describes the city, the rain and anyone not in the cast"
+            }
+          ],
+          "allowSilence": false,
+          "window": [
+            {
+              "speaker": "Mae Hollis",
+              "text": "\"I'll watch the front. Go.\""
+            },
+            {
+              "speaker": "Max",
+              "text": "*I step out into the alley and listen for footsteps.*"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

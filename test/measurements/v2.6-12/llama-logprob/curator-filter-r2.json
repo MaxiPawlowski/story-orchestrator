@@ -1,0 +1,178 @@
+{
+  "busy": [
+    "sun-ruins.recall:0",
+    "sun-ruins.recall:1",
+    "sun-ruins.recall:2",
+    "sun-ruins.narrowed:3",
+    "sun-ruins.narrowed:4",
+    "sun-ruins.recall:5",
+    "ship.recall:0",
+    "ship.recall:1",
+    "ship.narrowed:2",
+    "ship.narrowed:3",
+    "ship.recall:4",
+    "ship.narrowed:5",
+    "manor.recall:0",
+    "manor.narrowed:1",
+    "manor.recall:2",
+    "manor.recall:3",
+    "manor.narrowed:4",
+    "manor.narrowed:5"
+  ],
+  "report": {
+    "ranAt": "2026-10-03T03:06:58.145Z",
+    "model": null,
+    "total": 18,
+    "right": 10,
+    "p50LatencyMs": 2006,
+    "rows": [
+      {
+        "id": "sun-ruins.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "Sun Ruins Gate",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "sun-ruins.recall:1",
+        "right": true,
+        "picked": null,
+        "detail": "Guild Reward",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "sun-ruins.recall:2",
+        "right": true,
+        "picked": null,
+        "detail": "Luke",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "sun-ruins.narrowed:3",
+        "right": false,
+        "picked": null,
+        "detail": "Desert Weather",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "sun-ruins.narrowed:4",
+        "right": false,
+        "picked": null,
+        "detail": "Arin's Blade",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "sun-ruins.recall:5",
+        "right": true,
+        "picked": null,
+        "detail": "Bitterroot",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "Reactor Status",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.recall:1",
+        "right": true,
+        "picked": null,
+        "detail": "HALO",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.narrowed:2",
+        "right": false,
+        "picked": null,
+        "detail": "Pell",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.narrowed:3",
+        "right": false,
+        "picked": null,
+        "detail": "Escape Pods",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.recall:4",
+        "right": true,
+        "picked": null,
+        "detail": "Kepler Station",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "ship.narrowed:5",
+        "right": false,
+        "picked": null,
+        "detail": "Captain's Log",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.recall:0",
+        "right": true,
+        "picked": null,
+        "detail": "The Portraits",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.narrowed:1",
+        "right": false,
+        "picked": null,
+        "detail": "Graves",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.recall:2",
+        "right": true,
+        "picked": null,
+        "detail": "Family Records",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.recall:3",
+        "right": true,
+        "picked": null,
+        "detail": "The Carriage",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.narrowed:4",
+        "right": false,
+        "picked": null,
+        "detail": "The Library",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      },
+      {
+        "id": "manor.narrowed:5",
+        "right": false,
+        "picked": null,
+        "detail": "The Sale",
+        "latencyMs": 2006,
+        "fallback": "busy"
+      }
+    ],
+    "verdict": {
+      "verdict": "unknown"
+    }
+  }
+}

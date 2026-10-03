@@ -1,0 +1,314 @@
+[
+ {
+  "role": "synthesis",
+  "level": "default",
+  "verdict": {
+   "role": "synthesis",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 1 and 2 below a floor"
+  }
+ },
+ {
+  "role": "authoring",
+  "level": "default",
+  "verdict": {
+   "role": "authoring",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    }
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor and every hold-out row"
+  }
+ },
+ {
+  "role": "director",
+  "level": "default",
+  "verdict": {
+   "role": "director",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "curator",
+  "level": "default",
+  "verdict": {
+   "role": "curator",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 1 below a floor"
+  }
+ },
+ {
+  "role": "synthesis",
+  "level": "off",
+  "verdict": {
+   "role": "synthesis",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 1 and 2 below a floor"
+  }
+ },
+ {
+  "role": "authoring",
+  "level": "off",
+  "verdict": {
+   "role": "authoring",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    }
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor and every hold-out row"
+  }
+ },
+ {
+  "role": "director",
+  "level": "off",
+  "verdict": {
+   "role": "director",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "curator",
+  "level": "off",
+  "verdict": {
+   "role": "curator",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 2 below a floor"
+  }
+ },
+ {
+  "role": "synthesis",
+  "level": "low",
+  "verdict": {
+   "role": "synthesis",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 1 and 2 below a floor"
+  }
+ },
+ {
+  "role": "authoring",
+  "level": "low",
+  "verdict": {
+   "role": "authoring",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    }
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor and every hold-out row"
+  }
+ },
+ {
+  "role": "director",
+  "level": "low",
+  "verdict": {
+   "role": "director",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "curator",
+  "level": "low",
+  "verdict": {
+   "role": "curator",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "synthesis",
+  "level": "high",
+  "verdict": {
+   "role": "synthesis",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "not recommended",
+   "reason": "run 1 and 2 below a floor"
+  }
+ },
+ {
+  "role": "authoring",
+  "level": "high",
+  "verdict": {
+   "role": "authoring",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    },
+    {
+     "cases": 5,
+     "validity": {
+      "passed": 5,
+      "total": 5
+     },
+     "opShape": {
+      "passed": 5,
+      "total": 5
+     },
+     "misses": []
+    }
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor and every hold-out row"
+  }
+ },
+ {
+  "role": "director",
+  "level": "high",
+  "verdict": {
+   "role": "director",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ },
+ {
+  "role": "curator",
+  "level": "high",
+  "verdict": {
+   "role": "curator",
+   "bundle": "b63f42bfe26e",
+   "holdout": [
+    null,
+    null
+   ],
+   "verdict": "recommended",
+   "reason": "both runs meet every floor"
+  }
+ }
+]

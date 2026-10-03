@@ -1,0 +1,280 @@
+{
+  "summary": {
+    "use": "lore-relevance",
+    "fixture": "lore-relevance",
+    "rows": 17,
+    "labelled": 17,
+    "provider": "llama-logprob",
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "disagreements": 1,
+    "floor": {
+      "precisionAt4": 0.85,
+      "tieRate": 0.05
+    },
+    "arms": [
+      {
+        "arm": "noul",
+        "precisionAt4": 0,
+        "ndcgAt4": 0,
+        "tieRate": 0,
+        "boundaryTieRate": 0,
+        "meanStateChars": 822.9,
+        "floorChecks": {
+          "precisionAt4": false,
+          "tieRate": true
+        },
+        "ok": false
+      },
+      {
+        "arm": "score",
+        "precisionAt4": null,
+        "ndcgAt4": 0,
+        "tieRate": null,
+        "boundaryTieRate": null,
+        "meanStateChars": 822.9,
+        "floorChecks": {
+          "precisionAt4": false,
+          "tieRate": false
+        },
+        "ok": false
+      }
+    ]
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:15:07.928Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "noul": {
+      "arm": "noul",
+      "turns": 17,
+      "precisionAt4": 0,
+      "ndcgAt4": 0,
+      "tieRate": 0,
+      "boundaryTieRate": 0,
+      "meanStateChars": 822.9,
+      "top": [
+        {
+          "id": "R01",
+          "picks": []
+        },
+        {
+          "id": "R02",
+          "picks": []
+        },
+        {
+          "id": "R03",
+          "picks": [
+            {
+              "key": "SO-J11 Adolion World.57",
+              "score": 0.03834616221585693,
+              "label": "irrelevant"
+            },
+            {
+              "key": "SO-J11 Adolion World.63",
+              "score": 0.002015082810306758,
+              "label": null
+            },
+            {
+              "key": "SO-J11 Adolion World.59",
+              "score": 0.0019153393194783048,
+              "label": null
+            },
+            {
+              "key": "SO-J11 Adolion World.64",
+              "score": 0.0014973306308032881,
+              "label": null
+            },
+            {
+              "key": "SO-J11 Adolion World.62",
+              "score": 0.0013646557932277166,
+              "label": null
+            }
+          ]
+        },
+        {
+          "id": "R04",
+          "picks": []
+        },
+        {
+          "id": "R05",
+          "picks": []
+        },
+        {
+          "id": "R06",
+          "picks": []
+        },
+        {
+          "id": "R07",
+          "picks": []
+        },
+        {
+          "id": "R08",
+          "picks": []
+        },
+        {
+          "id": "R09",
+          "picks": []
+        },
+        {
+          "id": "R10",
+          "picks": []
+        },
+        {
+          "id": "R11",
+          "picks": []
+        },
+        {
+          "id": "R12",
+          "picks": []
+        },
+        {
+          "id": "R13",
+          "picks": []
+        },
+        {
+          "id": "R14",
+          "picks": []
+        },
+        {
+          "id": "R15",
+          "picks": []
+        },
+        {
+          "id": "R16",
+          "picks": []
+        },
+        {
+          "id": "R24",
+          "picks": []
+        }
+      ]
+    },
+    "score": {
+      "arm": "score",
+      "turns": 17,
+      "precisionAt4": null,
+      "ndcgAt4": 0,
+      "tieRate": null,
+      "boundaryTieRate": null,
+      "meanStateChars": 822.9,
+      "top": [
+        {
+          "id": "R01",
+          "picks": []
+        },
+        {
+          "id": "R02",
+          "picks": []
+        },
+        {
+          "id": "R03",
+          "picks": []
+        },
+        {
+          "id": "R04",
+          "picks": []
+        },
+        {
+          "id": "R05",
+          "picks": []
+        },
+        {
+          "id": "R06",
+          "picks": []
+        },
+        {
+          "id": "R07",
+          "picks": []
+        },
+        {
+          "id": "R08",
+          "picks": []
+        },
+        {
+          "id": "R09",
+          "picks": []
+        },
+        {
+          "id": "R10",
+          "picks": []
+        },
+        {
+          "id": "R11",
+          "picks": []
+        },
+        {
+          "id": "R12",
+          "picks": []
+        },
+        {
+          "id": "R13",
+          "picks": []
+        },
+        {
+          "id": "R14",
+          "picks": []
+        },
+        {
+          "id": "R15",
+          "picks": []
+        },
+        {
+          "id": "R16",
+          "picks": []
+        },
+        {
+          "id": "R24",
+          "picks": []
+        }
+      ]
+    },
+    "disagreements": 1,
+    "exchanges": [
+      {
+        "arm": "noul",
+        "key": 3449991720,
+        "questionCount": 64,
+        "answers": {
+          "e:56": {
+            "type": "noul",
+            "noul": 0.03834616221585693
+          },
+          "e:57": {
+            "type": "noul",
+            "noul": 0.0010096354100173008
+          },
+          "e:58": {
+            "type": "noul",
+            "noul": 0.0019153393194783048
+          },
+          "e:59": {
+            "type": "noul",
+            "noul": 0.0007841620843343069
+          },
+          "e:60": {
+            "type": "noul",
+            "noul": 0.0003635782498512813
+          },
+          "e:61": {
+            "type": "noul",
+            "noul": 0.0013646557932277166
+          },
+          "e:62": {
+            "type": "noul",
+            "noul": 0.002015082810306758
+          },
+          "e:63": {
+            "type": "noul",
+            "noul": 0.0014973306308032881
+          }
+        }
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

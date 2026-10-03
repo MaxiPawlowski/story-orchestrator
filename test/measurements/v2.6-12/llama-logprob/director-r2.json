@@ -1,0 +1,184 @@
+{
+  "summary": {
+    "use": "director",
+    "fixture": "director",
+    "right": 22,
+    "total": 25,
+    "rate": 0.88,
+    "p50LatencyMs": 4056,
+    "p95LatencyMs": 5298,
+    "timeouts": 0,
+    "provider": "llama-logprob",
+    "split": 8,
+    "requestedModel": null,
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "modelVerdict": "resolved",
+    "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": true
+  },
+  "report": {
+    "ranAt": "2026-10-03T03:05:43.682Z",
+    "model": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "total": 25,
+    "right": 22,
+    "p50LatencyMs": 4056,
+    "rows": [
+      {
+        "id": "D01",
+        "right": true,
+        "picked": "Ponticius",
+        "latencyMs": 3963
+      },
+      {
+        "id": "D02",
+        "right": true,
+        "picked": "Ponticius",
+        "latencyMs": 3974
+      },
+      {
+        "id": "D03",
+        "right": true,
+        "picked": "Arin",
+        "latencyMs": 3791
+      },
+      {
+        "id": "D04",
+        "right": true,
+        "picked": "Arin",
+        "latencyMs": 3792
+      },
+      {
+        "id": "D05",
+        "right": true,
+        "picked": "Arin",
+        "latencyMs": 4042
+      },
+      {
+        "id": "D06",
+        "right": true,
+        "picked": "DM Narrator",
+        "latencyMs": 4056
+      },
+      {
+        "id": "D07",
+        "right": false,
+        "picked": "DM Narrator",
+        "latencyMs": 4225
+      },
+      {
+        "id": "D08",
+        "right": true,
+        "picked": "nobody",
+        "latencyMs": 2260
+      },
+      {
+        "id": "D09",
+        "right": true,
+        "picked": "Arin",
+        "latencyMs": 1950
+      },
+      {
+        "id": "D10",
+        "right": true,
+        "picked": "Ponticius",
+        "latencyMs": 3962
+      },
+      {
+        "id": "D11",
+        "right": true,
+        "picked": "Ponticius",
+        "latencyMs": 3963
+      },
+      {
+        "id": "D12",
+        "right": true,
+        "picked": "Maeve",
+        "latencyMs": 4673
+      },
+      {
+        "id": "D13",
+        "right": true,
+        "picked": "Mae Hollis",
+        "latencyMs": 4635
+      },
+      {
+        "id": "D14",
+        "right": false,
+        "picked": "Luke",
+        "latencyMs": 4389
+      },
+      {
+        "id": "D16",
+        "right": false,
+        "picked": "DM Narrator",
+        "latencyMs": 4363
+      },
+      {
+        "id": "D17",
+        "right": true,
+        "picked": "HALO",
+        "latencyMs": 5298
+      },
+      {
+        "id": "D18",
+        "right": true,
+        "picked": "Pell",
+        "latencyMs": 5299
+      },
+      {
+        "id": "D19",
+        "right": true,
+        "picked": "Captain Okafor",
+        "latencyMs": 4987
+      },
+      {
+        "id": "D20",
+        "right": true,
+        "picked": "Lady Ashworth",
+        "latencyMs": 3946
+      },
+      {
+        "id": "D21",
+        "right": true,
+        "picked": "Graves",
+        "latencyMs": 4135
+      },
+      {
+        "id": "D22",
+        "right": true,
+        "picked": "Graves",
+        "latencyMs": 4107
+      },
+      {
+        "id": "D23",
+        "right": true,
+        "picked": "Lady Ashworth",
+        "latencyMs": 4582
+      },
+      {
+        "id": "D24",
+        "right": true,
+        "picked": "Ponticius",
+        "latencyMs": 3401
+      },
+      {
+        "id": "D25",
+        "right": true,
+        "picked": "Arin",
+        "latencyMs": 3410
+      },
+      {
+        "id": "D26",
+        "right": true,
+        "picked": "Narrator",
+        "latencyMs": 5057
+      }
+    ],
+    "verdict": {
+      "verdict": "resolved",
+      "resolvedTo": "llama-server:/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    }
+  }
+}

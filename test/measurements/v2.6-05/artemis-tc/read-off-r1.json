@@ -1,0 +1,146 @@
+{
+  "total": 1,
+  "passed": 1,
+  "plotDeltaAccuracy": 1,
+  "min": 0.9,
+  "tiers": {
+    "deltas": {
+      "scored": 1,
+      "passed": 1,
+      "accuracy": 1,
+      "ok": true,
+      "vacuous": []
+    },
+    "facts": {
+      "scored": 1,
+      "passed": 1,
+      "accuracy": 1,
+      "floor": 0.85,
+      "ok": true,
+      "vacuous": []
+    },
+    "rejected": {
+      "scored": 1,
+      "passed": 1,
+      "accuracy": 1,
+      "floor": 0.9,
+      "ok": true,
+      "vacuous": []
+    },
+    "arcs": {
+      "scored": 1,
+      "passed": 1,
+      "accuracy": 1,
+      "floor": 0.8,
+      "ok": true,
+      "vacuous": []
+    }
+  },
+  "floors": {
+    "facts": {
+      "floor": 0.85,
+      "from": "default"
+    },
+    "rejected": {
+      "floor": 0.9,
+      "from": "default"
+    },
+    "epistemic": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "ledger": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "arcs": {
+      "floor": 0.8,
+      "from": "default"
+    },
+    "intents": {
+      "floor": 0,
+      "from": "given"
+    }
+  },
+  "expectCount": null,
+  "incomplete": [],
+  "notGreen": [],
+  "ok": true,
+  "recorded": false,
+  "judge": false,
+  "arm": "artemis-tc-off-r1",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "profilesRestored": {
+    "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+  },
+  "effort": "off",
+  "reasoning": {
+    "effort": "off",
+    "state": "untested",
+    "reasoning": {
+      "effort": "off",
+      "applied": false,
+      "supported": false,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": "Text Completion sends a raw prompt",
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Story reads: not tested yet"
+  },
+  "effortsRestored": {},
+  "latency": {
+    "p50": 5279,
+    "p95": 5279,
+    "n": 1
+  },
+  "results": [
+    {
+      "name": "extractor29",
+      "pass": true,
+      "tiers": [
+        {
+          "tier": "deltas",
+          "scored": true,
+          "pass": true,
+          "detail": "expected=[courier_found=true] live=[courier_found=true]"
+        },
+        {
+          "tier": "facts",
+          "scored": true,
+          "pass": true,
+          "detail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "scored": true,
+          "pass": true,
+          "detail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "arcs",
+          "scored": true,
+          "pass": true,
+          "detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "expected": [
+        "courier_found=true"
+      ],
+      "live": [
+        "courier_found=true"
+      ],
+      "ms": 5279
+    }
+  ]
+}
