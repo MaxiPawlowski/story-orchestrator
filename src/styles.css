@@ -14,7 +14,7 @@
   --st-info: var(--SmartThemeQuoteColor, var(--SmartThemeBodyColor, currentColor));
 }
 
-:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal) {
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing) {
   @apply text-base;
 
   @tailwind utilities source(none);
@@ -392,6 +392,74 @@ body.no-blur dialog#so-studio-modal {
     cursor: pointer;
     margin-left: 10px;
   }
+}
+
+dialog#so-briefing {
+  position: fixed;
+  inset: 0;
+  z-index: 4200;
+  margin: auto;
+  padding: 0;
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--greyCAIbg, #222));
+  border: 1px solid var(--st-border);
+  border-radius: 12px;
+  box-shadow: 0 0 24px var(--SmartThemeShadowColor, rgba(0, 0, 0, 0.5));
+}
+
+dialog#so-briefing::backdrop {
+  background: var(--black50a, rgba(0, 0, 0, 0.5));
+}
+
+#so-briefing .so-briefing-panel {
+  padding: 1rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+#so-briefing .so-briefing-title {
+  margin: 0;
+  font-size: 1.4em;
+}
+
+#so-briefing .so-briefing-heading,
+#so-briefing .so-briefing-chapter-title {
+  margin: 0;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+#so-briefing .so-briefing-paragraph {
+  margin: 0;
+  white-space: pre-line;
+}
+
+#so-briefing .so-briefing-image {
+  width: 100%;
+  max-height: 14rem;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+#so-briefing .so-briefing-blocks {
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--st-warning);
+  background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
+}
+
+#so-briefing .so-briefing-onboarding summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#so-briefing .so-briefing-icon {
+  width: 1.25em;
+  padding-top: 0.2em;
+  text-align: center;
+  opacity: 0.8;
 }
 
 #so-hud-root {

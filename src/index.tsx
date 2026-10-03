@@ -8,7 +8,7 @@ import {
 } from "@services/STAPI";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
-import { getGlobalSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
@@ -33,6 +33,8 @@ import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import { HelpButton } from "./components/help/HelpButton";
+import BriefingHost from "./components/briefing/BriefingHost";
+import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
 import "./styles.css";
 import { log } from "@utils/log";
@@ -304,7 +306,12 @@ const DrawerPanel = () => {
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
-          {!snapshot.ready && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
+          {!snapshot.ready && (
+            <div id="so-drawer-no-story" className="flex flex-col items-start gap-1 text-xs opacity-80">
+              <span>{BRIEFING_COPY.noStory}</span>
+              <button type="button" className="menu_button" onClick={openStorySettings}>{BRIEFING_COPY.openSettings}</button>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {snapshot.ready && (
@@ -458,6 +465,23 @@ const mountInline = () => {
   return true;
 };
 
+const BriefingRoot = () => (
+  <BriefingHost
+    snapshot={useRuntimeSnapshot()}
+    setUi={(patch) => manager.setUiSettings(patch)}
+    onboardingSeen={() => getGlobalSettings().help.onboardingSeen}
+    markOnboardingSeen={() => { setGlobalSettings({ help: { onboardingSeen: true } }); }}
+  />
+);
+
+const mountBriefingHost = () => {
+  if (document.getElementById("so-briefing-root")) return;
+  const root = ui.element(document.createElement("div"));
+  root.id = "so-briefing-root";
+  document.body.appendChild(root);
+  ui.root(root, <BriefingRoot />);
+};
+
 const mountStudioHost = () => {
   if (document.getElementById("so-studio-root")) return true;
   const root = ui.element(document.createElement("div"));
@@ -478,6 +502,7 @@ const mount = (attempt = 0) => {
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
   mountStudioHost();
+  mountBriefingHost();
   const inlineMounted = mountInline();
 
   if ((!settingsRootContainer || !drawerMounted || !hudMounted || !inlineMounted) && attempt < 50) {

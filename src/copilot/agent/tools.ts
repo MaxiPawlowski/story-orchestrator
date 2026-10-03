@@ -175,6 +175,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   removeArcBridge: "covered by setArcBridges",
   clearStartCheckpoint: "setStartCheckpoint moves the start; a story without one does not validate",
   setStoryId: "the story's identity is the author's, set in the Story tab",
+  setBriefing: "player copy the author writes in the Story tab; drafting it is a later model-backed step",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

@@ -4,6 +4,9 @@ import {
 } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
+import BriefingEditor from "./BriefingEditor";
+import { composeChapterBriefing } from "@engine/index";
+import { requestBriefing } from "@runtime/briefingRequest";
 import { addChapter, removeChapter, setChapterPolicy, setCheckpointChapter, updateChapter } from "../mutations";
 
 const KIND_LABELS: Record<ChapterKind, string> = { chapter: "Chapter", interlude: "Interlude (seals with the next chapter)" };
@@ -27,8 +30,11 @@ const withStyle = (look: IllustrationLook | undefined, style: string): Illustrat
   return Object.keys(next).length ? next : undefined;
 };
 
+const CHAPTER_BRIEFING_HINT = "Shown when this chapter opens: what the player may know at that point, never what is still ahead in it.";
+
 const ChapterRow = ({ chapter }: { chapter: Chapter }) => {
   const mutate = useDraftStore((state) => state.mutate);
+  const draft = useDraftStore((state) => state.draft);
   const update = (patch: Partial<Omit<Chapter, "id">>) => mutate((current) => updateChapter(current, chapter.id, patch));
   const policy = (patch: Partial<ChapterSealPolicy>) => mutate((current) => setChapterPolicy(current, chapter.id, withPolicy(chapter.seal, patch)));
   const seal = chapter.seal ?? {};
@@ -95,6 +101,12 @@ const ChapterRow = ({ chapter }: { chapter: Chapter }) => {
           Leaves the prompt once sealed
         </label>
       </fieldset>
+      <details data-so="chapter-briefing" open={Boolean(chapter.briefing)}>
+        <summary className="text-xs st-muted cursor-pointer">Chapter briefing</summary>
+        <BriefingEditor name={`${name} briefing`} hint={CHAPTER_BRIEFING_HINT} briefing={chapter.briefing}
+          onChange={(briefing) => update({ briefing })}
+          onPreview={() => requestBriefing({ kind: "preview", view: null, chapter: composeChapterBriefing(draft, chapter.id) })} />
+      </details>
     </div>
   );
 };

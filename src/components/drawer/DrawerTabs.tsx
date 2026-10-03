@@ -6,6 +6,8 @@ import type { RuntimeManager } from "@runtime/index";
 import { viewerRepairStep } from "@runtime/repair";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { chatUpdateSentence } from "@runtime/librarySave";
+import { requestBriefing } from "@runtime/briefingRequest";
+import { BRIEFING_COPY } from "@features/helpCopy";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -124,6 +126,10 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
     {authorView && onEditStory && (
       <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}
         title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
+    )}
+    {snapshot.briefing?.view && (
+      <button id="so-story-briefing" type="button" className="menu_button opacity-80" title={BRIEFING_COPY.reopenHelp}
+        onClick={() => requestBriefing()}>{BRIEFING_COPY.reopen}</button>
     )}
     <button
       id="so-restart-story-drawer"
