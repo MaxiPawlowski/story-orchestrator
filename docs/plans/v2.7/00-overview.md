@@ -145,11 +145,11 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | Plan | State |
 |---|---|
 | 01 | BUILT (both halves merged); triage proposal awaits the user's review; live D checks owed (16-test-plan) |
-| 02 | PARTLY BUILT: C2, C6–C10, C1 and C14 merged (gates green, live NOT run); K1/K2 fixed in the v2.6 T7 wave B (step 0); C13 built on its branch (gates green, live NOT run, curator prompt byte-identical, real row v2.8 01 O14), not merged; C11-F1 display not built |
-| 03 | APPROVED (all five decisions); not built |
-| 04 | APPROVED; seed registry in `checks.ts`; extension and migration not built |
-| 05 | APPROVED (static half); not built |
-| 06 | APPROVED (A, B, moved C-items); not built |
+| 02 | PARTLY BUILT: C2, C6–C10, C1 and C14 merged (gates green, live NOT run); K1/K2 fixed in the v2.6 T7 wave B (step 0); C13 merged (41c0c07e); C11-F1 display not built |
+| 03 | BUILT, merged 41c0c07e (pushed 61c0dad5); live D rows owed |
+| 04 | BUILT, merged 41c0c07e; live D rows owed |
+| 05 | BUILT (static half), merged 41c0c07e; live D rows owed |
+| 06 | BUILT (A, B, moved C-items), merged 41c0c07e; live D rows owed (incl. payload invariance) |
 | 07 | A1, A2 done; A3, A8 open (step 0b); A6, A7 wait on 06, 05 |
 | 08 | BUILT (warning); A11 copy fix open; closes in v2.7 |
 | 09 | BUILT (E); closes in v2.7 |
