@@ -111,11 +111,11 @@ before the measurement that was paid for in lab data has run.
 
 ## Decisions for the user
 
-1. Run SP6's measurement in v2.7 (about 3 lane-hours on the pod)? **Recommended: yes.**
-2. On PASS, build it in plan 19 as the game layer's pacing tool, shared with plan 17's pressure? **Recommended: yes.**
+1. Run SP6's measurement in v2.7 (about 3 lane-hours on the pod)? **Recommended: yes.** yes
+2. On PASS, build it in plan 19 as the game layer's pacing tool, shared with plan 17's pressure? **Recommended: yes.** yes
 3. On FAIL or INCOMPLETE ×2: drop (C), keeping the campaign's pools as inert data the guide marks unsupported?
-   **Recommended: yes.**
-4. Player-visible copy for a released complication: none until your playtest says otherwise? **Recommended: none.**
+   **Recommended: yes.** yes
+4. Player-visible copy for a released complication: none until your playtest says otherwise? **Recommended: none.** none
 
 ## Floor and measurement before building
 

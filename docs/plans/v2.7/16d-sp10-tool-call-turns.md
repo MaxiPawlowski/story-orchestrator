@@ -99,7 +99,7 @@ note tells a player what to expect; the probe is dead code until someone has the
 ## Decisions for the user
 
 1. Do you, or a player you target, use Chat Completion with function calling (TunnelVision, MCP Client or similar) in
-   story chats? **Recommended: if no, take B + C.**
+   story chats? **Recommended: if no, take B + C.** idk, if we do, lets handle this now. If we dont, lets defer until next version and take B + C
 2. The README note as drafted above? **Recommended: yes.**
 3. Remove the Q1 probe now rather than keep it dev-only? **Recommended: yes; the v2.5 report keeps the recipe.**
 

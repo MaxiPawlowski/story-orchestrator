@@ -121,17 +121,25 @@ Answers are written inline in each plan's decisions list; this is the index plus
 
 | Plan | Decided | Scope change |
 |---|---|---|
-| 16a–16d | not yet answered | — |
+| 13 (research) | Connection Manager profiles per role; Lore-creation role with plan 12 (+ Critic later); test native tool calls over cloud profiles; keep W27; no own provider seam; fix the 8192 context default (carry-in) | the user has Claude and Codex subscriptions and DeepSeek, not OpenRouter |
+| 14 (research) | all of N1–N8 in the stated order; N4 on the reply path as an author opt-in, off by default | — |
+| 15 (research) | our own harness; local systemone arm (decider-4b, then Plumb) ahead of NLI; local server on 127.0.0.1 started by the user; cloud models offline only; A5 not in v2.7 | **models stored off `C:`**; **every server goes in the system tray** (`C:\dev	ray\items\story-orchestrator.json`, done 2026-10-03: ST, RunPod tunnel, ComfyUI, Unsloth Studio, GPU broker, debug browser, lanes) |
+| 16a | all recommendations (build SP5.b, triage the T7 red first) | — |
+| 16b | run SP6 (pod), build in 19 on PASS, no player copy | — |
+| 16c | — | **deferred to the next version** (drop if still unmeasured at that freeze) |
+| 16d | the user does not use CC function calling in story chats | take B + C (README note, remove the probe); defer the rest |
 | 17 | not yet answered | — |
 | 18 | relationships both toward the player and between NPCs; meters author-visible, private for players; agendas authored + curator-proposed | schedules drop members from speaker candidates (no cast change); answer written in the plan |
 | 19 | all of Q1–Q5; rolls visible; side quests authored + proposed | pilot: Adolion academy act, then the Saga |
 | 20 | option C offline replay only; recommendations | — |
 | 21 | measure first; triggers first; J11 contract kept | — |
 | 22 | the Repair row (02 C2) yes; the rest deferred | **deferred to the next version** |
-| 23 | not yet answered | — |
+| 23 | D6 defaults kept; agencyCheck stays on; warden mode decided after sessions | **deferred**; the user plays the over-steer session and wants a test card so Claude plays it too |
 | 24 | all recommendations; M1 first, then M1–M3 with proper UI | **new plan 27:** the wizard as a docs-aware assistant with a character-building tutorial |
 | 25 | — | **deferred to the next version** |
 | 26 | all recommendations | sprite generation reviewed in the plan: becomes 26b after 26 (campaign script is the base) |
+| 27 | all recommendations | — |
+| 31 | all recommendations | the C2/06 build already seeded the check registry (`src/runtime/checks.ts`) |
 
 ## Status
 

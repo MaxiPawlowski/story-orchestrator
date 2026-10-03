@@ -117,7 +117,7 @@ Cost: about 2–4 KB of main entry (the dev chunk is 4,229 B, `09-sp5-spike-repo
 run that follows measures the product and not a stale fixture.
 
 ## Decisions for the user
-
+I accept all your recommendations
 1. Build `SP5.b` in v2.7 (plan 02 C1)? **Recommended: yes.**
 2. Scenario applies while requirements are unmet (C3 presentation set), or stays held as built? **Recommended: stays held.**
 3. Jump caveat: closed by plan 09's decision to keep (c)? **Recommended: yes, closed; authors set a scenario on jump targets.**

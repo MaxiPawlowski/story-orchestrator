@@ -126,15 +126,15 @@ the warden in `auto` before choosing between D and E.**
 
 ## Decisions for the user
 
-1. D6: keep `evidence_from` absent = `any`? **Recommended: yes.**
+1. D6: keep `evidence_from` absent = `any`? **Recommended: yes.**yes
 2. D6: keep `player_attempts_only` default `false`? **Recommended: yes**, unless your session shows replies granting
-   whatever you attempt.
-3. T22: confirm `agencyCheck` stays on. It was flipped by rule 5, not by a T22 decision. **Recommended: yes, for now.**
+   whatever you attempt. tes
+3. T22: confirm `agencyCheck` stays on. It was flipped by rule 5, not by a T22 decision. **Recommended: yes, for now.** yes
 4. T22: should agency notes reach a player who never opens author view? Options: D (`auto` for the agency family) or E
-   (off). **Recommended: decide after one session played with the warden on `auto`.**
+   (off). **Recommended: decide after one session played with the warden on `auto`.** lets take notes and reevaluate once we have some session then
 5. Do you want to play that session yourself, or should Claude play it with a rubric for you to check (W26 style)?
-   **Recommended: you play it.** The over-steer judgement is taste, and it is the reason this was reserved.
-6. Close the seed if 1–3 are "yes" and 4 is decided? **Recommended: yes.**
+   **Recommended: you play it.** The over-steer judgement is taste, and it is the reason this was reserved. i'll play it, but add a tesst case so that claude also plays it. 
+6. Close the seed if 1–3 are "yes" and 4 is decided? **Recommended: yes.** defer
 
 ## Floor and measurement before building
 

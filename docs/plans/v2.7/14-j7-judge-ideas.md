@@ -377,13 +377,13 @@ N4, N6; J7.3/J7.5/J7.6 fixtures in parallel; N7, J7.4 last.
 ### Decisions for the user
 
 1. Which Jeved-derived spikes get a fixture in v2.7? **Rec: N1 responsiveness and N2 illustration cue now; N5
-   (+ tension column) and N3 next; N4, N6 after; N7 last; N8 folds into plan 18.**
+   (+ tension column) and N3 next; N4, N6 after; N7 last; N8 folds into plan 18.** All
 2. May new questions ride the warden's reply call (P2), accepting a re-measure of the existing warden families inside
-   the combined request? **Rec: yes.**
+   the combined request? **Rec: yes.** yes
 3. N2 touches automatic images: is a judge-picked illustration (draw this reply) wanted at all, or only the filter
-   that skips cadence images with nothing to draw? **Rec: both behind one image setting, filter first.**
-4. N4 runs on the reply path (≤ 1500 ms wait). Acceptable as a per-story author opt-in? **Rec: yes, off by default.**
+   that skips cadence images with nothing to draw? **Rec: both behind one image setting, filter first.** as you recommend
+4. N4 runs on the reply path (≤ 1500 ms wait). Acceptable as a per-story author opt-in? **Rec: yes, off by default.**sure
 5. N6: build the no-model repeat miner even though the v2.4 review called prose nudges out of scope? **Rec: yes, as an
-   author-view readout first; the nudge only after its fixture passes.**
+   author-view readout first; the nudge only after its fixture passes.** as you recommend
 6. Spikes behind `spikes.judge<Id>` (dev, default off) until ×2 floors pass, then a `judge.uses.*` key (default off)
-   as a separate decision? **Rec: yes.**
+   as a separate decision? **Rec: yes.** yes

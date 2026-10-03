@@ -88,11 +88,11 @@ included, OpenRouter documented as the one-key option). No new provider layer.
 ## Decisions for the user
 
 1. One shipped knowledge base (plugin registry/guide + author guide + condensed ST know-how), drift-tested?
-   **Recommended: yes.**
-2. Ask mode is read-only by construction? **Recommended: yes.**
-3. `/story ask` for players (player topics only)? **Recommended: yes.**
-4. Character tutorial first, a lorebook tutorial later? **Recommended: yes.**
-5. Build position: after plan 01 (it needs the registry and guide), before tier 3. **Recommended: yes.**
+   **Recommended: yes.** yes
+2. Ask mode is read-only by construction? **Recommended: yes.** yes
+3. `/story ask` for players (player topics only)? **Recommended: yes.** yes
+4. Character tutorial first, a lorebook tutorial later? **Recommended: yes.** yes
+5. Build position: after plan 01 (it needs the registry and guide), before tier 3. **Recommended: yes.** yes 
 
 ## Links
 

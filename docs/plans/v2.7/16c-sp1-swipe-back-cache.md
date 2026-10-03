@@ -107,9 +107,9 @@ built (plan 08 decision 1, answered "this is an important feature for me") and u
 nothing in prod, but each later refactor of the bridge has to carry it.
 
 ## Decisions for the user
-
+allright, lets move this to next version
 1. Park SP1 and count swipe-backs from your own play? **Recommended: yes.** If you will not play by hand before v2.7
-   freezes, drop it instead.
+   freezes, drop it instead. 
 2. Do you swipe back to earlier versions of a reply while playing (not just generate new ones)? **Recommended: answer from
    habit; a clear "rarely" is enough to drop now.**
 3. Decision point: 300 of your player turns or v2.7 freeze, whichever is first? **Recommended: yes.**

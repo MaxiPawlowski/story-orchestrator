@@ -263,11 +263,11 @@ a contract per use; the off-path value is in the generative roles above, not in 
 ### Decisions for the user (this research)
 
 1. Route cloud models through ST Connection Manager profiles per role (option A), with OpenRouter documented as the
-   one-key path? **Rec: yes.**
+   one-key path? **Rec: yes.** I dont use openrouter, but i know its possible to have jev and everything else there. I do have a claude and codex subscription and the deepseek one we've been using.
 2. Add a "Lore creation" role for the curator create op (plan 12), defaulting to the curator's route? **Rec: yes, only
-   when plan 12 builds.** Also a separate "Critic" role? **Rec: optional, after the wizard work.**
+   when plan 12 builds.** Also a separate "Critic" role? **Rec: optional, after the wizard work.** sure
 3. Spike native tool calls over CC profiles for the agentic wizard (OpenRouter + one direct source), then build the route
-   if it passes plan 11's agent checks? **Rec: yes.**
-4. Keep the harness at opencode with subscription logins only (no API-key providers, W27)? **Rec: keep.**
-5. Build our own provider seam in the plugin (option B)? **Rec: no**, unless plan 15 needs it for logprobs.
-6. Fix the 8192 context default for preset-less cloud CC profiles (per-source table)? **Rec: yes, small, v2.7 carry-in.**
+   if it passes plan 11's agent checks? **Rec: yes.** sure
+4. Keep the harness at opencode with subscription logins only (no API-key providers, W27)? **Rec: keep.** keep
+5. Build our own provider seam in the plugin (option B)? **Rec: no**, unless plan 15 needs it for logprobs. as you recommend
+6. Fix the 8192 context default for preset-less cloud CC profiles (per-source table)? **Rec: yes, small, v2.7 carry-in.** yes

@@ -24,6 +24,7 @@
 | A4 | **v2.7 lab data:** about 20 labelled relationship-read windows (plan 18 M1); a lab copy of the academy act with quest-shaped qualities (plan 19 M1/M2), whose existing 0–3 clue counter is a natural first quest; stretch-length data for plan 17 (how long the 13 stubs ran in the v2.6 sessions) | plans 19/18/17 gate on Adolion-lab measurements | M | plans 19/18/17 approved |
 | A5 | **Playtest fix round:** campaign-side findings from the user's sessions, each citing its session | rule 4 | M | playtest |
 | A7 | **Story briefings:** one `briefing` per story plus Saga chapter briefings, built from the authored player copy and scenario framing, checked by `check_player_copy.py` (spoiler terms); content review by an independent model | the opening message lacks context (user, 2026-10-03) | M | plan 03 format |
+| A8 | **Harness test vs current plugin types:** `tests/adolion.local.test.ts` fails `typecheck:test` on the plugin (12× `activeCheckpoint` possibly undefined since T6-1 typed it `Checkpoint \| undefined`); a left-over copy in the plugin turned master's gates red on 2026-10-03 | fix with guards in the campaign test | S | none |
 | A6 | **Badge check:** the nine `groupStories` bindings (`build/st-groups.js`) show the plan 04 badge | first real consumer of plan 04 | S | plan 04 built |
 
 ## Pilots

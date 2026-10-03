@@ -280,14 +280,20 @@ row counts. Gold labels only (MCA §2.3).
 ### Decisions for the user
 
 1. Use our harness (extended per P2) rather than jevbench's Python harness? **Rec: ours; borrow jevbench's metrics,
-   option rotation, preregistration and reproduction check.**
-2. Add the local systemone arm (A1) ahead of the NLI arm (A2)? **Rec: yes; A2 stays, scoped to entailment uses.**
+   option rotation, preregistration and reproduction check.** Ours
+2. Add the local systemone arm (A1) ahead of the NLI arm (A2)? **Rec: yes; A2 stays, scoped to entailment uses.** sure
 3. Approve downloads: decider-4b v2 GGUF Q4_K_M (2.7 GB) and Plumb-4B (~8 GB bf16), plus the two NLI models already
-   proposed? **Rec: decider-4b first; Plumb after decider's first tier.**
+   proposed? **Rec: decider-4b first; Plumb after decider's first tier.** sure, but not on C
 4. Is a local Python server (the model author's, or Ollama) acceptable beside ST, or must a local judge run inside the
-   ST server process? **Rec: a local server on 127.0.0.1, started by the user, as llama-server is today.**
+   ST server process? **Rec: a local server on 127.0.0.1, started by the user, as llama-server is today.** sure, from now on, all servers must be added to the system tray tool we have on c:/dev. Also add the runpod, sillytavern and all other we may use, i think we have one for auto loading the image models or something like that. unsloth studio too
 5. Allow cloud LLMs (A4) for offline measurement only (fixtures are authored English rows; no Adolion text)? **Rec:
-   yes, offline only.**
+   yes, offline only.** sure
 6. Allow per-provider thresholds fitted on a tuning split (floors unchanged)? **Rec: yes, frozen before held-out rows
-   are read and recorded in the readiness row.**
-7. Measure same-Jev hosts (A5)? **Rec: not in v2.7 unless TypeSafe pricing or availability changes.**
+   are read and recorded in the readiness row.** sure
+7. Measure same-Jev hosts (A5)? **Rec: not in v2.7 unless TypeSafe pricing or availability changes.** what is this?
+
+   **Answer:** A5 is the *same* Jev model sold by other hosts (OpenRouter, NanoGPT, Rout, classifier.dev), not a
+   different judge. Measuring it would only show those hosts give the same answers as TypeSafe, as a fallback if
+   TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7.
+   **Also recorded:** local models are stored off `C:` (another drive; the path becomes a setting); every local server
+   this plan adds gets a tray entry (`C:\dev	ray\items\story-orchestrator.json`).

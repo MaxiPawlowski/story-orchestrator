@@ -99,13 +99,13 @@ whose copy uses a jargon word (plan 01's list).
 
 ## Decisions for the user
 
-1. One check registry, with Repair as its "next step" ordering? **Recommended: yes.**
-2. Active only while a story plays in the chat (plus install checks in Getting started)? **Recommended: yes.**
-3. No toasts or popups for checks; findings only? **Recommended: yes**, popups kept only for decisions.
-4. Dismissible per check per install? **Recommended: yes**, except `blocks` findings, which stay until fixed.
+1. One check registry, with Repair as its "next step" ordering? **Recommended: yes.** yes
+2. Active only while a story plays in the chat (plus install checks in Getting started)? **Recommended: yes.** yes
+3. No toasts or popups for checks; findings only? **Recommended: yes**, popups kept only for decisions.  Lets do as you recommend
+4. Dismissible per check per install? **Recommended: yes**, except `blocks` findings, which stay until fixed. Lets do as you recommend
 5. Build position: right after plan 01 (it uses the registry areas and the plain-language rules), before 03/04/06/26/30
    land their checks. **Recommended: yes.** The plan 06 / 02 C2 build in progress is shaping its alert as the seed of
-   this registry.
+   this registry. Lets do as you recommend
 
 ## Links
 
