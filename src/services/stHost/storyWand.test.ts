@@ -25,4 +25,22 @@ describe("v2.7 06 C6: the wand-menu entry", () => {
     expect(document.querySelectorAll('[data-so="story-wand"]')).toHaveLength(0);
     expect(document.getElementById("other")).not.toBeNull();
   });
+
+  it("leaves out an entry whose shown() is false and adds it once it holds", () => {
+    let has = false;
+    const handle = mountStoryWand([
+      { id: "so-wand-recap", icon: "fa-book-open", label: "Story recap", run: jest.fn() },
+      { id: "so-wand-briefing", icon: "fa-scroll", label: "Story briefing", run: jest.fn(), shown: () => has },
+    ]);
+    handle.setVisible(true);
+    expect(document.getElementById("so-wand-briefing")).toBeNull();
+    has = true;
+    handle.setVisible(true);
+    expect(document.getElementById("so-wand-briefing")).not.toBeNull();
+    has = false;
+    handle.setVisible(true);
+    expect(document.getElementById("so-wand-briefing")).toBeNull();
+    expect(document.getElementById("so-wand-recap")).not.toBeNull();
+    handle.dispose();
+  });
 });

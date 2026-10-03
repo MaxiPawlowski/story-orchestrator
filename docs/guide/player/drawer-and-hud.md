@@ -47,7 +47,7 @@ The ⚑ button flags a moment for the author ("What happened here?"). It does no
 
 The ? button opens Help in a panel you can drag, resize and close with Escape; it remembers where you left it.
 On a narrow screen it docks along the bottom. While a story plays, the extensions wand beside where you type
-also offers **Story recap**, **Flag this moment** and **Open the story drawer**.
+also offers **Story recap**, **Story briefing** (when the story has one), **Flag this moment** and **Open the story drawer**.
 
 In Author view, the list button next to ? opens the **Activity** panel: what the machine did behind each recent
 message, rolls included, each linked to its message.

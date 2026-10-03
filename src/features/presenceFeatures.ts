@@ -39,7 +39,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   },
   {
     id: "story-wand", name: "Story in the wand menu", area: "play", audience: "player",
-    oneLine: "Story recap, flag this moment and the story drawer, from the extensions wand.",
+    oneLine: "Story recap, the story briefing, flag this moment and the story drawer, from the extensions wand.",
     what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story drawer.",
     where: settingsAt("#so-presence-wand", "Display › Story entries in the wand menu"),
     settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story"],

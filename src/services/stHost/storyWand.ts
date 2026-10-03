@@ -3,6 +3,7 @@ export interface WandEntry {
   icon: string;
   label: string;
   run: () => void;
+  shown?: () => boolean;
 }
 
 export interface WandHandle {
@@ -35,7 +36,7 @@ export function mountStoryWand(entries: readonly WandEntry[], root: Document = d
     const menu = root.querySelector(MENU);
     for (const entry of entries) {
       const existing = root.getElementById(entry.id);
-      if (!visible || !menu) existing?.remove();
+      if (!visible || !menu || entry.shown?.() === false) existing?.remove();
       else if (!existing) menu.append(buildItem(root, entry));
     }
   };

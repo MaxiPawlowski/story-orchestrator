@@ -91,7 +91,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.wand": copy(
     "Story entries in the wand menu",
-    "Story recap, flag this moment and the story drawer, from the extensions wand beside where you type.",
+    "Story recap, the story briefing (when the story has one), flag this moment and the story drawer, from the extensions wand beside where you type.",
   ),
   "display.presence.rollChips": copy(
     "Roll chips in Author view",

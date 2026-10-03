@@ -13,7 +13,8 @@ import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { HELP_COPY } from "@features/helpCopy";
+import { BRIEFING_COPY, HELP_COPY } from "@features/helpCopy";
+import { requestBriefing } from "@runtime/briefingRequest";
 import { PanelFrame } from "./components/panels/PanelFrame";
 
 const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
@@ -102,6 +103,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
     ui.add(onPlaysChanged(() => badges.refresh()));
     const wand = mountStoryWand([
       { id: "so-wand-recap", icon: "fa-book-open", label: PRESENCE_TEXT.wandRecap, run: showRecap },
+      { id: "so-wand-briefing", icon: "fa-scroll", label: BRIEFING_COPY.reopen, run: () => void requestBriefing(), shown: () => Boolean(manager.getCachedSnapshot().briefing?.view) },
       { id: "so-wand-flag", icon: "fa-flag", label: PRESENCE_TEXT.wandFlag, run: () => void flag() },
       { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: openDrawer },
     ]);
