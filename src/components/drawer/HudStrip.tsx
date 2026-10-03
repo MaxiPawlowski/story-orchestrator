@@ -1,5 +1,6 @@
 import { branchNoticeText, rollbackNoticeText } from "@runtime/narrative";
 import { HUD_COPY, hudChipLabel, hudPendingText, hudTensionText, playerPendingCount } from "@runtime/pipeline";
+import { setupAlert } from "@runtime/repair";
 import type { RuntimeSnapshot } from "@runtime/types";
 
 export interface HudStripProps {
@@ -21,6 +22,7 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
   if (!snapshot.ready) return null;
   const pending = playerPendingCount(snapshot.pendingDeltas);
   const chip = hudChipLabel(snapshot.pipeline.state, Boolean(snapshot.lastRollback));
+  const alert = chip ? null : setupAlert(snapshot);
   return (
     <div id="so-hud">
       <button type="button" className="so-hud-main" title={HUD_COPY.open} onClick={onOpenDrawer}>
@@ -37,6 +39,9 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
         >
           {chip}
         </button>
+      ) : alert ? (
+        <button id="so-hud-setup" type="button" className="so-hud-chip" title={alert.consequence} data-area={alert.area} data-check={alert.check}
+          onClick={() => (onOpenSettings ? onOpenSettings() : onOpenDrawer())}>{HUD_COPY.setupChip}</button>
       ) : null}
       {pending > 0 ? <span className="so-hud-pending">{hudPendingText(pending)}</span> : null}
     </div>

@@ -4,6 +4,7 @@ import { renderBlackboardMemo } from "./blackboardMemo";
 import { loadChapterKit } from "./chapterPort";
 import { isEstablished, type MemoryEntry } from "@memory/index";
 import { CP_AUTHOR_ONLY_TEXT, MEMORY_TIER_LABELS, SO_MEM_AUTHOR_ONLY_TEXT } from "./narrative";
+import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, soMemHelpText, storyHelpText } from "./slashHelp";
 
 type SlashArgs = Record<string, unknown>;
 type SlashCommandFactory = { fromProps: (props: Record<string, unknown>) => unknown };
@@ -128,7 +129,7 @@ async function memCommand(manager: RuntimeManager, value: string | string[]) {
     if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
     return show(manager.getSnapshot().status);
   }
-  return dump("Commands: /so-mem list, /so-mem pin <number|id> on|off, /so-mem exclude <number|id>, /so-mem backlog");
+  return dump(soMemHelpText());
 }
 
 async function storyCommand(manager: RuntimeManager, value: string | string[]) {
@@ -147,7 +148,7 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     return show("Flagged this moment.");
   }
   if (command === "chapters" || command === "chapter" || command === "chronicle") return (await loadChapterKit()).chapterSlash(manager, command, parts[1], dump, show);
-  return dump("Commands: /story recap, /story threads, /story chapters, /story chapter <n>, /story chronicle export, /story flag [note]");
+  return dump(storyHelpText());
 }
 
 export function registerSlashCommands(manager: RuntimeManager): boolean {
@@ -162,7 +163,7 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     rawQuotes: true,
     unnamedArgumentList: stringArgument(context, { description: "Story Orchestrator command" }),
     callback: (_args: SlashArgs, value: string | string[]) => cpCommand(manager, value),
-    helpString: "Story Orchestrator author tools (spoils the story — players want /story): list, state, activate <id>, set <quality> <value>, converge; debug: extract [response], expand [response]",
+    helpString: CP_HELP_STRING,
   }));
 
   parser.addCommandObject(slashCommand.fromProps({
@@ -170,7 +171,7 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     rawQuotes: true,
     unnamedArgumentList: stringArgument(context, { description: "Story Orchestrator memory command" }),
     callback: (_args: SlashArgs, value: string | string[]) => memCommand(manager, value),
-    helpString: "Story Orchestrator v2 memory commands: list, pin <number|id> on|off, exclude <number|id>, backlog",
+    helpString: SO_MEM_HELP_STRING,
   }));
 
   // The player-safe surface: where am I, what is open, mark this moment. No ids, no debug verbs,
@@ -179,18 +180,11 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     name: "story",
     rawQuotes: true,
     unnamedArgumentList: stringArgument(context, {
-      description: "recap | threads | chapters | chapter <n> | chronicle export | flag [note]",
-      enumList: buildEnumList(context, [
-        ["recap", "where the story is right now"],
-        ["threads", "what is still open"],
-        ["chapters", "the chapters that have ended"],
-        ["chapter", "one ended chapter's summary"],
-        ["chronicle", "copy the chronicle as Markdown"],
-        ["flag", "mark this moment for later review"],
-      ]),
+      description: STORY_VERBS.map((entry) => entry.usage.replace("/story ", "")).join(" | "),
+      enumList: buildEnumList(context, STORY_VERBS.map((entry) => [entry.verb, entry.what])),
     }),
     callback: (_args: SlashArgs, value: string | string[]) => storyCommand(manager, value),
-    helpString: "Story Orchestrator: recap (where the story is), threads (what is still open), flag [note] (mark this moment for review)",
+    helpString: STORY_HELP_STRING,
   }));
 
   return Boolean(parser.commands?.cp && parser.commands?.["so-mem"] && parser.commands?.story);

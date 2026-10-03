@@ -1,6 +1,7 @@
 import type { CapabilityState } from "@services/STAPI";
 import { PLAYER_COPY } from "@runtime/narrative";
 import type { SpriteActivation, SpriteSettings, StageMode } from "./settings";
+import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
 
 export interface SpriteSettingsViewProps {
   settings: SpriteSettings;
@@ -31,36 +32,27 @@ export function SpriteSettingsView({ settings, activation, waitsForVn, capabilit
   return (
     <div id="so-sprite-settings" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <div className="text-sm font-bold">Sprite stage</div>
-      <label className="flex items-center gap-2 text-sm">
-        <input id="so-sprite-enabled" type="checkbox" checked={on} disabled={capability === "absent"} onChange={(event) => toggle(event.target.checked)} />
-        <span>Show character sprites that change expression as replies stream</span>
-      </label>
+      <CheckRow id="so-sprite-enabled" setting="sprites.enabled" checked={on} disabled={capability === "absent"} onChange={toggle} />
       <div id="so-sprite-activation" data-activation={activation} className="flex flex-wrap items-center gap-2 text-xs opacity-80">
         <span>{ACTIVATION_TEXT[activation]}</span>
         {settings.explicit && <button id="so-sprite-story-decides" type="button" className="menu_button text-xs" onClick={onStoryDecides}>Let each story decide</button>}
       </div>
       {on && waitsForVn && <div id="so-sprite-vn-hint" className="text-xs so-warning-text">{PLAYER_COPY.spriteNeedsVn}</div>}
       {capability === "absent" && <div id="so-sprite-capability" className="text-xs so-warning-text">{PLAYER_COPY.spriteUnavailable}</div>}
-      <label htmlFor="so-sprite-stage" className="text-sm">Show the stage</label>
+      <FieldLabel htmlFor="so-sprite-stage" setting="sprites.stage" />
       <select id="so-sprite-stage" value={stage} disabled={!on} onChange={(event) => onChange({ stage: event.target.value as StageMode })}>
         <option value="vn">With Visual Novel mode (/vn)</option>
         <option value="always">Always</option>
       </select>
-      <label className="flex flex-col gap-1 text-sm">
-        <span>Expression model when the judge is off or unavailable</span>
+      <Advanced id="so-sprite-advanced">
+        <FieldLabel htmlFor="so-sprite-profile" setting="sprites.profileId" />
         <select id="so-sprite-profile" value={settings.profileId} onChange={(event) => onChange({ profileId: event.target.value })}>
-          <option value="">Same as the image director</option>
+          <option value="">Same as the image-prompt model</option>
           {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
         </select>
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input id="so-sprite-focus" type="checkbox" checked={settings.focus} onChange={(event) => onChange({ focus: event.target.checked })} />
-        <span>Dim whoever is not speaking</span>
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input id="so-sprite-breathing" type="checkbox" checked={settings.breathing} onChange={(event) => onChange({ breathing: event.target.checked })} />
-        <span>Idle breathing</span>
-      </label>
+        <CheckRow id="so-sprite-focus" setting="sprites.focus" checked={settings.focus} onChange={(focus) => onChange({ focus })} />
+        <CheckRow id="so-sprite-breathing" setting="sprites.breathing" checked={settings.breathing} onChange={(breathing) => onChange({ breathing })} />
+      </Advanced>
       <div id="so-sprite-cast" className="text-xs opacity-70">{onStage || PLAYER_COPY.spriteNoPack}</div>
     </div>
   );

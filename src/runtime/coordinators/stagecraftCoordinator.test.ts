@@ -58,6 +58,11 @@ const gatedStory = (): NormalizedStoryV2 => parseStoryV2OrThrow({
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Story Lore", comments: ["The ferryman"] }] } } }],
 });
 
+const excludedStory = (): NormalizedStoryV2 => parseStoryV2OrThrow({
+  ...JSON.parse(JSON.stringify(story())),
+  stagecraft: { lorebooks: ["Story Lore"], exclude: [{ lorebook: "story lore", comments: ["The Ferryman"] }] },
+});
+
 const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   activeCheckpointId: "cp1",
   boundary,
@@ -513,6 +518,24 @@ describe("StagecraftCoordinator", () => {
     expect(await coordinator.applyAccepted()).toBe(0);
     expect(enableWIEntry).not.toHaveBeenCalled();
     expect(read().proposals[0].ops[0].message).toContain("switched by checkpoint effects");
+  });
+
+  it("C10: never shows the curator an entry the story excludes, and refuses it at the write edge", async () => {
+    const { coordinator, read } = harness({ story: excludedStory() });
+    expect((await coordinator.readScope()).map((view) => view.comment)).toEqual(["The bridge"]);
+    respond("[enable] The ferryman\n[why] The ferry runs again.");
+    expect((await coordinator.runCuratorPass()).record?.ops ?? []).toHaveLength(0);
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const { record } = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "enable", lorebook: "Story Lore", comment: "the FERRYMAN" });
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(read().proposals.at(-1)?.ops[0].message).toContain("excluded from the curator");
+  });
+
+  it("C10 control: without the exclusion the same entry is in scope", async () => {
+    const { coordinator } = harness();
+    expect((await coordinator.readScope()).map((view) => view.comment)).toEqual(["The bridge", "The ferryman"]);
   });
 
   it("reverts an applied change when the story rolls back past it", async () => {

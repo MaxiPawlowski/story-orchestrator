@@ -1,6 +1,6 @@
-import { nextRepairStep, secretLeakStep } from "./repair";
+import { nextRepairStep, secretLeakStep, setupAlert, viewerRepairStep } from "./repair";
 import { createSaveHealth } from "./saveHealth";
-import { secretLeaks } from "./transcriptCopiers";
+import { copierWarning, readCopiersWith, secretLeaks, switchedOnCopiers } from "./transcriptCopiers";
 import type { RuntimeSnapshot } from "./types";
 
 const snapshotWith = (overrides: Partial<RuntimeSnapshot> = {}): RuntimeSnapshot =>
@@ -17,19 +17,19 @@ const VECTORS = { key: "3_vectors", value: "Past events: ..." };
 const OTHER = { key: "2_floating_prompt", value: "note" };
 
 describe("T6-4: ST Summarize and Vector Storage copy the whole transcript, secrets included, into every member's prompt (payloads.jsonl:65, :143)", () => {
-  it("names each transcript copier ST holds a block for while a secret is held", () => {
+  it("names each transcript copier ST holds a block for while a group plays a story", () => {
     expect(secretLeaks(true, [SUMMARY, OTHER])).toEqual(["Summarize"]);
     expect(secretLeaks(true, [SUMMARY, VECTORS, SUMMARY])).toEqual(["Summarize", "Vector Storage"]);
   });
 
-  it("control: nothing to name without a held secret, or without a copier's block", () => {
+  it("control: nothing to name outside a group story, or without a copier's block", () => {
     expect(secretLeaks(false, [SUMMARY, VECTORS])).toEqual([]);
     expect(secretLeaks(true, [OTHER])).toEqual([]);
   });
 
   it("raises an author Repair step that names the extension and the leak", () => {
     const step = nextRepairStep(snapshotWith({ secretLeaks: ["Summarize"] }));
-    expect(step).toMatchObject({ area: "privacy", targetId: null, provisionable: false, player: null });
+    expect(step).toMatchObject({ area: "privacy", targetId: null, provisionable: false });
     expect(step?.consequence).toMatch(/learn what was kept from them/);
     expect(step?.detail).toContain("Summarize");
   });
@@ -37,5 +37,66 @@ describe("T6-4: ST Summarize and Vector Storage copy the whole transcript, secre
   it("control: no step when nothing leaks", () => {
     expect(secretLeakStep(snapshotWith())).toBeNull();
     expect(nextRepairStep(snapshotWith({ secretLeaks: [] }))).toBeNull();
+  });
+});
+
+describe("v2.7 plan 02 C2: the copiers are named from their settings too, before their first block lands", () => {
+  it("a switched-on copier counts in a group story, with no block yet", () => {
+    expect(secretLeaks(true, [], ["1_memory"])).toEqual(["Summarize"]);
+    expect(secretLeaks(true, [SUMMARY], ["1_memory", "3_vectors"])).toEqual(["Summarize", "Vector Storage"]);
+  });
+
+  it("the host reader is installed by the wiring and released by its disposer", () => {
+    expect(switchedOnCopiers()).toEqual([]);
+    const release = readCopiersWith(() => ["3_vectors"]);
+    expect(switchedOnCopiers()).toEqual(["3_vectors"]);
+    release();
+    expect(switchedOnCopiers()).toEqual([]);
+  });
+
+  it("control: switched on outside a group story names nothing", () => {
+    expect(secretLeaks(false, [], ["1_memory", "3_vectors"])).toEqual([]);
+  });
+
+  it("the author detail says how to switch each one off", () => {
+    const step = secretLeakStep(snapshotWith({ secretLeaks: ["Summarize", "Vector Storage"] }));
+    expect(step?.detail).toContain("update interval to 0");
+    expect(step?.detail).toContain("Enabled for chat messages");
+  });
+
+  it("a player is told too, in player words, and the HUD raises it", () => {
+    const player = snapshotWith({ secretLeaks: ["Vector Storage"], ui: { authorView: false } as RuntimeSnapshot["ui"] });
+    const step = viewerRepairStep(player);
+    expect(step?.area).toBe("privacy");
+    expect(step?.consequence).toBe("Vector Storage shares the whole chat with every character, so a character can learn what was kept from them. "
+      + "Switch it off in SillyTavern's extensions to keep secrets.");
+    expect(step?.consequence).not.toMatch(/hiding|unaware|Story Orchestrator keeps/);
+    expect(setupAlert(player)?.area).toBe("privacy");
+  });
+});
+
+describe("v2.7 K1: the player alert never reveals that a secret is held", () => {
+  const warning = (secretsHeld: boolean, groupChat = true) => copierWarning({ playing: true, groupChat, secretsHeld, foreign: [], copiersOn: ["1_memory", "3_vectors"] });
+  const player = (secretsHeld: boolean) => snapshotWith({ ...warning(secretsHeld), ui: { authorView: false } as RuntimeSnapshot["ui"] });
+  const author = (secretsHeld: boolean) => snapshotWith({ ...warning(secretsHeld), ui: { authorView: true } as RuntimeSnapshot["ui"] });
+
+  it("a copier on in a group story raises the alert with or without a held secret", () => {
+    expect(warning(false).secretLeaks).toEqual(["Summarize", "Vector Storage"]);
+    expect(warning(true).secretLeaks).toEqual(["Summarize", "Vector Storage"]);
+    expect(warning(true, false).secretLeaks).toEqual([]);
+    expect(copierWarning({ playing: false, groupChat: true, secretsHeld: true, foreign: [], copiersOn: ["1_memory"] })).toEqual({ secretLeaks: [], secretsHeld: false });
+  });
+
+  it("drawer, settings Repair and HUD chip read the same for a player, held secret or not", () => {
+    expect(viewerRepairStep(player(true))).toEqual(viewerRepairStep(player(false)));
+    expect(setupAlert(player(true))).toEqual(setupAlert(player(false)));
+    expect(viewerRepairStep(player(false))).toMatchObject({ area: "privacy", check: "transcript-copiers" });
+    expect(JSON.stringify(viewerRepairStep(player(true)))).not.toMatch(/held|hiding|unaware/i);
+  });
+
+  it("only the author detail says whether a secret is held", () => {
+    expect(viewerRepairStep(author(true))?.detail).toMatch(/A secret is held right now/);
+    expect(viewerRepairStep(author(false))?.detail).toMatch(/No secret is held yet/);
+    expect(viewerRepairStep(author(true))?.consequence).toBe(viewerRepairStep(author(false))?.consequence);
   });
 });

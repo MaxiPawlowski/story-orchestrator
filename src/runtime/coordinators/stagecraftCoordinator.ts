@@ -4,7 +4,7 @@ import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { cleanWindowMessage } from "@extraction/windowHygiene";
 import {
-  buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCheckpointGated,
+  buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCuratorHidden,
   isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
   forgetDecline, mergeDeclined, rememberDecline, standingDeclines,
@@ -153,7 +153,7 @@ export class StagecraftCoordinator {
     return this.curatorEnabled && !this.busy(this.curatorHold) && boundary - this.state.lastRunBoundary >= CURATOR_BOUNDARY_GAP;
   }
 
-  // Only the authored allowlist is ever read, minus the entries checkpoints switch, so the prompt
+  // Only the authored allowlist is ever read, minus the entries checkpoints switch and the author excluded, so the prompt
   // cannot mention — and the parser cannot accept — an entry the curator may not write.
   async readScope(): Promise<CuratorEntryView[]> {
     const story = this.deps.getStory();
@@ -161,7 +161,7 @@ export class StagecraftCoordinator {
     for (const lorebook of curatorLorebooks(story)) {
       const loaded = await this.deps.hosts.curator.loadLorebook(lorebook);
       if (!loaded?.entries) continue;
-      views.push(...entriesForScope(lorebook, Object.values(loaded.entries)).filter((view) => !isCheckpointGated(story, view.lorebook, view.comment)));
+      views.push(...entriesForScope(lorebook, Object.values(loaded.entries)).filter((view) => !isCuratorHidden(story, view.lorebook, view.comment)));
     }
     return views;
   }

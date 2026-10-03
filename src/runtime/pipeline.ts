@@ -1,11 +1,12 @@
 import type { ExtractionHealth } from "@extraction/index";
+import { ROLLBACK_REREAD_PREFIX } from "@extraction/rereadReason";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ExtractionRuntimeState } from "./types";
 
 // What the machine is doing right now, in one derived value the player surface can render calmly
 // (spec addendum §Stall surfacing). A dead pipeline (no model, paused, error) must never look
 // like a slow one, and a stall re-check must read as "catching up", not as silence.
-export type PipelineState = "working" | "reading" | "stalled-rechecking" | "idle" | "not-configured" | "error" | "complete";
+export type PipelineState = "working" | "reading" | "catching-up" | "stalled-rechecking" | "idle" | "not-configured" | "error" | "complete";
 
 /**
  * What the player can actually do about the state, in their own words — or nothing.
@@ -32,12 +33,14 @@ export interface PipelineStatus {
 
 export const HUD_COPY = {
   open: "Open the story",
-  branchChip: "branch — continue?",
+  branchChip: "You went back: continue from here?",
   steppedBack: "stepped back",
   fallbackScene: "Current scene",
+  setupChip: "check setup",
 } as const;
 
 const HUD_CHIP_LABELS: Partial<Record<PipelineState, string>> = {
+  "catching-up": "catching up after your edit",
   "stalled-rechecking": "catching up…",
   "not-configured": "needs setup",
   error: "not keeping up",
@@ -80,6 +83,11 @@ export interface ExpansionActivity {
 export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
   Boolean(expansion.scheduler.inFlight) || Object.values(expansion.entries).some((entry) => entry.status === "queued" || entry.status === "generating");
 
+export const EDIT_CATCH_UP_TEXT = "Catching up after your edit…";
+
+export const editRereadPending = (scheduler: Pick<ExtractionRuntimeState["scheduler"], "rereadReason">): boolean =>
+  Boolean(scheduler.rereadReason?.startsWith(ROLLBACK_REREAD_PREFIX) && scheduler.rereadReason.endsWith(":edit"));
+
 export const failoverDetail = (fallback: string): string => `Memory model unreachable, using ${fallback}`;
 
 const lostPlace = (checkpointId: string): PipelineStatus =>
@@ -98,6 +106,9 @@ function baseStatus(extraction: ExtractionRuntimeState, expansion: ExpansionActi
   if (ended) return { state: "complete", text: "The story has ended. You can keep playing on in the epilogue.", detail: null, needsSetup: false, nextAction: null };
   const problem = pipelineProblem(extraction, health, active?.id ?? null);
   if (problem) return problem;
+  if (editRereadPending(extraction.scheduler)) {
+    return { state: "catching-up", text: EDIT_CATCH_UP_TEXT, detail: `re-reading after the edit (${extraction.scheduler.rereadReason})`, needsSetup: false, nextAction: "wait" };
+  }
   if (expansion?.generating) {
     return { state: "working", text: "Preparing the road ahead…", detail: null, needsSetup: false, nextAction: "wait" };
   }

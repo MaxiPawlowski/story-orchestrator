@@ -1,3 +1,5 @@
+import { FieldLabel } from "./Field";
+
 export interface GroupStoryBindingViewProps {
   groupName: string;
   boundStoryId: string | null;
@@ -12,7 +14,8 @@ export function GroupStoryBindingView({ groupName, boundStoryId, library, busy, 
   const missing = boundStoryId !== null && !library.some((story) => story.id === boundStoryId);
   return (
     <div id="so-group-story" className="flex flex-col gap-1 text-sm">
-      <label htmlFor="so-group-story-select">New chats in {groupName} start with</label>
+      <FieldLabel htmlFor="so-group-story-select" label={`New chats in ${groupName} start with`}
+        help="Each new, empty chat in this group starts playing this story. Chats already playing keep their own story." />
       <select
         id="so-group-story-select"
         value={boundStoryId ?? ""}

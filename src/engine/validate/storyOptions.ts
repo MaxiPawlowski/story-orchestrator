@@ -1,14 +1,17 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
-  HOUSE_RULE_MAX_CHARS, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
+  HOUSE_RULE_MAX_CHARS, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
+import { readStoryIllustrations } from "./illustrations";
 
 const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
 
-const STAGECRAFT_KEYS = ["lorebooks"] as const;
+const STAGECRAFT_KEYS = ["lorebooks", "exclude"] as const;
+
+const EXCLUSION_KEYS = ["lorebook", "comments"] as const;
 
 const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p", "exclusive"] as const;
 
@@ -42,7 +45,28 @@ const readStagecraft = (value: unknown, errors: ValidationError[]): StoryStagecr
   }
   rejectUnknownKeys(value, STAGECRAFT_KEYS, "stagecraft", errors);
   const lorebooks = readRequirementList(value.lorebooks);
-  return lorebooks.length ? { lorebooks } : undefined;
+  const exclude = value.exclude === undefined ? [] : readExclusions(value.exclude, errors);
+  return lorebooks.length || exclude.length ? { lorebooks, ...(exclude.length ? { exclude } : {}) } : undefined;
+};
+
+const readExclusions = (value: unknown, errors: ValidationError[]): StagecraftExclusion[] => {
+  if (!Array.isArray(value)) {
+    addError(errors, "stagecraft.exclude", "exclude must be a list of {lorebook, comments}");
+    return [];
+  }
+  return value.flatMap((entry, index): StagecraftExclusion[] => {
+    const path = `stagecraft.exclude.${index}`;
+    if (!isRecord(entry)) {
+      addError(errors, path, "an exclusion must be {lorebook, comments}");
+      return [];
+    }
+    rejectUnknownKeys(entry, EXCLUSION_KEYS, path, errors);
+    const lorebook = asString(entry.lorebook)?.trim();
+    const comments = readRequirementList(entry.comments);
+    if (!lorebook) addError(errors, `${path}.lorebook`, "lorebook is required");
+    if (!comments.length) addError(errors, `${path}.comments`, "comments must name at least one entry");
+    return lorebook && comments.length ? [{ lorebook, comments }] : [];
+  });
 };
 
 const readSceneRead = (value: unknown, errors: ValidationError[]): StorySceneRead | undefined => {
@@ -157,30 +181,7 @@ const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["displa
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
   if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
   const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
-  const image = json.illustrations;
-  let illustrations: StoryV2["illustrations"];
-  if (image !== undefined) {
-    if (!isRecord(image)) addError(errors, "illustrations", "illustrations must be an object");
-    else {
-      rejectUnknownKeys(image, ["checkpoints", "scenes", "style", "appearances"], "illustrations", errors);
-      for (const key of ["checkpoints", "scenes"] as const) {
-        if (image[key] !== undefined && typeof image[key] !== "boolean") addError(errors, `illustrations.${key}`, `${key} must be true or false`);
-      }
-      if (image.style !== undefined && typeof image.style !== "string") addError(errors, "illustrations.style", "style must be text");
-      if (image.appearances !== undefined && (!isRecord(image.appearances) || Object.values(image.appearances).some((entry) => typeof entry !== "string"))) {
-        addError(errors, "illustrations.appearances", "appearances must map cast ids to text");
-      }
-      illustrations = {
-        ...(image.checkpoints === true ? { checkpoints: true } : {}),
-        ...(image.scenes === true ? { scenes: true } : {}),
-        ...(typeof image.style === "string" && image.style.trim() ? { style: image.style.trim() } : {}),
-        ...(isRecord(image.appearances) && Object.values(image.appearances).every((entry) => typeof entry === "string")
-          ? { appearances: Object.fromEntries(Object.entries(image.appearances).filter(([, entry]) => (entry as string).trim()).map(([key, entry]) => [key, (entry as string).trim()])) }
-          : {}),
-      };
-      if (!Object.keys(illustrations).length) illustrations = undefined;
-    }
-  }
+  const illustrations = readStoryIllustrations(json.illustrations, errors);
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;

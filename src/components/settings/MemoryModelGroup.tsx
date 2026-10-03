@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { harnessListed, listConnectionProfiles, profileExists, refreshHarnessStatus, type HarnessStatus } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import type { SelfTestReport } from "@runtime/selfTest";
+import type { SelfTestReport, SelfTestTier } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
 import { resolvedProfileId, resolveRoute, roleHarness } from "@runtime/passProfiles";
@@ -12,7 +12,7 @@ import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
 import { GroupHeader } from "./GroupHeader";
-import { CheckRow, FieldLabel } from "./Field";
+import { Advanced, CheckRow, FieldLabel } from "./Field";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
 import { FallbackProfileField } from "./FallbackProfileField";
 import { ReplyThinkingField } from "./ReplyThinkingField";
@@ -30,18 +30,16 @@ export const harnessOptions = (status: HarnessStatus | null): HarnessOption[] =>
   }));
 });
 
-const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager: RuntimeManager }) => (
-  <details className="text-sm">
-    <summary className="cursor-pointer opacity-80">Advanced</summary>
-    <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+const AdvancedReads = ({ settings, manager }: { settings: Settings; manager: RuntimeManager }) => (
+  <>
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-cadence" label="Cadence"
-          help="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." />
+        <FieldLabel htmlFor="so-extraction-cadence" setting="extraction.cadence" />
         <input id="so-extraction-cadence" type="number" min={1} value={settings.cadence}
           onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
       </div>
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-reconcile" label="Reconcile ×" help="When the story stalls, widen the re-read window by this multiplier to double-check missed facts." />
+        <FieldLabel htmlFor="so-extraction-reconcile" setting="extraction.reconciliationMultiplier" />
         <input
           id="so-extraction-reconcile"
           type="number"
@@ -52,16 +50,25 @@ const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager
         />
       </div>
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-lag" label="Lag"
-          help="Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately." />
+        <FieldLabel htmlFor="so-extraction-lag" setting="extraction.stabilityLag" />
         <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag}
           onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
       </div>
     </div>
-  </details>
+  </>
 );
 
 export const SELF_TEST_FAILED_TEXT = "The test could not finish. Check the memory model profile, then try again.";
+
+export const SELF_TEST_SUGGESTION_TEXT = "This model could not track what each character knows. Switching that off keeps its other work reliable.";
+
+export const SELF_TEST_TIER_LABELS: Record<SelfTestTier, string> = {
+  deltas: "Moving the story on",
+  memory: "Remembering what happened",
+  arcs: "Following open threads",
+  epistemic: "Tracking what each character knows",
+  ledger: "Tracking values like health or money",
+};
 
 const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestReport; onApply: () => void; authorView: boolean }) => (
   <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
@@ -69,14 +76,14 @@ const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestRepor
     {report.error && authorView && <div data-so="self-test-error-detail" className="opacity-70">{report.error}</div>}
     {report.results.map((result) => (
       <div key={result.tier} className="flex items-start gap-2">
-        <span className={result.status === "pass" ? "so-success-text" : "so-error-text"}>{result.status === "pass" ? "PASS" : "FAIL"}</span>
-        <span className="opacity-80">{result.tier} — {result.detail}{result.got.length ? ` · got: ${result.got.slice(0, 2).join("; ")}` : ""}</span>
+        <span className={result.status === "pass" ? "so-success-text" : "so-error-text"}>{result.status === "pass" ? "Works" : "Does not work"}</span>
+        <span className="opacity-80">{SELF_TEST_TIER_LABELS[result.tier]}{authorView ? ` — ${result.detail}${result.got.length ? ` · got: ${result.got.slice(0, 2).join("; ")}` : ""}` : ""}</span>
       </div>
     ))}
     {report.suggestion && (
       <div className="flex items-center gap-2">
-        <span className="opacity-80">{report.suggestion.reason}</span>
-        <button id="so-self-test-apply" className="menu_button" onClick={onApply}>Turn epistemic/ledger off</button>
+        <span className="opacity-80">{authorView ? report.suggestion.reason : SELF_TEST_SUGGESTION_TEXT}</span>
+        <button id="so-self-test-apply" className="menu_button" onClick={onApply}>Stop tracking what characters know</button>
       </div>
     )}
   </div>
@@ -157,11 +164,9 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <GroupHeader title="Memory model" scope="install" id="so-memory-model-header" />
-      <CheckRow id="so-extraction-enabled" checked={settings.enabled} onChange={(on) => manager.setExtractionSettings({ enabled: on })}
-        label="Let the story advance on its own (shared read extraction)" />
+      <CheckRow id="so-extraction-enabled" setting="extraction.enabled" checked={settings.enabled} onChange={(on) => manager.setExtractionSettings({ enabled: on })} />
       <div className="flex flex-col gap-1 text-sm">
-        <FieldLabel htmlFor="so-extraction-profile" label="Memory model profile" help={"This Connection Manager profile reads the chat after replies to track story progress. " +
-          "The choice affects every chat; it does not replace the main chat model."} />
+        <FieldLabel htmlFor="so-extraction-profile" setting="extraction.profileId" />
         <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
           <option value="">No profile selected</option>
           {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
@@ -170,7 +175,6 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
       <FallbackProfileField value={settings.fallbackProfileId ?? null} primary={settings.profileId} profiles={profiles}
         onChange={(fallbackProfileId) => manager.setExtractionSettings({ fallbackProfileId })} />
       <ReplyThinkingField value={settings.replyEffort} onChange={(replyEffort) => manager.setExtractionSettings({ replyEffort })} />
-      <AdvancedExtraction settings={settings} manager={manager} />
       {settings.enabled && !settings.profileId && (
         <div id="so-not-configured" className="text-xs so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
       )}
@@ -181,6 +185,10 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
       </div>
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} authorView={snapshot.ui.authorView} />}
+      <Advanced id="so-memory-advanced">
+      <AdvancedReads settings={settings} manager={manager} />
+      <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
+        onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />
       <RoleProfilesGroup
         routes={snapshot.roleRoutes ?? []}
         assigned={settings.profiles ?? {}}
@@ -197,6 +205,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onOpen={() => setAskHarness(true)}
         authorView={snapshot.ui.authorView}
       />
+      </Advanced>
     </div>
   );
 };

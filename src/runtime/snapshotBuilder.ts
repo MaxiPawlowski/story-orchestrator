@@ -20,7 +20,8 @@ import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
-import { secretLeaks } from "./transcriptCopiers";
+import { copierWarning, switchedOnCopiers } from "./transcriptCopiers";
+import { harvestWaitsOnThought, repliesCarryNoThought } from "./thinkingSilence";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
@@ -65,6 +66,7 @@ export interface SnapshotSources {
   memoryInjection?: MemoryInjectionView | null;
   privateBlocks?: NextTurnSourceBlock[];
   secretsHeld?: boolean;
+  groupChat?: boolean;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -76,6 +78,7 @@ export interface SnapshotSources {
   fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
+  copiersOn?: readonly string[];
 }
 
 export interface SnapshotPort {
@@ -117,6 +120,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   chat: port.chat,
   fingerprints: port.fingerprints,
   characters: port.characters ?? [],
+  copiersOn: switchedOnCopiers(),
 });
 
 const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
@@ -207,6 +211,11 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
+export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "secretsHeld" | "thinkingSilent"> => ({
+  ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
+  thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
+});
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
@@ -282,7 +291,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
     orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(),
-    secretLeaks: secretLeaks(Boolean(loaded && sources.secretsHeld), sources.promptBlocks.foreign),
+    ...setupWarnings(sources),
     chatIdentity: loaded ? null : readChatIdentity(), storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
     publicStoryIntro: publishedIntro(story),

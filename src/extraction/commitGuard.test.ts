@@ -30,7 +30,10 @@ describe("commit-evidence guard", () => {
     const story = { adv_path: quality({ commit_evidence: "\\b(take|accept|sign|we'?ll go|committed)\\b" }) };
     const result = applyCommitEvidence(bare(story), [delta("adv_path", "wendhope", "Just us three, and perhaps our friend Dalan there?")], quoted("Just us three, and perhaps our friend Dalan there?"));
     expect(result.accepted).toHaveLength(0);
-    expect(result.held).toEqual([{ key: "adv_path", value: "wendhope", evidence: "Just us three, and perhaps our friend Dalan there?" }]);
+    expect(result.held).toEqual([{
+      key: "adv_path", value: "wendhope", evidence: "Just us three, and perhaps our friend Dalan there?",
+      reason: "no player line names the commitment", playerLine: "Just us three, and perhaps our friend Dalan there?",
+    }]);
   });
 
   it("accepts the same value when the quote shows the commitment", () => {

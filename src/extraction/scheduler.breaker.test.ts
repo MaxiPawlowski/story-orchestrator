@@ -194,7 +194,7 @@ describe("v2.4 plan 03 D3: a dead backend opens a breaker, never an install-wide
     h.scheduler.schedule(cadenceRead(0, 4));
     await jest.advanceTimersByTimeAsync(800);
     expect(h.scheduler.breakerOpen()).toBe(true);
-    expect(Object.keys(h.scheduler.getSnapshot()).sort()).toEqual(["heavyInFlight", "heavyQueueDepth", "inFlight", "lastError", "lastHeavyError", "queueDepth"]);
+    expect(Object.keys(h.scheduler.getSnapshot()).sort()).toEqual(["heavyInFlight", "heavyQueueDepth", "inFlight", "lastError", "lastHeavyError", "queueDepth", "rereadReason"]);
   });
 });
 

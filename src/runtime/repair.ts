@@ -3,13 +3,15 @@ import type { RuntimeSnapshot } from "./types";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY } from "./pipeline";
+import { runCheck, runChecks, SECRET_LEAK_CHECK, type RepairArea } from "./checks";
+
+export type { RepairArea } from "./checks";
 
 // The four things a person does here are Start, Continue, Repair and Author. Repair is
 // the odd one: it is the one *missing* step, and the player surface, the HUD chip and the settings
 // panel all have to point at the same one. So it is derived once, here, worst-first — and the plain
 // consequence comes before the technical line, because "the story will not advance" is the part a
 // player can act on.
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy";
 
 export interface RepairStep {
   area: RepairArea;
@@ -25,6 +27,7 @@ export interface RepairStep {
   player: string | null;
   action?: RepairAction | null;
   opensGroup?: boolean;
+  check?: string;
 }
 
 export interface RepairAction {
@@ -256,27 +259,15 @@ function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   ];
 }
 
-export function secretLeakStep(snapshot: RuntimeSnapshot): RepairStep | null {
-  const leaks = snapshot.secretLeaks ?? [];
-  if (!leaks.length) return null;
-  return {
-    area: "privacy",
-    consequence: "A character can learn what was kept from them: another extension puts the whole chat, secrets included, into every character's prompt.",
-    detail: `On in this chat: ${leaks.join(", ")}. Story Orchestrator keeps private knowledge out of its own blocks but cannot filter these. `
-      + `Switch ${leaks.length === 1 ? "it" : "them"} off for this chat to keep secrets.`,
-    targetId: null,
-    provisionable: false,
-    player: null,
-  };
-}
+export const secretLeakStep = (snapshot: RuntimeSnapshot): RepairStep | null => runCheck(SECRET_LEAK_CHECK, snapshot);
 
 function laterSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   const degraded = (snapshot.memory?.chapters ?? []).find((record) => record.status === "degraded");
   return [
-    secretLeakStep(snapshot),
     snapshot.saveHealth && hasUnsavedChanges(snapshot.saveHealth)
       ? { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false, player: playerSaveNotice(snapshot.saveHealth) }
       : null,
+    ...runChecks(snapshot, "degrades"),
     degraded ? {
       area: "chapter", consequence: `Chapter "${degraded.playerTitle}" was sealed without a written summary.`, detail: "Re-seal it from the Chapters panel.",
       targetId: null, provisionable: false, player: null,
@@ -286,8 +277,9 @@ function laterSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
 
 export function repairSteps(snapshot: RuntimeSnapshot): RepairStep[] {
   const steps = snapshot.storyId
-    ? [memoryModelStep(snapshot), roleStep(snapshot), ...requirementSteps(snapshot), ...laterSteps(snapshot), wiGatingStep(snapshot), globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)]
-    : [wiGatingStep(snapshot), globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)];
+    ? [memoryModelStep(snapshot), roleStep(snapshot), ...runChecks(snapshot, "blocks"), ...requirementSteps(snapshot), ...laterSteps(snapshot), wiGatingStep(snapshot),
+      globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)]
+    : [...runChecks(snapshot, "blocks"), ...runChecks(snapshot, "degrades"), wiGatingStep(snapshot), globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)];
   return steps.filter((step): step is RepairStep => step !== null);
 }
 
@@ -295,8 +287,58 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   return repairSteps(snapshot)[0] ?? null;
 }
 
+export type GettingStartedId = "memory-model" | "judge" | "images";
+
+export interface GettingStartedStep {
+  id: GettingStartedId;
+  title: string;
+  consequence: string;
+  targetId: string;
+  optional: boolean;
+  done: boolean;
+}
+
+export interface GettingStartedInput {
+  memoryModel: boolean;
+  judgeReady: boolean;
+  imagesReady: boolean;
+}
+
+export const GETTING_STARTED_TARGETS: Record<GettingStartedId, string> = {
+  "memory-model": REPAIR_TARGET_IDS.memoryModel,
+  judge: "so-judge-key",
+  images: "so-image-settings",
+};
+
+export function gettingStartedSteps(input: GettingStartedInput): GettingStartedStep[] {
+  return [
+    {
+      id: "memory-model", title: "Pick a memory model", optional: false, done: input.memoryModel, targetId: GETTING_STARTED_TARGETS["memory-model"],
+      consequence: "Without it the story cannot follow your play or remember what happened.",
+    },
+    {
+      id: "judge", title: "Add a judge key", optional: true, done: input.judgeReady, targetId: GETTING_STARTED_TARGETS.judge,
+      consequence: "Better speaker choice and memory checks. Without it, the story uses its usual path.",
+    },
+    {
+      id: "images", title: "Connect ComfyUI for pictures", optional: true, done: input.imagesReady, targetId: GETTING_STARTED_TARGETS.images,
+      consequence: "Lets stories draw scenes and characters. Without it, there are no pictures.",
+    },
+  ];
+}
+
+export const gettingStartedShown = (steps: readonly GettingStartedStep[], dismissed: boolean): boolean =>
+  steps.some((step) => !step.optional && !step.done) || (!dismissed && steps.some((step) => !step.done));
+
 export function viewerRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (snapshot.ui?.authorView) return nextRepairStep(snapshot);
   const step = repairSteps(snapshot).find((candidate) => candidate.player !== null);
-  return step ? { ...step, consequence: step.player as string } : null;
+  return step ? { ...step, consequence: step.player as string, detail: step.player as string } : null;
+}
+
+const SURFACED_ELSEWHERE: ReadonlySet<RepairArea> = new Set(["save"]);
+
+export function setupAlert(snapshot: RuntimeSnapshot): RepairStep | null {
+  const step = viewerRepairStep(snapshot);
+  return step && !SURFACED_ELSEWHERE.has(step.area) ? step : null;
 }

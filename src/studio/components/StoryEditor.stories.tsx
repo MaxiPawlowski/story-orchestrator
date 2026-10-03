@@ -101,6 +101,22 @@ export const CuratorAllowlist: Story = {
   },
 };
 
+// v2.7 C10: an entry inside a curator book that the curator is never shown nor allowed to write.
+export const CuratorExclusion: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "+ Curator lorebook" }));
+    await userEvent.click(canvas.getByRole("button", { name: "+ Excluded entry" }));
+    await expect(canvas.getByLabelText("Excluded lorebook 1")).toHaveValue("Xentar Checkpoints");
+    await userEvent.type(canvas.getByLabelText("Excluded entries 1"), "House style,Tone");
+    await expect(useDraftStore.getState().draft.stagecraft).toEqual({ lorebooks: ["Xentar Checkpoints"], exclude: [{ lorebook: "Xentar Checkpoints", comments: ["House style", "Tone"] }] });
+    await userEvent.type(canvas.getByLabelText("Curator lorebook 1"), " 2");
+    await expect(useDraftStore.getState().draft.stagecraft?.exclude).toEqual([{ lorebook: "Xentar Checkpoints", comments: ["House style", "Tone"] }]);
+    await userEvent.click(canvas.getByRole("button", { name: "Remove exclusion 1" }));
+    await expect(useDraftStore.getState().draft.stagecraft).toEqual({ lorebooks: ["Xentar Checkpoints 2"] });
+  },
+};
+
 // v2.2 plan 04: the books lore-select may judge; the per-turn count appears once a book is listed.
 export const LoreSelectScope: Story = {
   play: async ({ canvasElement }) => {

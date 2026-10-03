@@ -41,6 +41,7 @@ export const InlineLayer = ({ view, hosts, actions }: InlineLayerProps) => {
             expanded={expanded[messageId] ?? null}
             onToggle={(category) => toggle(messageId, category)}
             actions={actions}
+            legend={messageId === ids[ids.length - 1]}
           />,
           host,
           `${messageId}:${host.id}`,

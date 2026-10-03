@@ -360,7 +360,7 @@ export interface ExtractionRuntimeState {
   audits: SharedReadAudit[];
   reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
-  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null };
+  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null; rereadReason?: string | null };
   judgedReads: JudgedReadRecord[];
 }
 
@@ -487,7 +487,11 @@ export interface RuntimeSnapshot {
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
+  /** Transcript copiers switched on while a group plays a story, held secret or not: the player alert must not reveal that one is held. */
   secretLeaks?: string[];
+  /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */
+  secretsHeld?: boolean;
+  thinkingSilent?: boolean;
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

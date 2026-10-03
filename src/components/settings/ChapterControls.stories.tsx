@@ -22,6 +22,7 @@ export const OffByDefault: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("Chapter records"));
     await expect(canvas.getByLabelText("Write a record when a chapter ends")).not.toBeChecked();
     await expect(canvas.getByLabelText("Add the story so far to every prompt")).not.toBeChecked();
     await expect(canvas.getByLabelText(/Leave ended chapters' messages out/)).not.toBeChecked();
@@ -34,6 +35,7 @@ export const SwitchOnAndPickAnArm: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("Chapter records"));
     await userEvent.click(canvas.getByLabelText("Write a record when a chapter ends"));
     await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ chapters: expect.objectContaining({ seal: true, chronicleTokens: 700 }) });
     await userEvent.selectOptions(canvas.getByLabelText("Story so far budget"), "400");

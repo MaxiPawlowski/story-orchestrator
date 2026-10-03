@@ -67,7 +67,22 @@ export interface GlobalSettings {
   image: ImageSettings;
   sprites: SpriteSettings;
   spikes: SpikeSettings;
+  help: HelpSettings;
 }
+
+export interface HelpSettings {
+  lastSeenVersion: string | null;
+  checklistDismissed: boolean;
+}
+
+export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false });
+
+const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
+export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
+  lastSeenVersion: isRecord(value) && typeof value.lastSeenVersion === "string" && VERSION_PATTERN.test(value.lastSeenVersion) ? value.lastSeenVersion : null,
+  checklistDismissed: isRecord(value) && value.checklistDismissed === true,
+});
 
 export const SPIKE_FLAGS = [
   "swipeBackCache", "sp5Scenario", "sp6Complications", "sp8CuratorTiers",
@@ -170,6 +185,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   image: defaultImageSettings(),
   sprites: defaultSpriteSettings(),
   spikes: defaultSpikeSettings(),
+  help: defaultHelpSettings(),
 });
 
 const sanitizeInnerVoice = (memory: MemoryRuntimeSettings): MemoryRuntimeSettings => {
@@ -250,5 +266,6 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     image: sanitizeImageSettings(value.image),
     sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
+    help: sanitizeHelpSettings(value.help),
   };
 };

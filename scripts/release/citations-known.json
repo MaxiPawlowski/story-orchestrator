@@ -16,6 +16,7 @@
     { "path": "src/endpoints/vectors.js", "kind": "host", "reason": "SillyTavern server source, C:/dev/SillyTavern-MainBranch/src/endpoints/vectors.js." },
     { "path": "src/plugin-loader.js", "kind": "host", "reason": "SillyTavern server source." },
     { "path": "scripts/install_st.py", "kind": "external", "reason": "The install helper outside this repo that plan 08 and the playbook discuss." },
+    { "path": "docs/architecture-v2.md", "kind": "removed", "reason": "v2.7 plan 01 (docs restructure): moved to docs/dev/architecture.md and refreshed; the v2.3 records cite the file as it was then." },
     { "path": "docs/release/unknown/", "kind": "history", "reason": "Where a clean-host defect wrote a run (08 record); the defect was fixed and the directory removed." }
   ]
 }

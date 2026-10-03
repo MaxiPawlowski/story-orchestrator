@@ -1,4 +1,5 @@
 import type { InlineAction, InlineItem } from "@runtime/inlineTimeline";
+import { INLINE_STATE_LABELS } from "@features/inlineCopy";
 import "./inline.css";
 
 export interface InlineActions {
@@ -33,7 +34,7 @@ export const InlineDetail = ({ items, showDetail, showActions, actions }: Inline
     {items.map((item) => (
       <li key={item.id} data-so="inline-item" data-state={item.state} data-level={item.level} className="so-inline-row">
         <span className="so-inline-line">
-          <i className={`${STATE_ICON[item.state]} so-inline-state`} aria-label={item.state} role="img" />
+          <i className={`${STATE_ICON[item.state]} so-inline-state`} aria-label={INLINE_STATE_LABELS[item.state]} title={INLINE_STATE_LABELS[item.state]} role="img" />
           <span className="so-inline-text">{item.text}</span>
         </span>
         {showDetail && item.detail && <span data-so="inline-item-detail" className="so-inline-more">{item.detail}</span>}

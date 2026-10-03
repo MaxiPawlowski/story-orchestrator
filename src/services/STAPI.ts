@@ -82,7 +82,7 @@ export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, Mo
 export { harnessContextLimit, harnessListed, harnessStatusCached, openAgentBridge, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";
 export type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
-export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
+export { countTokens, countTokensBatch, tokenizerIdentity } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
 export { judgeLlamaComplete, judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
