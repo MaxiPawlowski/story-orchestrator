@@ -40,6 +40,7 @@ const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continu
 
 const concernText = (row: JudgeReadinessRow): string => {
   if (row.verdict === "blocked" && row.blockedBy) return `on, but "${JUDGE_USE_COPY[row.blockedBy].label}" is off, so it does nothing`;
+  if (row.uncalibratedOn && row.calibrationProblem === "failed") return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, measured there and refused`;
   if (row.uncalibratedOn) return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, not calibrated there`;
   if (row.splitFrom?.length) return `shares a call with ${row.splitFrom.map(labelOf).join(", ")} on another provider: none of them runs`;
   if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;

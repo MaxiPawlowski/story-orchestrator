@@ -2,7 +2,8 @@
 
 **Status: llama-logprob column RUN ×2 2026-10-03 (lane 5, pod to itself); PARTIAL: 11 fixtures measured cleanly ×2, 8 not measurable
 cleanly because of the calibration harness's own concurrency (busy / queue timeouts, see §Results), 1 not answerable as built
-(backgrounds, > 20 options). Judge-off column and call
+(backgrounds, > 20 options). **Recorded as rows 2026-10-03** (`src/judge/readiness.ts` `JUDGE_READINESS_BY_PROVIDER["llama-logprob"]`, §Recorded
+as rows): 5 route keys passed, 6 failed, the rest absent; opt-in only, the default provider stays `typesafe`. Judge-off column and call
 census MEASURED (no model call). Open-classifier column NOT BUILT: deferred to v2.7 by the user.** Plan: `12-open-judge.md` §Phase B.
 Survey: `12-survey.md`. Floors are the fixtures' own (`test/fixtures/judge/*.json`), unchanged; a floor is never retuned.
 
@@ -167,6 +168,41 @@ the user).
 
 Pod time: 02:55–03:31 UTC, ~36 min (r1 + r2 ~20 min, serial diagnostic ~16 min). ~4,500 one-token `/completion` calls per
 pass (census), all on the user's own pod. No paid API call: the run never reached TypeSafe.
+
+## Recorded as rows (2026-10-03)
+
+`JUDGE_READINESS_BY_PROVIDER["llama-logprob"]` in `src/judge/readiness.ts`. Each row carries `measuredOn`
+`/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf` (the reports' `resolvedTo` minus the `llama-server:` prefix, which
+`servedId()` strips), `measured` 2026-10-03, `live: null`. `latencyP50Ms` is the higher p50 of r1/r2; the recommendation names the
+p95 that decided the budget. **Fixture revisions:** the reports do not record one. Computed the way AS-16 does (`sha256` of the
+re-serialised `test/fixtures/judge/<fixture>.json`, first 12 hex, `readiness.test.ts` `revisionOf`): every fixture below equals
+`JUDGE_FIXTURE_REVISION`, and `test/fixtures/judge/` last changed 2026-10-02 04:26 -0300 (`8e5dd0fb`), before the run, so the rows
+are on the current revision. Fixture → key follows `readiness.test.ts` `FIXTURE_OF`.
+
+| Route key | Fixture | Row | Rate | p50 | Why |
+|---|---|---|---|---|---|
+| memoryPairs | memory-pairs | **passed** | 0.9655 | 1475 | floor ×2, p95 1.7 s vs 3.0 s |
+| typedExtraction | typed | **passed** | 0.8485 | 1041 | answered 55/57 ×2 (floor 0.95), p95 4.1 s vs 5.0 s |
+| stallCheck | stall | **passed** | 1.00 | 1180 | every row ×2, p95 3.5 s vs 4.0 s |
+| warden | continuity | **passed** | 1.00 | 1320 | every family ×2, p95 3.8 s vs 4.0 s (the warden key's fixture is `continuity` alone) |
+| agencyCheck | agency | **passed** | 0.9756 | 1015 | writes 17/18, clean 23/23 ×2, p95 1.8 s vs 4.0 s |
+| director | director | failed | 0.88 | 4301 | floor met, p95 5.3 s vs 1.5 s reply path |
+| memoryVerify | memory-verify | failed | 1.00 | 3591 | floor met, p95 3.9 s vs 3.0 s |
+| expansionCritic | critic | failed | 0.9265 | 2676 | verdict 30/34 < 1.0 ×2 |
+| expansionLookahead, lookahead | variants | failed | 0.8125 | 2777 | rejected 5/8 < 1.0 ×2 |
+| wardenLore | warden-lore | failed | 1.00 (facts arm) | 1488 | the facts arm met every floor but p95 4.3 s vs 4.0 s; the shipped lore arm was contaminated (r1 busy, r2 0.82) |
+
+Absent (route stays `uncalibrated`): sceneTrigger, sceneTracker, curatorFilter, houseRules, loreSelect (not measured cleanly ×2),
+loreExclusive, expressions (no fixture). Backgrounds has no route key.
+
+**Routable on llama-logprob** (opt-in per key, with the served model equal to `measuredOn`): `memoryPairs`, `typed` (typedExtraction),
+`stall` (stallCheck) and `warden` (warden + agencyCheck, both routed). Not routable and not invented: contradiction-release met its
+Phase A floor ×2 but is not a ring use and has no route key; continuity has no key of its own, it is the `warden` key.
+**The warden/houseRules split:** the warden's one call decides for `warden`, `agencyCheck` and `houseRules` together
+(`RING_USE_ROUTE_KEYS.warden`). houseRules is off by default, so routing warden + agencyCheck to llama-logprob runs. With
+houseRules switched on and left on `typesafe` the call is refused `split`; routing houseRules to llama-logprob too is refused
+`uncalibrated` (no row). Both mean the warden sends nothing until houseRules is off or measured here. Tests:
+`src/runtime/judgeProviderRouting.test.ts` "plan 12 Phase B: the recorded llama-logprob rows".
 
 ## Unresolved
 
