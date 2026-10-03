@@ -69,6 +69,10 @@ export const SETTING_COPY = {
     "Also post a chat note when the story moves on",
     "Posts a short note in the chat when the story reaches a new turning point. Off by default: the note sits after the reply and stops you swiping that reply.",
   ),
+  "display.briefing": copy(
+    "Show the story briefing when a story starts",
+    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from the drawer.",
+  ),
   "display.hudEnabled": copy(
     "Show story status above the chat input",
     "A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer.",

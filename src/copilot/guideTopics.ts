@@ -16,6 +16,13 @@ export const GUIDE_TOPICS = {
       + "(a lowercase slug the library keys by), and version counts the author's saves. Good: \"The Pawnbroker's Debt\" with a two-sentence premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },
+  briefing: {
+    title: "Briefing",
+    fields: "briefing, chapters[].briefing",
+    text: "Player copy shown once when the story first starts in a group chat: {title, image, sections: [{heading, text}], tone, start_label}, at most 6 sections of 1200 "
+      + "characters, plain text, no macros. Never sent to the model. Without it, player_intro shows as one section; description never does. A chapter's briefing opens that "
+      + "chapter. Write only what the player may know then: no later beat, outcome, or character the start keeps off stage.",
+  },
   "arc-template": {
     title: "Dramatic shape",
     fields: "arc_template",
@@ -289,6 +296,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "requirement-persona-missing": "requirements",
   "gate-open-on-arrival": "gates",
   "cast-member-never-enabled": "cast-changes",
+  "briefing-spoiler-risk": "briefing",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

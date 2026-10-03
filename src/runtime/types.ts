@@ -9,6 +9,7 @@ import type {
 import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
+import type { BriefingRecord, BriefingState } from "./briefing";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
@@ -148,6 +149,7 @@ export interface RuntimeExtras {
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
   branchedFrom?: BranchOrigin;
+  briefing?: BriefingRecord;
   updatedAt: string;
 }
 
@@ -164,6 +166,7 @@ export interface UiRuntimeSettings {
   authorView: boolean;
   announceTransitions: boolean;
   hudEnabled: boolean;
+  briefing?: boolean;
   inline: InlineSettings;
 }
 
@@ -493,6 +496,7 @@ export interface RuntimeSnapshot {
   secretsHeld?: boolean;
   thinkingSilent?: boolean;
   competingScenarios?: string[];
+  briefing?: BriefingState | null;
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

@@ -366,7 +366,6 @@ export interface StoryLoreSelect {
   exclusive?: boolean;
 }
 
-// Player copy shown once when a story or a chapter starts. Never injected: the model never reads it.
 export const BRIEFING_MAX_SECTIONS = 6;
 export const BRIEFING_SECTION_MAX_CHARS = 1200;
 export const BRIEFING_HEADING_MAX_CHARS = 80;

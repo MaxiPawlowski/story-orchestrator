@@ -16,7 +16,7 @@ import {
 } from "./registry";
 import { SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
-import { HELP_COPY } from "./helpCopy";
+import { BRIEFING_COPY, HELP_COPY, ONBOARDING_LINES } from "./helpCopy";
 import { INLINE_CATEGORY_HELP, INLINE_LEGEND_COPY, INLINE_LEVEL_HELP, INLINE_LEVEL_LABELS, INLINE_STATE_LABELS } from "./inlineCopy";
 
 const ROOT = resolve(__dirname, "../..");
@@ -83,6 +83,7 @@ const copyItems = (): CopyItem[] => [
   ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP]
     .flatMap((table, index) => Object.values(table).map((text) => ({ source: `player copy table ${index}`, audience: "player" as const, text: String(text) }))),
   ...Object.values(INLINE_LEVEL_LABELS).map((text) => ({ source: "inline level", audience: "player" as const, text })),
+  ...[...Object.values(BRIEFING_COPY), ...ONBOARDING_LINES.map((line) => line.text)].map((text) => ({ source: "briefing copy", audience: "player" as const, text })),
   ...[STORY_HELP_STRING, storyHelpText(), SO_MEM_HELP_STRING, soMemHelpText()].map((text) => ({ source: "slash help", audience: "player" as const, text })),
   { source: "slash help /cp", audience: "author", text: CP_HELP_STRING },
   ...Object.values(AREA_LABELS).map((text) => ({ source: "area", audience: "player" as const, text })),
@@ -222,7 +223,7 @@ describe("v2.7 plan 01 UI copy", () => {
 
 describe("v2.7 plan 01 slash help", () => {
   it("lists every /story verb, help included", () => {
-    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "chapters", "chapter", "chronicle", "flag", "help"]);
+    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "intro", "chapters", "chapter", "chronicle", "flag", "help"]);
     for (const entry of STORY_VERBS) expect(STORY_HELP_STRING).toContain(entry.what);
     expect(SO_MEM_HELP_STRING).not.toMatch(/\bv2\b/);
   });
@@ -244,8 +245,8 @@ describe("v2.7 plan 01 what's new and getting started", () => {
   });
 
   it("stores the last seen version install-wide and keeps only a version", () => {
-    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false });
-    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true });
+    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, onboardingSeen: false });
+    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, onboardingSeen: false });
     expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "soon" } }).help.lastSeenVersion).toBeNull();
   });
 

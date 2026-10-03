@@ -15,6 +15,7 @@ import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
 import { sanitizeOnEnterPosts } from "./npcReplyRewind";
 import { sanitizeDeferredOpener } from "./openerDeferral";
+import { freshBriefing, sanitizeBriefingRecord } from "./briefing";
 import type {
   CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
   MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState,
@@ -189,7 +190,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
-export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() });
+export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings() });
 export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null });
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
@@ -290,6 +291,7 @@ export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withG
   journal: [],
   modelCalls: [],
   lastSessionAt: null,
+  briefing: freshBriefing(),
   updatedAt: new Date().toISOString(),
 }, read);
 
@@ -339,7 +341,8 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled, inline: global.display.inline };
+  const { announceTransitions, hudEnabled, briefing, inline } = global.display;
+  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, inline };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
@@ -411,6 +414,8 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
+  const briefing = sanitizeBriefingRecord(extras.briefing);
+  if (briefing) extras.briefing = briefing; else delete extras.briefing;
   if (extras.branchedFrom !== undefined && (typeof extras.branchedFrom?.chatId !== "string" || typeof extras.branchedFrom?.at !== "string")) delete extras.branchedFrom;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};

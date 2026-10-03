@@ -22,3 +22,26 @@ export const HELP_COPY = {
   optional: "optional",
   done: "Done",
 } as const;
+
+export const BRIEFING_COPY = {
+  beforeYouStart: "Before you start",
+  beforeYouStartIntro: "This story cannot play as written until this is fixed:",
+  onboarding: "How Story Orchestrator works",
+  optOut: "Don't show briefings",
+  optOutHelp: "Stops this page opening on its own when a story starts. Story briefing in the drawer still opens it.",
+  reopen: "Story briefing",
+  reopenHelp: "Read the story's briefing again.",
+  close: "Close",
+  preview: "Preview",
+  noStory: "No story in this chat yet. Choose one under Continue, or start one under Start.",
+  openSettings: "Open story settings",
+} as const;
+
+export const ONBOARDING_LINES: ReadonlyArray<{ icon: string; text: string }> = [
+  { icon: "fa-pen", text: "Write what you do and say. The characters answer, and the story moves on when what it needs has happened." },
+  { icon: "fa-route", text: "The route icon in the top bar opens the story drawer: where you are, what happened, and what is still open." },
+  { icon: "fa-bars-progress", text: "The strip above where you type shows the scene and the tension. Click it to open the drawer." },
+  { icon: "fa-tags", text: "Small icons under replies say what moved the story, what it remembered and which lore it used. Click one to read more." },
+  { icon: "fa-brain", text: "The drawer's Memory tab lists what the story remembers. Pin what matters, remove what is wrong." },
+  { icon: "fa-terminal", text: "/story recap, /story intro and /story help work from the chat box." },
+];

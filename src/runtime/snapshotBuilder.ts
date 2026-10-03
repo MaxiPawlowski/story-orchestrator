@@ -31,6 +31,7 @@ import { buildModelCalls } from "./modelCalls";
 import type { InlineSources, InlineView } from "./inlineTimeline";
 import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
+import { briefingState } from "./briefing";
 import { chapterKit, storyEnded } from "./chapterPort";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -214,10 +215,16 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios"> => ({
+type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios" | "briefing";
+
+export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, SetupSlices> => ({
   ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
+  briefing: briefingState({
+    story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
+    chatOpen: hasOpenChat(), groupChat: sources.groupChat === true,
+  }),
 });
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
