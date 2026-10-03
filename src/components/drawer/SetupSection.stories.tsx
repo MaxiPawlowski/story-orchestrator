@@ -24,7 +24,7 @@ const many = {
 const meta: Meta<typeof SetupSection> = {
   title: "Drawer/SetupSection",
   component: SetupSection,
-  args: { authorView: false, onShowMe: fn(), onFix: fn(), onDismiss: fn(), onFixWithWizard: fn() },
+  args: { authorView: false, onShowMe: fn(), onFix: fn(), onDismiss: fn() },
 };
 
 export default meta;

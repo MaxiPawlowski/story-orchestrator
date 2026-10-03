@@ -11,7 +11,7 @@ const scripted = (replies: Array<Record<string, unknown>>): AgentTurnRunner => {
   let route: AgentRoute | null = null;
   return (session, draft) => {
     if (!route || (session.status === "planning" && session.steps.length === 0)) route = scriptedRoute(replies).route;
-    return advanceAgent(session, agentContext(draft), route);
+    return advanceAgent(session, agentContext(draft, { ...emptyEnvironment(), groupNames: [draft.title] }), route);
   };
 };
 

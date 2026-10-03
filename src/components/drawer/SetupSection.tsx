@@ -4,7 +4,6 @@ export interface SetupHandlers {
   onShowMe?(target: ShowMe): void;
   onFix?(action: OneClickFix): void;
   onDismiss?(check: string, dismissed: boolean): void;
-  onFixWithWizard?(): void;
 }
 
 export const SETUP_COPY = {
@@ -32,9 +31,6 @@ const SetupRow = ({ step, authorView, handlers }: { step: RepairStep; authorView
       )}
       {step.action && handlers.onFix && (
         <button type="button" data-so="setup-fix" className="menu_button" onClick={() => handlers.onFix?.(step.action as OneClickFix)}>{step.action.label}</button>
-      )}
-      {authorView && step.provisionable && handlers.onFixWithWizard && (
-        <button type="button" data-so="setup-wizard" className="menu_button" onClick={handlers.onFixWithWizard}>Fix with wizard</button>
       )}
       {step.dismissable && handlers.onDismiss && (
         <button type="button" data-so="setup-dismiss" className="menu_button opacity-80" onClick={() => handlers.onDismiss?.(step.check, true)}>{SETUP_COPY.dismiss}</button>
