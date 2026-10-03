@@ -119,6 +119,13 @@ describe("setRequirements / setStagecraft keep entries as typed", () => {
     expect(setRequirements(draft, { members: [] })).not.toHaveProperty("requirements");
     expect(setStagecraft(draft, { lorebooks: [] })).not.toHaveProperty("stagecraft");
   });
+  it("C10: a lorebook-only write keeps the author's exclusions, and an explicit list replaces them", () => {
+    const exclude = [{ lorebook: "Lore", comments: ["House style"] }];
+    const draft: StoryDraft = { ...base(), stagecraft: { lorebooks: ["Lore"], exclude } };
+    expect(setStagecraft(draft, { lorebooks: ["Lore", "More"] }).stagecraft).toEqual({ lorebooks: ["Lore", "More"], exclude });
+    expect(setStagecraft(draft, { lorebooks: ["Lore"], exclude: [] }).stagecraft).toEqual({ lorebooks: ["Lore"] });
+    expect(setStagecraft(draft, { lorebooks: [] }).stagecraft).toEqual({ lorebooks: [], exclude });
+  });
   it("leaves the trimming to parse", () => {
     const draft = setStagecraft(setRequirements(base(), { personas: ["Max Power ", ""], lorebooks: [" Xentar Checkpoints"] }), { lorebooks: ["", " "] });
     const parsed = parseStoryV2(draft);

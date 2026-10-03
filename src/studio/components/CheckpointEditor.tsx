@@ -132,6 +132,11 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
         <textarea className="text_pole st-input min-h-[3rem]" value={selected.player_text ?? ""}
           onChange={(event) => patch({ player_text: event.target.value || undefined })} />
       </Field>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" aria-label="Illustrate this checkpoint" checked={selected.illustrate !== false}
+          onChange={(event) => patch({ illustrate: event.target.checked ? undefined : false })} />
+        Automatic pictures while here (when the story asks for illustrations)
+      </label>
     </div>
     <div className="grid grid-cols-2 gap-3">
       <Field label="Type">

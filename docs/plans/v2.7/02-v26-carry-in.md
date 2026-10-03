@@ -45,3 +45,28 @@ their session dir or `14-findings.md` row as the source.
 
 `22-sp9-witness-filter-v2.md`, `16-spike-defers.md` (index; `16a`–`16d`), `11-warden-lore-one-request.md`, `19-quests-and-game-layer.md`
 (SP6).
+
+## Gate record (C6–C10)
+
+2026-10-03, branch `worktree-agent-a5d8c1ad276a14ac2` (on `b2be37ab`). Claims checked against the tree first; all four findings were still open.
+
+| # | Verified | Built |
+|---|---|---|
+| C6 (F3) | `src/image/runtime.ts` passed `snapshot.activeCheckpointName` (= `active.name`, `snapshotBuilder.ts:291`) into the cue (`Establishing shot of ${name}`) and into the director prompt's STORY BEAT line, which also feeds the fallback caption | `src/image/cast.ts` `beatLabel` + `cueText`: `player_name`, else "Establishing shot of the current scene."; the cue key is now the checkpoint id; the director prompt gets the same label. Spoiler property over sun-ruins + a control in `src/image/cast.test.ts`; checklist row in `docs/plans/v2.1/test-plan.md` §Spoiler checklist |
+| C7 (F6) | `src/image/lore.ts` read `Appearance:` from every scanned, scene-mentioned entry | `visualLore` takes the fired set (`snapshot.lore.fired`, i.e. `extras.lore.fired`, keyed book + uid, rolled back by message). `Appearance:` counts only once the entry fired in this chat. The public marker is an entry line `Public appearance:`: always eligible, and it wins over `Appearance:` |
+| C8 (F4) | `illustrations` story-wide only (`schema.ts`) | `checkpoints[].illustrate: false` (validator, Studio checkbox under "What the player sees") skips the automatic beat and scene cues while that beat is active. Manual requests still run. `chapters[].illustrations {style, appearances}` (same reader as the story block, `validate/illustrations.ts`) overrides the look inside the chapter (`lookFor`). Studio: chapter "Visual direction" field; per-member chapter looks are JSON-only |
+| C9 (F5) | `sceneForImage` fell back to `card.description.slice(0, 500)` | subjects carry `described`. `castForImage` drops a member whose roster `role` starts with narrator/storyteller/game master/GM/DM/system, or whose `view` is `omniscient`, unless it has an authored or card `appearance` |
+| C10 | curator scope = allowlist minus gated entries | `stagecraft.exclude: [{lorebook, comments}]` (validator, load errors on bad shapes). `isCuratorExcluded`/`isCuratorHidden` in `stagecraft/scope.ts`: the `readScope` filter and `isCuratorWritable` (write edge, refusal message "excluded from the curator by this story"). `setStagecraft` keeps exclusions when the call names only lorebooks, so the wizard/agent cannot drop them by accident. Studio Story tab rows (`[data-so="stagecraft-exclude"]`, story `CuratorExclusion`) |
+
+Guide: `docs/authoring/story-guide.md` (Curator scope, Illustrations and display) + `src/copilot/guideTopics.ts` (stagecraft, presentation), drift test green. The defect-replay mutant `test/findings/defect-replay/curator-writes-gated-entry.json` was re-anchored to `&& !isCuratorHidden(...)` (the write-edge check moved into it); it is still KILLED.
+
+Commands (worktree, node_modules junctioned to the main checkout, `.st-root` copied):
+
+- `npm run gates`: typecheck ok, typecheck:test ok, lint ok, test ok (496 suites passed + 1 skipped; 6063 tests passed + 1 skipped). Then RED at build: `ST_ROOT is not set` because the worktree had no `.st-root`. Copied it in.
+- `node scripts/release/gates.mjs --skip=typecheck,typecheck:test,lint,test` (no source change since the green steps): build ok, build:dev ok, test:debug RED (934/935: the stale defect-replay anchor above). Re-anchored.
+- `node scripts/release/gates.mjs --skip=typecheck,typecheck:test,lint,test,build,build:dev`: test:debug ok, debug:typecheck ok, test:release ok, test:replay ok (curator-writes-gated-entry KILLED), test:plugin ok. test-storybook:ci RED with "No tests found": an environment fault, not a test failure. The worktree path contains `.claude`, which jest's testMatch glob skips, and the test runner resolves its root through the junctioned node_modules to the main checkout.
+- Storybook re-run from a temporary copy at `C:\dev\so-sbcopy-a5d8`, with `@storybook/test-runner` copied locally and `STORYBOOK_PROJECT_ROOT` set: `npm run test-storybook` against the built `.sb-static`. Result: 67 suites, 425 tests passed, `curator-exclusion` included. The copy was deleted afterwards.
+
+Live ST gate: NOT run. No ST session in this worktree. The ST-facing paths (image cue, fired-lore read, curator scope at runtime) are unit-covered only, so the gate is **not green** for live use. Owed: one real-LLM image cue on a beat with and without `player_name`, a fired vs unfired `Appearance:` entry, `illustrate: false`, and one curator pass on a story with `stagecraft.exclude`.
+
+Leftovers: the plan's "chapter boundary as the default cadence" (C8) is not built. The agent's `setStagecraft` tool cannot write `exclude`; it is author-only, and the tool doc is unchanged. A story-level `illustrations` change still produces no `storyDiff` row (pre-existing). The image runtime class itself has no unit test, because its host imports block jest. C11 is untouched.

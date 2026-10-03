@@ -18,12 +18,22 @@ export const isCheckpointGated = (story: NormalizedStoryV2 | null, lorebook: str
     name.toLowerCase() === book && [...comments].some((gated) => gated.toLowerCase() === wanted));
 };
 
-// A write is legal only if the entry sits in an allowlisted book, is not checkpoint-gated, *and* was
-// in the scope the curator was shown. The parser already enforces the last part; this is the check
-// at the write edge.
+export const isCuratorExcluded = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
+  const book = lorebook.trim().toLowerCase();
+  const wanted = comment.trim().toLowerCase();
+  return (story?.stagecraft?.exclude ?? []).some((exclusion) =>
+    exclusion.lorebook.trim().toLowerCase() === book && exclusion.comments.some((excluded) => excluded.trim().toLowerCase() === wanted));
+};
+
+export const isCuratorHidden = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean =>
+  isCheckpointGated(story, lorebook, comment) || isCuratorExcluded(story, lorebook, comment);
+
+// A write is legal only if the entry sits in an allowlisted book, is neither checkpoint-gated nor
+// excluded by the author, *and* was in the scope the curator was shown. The parser already enforces
+// the last part; this is the check at the write edge.
 export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
   const wanted = lorebook.trim().toLowerCase();
-  return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCheckpointGated(story, lorebook, comment);
+  return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCuratorHidden(story, lorebook, comment);
 };
 
 export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown }>): CuratorEntryView[] =>

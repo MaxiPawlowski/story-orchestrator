@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { CHAPTER_KINDS, OPEN_THREAD_POLICIES, RECORD_STYLES, type Chapter, type ChapterKind, type ChapterSealPolicy, type OpenThreadPolicy, type RecordStyle } from "@engine/index";
+import {
+  CHAPTER_KINDS, OPEN_THREAD_POLICIES, RECORD_STYLES, type Chapter, type ChapterKind, type ChapterSealPolicy, type IllustrationLook, type OpenThreadPolicy, type RecordStyle,
+} from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addChapter, removeChapter, setChapterPolicy, setCheckpointChapter, updateChapter } from "../mutations";
@@ -15,6 +17,15 @@ const withPolicy = (seal: ChapterSealPolicy | undefined, patch: Partial<ChapterS
   Object.fromEntries(Object.entries({ ...seal, ...patch }).filter(([, value]) => value !== undefined)) as ChapterSealPolicy;
 
 const textOrUndefined = (value: string) => (value.trim() ? value : undefined);
+
+const LOOK_HELP = "Replaces the story's visual direction for pictures while play is in this chapter. "
+  + "Per-character looks for a chapter go in chapters[].illustrations.appearances.";
+
+const withStyle = (look: IllustrationLook | undefined, style: string): IllustrationLook | undefined => {
+  const { style: _old, ...rest } = look ?? {};
+  const next = style ? { ...rest, style } : rest;
+  return Object.keys(next).length ? next : undefined;
+};
 
 const ChapterRow = ({ chapter }: { chapter: Chapter }) => {
   const mutate = useDraftStore((state) => state.mutate);
@@ -48,6 +59,11 @@ const ChapterRow = ({ chapter }: { chapter: Chapter }) => {
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" aria-label={`${name} ends the story`} checked={chapter.final === true} onChange={(event) => update({ final: event.target.checked || undefined })} />
           Ends the story
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          <span className="text-xs st-muted">Visual direction<HelpTooltip title={LOOK_HELP} /></span>
+          <input className="text_pole st-input" aria-label={`${name} visual direction`} placeholder="Story default" value={chapter.illustrations?.style ?? ""}
+            onChange={(event) => update({ illustrations: withStyle(chapter.illustrations, event.target.value) })} />
         </label>
       </div>
       <fieldset data-so="chapter-policy" className="flex flex-wrap items-end gap-2 border-0 p-0">

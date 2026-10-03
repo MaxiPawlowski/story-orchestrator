@@ -3,6 +3,7 @@ import {
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, rejectUnknownKeys } from "./common";
+import { readIllustrationLook } from "./illustrations";
 
 type FieldRule = readonly string[] | "text" | "flag" | "count";
 
@@ -33,8 +34,10 @@ const readChapter = (value: unknown, path: string, errors: ValidationError[]): C
     addError(errors, path, "chapter must be an object");
     return null;
   }
-  const { seal: _seal, ...rest } = value;
+  const { seal: _seal, illustrations: _illustrations, ...rest } = value;
   const chapter = readFields(rest, CHAPTER_RULES, path, errors) as Partial<Chapter>;
+  const look = readIllustrationLook(value.illustrations, `${path}.illustrations`, errors);
+  if (look) chapter.illustrations = look;
   if (!chapter.id) addError(errors, `${path}.id`, "chapter id is required");
   if (!chapter.title) addError(errors, `${path}.title`, "chapter title is required");
   if (value.seal !== undefined) {
