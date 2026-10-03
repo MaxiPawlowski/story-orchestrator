@@ -5,7 +5,7 @@ import {
   renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
-  heldSecrets, keptFrom, ledgerWithoutSecrets, withheldEntryIds, writeMemoryBlocks, type HeldSecret,
+  heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, writeMemoryBlocks, type HeldSecret,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
@@ -142,8 +142,8 @@ export class MemoryInjector {
     const options = this.options();
     const speaker = activeSpeakerId(story, this.hosts.roster);
     const secrets = this.secrets(story);
-    const rest = { ...options, withheld: withheldEntryIds(this.state.entries, secrets, null) };
-    const injection = applyMemoryInjection(this.hosts.prompt, this.state.entries, speaker, this.state.settings.injectionDepths, rest);
+    const resting = sharedTierView(this.state.entries, secrets, null);
+    const injection = applyMemoryInjection(this.hosts.prompt, resting.entries, speaker, this.state.settings.injectionDepths, { ...options, withheld: resting.withheld });
     this.lastInjection = memoryInjectionView(injection, this.highWater);
     const pinnedOverflow = pinnedOverflowOf(injection.fates);
     if (pinnedOverflow !== this.state.pinnedOverflow) this.deps.setPinnedOverflow(pinnedOverflow);
@@ -165,8 +165,8 @@ export class MemoryInjector {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
-        const withheld = withheldEntryIds(this.state.entries, secrets, names);
-        const memory = capable ? buildMemoryInjectionBlocks(this.state.entries, id, { ...options, withheld }) : null;
+        const view = sharedTierView(this.state.entries, secrets, names);
+        const memory = capable ? buildMemoryInjectionBlocks(view.entries, id, { ...options, withheld: view.withheld }) : null;
         if (memory) memory.facts = [memory.facts, returning.get(id) ?? ""].filter(Boolean).join("\n");
         const shared = memory ? { memory, ledger: ledgerFor(names) } : null;
         this.stagedPrivate.set(id, { shared, epistemic: this.memberBlock(story, id, knowledge) });
@@ -276,8 +276,8 @@ export class MemoryInjector {
   blocks(): Record<MemoryTier, string> {
     const story = this.deps.getStory();
     const entries = story && this.deps.enabled() ? this.state.entries : [];
-    const withheld = story ? withheldEntryIds(entries, this.secrets(story), null) : new Set<string>();
-    return buildMemoryInjectionBlocks(entries, activeSpeakerId(story, this.hosts.roster), { ...this.options(), withheld });
+    const view = sharedTierView(entries, story ? this.secrets(story) : [], null);
+    return buildMemoryInjectionBlocks(view.entries, activeSpeakerId(story, this.hosts.roster), { ...this.options(), withheld: view.withheld });
   }
 
   epistemicBlock(): string {

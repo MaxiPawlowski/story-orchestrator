@@ -10,6 +10,14 @@ export function readCursorSeed(history: EngineHistory | null): number | null {
   return ends.length ? Math.max(...ends) : -1;
 }
 
+export function readCoverageEnd(audits: readonly Pick<SharedReadAudit, "window">[]): number {
+  return audits.reduce((end, audit) => Math.max(end, audit.window.to), -1);
+}
+
+export function compactableEnd(lastId: number, coveredTo: number, maxLag: number): number {
+  return lastId - coveredTo >= maxLag ? lastId : Math.min(lastId, coveredTo);
+}
+
 export function droppedReadEnd(seed: number | null, audits: readonly Pick<SharedReadAudit, "window" | "acceptedDeltas">[]): number | null {
   const applied = seed ?? -1;
   const ends = audits.filter((audit) => audit.acceptedDeltas.length > 0 && audit.window.to > applied).map((audit) => audit.window.to);
