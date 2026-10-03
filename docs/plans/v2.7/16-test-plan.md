@@ -97,6 +97,7 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
 | a held commitment from real play in the journal | v2.7 09 | v2.8 01 O11 |
 | the story scenario block in real replies (SP5 live legs) | v2.7 02 C1 | v2.8 01 O13 (real replies, RP); v2.8 16 owns the dry-run plumbing (D) |
 | wizard/agent prompt changes from C1 (guide topics, tool doc) | v2.7 02 C1 | v2.8 01 O13b (CL) |
+| wizard prompt: every story needs its group (D5) | v2.7 03 | v2.8 01 O16 (CL) |
 | promoted SP8 tiers/spans under a real curator | v2.7 02 C13 | v2.8 01 O14 (promotion under a real curator, CL); C13-b covers digest/prompt changes only |
 | extraction quality on inputs the context table enlarges | v2.7 02 C14 / 14 | v2.8 01 C14-b |
 | real group play unchanged after the solo removal and with the activation modal | v2.7 03, 05 | v2.8 01 O12 (final suite) |

@@ -456,3 +456,134 @@ The arms run on the same bodies and counters as the A100 run. If thinking comes 
 - **Budget:** EUR 30 (EUR 20, plus EUR 10 added 2026-10-02).
 - **Spent:** USD 15.28 at the 04:30Z billing check.
 - **Stop line:** about USD 31.
+
+## Final review (Sol 6.1, 2026-10-03)
+
+Reviewer: GPT-6.1-Sol, high reasoning, `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high`, read-only, cwd the repo. Four calls: goals + early tests, session evidence, code (`544975fb..9a290539`), then a verdict over the three. Sol pinned code citations to freeze-2 `9a290539`; master had moved to `bd82d0b7` (docs only) by then. Sol ran no gates. The raw output is kept off the public tree. This section names sessions by id only and holds no campaign content.
+
+### Verdict: PARTIAL
+
+The plugin supports useful play, but it has not earned final playable acceptance. T7 rated the build "works" overall and "annoying" to ship. Freeze-1 had 107/225 rows green x2, with integration incomplete. The verdict rule (`10-acceptance.md:84`) requires PARTIAL while critical x2 rows, both integration columns and the broken-row re-runs are open. `test/sessions/T7/RERUN.md` and `docs/release/2.6.0/attestation.json` did not exist when Sol looked.
+
+Blocking items:
+
+1. **Acceptance evidence is incomplete.** Freeze-2 re-run pending; I1/I2/I4 red; I3 aborted; I5 and the defaults column not run; blind ratings 0 (`T7/SUITE.md:24`, `:314`).
+2. **Privacy bypasses (code, static).** The mirror and archive recall skip `sharedTierView` (finding 1 below).
+3. **Three ownership gaps (code, static).** Rollback, checkpoint jump and the inner-beat waiter can keep writing into a replacement chat (findings 2–4).
+4. **Q-M7 contract violation.** The plan declares at most 6 seal calls, but `SEAL_CALL_BUDGET = 12` (`src/runtime/chapterSeal.ts:33`, raised in `00d423fb`). Its test now asserts the configurable cap instead of the floor (`src/runtime/chapterRetained.review.test.ts:157`, `07-chapters-and-saga-memory.md:504`). Chapters being off reduces exposure but does not meet the floor.
+5. **Rating-pack evidence is invalid.** W6 pairs the INVALID T5-1-1. C3's saved control references a turn whose beats stayed on. Both need rebuilding before rating.
+
+Not blocking under the accepted scope: the DeepSeek R3 read floors, the withdrawn llama-logprob provider and curator low/high recommendations, the media exclusion, native opencode untested (W27, §T6-3), and the quality studies, which limit promotion only.
+
+### Goals vs evidence
+
+"Done" means the stated work is evidenced, not that the release is accepted. "Built, off" means implemented but not promoted past its floor.
+
+| Plan | Verdict | Gap |
+|---|---|---|
+| 00 overview | done (decisions, step 0) | its bottom status table is stale (`00-overview.md:465`) |
+| 01 carry-over proof | partial, rows pending re-run | real-model, macro, timeout, media and clean-host legs open |
+| 02 data gaps / audit | partial / audit done | D1 long corpora not closed; intent clock K=24 still provisional (`src/memory/innerVoice.ts:12`) |
+| 03 spikes | partial | SP1, SP6, SP10 never measured; SP2/SP4/SP9 dropped with unrun legs; SP3 and SP7 built (SP7 D4 failed run 2 at freeze-1); SP5 partial, its prod promotion (`cf52846e`/`3fb1743c`) came after freeze-2; SP8 tiers dev-only |
+| 04 remaining builds | partial, live pending re-run | toolchain, native harness, candidate judge uses, SP8 tiers |
+| 05 reasoning control | partial | R0–R2 and reply effort built; R4 has 4/20 pairs, unrated; ST TC/CC effort matrix owed |
+| 06 inner voice | partial, built off | intent floor and C3 study open; zero harvest was waived, not proven |
+| 07 chapters / saga | partial, main features off | Q-M1–Q-M8 study not run; Q-M7 mismatch |
+| 08 inline timeline | partial | built; J3 green on freeze-1; the render-time/DOM floor was never measured (`08-inline-timeline.md:209`) |
+| 09 integration | partial, pending re-run | see the blocking items |
+| 10 acceptance | partial, pending re-run | H-a/g/k built; H-j soak not run; no attestation |
+| 11 agentic wizard | partial, J9/J14 pending re-run | W1–W6 incomplete (no 3x30-turn plays, no 20 safety attempts per route); native route not exercised |
+| 12 open judge | partial | seam + survey done; Phase C not done; provider matrix partial |
+| 13 suite review | partial; named replay done | replay 30/30 named mutants; sampled mutation 76.3% (142/186); R5 rebuilt after freeze-1, pending re-run |
+| 14 tiered testing | partial | all 36 cards attempted (waivers below); media excluded; review-pack tier table still says T7 "not started" |
+| 15 review + autonomous testing | partial, pending re-run | reviews, fixes and vehicles done; vehicles are not measurements; gates skipped Storybook where noted |
+
+W1–W30:
+- **Done (13):** W1, W2 (amended: houseRules off), W5, W6, W7, W8, W10, W15, W20, W23 (superseded by DeepSeek), W25, W28, W30.
+- **Done in build, partial in proof (6):** W12, W14, W17 (D4 pending re-run), W18 (no performance proof), W21, W26.
+- **Partial (10):** W3, W4, W9, W11, W13, W16, W19, W22, W24, W29.
+- **Scope done, live route not done (1):** W27 (native opencode untested).
+
+### Early test cases
+
+- **36 charter cards.** All were attempted. That counts as exploratory coverage, not as "all valid, all accepted."
+  - Waivers: T0-1, T0-2 and T0-3 keep `valid:false` records under build-drift waivers. T3-1, T3-2 and T3-3 carry harvest waivers. T6-3's native attempts were invalid or blocked, and the native route was accepted as untested.
+  - Re-runs: T4-1/2/4 and T5-1/2 have valid re-runs. T4-3 was valid on the third run.
+  - Findings and fixes: every card produced recorded findings and most were fixed (ledger `14-findings.md`). Several fix waves say "no live check".
+  - Reappearances: the T2-2 secret-in-shared-tier defect came back at T6-4 and again at T7-1 (fixes `ca5f85e0`, `97156c2f`, `a19c7023`). Closure is pending the re-run.
+- **Plan 10 rows.**
+  - Built: H-a (build done; live switch handling still showed up at I4), H-g, H-k (some morning journey JSON records rotated away).
+  - Not done: H-j soak (SK), J7f/J3f file-mode, the P12 artifact suite, J2 aggregate, L7d NVDA, clean host CH, RP (needs an L1 record), I3, I5, the defaults column, attestation.
+  - Partial: P01–P09, P11, JM, LS, CAL, CL, H3, H4, L7a/b/c, CX, TK and the added 05/06/07/08/11/12 rows.
+  - Pending re-run: I1, I2, I4, I6.
+- **Plan 13 defect replay.** 30/30 named historical mutants killed (`scope: named`); this is not full coverage.
+  - R5 as written did not enforce per-row preconditions, so `scenarioRequires` was added. Its execution is pending re-run.
+  - Unnamed tests were kept "to name on next touch."
+  - The Q-M7 test now mirrors the relaxed constant, so the replay cannot protect that floor.
+- **Journeys.** Freeze-1 had 4/16 rows green x2: J0, J3, J6, J7.
+  - J1, J2, J4, J5, J8, J9, J10, J11, J12 and J14 were red, mostly stale fixtures. J14's `.trim` crash was fixed in `b9c62584`.
+  - The re-run chain (`T7/rerun/chain-2.sh:4`) schedules J1–J12 and J14. It omits J0 and J13 and does not schedule J12-group.
+  - J13 needs a working native arm; it is not done.
+- **Rating packs.** All four are pending, with 0 rated.
+  - W6: 1 pair, built on the INVALID T5-1-1, and only one premise where acceptance needs three.
+  - R4: 4/20 pairs, all valid.
+  - C3: 1/30 pairs, with the control contaminated.
+  - Q-M: 1/20 pairs, exploratory, taken from a session with degraded chapter machinery.
+  - The valid-only picker (`scripts/debug/lib/ratingPack.mts:82`) does not repair packs already saved. W6 and C3 must be regenerated.
+
+### Session-evidence notes (Sol's reclassifications)
+
+- The I4 wrong-chat-write alarm is a harness fault: the switch failed and the driver kept sending (`T7/integration/I4-on-r1/turns.jsonl:73`).
+- The reopen `owner: no-story` observation is ST's pre-hydrate scan, not lost gating (`23bf43dd`, `ff9da2f9`).
+- T2-2 "trailing knowledge lines lost" is overstated. Capped reads completed on retry, so the cost was extra calls only.
+- T2-3 "no claim held" was a test-precondition gap (nothing locked).
+- J11.6's secret heuristic tripped on campaign quality keys. It is not a credential leak.
+- Empty visible replies persist (T5-1-3, T5-1-4, T6-1-3, and J13-on-b at low load). Load is not a full explanation, and the root cause is pending re-run.
+- Speaker voice contamination remains (T7-1). It is model quality, separate from agency, and no narration of player decisions was seen.
+
+### Top findings by severity
+
+| # | Sev | Finding | Where | Fix (one line) |
+|---|---|---|---|---|
+| 0 | blocker | acceptance evidence incomplete (re-run, integration, ratings) | `10-acceptance.md:84`, `T7/SUITE.md:24`, `:314` | finish re-run, I3/I5/defaults, ratings |
+| 1 | high | secret filter bypassed: the mirror syncs raw `state.entries` into enabled WI; archive recall appends unfiltered text to the shared `scene_history` block | `src/runtime/coordinators/memoryCoordinator.ts:504`, `src/runtime/memoryMirror.ts:67`, `:138`, `src/runtime/mirrorScan.ts:24`, `src/runtime/chapterKit.ts:141`, `:146` | apply `sharedTierView` policy to mirror eligibility and recall; disable mirrored rows that turn private |
+| 2 | high | rollback rechecks ownership only around chapter-kit load; after awaiting curator reversal, pacing, expansion, checkpoint reapply and persist run unguarded on current `this.extras` | `src/runtime/rollback.ts:78`, `:130`, `:146`, `:150`, `src/runtime/runtimeManager.ts:134` | mint the token before the first await; recheck each continuation |
+| 3 | high | `activateCheckpoint` mints its token after load/confirm and awaits sealing unchecked; it can activate the target in the replacement chat | `src/runtime/runtimeManager.ts:298`, `:301`, `:308`, `src/runtime/chapterKit.ts:164`–`166`, `src/runtime/chapterSeal.ts:127` | capture ownership before load; check after confirm and after seal |
+| 4 | high | inner-beat `ensureFor` captures old context, awaits an existing request, then mints a new token and writes into the current chat | `src/runtime/coordinators/innerCoordinator.ts:121`, `:129`, `:136`, `:153`, `:164` | mint before waiting; return on lapse |
+| 5 | high | Q-M7: floor 6 seal calls, runtime 12, test follows the cap | `src/runtime/chapterSeal.ts:33`, `src/runtime/chapterRetained.review.test.ts:157` | restore the floor or amend Q-M7 explicitly |
+| 6 | high | foreign blob mutated on read/open (`live-v5-foreign-blob`, `live-v5b-adopt-imported`), both columns | `T7/suite/nollm/fail-reasons.txt:21`; fix `23bf43dd` | pending re-run |
+| 7 | high | W6 pack built on INVALID T5-1-1; C3 control contaminated | `test/sessions/rating-pack/.keys/W6.json:9`, `.keys/C3.json`, `T3/SUMMARY.md:72` | regenerate both packs |
+| 8 | medium | `t7r-secret-in-play` can pass vacuously: "vacuous-or-clean", `.some()` over possibly-empty captures | `test/sessions/T7/rerun/fixtures/t7r-secret-in-play.json:34`, `:50` | require exercised captures and a filtering control |
+| 9 | medium | storyLore rechecks chat, not story, after the book-load await; a same-chat story swap can append the departing story's books | `src/runtime/storyLore.ts:84`–`85` | also compare story id/version |
+| 10 | medium | harness startup sweeps every child of the shared `calls` root; it can delete another instance's live homes | `server-plugin/story-orchestrator-harness/index.mjs:100`, `:240`, `:605` | namespace per instance; sweep only proven-abandoned homes |
+| 11 | medium | owned-home factory leaks its root (and a partial login copy) when construction throws | `server-plugin/story-orchestrator-harness/index.mjs:197`–`214` | make the factory exception-safe |
+| 12 | medium | SP8 dynamic imports gated by a persisted flag without `__SO_DEV__`; it can run in prod | `src/runtime/coordinators/stagecraftCoordinator.ts:139`, `:143`, `:308`, `src/runtime/devOnly.guard.test.ts:4` | gate on `__SO_DEV__` until promotion (C13) |
+| 13 | medium | negation contract unresolved (below) | `src/memory/conflicts.ts:327`, `test/scenarios/live-v25-04-negation.json:2` | decide: agreement handling or revised control |
+| 14 | low | docs overstated: "every async writer checks before each write" (the census sees presence, not timing); "story identity rechecked" after lore load; "held secret never reaches a kept-out member"; "every judge use on" (houseRules off); inner beats "never delay a draft / at most two calls" (3 s wait, `ensureFor` bypasses the budget) | `.claude/rules/architecture.md:127`, `:130`, `:146`, `:154`, `00-overview.md:63`, `src/runtime/innerBeatHost.ts:21` | correct the wording or close the gaps |
+| 15 | low | stale records: overview status table, review-pack tier table, T0 "valid" wording | `00-overview.md:465`, this file §Tiers | refresh |
+
+Sol verified as true: detached persistence (`persistence.ts:213`, `:257`), single-writer expansion supersede, seeded chance keyed by chat/story/boundary, memory reversal covering chapter and inner stores, harness admin/origin/`shell:false`/shim secret, and per-user judge keys with no shared fallback.
+
+### live-v25-04-negation (open design question)
+
+Sol's opinion: keep conservative holding for established rows, because similarity alone cannot prove agreement. The current code (`conflicts.ts:287`–`333`) still holds agreeing paraphrases, while the live control demands zero holds; the N1 floor (`v2.5/04-memory-contradictions.md:108`) allows baseline false holds. So the row is a code-versus-contract disagreement, not environment noise. A judge-off re-run cannot settle it. The owner should either implement measured agreement handling (admit or deduplicate only provable agreement) or approve a revised control. Until then the row stays unresolved.
+
+### Pending the freeze-2 re-run
+
+- **Journeys:** J1–J12 and J14 (`T7/rerun/chain-2.sh:4`). Not scheduled: J0, J13, J12-group.
+- **Scenario manifests:**
+  - `T7/rerun/lists/nollm-live.txt` (97 rows)
+  - `nollm-nomodel.txt` (3 rows)
+  - `live-r5.txt` (38 rows)
+  - `live-reds.txt`
+  - `live-reds-extra.txt`
+- **Named closures:**
+  - privacy: `t7r-secret-in-play`, `v27-k1-copier-secret-invariance`
+  - foreign blob: `live-v5-foreign-blob`, `live-v5b-adopt-imported`
+  - expansion: `plan05-background-generation`, `plan06-convergence`, `live-generated-fork-a`, `live-generated-fork-b`, `live-v24-01-guidance-generated`
+  - mutation and memory isolation: `live-rollback-derived`, `live-v25-08-l4-rollback`, `plan05-pin-private-rollback`, `live-v25-08-l4-privacy`
+  - evidence clause and preview: `live-v24-04-player-evidence` (+ its control), `live-v24-08-preview-capture`, `live-v24-08-preview-capture-solo`
+  - other live rows: `live-v15-host-restore`, `live-v17-wi-readback`, `live-v20e-journal-contract`, `live-v24-03-abort`, `live-v25-08-l1-mirror`, `live-v25-01-real-books`, `live-v25-07-a5-calls`, `live-v24-08-fates-jump`, `live-v24-08-routing`, `live-v13-refusal`
+  - negation: `live-v25-04-negation` (also needs the decision above)
+- **Other checks:** SP5 C1–C5 regression; SP7 D4; judge-off J5, J8, J11 and J13; empty-reply root cause; I1, I2, I4, I6 reopen checks.
+- **Not closed by the re-run:** SP1, SP6, SP10; SP8 W3 and promotion; I3, I5 and the defaults column; the H-j soak; native opencode and J13; full W1–W6; blind ratings; the Q-M study; timeline performance; the TC/CC effort matrix; findings 1–5 and 9–12 above.

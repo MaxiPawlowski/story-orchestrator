@@ -63,7 +63,7 @@ Each plan's own file holds the floors; this table is the index. A plan is done o
 2. **Fresh imports**: `adolion-fresh seed` on every lane; toy stories re-seeded; run header captured per lane.
 3. **Run, cheapest first** (an early failure costs little):
    1. D: the mocked scenario corpus, the no-reply journey checks, every plan's live D rows;
-   2. CL: v2.8 01 O7, O10, O11, O13b, O14, O15, C3, C4 (CL half), C12, C13-b, C14-b; then each plan's CL suite rows;
+   2. CL: v2.8 01 O7, O10, O11, O13b, O14, O15, O16, C3, C4 (CL half), C12, C13-b, C14-b; then each plan's CL suite rows;
    3. LT: v2.8 14 rows (local judge server up from the tray);
    4. LI: v2.8 01 O3–O6; v2.8 05–08 rows (broker; LT and LI never share the GPU in the same batch);
    5. RP: v2.8 01 O1, O4, O9, O12, O13, C4 (RP half), C11-F7, §C V3/V4/V8; then each plan's RP suite rows;
