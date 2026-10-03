@@ -12,7 +12,7 @@ import { firstLines } from "./castInPlay";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { playerSaveNotice } from "./saveHealth";
-import { blobMismatch, hasOpenChat, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
+import { blobMismatch, hasOpenChat, hasPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
@@ -279,7 +279,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ready: Boolean(loaded),
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
-    storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
+    storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
     orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(),
     secretLeaks: secretLeaks(Boolean(loaded && sources.secretsHeld), sources.promptBlocks.foreign),

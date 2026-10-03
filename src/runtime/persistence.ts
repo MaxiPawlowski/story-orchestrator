@@ -210,9 +210,14 @@ export function setSelectedStoryId(id: string | null) {
   saveChatWrite("select");
 }
 
+const detached = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
 export function loadPersistedRuntime(id: string): PersistedStoryRuntime | null {
-  return getMetadataBlob().stories[id] ?? null;
+  const record = getMetadataBlob().stories[id];
+  return record ? detached(record) : null;
 }
+
+export const hasPersistedRuntime = (id: string): boolean => Boolean(getMetadataBlob().stories[id]);
 
 // The retention is a promise the chat makes about its own state, so an eviction is
 // reported rather than silent: the ids come back so the caller can journal them and an author can
@@ -249,7 +254,7 @@ export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
   if (!blob) return [];
   const integrity = openChatIntegrity();
   if (integrity !== null) blob.integrity = integrity;
-  blob.stories[record.storyId] = record;
+  blob.stories[record.storyId] = detached(record);
   blob.selectedStoryId = record.storyId;
   return gcStories(blob);
 }

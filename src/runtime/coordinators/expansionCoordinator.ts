@@ -170,11 +170,12 @@ export class ExpansionCoordinator {
     const retryable = origin === "active" && existing?.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2;
     const orphaned = Boolean(existing && ["queued", "generating"].includes(existing.status) && !this.hasLiveJob(key));
     if (existing && !retryable && !orphaned) return false;
-    this.liveJobs.set(key, beginRun(this.deps.ownership));
+    const job = beginRun(this.deps.ownership);
+    this.liveJobs.set(key, job);
     this.entries[key] = { ...this.emptyEntry(candidate, "queued"), origin, attempts: existing?.attempts ?? 0, ...(headingP !== undefined ? { headingP } : {}) };
     void this.deps.persist();
     this.deps.notify();
-    schedule(`expand:${origin === "lookahead" ? "ahead:" : ""}${candidate.stubId}`, () => this.generate(candidate));
+    schedule(`expand:${origin === "lookahead" ? "ahead:" : ""}${candidate.stubId}`, async () => { if (this.liveJobs.get(key) === job) await this.generate(candidate); });
     return true;
   }
 
@@ -272,6 +273,7 @@ export class ExpansionCoordinator {
     // the last to have.
     const run = beginRun(this.deps.ownership);
     this.liveJobs.set(key, run);
+    const current = () => run.stillOwns() && this.liveJobs.get(key) === run;
     let transport: unknown = null;
     try {
       const state = required(this.deps.getState(), "engine state");
@@ -279,7 +281,7 @@ export class ExpansionCoordinator {
       const unit = await loadUnit();
       const generated = await unit.generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
           pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.judgeFor(unit, story, input));
-      if (!run.stillOwns()) return;
+      if (!current()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
         this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats,
             codeCheck: generated.codeCheck,
@@ -303,7 +305,7 @@ export class ExpansionCoordinator {
         this.rebuildMergedStory();
       }
     } catch (error) {
-      if (!run.stillOwns()) return;
+      if (!current()) return;
       this.entries[key] = { ...this.entries[key], status: "failed", lastError: error instanceof Error ? error.message : "Generation failed", updatedAt: new Date().toISOString() };
       if (failureClass(error) === "transport") transport = error;
     } finally {
