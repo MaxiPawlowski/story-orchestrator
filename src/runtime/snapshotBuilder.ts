@@ -155,6 +155,11 @@ const gateQualitiesOf = (story: NormalizedStoryV2 | null, activeId: string | und
   ? [...new Set((story.outgoingByCheckpoint[activeId] ?? []).flatMap((transition) => gateKeys(transition.gate)))].filter((key) => Boolean(story.qualityByKey[key]))
   : []);
 
+const activeOf = (story: NormalizedStoryV2 | null, state: EngineState | null) => {
+  const active = state && story ? story.checkpointById[state.activeCheckpointId] ?? null : null;
+  return { active, lost: state && story && !active ? state.activeCheckpointId : null };
+};
+
 const authorMoves = (extras: RuntimeExtras) => extras.journal.filter((record) => record.kind === "author");
 
 const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
@@ -205,7 +210,7 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
-  const active = state && story ? story.checkpointById[state.activeCheckpointId] : null;
+  const { active, lost } = activeOf(story, state);
   const blackboard = state?.blackboard.values ?? {};
   const lastFired = lastFiredTransition(sources.boundaryLog, story, state?.activeCheckpointId);
   const evidenceByKey = new Map<string, string>();
@@ -225,9 +230,9 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension, agencyFor(active));
   const agency = agencyFor(active);
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
-  const extractionHealth = sources.extractionHealth ?? null;
   const { chapters, openThreads, chapterLines, fold, scene } = chapterParts(sources, story, state);
-  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended, active);
+  const extractionHealth = sources.extractionHealth ?? null;
+  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended, active, lost);
   // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.

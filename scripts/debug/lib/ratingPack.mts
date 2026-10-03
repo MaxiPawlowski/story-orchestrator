@@ -28,6 +28,18 @@ export function rowArm(value: any, sessionArm: string | null = null): string | n
   return typeof value.arm === 'string' && value.arm ? value.arm : null;
 }
 
+const swipeTarget = (replies: any[]): { id: any; text: string } => {
+  const last = replies[replies.length - 1];
+  return { id: last?.messageId, text: String(last?.text ?? '') };
+};
+
+const swipedMessage = (value: any): { id: any; text: string } => {
+  const replies = [...(value.tail ?? [])].filter((message: any) => !message.isUser);
+  const id = value.did?.messageId ?? replies[replies.length - 1]?.messageId;
+  const swiped = replies.find((message: any) => message.messageId === id);
+  return { id, text: String(swiped?.text ?? '') };
+};
+
 export function candidatesFromTurns(gate: BlindGate, rows: Array<{ line: number; value: any }>, sessionDir: string, sessionArm: string | null = null): Candidate[] {
   const out: Candidate[] = [];
   for (const { line, value } of rows) {
@@ -35,12 +47,7 @@ export function candidatesFromTurns(gate: BlindGate, rows: Array<{ line: number;
     if (!value || value.ok === false || !arm) continue;
     if (!sessionArm && (value.gate ?? gate) !== gate) continue;
     const chatId = value.chatId ?? value.observe?.chatId ?? null;
-    const reply = value.kind === 'turn'
-      ? { id: value.replies?.[0]?.messageId, text: (value.replies ?? []).map((item: any) => item.text).join('\n\n') }
-      : (() => {
-        const last = [...(value.tail ?? [])].reverse().find((message: any) => !message.isUser);
-        return { id: value.did?.messageId ?? last?.messageId, text: last?.text ?? '' };
-      })();
+    const reply = value.kind === 'turn' ? swipeTarget(value.replies ?? []) : swipedMessage(value);
     if (!chatId || !Number.isInteger(reply.id) || !reply.text.trim()) continue;
     const context = tail(((value.observe?.context ?? []) as any[]).filter((message) => Number(message.id) < reply.id).map((message) => ({ name: String(message.name ?? ''), text: String(message.text ?? '') })));
     out.push({ gate, arm, key: `${chatId}:${reply.id}`, context, text: reply.text, source: `${sessionDir}/turns.jsonl:${line}` });

@@ -109,3 +109,19 @@ test('T5-1 re-run: W6 pairs only VALID sessions, the latest valid one per arm an
   const none = packCandidates([entry('T5/T5-1-1', 'agent', false, '2026-10-02T11:54:13.677Z', 'Invalid agent run')]);
   assert.deepEqual(none.candidates, []);
 });
+
+test('T6-1 R4: a round with several replies pairs the reply swipe-new acted on, by message id', () => {
+  const round = [
+    { line: 1, value: { kind: 'turn', ok: true, chatId: 'c9', replies: [{ messageId: 4, speaker: 'Kela', text: 'First voice.' }, { messageId: 5, speaker: 'Oren', text: 'Last voice, plain.' }], observe: { context: [...context, { id: 4, name: 'Kela', text: 'First voice.' }] } } },
+    { line: 2, value: { kind: 'mutation', verb: 'swipe-new', ok: true, chatId: 'c9', did: { messageId: 5 }, tail: [{ messageId: 4, isUser: false, text: 'First voice.' }, { messageId: 5, isUser: false, text: 'Last voice, reasoned.' }, { messageId: 6, isUser: false, text: 'a note after it' }], observe: { context } } },
+  ];
+  const plain = candidatesFromTurns('R4', [round[0]], 'd', 'plain');
+  const reasoned = candidatesFromTurns('R4', [round[1]], 'd', 'reasoning');
+  assert.deepEqual(plain.map((candidate) => [candidate.key, candidate.text]), [['c9:5', 'Last voice, plain.']]);
+  assert.deepEqual(reasoned.map((candidate) => [candidate.key, candidate.text]), [['c9:5', 'Last voice, reasoned.']]);
+  assert.deepEqual(plain[0].context.map((line) => line.text), ['We march at dawn.', 'Why the hurry?', 'First voice.']);
+  const pack = buildPack('R4', [...plain, ...reasoned], 'seed');
+  assert.equal(pack.pairs.length, 1);
+  assert.equal(pack.unmatched, 0);
+  assert.deepEqual(new Set([pack.pairs[0].left.text, pack.pairs[0].right.text]), new Set(['Last voice, plain.', 'Last voice, reasoned.']));
+});

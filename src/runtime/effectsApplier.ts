@@ -216,8 +216,9 @@ export class EffectsApplier {
   // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
   async applyCheckpoint(
-    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
+    story: NormalizedStoryV2, checkpoint: Checkpoint | undefined, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
   ): Promise<void> {
+    if (!checkpoint) return;
     if (!openChatId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_CHAT);
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
@@ -479,7 +480,8 @@ export class EffectsApplier {
     if (next.kind === "fire") await this.fireOnEnter(checkpoint, extras, next.gate, false);
   }
 
-  async fireActiveReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: ActiveTrigger, leaving: string | null, breakAt?: number, aliases: string[] = []) {
+  async fireActiveReplies(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, trigger: ActiveTrigger, leaving: string | null, breakAt?: number, aliases: string[] = []) {
+    if (!checkpoint) return 0;
     if (!leaving && trigger === "afterSpeak") await this.releaseOpener(checkpoint, extras);
     if (!leaving) return this.fireNpcReplies(checkpoint, extras, trigger, breakAt, aliases);
     const held = heldLine(readNpcReplies(checkpoint.effects), trigger, checkpoint.name || checkpoint.id, leaving);

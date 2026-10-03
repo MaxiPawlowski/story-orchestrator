@@ -101,6 +101,7 @@ export interface ExpansionCacheEntry {
   origin: "active" | "lookahead";
   headingP?: number;
   variants?: VariantRecord;
+  staledAt?: { boundary: number; from: ExpansionStatus };
   updatedAt: string;
 }
 

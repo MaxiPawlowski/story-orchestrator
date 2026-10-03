@@ -27,7 +27,7 @@ describe("T4-1-2: the transition the queued writes will fire at the next boundar
     engine.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 26, to: 33 }, deltas: [{ q: "duel_begun", v: true }] });
     expect(engine.pendingTransition()?.to).toBe("the-duel");
     expect(engine.serialize().blackboard.values.duel_begun).toBeUndefined();
-    expect(engine.activeCheckpoint.id).toBe("whispers");
+    expect(engine.activeCheckpoint?.id).toBe("whispers");
     expect(engine.pendingWrites).toHaveLength(1);
     expect(engine.commitBoundary({ lastMessageId: 34, chatLength: 35 }).fired?.to).toBe("the-duel");
   });

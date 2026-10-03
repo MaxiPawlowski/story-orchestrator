@@ -23,7 +23,7 @@ function harness(judge: RuntimeExtras["judge"]) {
     memory: { rollbackFromMessage: () => undefined, updateInjection: () => undefined },
     stagecraft: { revertAppliedSince: async () => undefined },
     pacing: { replayCommitted: () => undefined, updateSteering: () => undefined },
-    revalidateExpansion: () => undefined,
+    revalidateExpansion: () => undefined, restoreExpansion: () => 0,
     extras: () => extras,
     refreshRequirements: () => undefined,
     reapplyCheckpoint: async () => undefined,

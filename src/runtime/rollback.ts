@@ -28,6 +28,7 @@ export interface RollbackDeps {
   pacing: { replayCommitted: () => unknown; updateSteering: () => unknown };
   /** The expansion cache is built from the blackboard, which the rollback just restored. */
   revalidateExpansion: () => unknown;
+  restoreExpansion: (boundary: number) => unknown;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
   reapplyCheckpoint: (messageId: number) => Promise<void>;
@@ -37,6 +38,13 @@ export interface RollbackDeps {
   setStatus: (status: string) => void;
   onApplied: (messageId: number, window: SharedReadWindow) => void;
 }
+
+export const LOST_CHECKPOINT = "the story reached a checkpoint its graph no longer has and resumed on its trail";
+
+export const repairActiveCheckpoint = (engine: Pick<StoryEngine, "ensureActiveCheckpoint">, note: (detail: string) => void): void => {
+  const detail = engine.ensureActiveCheckpoint();
+  if (detail) note(detail);
+};
 
 export interface RollbackRecord {
   seq: number;
@@ -131,6 +139,8 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const current = deps.context();
   const window = getChatWindow(engine.serialize().checkpointStartedMessageId, current.lastMessageId);
   quarantine();
+  deps.restoreExpansion(engine.serialize().boundary);
+  repairActiveCheckpoint(engine, (detail) => deps.journal.record("story", LOST_CHECKPOINT, deps.context().journal, detail));
   await deps.stagecraft.revertAppliedSince(messageId);
   deps.pacing.replayCommitted();
   deps.revalidateExpansion();

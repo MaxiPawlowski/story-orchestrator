@@ -31,7 +31,7 @@ const harness = () => {
     memory: { rollbackFromMessage: () => calls.push("memory"), updateInjection: () => undefined },
     stagecraft: { revertAppliedSince: async () => { calls.push("stagecraft"); } },
     pacing: { replayCommitted: () => undefined, updateSteering: () => undefined },
-    revalidateExpansion: () => undefined,
+    revalidateExpansion: () => undefined, restoreExpansion: () => 0,
     extras: () => extras,
     refreshRequirements: () => undefined,
     reapplyCheckpoint: async () => undefined,

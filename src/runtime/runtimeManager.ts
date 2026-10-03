@@ -28,7 +28,7 @@ import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISI
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
-import { runRollback, type DecodeJournal } from "./rollback";
+import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
@@ -41,7 +41,7 @@ import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
-import { refreshRequirementsNow, type RequirementsHost } from "./requirementsWatch";
+import { behindActive, refreshRequirementsNow, type RequirementsHost } from "./requirementsWatch";
 import { getMetadataBlob, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import { findStoryRecord } from "./storyLibrary";
 import { settingsRoot } from "./settingsRoot";
@@ -251,8 +251,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     const run = beginRun(this.owner.ownership);
     this.notices.lastRollback = null;
     if (!(await this.chatSave.reconcile(run))) return null;
-    this.refreshRequirements();
-    this.expansion.revalidateInserted();
+    this.refreshRequirements(); this.expansion.revalidateInserted();
+    repairActiveCheckpoint(this.engine, (detail) => this.noteRecap(LOST_CHECKPOINT, detail));
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
     this.chatSave.fingerprints.settle();
@@ -262,7 +262,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       if (!run.stillOwns()) return null;
     }
     if (result.effects) await this.applyActive("activate", result.fired ? result.context.lastMessageId : undefined);
-    else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) await this.applyActive("hydrate");
+    else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint?.id) await this.applyActive("hydrate");
     if (!run.stillOwns()) return null;
     await this.stagecraft.applyAccepted();
     if (!run.stillOwns()) return null;
@@ -612,7 +612,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   readonly requirementsHost: RequirementsHost = { ...this.lifecycle, hydrate: () => this.applyActive("hydrate"), refresh: () => {
     const before = this.extras.requirements.ready;
     this.refreshRequirements();
-    return this.loaded ? { before, after: this.extras.requirements.ready, behind: this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id } : null;
+    return this.loaded ? { before, after: this.extras.requirements.ready, behind: behindActive(this.extras.lastAppliedCheckpointId, this.engine.activeCheckpoint) } : null;
   } };
   refreshRequirementsNow() { return refreshRequirementsNow(this.requirementsHost); }
 }
