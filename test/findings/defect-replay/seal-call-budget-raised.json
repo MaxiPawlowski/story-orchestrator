@@ -1,0 +1,12 @@
+{
+  "id": "seal-call-budget-raised",
+  "defect": "the chapter seal call budget was raised from the plan floor (6) to 12, so an over-budget chapter kept asking the model instead of being refused with a reason",
+  "guards": "docs/plans/v2.6/07-chapters-and-saga-memory.md Q-M7 (SEAL_CALL_BUDGET = 6), user decision 2026-10-03",
+  "fixCommit": "v2.6 final review (Sol 6.1) Q-M7: budget back to 6, raised in 00d423fb",
+  "file": "src/runtime/chapterSeal.ts",
+  "find": "export const SEAL_CALL_BUDGET = 6;",
+  "replace": "export const SEAL_CALL_BUDGET = 12;",
+  "tests": [
+    "src/runtime/chapterRetained.review.test.ts"
+  ]
+}

@@ -15,7 +15,7 @@ import { chronicleMarkdown } from "@memory/chronicle";
 import { getContext, registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
 import { previouslyText } from "./narrative";
-import { beginRun } from "./runToken";
+import { beginRun, type RunGuard } from "./runToken";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "./runtimeManager";
 import type { MemoryRuntimeState } from "./types";
@@ -128,7 +128,8 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
   const settings = settingsOf(host);
   if (!story || !state || !(settings.archiveRecall || settings.fold) || !memory.settings.enabled || withholds(type) || !recordsOf(host).length) return 0;
   const text = recallText(chat, story.checkpointById[state.activeCheckpointId]?.objective ?? "");
-  const candidates = recallCandidates(memory.entries, text);
+  const shown = (entries: MemoryEntry[]) => host.coordinator.injector.restingEntries(recallCandidates(entries, text));
+  const candidates = shown(memory.entries);
   if (!candidates.length) return 0;
   const run = beginRun(host.deps.ownership);
   const semantic = await recallBand(host.deps.hosts.vectors, text, candidates);
@@ -138,7 +139,7 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
     boundary: state.boundary, lastMessageId: state.lastMessageId, turnText: text, turnEntities: recallMentions(live.entries, text),
     openArcs: openArcTexts(live.arcs, ARC_OPEN_INJECT_LIMIT), weights: live.settings.scoreWeights,
   };
-  const lines = selectRecall(recallCandidates(live.entries, text), recordsOf(host), context, { tokens: settings.recallTokens, semantic });
+  const lines = selectRecall(shown(live.entries), recordsOf(host), context, { tokens: settings.recallTokens, semantic });
   if (!lines.length) return 0;
   const key = memoryExtensionKey("scene_history");
   const current = host.deps.hosts.injection.readInjectedPromptBlocks().find((block) => block.key === key)?.value ?? "";
@@ -151,7 +152,7 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
 
 export type JumpDecision = "none" | "seal" | "skip" | "cancel";
 
-export async function confirmChapterJump(port: ChapterPort, targetId: string): Promise<JumpDecision> {
+export async function confirmChapterJump(port: ChapterPort, targetId: string, run: RunGuard = beginRun(port.host.deps.ownership)): Promise<JumpDecision> {
   const state = port.host.deps.getState();
   const story = port.host.deps.getStory();
   const target = state && settingsOf(port.host).seal ? jumpSeal(story, state, recordsOf(port.host), targetId, skipOf(port.host, state.visitedPath.length)) : null;
@@ -159,7 +160,6 @@ export async function confirmChapterJump(port: ChapterPort, targetId: string): P
   const into = chapterOf(story, targetId);
   const text = `Jumping to ${story?.checkpointById[targetId]?.name ?? targetId}${into ? ` (${into.title})` : ""} leaves the chapter ${target.chapter.title}. `
     + "A jump is not proof the chapter was played, so it is sealed into a record only if you say so.";
-  const run = beginRun(port.host.deps.ownership);
   const choice = await showChoicePopup(text, { okButton: { id: "seal" as const, label: "Seal it, then jump" }, choices: [{ id: "skip" as const, label: "Jump without sealing" }] });
   if (!choice || !run.stillOwns()) return "cancel";
   if (choice === "seal") await port.seal(target, sealAtState(state, { pathLength: state.visitedPath.length + 1, path: [...state.visitedPath, targetId], activeCheckpointId: targetId }));

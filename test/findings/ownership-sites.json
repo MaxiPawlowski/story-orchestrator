@@ -193,9 +193,9 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited MemoryCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. Not everything with an await owes a check of its own: the in-memory patch and the injection update both run before the first await, so minting here would compare a token against the world it was just minted from and prove nothing."
     },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.syncWorldInfo": {
+    "src/runtime/memoryMirror.ts#MirrorSync.once": {
       "status": "delegate",
-      "note": "awaits syncMemoryMirror, which owns the check: it returns null when the world moved, and this function only patches extras when the result is non-null."
+      "note": "awaits syncMemoryMirror (v2.6 final review follow-up 2026-10-03). The body moved out of MemoryCoordinator.syncWorldInfo (now a one-line delegate) into this serialized runner, so a held-secret re-sync and a consolidation sync never interleave writes into one book. It awaits syncMemoryMirror, which owns the check (its own RunGuard, checked before each host write, null when the world moved), and commits the writes only when the result is non-null. A re-sync started by MemoryCoordinator.applyEpistemic carries the read's RunGuard and is dropped before anything runs when that world is gone (secretMirrorRecall.review.test.ts \"a chat switch before the re-sync writes nothing into the book\")."
     },
     "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.run": {
       "status": "checked",
@@ -206,8 +206,8 @@
       "note": "v2.6 T3-1 fix wave (2026-10-02): the one beat write, shared by run() and ensureFor() through build(), which only registers it as in flight. Takes the caller's RunGuard (minted over the message the beat reads) and checks it after the inner call, immediately before the ring write (innerCoordinator.test.ts)."
     },
     "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.ensureFor": {
-      "status": "local",
-      "note": "v2.6 T3-1 fix wave (2026-10-02): after awaiting an in-flight beat for the same member it writes only its own in-memory per-turn set of members already asked at draft time (a dedupe, never persisted or chat state); the beat itself is written by InnerCoordinator.build under a RunGuard minted here."
+      "status": "checked",
+      "note": "v2.6 final review finding 4 (2026-10-03): the RunGuard is minted over the draft anchor BEFORE waiting on an in-flight beat for the same member and checked right after that wait, so a chat or story switch during it asks nothing and writes nothing (it used to be minted after the wait, so the stale story and state it read before the await were built into the next chat). After the check it writes only its own in-memory per-turn set of members already asked at draft time; the beat itself is written by InnerCoordinator.write under the same guard (innerCoordinator.test.ts \"finding 4: the token is minted before waiting on the in-flight pass, so a chat switch during that wait asks and writes nothing\")."
     },
     "src/runtime/innerBeatHost.ts#within": {
       "status": "local",
@@ -418,16 +418,16 @@
       "note": "v2.4 plan 02 §10 (2026-09-24): the wrapper around `rollbackOnce` (which carries the old runRollback row). Its only write after the await is `deps.notices.lastOutcome`, an in-memory record of the outcome the harness reads for `expect.rollbackOutcome`; it is never persisted and names no chat, so there is no edge for a token to guard."
     },
     "src/runtime/rollback.ts#rollbackOnce": {
-      "status": "partial",
-      "note": "v2.3 plan 04. The rollback composition, extracted from the manager for its line budget. Partial, not checked: it verifies no token of its own, because it does not start any work — it is the mutation's own consequence. `rollbackFromMessage` records the mutation position on the owner before calling it, the run it composes belongs to the chat the runtime is loaded for, and every host write it triggers (world-info re-apply, stagecraft revert) is one this census already covers at its own edge. Making it `checked` means minting a token inside work that the mutation just invalidated, which would refuse the rollback it exists to perform. CR-E7 (2026-09-30): the one await before its first write, the chapter kit's dynamic import, is now bracketed by a RunToken minted just before it (after the mutation was recorded, so it does not refuse its own rollback); a chat that changed during the load makes the rollback a noop, and extras are read only after the check (rollbackKit.review.test.ts)."
+      "status": "checked",
+      "note": "v2.3 plan 04; v2.6 final review finding 2 (2026-10-03). The rollback composition, extracted from the manager for its line budget. One RunGuard with NO window is minted at the top, after rollbackFromMessage recorded the mutation position on the owner, so it does not refuse its own rollback (a windowless token asks only whether the chat, story, version or epoch moved). It is checked after every await before the next write: the chapter kit load (CR-E7, rollbackKit.review.test.ts), the stagecraft revert, the checkpoint re-apply and the persist, on the noop and the applied path; a lapse returns noop and writes nothing more (rollbackOwnership.review.test.ts)."
     },
     "src/runtime/rollback.ts#rollbackOnce.unavailable": {
-      "status": "partial",
-      "note": "v2.3 replan V11 (2026-09-23). The E1 path, shared by both ways the history can be gone (nothing retained precedes the edit, or the boundary it names has no snapshot). Partial for the same reason as `runRollback`: it is the mutation's own consequence, so minting a token inside it would refuse the rollback it exists to perform. Its one host write that can cross a chat, the stagecraft revert, is `revertAppliedSince`, which checks the token before each inverse; `persist` carries the chat check."
+      "status": "checked",
+      "note": "v2.3 replan V11 (2026-09-23); v2.6 final review finding 2 (2026-10-03). The E1 path, shared by both ways the history can be gone. It uses rollbackOnce's windowless RunGuard and checks it after the stagecraft revert (before the notice, the journal line, the injection and the persist) and after the persist (before notify), so a chat switch during either await writes nothing into the next chat (rollbackOwnership.review.test.ts \"history-unavailable path: ...\")."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.activateCheckpoint": {
       "status": "checked",
-      "note": "v2.3 replan V3 (2026-09-23): mints before the engine moves and stops after applyCheckpoint if the world moved, instead of stamping status, steering and injection onto whatever loaded meanwhile."
+      "note": "v2.3 replan V3 (2026-09-23); v2.6 final review finding 3 (2026-10-03): the RunGuard is minted at the top, before the chapter kit loads, checked after the load, handed to confirmChapterJump (which checks it after the seal popup, before the seal) and checked again after the jump decision; then it stops after applyCheckpoint if the world moved, instead of stamping status, steering and injection onto whatever loaded meanwhile (jumpRelease.review.test.ts \"finding 3: ...\")."
     },
     "src/runtime/managerDelegates.ts#CoordinatorDelegates.applyExtractionAudit": {
       "status": "delegate",

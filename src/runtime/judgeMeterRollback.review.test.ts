@@ -1,3 +1,4 @@
+import { testOwnership } from "../../test/findings/testOwnership";
 import type { RuntimeExtras } from "./types";
 import { runRollback, type RollbackDeps } from "./rollback";
 
@@ -11,6 +12,7 @@ const { appendJudgeCall, createJudgeRuntime } = jest.requireActual("../judge/set
 function harness(judge: RuntimeExtras["judge"]) {
   const extras = { extraction: { audits: [] }, judge, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] } } as unknown as RuntimeExtras;
   const deps = {
+    ownership: testOwnership(),
     engine: {
       shouldRollbackFromMessage: () => false,
       boundaryBeforeMessage: () => 0,

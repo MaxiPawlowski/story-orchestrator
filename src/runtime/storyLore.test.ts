@@ -129,6 +129,13 @@ describe("story-scoped lore: a story's books reach only the chats that play it (
     expect(comments(arrays)).toEqual([]);
   });
 
+  it("finding 9: appends nothing when the story changed inside the same chat while the book loaded", async () => {
+    world.onLoad = () => play(hoard, "pawn-chat", ["the-hoard-1"]);
+    const arrays = emptyScan();
+    expect(await lore().append(arrays)).toMatchObject({ owner: "no-story", appended: 0 });
+    expect(comments(arrays)).toEqual([]);
+  });
+
   it("names a listed book that could not be loaded instead of appending a dummy", async () => {
     const ghost = make("ghost", "Gone Book", []);
     play(ghost, "ghost-chat");

@@ -192,26 +192,48 @@ export function ownedLoginCopy(harness, text, model) {
     return JSON.stringify(entry?.type === 'oauth' ? { [provider]: entry } : {});
 }
 
-export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cacheDir = null, fsImpl = fs }) {
+export const OWNER_MARKER = '.so-owner.json';
+export const UNMARKED_STALE_MS = 24 * 3_600_000;
+const openHomes = new Set();
+
+export function pidAlive(pid) {
+    if (!Number.isInteger(pid) || pid <= 0) return false;
+    try {
+        process.kill(pid, 0);
+        return true;
+    } catch (error) {
+        return error?.code === 'EPERM';
+    }
+}
+
+export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cacheDir = null, fsImpl = fs, pid = process.pid }) {
     fsImpl.mkdirSync(path.join(tmpRoot, 'calls'), { recursive: true });
     const root = fsImpl.mkdtempSync(path.join(tmpRoot, 'calls', `${harness}-`));
-    const dirs = { root };
-    for (const name of ['home', 'config', 'data', 'cache', 'state', 'tmp', 'cwd']) {
-        dirs[name] = path.join(root, name);
-        fsImpl.mkdirSync(dirs[name], { recursive: true });
+    try {
+        fsImpl.writeFileSync(path.join(root, OWNER_MARKER), JSON.stringify({ pid }));
+        openHomes.add(root);
+        const dirs = { root };
+        for (const name of ['home', 'config', 'data', 'cache', 'state', 'tmp', 'cwd']) {
+            dirs[name] = path.join(root, name);
+            fsImpl.mkdirSync(dirs[name], { recursive: true });
+        }
+        if (cacheDir) {
+            fsImpl.mkdirSync(cacheDir, { recursive: true });
+            dirs.cache = cacheDir;
+        }
+        for (const name of ['AppData/Roaming', 'AppData/Local']) fsImpl.mkdirSync(path.join(dirs.home, name), { recursive: true });
+        const real = fsImpl.readFileSync(loginFile);
+        const before = digest(real);
+        const copy = path.join(root, ...LOGIN_DEST[harness]);
+        fsImpl.mkdirSync(path.dirname(copy), { recursive: true });
+        const copied = harness === 'opencode' ? ownedLoginCopy(harness, real.toString('utf8'), model) : real;
+        fsImpl.writeFileSync(copy, copied);
+        return { ...dirs, loginFile, copy, before, copyBefore: digest(copied) };
+    } catch (error) {
+        openHomes.delete(root);
+        try { fsImpl.rmSync(root, RM_RETRY); } catch { /* reported by the caller's error */ }
+        throw error;
     }
-    if (cacheDir) {
-        fsImpl.mkdirSync(cacheDir, { recursive: true });
-        dirs.cache = cacheDir;
-    }
-    for (const name of ['AppData/Roaming', 'AppData/Local']) fsImpl.mkdirSync(path.join(dirs.home, name), { recursive: true });
-    const real = fsImpl.readFileSync(loginFile);
-    const before = digest(real);
-    const copy = path.join(root, ...LOGIN_DEST[harness]);
-    fsImpl.mkdirSync(path.dirname(copy), { recursive: true });
-    const copied = harness === 'opencode' ? ownedLoginCopy(harness, real.toString('utf8'), model) : real;
-    fsImpl.writeFileSync(copy, copied);
-    return { ...dirs, loginFile, copy, before, copyBefore: digest(copied) };
 }
 
 export function closeOwnedHome(home, fsImpl = fs) {
@@ -227,20 +249,45 @@ export function closeOwnedHome(home, fsImpl = fs) {
     } catch {
         report.realChanged = true;
     }
+    openHomes.delete(home.root);
     try { fsImpl.rmSync(home.root, RM_RETRY); } catch { report.removed = false; }
     report.removed = !fsImpl.existsSync(home.root);
     return report;
 }
 
-export function sweepCalls(tmpRoot, fsImpl = fs) {
+export function homeOwner(root, fsImpl = fs) {
+    try {
+        const pid = JSON.parse(fsImpl.readFileSync(path.join(root, OWNER_MARKER), 'utf8'))?.pid;
+        return Number.isInteger(pid) ? pid : null;
+    } catch {
+        return null;
+    }
+}
+
+export function sweepable(root, { fsImpl = fs, alive = pidAlive, self = process.pid, now = Date.now() } = {}) {
+    const pid = homeOwner(root, fsImpl);
+    if (pid === null) {
+        try { return now - fsImpl.statSync(root).mtimeMs > UNMARKED_STALE_MS; } catch { return false; }
+    }
+    if (pid === self) return !openHomes.has(root);
+    return !alive(pid);
+}
+
+export function sweepCalls(tmpRoot, fsImpl = fs, { alive = pidAlive, self = process.pid, now = Date.now() } = {}) {
     const calls = path.join(tmpRoot, 'calls');
     let names = [];
-    try { names = fsImpl.readdirSync(calls); } catch { return { swept: 0, left: 0 }; }
+    try { names = fsImpl.readdirSync(calls); } catch { return { swept: 0, left: 0, kept: 0 }; }
     let left = 0;
+    let kept = 0;
     for (const name of names) {
-        try { fsImpl.rmSync(path.join(calls, name), RM_RETRY); } catch { left += 1; }
+        const root = path.join(calls, name);
+        if (!sweepable(root, { fsImpl, alive, self, now })) {
+            kept += 1;
+            continue;
+        }
+        try { fsImpl.rmSync(root, RM_RETRY); } catch { left += 1; }
     }
-    return { swept: names.length - left, left };
+    return { swept: names.length - left - kept, left, kept };
 }
 
 export function childEnv(harness, home, parent = process.env) {
@@ -603,7 +650,7 @@ export function createHarnessService({
     const warmMarker = path.join(cacheDir, '.so-warm');
     const loginFileOf = (harness) => config.harnesses[harness].loginFile ?? realLoginFile(harness, env, home);
     const swept = sweepCalls(config.tmpRoot, fsImpl);
-    if (swept.swept || swept.left) log(JSON.stringify({ sweptHomes: swept.swept, leftHomes: swept.left }));
+    if (swept.swept || swept.left || swept.kept) log(JSON.stringify({ sweptHomes: swept.swept, leftHomes: swept.left, keptHomes: swept.kept }));
 
     const providersOf = (harness, model = null) => {
         if (harness !== 'opencode') return null;

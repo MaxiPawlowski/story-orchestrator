@@ -717,3 +717,9 @@ Still open from this plan: judge `memoryVerify`, epistemic fold, D10, D11, map-r
 - Q-M corpus and driver: `saga-mini.transcript.json` (360 messages), `needles.json` (40), chapterless 600-message variant, generator `scripts/debug/lib/sagaCorpus.mts`, driver `scripts/debug/so-saga-recall.mts` (A0 baseline prepared and frozen on its own; treatment arms refused against an A0 from another manifest). `recipe.json` names the commands.
 - Deviations: the Q-M7 bound counts the seal unit's own calls only; era records are not listed in the player Overview; no panel controls for the new switches. Q-M1..Q-M8 runs: owed to Part B.
 - Gates and the full table: `15-review.md` §Review fixes AS (measurement).
+
+### 2026-10-03 — Q-M7 call budget back to the floor (v2.6 final review, user decision)
+
+- `SEAL_CALL_BUDGET` 12 → **6** (`runtime/chapterSeal.ts`), the Q-M7 floor; it had been raised in `00d423fb` (T2-1 fix wave) to make room for the re-ask at cap. A call refused by the budget now adds `call budget of 6 spent, nothing more asked` to the run's cuts, so the degraded record's journal line says why.
+- Map-reduce at the cap: an oversize chapter whose every answer is cut stops at exactly 6 calls (map chunks and their re-asks included) and is **refused with a reason, not sealed**: status `degraded`, nothing folded (`chapterRetained.review.test.ts` "Q-M7: a chapter that runs over the budget is refused with a reason, not sealed …", "Q-M7: the call budget is the plan floor, six …"). The existing map-reduce, final-seal and recovery cases pass unchanged at 6.
+- Defect replay: new mutant `test/findings/defect-replay/seal-call-budget-raised.json` (6 → 12), killed by `chapterRetained.review.test.ts` (`node scripts/suite/defect-replay.mjs --only seal-call-budget-raised`: 1 of 1 killed). `defect-replay-report.json` was not re-run (it already predates the C13 spec).

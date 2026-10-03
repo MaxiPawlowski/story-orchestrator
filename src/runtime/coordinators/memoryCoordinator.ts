@@ -19,14 +19,14 @@ import {
 import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
-import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
+import { MirrorSync, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonSynthesis } from "../canonSynthesis";
 import { ChapterPort, chapterKit } from "../chapterPort";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import type { MemoryHosts } from "../hostPorts";
 import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, fitEntryToBlock, tokensFor } from "../entryTokens";
@@ -96,6 +96,12 @@ export class MemoryCoordinator {
   });
   readonly chapters: ChapterPort;
   private consolidationInFlight = false;
+  readonly mirror = new MirrorSync({
+    title: () => (this.enabled ? this.deps.getStory()?.title ?? null : null),
+    input: () => ({ entries: this.injector.restingEntries(this.state.entries), writes: this.state.wiWrites, book: this.state.wiBook }),
+    host: () => ({ ...this.deps.hosts.mirror, getChatId: this.deps.hosts.chat.chatId, ownership: this.deps.ownership }),
+    commit: (writes, book) => { this.patch({ wiWrites: writes, wiBook: book }, false); return this.save(); },
+  });
   readonly queue: MemoryQueue;
 
   constructor(private readonly deps: MemoryCoordinatorDeps) {
@@ -345,8 +351,10 @@ export class MemoryCoordinator {
       ? inner.admitIntents(common, inner.intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, story?.requirements?.personas ?? []))
       : common.filter((signal) => signal.tag !== "intends");
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
+    const held = this.injector.heldSecretsKey();
     // Refresh here too, or a pass that lapses after this write injects the member an empty block.
     this.patch({ epistemic: capEpistemic(inner ? inner.capIntents(applied.entries) : applied.entries) }); this.updateInjection();
+    if (this.state.wiBook && this.injector.heldSecretsKey() !== held) void this.syncWorldInfo(beginRun(this.deps.ownership));
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
@@ -497,16 +505,5 @@ export class MemoryCoordinator {
 
   // --- world info --------------------------------------------------------
 
-  async syncWorldInfo(): Promise<MemoryMirrorSummary> {
-    const story = this.deps.getStory();
-    if (!story || !this.enabled) return emptyMirrorSummary();
-    const host = { ...this.deps.hosts.mirror, getChatId: this.deps.hosts.chat.chatId, ownership: this.deps.ownership };
-    const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
-    if (!result) return emptyMirrorSummary();
-    if (result.changed) {
-      this.patch({ wiWrites: result.writes, wiBook: result.book }, false);
-      await this.save();
-    }
-    return result.summary;
-  }
+  syncWorldInfo(owner?: RunGuard): Promise<MemoryMirrorSummary> { return this.mirror.sync(owner); }
 }

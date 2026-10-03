@@ -4,7 +4,7 @@ import {
   buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, openArcTexts, withoutExcludedThreads,
   renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, loadInnerRender, withoutLapsedIntents,
-  type CastVoice, type EpistemicEntry,
+  type CastVoice, type EpistemicEntry, type MemoryEntry,
   heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, writeMemoryBlocks, type HeldSecret,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
@@ -256,6 +256,18 @@ export class MemoryInjector {
     const epistemic = beat ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
     this.draft = beat ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
     this.setPrivateBlocks(staged.shared, epistemic);
+  }
+
+  heldSecretsKey(): string {
+    const story = this.deps.getStory();
+    const sorted = (values: Iterable<string>) => [...values].sort();
+    return JSON.stringify((story ? this.secrets(story) : []).map((secret) => [sorted(secret.knowers), secret.onlyFrom ? sorted(secret.onlyFrom) : null, secret.phrasings.map(sorted)]));
+  }
+
+  restingEntries(entries: MemoryEntry[]): MemoryEntry[] {
+    const story = this.deps.getStory();
+    const view = sharedTierView(entries, story ? this.secrets(story) : [], null);
+    return view.entries.filter((entry) => !view.withheld.has(entry.id));
   }
 
   blocks(): Record<MemoryTier, string> {

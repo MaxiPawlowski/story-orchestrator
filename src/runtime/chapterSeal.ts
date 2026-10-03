@@ -30,7 +30,7 @@ import { rosterMemberName } from "./roster";
 export type { SealAt };
 
 export const CHAPTER_INPUT_TOKENS = 6000;
-export const SEAL_CALL_BUDGET = 12;
+export const SEAL_CALL_BUDGET = 6;
 export const WRITE_ATTEMPTS = 2;
 export const MAP_CHUNKS = 4;
 export const MAP_MAX_TOKENS = 2048;
@@ -175,7 +175,11 @@ export class ChapterSeal {
       return askReply(this.deps.model(), prompt, { role: "synthesis", pass: "chapterSeal", maxTokens: tokens, signal: run.guard.signal, refuseIncomplete: true })
         .catch((error: unknown) => ({ text: lapseAsEmpty(error), finish: "stop" as const }));
     };
-    if (run.calls >= SEAL_CALL_BUDGET) return "";
+    if (run.calls >= SEAL_CALL_BUDGET) {
+      const spent = `call budget of ${SEAL_CALL_BUDGET} spent, nothing more asked`;
+      if (!run.cuts.includes(spent)) run.cuts.push(spent);
+      return "";
+    }
     const first = await call(maxTokens);
     if (first.text || first.finish !== "length" || !run.guard.stillOwns()) return first.text;
     const larger = Math.max(maxTokens, retryTokens);

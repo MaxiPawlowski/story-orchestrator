@@ -1,6 +1,6 @@
-const choice = { next: "seal" as string | null, asked: [] as string[] };
+const choice = { next: "seal" as string | null, asked: [] as string[], during: null as (() => void) | null };
 jest.mock("@services/STAPI", () => ({
-  showChoicePopup: jest.fn(async (text: string) => { choice.asked.push(text); return choice.next; }),
+  showChoicePopup: jest.fn(async (text: string) => { choice.asked.push(text); choice.during?.(); return choice.next; }),
   showTextPopup: jest.fn(),
   registerHostMacro: jest.fn(),
   unregisterHostMacro: jest.fn(),
@@ -18,6 +18,7 @@ jest.mock("@services/STAPI", () => ({
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
 import { parseStoryV2OrThrow, type StoryEngine, type StoryV2 } from "@engine/index";
+import * as chapterPort from "./chapterPort";
 import { loadChapterKit } from "./chapterPort";
 import type { EffectsApplier } from "./effectsApplier";
 import type { RuntimeExtras } from "./types";
@@ -59,7 +60,7 @@ describe("v2.6 plan 04 C4: /cp activate releases the source, then applies the ta
 });
 
 beforeAll(async () => { await loadChapterKit(); });
-beforeEach(() => { choice.next = "seal"; choice.asked = []; });
+beforeEach(() => { choice.next = "seal"; choice.asked = []; choice.during = null; });
 
 describe("CR-E3 / CR-E4: every caller of activateCheckpoint gets the chapter-jump confirm, and a skip is written before the target applies", () => {
   const chaptered = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
@@ -97,5 +98,36 @@ describe("CR-E3 / CR-E4: every caller of activateCheckpoint gets the chapter-jum
     expect(skipAtApply).toEqual([{ pathLength: 3, messageId: 1, previous: null }]);
     expect(probe.extras.memory.chapterSealSkip).toEqual({ pathLength: 3, messageId: 1, previous: null });
     expect(runtime.chapters.due()).toBeNull();
+  });
+
+  const bump = (runtime: RuntimeManager) => (runtime as unknown as { owner: { bump: () => void } }).owner.bump();
+
+  it("finding 3: a chat switch while the seal popup is open seals nothing and jumps nowhere", async () => {
+    const { runtime, probe } = managerAt();
+    const seal = jest.spyOn(runtime.chapters, "seal").mockImplementation(async () => null);
+    choice.during = () => bump(runtime);
+    expect(await runtime.activateCheckpoint("walls")).toBe(false);
+    expect(seal).not.toHaveBeenCalled();
+    expect(probe.engine.activeCheckpoint?.id).toBe("market");
+  });
+
+  it("finding 3: the token is minted before the chapter kit loads, so a switch during the load asks nothing and seals nothing", async () => {
+    const { runtime, probe } = managerAt();
+    const seal = jest.spyOn(runtime.chapters, "seal").mockImplementation(async () => null);
+    const kit = await loadChapterKit();
+    const load = jest.spyOn(chapterPort, "loadChapterKit").mockImplementation(async () => { bump(runtime); return kit; });
+    expect(await runtime.activateCheckpoint("walls")).toBe(false);
+    load.mockRestore();
+    expect(choice.asked).toEqual([]);
+    expect(seal).not.toHaveBeenCalled();
+    expect(probe.engine.activeCheckpoint?.id).toBe("market");
+  });
+
+  it("control: with the chat unchanged a seal choice seals the chapter and jumps", async () => {
+    const { runtime, probe } = managerAt();
+    const seal = jest.spyOn(runtime.chapters, "seal").mockImplementation(async () => null);
+    expect(await runtime.activateCheckpoint("walls")).toBe(true);
+    expect(seal).toHaveBeenCalledTimes(1);
+    expect(probe.engine.activeCheckpoint?.id).toBe("walls");
   });
 });

@@ -75,10 +75,11 @@ export async function runRollback(deps: RollbackDeps, messageId: number, decoded
 async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
+  const run = beginRun(deps.ownership);
+  const lapsed: RollbackOutcome = { ok: true, result: "noop" };
   if (deps.extras().memory?.chapters?.length && !chapterKit()) {
-    const run = beginRun(deps.ownership);
     await loadChapterKit();
-    if (!run.stillOwns()) return { ok: true, result: "noop" };
+    if (!run.stillOwns()) return lapsed;
   }
   const extras = deps.extras();
   if (decoded) {
@@ -109,10 +110,12 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const unavailable = async (oldest: { boundary: number; messageId: number }): Promise<RollbackOutcome> => {
     quarantine();
     await deps.stagecraft.revertAppliedSince(messageId);
+    if (!run.stillOwns()) return lapsed;
     deps.notices.rollbackUnavailable = { messageId, checkpointName: engine.activeCheckpoint?.name ?? "this point", oldest, at: new Date().toISOString() };
     deps.journal.record("story", "edit past the retained history", deps.context().journal, historyNote(messageId, oldest));
     deps.memory.updateInjection();
     await deps.persist();
+    if (!run.stillOwns()) return lapsed;
     deps.notify();
     return { ok: false, reason: "history-unavailable", oldest };
   };
@@ -130,8 +133,10 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     // old text, whether or not the engine moved. The blackboard did not move, so the expansion
     // basis stands and is deliberately not revalidated.
     await deps.stagecraft.revertAppliedSince(messageId);
+    if (!run.stillOwns()) return lapsed;
     deps.memory.updateInjection();
     await deps.persist();
+    if (!run.stillOwns()) return lapsed;
     deps.notify();
     return { ok: true, result: "noop" };
   }
@@ -146,13 +151,16 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   deps.restoreExpansion(engine.serialize().boundary);
   repairActiveCheckpoint(engine, (detail) => deps.journal.record("story", LOST_CHECKPOINT, deps.context().journal, detail));
   await deps.stagecraft.revertAppliedSince(messageId);
+  if (!run.stillOwns()) return lapsed;
   deps.pacing.replayCommitted();
   deps.revalidateExpansion();
   deps.refreshRequirements();
   await deps.reapplyCheckpoint(messageId);
+  if (!run.stillOwns()) return lapsed;
   deps.pacing.updateSteering();
   deps.memory.updateInjection();
   await deps.persist();
+  if (!run.stillOwns()) return lapsed;
   const checkpointName = engine.activeCheckpoint?.name ?? "an earlier point";
   if ((engine.activeCheckpoint?.id ?? null) !== before) {
     deps.notices.lastRollback = { checkpointName, playerName: engine.activeCheckpoint?.player_name ?? null, at: new Date().toISOString(), ...(kind ? { kind } : {}) };

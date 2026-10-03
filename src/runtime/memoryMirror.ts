@@ -5,7 +5,7 @@ import type { ChatLorebookBinding, ChatOwner, Lorebook, WIUpsertResult } from "@
 import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
 import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent } from "./mirrorReaper";
-import { beginRun, type RunOwnership } from "./runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { log } from "@utils/log";
 
 export interface MemoryMirrorHost {
@@ -165,4 +165,35 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0 || !sameWrites(writes, input.writes);
   log.debug("memory mirror sync", summary);
   return { summary, book: { name: ensured.name, chatId }, writes, changed };
+}
+
+export interface MirrorSyncDeps {
+  title: () => string | null;
+  input: () => Omit<MemoryMirrorInput, "title">;
+  host: () => MemoryMirrorHost;
+  commit: (writes: Record<string, string>, book: MemoryMirrorBook | null) => Promise<void>;
+}
+
+export class MirrorSync {
+  private tail: Promise<unknown> = Promise.resolve();
+
+  constructor(private readonly deps: MirrorSyncDeps) {}
+
+  settled(): Promise<unknown> { return this.tail; }
+
+  sync(owner?: RunGuard): Promise<MemoryMirrorSummary> {
+    const run = () => (owner && !owner.stillOwns() ? emptyMirrorSummary() : this.once());
+    const next = this.tail.then(run, run);
+    this.tail = next.catch(() => undefined);
+    return next;
+  }
+
+  private async once(): Promise<MemoryMirrorSummary> {
+    const title = this.deps.title();
+    if (title === null) return emptyMirrorSummary();
+    const result = await syncMemoryMirror({ title, ...this.deps.input() }, this.deps.host());
+    if (!result) return emptyMirrorSummary();
+    if (result.changed) await this.deps.commit(result.writes, result.book);
+    return result.summary;
+  }
 }
