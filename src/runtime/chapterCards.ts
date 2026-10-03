@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, Chapter, NormalizedStoryV2 } from "@engine/index";
+import { composeChapterBriefing, type BoundaryLogEntry, type BriefingView, type Chapter, type NormalizedStoryV2 } from "@engine/index";
 
 export interface ChapterCard {
   messageId: number;
@@ -7,7 +7,7 @@ export interface ChapterCard {
   number: number | null;
   interlude: boolean;
   final: boolean;
-  briefing?: string;
+  briefing?: BriefingView;
 }
 
 const chapterOfCheckpoint = (story: NormalizedStoryV2, checkpointId: string): Chapter | null => {
@@ -22,10 +22,13 @@ const numberOf = (story: NormalizedStoryV2, chapter: Chapter): number | null => 
   return index < 0 ? null : index + 1;
 };
 
-const card = (story: NormalizedStoryV2, chapter: Chapter, messageId: number): ChapterCard => ({
-  messageId, chapterId: chapter.id, title: chapter.player_title ?? chapter.title, number: numberOf(story, chapter),
-  interlude: chapter.kind === "interlude", final: chapter.final === true,
-});
+const card = (story: NormalizedStoryV2, chapter: Chapter, messageId: number): ChapterCard => {
+  const briefing = composeChapterBriefing(story, chapter.id);
+  return {
+    messageId, chapterId: chapter.id, title: chapter.player_title ?? chapter.title, number: numberOf(story, chapter),
+    interlude: chapter.kind === "interlude", final: chapter.final === true, ...(briefing ? { briefing } : {}),
+  };
+};
 
 export function composeChapterCards(story: NormalizedStoryV2 | null, log: readonly BoundaryLogEntry[]): ChapterCard[] {
   if (!story?.chapters?.length) return [];

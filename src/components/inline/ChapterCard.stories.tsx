@@ -23,11 +23,13 @@ export const Chapter: Story = {
 };
 
 export const WithBriefing: Story = {
-  args: { card: { messageId: 6, chapterId: "siege", title: "The Siege", number: 2, interlude: false, final: true, briefing: "The walls hold for one more night. Choose who stands watch." } },
+  args: { card: { messageId: 6, chapterId: "siege", title: "The Siege", number: 2, interlude: false, final: true, briefing: { title: "The Siege", image: null, tone: "Cold, tense", sections: [{ heading: "Your watch", text: "The walls hold for one more night. Choose who stands watch." }], startLabel: "Begin", source: "authored", chapterId: "siege" } } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Final chapter")).toBeInTheDocument();
     await expect(canvasElement.querySelector('[data-so="chapter-card-briefing"]')?.textContent).toContain("one more night");
+    await expect(canvas.getByText("Your watch")).toBeInTheDocument();
+    await expect(canvas.getByText("Cold, tense")).toBeInTheDocument();
   },
 };
 

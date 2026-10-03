@@ -123,6 +123,18 @@
   text-align: left;
 }
 
+#chat .so-inline-host .so-chapter-card-briefing p {
+  margin: 0 0 4px;
+}
+
+#chat .so-inline-host .so-chapter-card-briefing-heading {
+  font-weight: 600;
+}
+
+#chat .so-inline-host .so-chapter-card-briefing-tone {
+  opacity: 0.8;
+}
+
 #chat .so-inline-host .so-roll-chip {
   cursor: default;
   opacity: 0.85;

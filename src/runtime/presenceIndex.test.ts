@@ -176,6 +176,19 @@ describe("v2.7 06 C3: chapter title cards", () => {
     expect(composeChapterCards(chapters, instance.stateLog).map((entry) => entry.title)).toEqual(["Arrival"]);
   });
 
+  it("a card carries its chapter's briefing, and only that chapter's", () => {
+    const briefing = { sections: [{ heading: "Your watch", text: "The walls hold for one more night." }], tone: "Cold" };
+    const briefed = { ...chapters, chapters: chapters.chapters?.map((chapter) => (chapter.id === "siege" ? { ...chapter, briefing } : chapter)) };
+    const instance = engine();
+    for (let step = 1; step <= 4; step += 1) {
+      instance.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: step, to: step }, deltas: [{ q: "step", v: step, source: "extractor" }] });
+      instance.commitBoundary({ lastMessageId: step * 2, chatLength: step * 2 + 1 });
+    }
+    const cards = composeChapterCards(briefed, instance.stateLog);
+    expect(cards.map((entry) => entry.briefing?.sections[0]?.heading ?? null)).toEqual([null, null, "Your watch"]);
+    expect(cards[2].briefing).toMatchObject({ tone: "Cold", chapterId: "siege", source: "authored" });
+  });
+
   it("a story without chapters has no cards", () => {
     const plain = { ...chapters, chapters: undefined };
     expect(composeChapterCards(plain, engine().stateLog)).toEqual([]);
