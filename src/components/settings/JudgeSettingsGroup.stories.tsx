@@ -261,7 +261,7 @@ export const AcknowledgedNoticeStaysGone: Story = {
 
 export const RoutedToAnUncalibratedLocalProvider: Story = {
   args: {
-    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, stallCheck: "llama-logprob" } }, { stallCheck: true }),
+    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, curatorFilter: "llama-logprob" } }, { curatorFilter: true }),
     status: {
       ...ready,
       providers: {
@@ -271,13 +271,32 @@ export const RoutedToAnUncalibratedLocalProvider: Story = {
     },
   },
   play: async ({ args, canvasElement }) => {
-    const select = required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-stall-check"), "stall provider select");
+    const select = required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-curator-filter"), "curator filter provider select");
     await expect(select.value).toBe("llama-logprob");
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("not calibrated there");
     await expect(canvasElement.querySelector("#so-judge-local-llama-logprob")?.textContent).toContain("runs on this machine (127.0.0.1:8080)");
     await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
     await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-memory-verify"), "memory provider select"), "llama-logprob");
     await expect(args.onChange).toHaveBeenCalledWith({ provider: { memoryVerify: "llama-logprob" } });
+  },
+};
+
+export const RoutedToARefusedLocalProvider: Story = {
+  args: {
+    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, director: "llama-logprob" } }, { director: true }),
+    status: {
+      ...ready,
+      providers: {
+        typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
+        "llama-logprob": { configured: true, local: true, host: "127.0.0.1:8080" },
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const readiness = canvasElement.querySelector("#so-judge-readiness")?.textContent ?? "";
+    await expect(readiness).toContain("measured there and refused");
+    await expect(readiness).toContain("1500 ms reply-path budget");
+    await expect(readiness).not.toContain("not calibrated there");
   },
 };
 

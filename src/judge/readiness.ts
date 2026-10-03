@@ -174,16 +174,53 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   wardenLore: ["wardenLore"],
 };
 
-type ReadinessFacts = Record<JudgeReadinessKey, JudgeReadinessFact>;
+type ReadinessFacts = Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>;
 
-const withFixtureRevisions = (facts: ReadinessFacts, revisions: Partial<Record<JudgeReadinessKey, string>>): ReadinessFacts =>
+const withFixtureRevisions = <T extends ReadinessFacts>(facts: T, revisions: Partial<Record<JudgeReadinessKey, string>>): T =>
   Object.fromEntries(
-    Object.entries(facts).map(([key, fact]) => [key, { ...fact, fixtureRevision: fact.fixtureRevision ?? revisions[key as JudgeReadinessKey] ?? null }]),
-  ) as ReadinessFacts;
+    Object.entries(facts).map(([key, fact]) => [key, { ...fact, fixtureRevision: fact?.fixtureRevision ?? revisions[key as JudgeReadinessKey] ?? null }]),
+  ) as T;
 
-export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>> = {
+export const LLAMA_LOGPROB_MEASURED_ON = "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf";
+
+const llamaRow = (calibration: number, latencyP50Ms: number, passed: boolean, recommendation: string): JudgeReadinessFact => ({
+  calibration,
+  latencyP50Ms,
+  live: null,
+  measuredOn: LLAMA_LOGPROB_MEASURED_ON,
+  passed,
+  recommendation: `${recommendation} Measured ×2 on 2026-10-03 (Artemis 31B v1.1 Q4_K_M on llama-server b11046, docs/plans/v2.6/12-provider-matrix.md).`,
+});
+
+const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
+  memoryPairs: llamaRow(0.9655, 1475, true, "Meets its floor (28/29 both runs) inside its 3000 ms budget (p95 1.7 s)."),
+  typedExtraction: llamaRow(0.8485, 1041, true, "Answered family 55/57 both runs, above its 0.95 floor, inside its 5000 ms budget (p95 4.1 s). Needs authored read_as hints, as on TypeSafe."),
+  stallCheck: llamaRow(1, 1180, true, "Every row right both runs, inside its 4000 ms budget (p95 3.5 s)."),
+  warden: llamaRow(
+    1,
+    1320,
+    true,
+    "Continuity: every family right both runs, inside its 4000 ms budget (p95 3.8 s). Routes only with the agency check on the same provider; " +
+      "house rules has no row here, so with house rules on the warden's call is refused.",
+  ),
+  agencyCheck: llamaRow(0.9756, 1015, true, "Writes 17/18 and clean 23/23 both runs, inside its 4000 ms budget (p95 1.8 s). Rides the warden's call, so route both together."),
+  director: llamaRow(0.88, 4301, false, "Refused: meets its floor (22/25 both runs) but needs 5.3 s at p95 against its 1500 ms reply-path budget."),
+  memoryVerify: llamaRow(1, 3591, false, "Refused: every row right both runs, but 3.9 s at p95 against its 3000 ms budget."),
+  expansionCritic: llamaRow(0.9265, 2676, false, "Refused: below its floor (verdict 30/34 against 1.0, both runs, no timeouts) and 3.0 s at p95 against its 2500 ms budget."),
+  expansionLookahead: llamaRow(0.8125, 2777, false, "Refused: below its floor (rejected 5/8 against 1.0, both runs, no timeouts)."),
+  lookahead: llamaRow(0.8125, 2777, false, "Refused: below its floor (rejected 5/8 against 1.0, both runs, no timeouts)."),
+  wardenLore: llamaRow(
+    1,
+    1488,
+    false,
+    "Refused: the same entries asked as established facts were all right both runs but took 4.3 s at p95 against its 4000 ms budget; " +
+      "the lore question it ships with was not measured cleanly.",
+  ),
+};
+
+export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, ReadinessFacts> = {
   typesafe: withFixtureRevisions(JUDGE_READINESS, MEASURED_FIXTURE_REVISION),
-  "llama-logprob": {},
+  "llama-logprob": withFixtureRevisions(LLAMA_LOGPROB_READINESS, MEASURED_FIXTURE_REVISION),
 };
 
 export interface JudgeFixtureStale {
