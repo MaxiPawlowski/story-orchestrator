@@ -42,6 +42,19 @@ current scene** or **Restart story**.
 A branch made from a chat that plays a story does not pick the story up on its own. The story bar shows
 `branch — continue?`; click it, then **Continue from here** to carry on from where the branch ends.
 
+## Finding your story chats
+
+Groups and chats that play a story carry a small icon in SillyTavern's lists: the group list, the welcome
+screen's recent chats and a group's past chats. A saga, a story with two or more chapters, has its own icon.
+Hover or focus the icon for a card with the story, its chapter, where you are and when you last played.
+
+**Your stories**, under Continue in the extension's settings, lists every chat that plays a story, newest
+first; **Open** takes you straight to it. The list fills in as you open chats, and once in the background after
+an update. A chat keeps its row while it still plays its story, even after the story leaves your library.
+
+Each of these can be switched off under Display, and a story can switch its own off; a story can never turn one
+on that you switched off.
+
 ## Coming back after a break
 
 After eight hours or more away, opening the chat shows a **Welcome back** recap: where you are, what happened
