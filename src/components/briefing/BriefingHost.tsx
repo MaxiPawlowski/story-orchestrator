@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { BriefingView } from "@engine/index";
 import { briefingDue } from "@runtime/briefing";
 import { onBriefingRequest } from "@runtime/briefingRequest";
-import { runChecks } from "@runtime/checks";
+import { beforeYouStart } from "@runtime/repair";
 import type { UiSettingsPatch } from "@runtime/settingsControl";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { BriefingModal } from "./BriefingModal";
@@ -18,9 +18,7 @@ type Opened =
   | { kind: "due" | "story"; storyId: string; onboarding: boolean }
   | { kind: "preview"; view: BriefingView | null; chapter: BriefingView | null };
 
-export const blockingLines = (snapshot: RuntimeSnapshot): string[] => runChecks(snapshot, "blocks")
-  .map((result) => result.player ?? (snapshot.ui.authorView ? result.consequence : null))
-  .filter((line): line is string => Boolean(line));
+export const blockingLines = (snapshot: RuntimeSnapshot): string[] => beforeYouStart(snapshot).map((step) => step.consequence);
 
 export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen }: BriefingHostProps) => {
   const [opened, setOpened] = useState<Opened | null>(null);
