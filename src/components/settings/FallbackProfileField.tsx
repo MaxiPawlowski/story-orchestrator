@@ -1,5 +1,4 @@
 import type { ConnectionProfileSummary } from "@services/STAPI";
-import { settingHelp } from "@features/settingsCopy";
 import { FieldLabel } from "./Field";
 
 export interface FallbackProfileFieldProps {
@@ -8,8 +7,6 @@ export interface FallbackProfileFieldProps {
   profiles: ConnectionProfileSummary[];
   onChange: (profileId: string | null) => void;
 }
-
-export const FALLBACK_HELP = settingHelp("extraction.fallbackProfileId");
 
 export const FallbackProfileField = ({ value, primary, profiles, onChange }: FallbackProfileFieldProps) => {
   const choices = profiles.filter((profile) => profile.id !== primary);

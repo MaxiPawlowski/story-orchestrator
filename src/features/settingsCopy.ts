@@ -250,5 +250,3 @@ export type SettingCopyKey = keyof typeof SETTING_COPY;
 export const settingCopy = (key: SettingCopyKey): SettingCopy => SETTING_COPY[key];
 
 export const settingHelp = (key: SettingCopyKey): string => SETTING_COPY[key].help;
-
-export const settingLabel = (key: SettingCopyKey): string => SETTING_COPY[key].label;

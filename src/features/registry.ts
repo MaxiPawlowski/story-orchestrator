@@ -394,8 +394,6 @@ const CORE_FEATURES: readonly Feature[] = [
 
 export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
-export const featureById = (id: string): Feature | undefined => FEATURES.find((feature) => feature.id === id);
-
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 
 export const featuresForSetting = (key: string): Feature[] => FEATURES.filter((feature) => feature.settings.some((owned) => coversSetting(owned, key)));
