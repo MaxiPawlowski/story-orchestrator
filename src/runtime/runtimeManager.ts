@@ -326,7 +326,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     const entry: ApplyQueueEntry = {
       source: "mechanical",
       blackboardVersionSum: 0,
-      deltas: [{ q: key, v: value, source: quality.source }],
+      deltas: [{ q: key, v: value, source: quality.source, writer: "manual" }],
     };
     this.engine.enqueue(entry);
     await this.commitBoundary();
@@ -570,8 +570,6 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
   }
 
-  // Merged expansions change the played graph under a live engine: reload, then restore the
-  // serialized state so boundary counters and the blackboard survive the swap.
   private replaceStory(story: NormalizedStoryV2) {
     if (!this.loaded) return;
     this.loaded = { ...this.loaded, story };
@@ -579,6 +577,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null, coordinatorHosts.roster); }
+  getCardReadScope() { return this.extraction.cardScope(); }
 
   getActiveSpeakerId(): string | null { return activeSpeakerId(this.loaded?.story ?? null, coordinatorHosts.roster); }
 

@@ -2,6 +2,7 @@ import { ASPECTS, FLUX, JANKU, WAI, type Aspect, type Lora, type Placement, type
 
 export interface ImageRoute {
   checkpoint: string;
+  family: string;
   quality: Quality;
   aspect: Aspect | "auto";
   shot: Shot;
@@ -26,6 +27,7 @@ export interface ImageOverride { checkpoint: string; quality: Quality | ""; extr
 export interface ImageChatState { override: ImageOverride; emitted: string[]; automationCount: number }
 export interface ImageSettings {
   enabled: boolean;
+  backend: "st" | "comfy";
   directorProfileId: string;
   comfyUrl: string;
   contextMessages: number;
@@ -51,25 +53,27 @@ export const messageAlreadyDrawn = (
 
 const row = (patch: Partial<ImageRoute> = {}): ImageRoute => ({
   checkpoint: WAI, quality: "base", aspect: "portrait", shot: "upper", placement: "inline",
+  family: "sdxl-illustrious",
   candidates: 1, extraPositive: "", extraNegative: "", safeMode: "inherit", directorMayOverride: false, ...patch,
 });
 
 export const defaultImageSettings = (): ImageSettings => ({
   enabled: true,
+  backend: "st",
   directorProfileId: "",
   comfyUrl: "",
   contextMessages: 6,
   maxTokens: 900,
   useJsonSchema: true,
   defaults: { quality: "base", seedPolicy: "random", fixedSeed: 1 },
-  automation: { mode: "everyN", everyN: 5 },
+  automation: { mode: "story", everyN: 5 },
   safeMode: false,
   purposes: {
     scene: row({ aspect: "auto", shot: "cowboy", directorMayOverride: true }),
     character: row({ shot: "cowboy" }),
-    portrait: row({ checkpoint: JANKU, shot: "close" }),
+    portrait: row({ checkpoint: JANKU, family: "sdxl-noobai", shot: "close" }),
     user: row({ shot: "upper" }),
-    background: row({ checkpoint: FLUX, aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
+    background: row({ checkpoint: FLUX, family: "flux-dev", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
     free: row({ aspect: "auto", shot: "full", directorMayOverride: true }),
   },
   upscalers: {}, loras: [], characters: {},
@@ -118,6 +122,7 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
     const fallback = defaults.purposes[purpose];
     return [purpose, {
       checkpoint: str(current.checkpoint, fallback.checkpoint) || fallback.checkpoint,
+      family: pick(["sdxl-illustrious", "sdxl-noobai", "flux-dev"], current.family, fallback.family),
       quality: pick(["base", "hires"] as const, current.quality, fallback.quality),
       aspect: pick([...ASPECTS, "auto"] as const, current.aspect, fallback.aspect),
       shot: pick(shots, current.shot, fallback.shot),
@@ -144,6 +149,7 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
   }) : [];
   return {
     enabled: typeof raw.enabled === "boolean" ? raw.enabled : defaults.enabled,
+    backend: raw.backend === "comfy" ? "comfy" : "st",
     directorProfileId: str(raw.directorProfileId), comfyUrl: str(raw.comfyUrl),
     contextMessages: Math.round(num(raw.contextMessages, defaults.contextMessages, 1, 30)),
     maxTokens: Math.round(num(raw.maxTokens, defaults.maxTokens, 200, 4000)),

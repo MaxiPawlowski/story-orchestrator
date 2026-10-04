@@ -63,6 +63,7 @@ export interface SchedulerHost {
   getFacts(): ParsedFact[];
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
+  cardScope?(): { owners: string[]; cursor: number };
   getOpenArcs(): string[];
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
@@ -503,6 +504,7 @@ export class ExtractionScheduler {
           firedTransitions: this.host.getFiredTransitions(),
           facts: this.host.getFacts(),
           extraGateSources: this.host.getExpansionGateSources(),
+          cardScope: this.host.cardScope?.(),
           openArcs: this.host.getOpenArcs(),
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
           entities: this.host.getEntities?.() ?? [],

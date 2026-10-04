@@ -74,6 +74,7 @@ export interface SpriteSetRule {
   places: string[];
   checkpoints: string[];
   keywords: string[];
+  card?: Record<string, string[]>;
 }
 
 export function readSpriteSets(value: unknown): SpriteSetRule[] {
@@ -81,7 +82,8 @@ export function readSpriteSets(value: unknown): SpriteSetRule[] {
   const sets = raw.flatMap((entry): SpriteSetRule[] => {
     if (!isRecord(entry) || typeof entry.id !== "string" || !/^[a-z0-9_]+$/.test(entry.id)) return [];
     const when = isRecord(entry.when) ? entry.when : {};
-    return [{ id: entry.id, places: strings(when.places), checkpoints: strings(when.checkpoints), keywords: strings(when.keywords) }];
+    const card = isRecord(when.card) ? Object.fromEntries(Object.entries(when.card).map(([key, value]) => [key, strings(value)])) : undefined;
+    return [{ id: entry.id, places: strings(when.places), checkpoints: strings(when.checkpoints), keywords: strings(when.keywords), ...(card ? { card } : {}) }];
   });
   return sets.some((entry) => entry.id === "default") ? sets : [{ id: "default", places: [], checkpoints: [], keywords: [] }, ...sets];
 }
@@ -107,4 +109,9 @@ export function keywordSet(sets: SpriteSetRule[], text: string): string | null {
     return needle.length > 0 && words.includes(` ${needle} `);
   }));
   return hit?.id ?? null;
+}
+
+export function cardSet(sets: SpriteSetRule[], values: Record<string, string>): string | null {
+  return sets.find((set) => set.card && Object.keys(set.card).length > 0
+    && Object.entries(set.card).every(([field, allowed]) => allowed.some((value) => same(value, values[field] ?? ""))))?.id ?? null;
 }

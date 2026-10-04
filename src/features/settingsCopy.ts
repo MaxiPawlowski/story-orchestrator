@@ -224,8 +224,9 @@ export const SETTING_COPY = {
   ),
   "image.enabled": copy(
     "Allow automatic illustrations on this install",
-    "Lets stories and the automation below draw pictures. Drawing also needs a ComfyUI server and an image-prompt model. Manual images stay available either way.",
+    "Lets stories and the automation below draw pictures through SillyTavern’s configured image backend. An image-prompt model is optional; without one, a template uses the current scene.",
   ),
+  "image.backend": copy("Image backend", "Use SillyTavern’s configured Image Generation service, or advanced ComfyUI recipes through the optional media plugin."),
   "image.automation.mode": copy(
     "When pictures are drawn",
     "Story: at the moments each story asks for. Every N: every few replies, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
@@ -247,6 +248,7 @@ export const SETTING_COPY = {
     "Adds safety terms to every picture prompt and skips explicit requests.",
   ),
   "image.purposes.*.checkpoint": copy("Model", "The image model this kind of picture uses."),
+  "image.purposes.*.family": copy("Recipe family", "Choose the workflow family supported by your installed checkpoint. A file name alone does not identify its architecture."),
   "image.purposes.*.quality": copy("Quality", "Base is faster; hires adds an upscale pass and takes longer."),
   "image.purposes.*.aspect": copy("Shape", "The picture's proportions. Auto lets the image-prompt model choose."),
   "image.purposes.*.shot": copy("Framing", "How close the camera is: from a close-up to a wide view."),
@@ -272,6 +274,12 @@ export const SETTING_COPY = {
   ),
   "sprites.focus": copy("Dim whoever is not speaking", "Fades the characters who are not talking, so the speaker stands out."),
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
+  "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
+  "sprites.cardOverlay": copy("Current character state in replies",
+    "Adds this story’s applied public changes to the next reply prompt. Off until the card-versus-overlay measurement is complete. Character cards and personas stay unchanged."),
+  "sprites.onDemand": copy("Generate changed looks when needed",
+    "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
+  "sprites.mouth": copy("Mouth movement", "Moves the speaking character’s mouth while replies stream. Smooth uses half-open frames when available. Reduced motion switches this off."),
 } as const satisfies Record<string, SettingCopy>;
 
 export type SettingCopyKey = keyof typeof SETTING_COPY;

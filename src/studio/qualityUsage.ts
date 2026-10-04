@@ -2,7 +2,7 @@ import { progressQualityForAnchor, TENSION_CURRENT_KEY, type GateNode } from "@e
 import type { StoryDraft } from "./draft";
 
 export interface QualityUsage {
-  kind: "gate" | "snapshot";
+  kind: "gate" | "snapshot" | "card";
   location: string;
 }
 
@@ -31,5 +31,9 @@ export const findQualityUsages = (draft: StoryDraft, key: string): QualityUsage[
       usages.push({ kind: "snapshot", location: `${checkpoint.name} snapshot` });
     }
   });
+  const cards = [...draft.roster.map((member) => ({ name: member.name ?? member.id, card: member.card })), { name: "Your character", card: draft.player?.card }];
+  for (const { name, card } of cards) for (const [field, binding] of Object.entries(card?.fields ?? {})) {
+    if (binding.quality === key) usages.push({ kind: "card", location: `${name}: ${field}` });
+  }
   return usages;
 };

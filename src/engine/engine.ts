@@ -4,6 +4,7 @@ import { applyTransitionProgress, progressQualityForAnchor } from "./convergence
 import { gateKeys } from "./gates";
 import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
+import { applyCardEntry } from "./cardFields";
 
 export interface DerivedQualityView {
   boundary: number;
@@ -143,6 +144,7 @@ export class StoryEngine {
     this.chatLength = 0;
     this.snapshots.clear();
     this.boundaryLog.length = 0;
+    applyCardEntry(normalized, this.activeCheckpointId, this.blackboard, 0);
     this.recordSnapshot();
   }
 
@@ -240,6 +242,7 @@ export class StoryEngine {
     const normalizedContext = this.normalizeContext(context);
     this.lastMessageId = normalizedContext.lastMessageId;
     this.chatLength = normalizedContext.chatLength;
+    blackboard.setWriteBoundary(this.boundary + 1);
     const queue = this.queue.drainAtBoundary(blackboard);
     this.refreshMechanicalQualities();
 
@@ -258,6 +261,7 @@ export class StoryEngine {
       if (checkpoint?.type === "anchor") this.visitedAnchors.push(fired.to);
       this.visitedPath.push(fired.to);
       effects = checkpoint?.effects ?? null;
+      applyCardEntry(story, this.activeCheckpointId, blackboard, this.boundary + 1);
       this.advanceCallbacks.forEach((callback) => callback(fired));
     }
 
@@ -299,6 +303,7 @@ export class StoryEngine {
     const normalizedContext = this.normalizeContext(context);
     this.lastMessageId = normalizedContext.lastMessageId;
     this.chatLength = normalizedContext.chatLength;
+    this.requireBlackboard().setWriteBoundary(this.boundary + 1);
     const queue = this.queue.drainAtBoundary(this.requireBlackboard());
     this.activeCheckpointId = id;
     this.checkpointStartedBoundary = this.boundary + 1;
@@ -307,6 +312,7 @@ export class StoryEngine {
     if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
     this.visitedPath.push(id);
     this.stagedFrom = this.visitedPath.length - 1;
+    applyCardEntry(story, id, this.requireBlackboard(), this.boundary + 1);
     this.boundary += 1;
     const after = this.serialize();
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });

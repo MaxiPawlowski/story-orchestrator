@@ -29,6 +29,15 @@ export interface ImageReply {
   negative: string;
 }
 
+export const templateImagePrompt = (scene: ImageScene, purpose: string, text: string): string => [
+  scene.visualStyle,
+  purpose === "background" ? "Scenery, no people" : scene.subjects.filter((person) => !person.described).map((person) => person.appearance).filter(Boolean).join("; "),
+  scene.location,
+  scene.checkpoint,
+  ...(scene.visualDetails ?? []),
+  text,
+].filter(Boolean).join(". ") || "An establishing illustration of the current scene";
+
 export const sceneForImage = (chat: ImageChat, request: ImageRequest, contextMessages: number, checkpoint: string | null = null, location: string | null = null): ImageScene => {
   const messages = chat.messages;
   let target = request.messageId !== null && messages[request.messageId] ? request.messageId : -1;

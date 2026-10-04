@@ -72,9 +72,9 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
 - It decays to an authored baseline at the next scene break unless re-read, so mood never "gets stuck".
 - It is injected into the drafted member's private block.
 - **Sprites:** mood is a candidate input to the sprite stage's expression pick, beside the judge's `expressions` use
-  (`src/judge/settings.ts:256`, "Sprite expressions"), and to v2.8 08 living cards' look sprites. Whether mood overrides,
-  biases or is ignored by `expressions` is decided in v2.8 08, not here.
-- Player-visible: none in this plan (a sprite showing a mood is v2.8 08's surface and its gate).
+  (`src/judge/settings.ts:256`, "Sprite expressions"), and to v2.7 20 living cards' look sprites. Whether mood overrides,
+  biases or is ignored by `expressions` is decided in v2.7 20, not here.
+- Player-visible: none in this plan (a sprite showing a mood is v2.7 20's surface and its gate).
 
 ### L3. Agendas: plans that advance off screen
 
@@ -223,7 +223,7 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
 
 - v2.8 18 quests: `display.public` (refused on relationships); the shared origin-tagged effect reversal.
 - v2.8 13 N8: the judge arm in M1.
-- v2.8 08 living cards: look sprites and how mood feeds them; L2's sprite link.
+- v2.7 20 living cards: look sprites and how mood feeds them; L2's sprite link.
 - v2.8 01: frozen v2.6 measurements (L5), thinking level R4.
 - v2.7 08: the thinking warning (built).
 - v2.8 02: A4 lab windows, the 7-member act pilot.
@@ -244,7 +244,7 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
   lorebook-only.
 - **C3** applied: Gates section, M1 floors frozen in the file, spoiler rows; L5 promotion owned by v2.8 01.
 - **A3** applied: meters never public. **B5** applied: N8 judge arm in M1. "L4 is drop-only" applied. "carry-in T6" →
-  v2.4 plan 01 T6. L2 links the `expressions` use and v2.8 08. **B10** registry gate added. Tiers: M1/M2 CL, replies
+  v2.4 plan 01 T6. L2 links the `expressions` use and v2.7 20. **B10** registry gate added. Tiers: M1/M2 CL, replies
   RP. Answers (both directions, author-visible meters, agendas both, schedules drop) consistent with the body.
 - Line refs re-verified on `c7967323`: `sharedRead.ts:217-230`, `extractionCoordinator.ts:167-184`, `scope.ts:22-84`,
   `judge/settings.ts:256`, `rollback.ts:109,130,146`.

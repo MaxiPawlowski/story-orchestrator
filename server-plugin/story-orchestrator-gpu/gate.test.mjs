@@ -110,7 +110,7 @@ test('a lost browser lease releases after timeout only once ComfyUI is idle', as
     now = 600_002;
     assert.equal(await abandoned.recover(), false);
     assert.equal(abandoned.status().phase, 'image');
-    assert.equal(calls.filter(({ url }) => url.endsWith('/interrupt')).length, 1);
+    assert.equal(calls.filter(({ url }) => url.endsWith('/interrupt')).length, 0);
     running = false;
     assert.equal(await abandoned.recover(), true);
     assert.equal(abandoned.status().phase, 'text');

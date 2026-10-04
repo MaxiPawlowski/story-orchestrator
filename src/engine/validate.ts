@@ -10,6 +10,7 @@ import { resolveGuidanceMembers } from "./checkpointGuidance";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
+import { indexCardFields, validateCardEffects } from "./cardFields";
 
 export { readChapters };
 
@@ -112,6 +113,10 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
 
   const checkpointById = indexUnique(checkpoints, (checkpoint) => checkpoint.id, (index) => `checkpoints.${index}.id`, "checkpoint", errors);
   const qualityByKey = indexUnique(qualities, (quality) => quality.key, (index) => `qualities.${index}.key`, "quality", errors);
+  const player = isRecord(json.player) ? json.player as StoryV2["player"] : undefined;
+  if (json.player !== undefined && !player) addError(errors, "player", "player must be an object");
+  const cardFieldByQuality = indexCardFields(roster, player, qualityByKey, errors);
+  validateCardEffects({ checkpoints, qualityByKey, cardFieldByQuality }, errors);
 
   const starts = checkpoints.filter((checkpoint) => checkpoint.start);
   if (starts.length > 1) addError(errors, "checkpoints", "only one checkpoint may be start");
@@ -132,6 +137,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     title: json.title as string,
     description: json.description as string,
     ...(options.player_intro ? { player_intro: options.player_intro } : {}),
+    ...(player ? { player } : {}),
+    ...(Object.keys(cardFieldByQuality).length ? { cardFieldByQuality } : {}),
     ...(options.briefing ? { briefing: options.briefing } : {}),
     ...(options.illustrations ? { illustrations: options.illustrations } : {}),
     qualities,

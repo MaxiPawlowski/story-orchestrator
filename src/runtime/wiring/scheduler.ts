@@ -21,6 +21,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   getFacts: () => runtimeManager.getExtractionFacts(),
   getFiredTransitions: () => runtimeManager.getFiredTransitions(),
   getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
+  cardScope: () => runtimeManager.getCardReadScope(),
   getOpenArcs: () => runtimeManager.getOpenArcs(),
   getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
   getEntities: () => runtimeManager.getEntities(),

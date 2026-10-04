@@ -1,5 +1,6 @@
 import { TENSION_CURRENT_KEY, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
+import { cardReadKeys } from "@engine/cardFields";
 
 const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
   if ("q" in gate) {
@@ -24,6 +25,7 @@ export function deriveScopeExplained(
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
+  cardScope?: { owners: string[]; cursor: number },
 ): ScopedQualityExplained[] {
   const checkpointIds = new Set([activeCheckpointId, ...(story.reachableByCheckpoint[activeCheckpointId] ?? [])]);
   const keys = new Set<string>();
@@ -73,6 +75,11 @@ export function deriveScopeExplained(
     });
   });
 
+  for (const key of cardReadKeys(story, cardScope?.owners ?? story.roster.map((member) => member.id), cardScope?.cursor ?? 0)) {
+    keys.add(key);
+    addPull(key, { kind: "card", checkpointId: activeCheckpointId, detail: "current public character field" });
+  }
+
   return [...keys]
     .map((key) => story.qualityByKey[key])
     .filter((quality): quality is Quality => Boolean(quality))
@@ -88,8 +95,9 @@ export function deriveScope(
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
+  cardScope?: { owners: string[]; cursor: number },
 ): ScopedQuality[] {
-  return deriveScopeExplained(story, activeCheckpointId, blackboard, extraGateSources)
+  return deriveScopeExplained(story, activeCheckpointId, blackboard, extraGateSources, cardScope)
     .map(({ key, quality, hints }) => ({ key, quality, hints }));
 }
 

@@ -40,7 +40,9 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
   let source: Route["source"] = "purpose";
   for (const [file, origin] of candidates) {
     if (!file) continue;
-    const found = CHECKPOINTS.find((item) => item.file === file);
+    const known = CHECKPOINTS.find((item) => item.file === file);
+    const template = CHECKPOINTS.find((item) => item.family === row.family) ?? CHECKPOINTS[0];
+    const found = known ?? (settings.backend === "comfy" ? { ...template, file, label: file, qualityBlock: "", negativeBlock: "" } : undefined);
     if (!found) { warnings.push(`Unknown image checkpoint ${file} (${origin}).`); continue; }
     checkpoint = found;
     source = origin;

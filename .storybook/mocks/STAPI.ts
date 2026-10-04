@@ -146,3 +146,17 @@ export const getContext = () => ({
 export const imageModel = () => null;
 export const reserveGpu = async () => ({ ok: true as const });
 export const releaseGpu = async () => undefined;
+export const renewGpu = async () => ({ ok: true, renewed: true });
+export const spriteBuilderMembers = (names: string[]) => names.map((name) => ({ name, folder: name }));
+export const spriteList = async () => [];
+export const spriteReferences = async () => [];
+export const comfyDiscover = async () => { throw new Error("No image backend in Storybook."); };
+export const comfyFingerprint = async () => { throw new Error("No model files in Storybook."); };
+export const comfyReference = async () => { throw new Error("No uploads in Storybook."); };
+export const comfyRenderOwned = async () => { throw new Error("No render jobs in Storybook."); };
+export const spriteManifest = async () => null;
+export const generatedSpriteSets = async () => [];
+export const saveGeneratedSprite = async () => ({ ok: false, reason: "No uploads in Storybook." });
+export const deleteGeneratedSprite = async () => ({ ok: false, reason: "No deletions in Storybook." });
+export const stImageReadiness = async () => ({ ready: false, reason: "No image backend in Storybook.", source: null });
+export const renderStImage = async () => { throw new Error("No image backend in Storybook."); };

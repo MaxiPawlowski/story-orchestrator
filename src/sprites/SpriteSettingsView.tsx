@@ -52,6 +52,13 @@ export function SpriteSettingsView({ settings, activation, waitsForVn, capabilit
         </select>
         <CheckRow id="so-sprite-focus" setting="sprites.focus" checked={settings.focus} onChange={(focus) => onChange({ focus })} />
         <CheckRow id="so-sprite-breathing" setting="sprites.breathing" checked={settings.breathing} onChange={(breathing) => onChange({ breathing })} />
+        <CheckRow id="so-sprite-blink" setting="sprites.blink" checked={settings.blink} onChange={(blink) => onChange({ blink })} />
+        <CheckRow id="so-card-overlay" setting="sprites.cardOverlay" checked={settings.cardOverlay} onChange={(cardOverlay) => onChange({ cardOverlay })} />
+        <CheckRow id="so-sprite-on-demand" setting="sprites.onDemand" checked={settings.onDemand} onChange={(onDemand) => onChange({ onDemand })} />
+        <FieldLabel htmlFor="so-sprite-mouth" setting="sprites.mouth" />
+        <select id="so-sprite-mouth" value={settings.mouth} onChange={(event) => onChange({ mouth: event.target.value as typeof settings.mouth })}>
+          <option value="off">Off</option><option value="simple">Simple</option><option value="smooth">Smooth (falls back to simple)</option>
+        </select>
       </Advanced>
       <div id="so-sprite-cast" className="text-xs opacity-70">{onStage || PLAYER_COPY.spriteNoPack}</div>
     </div>

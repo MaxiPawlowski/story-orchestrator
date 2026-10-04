@@ -1,6 +1,34 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/sprites/builder/builder.ts#SpriteBuilder.build": {
+      "status": "checked",
+      "note": "v2.8 Belle pilot: draft/chat RunGuard before reference upload, before rendering and before retaining a preview. Cancellation releases the lease in finally. Upload is a separate synchronous ownership check in SpriteBuilder.save. Tests: sprites/builder/builder.test.ts, old draft and cancellation controls."
+    },
+    "src/sprites/builder/host.ts#createSpriteBuilder.lease": {
+      "status": "local",
+      "note": "v2.8: the returned lease owns its heartbeat timer and release; it changes no chat state. A reservation is checked by SpriteBuilder.build immediately after it answers."
+    },
+    "src/sprites/builder/host.ts#createSpriteBuilder.save": {
+      "status": "local",
+      "note": "v2.8: starts the generated-file write synchronously after SpriteBuilder.save checks its retained RunGuard. Nothing after the await writes chat/draft state; returns the server's upload evidence. Files are content-keyed and the server refuses unowned or externally changed assets."
+    },
+    "src/sprites/builder/images.ts#cropReference": {
+      "status": "local",
+      "note": "v2.8: allocates a local bitmap and canvas, returns encoded pixels, closes the bitmap in finally. No host or persistent state."
+    },
+    "src/sprites/builder/images.ts#decodeImage": {
+      "status": "local",
+      "note": "v2.8: allocates a local canvas and returns bounded pixel data. No host or persistent state."
+    },
+    "src/sprites/builder/onDemand.ts#OnDemandLooks.drain": {
+      "status": "local",
+      "note": "v2.8: owns only this editor instance's in-memory queue, running flag and attempted keys. No chat writes; failures log to the console. OnDemandLooks.edit owns the generated asset and stage writes."
+    },
+    "src/sprites/builder/onDemand.ts#OnDemandLooks.edit": {
+      "status": "checked",
+      "note": "v2.8: mints a chat/story RunGuard before discovery, checks it together with the applied look before render, upload and stage application. Cached files are applied under the same check. The builder has its own upload guard."
+    },
     "src/runtime/spikes/swipeBack.ts#SwipeBack.restore": {
       "status": "checked",
       "note": "v2.5 plan 09 SP1 spike (2026-09-26; dev-only import, install-wide flag spikes.swipeBackCache, default off): the run minted when the bridge handed the swipe over is checked before the record is written back. loadSelectedFromChat starts a new epoch by design, so after it the chat id and the engine's last message are compared with the cache key before the queued writes are re-enqueued, and a run minted after the load is checked before notify. persist goes through the ChatSave chokepoint, which refuses another chat's write; the stats it bumps are in-memory counters."

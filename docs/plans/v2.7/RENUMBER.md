@@ -24,10 +24,10 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 16d sp10-tool-call-turns | v2.7 15 (B + C); the rest → v2.9 05 |
 | 16 spike-defers (index) | removed; its four children are below |
 | 30 player-persona-and-start-setup | v2.8 03 |
-| 26 self-contained-images | v2.8 05 |
-| 26b sprite generation (no file before) | v2.8 06 (new) |
-| 28 talkinghead-review | v2.8 07 talking-sprites (rig option D → v2.9 05) |
-| 32 living-cards | v2.8 08 |
+| 26 self-contained-images | v2.7 17 |
+| 26b sprite generation (no file before) | v2.7 18 (new) |
+| 28 talkinghead-review | v2.7 19 talking-sprites (rig option D → v2.9 05) |
+| 32 living-cards | v2.7 20 |
 | 27 wizard-assistant | v2.8 09 |
 | 12 curator-create-op | v2.8 11 |
 | 20 j6d-shadow-record | v2.8 12 |
@@ -45,6 +45,31 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 16c sp1-swipe-back-cache | v2.9 01 |
 | 22 sp9-witness-filter-v2 | v2.9 02 |
 | 25 new-game-plus | v2.9 03 |
+
+## 2026-10-04: the image track returns to v2.7
+
+The four image plans and the Belle pilot were briefly numbered v2.8 05–08 + `v2.8/image-pilot.md`, then moved to v2.7
+by the user on 2026-10-04. Final homes:
+
+| brief v2.8 | v2.7 |
+|---|---|
+| 05 self-contained-images | v2.7 17 |
+| 06 sprite-generation | v2.7 18 |
+| 07 talking-sprites | v2.7 19 |
+| 08 living-cards | v2.7 20 |
+| `image-pilot.md` | v2.7 21 (Belle pilot record) |
+
+The v2.8 numbers 05–08 are retired and not reused. Their live acceptance (LI/CL/RP) stays owned by v2.8 01 / the
+final suite under v2.7 rule 5; v2.7 rule 13 records the split.
+
+Also moved on 2026-10-04 (current work, never numbered in v2.8):
+
+| brief v2.8 | v2.7 |
+|---|---|
+| `local-residency.md` (untracked draft) | v2.7 22 |
+| `local-residency-freetoken.md` (untracked draft) | v2.7 23 |
+
+v2.7 rule 14 records that plans 22–23 keep their own LT/LI live rows.
 
 ## Review 2026-10-03
 

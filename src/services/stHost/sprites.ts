@@ -2,6 +2,7 @@ import { getContext } from "./context";
 import { saveOpenChat } from "./persistence";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { isRecord } from "@utils/guards";
+import { generatedSpriteSets } from "./media";
 
 export interface SpriteCastMember {
   name: string;
@@ -56,6 +57,16 @@ export function spriteCast(): SpriteCast {
   return { chatId, groupId, members: members.filter((entry): entry is SpriteCastMember => entry !== null) };
 }
 
+export function spriteBuilderMembers(names: string[]): Array<{ name: string; folder: string }> {
+  const selected = new Set(names.map((name) => name.toLowerCase()));
+  return cards().flatMap((card) => {
+    if (typeof card.name !== "string" || typeof card.avatar !== "string" || !selected.has(card.name.toLowerCase())) return [];
+    const profile = card.data?.extensions?.so_sprites;
+    const folder = isRecord(profile) && typeof profile.folder === "string" ? profile.folder : card.avatar.replace(/\.[^.]+$/, "");
+    return [{ name: card.name, folder }];
+  });
+}
+
 export function spriteDraftedName(characterId: number | [number]): string | null {
   const index = Array.isArray(characterId) ? characterId[0] : characterId;
   const card = cards()[index];
@@ -92,6 +103,14 @@ export async function spriteList(folder: string): Promise<Array<{ label: string;
   return Array.isArray(body)
     ? body.filter((entry): entry is { label: string; path: string } => isRecord(entry) && typeof entry.label === "string" && typeof entry.path === "string")
     : [];
+}
+
+export async function spriteReferences(folder: string): Promise<Array<{ label: string; path: string }>> {
+  const defaults = await spriteList(folder);
+  const sets = await generatedSpriteSets(folder).catch(() => []);
+  const extra = await Promise.all(sets.filter((set) => !set.set.startsWith("anim-")).map(async (set) =>
+    (await spriteList(`${folder}/${set.set}`)).map((file) => ({ label: `${set.set}/${file.label}`, path: file.path }))));
+  return [...defaults, ...extra.flat()];
 }
 
 export async function spriteClassifyLocal(text: string): Promise<Array<{ label: string; score: number }>> {

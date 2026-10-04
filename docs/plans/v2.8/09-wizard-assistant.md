@@ -84,7 +84,7 @@ Ask tool set, enforced by the tool set and not by the prompt.
 
 - A guided flow in the wizard (Studio → Wizard → "Build a character"), a sibling of the four story steps:
   1. **Who are they** (name, role in the story, one-line concept).
-  2. **Look:** the appearance text, used by images and sprites (v2.8 05, v2.8 06).
+  2. **Look:** the appearance text, used by images and sprites (v2.7 17, v2.7 18).
   3. **Voice:** the description and personality, written as behaviour, not adjectives.
   4. **First message:** only for the opening scene's cast (rule from `src/copilot/prompts.ts`).
   5. **Example dialogue.**
@@ -175,8 +175,8 @@ already has native tools through the MCP bridge (`harnessRoute`).
 ## Links
 
 v2.7 01 docs and registry (knowledge source, Help panel; this plan adds its Ask entry), v2.7 14 role map (authoring
-role route), v2.8 22 living story director (shares the agent loop), v2.8 05 images and v2.8 06 sprite generation
-(appearance text feeds the Look step), v2.8 08 living cards (per-chat looks build on authored appearances).
+role route), v2.8 22 living story director (shares the agent loop), v2.7 17 images and v2.7 18 sprite generation
+(appearance text feeds the Look step), v2.7 20 living cards (per-chat looks build on authored appearances).
 
 ## Review 2026-10-03
 

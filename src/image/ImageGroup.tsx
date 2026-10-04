@@ -8,6 +8,8 @@ import { startImage } from "./start";
 import { guideUrl } from "@features/registry";
 import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
 import { ProfileOptions } from "@components/settings/ProfileOptions";
+import { comfyDiscover } from "@services/stHost/media";
+import { FAMILIES } from "./catalog";
 
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
@@ -23,6 +25,9 @@ const useImage = (manager: RuntimeManager) => {
 export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
   const image = useImage(manager);
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose>("scene");
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+  const [installed, setInstalled] = useState<string[]>([]);
   const settings = image.settings();
   const people = imageChat()?.characters ?? [];
   const profiles = listConnectionProfiles();
@@ -41,9 +46,21 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
     <details id="so-image-settings" className="rounded border border-[var(--SmartThemeBorderColor)] p-2 text-sm">
       <summary className="cursor-pointer font-semibold">Image service <span className="opacity-70 font-normal">— this install</span></summary>
       <div className="flex flex-col gap-2 py-2">
-        <p>This install provides the image model and ComfyUI. Story authors choose the scenes and style; players can pause pictures for their chat.
-          Pictures are drawn after the text is done, and wait while ComfyUI uses the GPU.</p>
+        <p>Uses your image service. Story authors choose scenes and style; players can pause pictures for their chat.
+          Pictures are drawn after the text is done. Advanced edits use ComfyUI and the optional media plugin.</p>
         <CheckRow id="so-image-enabled" setting="image.enabled" checked={settings.enabled} onChange={(on) => change({ enabled: on })} />
+        <FieldLabel htmlFor="so-image-backend" setting="image.backend" />
+        <select id="so-image-backend" className="text_pole" value={settings.backend} onChange={(event) => change({ backend: event.target.value as ImageSettings["backend"] })}>
+          <option value="st">Use SillyTavern Image Generation settings</option><option value="comfy">Advanced ComfyUI recipes</option>
+        </select>
+        <button id="so-image-test" type="button" className="st-button" disabled={testing} onClick={() => {
+          setTesting(true); setTestResult(null);
+          void image.direct({ purpose: "free", text: "A small still life of a red apple on a wooden table", raw: true, messageId: null }, { placement: "message", candidates: 1 })
+            .then((path) => setTestResult(path ? `Test render saved: ${path}` : "Test render discarded."))
+            .catch((error) => setTestResult(error instanceof Error ? error.message : String(error)))
+            .finally(() => setTesting(false));
+        }}>Test render</button>
+        {testResult && <p role="status">{testResult}</p>}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="so-image-mode" setting="image.automation.mode" />
           <select id="so-image-mode" className="text_pole" value={settings.automation.mode} onChange={(event) => change({
@@ -62,7 +79,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="so-image-profile" setting="image.directorProfileId" />
           <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
-            <option value="">Select a Connection Manager profile</option>
+            <option value="">Template prompt (no extra model)</option>
             <ProfileOptions profiles={profiles} />
           </select>
         </div>
@@ -81,8 +98,18 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           <fieldset className="my-2 flex flex-col gap-1 rounded border p-2">
             <legend className="font-semibold">{selectedPurpose}</legend>
             <FieldLabel htmlFor={routeId("checkpoint")} setting="image.purposes.*.checkpoint" />
+            {settings.backend === "comfy" && <>
+              <button type="button" className="st-button" onClick={() => {
+                void comfyDiscover().then((models) => setInstalled(models.checkpoints)).catch((error) => setTestResult(String(error)));
+              }}>Discover installed image models</button>
+              <FieldLabel htmlFor={routeId("family")} setting="image.purposes.*.family" />
+              <select id={routeId("family")} className="text_pole" value={entry.family} onChange={(event) => route(selectedPurpose, { family: event.target.value })}>
+                {Object.values(FAMILIES).map((family) => <option key={family.id} value={family.id}>{family.label}</option>)}
+              </select>
+            </>}
             <select id={routeId("checkpoint")} className="text_pole" value={entry.checkpoint} onChange={(event) => route(selectedPurpose, { checkpoint: event.target.value })}>
-              {CHECKPOINTS.map((checkpoint) => <option key={checkpoint.file} value={checkpoint.file}>{checkpoint.label}</option>)}
+              {settings.backend === "comfy" ? [...new Set([entry.checkpoint, ...installed])].map((file) => <option key={file} value={file}>{file}</option>)
+                : CHECKPOINTS.map((checkpoint) => <option key={checkpoint.file} value={checkpoint.file}>{checkpoint.label}</option>)}
             </select>
             <FieldLabel htmlFor={routeId("quality")} setting="image.purposes.*.quality" />
             <select id={routeId("quality")} className="text_pole" value={entry.quality} onChange={(event) => route(selectedPurpose, { quality: event.target.value as Quality })}>

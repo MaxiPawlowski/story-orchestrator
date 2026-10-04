@@ -6,7 +6,7 @@ after its evaluation. Not built; no fixture written; no Phase A run in v2.8 yet.
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "J7 judge ideas". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixtures, goldens, pure rules, offline replay tool);
 acceptance CL (TypeSafe calibration ×2; offline replay over archived sessions; no pod).
-**Depends on:** v2.8 12 (J6d replay) before J7.6's gate; v2.8 05 (image cue seam) for N2's consumer; v2.8 20 M1 for N8.
+**Depends on:** v2.8 12 (J6d replay) before J7.6's gate; v2.7 17 (image cue seam) for N2's consumer; v2.8 20 M1 for N8.
 
 ## What it is
 
@@ -236,7 +236,7 @@ idea whether or not a consumer is allowed to ship.
 - v2.8 14 open-source Jev alternative and v2.7 14 B10 CLI judge (other providers for these uses; each needs its own row)
 - v2.8 15 cue + scene read merge (J7.1 touches the same scene read)
 - v2.7 13 warden-lore one request (lore stays its own call; see P2 below)
-- v2.8 05 self-contained images (N2 lands on its cue seam)
+- v2.7 17 self-contained images (N2 lands on its cue seam)
 - v2.8 20 character life (N8 adds a judge arm to its M1; J7.3/J7.4 touch knowledge and speaker balance)
 - v2.8 22 living story director (N3's world-pressure consumer)
 
@@ -331,7 +331,7 @@ floor and a judge-off column (the rule of this plan). "Rides" = added to an exis
   nothing to see, or on a memory ("she remembered the burning tower").
 - *Shape:* Score 0–4 "how striking is the strongest image in the reply" AND Noul "that image happens now, not
   remembered, reported, imagined or planned". One call.
-- *Consumer:* lands on **v2.8 05's image cue seam** (v2.8 05 names it): `ImageRuntime.cue(kind)`
+- *Consumer:* lands on **v2.7 17's image cue seam** (v2.7 17 names it): `ImageRuntime.cue(kind)`
   (`src/image/runtime.ts:64`) gains a third kind (`judge`), and the `everyN` cadence path (`:116-124`) gains the filter
   (skip a cadence image when the reply has nothing to draw). Image settings, not story state. Filter first, the judge
   cue second, both behind one image setting (research decision 3), off by default.
@@ -474,7 +474,7 @@ N4, N6; J7.3/J7.5/J7.6 fixtures in parallel; N7, J7.4 last.
   per idea); "J7.4 stays a seed" reconciled: fixture and evaluation run, consumer stays a seed.
 - **B3:** routing and failure behaviour for N1/N3/N5 on the warden request specified (P2): one timeout loses all of
   them; no contradiction with v2.7 13 keeping lore separate.
-- **B5:** N2 lands on v2.8 05's cue seam (`image/runtime.ts:64`, `:116-124`); N8 adds a judge arm to v2.8 20 M1.
+- **B5:** N2 lands on v2.7 17's cue seam (`image/runtime.ts:64`, `:116-124`); N8 adds a judge arm to v2.8 20 M1.
 - **"J7.1 needs a threshold":** `SCENE_CONFIRM_P` 0.40 predeclared from the existing rows, scored on new held-out
   windows.
 - **F16:** J7.6's gate scheduled after v2.8 12 (header, J7.6, floor table, Links).

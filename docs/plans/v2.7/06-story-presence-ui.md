@@ -190,7 +190,7 @@ do we have some infomration about the kind of background processses that are hap
 - **The comment (dice, author UI):** dice are not shown anywhere today (dev ring only). Answer: C9. Authors get roll
   chips and the Activity panel here; players get roll chips only for rolls a story marks public (v2.8 04 + v2.8 18 Q3).
   The rest of the author UI planned: v2.7 01 Help author topics, v2.7 04 author findings, v2.8 12 shadow record, v2.8 22
-  director suggestions, v2.8 08 overlay source.
+  director suggestions, v2.7 20 overlay source.
 
 ## Links
 

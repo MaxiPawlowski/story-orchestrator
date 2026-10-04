@@ -5,6 +5,8 @@ export interface BlackboardDelta {
   v: PrimitiveValue;
   source?: QualitySource;
   strictUnlatch?: boolean;
+  writer?: "card-entry" | "extractor" | "manual";
+  boundary?: number;
 }
 
 export type ApplyOutcome =
@@ -15,6 +17,7 @@ export interface BlackboardSnapshot {
   values: Record<string, PrimitiveValue>;
   versions: Record<string, number>;
   latched: Record<string, boolean>;
+  writerOf?: Record<string, { writer: "card-entry" | "extractor" | "manual"; boundary: number }>;
 }
 
 const cloneRecord = <T>(value: Record<string, T>): Record<string, T> => ({ ...value });
@@ -31,8 +34,10 @@ export class Blackboard {
   private values: Record<string, PrimitiveValue> = {};
   private versions: Record<string, number> = {};
   private latched: Record<string, boolean> = {};
+  private writerOf: NonNullable<BlackboardSnapshot["writerOf"]> = {};
+  private writeBoundary = 0;
 
-  constructor(private readonly story: Pick<NormalizedStoryV2, "qualityByKey">, snapshot?: BlackboardSnapshot) {
+  constructor(private readonly story: Pick<NormalizedStoryV2, "qualityByKey" | "cardFieldByQuality">, snapshot?: BlackboardSnapshot) {
     if (snapshot) this.restore(snapshot);
   }
 
@@ -55,6 +60,10 @@ export class Blackboard {
   applyDelta(delta: BlackboardDelta): ApplyOutcome {
     const quality = this.story.qualityByKey[delta.q];
     if (!quality) return { ok: false, key: delta.q, reason: "unknown quality" };
+    if (this.story.cardFieldByQuality?.[delta.q] && typeof delta.v === "string" && delta.v.length > 240) {
+      return { ok: false, key: delta.q, reason: "card field exceeds 240 characters" };
+    }
+    if (delta.writer === "card-entry" && !this.story.cardFieldByQuality?.[delta.q]) return { ok: false, key: delta.q, reason: "writer not permitted" };
     if (delta.source && delta.source !== quality.source) return { ok: false, key: delta.q, reason: "source mismatch" };
     if (!qualityAccepts(quality, delta.v)) return { ok: false, key: delta.q, reason: "type mismatch" };
 
@@ -67,6 +76,7 @@ export class Blackboard {
     }
 
     this.values[delta.q] = delta.v;
+    if (this.story.cardFieldByQuality?.[delta.q]) this.writerOf[delta.q] = { writer: delta.writer ?? "extractor", boundary: delta.boundary ?? this.writeBoundary };
     this.versions[delta.q] = (this.versions[delta.q] ?? 0) + 1;
     if (quality.latching && (quality.type !== "bool" || delta.v === true)) this.latched[delta.q] = true;
     return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
@@ -87,6 +97,10 @@ export class Blackboard {
     this.versions[key] = (this.versions[key] ?? 0) + 1;
     if (value === undefined) delete this.values[key];
     else this.values[key] = value;
+    if (this.story.cardFieldByQuality?.[key]) {
+      if (value === undefined) delete this.writerOf[key];
+      else this.writerOf[key] = { writer: "manual", boundary: this.writeBoundary };
+    }
   }
 
   snapshot(): BlackboardSnapshot {
@@ -94,6 +108,7 @@ export class Blackboard {
       values: cloneRecord(this.values),
       versions: cloneRecord(this.versions),
       latched: cloneRecord(this.latched),
+      ...(Object.keys(this.writerOf).length ? { writerOf: Object.fromEntries(Object.entries(this.writerOf).map(([key, value]) => [key, { ...value }])) } : {}),
     };
   }
 
@@ -101,5 +116,8 @@ export class Blackboard {
     this.values = cloneRecord(snapshot.values);
     this.versions = cloneRecord(snapshot.versions);
     this.latched = cloneRecord(snapshot.latched);
+    this.writerOf = Object.fromEntries(Object.entries(snapshot.writerOf ?? {}).map(([key, value]) => [key, { ...value }]));
   }
+
+  setWriteBoundary(boundary: number): void { this.writeBoundary = boundary; }
 }

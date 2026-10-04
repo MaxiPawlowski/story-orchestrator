@@ -26,7 +26,7 @@ when a story is playing in a chat?
 | Mirror book left after a chat delete | `runtime/mirrorReaperHost.ts` | an ST popup (a decision: stays a popup) |
 | Studio diagnostics | `studio/diagnostics.ts` | Studio only |
 | **Built (v2.7 02 C2, v2.7 08):** `transcript-copiers` (privacy), `model-not-thinking` | `runtime/checks.ts` `CHECKS` | Repair channel + HUD `#so-hud-setup` |
-| **Coming:** `story-needs-group` (v2.7 03), image backend and models (v2.8 05), `persona-fit` / `persona-switch` (v2.8 03), vector conflicts (v2.8 21, if it builds one), What's new (v2.7 01, info) | each plan | as registry entries, never their own channel |
+| **Coming:** `story-needs-group` (v2.7 03), image backend and models (v2.7 17), `persona-fit` / `persona-switch` (v2.8 03), vector conflicts (v2.8 21, if it builds one), What's new (v2.7 01, info) | each plan | as registry entries, never their own channel |
 
 ## Design
 
@@ -88,7 +88,7 @@ Each plan adds checks; none adds its own alert channel:
 | migrated Repair steps | this plan | as today | v2.7 |
 | What's new | v2.7 01 | info | v2.7 |
 | `persona-fit`, `persona-switch` | v2.8 03 | blocks / degrades / info | v2.8 |
-| image backend, model missing, broker idle | v2.8 05 | degrades | v2.8 |
+| image backend, model missing, broker idle | v2.7 17 | degrades | v2.8 |
 | vector conflicts | v2.8 21 (if it builds one) | degrades | v2.8 |
 
 The registry test fails a check without consequence copy (like `DIAGNOSTIC_CONSEQUENCES`), a player-audience check
@@ -119,12 +119,12 @@ whose copy uses a jargon word (v2.7 01 list), a duplicate id, and a `blocks` che
    land their checks. **Recommended: yes.** The plan 06 / 02 C2 build in progress is shaping its alert as the seed of
    this registry. Lets do as you recommend
 
-(Decision 5's numbers are old: 03/04/06/26/30 are now v2.7 05, v2.7 06, v2.7 08, v2.8 05, v2.8 03.)
+(Decision 5's numbers are old: 03/04/06/26/30 are now v2.7 05, v2.7 06, v2.7 08, v2.7 17, v2.8 03.)
 
 ## Links
 
 v2.7 01 (feature registry, Getting started, jargon list), v2.7 02 C2 + K1, v2.7 03 (`story-needs-group`), v2.7 05
-("Before you start"), v2.7 06 (Activity panel lists check findings), v2.7 08, v2.8 03, v2.8 05, v2.8 21.
+("Before you start"), v2.7 06 (Activity panel lists check findings), v2.7 08, v2.8 03, v2.7 17, v2.8 21.
 
 ## Review 2026-10-03
 

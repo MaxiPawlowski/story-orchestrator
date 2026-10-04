@@ -302,7 +302,15 @@ function castItems(sources: InlineSources): Draft[] {
       { kind: "curator-op" as const, proposalId: proposal.id, index, decision: "rejected" as const },
     ] } : {}),
   })));
-  return [...effects, ...talk, ...warden];
+  const cards = sources.boundaryLog.flatMap((entry): Draft[] => Object.entries(sources.story?.cardFieldByQuality ?? {}).flatMap(([key, binding]) => {
+    const value = entry.after.blackboard.values[key];
+    if (typeof value !== "string" || entry.before.blackboard.values[key] === value) return [];
+    const name = binding.owner === "player" ? "Your character" : sources.story?.roster.find((member) => member.id === binding.owner)?.name ?? "A character";
+    return [{ id: `cast:card:${entry.boundary}:${key}`, messageId: entry.context.lastMessageId, category: "cast", level: 1, state: "applied",
+      text: `${name}: ${binding.field.replaceAll("_", " ")} now ${value.slice(0, 240)}`,
+      detail: entry.after.blackboard.writerOf?.[key]?.writer ?? "extractor" }];
+  }));
+  return [...effects, ...talk, ...warden, ...cards];
 }
 
 function pacingItems(sources: InlineSources, newest: number): Draft[] {

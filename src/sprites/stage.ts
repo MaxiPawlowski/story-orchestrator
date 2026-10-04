@@ -11,13 +11,15 @@ import { beginRun } from "@runtime/runToken";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionDeps, type ExpressionRead } from "./classify";
-import { keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, unionLabels, type SpriteProfile, type SpriteSetRule } from "./profile";
+import { cardSet, keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, unionLabels, type SpriteProfile, type SpriteSetRule } from "./profile";
+import { cardValues } from "@engine/cardFields";
 import { segmentText, visibleReply, type Segment } from "./segment";
 import type { SpriteActivation, SpriteSettings } from "./settings";
 import { spriteActivation, spritesActive, storyDirectsStage } from "./activation";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
 import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type Framing, type StageDirection } from "./direction";
+import { frameIndex, StreamActivity, type AnimationFrames } from "./animation";
 
 export interface StoredRead {
   i: number;
@@ -34,6 +36,7 @@ export interface StageActor {
   path: string;
   set: string;
   spotlight: boolean;
+  frames?: AnimationFrames;
 }
 
 export type StagePlacement = "vn" | "strip";
@@ -59,10 +62,13 @@ interface Actor {
   profile: SpriteProfile;
   rules: SpriteSetRule[];
   packs: Map<string, Map<string, string>>;
+  frames: Map<string, Map<string, AnimationFrames>>;
   set: string;
   keyword: string | null;
   label: string;
   path: string;
+  desiredLabel: string;
+  generatedLook?: string;
 }
 
 interface Stream {
@@ -73,6 +79,7 @@ interface Stream {
   classifying: Promise<void>;
   streamed: boolean;
   final: boolean;
+  visibleText?: string;
 }
 
 const PASSAGE_KEY = 48;
@@ -80,6 +87,7 @@ const LLM_TIMEOUT_MS = 15_000;
 const keyOf = (text: string) => text.slice(0, PASSAGE_KEY);
 
 export class SpriteStage {
+  readonly activity = new StreamActivity();
   private actors: Actor[] = [];
   private speaking: string | null = null;
   private stream: Stream | null = null;
@@ -89,6 +97,8 @@ export class SpriteStage {
   private snapshot: StageView;
   private capability: CapabilityState | "checking" = "checking";
   private hinted = new Set<string>();
+  private looks: import("./builder/onDemand").OnDemandLooks | null = null;
+  private lookModule: Promise<void> | null = null;
 
   constructor(private readonly manager: RuntimeManager) {
     this.snapshot = this.compose();
@@ -103,6 +113,7 @@ export class SpriteStage {
   updateSettings(patch: Partial<SpriteSettings>): void {
     setGlobalSettings({ sprites: patch });
     this.notify();
+    this.manager.notify();
   }
 
   subscribe = (listener: () => void): (() => void) => {
@@ -126,7 +137,7 @@ export class SpriteStage {
     const direction = this.direction();
     const actors = this.actors
       .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking }, direction))
-      .map(({ name, avatar, label, path, set, keys }) => ({ name, avatar, label, path, set, spotlight: isSpotlit(direction, keys) }));
+      .map(({ name, avatar, label, path, set, keys, frames }) => ({ name, avatar, label, path, set, frames: frames.get(set)?.get(label), spotlight: isSpotlit(direction, keys) }));
     return {
       visible: ready && (settings.stage === "always" || vn) && actors.length > 0,
       placement: vn ? "vn" : "strip",
@@ -180,10 +191,14 @@ export class SpriteStage {
       observer?.disconnect();
       document.removeEventListener("click", click);
       this.stopPlayback();
+      this.activity.stop();
+      this.looks?.close();
     };
   }
 
   async reload(): Promise<void> {
+    this.activity.stop();
+    this.looks?.close(); this.looks = null; this.lookModule = null;
     const ticket = ++this.loading;
     this.capability = await capabilityState("sprites");
     if (ticket !== this.loading) return;
@@ -200,18 +215,23 @@ export class SpriteStage {
       const profile = readSpriteProfile(member.profile, folderGuess);
       if (!profile) continue;
       const rules = readSpriteSets(member.profile);
+      const generated = this.settings().builders[profile.folder]?.baseSet;
+      if (generated && !rules.some((rule) => rule.id === generated)) rules.push({ id: generated, places: [], checkpoints: [], keywords: [] });
       const packs = new Map<string, Map<string, string>>();
+      const frames = new Map<string, Map<string, AnimationFrames>>();
       for (const rule of rules) {
         const pack = spriteIndex(await spriteList(rule.id === "default" ? profile.folder : `${profile.folder}/${rule.id}`));
         if (ticket !== this.loading) return;
         if (pack.size) packs.set(rule.id, pack);
+        frames.set(rule.id, frameIndex(await spriteList(`${profile.folder}/anim-${rule.id}`)));
+        if (ticket !== this.loading) return;
       }
       const defaults = packs.get("default");
       const first = defaults ? resolveSprite(profile, profile.default, defaults) : null;
       if (!first) continue;
       actors.push({
-        name: member.name, avatar: member.avatar, keys: this.keysFor(member.name), muted: member.muted, profile, rules: rules.filter((rule) => packs.has(rule.id)), packs,
-        set: "default", keyword: null, label: first.label, path: first.path,
+        name: member.name, avatar: member.avatar, keys: this.keysFor(member.name), muted: member.muted, profile, rules: rules.filter((rule) => packs.has(rule.id)), packs, frames,
+        set: "default", keyword: null, label: first.label, desiredLabel: first.label, path: first.path,
       });
     }
     this.actors = actors;
@@ -222,6 +242,12 @@ export class SpriteStage {
   }
 
   private placeKey = "";
+  private lookKey = "";
+
+  private lookStamp(): string {
+    const story = this.manager.getStory(), values = this.manager.getSnapshot().blackboard;
+    return story?.cardFieldByQuality ? JSON.stringify(Object.entries(story.cardFieldByQuality).filter(([, field]) => field.visual).map(([key]) => [key, values[key]])) : "";
+  }
 
   private keysFor(name: string): string[] {
     const roster = this.manager.getStory()?.roster ?? [];
@@ -259,26 +285,36 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
+    this.looks?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;
     if (this.castChanged()) this.notify();
     const place = this.place();
-    if (`${place.location}|${place.checkpoint}` === this.placeKey) return;
+    if (`${place.location}|${place.checkpoint}` === this.placeKey && this.lookStamp() === this.lookKey) return;
     if (this.chooseSets()) this.notify();
   }
 
   private chooseSets(text?: string): boolean {
     const place = this.place();
+    const story = this.manager.getStory();
+    const values = this.manager.getSnapshot().blackboard;
     const key = `${place.location}|${place.checkpoint}`;
     const moved = key !== this.placeKey;
     this.placeKey = key;
+    this.lookKey = this.lookStamp();
     const direction = this.direction();
     let changed = false;
     for (const actor of this.actors) {
       if (moved) actor.keyword = null;
       if (text) actor.keyword = keywordSet(actor.rules, text) ?? actor.keyword;
       const directed = memberDirection(direction, actor.keys);
-      const wanted = [directed.set, actor.keyword, placeSet(actor.rules, place)].find((id) => id && actor.packs.has(id)) ?? "default";
+      const member = story?.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
+      const fields = member && story ? cardValues(story, values, member.id, true) : {};
+      const look = cardSet(actor.rules, fields);
+      this.requestLook(actor);
+      const cached = actor.generatedLook === JSON.stringify(fields) && actor.set.startsWith("look_") ? actor.set : null;
+      const pending = Object.keys(fields).length && !look && this.settings().onDemand ? actor.set : null;
+      const wanted = [directed.set, look, cached, pending, actor.keyword, placeSet(actor.rules, place)].find((id) => id && actor.packs.has(id)) ?? "default";
       const face = moved && directed.face ? directed.face : actor.label;
       if (wanted === actor.set && face === actor.label) continue;
       actor.set = wanted;
@@ -300,10 +336,44 @@ export class SpriteStage {
   private setFace(name: string, label: string): void {
     const actor = this.actor(name);
     if (!actor) return;
+    actor.desiredLabel = label;
     const resolved = resolveSprite(actor.profile, label, actor.packs.get(actor.set) ?? actor.packs.get("default") ?? new Map<string, string>());
     if (!resolved) return;
     actor.label = resolved.label;
     actor.path = resolved.path;
+    this.requestLook(actor);
+  }
+
+  private requestLook(actor: Actor): void {
+    const story = this.manager.getStory();
+    if (!story || !this.settings().onDemand) return;
+    const member = story.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
+    if (!member) return;
+    const fields = cardValues(story, this.manager.getSnapshot().blackboard, member.id, true);
+    if (!Object.keys(fields).length || cardSet(actor.rules, fields)) return;
+    if (!this.looks) {
+      const ticket = this.loading;
+      if (!this.lookModule) this.lookModule = import("./builder/onDemand").then(({ OnDemandLooks }) => {
+        if (ticket !== this.loading) return;
+        this.looks = new OnDemandLooks(this.manager);
+        for (const current of this.actors) this.requestLook(current);
+      });
+      return;
+    }
+    const stamp = JSON.stringify(fields), label = actor.desiredLabel, storyId = this.manager.getSnapshot().storyId;
+    if (actor.generatedLook === stamp && actor.set.startsWith("look_") && actor.packs.get(actor.set)?.has(label)) return;
+    this.looks.request({ folder: actor.profile.folder, member: member.id, label, fields,
+      accepts: () => this.actors.includes(actor) && this.settings().onDemand && this.manager.getSnapshot().storyId === storyId
+        && JSON.stringify(cardValues(story, this.manager.getSnapshot().blackboard, member.id, true)) === stamp,
+      apply: (set, files) => {
+        actor.packs.set(set, spriteIndex(files));
+        if (actor.desiredLabel !== label) return;
+        actor.set = set;
+        actor.generatedLook = stamp;
+        const hit = resolveSprite(actor.profile, label, actor.packs.get(set) ?? new Map());
+        if (hit) { actor.path = hit.path; actor.label = hit.label; this.notify(); }
+      },
+    });
   }
 
   private apply(read: { who: string; face: string }, speaker: string): void {
@@ -318,6 +388,7 @@ export class SpriteStage {
   }
 
   replay(): void {
+    this.activity.stop();
     this.stopPlayback();
     const direction = this.direction();
     for (const actor of this.actors) this.setFace(actor.name, this.directedFace(actor, direction));
@@ -360,7 +431,9 @@ export class SpriteStage {
     const stream = this.stream;
     const reply = stream ? spriteStreamingReply() : null;
     if (!stream || !reply || reply.name !== stream.speaker) return;
-    this.feed(stream, visibleReply(reply.text), false);
+    const text = visibleReply(reply.text);
+    if (text && text !== stream.visibleText) { stream.visibleText = text; this.activity.pulse(stream.speaker); }
+    this.feed(stream, text, false);
   }
 
   private feed(stream: Stream, text: string, final: boolean): void {
@@ -417,6 +490,7 @@ export class SpriteStage {
     const message = spriteMessage(id);
     if (!message || message.isUser || message.isSystem || !this.actors.length) return;
     const live = this.stream && this.stream.speaker === message.name && !this.stream.final ? this.stream : null;
+    this.activity.stop();
     if (storedReads(message.expressions).length && !live) {
       this.replay();
       return;

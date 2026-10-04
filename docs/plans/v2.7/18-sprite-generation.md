@@ -1,27 +1,34 @@
-# Plan 06 — Sprite generation in the plugin (the contract)
+# Plan 18 — Sprite generation in the plugin (the contract)
 
-**Status (2026-10-03): v2.8 plan 06 (new; was "26b", which had no file). Written from v2.8 05 decision 6 and the
-dependencies of v2.8 07 and 08 (review F31). The user approved planning it ("i think we have most of the work already
+**Status (2026-10-04): v2.7 plan 18 (was v2.8 06; before that "26b", which had no file; moved to v2.7 with the image
+track, 2026-10-04). Implemented candidate; `npm run gates` green, and the Belle pilot built a 4-expression,
+12-frame pack on the local ComfyUI. The multi-character LI acceptance and the second-model identity rating are
+PARTIAL and, per v2.7 rule 5, stay owned by v2.8 01 / the v2.8 final suite. See `21-belle-image-pilot.md`
+§Gate record. Originally written from v2.7 17 decision 6 and the
+dependencies of v2.7 19 and 20 (review F31). The user approved planning it ("i think we have most of the work already
 done"); this contract is not yet reviewed by the user; not built.** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance LI (local ComfyUI through the broker).
 
 ## Why
 
-- v2.8 05 decision 6 found that sprite generation exists, but in the campaign repo (`render_sprites.py`) and bound to
+Storage correction (user, 2026-10-03): reuse the existing C: model folders for autoload. The off-C precondition below
+is superseded for this image track on this installation; no copying or migration (overview rule 5 exception).
+
+- v2.7 17 decision 6 found that sprite generation exists, but in the campaign repo (`render_sprites.py`) and bound to
   one machine: hard-coded `C:` paths, it starts ComfyUI itself, Python + numpy/PIL, Adolion-specific base-pick
   heuristics.
-- Two v2.8 plans need a builder inside the plugin: v2.8 07 (blink/talk frames per label) and v2.8 08 (look sprites,
+- Two v2.7 plans need a builder inside the plugin: v2.7 19 (blink/talk frames per label) and v2.7 20 (look sprites,
   pre-rendered and on demand). Sol F31: both depended on "26b", which had no ownership, capabilities, recipes, QA,
   cancellation, storage or cleanup written down.
-- This plan is that contract. 07 and 08 consume it and gate after it.
+- This plan is that contract. 19 and 20 consume it and gate after it.
 
 ## Scope
 
 - A Studio **Sprites** tab that builds a pack for one cast member at a time: pick the card art or a reference, choose
   expressions (ST's standard set), render, preview, keep or redo per label, save.
-- A runtime API the same module exposes to v2.8 07 (frame recipes) and v2.8 08 (look edits on demand).
+- A runtime API the same module exposes to v2.7 19 (frame recipes) and v2.7 20 (look edits on demand).
 - Out of scope: night-run queues across a whole cast (the campaign script stays the tool for that, made portable by
-  v2.8 02 D13b), sprite *generation* from text alone, animation runtime (v2.8 07).
+  v2.8 02 D13b), sprite *generation* from text alone, animation runtime (v2.7 19).
 
 ## Contract
 
@@ -32,16 +39,16 @@ done"); this contract is not yet reviewed by the user; not built.** Overview: `0
   lazy chunk (Studio and the on-demand path), never in the main entry (bundle budget).
 - It writes only files it created. Each created file is recorded in a ledger
   (`extensionSettings["story-orchestrator"].spriteLedger`: `{character, set, label, file, recipe, sha256, createdAt,
-  story?, chats[], key?}`, `key` = the full cache-key inputs of §3; the one sprite ledger, which v2.8 08's looks use too), the same discipline as the wizard's created-asset ledger. A file that exists and is not in the
+  story?, chats[], key?}`, `key` = the full cache-key inputs of §3; the one sprite ledger, which v2.7 20's looks use too), the same discipline as the wizard's created-asset ledger. A file that exists and is not in the
   ledger is never overwritten or deleted without the author's explicit confirm on that file.
-- The author starts every Studio build. v2.8 08's on-demand path is the only automatic caller, behind its own
+- The author starts every Studio build. v2.7 20's on-demand path is the only automatic caller, behind its own
   off-by-default switch (rule 9), and only into `look_<hash8>` sets it owns.
 - Every async job takes a `RunOwnership` (chat + story for on-demand; the Studio draft for Studio builds) and re-checks
   it before each upload.
 
 ### 2. Backend capabilities
 
-- **Route B only** (v2.8 05's ComfyUI advanced route). Reference **edits** need an edit-capable model; route A (ST Image
+- **Route B only** (v2.7 17's ComfyUI advanced route). Reference **edits** need an edit-capable model; route A (ST Image
   Generation) does generation, not reference edits, for most sources, so the builder refuses with a reason on route A.
 - A capability probe (cached per page load, `error` not cached, like `stHost/capabilities.ts`): ComfyUI reachable;
   `/object_info` lists an edit-capable model family the recipes support (Qwen image edit today; FLUX Kontext or similar
@@ -53,12 +60,12 @@ done"); this contract is not yet reviewed by the user; not built.** Overview: `0
 ### 3. Edit recipes
 
 - A recipe = `{id, version, graph template, prompt template, params, inputs}`. Shipped recipes: `expression` (one label
-  from the member's base), `frame-blink`, `frame-mouth-half`, `frame-mouth-open` (v2.8 07: edited from that label's
-  own sprite, not the neutral base), `look` (v2.8 08: same character, same pose, changed visual fields).
+  from the member's base), `frame-blink`, `frame-mouth-half`, `frame-mouth-open` (v2.7 19: edited from that label's
+  own sprite, not the neutral base), `look` (v2.7 20: same character, same pose, changed visual fields).
 - Recipe id + version, model name + **model content hash** (sha256 of the weights file, read by the capability probe
   and cached per page load by file size + mtime; the file name alone is never the model's identity) and the base
   sprite's sha256 are written into the ledger row and into the set's manifest, and are part of every cache key (Sol
-  open question on v2.8 08's cache key). v2.8 08's `look_<hash8>` uses this contract unchanged.
+  open question on v2.7 20's cache key). v2.7 20's `look_<hash8>` uses this contract unchanged.
 - Recipes are data in the lazy chunk; a new model family is a new recipe, never a code branch in the runtime.
 
 ### 4. QA
@@ -83,8 +90,8 @@ done"); this contract is not yet reviewed by the user; not built.** Overview: `0
 ### 6. Storage
 
 - ST's own sprite folders (`characters/<name>/<set>/<label>.png`), set ids `^[a-z0-9_]+$` (no `-`, so a set rule can
-  never pick up v2.8 07's frame folders); frames follow v2.8 07's subfolder and file-name rule.
-- On-demand looks: `look_<hash8>` per story + member + normalized visual fields (v2.8 08 decision 6).
+  never pick up v2.7 19's frame folders); frames follow v2.7 19's subfolder and file-name rule.
+- On-demand looks: `look_<hash8>` per story + member + normalized visual fields (v2.7 20 decision 6).
 - One `so-sprites.json` manifest per set we create (recipe, model, base hashes, labels, QA results).
 
 ### 7. Cleanup
@@ -111,7 +118,7 @@ done"); this contract is not yet reviewed by the user; not built.** Overview: `0
 - **LI:** on a lane with ComfyUI from the tray: build 3 members × neutral + 3 labels; upload lands in ST's folder and
   shows in VnStage; a cancel mid-run leaves no file; `so-assets` cleanup leaves the install as before (sha256
   inventory diff); second-model rating of the sample ≥ 90 % "same character" and ≥ 90 % "label visible" (predeclared).
-- **Consumers:** v2.8 07 frame recipes and v2.8 08 S32-2 run their own gates after these are green.
+- **Consumers:** v2.7 19 frame recipes and v2.7 20 S32-2 run their own gates after these are green.
 
 ## Decisions for the user
 
@@ -122,7 +129,7 @@ done"); this contract is not yet reviewed by the user; not built.** Overview: `0
 
 ## Links
 
-v2.8 05 (route B, model discovery, broker; decision 6), v2.8 07 (frame recipes), v2.8 08 (look edits, S32-2), v2.8 02
+v2.7 17 (route B, model discovery, broker; decision 6), v2.7 19 (frame recipes), v2.7 20 (look edits, S32-2), v2.8 02
 D13b/D13c/D13e (campaign script portability, `--anim`, inventory), v2.7 04 (capability and cleanup checks).
 
 ## Review 2026-10-03

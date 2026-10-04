@@ -29,6 +29,8 @@ const config: StorybookConfig = {
       "@services/stHost/imageSurface$": path.resolve(__dirname, "./mocks/STAPI.ts"),
       "@services/stHost/sprites$": path.resolve(__dirname, "./mocks/STAPI.ts"),
       "@services/stHost/gpuBroker$": path.resolve(__dirname, "./mocks/STAPI.ts"),
+      "@services/stHost/media$": path.resolve(__dirname, "./mocks/STAPI.ts"),
+      "@services/stHost/stImage$": path.resolve(__dirname, "./mocks/STAPI.ts"),
       "@components": path.resolve(__dirname, "../src/components"),
       "@services": path.resolve(__dirname, "../src/services"),
       "@utils": path.resolve(__dirname, "../src/utils"),

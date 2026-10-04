@@ -1,0 +1,181 @@
+{
+  "file": "test/scenarios/v28-card-rollback.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 523
+    },
+    {
+      "index": 1,
+      "key": "import_story",
+      "ok": true,
+      "ms": 905
+    },
+    {
+      "index": 2,
+      "key": "send",
+      "ok": true,
+      "ms": 1681
+    },
+    {
+      "index": 3,
+      "key": "slash",
+      "ok": true,
+      "ms": 1732
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 308
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 384
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "requires": {
+    "facts": {
+      "groupId": "1791068844825",
+      "groupName": "SO Belle image pilot",
+      "members": [
+        {
+          "avatar": "Belle.png",
+          "name": "Belle",
+          "disabled": false
+        }
+      ],
+      "mainApi": "openai",
+      "roleModes": {
+        "read": "cc",
+        "synthesis": "cc",
+        "authoring": "cc",
+        "director": "cc",
+        "curator": "cc",
+        "inner": "cc"
+      },
+      "macroEngine": true,
+      "vectorsWorldInfo": true,
+      "modelReachable": null,
+      "modelProbe": null
+    },
+    "problems": [],
+    "reenabled": [],
+    "authorView": null,
+    "judgeOff": false,
+    "group": {
+      "group": "SO Belle image pilot",
+      "overridden": true
+    }
+  },
+  "cleanup": {
+    "generation": {
+      "idle": true,
+      "wasGenerating": false,
+      "stops": 0,
+      "waitedMs": 1558,
+      "lastSeen": {
+        "generating": false,
+        "saving": false,
+        "chatId": "2026-10-04@05h05m55s045ms",
+        "signals": []
+      }
+    },
+    "importedStoryHashes": [
+      "v2-71be82c5"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-card-rollback@1 (v2-71be82c5)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-10-04@05h05m55s045ms",
+    "owned": [
+      "2026-10-04@05h05m55s045ms"
+    ],
+    "deleted": [
+      "2026-10-04@05h05m55s045ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1523,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-10-04@05h05m55s045ms",
+    "currentGroupAtCleanup": "1791068844825",
+    "chatAfterCleanup": "2026-10-03@20h13m12s988ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": false,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profiles": {
+          "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+        }
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    },
+    "briefing": {
+      "restored": true,
+      "from": false,
+      "to": true,
+      "saved": {
+        "status": 200
+      },
+      "verified": true,
+      "ok": true
+    },
+    "residue": {
+      "swept": false,
+      "clean": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

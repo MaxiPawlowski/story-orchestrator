@@ -10,12 +10,12 @@ source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overvi
   auto-rig (Stretchy Studio / Iki / Inochi2D) + a WebGL mesh runtime per actor. Heavy build (12–16 GB VRAM, 2–3 min per
   image), one rig per sprite set, auto-rig robustness on our art not determined. Spine export unusable for a public
   plugin (every end user needs a Spine Editor licence). The user had dropped this route on 2026-09-29.
-- **Decision so far.** v2.8 07 talking-sprites builds B (build-time blink/talk frames + animator) + P (procedural idle).
+- **Decision so far.** v2.7 19 talking-sprites builds B (build-time blink/talk frames + animator) + P (procedural idle).
   D: "parked for next version" (user, decision 5).
-- **Reopen trigger.** The v2.8 07 playtest asks for real head motion that B + P cannot give, and v2.8 06 sprite
+- **Reopen trigger.** The v2.7 19 playtest asks for real head motion that B + P cannot give, and v2.7 18 sprite
   generation is in place to produce the base images. Start with a spike on 2–3 sets (rig success rate, VRAM, runtime
   cost with N actors on one canvas).
-- **Source** (anchors refreshed 2026-10-03, Sol r3 R3-19). `docs/plans/v2.8/07-talking-sprites.md` options table row D
+- **Source** (anchors refreshed 2026-10-03, Sol r3 R3-19). `docs/plans/v2.7/19-talking-sprites.md` options table row D
   (`:110`), "Why not D now" (`:224`), §7 decision 5 (`:279-280`), review note "Rig option D" (`:362`).
 
 ## 05.2 SP10 tool-call turns, the rest (old v2.7 16d option A)
@@ -90,7 +90,7 @@ recommended): all three are v2.9**, deferred with the reopen triggers below; the
 | Item | Parent | Decision so far | Reopen trigger | Source |
 |---|---|---|---|---|
 | Judge "does this persona fit the story" check | v2.8 03 player persona | deferred to v2.9 (2026-10-03); v2.8 03 ships the deterministic fit check (C) only | a calibrated judge use (20-case fixture + provider row) and a session where the deterministic check missed a misfit | `v2.8/03-player-persona-and-start-setup.md` options row C (`:111`), "No judge fit check" (`:167`), decision 5 (`:255`) |
-| Per-chat avatars (`force_avatar`) | v2.8 08 living cards | deferred to v2.9 (2026-10-03); revisit with on-demand images | v2.8 08's on-demand look sprites exist (after v2.8 06), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.8/08-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
+| Per-chat avatars (`force_avatar`) | v2.7 20 living cards | deferred to v2.9 (2026-10-03); revisit with on-demand images | v2.7 20's on-demand look sprites exist (after v2.7 18), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.7/20-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
 | Same-Jev other hosts (A5) | v2.8 14 open-source Jev | deferred to v2.9 (2026-10-03); not measured unless TypeSafe pricing or availability changes | TypeSafe changes price, limits or availability | `v2.8/14-open-source-jev.md` research note 7 (`:260`), options row A5 (`:297`), decision 7 (`:344-348`) |
 
 ## 05.6 Optional "Critic" role (v2.7 14 research decision 2; placed here by the user 2026-10-03)

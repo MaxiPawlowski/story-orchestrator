@@ -56,7 +56,7 @@ what's expected. Or maybe some sort of setup on story start?"
 - **v2.7 04 story health center** (`v2.7/04-story-health-center.md`): owns the check registry (`src/runtime/checks.ts`)
   and the "Before you start" findings list. This plan delivers two registry entries: persona fit and persona switch.
 - **v2.7 03 group-chats-only**: stories run in group chats only. A solo chat appears here only as a control.
-- **v2.8 08 living cards**: in-story changes to the player (looks, status, titles) live in its per-chat overlay under
+- **v2.7 20 living cards**: in-story changes to the player (looks, status, titles) live in its per-chat overlay under
   `player.card`. The ST persona is the base and is never edited.
 - **v2.8 22 living story**: its `living.player_role` becomes this plan's `player.role` (review C10).
 - **v2.8 09 wizard assistant**: character-building tutorial; "greeting speaks for the player" is a listed card mistake.
@@ -82,7 +82,7 @@ what's expected. Or maybe some sort of setup on story start?"
   - default: `power_user.default_persona` (`:978`).
   - `persona_auto_lock` (user setting) locks the chosen persona to the chat on selection (`:900`, `:936`).
 - **There is no per-chat description override.** The description belongs to the persona. Per-chat changes go through
-  v2.8 08's overlay or this plan's story-side block.
+  v2.7 20's overlay or this plan's story-side block.
 - **Slash API** (this checkout; the comment calls them "New CRUD commands", so older ST may lack them):
   `/persona-create name= description= descriptionPosition= ... select=` (`personas.js:2096-2150`, `:2558`; default
   avatar uploaded via `/api/avatars/upload`, `:359-384`), `/persona-update`, `/persona-get`, `/persona-duplicate`,
@@ -149,7 +149,7 @@ what's expected. Or maybe some sort of setup on story start?"
      removed before the click → injection on (the counterexample); (b) created with the line intact → off; (c) the line
      edited in Persona Management later → on; (d) the story's `role` changed by an update → on until the line matches
      again; (e) a kept persona whose description happens to contain the line → off (equivalence by content).
-   - `card` (optional): the fields of the player that the story may change, owned by v2.8 08's overlay.
+   - `card` (optional): the fields of the player that the story may change, owned by v2.7 20's overlay.
 2. **`player` never blocks readiness.** Only `requirements.personas` (kept, for the rare story that truly needs a named
    persona) and `name.mode: fixed` gate effects. Everything else is a choice the player makes once, at the start.
 3. **Start-setup pane in v2.7 05's modal** (below). The player confirms every persona change. **Every start choice
@@ -305,12 +305,12 @@ in.
   creation? Not determined. whatever u recommend
   - Taken: probe; hide create when absent (no direct writes).
 - Multi-user ST installs: personas are per user directory; assumed fine, not verified. Persona should be handled per story per chat, with a user level persona as base. Check 32-living-cards
-  - Taken: v2.8 08 `player.card` overlay; the base persona is never edited.
+  - Taken: v2.7 20 `player.card` overlay; the base persona is never edited.
 
 ## Links
 
 v2.7 05 story briefing (the modal), v2.7 04 health center (check registry, "Before you start"), v2.7 03 group-chats-only,
-v2.7 01 docs (feature registry; guide pages: author topic `player`, player page "Your character"), v2.8 08 living cards
+v2.7 01 docs (feature registry; guide pages: author topic `player`, player page "Your character"), v2.7 20 living cards
 (`player.card`), v2.8 22 living story (`player.role`), v2.8 09 wizard assistant (tutorial: "the player is the persona"),
 v2.8 02 Adolion campaign (`player` blocks), v2.5 plan 17 (scripted opener).
 
@@ -326,7 +326,7 @@ The user's notes in the open questions change the design in three places:
    - A Restart reopens the start step.
 2. **Persona per story per chat, with the user's persona as the base.**
    - The user's ST persona is the base identity. What the story changes about the player (looks, status, titles) lives
-     in v2.8 08's overlay under `player.card`, per chat.
+     in v2.7 20's overlay under `player.card`, per chat.
    - The ST persona is never edited, so a new chat starts from the base persona.
    - This replaces option (a)'s "adapt for this chat" idea.
 3. **Solo chats are out** (v2.7 03), so only the group reload path matters for spike S30-1.
@@ -347,7 +347,7 @@ Applied from `v2.7/review-2026-10-03.md`:
 - **F10**: §Activation sequence (one order for all three entry paths; identity required, briefing optional; S30-1
   failure path; fixed-name case; briefings-off gate). Old decision 7 fallback replaced.
 - **F11**: `inject` stays on for existing personas; off only on an explicit, hash-checked equivalence; gate case added.
-- **D12**: mid-story switch + switch-back gated; opener = v2.5 plan 17; `player.card` ↔ v2.8 08.
+- **D12**: mid-story switch + switch-back gated; opener = v2.5 plan 17; `player.card` ↔ v2.7 20.
 - **D9**: `persona-fit` and `persona-switch` are v2.7 04 registry entries delivered here.
 - **C10**: `living.player_role` (v2.8 22) → `player.role`.
 - **B10**: registry + Help gate row.

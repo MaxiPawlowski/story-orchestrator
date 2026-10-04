@@ -122,6 +122,7 @@ export interface CheckpointEffects {
   background?: BackgroundEffect;
   reasoning?: CheckpointReasoning;
   scenario?: string | null;
+  card?: Record<string, Record<string, string>>;
 }
 
 export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
@@ -280,7 +281,11 @@ export interface RosterMember {
   drive?: string;
   view?: RosterView;
   aliases?: string[];
+  card?: CardBinding;
 }
+
+export interface CardBinding { fields: Record<string, { quality: string; visual?: boolean }> }
+export type CardFieldIndex = Record<string, { owner: string; field: string; visual: boolean }>;
 
 export interface ScaffoldingBeat {
   objective: string;
@@ -404,6 +409,7 @@ export interface StoryV2 {
   title: string;
   description: string;
   player_intro?: string;
+  player?: { card?: CardBinding; [key: string]: unknown };
   briefing?: StoryBriefing;
   illustrations?: StoryIllustrations;
   qualities: Quality[];
@@ -445,6 +451,7 @@ export interface NormalizedStoryV2 extends StoryV2 {
   checkpointById: Record<string, Checkpoint>;
   outgoingByCheckpoint: Record<string, NormalizedTransition[]>;
   qualityByKey: Record<string, Quality>;
+  cardFieldByQuality?: CardFieldIndex;
   reachableByCheckpoint: Record<string, string[]>;
   chapterById?: Record<string, Chapter>;
   chapterByCheckpoint?: Record<string, string>;

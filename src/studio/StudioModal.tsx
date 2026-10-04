@@ -8,6 +8,7 @@ import QualityEditor from "./components/QualityEditor";
 import CheckpointEditor from "./components/CheckpointEditor";
 import TransitionEditor from "./components/TransitionEditor";
 import DiagnosticsPanel from "./components/DiagnosticsPanel";
+import SpriteBuilder from "./components/SpriteBuilder";
 import RosterEditor from "./components/RosterEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
@@ -22,7 +23,7 @@ import { GateReplayContext } from "./replayContext";
 import type { GateReplaySource } from "./gateReplay";
 import { resolveAgentHarness } from "./agentHost";
 
-export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
+export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "sprites" | "diagnostics" | "copilot";
 
 export interface StudioOpenIntent {
   tab?: StudioTab;
@@ -38,6 +39,7 @@ const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "checkpoints", label: "Checkpoints" },
   { id: "transitions", label: "Transitions" },
   { id: "roster", label: "Roster" },
+  { id: "sprites", label: "Sprites" },
   { id: "diagnostics", label: "Diagnostics" },
 ];
 
@@ -231,6 +233,7 @@ const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage,
   if (activeTab === "checkpoints") return <CheckpointEditor backgroundNames={options.backgroundNames} />;
   if (activeTab === "transitions") return <TransitionEditor />;
   if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
+  if (activeTab === "sprites") return <SpriteBuilder />;
   if (activeTab === "diagnostics") return <DiagnosticsPanel />;
   if (activeTab === "copilot") {
     return (

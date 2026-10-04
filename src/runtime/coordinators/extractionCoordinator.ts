@@ -19,7 +19,7 @@ import {
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
-import { enabledCharacterNames } from "../roster";
+import { enabledCharacterIds, enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
 import {
   JUDGED_READ_LIMIT, type ExtractionRuntimeState, type JudgedReadRecord,
@@ -86,6 +86,14 @@ export class ExtractionCoordinator {
 
   private get state(): ExtractionRuntimeState {
     return this.deps.getExtraction();
+  }
+
+  cardScope(): { owners: string[]; cursor: number } {
+    const story = this.deps.getStory();
+    const owners = enabledCharacterIds(story, this.deps.hosts.roster);
+    const cursor = this.state.cardScopeCursor ?? 0;
+    if (Object.keys(story?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = cursor + 4;
+    return { owners, cursor };
   }
 
   private async save() {
@@ -316,6 +324,7 @@ export class ExtractionCoordinator {
       facts: memory.getFacts(),
       firedTransitions: this.deps.getFiredTransitions(),
       extraGateSources: this.deps.getExpansionGateSources(),
+      cardScope: this.cardScope(),
       openArcs: memory.getOpenArcs(),
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),

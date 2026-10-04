@@ -303,10 +303,10 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "images", name: "Illustrations", area: "world", audience: "setup",
-    oneLine: "Draws pictures of scenes and characters through ComfyUI.",
-    what: "Stories can ask for pictures at key moments, or you can draw every few replies or by hand. A prompt model writes each picture prompt; ComfyUI renders it after the text is done.",
+    oneLine: "Draws scenes and characters through your image service.",
+    what: "Uses SillyTavern’s image service by default. Stories can ask for pictures, or you can draw by hand. An optional prompt model improves the scene description; a template works without it.",
     where: settingsAt("#so-image-settings", "General setup › Image service"),
-    settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", since: "2.6.0", needs: ["comfyui"],
+    settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
     isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
   },
   {
@@ -316,6 +316,18 @@ const CORE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-sprite-enabled", "General setup › Sprite stage"),
     settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "off-by-default", since: "2.6.0", needs: ["sprite-pack"],
     isOn: (settings) => settings.sprites.enabled,
+  },
+  {
+    id: "sprite-builder", name: "Build sprite packs", area: "authoring", audience: "author",
+    oneLine: "Edit a reference picture into expression sprites and animation frames.",
+    what: "Choose a cast member, reference and edit box in Studio. Preview each image before saving into a separate generated set. Existing artwork is protected.",
+    where: studioAt("#so-studio-tab-sprites", "Sprites"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["comfyui"],
+  },
+  {
+    id: "sprite-animation", name: "Animated faces", area: "world", audience: "setup",
+    oneLine: "Blink and talking-mouth frames give sprites movement.",
+    what: "Packs with animation frames blink and move the speaker’s mouth while replies stream. Missing frames keep the static sprite. Reduced motion switches facial animation off.",
+    where: settingsAt("#so-sprite-mouth", "Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["sprite-pack"],
   },
   {
     id: "judge", name: "Judge", area: "judge", audience: "setup",

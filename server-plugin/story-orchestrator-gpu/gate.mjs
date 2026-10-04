@@ -166,7 +166,6 @@ export class GpuGate {
             if (!response.ok) return false;
             const state = await response.json();
             if (state.queue_running?.length || state.queue_pending?.length) {
-                if (elapsed >= 600_000) await this.fetch(`${this.comfy}/interrupt`, { method: 'POST', signal: AbortSignal.timeout(3000) });
                 return false;
             }
             return await this.release(this.lease);

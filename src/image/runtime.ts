@@ -1,12 +1,15 @@
 import { isHostGenerating, listConnectionProfiles, getScannableEntries } from "@services/STAPI";
 import {
-  imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl, type ImageMedia,
+  imageChat, imageModel, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, type ImageMedia,
 } from "@services/stHost/image";
 import { reserveGpu, releaseGpu } from "@services/stHost/gpuBroker";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { imageSize, type Aspect } from "./catalog";
 import { buildGraph } from "./graph";
-import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
+import { renderFacts, renderKey } from "./renderFacts";
+import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
+import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
+import { comfyDiscover, comfyRenderOwned } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
 import { pickImageCheckpoint, resolveImageRoute, type ImageArgs, type Route } from "./routing";
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
@@ -15,8 +18,10 @@ import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { firedLoreKeys, visualLore } from "./lore";
 import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
 import { fnv1a } from "@runtime/hash";
+import { beginRun, type RunGuard } from "@runtime/runToken";
 
 export interface ImagePlan {
+  backend: ImageSettings["backend"];
   request: ImageRequest;
   chatId: string;
   folder: string;
@@ -72,6 +77,7 @@ export class StoryImageDirector {
       || !beatIllustrated(story, kind === "checkpoint" ? name : snapshot.activeCheckpointId)) return;
     const key = `${chat.id}:${snapshot.storyId}:${snapshot.storyIdentity.playedVersion}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
+    if (settings.backend === "st" && !(await stImageReadiness()).ready) return;
     if (messageAlreadyDrawn(chat, at)) return;
     const target = at === null ? null : `${chat.id}:${at}`;
     if (target && this.pendingTargets.has(target)) return;
@@ -134,6 +140,7 @@ export class StoryImageDirector {
   async plan(request: ImageRequest, args: ImageArgs = {}): Promise<ImagePlan> {
     const chat = imageChat();
     if (!chat) throw new Error("Open a chat before generating an image.");
+    if (!chat.groupId) throw new Error("Open a group chat before generating story illustrations.");
     const settings = this.settings();
     const snapshot = this.manager.getSnapshot();
     const ownsStory = this.manager.ownsImageChat(chat.id) && snapshot.ready;
@@ -143,7 +150,7 @@ export class StoryImageDirector {
     if (story) {
       const look = lookFor(story, snapshot.activeCheckpointId);
       if (look.style) scene.visualStyle = look.style;
-      scene.subjects = castForImage(scene.subjects, story, look);
+      scene.subjects = castForImage(scene.subjects, story, look, snapshot.blackboard);
     }
     if (story && snapshot.requirements.ready) {
       const scoped = [...(story.requirements?.lorebooks ?? []), ...(story.lore_select?.lorebooks ?? [])];
@@ -155,9 +162,9 @@ export class StoryImageDirector {
     const focus = chat.characters.find((character) => character.key === scene.focus);
     const binding = focus ? settings.characters[focus.key] ?? null : null;
     let route = resolveImageRoute(settings, request.purpose, args, this.override(), binding);
+    if (settings.backend === "comfy") route = { ...route, allowed: [route.checkpoint.file] };
     let reply: ImageReply | null = null;
-    if (!request.raw) {
-      if (!settings.directorProfileId || !listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId)) throw new Error("Select an image director connection profile.");
+    if (!request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId)) {
       const messages = imageMessages(request, scene, route);
       let raw = await imageModel(settings.directorProfileId, messages, settings.maxTokens);
       try {
@@ -172,9 +179,14 @@ export class StoryImageDirector {
       route = pickImageCheckpoint(route, reply.checkpoint);
     }
     const aspect = route.aspect !== "auto" ? route.aspect : reply?.aspect ?? (request.purpose === "background" ? "wide" : "portrait");
-    const assembled = assembleImagePrompt(route, reply, request.text);
+    const fallback = !request.raw && !reply ? templateImagePrompt(scene, request.purpose, request.text) : request.text;
+    const assembled = settings.backend === "st" ? {
+      positive: [...route.positive, reply?.prompt ?? fallback].filter(Boolean).join(", "),
+      negative: [...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative].filter(Boolean).join(", "),
+    } : assembleImagePrompt(route, reply, fallback);
     if (!assembled.positive.trim()) throw new Error("There is nothing to draw.");
     const plan = {
+      backend: settings.backend,
       request, chatId: chat.id, folder: chat.folder, target: scene.target,
       targetText: scene.target === null ? null : chat.messages[scene.target]?.mes ?? null,
       route, reply, scene, aspect, positive: assembled.positive, negative: assembled.negative,
@@ -203,29 +215,48 @@ export class StoryImageDirector {
     }
   }
 
-  private async render(plan: ImagePlan, index: number, signal: AbortSignal, override?: number): Promise<ImageCandidate> {
+  private async render(plan: ImagePlan, index: number, signal: AbortSignal, run: RunGuard, override?: number): Promise<ImageCandidate> {
     const seed = this.seed(plan, index, override);
     const size = plan.route.family.sizes[plan.aspect];
-    const image = await imageRender(imageComfyUrl(this.settings().comfyUrl), buildGraph({
+    if (plan.backend === "st") {
+      signal.throwIfAborted();
+      if (!run.stillOwns()) throw new Error("The story changed before the image could be drawn.");
+      const path = await renderStImage(plan.positive, plan.negative);
+      if (!run.stillOwns() || signal.aborted) { await imageDelete(path); throw new Error("The image was discarded because the story changed."); }
+      signal.throwIfAborted();
+      return { path, seed, ...size };
+    }
+    const discovery = await comfyDiscover(signal);
+    if (!discovery.checkpoints.includes(plan.route.checkpoint.file)) throw new Error("Choose an installed model for this picture type before rendering.");
+    if (plan.route.loras.some((lora) => !discovery.loras.includes(lora.entry.file))) throw new Error("A selected LoRA is not installed on this ComfyUI.");
+    const upscaler = this.settings().upscalers[plan.route.family.id] || plan.route.family.upscaler;
+    if (plan.route.quality === "hires" && !discovery.upscalers.includes(upscaler)) throw new Error("Choose an installed upscaler before using hires.");
+    const cleanEmbeddings = (text: string) => text.replace(/embedding:([\w-]+)/g, (tag, name: string) => discovery.embeddings.includes(name) ? tag : "");
+    const image = await comfyRenderOwned(buildGraph({
       checkpoint: plan.route.checkpoint, family: plan.route.family, loras: plan.route.loras.map((lora) => ({ file: lora.entry.file, weight: lora.weight })),
-      positive: plan.positive, negative: plan.negative, size, seed,
-      hires: plan.route.quality === "hires", upscaler: this.settings().upscalers[plan.route.family.id] || plan.route.family.upscaler,
+      positive: cleanEmbeddings(plan.positive), negative: cleanEmbeddings(plan.negative), size, seed,
+      hires: plan.route.quality === "hires", upscaler,
     }), signal);
     if (signal.aborted) throw new DOMException("Image cancelled", "AbortError");
+    if (!run.stillOwns()) throw new Error("The story changed before this image could be saved.");
     const path = await imageSave(image.data, image.format, plan.folder, `director_${Date.now()}_${seed}`);
     return { path, seed, ...imageSize(plan.route.family, plan.aspect, plan.route.quality === "hires" ? plan.route.checkpoint.hires : null) };
   }
 
   async direct(request: ImageRequest, args: ImageArgs = {}, cueKey?: string): Promise<string> {
+    const run = beginRun(this.manager.getOwnership());
     try {
       const plan = await this.plan(request, args);
+      if (!run.stillOwns()) throw new Error("The story changed while the image was being planned.");
       const count = cueKey ? 1 : plan.route.candidates;
+      const gpuFacts = renderFacts({ checkpoint: plan.route.checkpoint, loras: plan.route.loras, family: plan.route.family, aspect: plan.aspect, quality: plan.route.quality });
+      const gpuRequest = { ...gpuFacts, workflowKey: renderKey(gpuFacts) };
       const candidates = await this.queue.enqueue(`${plan.route.purpose} · ${plan.route.checkpoint.label}`, async (signal) => {
         await this.idle(signal);
-        const reservation = await reserveGpu(signal);
+        const reservation = await reserveGpu({ ...gpuRequest, signal });
         try {
           const images: ImageCandidate[] = [];
-          for (let index = 0; index < count; index += 1) images.push(await this.render(plan, index, signal));
+          for (let index = 0; index < count; index += 1) images.push(await this.render(plan, index, signal, run));
           return images;
         } finally {
           const release = await releaseGpu(reservation.lease);
@@ -238,8 +269,8 @@ export class StoryImageDirector {
         const result = await review(plan, candidates, async (index) => {
           const fresh = await this.queue.enqueue(`Regenerate image ${index + 1}`, async (signal) => {
             await this.idle(signal);
-            const reservation = await reserveGpu(signal);
-            try { return await this.render(plan, index, signal, Math.floor(Math.random() * 2 ** 32)); }
+            const reservation = await reserveGpu({ ...gpuRequest, signal });
+            try { return await this.render(plan, index, signal, run, Math.floor(Math.random() * 2 ** 32)); }
             finally { await releaseGpu(reservation.lease); }
           });
           await imageDelete(candidates[index].path);
@@ -252,7 +283,10 @@ export class StoryImageDirector {
       await Promise.all(candidates.filter((_, index) => index !== chosen).map((candidate) => imageDelete(candidate.path)));
       const candidate = candidates[chosen];
       const now = imageChat();
-      if (!now || now.id !== plan.chatId || (plan.target !== null && now.messages[plan.target]?.mes !== plan.targetText)) return candidate.path;
+      if (!run.stillOwns() || !now || now.id !== plan.chatId || (plan.target !== null && now.messages[plan.target]?.mes !== plan.targetText)) {
+        await imageDelete(candidate.path);
+        return "";
+      }
       const media: ImageMedia = {
         url: candidate.path, type: "image", title: plan.caption, source: "generated",
         image_director: {
@@ -278,6 +312,6 @@ export class StoryImageDirector {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.notify();
       throw error;
-    }
+    } finally { run.release(); }
   }
 }

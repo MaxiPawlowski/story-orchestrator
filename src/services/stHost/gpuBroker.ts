@@ -15,16 +15,30 @@ const post = async (route: string, body: Record<string, unknown>, signal?: Abort
  *  must leave the image path open (no model switching) rather than block every render. */
 export interface GpuReservation { lease: string | null; brokered: boolean }
 
-export async function reserveGpu(signal?: AbortSignal): Promise<GpuReservation> {
+/** What a render needs, so a managed controller can size the text residency before the image loads:
+ *  the models used, the base render size and whether a hires pass follows. The controller estimates
+ *  from these when no measured footprint exists yet. */
+export interface GpuRequest {
+  workflowKey?: string;
+  modelFiles?: Array<{ kind: string; name: string }>;
+  width?: number;
+  height?: number;
+  hires?: boolean;
+  signal?: AbortSignal;
+}
+
+export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
   let response: Response;
   try {
-    response = await post("lease", {}, signal);
+    response = await post("lease", { workflowKey: request.workflowKey, modelFiles: request.modelFiles,
+      width: request.width, height: request.height, hires: request.hires }, request.signal);
   } catch (error) {
     log.warn("GPU broker connection failed", error);
     throw new Error("The GPU broker could not be reached. The image was not rendered.");
   }
   if (response.status === 404 || response.status === 501) return { lease: null, brokered: false };
   const data: unknown = await response.json().catch(() => null);
+  if (response.ok && isRecord(data) && data.brokered === false && data.lease === null) return { lease: null, brokered: false };
   if (!response.ok) throw new Error(isRecord(data) && typeof data.error === "string" ? data.error : "The local GPU broker refused the image lease.");
   if (!isRecord(data) || typeof data.lease !== "string" || !data.lease) throw new Error("The GPU broker did not grant an image lease.");
   return { lease: data.lease, brokered: true };
@@ -35,5 +49,12 @@ export async function releaseGpu(lease: string | null): Promise<WriteResult<{ re
   const response = await post("release", { lease });
   const data: unknown = await response.json().catch(() => null);
   return response.ok && isRecord(data) && data.released === true ? wrote({ released: true }) : couldNot("The GPU broker did not release the image lease.");
+}
+
+export async function renewGpu(lease: string | null): Promise<WriteResult<{ renewed: boolean }>> {
+  if (!lease) return wrote({ renewed: false });
+  const response = await post("renew", { lease });
+  const data: unknown = await response.json().catch(() => null);
+  return response.ok && isRecord(data) && data.renewed === true ? wrote({ renewed: true }) : couldNot("The GPU broker lease expired. Stop this batch and check the broker.");
 }
 

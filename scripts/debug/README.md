@@ -34,6 +34,19 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 
 ## Commands
 
+### Sprite builder (v2.7 18/19/20)
+
+`so-sprite-builder.mts setup` imports the synthetic pilot into the explicitly opened group, disables extraction on
+the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
+
+`build --character Belle --set so_belle_pilot --label happy --kind expression --reference neutral --box 221,11,320,320`
+drives the real discovery, fingerprint and preview controls. It does not save automatically. `save` clicks Keep;
+`cancel` cancels the owned render; `state` captures the current panel. Build has a fifteen-minute bound and records a
+preview screenshot. Frame kinds are `blink`, `talk`, `talk2`; use the generated expression as the reference.
+
+The synthetic story is `test/scenarios/v27-belle-pilot.story.json`. Use `st-lanes run <n> -- scripts/debug/so-sprite-builder.mts ...`.
+Model files remain at their configured paths; these tools never copy, move or download weights.
+
 | Script | Key commands |
 |---|---|
 | `st-session.mts` | `start`, `stop`, `status` |

@@ -1,11 +1,17 @@
-# Plan 05 — Self-contained images: work with whatever the user has
+# Plan 17 — Self-contained images: work with whatever the user has
 
-**Status (2026-10-03): v2.8 plan 05 (was v2.7 plan 26). Decided (all recommendations, see Decisions); not built.**
+**Status (2026-10-04): v2.7 plan 17 (was v2.8 05, before that v2.7 plan 26; moved to v2.7 with the image track,
+2026-10-04). Implemented candidate; `npm run gates` green and the Belle pilot exercised the route, discovery, owned
+jobs and Test render. Live acceptance (LI/CL/RP) is PARTIAL and, per v2.7 rule 5, stays owned by v2.8 01 /
+the v2.8 final suite. See `21-belle-image-pilot.md` §Gate record.**
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance LI (local ComfyUI through the broker) + CL
 (a cloud director profile). Nothing here needs RunPod.
 
-Build position: before v2.8 06 (sprite generation), which uses the interfaces named in §F; v2.8 07 and 08 come after 06.
+Build position: before v2.7 18 (sprite generation), which uses the interfaces named in §F; v2.7 19 and 20 come after 18.
+
+**Storage correction (user, 2026-10-03):** image models stay on C: for autoload. The earlier off-C model migration
+and gate precondition below are superseded on this installation (overview rule 5 exception). No weight copying.
 
 The user's words: we have ComfyUI functionality, but it feels like it calls outside things that someone who installs
 the plugin would not have. Review what is needed to make it self-contained.
@@ -27,7 +33,7 @@ the plugin would not have. Review what is needed to make it self-contained.
 - **Automatic cues.** `ImageRuntime.cue(kind, at, name)` (`image/runtime.ts:64`) with kinds `checkpoint | scene`, fed by
   boundary and scene-break subscriptions (`:100-106`); the `everyN` cadence is `ImageRuntime.onReply` (`:114`).
 - **Sprites** are display-only: `/api/sprites/get` (`stHost/sprites.ts:95`), behind a capability probe, off by default.
-  Generating them is v2.8 06.
+  Generating them is v2.7 18.
 
 ### What a stranger does not have
 
@@ -51,8 +57,9 @@ Also:
   broker's assumptions. The broker README now says it is advanced and machine-specific.
 - **This machine** (checked 2026-10-03): ComfyUI at `C:\dev\ComfyUI` with `extra_model_paths.yaml` → `assetgen.base_path:
   C:/dev/models`. Both ComfyUI and the broker already have tray entries (`C:\dev\tray\items\story-orchestrator.json`,
-  "ComfyUI" with `/system_stats` status, and "GPU broker" under SillyTavern). **The model path is on `C:`**, which
-  v2.8 rule 5 forbids: moving it is a precondition of this plan's LI gate.
+  "ComfyUI" with `/system_stats` status, and "GPU broker" under SillyTavern). **The model path is on `C:`**: by the
+  user's 2026-10-04 decision this stays (autoload), so the earlier "move off `C:`" precondition is superseded
+  (v2.7 rule 8 image-track exception, v2.7 rule 8 exception).
 
 ## Goal
 
@@ -77,7 +84,7 @@ install.
      `/embeddings`. Settings offer only what exists.
    - **The catalog becomes recipes, not file names.** "SDXL / Illustrious-style", "FLUX", "Pony"; each says which
      nodes and parameters it uses, and the user maps their own model to it. A recipe has a `kind`: `generate`
-     (today's graphs) or `edit` (reference image in, image out; v2.8 06 adds the first `edit` recipes).
+     (today's graphs) or `edit` (reference image in, image out; v2.7 18 adds the first `edit` recipes).
      - The current three checkpoints become *suggestions* in the setup doc, not defaults.
      - Embeddings are used only when found.
    - **Validation before render:** a route whose model is not on the server is refused with a plain reason and a Repair
@@ -108,7 +115,7 @@ this machine, but leaves the default install.
 - **Adapters, not one stack.** `unsloth` (today's setup), `llama-server` (local llama.cpp on the 3090), `none`. The text
   model name, the text port and the ComfyUI URL come from the plugin's settings file, never constants. The RunPod reply
   model is never behind the broker: it is not on this GPU.
-- **Tray** (v2.8 rule 5). The existing "GPU broker" tray entry keeps its `/status` readiness (`127.0.0.1:18888`); it
+- **Tray** (v2.7 rule 8). The existing "GPU broker" tray entry keeps its `/status` readiness (`127.0.0.1:18888`); it
   gains "Open settings" and shows the adapter in its tip. The gate reads `C:\dev\tray\status.txt` OK for the file.
 - **Docs.** `docs/guide/setup/gpu-broker.md`: "advanced: one GPU for text and images", what it does, when you need it
   (only when both run on the same card), how to install it.
@@ -135,13 +142,13 @@ this machine, but leaves the default install.
   an opt-in.
 - With no backend, no background attempts are made and nothing fails silently.
 
-### F. Sprites and what v2.8 06 uses from this plan
+### F. Sprites and what v2.7 18 uses from this plan
 
 Sprite display stays as it is (display-only, probed, off by default) and gains an empty-state and a guide page: what a
-sprite folder is and how to get one. **Sprite generation is v2.8 06** (decision 6, review F31). This plan does not
-build any of it; it only provides these interfaces, which v2.8 06 consumes and which its gate depends on:
+sprite folder is and how to get one. **Sprite generation is v2.7 18** (decision 6, review F31). This plan does not
+build any of it; it only provides these interfaces, which v2.7 18 consumes and which its gate depends on:
 
-| Interface | Shape | Used by v2.8 06 for |
+| Interface | Shape | Used by v2.7 18 for |
 |---|---|---|
 | Model discovery | `comfyModels(url)` → `{checkpoints, diffusionModels, loras, upscalers, embeddings, nodes}` from `/object_info` + `/embeddings` | finding an edit-capable model, or saying one is needed |
 | Recipe registry | `{id, kind: "generate" \| "edit", nodes[], params}`, user-mapped model, validated before send | the reference-edit recipes (expressions, blink/talk frames, looks) |
@@ -160,9 +167,9 @@ Route A cannot serve sprite edits: most ST Image Generation sources generate, th
 | 201 sets | `sprites/<set>/` folders, excluding `_bases`, `_candidates` |
 | 2,889 expression PNGs | files in `sprites/<set>/` (about 14.4 labels per set) |
 | 4,544 PNGs in all | everything under `campaign/sprites/`, including 362 bases, 701 candidates, 375 contact sheets, 134 inputs, 32 poses |
-| 0 animation frames | `anim-*` folders (v2.8 07 not built) |
+| 0 animation frames | `anim-*` folders (v2.7 19 not built) |
 
-v2.8 07 and v2.8 08 quote from this table; v2.8 02 quotes its own campaign inventory with its own denominator.
+v2.7 19 and v2.7 20 quote from this table; v2.8 02 quotes its own campaign inventory with its own denominator.
 `render_sprites.py` is 809 lines (as measured for the old plan; not re-counted).
 
 ### G. Docs (v2.7 01 registry)
@@ -209,9 +216,9 @@ v2.8 13 N2 (judge illustration cue) needs a place to land. This plan names it an
   - **Clean-host:** `scripts/release/clean-host.sh` with the package: images off and quiet, no broker installed.
   - `npm run gates`.
 - **LI + CL (acceptance, live on a lane with `--media on --allow-comfy`).**
-  - Preconditions (v2.8 rule 5): ComfyUI's model path is not on `C:` (the gate reads `extra_model_paths.yaml` and
-    fails on a `C:` base path); `C:\dev\tray\status.txt` reports the tray file OK; the ComfyUI and GPU broker entries
-    show ready.
+  - Preconditions: image models stay on `C:` by the 2026-10-04 decision (autoload); the gate records the existing
+    `extra_model_paths.yaml` path instead of enforcing off-`C:`; `C:\dev\tray\status.txt` reports the tray file OK;
+    the ComfyUI and GPU broker entries show ready.
   - Route A through ST's `comfy` source on the local ComfyUI (LI), director = a cloud profile (CL, DeepSeek).
   - Route B with discovered models (LI).
   - The template fallback with no director profile (LI only).
@@ -220,7 +227,7 @@ v2.8 13 N2 (judge illustration cue) needs a place to land. This plan names it an
   - An install with no backend: no attempts, the health-center row shown.
   - Test render.
   - A cloud ST source (e.g. Pollinations) only if the user approves sending test prompts to it.
-- **Player-visible surface** (v2.8 rule 4): the empty states and "Images are ready" line are covered by the user's
+- **Player-visible surface** (v2.7 rule 10): the empty states and "Images are ready" line are covered by the user's
   2026-10-03 decisions; nothing else player-visible is added.
 
 ## Decisions for the user
@@ -248,7 +255,7 @@ v2.8 13 N2 (judge illustration cue) needs a place to land. This plan names it an
      - A specific edit model and graph (Qwen image edit), plus a background remover.
      - Build-time Python with numpy and PIL, outside the extension.
      - Campaign-specific heuristics (skin/eye scoring for base picks).
-   - **Outcome (decided):** sprite generation is its own plan, **v2.8 06**, built on this plan's route B interfaces
+   - **Outcome (decided):** sprite generation is its own plan, **v2.7 18**, built on this plan's route B interfaces
      (§F), with the campaign script as the base. Until 06 ships, the campaign script stays the Adolion tool, with its
      paths moved to settings/env off `C:` (v2.8 02).
 
@@ -256,17 +263,17 @@ v2.8 13 N2 (judge illustration cue) needs a place to land. This plan names it an
 
 v2.7 01 docs and registry (setup page, `needs`), v2.7 02 C6–C9 (image prompt spoiler fixes, per-checkpoint illustrate),
 v2.7 04 health center (check registry), v2.7 05 briefing (optional image), v2.8 02 Adolion campaign (model
-recommendations, `render_sprites` paths), v2.8 06 sprite generation (consumer of §F), v2.8 07 talking sprites and v2.8 08
-living cards (after 06), v2.8 13 N2 (consumer of §I).
+recommendations, `render_sprites` paths), v2.7 18 sprite generation (consumer of §F), v2.7 19 talking sprites and v2.7 20
+living cards (after 18), v2.8 13 N2 (consumer of §I).
 
 ## Review 2026-10-03
 
 Applied from `v2.7/review-2026-10-03.md`:
 - **F01**: status line and gate tiers.
 - **F15**: gates split into D and LI + CL; the live gate uses local ComfyUI (LI) and a cloud director (CL).
-- **F31**: sprite generation is v2.8 06; §F lists only the interfaces 06 uses; every "26b" reference removed.
+- **F31**: sprite generation is v2.7 18; §F lists only the interfaces 18 uses; every "26b" reference removed.
 - **B5**: §I names the cue seam (cue source union + `cadenceFilter`) that v2.8 13 N2 lands on.
-- **D15**: §C rewritten from decision 4 (optional, fail-open, adapters, tray); §F rewritten from decision 6 (v2.8 06);
+- **D15**: §C rewritten from decision 4 (optional, fail-open, adapters, tray); §F rewritten from decision 6 (v2.7 18);
   dated sprite inventory with a denominator per number.
 - **"26 `:160` ref"**: the director error is at `image/runtime.ts:160` (was `:157`); other refs touched re-checked
   (`settings.ts:53`, `image.ts:110`, cue/onReply lines, allowlist lines).

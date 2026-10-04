@@ -161,6 +161,7 @@
     },
     "image": {
       "enabled": false,
+      "backend": "st",
       "contextMessages": 6,
       "maxTokens": 900,
       "useJsonSchema": true,
@@ -182,7 +183,12 @@
       "segmentChars": 400,
       "crossfadeMs": 250,
       "focus": true,
-      "breathing": true
+      "breathing": true,
+      "blink": true,
+      "mouth": "simple",
+      "cardOverlay": false,
+      "onDemand": false,
+      "builders": {}
     },
     "spikes": {
       "swipeBackCache": false,

@@ -2,12 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { configuredStRoot, stRootIssue } from './lib/stRoot.mjs';
-import { applyInstall, planInstall } from './lib/pluginInstall.mjs';
+import { applyInstall, planInstall, selectedPlugins } from './lib/pluginInstall.mjs';
 
 const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--check] [--force]
        npm run plugins:install -- [--check] [--force]
 
-Copies every Story Orchestrator server plugin into <ST root>/plugins/.
+Copies the judge plugin into <ST root>/plugins/. Add --with gpu,media,harness for optional plugins.
 The ST root is ST_ROOT or the gitignored .st-root file. ST loads plugins only with
 enableServerPlugins: true in config.yaml, after a restart.
 Idempotent: a plugin whose files already match is left alone. An installed plugin
@@ -34,7 +34,10 @@ if (!fs.existsSync(path.join(stRoot, 'src', 'plugin-loader.js'))) {
     process.exit(1);
 }
 
-const rows = planInstall({ extensionRoot, stRoot });
+const withFlag = args.indexOf('--with');
+const selected = withFlag < 0 ? [] : (args[withFlag + 1] ?? '').split(',').filter(Boolean);
+if (withFlag >= 0 && !selected.length) throw new Error('--with needs gpu, media or harness.');
+const rows = planInstall({ extensionRoot, stRoot, plugins: selectedPlugins(selected) });
 const report = (row) => ({ name: row.name, target: row.target, installedVersion: row.installedVersion, sourceVersion: row.sourceVersion, action: row.action, ...(row.copied ? { copied: row.copied } : {}) });
 
 if (args.includes('--check')) {

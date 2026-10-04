@@ -40,7 +40,7 @@ Solo chats are half-supported, which is the worst of both:
   - the campaign finding "a solo or partial group gets no checkpoint effects at all" (campaign F8/C3, fixed for the
     effects part in `e04783c2`).
 - **Plans written today keep paying a solo tax:** v2.7 06 (badges on solo characters), v2.8 21 (solo-only spike scope),
-  v2.8 03 (persona switch reloads differ solo vs group), v2.8 08 (avatars).
+  v2.8 03 (persona switch reloads differ solo vs group), v2.7 20 (avatars).
 
 ## Decision and design
 
@@ -83,7 +83,7 @@ Solo chats are half-supported, which is the worst of both:
 | v2.8 21 smart context | the "solo first" spike scope becomes "groups with witness filtering, or not at all"; the D10 solo path goes here |
 | v2.8 03 persona | one flow (the group reload path); persona chosen at story start, then locked (no switching inside a story) |
 | v2.7 04 health center | a `story-needs-group` check (blocks) with the "make a group" action, engine-free (decision 7) |
-| v2.8 08 living cards | no solo avatar branch |
+| v2.7 20 living cards | no solo avatar branch |
 | v2.7 01 docs | the guide says it up front: stories are group chats (K3) |
 | harness | scenarios and journeys that open solo chats move to groups; `so-session` cards checked; a solo chat stays only as a control |
 
@@ -123,7 +123,7 @@ Lets do as you recommend on all your questions, you can delete any old solo chat
 
 ## Links
 
-v2.7 04 (`story-needs-group`), v2.7 06 (badges), v2.7 01 (guide, registry), v2.8 03, v2.8 08, v2.8 21;
+v2.7 04 (`story-needs-group`), v2.7 06 (badges), v2.7 01 (guide, registry), v2.8 03, v2.7 20, v2.8 21;
 `.claude/rules/architecture.md` "No chat, no story".
 
 ## Review of the answers (2026-10-03)

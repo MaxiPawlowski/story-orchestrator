@@ -65,7 +65,7 @@ Each plan's own file holds the floors; this table is the index. A plan is done o
    1. D: the mocked scenario corpus, the no-reply journey checks, every plan's live D rows;
    2. CL: v2.8 01 O7, O10, O11, O13b, O14, O15, O16, C3, C4 (CL half), C12, C13-b, C14-b; then each plan's CL suite rows;
    3. LT: v2.8 14 rows (local judge server up from the tray);
-   4. LI: v2.8 01 O3–O6; v2.8 05–08 rows (broker; LT and LI never share the GPU in the same batch);
+   4. LI: v2.8 01 O3–O6; v2.7 17–20 rows (broker; LT and LI never share the GPU in the same batch);
    5. RP: v2.8 01 O1, O4, O9, O12, O13, C4 (RP half), C11-F7, §C V3/V4/V8; then each plan's RP suite rows;
    6. integration: everything-on and shipped-defaults columns on two stories (an act and the Saga), the v2.6 I1–I6 shape
       (mutation storm, cut a backend, reload and reopen);
@@ -85,7 +85,7 @@ missing artifact). A session counts only when VALID.
 | Over-steer (same shape) | the user | same, the user's own play | the user's choice; scored against the same v2.9 04 floors, separately |
 | Persona start (v2.8 03) | Claude | does the identity step lock the persona and does the opener use it? | VALID; lock + opener name in the digest |
 | Panels (v2.8 04) | Claude | Journal, stat sheet, suggestions and public rolls in player mode | VALID; `assert-player-clean` at every stop |
-| Living cards + talking sprites (v2.8 07/08) | Claude | overlay changes and look sprites over a long run | VALID, `--media on --allow-comfy` |
+| Living cards + talking sprites (v2.7 19/20) | Claude | overlay changes and look sprites over a long run | VALID, `--media on --allow-comfy` |
 | Quests (v2.8 18), open stretches (v2.8 19), character life (v2.8 20), director (v2.8 22) | Claude | each feature's charter, on its pilot act | VALID; rubric scored with evidence |
 | Free play on the frozen build | Claude | anything that feels wrong | VALID, 1 h |
 

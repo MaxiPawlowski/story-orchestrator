@@ -1,9 +1,14 @@
-# Plan 08 — Living cards: a per-chat overlay on cast cards and the player persona
+# Plan 20 — Living cards: a per-chat overlay on cast cards and the player persona
 
-**Status (2026-10-03): v2.8 plan 08 (was v2.7 plan 32). Decided (all recommendations, see Decisions); not built;
-S32-1 and S32-2 not run.** Overview: `00-overview.md`.
+**Status (2026-10-04): v2.7 plan 20 (was v2.8 08; before that v2.7 plan 32; moved to v2.7 with the image track,
+2026-10-04). Implemented candidate: bound public card fields, transactional entry writes, provenance, the
+starvation-free scope rotation, the visual readers (image/sprites) and the default-off on-demand look edits are
+built, and the Belle pilot generated a green-haired look that persisted a fired transition and rolled back. S32-1
+(main-model overlay depth/default) and S32-2 (five-look identity) are NOT run; the prompt overlay and on-demand
+edits stay off by default. Per v2.7 rule 5, those measurements stay owned by v2.8 01 / the v2.8 final suite. See
+`21-belle-image-pilot.md` §Gate record.** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance RP (S32-1, the overlay block on the main
-model) and LI (look sprites, S32-2, after v2.8 06).
+model) and LI (look sprites, S32-2, after v2.7 18).
 
 The user's words: "a persona or a character card can change along the story. Not only by some memories but visually
 or idk. Should we have a copy of that card within the story and be able to change it from any story event? Like, if
@@ -12,6 +17,9 @@ story's memory, and if I create another chat, the card should be as default." Fo
 expressions too, don't they? we could handle them on demand in that case?"
 
 ## Problem
+
+Storage correction (user, 2026-10-03): existing image models stay on C: for autoload. Off-C model preconditions below
+are superseded for this installation (overview rule 5 exception); no copying or migration.
 
 - A character's card text is fixed for every chat. If Arin dyes her hair red at checkpoint 3, the card still says
   "black hair" on every later request. Only memory (facts tier, ledger) records the change, at a lower priority than
@@ -44,7 +52,7 @@ expressions too, don't they? we could handle them on demand in that case?"
 | Character list / group avatars | `characters[].avatar`, global | no |
 | Sprites: `characters/<name>/` or one subfolder level `characters/<name>/<sub>` | `src/endpoints/sprites.js:19-37` | folders are global files |
 | Sprite upload replaces any file with the same label | `src/endpoints/sprites.js:239-275` | |
-| Label = file name cut at the first `-` or `.` | `sprites.js:136-138` (v2.8 07 §5 item 2) | |
+| Label = file name cut at the first `-` or `.` | `sprites.js:136-138` (v2.7 19 §5 item 2) | |
 | ST expressions' folder override (`expressionOverrides`, `/costume`) | `public/scripts/extensions/expressions/index.js:625-630` | install-wide setting |
 | SD character prompt `extension_settings.sd.character_prompts[<card file>]` | `stable-diffusion/index.js:934-945`; empty in groups (`:935`) | install-wide |
 
@@ -84,9 +92,9 @@ messages, and a per-message avatar.
 - **v2.8 16 / v2.7 02 C1** (SP5 scenario): the one card field ST already lets us override per chat.
 - **v2.8 20 character life**: L2 mood is scene-scoped and decays. A look is lasting. Mood can choose an expression, a
   look chooses the set. Its relationship fields need the same scope rule as §Scope (review F20 is shared).
-- **v2.8 05 self-contained images**: ComfyUI route B, model discovery, the broker (§F interfaces).
-- **v2.8 06 sprite generation**: the in-plugin builder and its reference-edit recipe. On-demand look sprites need it.
-- **v2.8 07 talking sprites**: the file-name label trap and the `anim-*` subfolder rule; a look set without frames
+- **v2.7 17 self-contained images**: ComfyUI route B, model discovery, the broker (§F interfaces).
+- **v2.7 18 sprite generation**: the in-plugin builder and its reference-edit recipe. On-demand look sprites need it.
+- **v2.7 19 talking sprites**: the file-name label trap and the `anim-*` subfolder rule; a look set without frames
   animates with idle motion only.
 - **v2.7 04 health center**: checks go in its registry (`src/runtime/checks.ts`).
 
@@ -195,34 +203,34 @@ snapshot names would never be read. It gains an explicit, bounded source:
 
 The problem: every look multiplies the sprite sets. Each expression times each look. Denominators: ST's standard
 expression set is about 28 labels; the Adolion sets carry about 14.4 expression PNGs each (2,889 over 201 sets, dated
-inventory in v2.8 05 §F). Pre-rendering every possible extracted look is impossible, and pre-rendering every authored
+inventory in v2.7 17 §F). Pre-rendering every possible extracted look is impossible, and pre-rendering every authored
 one is expensive.
 
 **Two routes:**
 
 1. **Pre-rendered, for authored looks.** The story declares a set per authored look (`when: {card: …}`). The campaign
-   renders it at build time (`render_sprites.py` now; v2.8 06's builder later). No runtime GPU. Works as soon as the
+   renders it at build time (`render_sprites.py` now; v2.7 18's builder later). No runtime GPU. Works as soon as the
    set rule ships.
-2. **On demand, for unplanned or extracted looks.** Needs **v2.8 06** (sprite generation) over v2.8 05's route B. When a
+2. **On demand, for unplanned or extracted looks.** Needs **v2.7 18** (sprite generation) over v2.7 17's route B. When a
    visual field changes and no set matches:
    - **Key:** `look_<hash8>` = hash(story id, member id, normalized visual field values, **base sprite version** (the
      content hash of the reference sprite set's manifest, or of the reference PNG when there is no manifest), **edit
-     model name and content hash** and **recipe id and version**, exactly v2.8 06 §3's cache-key contract (Sol r3
-     R3-07: this plan consumes 06's key, it does not define its own). A new base sprite, model weights or recipe therefore
+     model name and content hash** and **recipe id and version**, exactly v2.7 18 §3's cache-key contract (Sol r3
+     R3-07: this plan consumes 18's key, it does not define its own). A new base sprite, model weights or recipe therefore
      makes a new key instead of reusing a stale render, including weights replaced under the same file name. Test
      (jest): same model file name, changed model content hash → a new `look_<hash8>`, the old set not reused.
      The set id stays valid (`^[a-z0-9_]+$`, no `-`), so a set rule
-     never picks up v2.8 07's `anim-*` folders. Another chat of the same story with the same look and inputs reuses it
+     never picks up v2.7 19's `anim-*` folders. Another chat of the same story with the same look and inputs reuses it
      (decision 6).
    - **Order:** render the current expression first (or `neutral` when unknown), then each other expression **the first
      time it is actually needed**. Never the full set up front.
-   - **How:** v2.8 06's reference-edit recipe of the member's existing default sprite for that expression: "same
+   - **How:** v2.7 18's reference-edit recipe of the member's existing default sprite for that expression: "same
      character, same pose, now red hair". Route A (ST Image Generation) cannot do reference edits for most sources, so
      with route A only, on demand is off.
    - **Never blocks the reply.** The stage keeps the old set (or the author's `fallback` set for that look) until a
      frame lands, then swaps that expression. A missing expression falls back through the profile's fallback chain
      (`profile.ts:51-63`) inside the new set before it falls back to the old set.
-   - **GPU contention, qualified.** One queue, one job at a time, behind v2.8 05's broker when installed (fail-open).
+   - **GPU contention, qualified.** One queue, one job at a time, behind v2.7 17's broker when installed (fail-open).
      - **Main reply on RunPod** (the default play setup): the reply never waits on an edit; they are different GPUs.
      - **Local text model on the same GPU** (LT and LI share it through the broker): the broker queues text while an
        edit holds the lease, so a reply can wait for **at most the one edit in progress**. The queue starts a new edit
@@ -233,11 +241,11 @@ one is expensive.
      (`sprites.js:19-37` allows one subfolder level). The card's default and authored sets are untouched. Names are
      plain `<label>.png`, because ST cuts the label at the first `-`/`.` (`sprites.js:136-138`). ST's own expressions
      never see the subfolder unless the user sets a costume.
-   - **Ownership ledger:** v2.8 06's `spriteLedger` (§1), written only by 06's `stHost/spriteFiles.ts`; this plan adds
+   - **Ownership ledger:** v2.7 18's `spriteLedger` (§1), written only by 18's `stHost/spriteFiles.ts`; this plan adds
      no ledger of its own (Sol r3 R3-07). A look row carries `story`, `chats[]`, the set and the full key inputs. Like
      the wizard ledger, nothing unlisted is ever deleted.
    - **Cleanup:** on chat delete, drop the chat from the `spriteLedger` rows' `chats[]`. A set no chat references is
-     deleted through 06's `spriteFiles.ts` (per label via `/api/sprites/delete`). It asks first, like the mirror reaper. Also a manual "Remove generated sprites for this
+     deleted through 18's `spriteFiles.ts` (per label via `/api/sprites/delete`). It asks first, like the mirror reaper. Also a manual "Remove generated sprites for this
      story" in the author view. Not determined: whether ST removes an empty subfolder (no endpoint seen); an empty
      folder is harmless.
    - **Rollback:** a rolled-back look switches the stage back, because the set choice reads the blackboard. The files
@@ -268,10 +276,10 @@ one is expensive.
 | C | Rewrite the card file per chat on `CHAT_CHANGED` and restore on leave | M | global file; a crash leaves the edit in every chat; races ST saves. **Rejected.** |
 | D | A + replace whole fields through ST overrides where they exist (scenario, examples) | A + small | only two fields are overridable; description is not |
 | E | Sprites: pre-rendered only | build-time cost | extracted looks get no visuals |
-| F | Sprites: on demand (+ pre-rendered for authored) | M-L, after v2.8 06 | GPU, storage, cleanup |
+| F | Sprites: on demand (+ pre-rendered for authored) | M-L, after v2.7 18 | GPU, storage, cleanup |
 
 **Recommendation (decided): A (with D only for stories already using SP5), avatars deferred; sprites E now, F after
-v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the prompt block behind `cardOverlay`
+v2.7 18.** The overlay ships as D-tier code (pure engine + injection) with the prompt block behind `cardOverlay`
 (default off). The block turns on by default only after S32-1 passes its floor twice (v2.8 rule 9's pattern).
 
 ## Measurement
@@ -289,7 +297,7 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
     must be worse, or the block is not needed.
   - Pass twice: `cardOverlay` defaults on at the winning depth. Below the floor at every depth: the switch stays off,
     the overlay serves visuals only, and the result is recorded.
-- **S32-2 (LI), on-demand sprite identity** (after v2.8 06): 5 looks × neutral + 3 expressions on the local ComfyUI
+- **S32-2 (LI), on-demand sprite identity** (after v2.7 18): 5 looks × neutral + 3 expressions on the local ComfyUI
   (tray entry, models off `C:`). Rater: "same character?" ≥ 90 % and the changed attribute visible ≥ 90 %. Time to the
   first frame recorded (no floor; never blocking), and the longest text wait behind an edit with a local text model on
   the same GPU.
@@ -305,7 +313,7 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
 5. Player copy: an inline `cast` chip on each applied change? **Recommended: yes, L1; source at L3.**
 6. On-demand sprite cache scope: per story+look (shared across that story's chats) or per chat?
    **Recommended: per story+look**: a second playthrough reuses it, and cleanup counts referencing chats.
-7. On-demand rendering at all now, or only after the sprite builder ships? **Recommended: after v2.8 06, off by
+7. On-demand rendering at all now, or only after the sprite builder ships? **Recommended: after v2.7 18, off by
    default.** Pre-rendered authored looks (route 1) work as soon as the set rule ships.
 8. Order on demand: current expression first, the rest when first needed? **Recommended: yes.** Option: also
    pre-warm the 3 most frequent labels of that member in this chat.
@@ -356,15 +364,15 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
   decision and the freeze. Not green until it runs.
 - **RP (regression, final suite):** the overlay block at the depth and default S32-1 selected, in real replies (the
   card-vs-overlay agreement re-checked at that one setting, not the arm comparison).
-- **LI (acceptance, after v2.8 06):** S32-2 on the local ComfyUI, lane started with `--media on --allow-comfy`. Never
+- **LI (acceptance, after v2.7 18):** S32-2 on the local ComfyUI, lane started with `--media on --allow-comfy`. Never
   `/sd` on a shared lane.
-- **Player-visible surface** (v2.8 rule 4): the `cast` chip is the user's 2026-10-03 decision (decision 5); the prompt
+- **Player-visible surface** (v2.7 rule 10): the `cast` chip is the user's 2026-10-03 decision (decision 5); the prompt
   block stays off until S32-1.
 
 ## Links
 
-- v2.8 03 (`player`, `player.card`, persona lock), v2.8 05 (route B, broker, inventory), v2.8 06 (sprite builder),
-  v2.8 07 (frames, `anim-*`), v2.8 16 and v2.7 02 C1 (SP5), v2.8 20 (character life, shared scope rule), v2.7 04
+- v2.8 03 (`player`, `player.card`, persona lock), v2.7 17 (route B, broker, inventory), v2.7 18 (sprite builder),
+  v2.7 19 (frames, `anim-*`), v2.8 16 and v2.7 02 C1 (SP5), v2.8 20 (character life, shared scope rule), v2.7 04
   (registry), v2.7 02 C7/C8 (image lore lines), v2.7 03 (group-only), v2.7 01 (registry, Help).
 - `src/engine/schema.ts`, `src/engine/engine.ts`, `src/engine/blackboard.ts`, `src/extraction/scope.ts`,
   `src/memory/ledger.ts`, `src/constants/injectionRegistry.ts`, `src/image/cast.ts`, `src/sprites/profile.ts`,
@@ -377,7 +385,7 @@ v2.8 06.** The overlay ships as D-tier code (pure engine + injection) with the p
 - How swipes and regenerates rebuild `force_avatar` in a group: not determined (only matters if v2.9 05 §05.5 reopens
   avatars).
 - Whether ST deletes an empty sprite subfolder: not determined.
-- Which edit model the user's ComfyUI has for on-demand edits: probed at runtime (v2.8 05), not assumed.
+- Which edit model the user's ComfyUI has for on-demand edits: probed at runtime (v2.7 17), not assumed.
 - `CARD_SCOPE_CAP` = 12 is a predeclared guess with no measurement behind it; v2.8 20's relationship fields may share
   the same cap or need their own.
 
@@ -403,7 +411,7 @@ Applied from `v2.7/review-2026-10-03.md`:
 - **"32 refs"**: re-checked and fixed (`stage.ts:278-279/276-282`, `profile.ts:79-110/51-63`, `engine.ts:236-270,
   447-460, 294`, `blackboard.ts:58`, `scope.ts:22-86`, `runtimeManager.ts:320-330`); the old line refs into other plan
   files replaced by section names.
-- **F31**: on-demand look sprites depend on v2.8 06.
+- **F31**: on-demand look sprites depend on v2.7 18.
 - **D12**: `player.card` is owned by v2.8 03; persona locked per chat; base persona never edited.
 - **B10**: registry + Help gate row.
 

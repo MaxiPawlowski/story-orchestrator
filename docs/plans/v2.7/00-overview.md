@@ -47,6 +47,8 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
    runtime stays inactive, a story refuses, cleanup runs).
 8. **Every server in the tray; models off `C:`** (v2.8 rule 5). v2.7 adds no server; a script that starts one uses
    `C:\dev\tray\items\story-orchestrator.json`, and no new model, weight or cache path lands on `C:`.
+   **Image-track exception (user, 2026-10-04):** existing image models stay on `C:` for autoload; plans 17–20 and the
+   Belle pilot reuse those paths and copy, move or download no weights (overview rule 5 exception).
 9. **Feature-producing plans register** in the v2.7 01 feature registry and Help, with the registry test as their gate
    (review B10). Closures and docs-only plans need no entry.
 10. **Player-visible surfaces need a session or an explicit user decision** (v2.8 rule 4). The 2026-10-03 decisions
@@ -56,6 +58,13 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
     copy is reviewed by a second model (review B4).
 12. **References are version-qualified** ("v2.7 03", "v2.8 01", "v2.6 plan 11"), never a bare number (review B12,
     F36). Every plan closes with `npm run gates`.
+13. **The image track (plans 17–21) moved from v2.8 on 2026-10-04** (user decision). Its implementation is v2.7
+    (deterministic); its live tiers (LI/CL/RP) are still owned by v2.8 01 / the v2.8 final suite under rule 5, so a
+    green `npm run gates` never closes S28, S32-1, S32-2, route A or a clean-host row. The pilot record
+    (`21-belle-image-pilot.md`) lists exactly what is proven and what is owed.
+14. **Local residency (plans 22–23) is the current work** and keeps its own LT/LI live rows; it is not the v2.8 final
+    suite's. Moving it into v2.7 does not relax rule 5 for the image track (plans 17–21): their live tiers stay owned
+    by v2.8 01 / the final suite.
 
 ## Gate taxonomy (same codes as v2.8)
 
@@ -91,6 +100,13 @@ Step 0 runs first. Then file order, except where a row says "together".
 | 14 | `14-b10-cli-judge.md` | role picker grouped by source + per-source context table (built as 02 C14) | not built | Lore-creation role → v2.8 11; native CC tool spike: no home (question) |
 | 15 | `15-sp10-tool-call-turns.md` | B guide note + C probe removal | not built | A → v2.9 05.2 |
 | 16 | `16-test-plan.md` | the v2.7 test plan and close-out checklist | written | — |
+| 17 | `17-self-contained-images.md` | ST Image Generation route, template fallback, ComfyUI discovery, owned jobs, broker optional, probes, Test render, `/imagine` setup | implemented candidate; live acceptance PARTIAL | live LI/CL rows → v2.8 01 / final suite |
+| 18 | `18-sprite-generation.md` | reference-edit recipes, pixel QA, Studio Sprites tab, fingerprinted generated-set storage, guarded removal | implemented candidate; live acceptance PARTIAL | multi-character LI + identity rating → v2.8 01 / final suite |
+| 19 | `19-talking-sprites.md` | blink/talk/talk2 frame contracts, frame lister, streamed-mouth animator, Mouth movement setting | implemented candidate; S28 NOT run | S28 + streamed acceptance → v2.8 01 / final suite |
+| 20 | `20-living-cards.md` | bound public card fields, transactional entry writes/provenance, scope rotation, image/sprite readers, on-demand looks (off) | implemented candidate; overlay/on-demand off | S32-1, S32-2 → v2.8 01 / final suite |
+| 21 | `21-belle-image-pilot.md` | the Belle pilot record: gate record, delivered scope, open acceptance | written 2026-10-04 | — |
+| 22 | `22-local-residency.md` | local residency controller: Artemis on the local GPU for replies + extraction, DeepSeek image direction/judge kept; owned GPU gateway; VRAM arbiter (estimate/retain/shed/swap/idle-restore) | IN BUILD (moved from `v2.8/local-residency.md`, 2026-10-04); text→image→text live green, arbiter slice green | LT/LI live rows stay this plan's |
+| 23 | `23-local-residency-freetoken.md` | FreeToken pattern-harvest record (no code ported) | written 2026-10-04 | — |
 | Z | close-out | regenerate settings reference + README feature table; second feature triage; guide pages vs the UI; What's new for 2.7; walk every gate record into v2.8 01 §A | open | — |
 
 **Together** (Sol split item 6): 03 and 04 are built at their seam (`story-needs-group` is a 04 check; the refusal is
@@ -130,6 +146,12 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 13 | 11 | A: keep separate, close | — |
 | 14 | 13 | not a runtime judge; labelling aid yes; W27 kept; profiles per role; Lore-creation role with the create op; native-tool spike; no own provider seam; fix the 8192 default | the user has Claude and Codex subscriptions and DeepSeek, no OpenRouter (review B6) |
 | 15 | 16d | no CC function calling in story chats: B + C now | A → v2.9 05.2 |
+| 17 | v2.8 05 (was 26) | all recommendations; **moved to v2.7 on 2026-10-04** | route A default, template fallback, broker optional/fail-open, story-authored automation default |
+| 18 | v2.8 06 (26b) | **moved to v2.7 on 2026-10-04** | Studio Sprites tab, ledgered writes, second-model QA |
+| 19 | v2.8 07 (28) | **moved to v2.7 on 2026-10-04**; drop Talkinghead; B + P; compare 2 vs 3 mouth frames and ship a Mouth movement setting | D (rig) → v2.9 05 |
+| 20 | v2.8 08 (32) | **moved to v2.7 on 2026-10-04**; all recommendations; avatars deferred | S32-1, S32-2 → v2.8 01 / final suite |
+| 21 | new 2026-10-04 | Belle the Barbarian is the image-track pilot; every piece is production code | one-character evidence never closes the multi-character floors |
+| 22 | new 2026-10-04 (`v2.8/local-residency.md`) | local-first text/images on the one 3090; DeepSeek image direction + cloud judge kept; owner-tier live rows stay here | moved to v2.7 as current work |
 
 ### Open questions decided (user, 2026-10-03: as recommended)
 
@@ -160,6 +182,13 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 14 | BUILT, merged (picker + context table + docs; image director select grouped at merge); live D row owed |
 | 15 | BUILT, merged (B + C; `v25-09-tool-turn.json` removed by the v2.6 T7 wave C) |
 | 16 | written |
+| 17 | IMPLEMENTED CANDIDATE (moved from v2.8 05, 2026-10-04); `npm run gates` green; Belle pilot exercised route/discovery/jobs/Test render; live LI/CL PARTIAL |
+| 18 | IMPLEMENTED CANDIDATE (moved from v2.8 06, 2026-10-04); Belle pilot built 4 expressions + 12 frames; multi-character LI + identity rating PARTIAL |
+| 19 | IMPLEMENTED CANDIDATE (moved from v2.8 07, 2026-10-04); frames + animator built, streamed reply moved the mouth; S28 NOT run |
+| 20 | IMPLEMENTED CANDIDATE (moved from v2.8 08, 2026-10-04); fired-transition rollback passes twice; S32-1/S32-2 NOT run; overlay/on-demand off |
+| 21 | written 2026-10-04 (Belle pilot record) |
+| 22 | IN BUILD (moved from `v2.8/local-residency.md`, 2026-10-04); text→image→text live green; VRAM-arbiter slice green (estimator 9059 vs measured 9058; shed/swap decisions); open: page-side workflowKey retention wiring, background/edit/sprite families |
+| 23 | written 2026-10-04 (FreeToken pattern harvest; no code ported) |
 
 ## Review 2026-10-03
 

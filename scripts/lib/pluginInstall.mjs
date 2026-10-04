@@ -3,9 +3,16 @@ import path from 'node:path';
 
 export const SERVER_PLUGINS = Object.freeze({
     'story-orchestrator-judge': ['package.json', 'index.mjs'],
-    'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs'],
+    'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs', 'managed.mjs'],
     'story-orchestrator-harness': ['package.json', 'index.mjs', 'agentBridge.mjs', 'mcpShim.mjs'],
+    'story-orchestrator-media': ['package.json', 'index.mjs', 'jobs.mjs', 'files.mjs'],
 });
+
+export function selectedPlugins(withPlugins = []) {
+    const names = ['story-orchestrator-judge', ...withPlugins.map((name) => `story-orchestrator-${name}`)];
+    for (const name of names) if (!SERVER_PLUGINS[name]) throw new Error(`Unknown plugin ${name}. Choose gpu, harness or media.`);
+    return Object.fromEntries([...new Set(names)].map((name) => [name, SERVER_PLUGINS[name]]));
+}
 
 const readVersion = (dir, fsImpl) => {
     try {

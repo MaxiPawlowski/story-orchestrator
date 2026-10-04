@@ -1,14 +1,20 @@
-# Plan 07 — Talking sprites: blink and mouth frames, and why not Talkinghead
+# Plan 19 — Talking sprites: blink and mouth frames, and why not Talkinghead
 
-**Status (2026-10-03): v2.8 plan 07 (was v2.7 plan 28, "Talkinghead review"). Decided (see Decisions and Review of
-the answers); not built; spike S28 not run.** Overview: `00-overview.md`.
+**Status (2026-10-04): v2.7 plan 19 (was v2.8 07; before that v2.7 plan 28, "Talkinghead review"; moved to v2.7 with
+the image track, 2026-10-04). Implemented candidate: blink/talk/talk2 frames, the streamed-mouth animator and the
+Mouth movement setting are built; the Belle pilot produced the frames and a real streamed reply moved the mouth.
+Spike S28 (blind visual/performance floors) is NOT run. Per v2.7 rule 5, S28 and the streamed acceptance stay owned
+by v2.8 01 / the v2.8 final suite. See `21-belle-image-pilot.md` §Gate record.** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D + LI (spike S28 renders frames on the local ComfyUI);
 acceptance LI + a streamed reply on a named backend (RP: `Artemis RunPod RP`; or CL: a DeepSeek Chat Completion
 profile with streaming on).
 
-Depends on **v2.8 06 sprite generation** (the in-plugin builder and its edit recipe) for the in-plugin frame build, and
-on v2.8 05's route B interfaces through it. The campaign-side build (`render_sprites.py --anim`, v2.8 02) and the
+Depends on **v2.7 18 sprite generation** (the in-plugin builder and its edit recipe) for the in-plugin frame build, and
+on v2.7 17's route B interfaces through it. The campaign-side build (`render_sprites.py --anim`, v2.8 02) and the
 runtime animator do not wait for 06. Rig option D is **deferred, v2.9 05**.
+
+Storage correction (user, 2026-10-03): existing image models stay on C: for autoload. Off-C model preconditions below
+are superseded for this installation (overview rule 5 exception); record the existing paths, do not copy weights.
 
 The user's words: "what about using https://docs.sillytavern.app/extensions/talkinghead/ to complement our sprite
 engine?" Follow-up: "maybe it's old and expensive, we could consider something similar for us? more cheap and modern?"
@@ -44,7 +50,7 @@ background alpha 0. Model licence: CC BY 4.0. Sources: [ST docs: talkinghead](ht
     - the option labelled "Extras (deprecated)" at `expressions/settings.html:27`.
 
 **Verdict.** Talkinghead cannot be integrated through ST. Current ST does not call it, behind any setting. Reviving it
-means running an archived Python server with a live GPU stream. That breaks v2.8 05's "self-contained" direction and
+means running an archived Python server with a live GPU stream. That breaks v2.7 17's "self-contained" direction and
 the user's 2026-09-29 decision for a self-contained VN sprite system with no dependency on another extension. Its
 *ideas* (blink, breath, mouth flap, emotion morphs) are still worth having, so the rest of this doc is about those.
 
@@ -70,7 +76,7 @@ the user's 2026-09-29 decision for a self-contained VN sprite system with no dep
 
 **Build side (`adolion-campaign/scripts/render_sprites.py`, 809 lines).**
 - 14 campaign labels (`campaign/expressions/vocabulary.json`), plus per-character extras.
-- **Inventory** (dated, from v2.8 05 §F: `C:\dev\adolion-campaign` at `8012a61`, 2026-10-03, tracked files): 146
+- **Inventory** (dated, from v2.7 17 §F: `C:\dev\adolion-campaign` at `8012a61`, 2026-10-03, tracked files): 146
   characters (folders with `sets.json`), 201 sets (`sprites/<set>/` folders), **2,889 expression PNGs** (files in
   `sprites/<set>/`, about 14.4 per set), 0 animation frames. The old figure here (about 3,464) was an estimate from
   146 × a guessed labels-per-set; it is replaced. Other PNGs under `campaign/sprites/` (bases, candidates, contact
@@ -133,7 +139,7 @@ Prior art in our research: Prome VN (`docs/plans/v2.4/extension-research/prome-v
 
 **Build-time variant frames + a runtime animator (option B), plus procedural idle (P).**
 
-### Build side (campaign first, then v2.8 06)
+### Build side (campaign first, then v2.7 18)
 
 1. `render_sprites.py --anim` (v2.8 02 row) adds head edits per label from that label's own sprite (or from the
    neutral base, if S28 says so). Edited from the label's own sprite, the brows and eyes of `afraid` stay `afraid`.
@@ -145,7 +151,7 @@ Prior art in our research: Prome VN (`docs/plans/v2.4/extension-research/prome-v
    - Add a tighter QA for these frames: the change must stay inside the eye band or the mouth band of the head box.
      Measure where the pixels changed.
    - Paths come from settings/env, never `C:\dev\ComfyUI` or a Python path in the script (v2.8 02); ComfyUI is the tray
-     entry, and its model path is off `C:` (v2.8 rule 5, precondition recorded in v2.8 05).
+     entry, and its model path is off `C:` (v2.7 rule 8, precondition recorded in v2.7 17).
 2. **File layout. This is a trap to avoid.** ST derives a label from the file name by cutting at the first `-` or `.`
    (`SillyTavern-MainBranch/src/endpoints/sprites.js:136-138`), and our `spriteIndex` keeps the first file per label
    (`profile.ts:45-49`).
@@ -214,11 +220,11 @@ Prior art in our research: Prome VN (`docs/plans/v2.4/extension-research/prome-v
 - P (procedural): a 1–2 px speaker bob synced to the flap, and an optional very slow sway. Transforms only, desynced
   like breath. It ships even for sprite sets without frames, and stops under reduced motion.
 
-**Self-containment (v2.8 05).**
+**Self-containment (v2.7 17).**
 - The frames are ordinary PNGs in ST's sprite folders, read through the API we already use. No server, no extension,
   no runtime GPU.
 - A stranger's own sprite pack without frames still works (P only).
-- In v2.8 06's in-plugin sprite builder, "blink + mouth frames" are more rows of the same edit recipe, with a 2- or
+- In v2.7 18's in-plugin sprite builder, "blink + mouth frames" are more rows of the same edit recipe, with a 2- or
   3-frame choice per set.
 
 **Why not D now.** See-through + an auto-rig is the only route to real head turns and parallax. It is also the
@@ -295,7 +301,7 @@ under the existing ComfyUI lock / GPU broker.
     reduced motion. Interaction + a11y.
   - Registered in the v2.7 01 feature registry + Help (registry test); the "Mouth movement" setting has a Help line.
   - `npm run gates`.
-- **LI (spike S28 build)**: §6 steps 1–2 on the local ComfyUI; preconditions as in v2.8 05 (tray entry ready, model path
+- **LI (spike S28 build)**: §6 steps 1–2 on the local ComfyUI; preconditions as in v2.7 17 (tray entry ready, model path
   not on `C:`).
 - **Acceptance (LI frames + a streamed reply on a named backend)**, live through the `debug` skill:
   - An adolion-fresh lane. **adolion-fresh switches sprites off when it seeds**, so the gate switches them on
@@ -313,7 +319,7 @@ under the existing ComfyUI lock / GPU broker.
 - **Campaign side**: `check_stage.py`-style validation that every `anim-<set>` frame has its base label and that
   `talk2` never appears without `talk`.
 - The spike report records every floor of §6 before the full render.
-- Player-visible surface (v2.8 rule 4): the mouth setting is the user's explicit decision of 2026-10-03; the frames
+- Player-visible surface (v2.7 rule 10): the mouth setting is the user's explicit decision of 2026-10-03; the frames
   themselves are judged by the S28 blind rating.
 
 ## 9. Links
@@ -321,9 +327,9 @@ under the existing ComfyUI lock / GPU broker.
 - **v2.8 04 story presence panels**: player UI. The VN stage is part of what a player sees.
 - **v2.8 20 character life** (§L2): scene mood "could drive expression sprites". Mood picks the *label*; this plan
   animates within a label. They are independent.
-- **v2.8 05 self-contained images** (§F): frames must need nothing beyond ST's sprite folders; the dated inventory.
-- **v2.8 06 sprite generation**: the in-plugin builder gains the blink/talk/talk2 recipe.
-- **v2.8 08 living cards**: look sprites are new sets; a look set without frames animates with P only until frames are
+- **v2.7 17 self-contained images** (§F): frames must need nothing beyond ST's sprite folders; the dated inventory.
+- **v2.7 18 sprite generation**: the in-plugin builder gains the blink/talk/talk2 recipe.
+- **v2.7 20 living cards**: look sprites are new sets; a look set without frames animates with P only until frames are
   built for it.
 - **v2.8 02 Adolion campaign**: the `render_sprites.py --anim` change and its paths moved to settings/env off `C:`.
 - **v2.9 05**: rig option D (deferred).
@@ -352,13 +358,13 @@ Applied from `v2.7/review-2026-10-03.md`:
 - **F32**: settings schema (`blink`, `mouth: off/simple/smooth`), per-set frame counts, the frame table with the
   `smooth` → `simple` fallback, missing-frame degradation, reduced-motion override; 2- vs 3-frame mouth as S28 arms;
   gates for both frame counts, the fallback, missing frames and reduced motion.
-- **D15**: counts restated from the dated inventory in v2.8 05 §F with denominators (2,889 expression PNGs; 5,778 or
+- **D15**: counts restated from the dated inventory in v2.7 17 §F with denominators (2,889 expression PNGs; 5,778 or
   8,667 edits), replacing the ~3,464 / ~6,900 estimate.
 - **"Runtime streaming needs a named backend"**: RP `Artemis RunPod RP` or a CL DeepSeek CC profile, streaming on,
   named in the run header.
 - **"adolion-fresh turns sprites off"**: the acceptance gate switches sprites on explicitly (`--media on
   --allow-comfy` or a read-back settings write) and requires zero ComfyUI calls.
-- **F31**: depends on v2.8 06, not "26b".
+- **F31**: depends on v2.7 18, not "26b".
 - **Rig option D**: deferred, v2.9 05.
 - **Rule 5**: ComfyUI via its tray entry, model path off `C:`, campaign paths from settings/env.
 - **B10**: registry + Help gate row.

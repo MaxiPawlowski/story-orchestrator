@@ -1,0 +1,21 @@
+{
+  "format": 2,
+  "id": "so-belle-image-pilot",
+  "version": 1,
+  "title": "SO Belle image pilot",
+  "description": "A synthetic portrait and expression session, independent of campaign events.",
+  "roster": [
+    {"id": "belle", "name": "Belle", "role": "A portrait subject", "card": {"fields": {"hair": {"quality": "belle_hair", "visual": true}}}}
+  ],
+  "qualities": [
+    {"key": "belle_hair", "type": "enum", "values": ["black", "green"], "source": "extractor", "rubric": "Belle's current public hair colour, only when a visible change is established.", "evidence_from": "world"}
+  ],
+  "requirements": {"members": ["Belle"]},
+  "checkpoints": [
+    {"id": "start", "name": "Portrait", "player_name": "Portrait", "type": "anchor", "start": true, "objective": "Pose for expression previews.", "illustrate": false,
+      "effects": {"stage": {"framing": "full", "spotlight": "belle", "cast": {"belle": {"set": "so_belle_pilot", "face": "neutral"}}}}},
+    {"id": "change", "name": "New hair", "player_name": "New hair", "type": "anchor", "objective": "Show the established green hair in the portrait.", "illustrate": false,
+      "effects": {"card": {"belle": {"hair": "green"}}, "stage": {"framing": "full", "spotlight": "belle", "cast": {"belle": {"face": "neutral"}}}}}
+  ],
+  "transitions": []
+}

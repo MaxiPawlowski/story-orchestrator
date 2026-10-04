@@ -53,6 +53,9 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
   void import("../replyEffortLive").then(({ startLiveReplyEffort }) => {
     if (!disposed) stop = startLiveReplyEffort(generation);
   });
+  void import("../cardOverlayHost").then(({ startCardOverlay }) => {
+    if (!disposed) disposers.push(startCardOverlay(runtimeManager));
+  });
 };
 
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {

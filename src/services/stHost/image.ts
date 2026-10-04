@@ -2,7 +2,6 @@ import { getContext } from "./context";
 import { extensionsSharedModule } from "./modules";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
-import { log } from "@utils/log";
 import { saveOpenChat } from "./persistence";
 
 export interface ImageMessage {
@@ -75,35 +74,6 @@ export async function imageModel(profileId: string, messages: Array<{ role: stri
     if (typeof response.text === "string") return response.text;
   }
   throw new Error("Image director received no text from its profile.");
-}
-
-export async function imageRender(url: string, graph: Record<string, unknown>, signal?: AbortSignal): Promise<{ data: string; format: string }> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 180_000);
-  const cancel = () => controller.abort();
-  signal?.addEventListener("abort", cancel, { once: true });
-  if (signal?.aborted) cancel();
-  let response: Response;
-  try {
-    response = await fetch("/api/sd/comfy/generate", {
-      method: "POST", headers: headers(), body: JSON.stringify({ url, prompt: JSON.stringify({ prompt: graph }) }),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (controller.signal.aborted && !signal?.aborted) throw new Error("ComfyUI did not finish within three minutes.");
-    throw error;
-  } finally {
-    clearTimeout(timeout);
-    signal?.removeEventListener("abort", cancel);
-  }
-  if (!response.ok) {
-    const reason = (await response.text()).trim().slice(0, 500);
-    log.warn("ComfyUI render failed", response.status, reason);
-    throw new Error(`ComfyUI refused the render (${response.status}). Check the browser console for details.`);
-  }
-  const image: unknown = await response.json();
-  if (!isRecord(image) || typeof image.data !== "string" || !image.data) throw new Error("ComfyUI returned no image.");
-  return { data: image.data, format: typeof image.format === "string" ? image.format : "png" };
 }
 
 export async function imageSave(data: string, format: string, folder: string, name: string): Promise<string> {
@@ -180,12 +150,6 @@ export async function imageWriteChatSettings(value: unknown, expectedChatId?: st
   if (save.chatId !== ctx.chatId || getContext().chatId !== ctx.chatId) return couldNot("The image settings were not saved to this chat.");
   const observed = await save.observed;
   return observed.ok ? wrote({ chatId: save.chatId }) : couldNot(observed.lost ?? "The image settings could not be saved to this chat.");
-}
-
-export function imageComfyUrl(configured: string): string {
-  if (configured.trim()) return configured.trim();
-  const sd = getContext().extensionSettings.sd;
-  return isRecord(sd) && typeof sd.comfy_url === "string" && sd.comfy_url ? sd.comfy_url : "http://127.0.0.1:8188";
 }
 
 export async function imageReview(content: HTMLElement): Promise<WriteResult<{ accepted: boolean }>> {

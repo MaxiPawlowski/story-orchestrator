@@ -16,11 +16,14 @@ work built in v2.7.
    user's report.
 4. **Player-visible surfaces need a session or an explicit user decision.** Replaces v2.4 rule 7 ("each needs the
    playtest"). An explicit decision counts: the user decided v2.8 04's nine panels, v2.8 18's visible rolls and the
-   v2.8 07 mouth setting on 2026-10-03. Anything else player-visible waits for a session that asks for it.
+   v2.7 19 mouth setting on 2026-10-03. Anything else player-visible waits for a session that asks for it.
 5. **Every server in the tray.** Any service a plan adds (local judge server, image broker, sprite builder, model
    server) gets an entry in `C:\dev\tray\items\story-orchestrator.json` (format: `C:\dev\tray\README.md`) with
    start/stop and a readiness status, and its gate checks the entry (`C:\dev\tray\status.txt` OK). **Models, weights and
-   caches live off `C:`** (an env var or setting names the path; the gate asserts it is not on `C:`).
+    caches live off `C:`** (an env var or setting names the path; the gate asserts it is not on `C:`).
+    **Image-track exception, user 2026-10-03 (confirmed 2026-10-04):** existing image models stay on C: for autoload.
+    The image track is now v2.7 17–20 + the v2.7 21 Belle pilot; they copy, move or download no weights and record the
+    existing paths instead of enforcing off-C.
 6. **Group chats only** (v2.7 03). No plan adds solo-chat behaviour. A solo chat appears in a gate only as a control:
    the runtime stays inactive, a story refuses, cleanup runs.
 7. **Gate taxonomy** (below, Sol F15). Each plan states where it is implemented and where it is accepted. Deterministic
@@ -60,10 +63,10 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 02 | `02-adolion-campaign.md` | 05 A4, A5 + new | lab data, playtest fix round, `player` blocks, `render_sprites` paths off `C:`, `--anim` frames, trigger narrowing | D (campaign repo) | LI (renders), RP (lab runs) |
 | 03 | `03-player-persona-and-start-setup.md` | 30 | story `player` profile, "Who are you in this story" step, persona lock, mid-story switch finding | D (S30-1 on a lane, scripted opener) | RP (final suite: injected block) |
 | 04 | `04-story-presence-panels.md` | 04 §C (C4, C5, C7, C9 a) | Journal panel, "What could I do?" suggestions, stat sheet, public roll chips; in v2.7 06's panel frame and toggles (C1–C3, C6, C9 b moved to v2.7 06, user 2026-10-03) | D | D; CL for C5 suggestions |
-| 05 | `05-self-contained-images.md` | 26 | ST Image Generation route, ComfyUI discovery, broker optional, probes | D | LI + CL (director profile) |
-| 06 | `06-sprite-generation.md` | 26b (new) | in-plugin sprite builder contract | D | LI |
-| 07 | `07-talking-sprites.md` | 28 | blink/talk frames, animator, mouth setting | D + LI (spike S28) | LI + a streamed reply on a named backend (RP or CL) |
-| 08 | `08-living-cards.md` | 32 | per-chat card/persona overlay, look sprites | D | RP (S32-1), LI (looks) |
+| ~~05~~ | _moved_ | 26 | → v2.7 17 self-contained images (2026-10-04) | — | v2.8 01 / final suite |
+| ~~06~~ | _moved_ | 26b | → v2.7 18 sprite generation (2026-10-04) | — | v2.8 01 / final suite |
+| ~~07~~ | _moved_ | 28 | → v2.7 19 talking sprites (2026-10-04) | — | v2.8 01 / final suite |
+| ~~08~~ | _moved_ | 32 | → v2.7 20 living cards (2026-10-04) | — | v2.8 01 / final suite |
 | 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; decided 2026-10-03) | D | CL (DeepSeek CC profile) |
 | 10 | `10-briefing-drafting.md` | 03 decision 1 | wizard drafts a briefing (auto on the fly, Premise step) | D | CL |
 | 11 | `11-curator-create-op.md` | 12 | curator `create` op, contract B, Lore-creation role | D | CL (frozen fixtures) |
@@ -85,12 +88,13 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
   pressure integration uses it. 19's engine half can build earlier; its pressure gate runs after 18 Q6.
 - 12 → 13: J7.6 needs 12's reconstruction replay.
-- 13 N2 lands on 05's cue seam (05 names it); 13 N8 adds a judge arm to 20 M1.
-- 05 → 06 → 07 / 08: sprite generation needs the image route; talking frames and look sprites need the builder.
+- 13 N2 lands on v2.7 17's cue seam (v2.7 17 names it); 13 N8 adds a judge arm to 20 M1. (Image track moved to
+  v2.7 17–20 on 2026-10-04.)
+- v2.7 17 → 18 → 19 / 20: sprite generation needs the image route; talking frames and look sprites need the builder.
 - 04 C4 (quest log), C7 (stat sheet) and C9 (a) public roll chips integrate after 18; C5 builds earlier on v2.7 06's
   panel frame. C1–C3, C6 and C9 (b) (author Activity panel + roll store) are v2.7 06.
 - 23 runs last: its final suite needs every other plan frozen.
-- 03 → 02 `player` blocks; 07 S28 → 02 `--anim`; 03 and 08 share `player.card`.
+- 03 → 02 `player` blocks; v2.7 19 S28 → 02 `--anim`; 03 and v2.7 20 share `player.card`.
 - 03 builds on v2.7 05's briefing modal and v2.7 04's check registry; 10 builds on v2.7 05's format; 09 on v2.7 01's
   registry and Help.
 
@@ -102,12 +106,12 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 |---|---|---|---|
 | 01 | 02, 06, 08, 10, 23 | 02: C3/C4 measure on the first v2.7 build (v2.6 untouched). 08: **SP2 v2 option A is important** (the user edits replies and uses a post-processor); held reply loud only, 15 s cap; R5′ net of displaced reads. 10: **fund one thinking A/B** (Cydonia or Skyfall). 06: story + checkpoint level behind R4; Astra rates. 23: the user plays the over-steer session; a test card so Claude plays it too | A moves from parked to built |
 | 02 | 05 | do every step; academy act pilots v2.8 18, the 7-member act pilots v2.8 20 | new rows from review D13 |
-| 03 | 30 | profile, create-by-click, keep-current default, `requirements.personas` kept, no judge fit check, Adolion `player` blocks | **no persona switching inside a story** (chosen at start, always locked; a switch raises a finding); the ST persona is the base, story changes go through v2.8 08's overlay |
+| 03 | 30 | profile, create-by-click, keep-current default, `requirements.personas` kept, no judge fit check, Adolion `player` blocks | **no persona switching inside a story** (chosen at start, always locked; a switch raises a finding); the ST persona is the base, story changes go through v2.7 20's overlay |
 | 04 | 04 | plays index holds checkpoint names; seamless backfill (v2.7 06) | **build all C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"**. Split 2026-10-03 (user-approved): C1–C3, C6, C9 (b), the frame and the toggles in v2.7 06; C4, C5, C7, C9 (a) here. C8 is built in v2.7 05 |
-| 05 | 26 | all recommendations | sprite generation becomes v2.8 06 (campaign script as the base) |
-| 06 | 26b | from 05 decision 6 and the review (F31) | new plan |
-| 07 | 28 | drop Talkinghead; B + P; on by default with reduced-motion off | mouth frames compared (2 vs 3) **and** a "Mouth movement" setting (off/simple/smooth); D (rig) → v2.9 05 |
-| 08 | 32 | all recommendations | — |
+| 05 → v2.7 17 | 26 | all recommendations | **moved to v2.7 17 on 2026-10-04**; sprite generation is v2.7 18 (campaign script as the base) |
+| 06 → v2.7 18 | 26b | from v2.7 17 decision 6 and the review (F31) | **moved to v2.7 18 on 2026-10-04** |
+| 07 → v2.7 19 | 28 | drop Talkinghead; B + P; on by default with reduced-motion off | **moved to v2.7 19 on 2026-10-04**; mouth frames compared (2 vs 3) **and** a "Mouth movement" setting (off/simple/smooth); D (rig) → v2.9 05 |
+| 08 → v2.7 20 | 32 | all recommendations | **moved to v2.7 20 on 2026-10-04** |
 | 09 | 27 | all recommendations | — |
 | 10 | 03 decision 1 | fallback to `player_intro`, and "maybe we can create something on the fly with the wizard, if the player enables auto" | LLM drafting split out of v2.7 05 |
 | 11 | 12 | **the user wants the create op**, properly made and tested; contract B, floors kept | its own model selector (cloud model or a harness like opencode); Lore-creation role (old 13 research) |
@@ -127,7 +131,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 
 | Question | Decided | Where |
 |---|---|---|
-| Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v2.9 (`v2.9/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.8 08 decision 11, v2.8 14 decision 7 |
+| Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v2.9 (`v2.9/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.7 20 decision 11, v2.8 14 decision 7 |
 | Native tool calls over CC profiles (v2.7 14 decision 3) | v2.8 09 §F (decided); rows indexed in v2.8 24 | v2.8 09 §F |
 | `/story ask` for players vs rule 4 (09 decision 3) | the user's yes counts as the explicit decision rule 4 needs; player Ask ships dev-only, then off by default (rule 9) | v2.8 09 §E |
 | Living director "Save as story" (22) | drops unreached generated checkpoints by default; the player is not asked | v2.8 22 §Spoilers |
@@ -147,10 +151,10 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 02 | written; decided (do every step); A4/A5 and new rows not started |
 | 03 | written; decided (review of the answers applied); not built; S30-1 not run |
 | 04 | written; decided; reduced to C4, C5, C7, C9 (a) on 2026-10-03 (the rest moved to v2.7 06); not built |
-| 05 | written; decided; not built |
-| 06 | written 2026-10-03 (contract only); not decided in detail; not built |
-| 07 | written; decided; not built; S28 not run |
-| 08 | written; decided; not built; S32-1 not run |
+| ~~05~~ | moved to v2.7 17 (2026-10-04); see `v2.7/17-self-contained-images.md` |
+| ~~06~~ | moved to v2.7 18 (2026-10-04); see `v2.7/18-sprite-generation.md` |
+| ~~07~~ | moved to v2.7 19 (2026-10-04); see `v2.7/19-talking-sprites.md` |
+| ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
 | 09 | written; decided; not built |
 | 10 | written 2026-10-03 from v2.7 05 decision 1; decided in principle; contract not reviewed by the user; not built |
 | 11 | written; decided (build B); not built; fixtures not frozen |
@@ -179,3 +183,24 @@ public relationship meters), A4 (rows rewritten from decisions), B10 (registry r
 per-story toggles to v2.7 06; plan 23 (test plan) added as the last row.
 
 Round 3 (Sol): R3-15, R3-20 applied; both decided by the user 2026-10-03 (as recommended, §Decisions).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+user additional ideas: 
+update and explore tunnelvision extension for pattern harvest. We do have a folder where we clone ST plugin repos to review them.
+cleanup and optimize tests and gates. They take too long.
+I recently saw that there's a big community arount building gamification over tools like obsidian. What are the most populars or trending ones? shall we plan a big deep dive cloning a bunch of repos and reviewing if there's any pattern we could harvest for out plugin?
+integrate gpu brooker into ST plugin
+Integrate ST workflows into stories
+add civitai api key or hugging face api key to download models

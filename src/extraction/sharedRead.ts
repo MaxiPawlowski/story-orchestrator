@@ -108,6 +108,7 @@ export interface RunSharedReadOptions {
   facts?: ParsedFact[];
   extraGateSources?: ExtraGateSource[];
   scope?: ScopedQuality[];
+  cardScope?: { owners: string[]; cursor: number };
   openArcs?: string[];
   epistemicLedgerCapable?: boolean;
   entities?: string[];
@@ -128,7 +129,7 @@ export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "
 }
 
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
-  options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
+  options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? [], options.cardScope);
 
 const readContract = (options: RunSharedReadOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
   storyTitle: options.story.title,
