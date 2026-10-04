@@ -1,7 +1,7 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
   HOUSE_RULE_MAX_CHARS, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
-  STORY_DISPLAY_TOGGLES, type StoryDisplay,
+  STORY_DISPLAY_TOGGLES, type StoryDisplay, STORY_KINDS, type StoryKind,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
@@ -186,6 +186,13 @@ const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["displa
   return Object.keys(display).length ? display : undefined;
 };
 
+const readKind = (value: unknown, errors: ValidationError[]): StoryKind | undefined => {
+  if (value === undefined) return undefined;
+  if (isOneOf(value, STORY_KINDS)) return value;
+  addError(errors, "kind", "kind must be \"saga\" or \"story\"");
+  return undefined;
+};
+
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
   if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
   const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
@@ -199,7 +206,9 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const houseRules = json.house_rules !== undefined ? readHouseRules(json.house_rules, errors) : undefined;
   const objectiveBlock = readObjectiveBlock(json.objective_block, errors);
   const display = readDisplay(json.display, errors);
+  const kind = readKind(json.kind, errors);
   return {
+    ...(kind ? { kind } : {}),
     ...(playerIntro ? { player_intro: playerIntro } : {}),
     ...(briefing ? { briefing } : {}),
     ...(illustrations ? { illustrations } : {}),

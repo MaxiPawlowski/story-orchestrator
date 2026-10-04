@@ -149,6 +149,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(options.display ? { display: options.display } : {}),
     ...(chapters ? { chapters } : {}),
     ...(memoryOptions ? { memory: memoryOptions } : {}),
+    ...(options.kind ? { kind: options.kind } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

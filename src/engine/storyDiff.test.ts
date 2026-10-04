@@ -80,6 +80,14 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("stagecraft-changed");
   });
 
+  it("keeps a kind change compatible; absent and story are the same kind (2026-10-03)", () => {
+    const saga = edited((draft) => { draft.kind = "saga"; });
+    const result = run(saga);
+    expect(result.classification).toBe("compatible");
+    expect(result.entries).toEqual([expect.objectContaining({ code: "story-kind-changed", path: "kind" })]);
+    expect(run(edited((draft) => { draft.kind = "story"; })).classification).toBe("identical");
+  });
+
   it("keeps an objective_block switch compatible, in both directions (v2.4 plan 06 X14)", () => {
     const off = edited((draft) => { draft.objective_block = "off"; });
     const result = run(off);

@@ -190,6 +190,19 @@ export const ObjectiveBlockOff: Story = {
   },
 };
 
+export const KindSaga: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const select = canvas.getByLabelText("Story kind");
+    await expect(select).toHaveValue("story");
+    await expect(useDraftStore.getState().draft.kind).toBeUndefined();
+    await userEvent.selectOptions(select, "saga");
+    await expect(useDraftStore.getState().draft.kind).toBe("saga");
+    await userEvent.selectOptions(select, "story");
+    await expect(useDraftStore.getState().draft.kind).toBeUndefined();
+  },
+};
+
 export const ArcShapeAndBridges: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

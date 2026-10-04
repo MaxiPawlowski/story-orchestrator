@@ -47,8 +47,9 @@ describe("v2.7 06 A: the plays index", () => {
   it("holds player copy only: the checkpoint's player name and the chapter's player title, never an id", () => {
     const view = playRow({ story: chapters, storyId: chapters.id ?? "chapters-mini", activeCheckpointId: "walls", groupId: "g1" });
     expect(view).toEqual({
-      storyId: chapters.id, title: chapters.title, groupId: "g1", checkpointName: chapters.checkpointById.walls.player_name ?? null, chapterTitle: "The Siege", kind: "saga",
+      storyId: chapters.id, title: chapters.title, groupId: "g1", checkpointName: chapters.checkpointById.walls.player_name ?? null, chapterTitle: "The Siege", kind: "story",
     });
+    expect(playRow({ story: { ...chapters, kind: "saga" }, storyId: "chapters-mini", activeCheckpointId: "walls", groupId: "g1" }).kind).toBe("saga");
     expect(JSON.stringify(view)).not.toMatch(/"walls"|"siege"/);
   });
 
@@ -75,7 +76,9 @@ describe("v2.7 06 A: the plays index", () => {
       version: 6, chatId: "chat-1", selectedStoryId: "chapters-mini",
       stories: { "chapters-mini": { pinnedStory: JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/chapters-mini.story.json"), "utf8")), engineState: { activeCheckpointId: "fire" }, extras: { updatedAt: "2026-09-30T00:00:00.000Z" } } },
     };
-    expect(playRowFromBlob(blob, "chat-1", "g1", NOW)).toMatchObject({ storyId: "chapters-mini", title: chapters.title, chapterTitle: "Night Camp", kind: "saga", updatedAt: "2026-09-30T00:00:00.000Z" });
+    expect(playRowFromBlob(blob, "chat-1", "g1", NOW)).toMatchObject({ storyId: "chapters-mini", title: chapters.title, chapterTitle: "Night Camp", kind: "story", updatedAt: "2026-09-30T00:00:00.000Z" });
+    const saga = { ...blob, stories: { "chapters-mini": { ...blob.stories["chapters-mini"], pinnedStory: { ...blob.stories["chapters-mini"].pinnedStory, kind: "saga" } } } };
+    expect(playRowFromBlob(saga, "chat-1", "g1", NOW)).toMatchObject({ kind: "saga" });
     expect(playRowFromBlob(blob, "chat-2", "g1", NOW)).toBeNull();
     expect(playRowFromBlob({ ...blob, selectedStoryId: null }, "chat-1", "g1", NOW)).toBeNull();
   });

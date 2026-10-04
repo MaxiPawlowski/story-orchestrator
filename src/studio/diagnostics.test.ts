@@ -27,6 +27,18 @@ const clean: StoryV2 = {
   roster: [],
 };
 
+describe("story kind (2026-10-03)", () => {
+  const kindHits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "story-kind-invalid");
+  it("blocks a kind that is neither saga nor story, and passes both and absent", () => {
+    expect(kindHits({ ...clean, kind: "epic" } as unknown as StoryV2)).toEqual([
+      expect.objectContaining({ severity: "blocking", path: "kind", consequence: DIAGNOSTIC_CONSEQUENCES["story-kind-invalid"] }),
+    ]);
+    expect(kindHits({ ...clean, kind: "saga" })).toEqual([]);
+    expect(kindHits({ ...clean, kind: "story" })).toEqual([]);
+    expect(kindHits(clean)).toEqual([]);
+  });
+});
+
 const installSeeded: StoryV2 = {
   ...clean,
   description: "You are the courier of the guild.",
@@ -49,6 +61,7 @@ const seeded: StoryV2 = {
   format: 2,
   title: "seeded",
   description: "",
+  kind: "epic" as StoryV2["kind"],
   qualities: [
     { key: "trust", type: "int", source: "extractor", rubric: "r" },
     { key: "route", type: "enum", values: ["stealth", "force"], source: "extractor", rubric: "r", evidence_from: "any" },

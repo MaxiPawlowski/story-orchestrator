@@ -422,7 +422,11 @@ export interface StoryV2 {
   display?: StoryDisplay;
   chapters?: Chapter[];
   memory?: StoryMemoryOptions;
+  kind?: StoryKind;
 }
+
+export const STORY_KINDS = ["saga", "story"] as const;
+export type StoryKind = typeof STORY_KINDS[number];
 
 export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];

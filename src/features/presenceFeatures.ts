@@ -7,7 +7,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "story-badges", name: "Story marks in the lists", area: "play", audience: "player",
     oneLine: "Groups and chats that play a story carry a small icon in SillyTavern's lists.",
-    what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story with two or more chapters, "
+    what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story its author marks as one, "
       + "has its own icon. The marks come from a list of the chats you played, which fills in by itself as you open chats.",
     where: settingsAt("#so-presence-list-badges", "Display › Mark story groups in the lists"),
     settings: ["display.presence.listBadges"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat"],

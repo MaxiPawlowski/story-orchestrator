@@ -1,4 +1,4 @@
-import type { BriefingSection, Chapter, StoryBriefing, StoryV2 } from "./schema";
+import type { BriefingSection, Chapter, StoryBriefing, StoryKind, StoryV2 } from "./schema";
 
 export const BRIEFING_START_LABEL = "Begin";
 export const BRIEFING_INTRO_HEADING = "About this story";
@@ -41,11 +41,6 @@ export const composeChapterBriefing = (story: BriefingStory | null, chapterId: s
   return chapter?.briefing?.sections.length ? viewOf(chapter.briefing, chapterTitle(chapter), chapter.id) : null;
 };
 
-export type StoryKind = "saga" | "story";
-
-export const SAGA_MIN_CHAPTERS = 2;
-
-export const storyKind = (story: { chapters?: readonly unknown[] } | null | undefined): StoryKind =>
-  ((story?.chapters?.length ?? 0) >= SAGA_MIN_CHAPTERS ? "saga" : "story");
+export const storyKind = (story: { kind?: unknown; chapters?: unknown } | null | undefined): StoryKind => (story?.kind === "saga" ? "saga" : "story");
 
 export const briefingParagraphs = (text: string): string[] => text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);

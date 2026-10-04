@@ -109,6 +109,13 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
         <textarea className="text_pole st-input min-h-[4rem]" aria-label="Player introduction" placeholder="A spoiler-safe premise and what the player can expect…" value={draft.player_intro ?? ""}
           onChange={(event) => mutate((current) => setStoryField(current, "player_intro", event.target.value || undefined))} />
       </Field>
+      <Field label="Kind" hint="A saga plays a whole campaign and gets its own badge in the player's lists. Chapters alone do not make a saga. Never sent to the model.">
+        <select className="text_pole st-input" aria-label="Story kind" data-so="story-kind" value={draft.kind ?? "story"}
+          onChange={(event) => mutate((current) => setStoryField(current, "kind", event.target.value === "saga" ? "saga" : undefined))}>
+          <option value="story">Single story</option>
+          <option value="saga">Saga</option>
+        </select>
+      </Field>
       <BriefingEditor name="Briefing" hint={BRIEFING_HINT} briefing={draft.briefing}
         onChange={(next) => mutate((current) => setBriefing(current, next))}
         onPreview={() => requestBriefing({ kind: "preview", view: composeBriefing(draft) })} />

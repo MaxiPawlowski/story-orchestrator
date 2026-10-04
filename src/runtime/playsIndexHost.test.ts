@@ -44,7 +44,7 @@ describe("v2.7 06 A: the plays index is written at the runtime's own notificatio
   it("writes the open group chat's row once, and again only when a field changes", () => {
     expect(syncOpenChatPlay(port(), "2026-10-03T00:00:00.000Z")).toBe(true);
     expect(syncOpenChatPlay(port(), "2026-10-03T00:01:00.000Z")).toBe(false);
-    expect(readPlaysIndex()["chat-1"]).toMatchObject({ storyId: "chapters-mini", groupId: "g1", kind: "saga", chapterTitle: "Arrival", updatedAt: "2026-10-03T00:00:00.000Z" });
+    expect(readPlaysIndex()["chat-1"]).toMatchObject({ storyId: "chapters-mini", groupId: "g1", kind: "story", chapterTitle: "Arrival", updatedAt: "2026-10-03T00:00:00.000Z" });
     expect(syncOpenChatPlay(port({ activeCheckpointId: () => "fire" }), "2026-10-03T00:02:00.000Z")).toBe(true);
     expect(readPlaysIndex()["chat-1"]).toMatchObject({ chapterTitle: "Night Camp", updatedAt: "2026-10-03T00:02:00.000Z" });
     expect(host.saved).toBe(2);

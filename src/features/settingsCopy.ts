@@ -75,7 +75,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.listBadges": copy(
     "Mark story groups in the lists",
-    "A small icon beside each group, recent chat and past chat that plays a story. A saga, a story with two or more chapters, gets its own icon.",
+    "A small icon beside each group, recent chat and past chat that plays a story. A saga, a story its author marks as one, gets its own icon.",
   ),
   "display.presence.continueList": copy(
     "Your stories list",

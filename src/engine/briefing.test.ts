@@ -75,11 +75,20 @@ describe("v2.7 05 briefing view", () => {
 
 describe("v2.7 05 saga vs act rule", () => {
   const chapters = (count: number) => Array.from({ length: count }, (_, index) => ({ id: `act-${index}`, title: `Act ${index}` }));
-  it("calls a story with two or more chapters a saga, anything else a story", () => {
-    expect(storyKind({ chapters: chapters(9) })).toBe("saga");
-    expect(storyKind({ chapters: chapters(2) })).toBe("saga");
-    expect(storyKind({ chapters: chapters(1) })).toBe("story");
+  it("reads the authored kind, defaulting to story; the chapter count never decides it (2026-10-03)", () => {
+    expect(storyKind({ kind: "saga", chapters: chapters(12) })).toBe("saga");
+    expect(storyKind({ kind: "saga" })).toBe("saga");
+    expect(storyKind({ chapters: chapters(3) } as { kind?: unknown })).toBe("story");
+    expect(storyKind({ kind: "story", chapters: chapters(2) })).toBe("story");
+    expect(storyKind({ kind: "epic" })).toBe("story");
     expect(storyKind({})).toBe("story");
     expect(storyKind(null)).toBe("story");
+  });
+
+  it("validates kind: saga or story, anything else refused", () => {
+    const base = { format: 2, title: "T", description: "D", qualities: [], checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }], transitions: [], roster: [] };
+    expect(parseStoryV2OrThrow({ ...base, kind: "saga" }).kind).toBe("saga");
+    expect(parseStoryV2OrThrow(base).kind).toBeUndefined();
+    expect(parseStoryV2({ ...base, kind: "epic" })).toEqual([{ path: "kind", message: 'kind must be "saga" or "story"' }]);
   });
 });

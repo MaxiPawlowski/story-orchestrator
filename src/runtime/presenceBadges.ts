@@ -47,7 +47,7 @@ export function composeBadges({ plays, bindings, library, settings, now }: Badge
     }
     const record = records.get(bindings[groupId]);
     if (!record) continue;
-    const kind = storyKind({ chapters: Array.isArray(record.raw.chapters) ? record.raw.chapters : [] });
+    const kind = storyKind(record.raw);
     groups.set(groupId, { title: record.title, kind, kindLabel: kindLabel(kind), lastPlayed: null, card: settings.groupCard && storyAllows(displayOf(record.id), "groupCard") });
   }
   return { groups, chats };

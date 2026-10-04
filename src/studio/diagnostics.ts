@@ -8,6 +8,7 @@ import { checkHouseRules, checkMotives, checkRequirementMembers } from "./author
 import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
 import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnostics";
 import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnostics";
+import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -65,6 +66,7 @@ export const DIAGNOSTIC_CODES = [
   "gate-open-on-arrival",
   "cast-member-never-enabled",
   "briefing-spoiler-risk",
+  "story-kind-invalid",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -112,6 +114,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...CAST_CONSEQUENCES,
   ...ARRIVAL_CONSEQUENCES,
   ...BRIEFING_CONSEQUENCES,
+  ...KIND_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -514,12 +517,10 @@ const DIAGNOSTIC_CHECKS = [
   checkRatingScales,
   checkOutcomeEvidence,
   checkInheritedNotes,
-  checkLatchingPlaceholders,
-  checkJudgeHints,
+  checkLatchingPlaceholders, checkJudgeHints,
   checkLoreSelect,
   checkHouseRules,
-  checkSceneLocation,
-  checkWorldInfoGating,
+  checkSceneLocation, checkWorldInfoGating,
   checkMotives,
   checkChapters,
   checkRequirementMembers,
@@ -531,6 +532,7 @@ const DIAGNOSTIC_CHECKS = [
   checkGateOpenOnArrival,
   checkNeverEnabled,
   checkBriefingSpoilers,
+  checkStoryKind,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

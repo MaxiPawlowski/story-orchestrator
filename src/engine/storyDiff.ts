@@ -40,6 +40,7 @@ export type StoryDiffCode =
   | "story-objective-block-changed"
   | "story-display-changed"
   | "story-presence-changed"
+  | "story-kind-changed"
   | "scene-read-changed"
   | "lore-select-changed"
   | "house-rules-changed"
@@ -318,6 +319,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (STORY_DISPLAY_TOGGLES.some((key) => previous.display?.[key] !== next.display?.[key])) {
     push("compatible", "story-presence-changed", "display", "Which story panels and cards this story shows changed.");
   }
+  if ((previous.kind ?? "story") !== (next.kind ?? "story")) push("compatible", "story-kind-changed", "kind", "Whether the story shows as a saga or a single story changed.");
   if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");

@@ -63,7 +63,7 @@ export const dropPlay = (plays: PlaysIndex, chatId: string): { plays: PlaysIndex
 const playerChapterTitle = (chapter: Pick<Chapter, "title" | "player_title"> | undefined): string | undefined => chapter ? chapter.player_title ?? chapter.title : undefined;
 
 export interface PlayView {
-  story: Pick<NormalizedStoryV2, "title" | "chapters" | "checkpointById"> & { id?: string };
+  story: Pick<NormalizedStoryV2, "title" | "chapters" | "checkpointById" | "kind"> & { id?: string };
   storyId: string;
   activeCheckpointId: string | null;
   groupId: string;
@@ -94,7 +94,7 @@ export const playRowFromBlob = (blob: unknown, chatId: string, groupId: string, 
   const savedAt = isRecord(record.extras) ? text(record.extras.updatedAt) : null;
   return {
     ...playRow({
-      story: { title, chapters, checkpointById: Object.fromEntries(checkpoints.map((checkpoint) => [checkpoint.id, checkpoint])) },
+      story: { title, chapters, kind: storyKind(pinned), checkpointById: Object.fromEntries(checkpoints.map((checkpoint) => [checkpoint.id, checkpoint])) },
       storyId: blob.selectedStoryId, activeCheckpointId: active, groupId,
     }),
     updatedAt: savedAt && !Number.isNaN(Date.parse(savedAt)) ? savedAt : fallbackAt,

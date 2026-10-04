@@ -111,7 +111,7 @@ describe("v2.7 06 B: badge composition", () => {
   const plays = {
     "chat-1": { storyId: "sun", title: "Sun Ruins", groupId: "g1", checkpointName: "The Gate", kind: "saga" as const, updatedAt: "2026-10-01T00:00:00.000Z" },
   };
-  const library = [{ id: "sun", title: "Sun Ruins", raw: { display: { group_card: false } } }, { id: "moon", title: "Moon Well", raw: { chapters: [{}, {}] } }];
+  const library = [{ id: "sun", title: "Sun Ruins", raw: { display: { group_card: false } } }, { id: "moon", title: "Moon Well", raw: { kind: "saga" } }];
 
   it("marks played groups and bound groups, per chat too, with the story's card toggle", () => {
     const maps = composeBadges({ plays, bindings: { g2: "moon", g3: "gone" }, library, settings: defaultPresenceSettings(), now: Date.parse("2026-10-03T00:00:00.000Z") });
