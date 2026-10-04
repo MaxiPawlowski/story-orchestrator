@@ -39,3 +39,15 @@ No code ported. What the harvest yields for the replanned residency design:
   ever doing a full unload.
 - **One watchlist item:** semantic KV anchors, deferred.
 - **One explicit non-transfer:** MoE expert caching — dense model, never applicable.
+
+## Completion decision — 2026-10-04
+
+User chose **total image-to-completed-reply wait**, not shortest switch. A permanently reduced dense profile is therefore
+not the unconditional winner: live reduced text is about 3 tok/s and full text about 33 tok/s. The controller now
+compares measured load/prefill/decode costs and restores full residency for a costly reply; short reads preserve the
+reduced process. Comfy weights may stay warm in its RAM cache, with pressure eviction.
+
+Pinned host budgets and prevalidation-before-teardown are general practices worth harvesting even for dense models;
+the MoE-specific expert LRU remains non-transferable. This is not FreeToken-style in-place layer migration or a
+guaranteed full-model hot store. Native mmap was measured and refused twice on the current 32 GiB host because it
+violated the 4 GiB physical-RAM reserve. Evidence and open acceptance rows: `22-local-residency.md` completion record.

@@ -1,0 +1,417 @@
+{
+  "at": "2026-10-04T18:01:27.221Z",
+  "before": {
+    "phase": "text",
+    "activeText": 0,
+    "waitingText": 0,
+    "imageLease": false,
+    "text": {
+      "profile": null,
+      "desiredProfile": null,
+      "fitTargetMiB": null,
+      "pid": null,
+      "loading": false,
+      "loadMs": null,
+      "loads": 0,
+      "lastError": null
+    },
+    "objective": "total-wait",
+    "timings": {
+      "fast:full": {
+        "loadMs": 24403,
+        "tokensPerSecond": 32.39517419038211,
+        "promptMs": 447.146,
+        "samples": 15,
+        "at": "2026-10-04T17:31:46.778Z"
+      }
+    },
+    "lastTextDecision": null,
+    "lastDecision": null,
+    "lastNeedGpuMiB": null,
+    "lastError": null,
+    "imageCache": null,
+    "imageCacheMode": "warm",
+    "telemetry": {
+      "at": "2026-10-04T18:01:27.912Z",
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1268,
+          "freeMiB": 23059,
+          "utilization": 2
+        }
+      ],
+      "host": {
+        "totalMiB": 32677.85546875,
+        "availableMiB": 22955.1484375,
+        "commitFreeMiB": 77824.40625,
+        "pagesInputPerSec": 0
+      }
+    },
+    "adapter": "managed",
+    "guarding": true,
+    "pid": 4116,
+    "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+    "maxContext": 98304
+  },
+  "checks": [
+    {
+      "id": "auxiliary-and-real-read-preserve-shed",
+      "shed": {
+        "phase": "text",
+        "activeText": 0,
+        "waitingText": 0,
+        "imageLease": false,
+        "text": {
+          "profile": "fast",
+          "desiredProfile": "fast",
+          "fitTargetMiB": 11107,
+          "pid": 19264,
+          "loading": false,
+          "loadMs": 23392,
+          "loads": 1,
+          "lastError": null
+        },
+        "objective": "total-wait",
+        "timings": {
+          "fast:full": {
+            "loadMs": 24403,
+            "tokensPerSecond": 32.39517419038211,
+            "promptMs": 447.146,
+            "samples": 15,
+            "at": "2026-10-04T17:31:46.778Z"
+          }
+        },
+        "lastTextDecision": null,
+        "lastDecision": null,
+        "lastNeedGpuMiB": null,
+        "lastError": null,
+        "imageCache": {
+          "at": "2026-10-04T18:01:29.681Z",
+          "mode": "ram-warm",
+          "ramRequiredMiB": 5500,
+          "availableMiB": 22955.5390625,
+          "admitted": true
+        },
+        "imageCacheMode": "warm",
+        "telemetry": {
+          "at": "2026-10-04T18:01:53.740Z",
+          "gpus": [
+            {
+              "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+              "totalMiB": 24576,
+              "usedMiB": 13579,
+              "freeMiB": 10748,
+              "utilization": 3
+            }
+          ],
+          "host": {
+            "totalMiB": 32677.85546875,
+            "availableMiB": 13188.6953125,
+            "commitFreeMiB": 55572.01953125,
+            "pagesInputPerSec": 0
+          }
+        },
+        "adapter": "managed",
+        "guarding": true,
+        "pid": 4116,
+        "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+        "maxContext": 98304
+      },
+      "auxiliary": {
+        "phase": "text",
+        "activeText": 0,
+        "waitingText": 0,
+        "imageLease": false,
+        "text": {
+          "profile": "fast",
+          "desiredProfile": "fast",
+          "fitTargetMiB": 11107,
+          "pid": 19264,
+          "loading": false,
+          "loadMs": 23392,
+          "loads": 1,
+          "lastError": null
+        },
+        "objective": "total-wait",
+        "timings": {
+          "fast:full": {
+            "loadMs": 24403,
+            "tokensPerSecond": 32.39517419038211,
+            "promptMs": 447.146,
+            "samples": 15,
+            "at": "2026-10-04T17:31:46.778Z"
+          }
+        },
+        "lastTextDecision": {
+          "restore": false,
+          "reason": "Unmeasured text cost; preserve residency."
+        },
+        "lastDecision": null,
+        "lastNeedGpuMiB": null,
+        "lastError": null,
+        "imageCache": {
+          "at": "2026-10-04T18:01:29.681Z",
+          "mode": "ram-warm",
+          "ramRequiredMiB": 5500,
+          "availableMiB": 22955.5390625,
+          "admitted": true
+        },
+        "imageCacheMode": "warm",
+        "telemetry": {
+          "at": "2026-10-04T18:01:53.740Z",
+          "gpus": [
+            {
+              "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+              "totalMiB": 24576,
+              "usedMiB": 13579,
+              "freeMiB": 10748,
+              "utilization": 3
+            }
+          ],
+          "host": {
+            "totalMiB": 32677.85546875,
+            "availableMiB": 13188.6953125,
+            "commitFreeMiB": 55572.01953125,
+            "pagesInputPerSec": 0
+          }
+        },
+        "adapter": "managed",
+        "guarding": true,
+        "pid": 4116,
+        "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+        "maxContext": 98304
+      },
+      "after": {
+        "phase": "text",
+        "activeText": 0,
+        "waitingText": 0,
+        "imageLease": false,
+        "text": {
+          "profile": "fast",
+          "desiredProfile": "fast",
+          "fitTargetMiB": 11107,
+          "pid": 19264,
+          "loading": false,
+          "loadMs": 23392,
+          "loads": 1,
+          "lastError": null
+        },
+        "objective": "total-wait",
+        "timings": {
+          "fast:full": {
+            "loadMs": 24403,
+            "tokensPerSecond": 32.39517419038211,
+            "promptMs": 447.146,
+            "samples": 15,
+            "at": "2026-10-04T17:31:46.778Z"
+          },
+          "fast:11107": {
+            "loadMs": 23392,
+            "tokensPerSecond": 3.2982697936316567,
+            "promptMs": 1693.652,
+            "samples": 1,
+            "at": "2026-10-04T18:02:00.021Z"
+          }
+        },
+        "lastTextDecision": {
+          "restore": false,
+          "reason": "Unmeasured text cost; preserve residency."
+        },
+        "lastDecision": null,
+        "lastNeedGpuMiB": null,
+        "lastError": null,
+        "imageCache": {
+          "at": "2026-10-04T18:01:29.681Z",
+          "mode": "ram-warm",
+          "ramRequiredMiB": 5500,
+          "availableMiB": 22955.5390625,
+          "admitted": true
+        },
+        "imageCacheMode": "warm",
+        "telemetry": {
+          "at": "2026-10-04T18:02:00.725Z",
+          "gpus": [
+            {
+              "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+              "totalMiB": 24576,
+              "usedMiB": 13587,
+              "freeMiB": 10740,
+              "utilization": 5
+            }
+          ],
+          "host": {
+            "totalMiB": 32677.85546875,
+            "availableMiB": 13145.54296875,
+            "commitFreeMiB": 55546.2578125,
+            "pagesInputPerSec": 0
+          }
+        },
+        "adapter": "managed",
+        "guarding": true,
+        "pid": 4116,
+        "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+        "maxContext": 98304
+      },
+      "replyLength": 62,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 20,
+        "prompt_ms": 1693.652,
+        "prompt_per_token_ms": 84.68260000000001,
+        "prompt_per_second": 11.808801335811607,
+        "predicted_n": 16,
+        "predicted_ms": 4547.839,
+        "predicted_per_token_ms": 303.18926666666664,
+        "predicted_per_second": 3.2982697936316567
+      }
+    },
+    {
+      "id": "explicit-full-restore",
+      "restored": {
+        "phase": "text",
+        "activeText": 0,
+        "waitingText": 0,
+        "imageLease": false,
+        "text": {
+          "profile": "fast",
+          "desiredProfile": "fast",
+          "fitTargetMiB": null,
+          "pid": 4308,
+          "loading": false,
+          "loadMs": 14420,
+          "loads": 2,
+          "lastError": null
+        },
+        "objective": "total-wait",
+        "timings": {
+          "fast:full": {
+            "loadMs": 24403,
+            "tokensPerSecond": 32.39517419038211,
+            "promptMs": 447.146,
+            "samples": 15,
+            "at": "2026-10-04T17:31:46.778Z"
+          },
+          "fast:11107": {
+            "loadMs": 23392,
+            "tokensPerSecond": 3.2982697936316567,
+            "promptMs": 1693.652,
+            "samples": 1,
+            "at": "2026-10-04T18:02:00.021Z"
+          }
+        },
+        "lastTextDecision": {
+          "restore": false,
+          "reason": "Unmeasured text cost; preserve residency."
+        },
+        "lastDecision": null,
+        "lastNeedGpuMiB": null,
+        "lastError": null,
+        "imageCache": {
+          "at": "2026-10-04T18:02:01.618Z",
+          "mode": "ram-warm",
+          "ramRequiredMiB": 5500,
+          "availableMiB": 13146.390625,
+          "admitted": true
+        },
+        "imageCacheMode": "warm",
+        "telemetry": {
+          "at": "2026-10-04T18:02:16.708Z",
+          "gpus": [
+            {
+              "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+              "totalMiB": 24576,
+              "usedMiB": 21725,
+              "freeMiB": 2602,
+              "utilization": 3
+            }
+          ],
+          "host": {
+            "totalMiB": 32677.85546875,
+            "availableMiB": 21550.40625,
+            "commitFreeMiB": 55749.46484375,
+            "pagesInputPerSec": 0
+          }
+        },
+        "adapter": "managed",
+        "guarding": true,
+        "pid": 4116,
+        "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+        "maxContext": 98304
+      }
+    }
+  ],
+  "ok": true,
+  "after": {
+    "phase": "text",
+    "activeText": 0,
+    "waitingText": 0,
+    "imageLease": false,
+    "text": {
+      "profile": "fast",
+      "desiredProfile": "fast",
+      "fitTargetMiB": null,
+      "pid": 4308,
+      "loading": false,
+      "loadMs": 14420,
+      "loads": 2,
+      "lastError": null
+    },
+    "objective": "total-wait",
+    "timings": {
+      "fast:full": {
+        "loadMs": 24403,
+        "tokensPerSecond": 32.39517419038211,
+        "promptMs": 447.146,
+        "samples": 15,
+        "at": "2026-10-04T17:31:46.778Z"
+      },
+      "fast:11107": {
+        "loadMs": 23392,
+        "tokensPerSecond": 3.2982697936316567,
+        "promptMs": 1693.652,
+        "samples": 1,
+        "at": "2026-10-04T18:02:00.021Z"
+      }
+    },
+    "lastTextDecision": {
+      "restore": false,
+      "reason": "Unmeasured text cost; preserve residency."
+    },
+    "lastDecision": null,
+    "lastNeedGpuMiB": null,
+    "lastError": null,
+    "imageCache": {
+      "at": "2026-10-04T18:02:01.618Z",
+      "mode": "ram-warm",
+      "ramRequiredMiB": 5500,
+      "availableMiB": 13146.390625,
+      "admitted": true
+    },
+    "imageCacheMode": "warm",
+    "telemetry": {
+      "at": "2026-10-04T18:02:16.708Z",
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21725,
+          "freeMiB": 2602,
+          "utilization": 3
+        }
+      ],
+      "host": {
+        "totalMiB": 32677.85546875,
+        "availableMiB": 21550.40625,
+        "commitFreeMiB": 55749.46484375,
+        "pagesInputPerSec": 0
+      }
+    },
+    "adapter": "managed",
+    "guarding": true,
+    "pid": 4116,
+    "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+    "maxContext": 98304
+  }
+}

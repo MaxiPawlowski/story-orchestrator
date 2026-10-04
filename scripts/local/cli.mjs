@@ -34,7 +34,7 @@ if (action === 'start') {
     }
     throw new Error('Controller did not start. Read controller.log.');
 }
-const routes = { load: 'load', unload: 'unload', automatic: 'automatic', restore: 'restore', 'start-comfy': 'start-comfy', 'free-images': 'free-images', stop: 'stop' };
+const routes = { load: 'load', unload: 'unload', automatic: 'automatic', restore: 'restore', 'cache-mode': 'cache-mode', 'start-comfy': 'start-comfy', 'free-images': 'free-images', stop: 'stop' };
 const response = await fetch(action === 'status' ? `${url}/status` : `${url}/control/${routes[action] ?? 'unknown'}`, action === 'status' ? { signal: AbortSignal.timeout(15000) } : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(profile ? { profile } : {}), signal: AbortSignal.timeout(300000) });
 const data = await response.json();
 if (!response.ok) throw new Error(JSON.stringify(data));

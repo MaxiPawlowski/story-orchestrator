@@ -15,7 +15,7 @@ function setup(overrides = {}) {
         unload: async () => { calls.push('unload'); backend.profile = null; backend.fitTarget = null; },
         load: async (name, options = {}) => { calls.push('load'); backend.profile = name; backend.fitTarget = Number.isFinite(options.fitTarget) ? options.fitTarget : null; },
     };
-    const config = { maxQueue: 2, queueTimeoutMs: 1000, reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, defaultImageMiB: 12000, idleRestoreMs: 0, ...configOverrides };
+    const config = { maxQueue: 2, queueTimeoutMs: 1000, reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, defaultImageMiB: 12000, residencyObjective: 'switch', idleRestoreMs: 0, ...configOverrides };
     const scheduler = new ResidencyScheduler({ config, backend, snapshot: async () => free(22000),
         queue: async () => ({ queue_running: [], queue_pending: [] }), freeImages: async () => { calls.push('free'); }, startComfy: async () => {}, saveFootprints: async () => {}, ...rest });
     return { scheduler, calls, backend };
@@ -76,14 +76,16 @@ test('an image that does not fit sheds the text profile to leave room instead of
 });
 
 test('when shedding cannot free enough the image swaps the text model out', async () => {
-    const { scheduler, calls } = setup({ snapshot: async () => free(3000) });
+    let n = 0;
+    const { scheduler, calls } = setup({ snapshot: async () => free(n++ < 2 ? 3000 : 22000) });
     const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 });
     assert.equal(lease.decision, 'swap-text');
     assert.deepEqual(calls, ['load', 'unload', 'free']);
 });
 
 test('an image larger than the shed ceiling swaps without trying to shed', async () => {
-    const { scheduler, calls } = setup({ snapshot: async () => free(3000) });
+    let n = 0;
+    const { scheduler, calls } = setup({ snapshot: async () => free(n++ === 0 ? 3000 : 22000) });
     const lease = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
     assert.equal(lease.decision, 'swap-text');
     assert.deepEqual(calls, ['unload', 'free']);
@@ -104,7 +106,7 @@ test('a shed profile returns to full speed after the idle window', async () => {
 
 test('a swap clears the shed intent so the next text request loads full speed', async () => {
     let n = 0;
-    const { scheduler, backend } = setup({ snapshot: async () => (n++ < 2 ? free(10474) : free(3000)) });
+    const { scheduler, backend } = setup({ snapshot: async () => free([3000, 11048, 3000, 22000][n++] ?? 22000) });
     const shed = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 });
     assert.equal(shed.decision, 'shed-text');
     assert.equal(backend.fitTarget, 9000 + 2048);
@@ -147,4 +149,110 @@ test('an inconsistent observation blocks verification', async () => {
     await scheduler.release(second.lease);
     assert.equal(scheduler.footprints.scene.verified, false);
     assert.equal(scheduler.footprints.scene.runs, 2);
+});
+
+test('an idle restore owns the lifecycle until it settles; queued text and an image wait', async () => {
+    const gate = deferred();
+    const { scheduler, backend, calls } = setup({ config: { idleRestoreMs: 1 } });
+    backend.fitTarget = 11048;
+    scheduler.lastLeaseAt = Date.now() - 10;
+    backend.load = async () => { calls.push('restore'); await gate.promise; backend.fitTarget = null; };
+    const restoring = scheduler.restoreIfIdle();
+    await tick();
+    const text = scheduler.text(async () => { calls.push('text'); });
+    const reserving = scheduler.reserve({ needGpuMiB: 9000 });
+    await tick();
+    await assert.rejects(scheduler.load('fast'), /active work/);
+    assert.deepEqual(calls, ['free', 'restore']);
+    gate.resolve(); await restoring;
+    const lease = await reserving;
+    assert.equal(calls.includes('text'), false);
+    await scheduler.release(lease.lease); await text;
+    assert.equal(calls.at(-1), 'text');
+});
+
+test('manual restore and free-cache controls cannot race a generation or another lifecycle change', async () => {
+    const gate = deferred();
+    const { scheduler } = setup();
+    const operation = scheduler.exclusive(() => gate.promise);
+    await assert.rejects(scheduler.restoreNow(), /active work/);
+    await assert.rejects(scheduler.unload(), /active work/);
+    let ran = false;
+    const text = scheduler.text(async () => { ran = true; });
+    await tick(); assert.equal(ran, false);
+    gate.resolve(); await operation; await text;
+    assert.equal(ran, true);
+});
+
+test('post-shed admission keeps the GPU reserve, not only the render allocation', async () => {
+    let n = 0;
+    const { scheduler, calls } = setup({ snapshot: async (options) => {
+        assert.equal(options.fresh, true);
+        return free([3000, 9500, 22000][n++]);
+    } });
+    const lease = await scheduler.reserve({ needGpuMiB: 9000 });
+    assert.equal(lease.decision, 'swap-text');
+    assert.deepEqual(calls, ['load', 'unload', 'free']);
+});
+
+test('image admission refuses insufficient physical RAM or commit and an impossible GPU workload', async () => {
+    for (const snapshot of [
+        { ...free(22000), host: { availableMiB: 8000, commitFreeMiB: 80000 } },
+        { ...free(22000), host: { availableMiB: 24000, commitFreeMiB: 8000 } },
+        free(3000),
+    ]) {
+        const { scheduler } = setup({ snapshot: async () => snapshot });
+        await assert.rejects(scheduler.reserve({ needGpuMiB: 9000, needRamMiB: 9000 }), /admission refused/);
+        assert.equal(scheduler.lease, null);
+    }
+});
+
+test('a failed shed RAM admission falls back to swapping instead of stranding the request', async () => {
+    let n = 0;
+    const { scheduler, backend, calls } = setup({ snapshot: async () => free(n++ === 0 ? 3000 : 22000) });
+    backend.load = async () => { calls.push('failed-shed'); throw new Error('Not enough physical RAM headroom.'); };
+    const lease = await scheduler.reserve({ needGpuMiB: 9000 });
+    assert.equal(lease.decision, 'swap-text');
+    assert.deepEqual(calls, ['failed-shed', 'unload', 'free']);
+});
+
+test('duplicate releases free a lease only once and keep queued text behind cache reclamation', async () => {
+    const gate = deferred();
+    const { scheduler, calls } = setup({ freeImages: async () => { calls.push('free'); await gate.promise; } });
+    const lease = await scheduler.reserve({ needGpuMiB: 9000 });
+    const first = scheduler.release(lease.lease);
+    const second = scheduler.release(lease.lease);
+    const text = scheduler.text(async () => { calls.push('text'); });
+    await tick(); assert.deepEqual(calls, ['free']);
+    gate.resolve(); assert.equal(await first, true); assert.equal(await second, true); await text;
+    assert.deepEqual(calls, ['free', 'text']);
+});
+
+test('total-wait policy swaps an unmeasured reduced profile and restores for a costly reply', async () => {
+    let n = 0;
+    const { scheduler, backend, calls } = setup({ config: { residencyObjective: 'total-wait' }, snapshot: async () => free(n++ === 0 ? 3000 : 22000) });
+    const lease = await scheduler.reserve({ needGpuMiB: 9000 });
+    assert.equal(lease.decision, 'swap-text');
+    assert.deepEqual(calls, ['unload', 'free']);
+    await scheduler.release(lease.lease);
+    backend.profile = 'fast'; backend.fitTarget = 11048;
+    scheduler.timings = { 'fast:full': { loadMs: 22000, tokensPerSecond: 30, promptMs: 1000 }, 'fast:11048': { loadMs: 22000, tokensPerSecond: 3 } };
+    const before = calls.length;
+    await scheduler.text(async () => { calls.push('reply'); }, null, 256);
+    assert.deepEqual(calls.slice(before), ['free', 'load', 'reply']);
+    assert.equal(backend.fitTarget, null);
+    assert.equal(scheduler.lastTextDecision.restore, true);
+});
+
+test('a cheap measured reply keeps the reduced profile and learned RAM demand never shrinks to a warm delta', async () => {
+    const { scheduler, backend, calls } = setup({ config: { residencyObjective: 'total-wait' } });
+    backend.fitTarget = 11048;
+    scheduler.timings = { 'fast:full': { loadMs: 22000, tokensPerSecond: 30 }, 'fast:11048': { loadMs: 2000, tokensPerSecond: 3 } };
+    await scheduler.text(async () => { calls.push('reply'); }, null, 16);
+    assert.deepEqual(calls, ['reply']);
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000, needRamMiB: 10000 });
+    scheduler.lease.seenJob = true;
+    await scheduler.release(lease.lease);
+    assert.equal(scheduler.footprints.scene.ramMiB, 10000);
+    assert.equal(scheduler.footprints.scene.gpuMiB, 9000);
 });

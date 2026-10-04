@@ -1,7 +1,8 @@
 export function admission(snapshot, requirements, reserves) {
     const gpu = snapshot.gpus.find((row) => row.uuid === requirements.gpuUuid) ?? snapshot.gpus[0];
     const needs = [requirements.gpuMiB, requirements.ramMiB, reserves.gpuMiB, reserves.ramMiB];
-    if (!gpu || needs.some((value) => !Number.isFinite(value) || value < 0)) return { allowed: false, reason: 'Memory requirements or telemetry are unavailable.' };
+    const readings = [gpu?.freeMiB, snapshot.host?.availableMiB, snapshot.host?.commitFreeMiB];
+    if (!gpu || [...needs, ...readings].some((value) => !Number.isFinite(value) || value < 0)) return { allowed: false, reason: 'Memory requirements or telemetry are unavailable.' };
     if (gpu.freeMiB < requirements.gpuMiB + reserves.gpuMiB) return { allowed: false, reason: 'Insufficient GPU headroom.', gpu };
     if (snapshot.host.availableMiB < requirements.ramMiB + reserves.ramMiB) return { allowed: false, reason: 'Insufficient physical RAM headroom.', gpu };
     if (snapshot.host.commitFreeMiB < requirements.ramMiB + reserves.ramMiB) return { allowed: false, reason: 'Insufficient commit headroom.', gpu };
@@ -9,7 +10,17 @@ export function admission(snapshot, requirements, reserves) {
 }
 
 export function withinReserve(snapshot, reserves) {
-    return snapshot.host.availableMiB >= reserves.ramMiB && snapshot.gpus[0].freeMiB >= reserves.gpuMiB;
+    return admission(snapshot, { gpuMiB: 0, ramMiB: 0 }, reserves).allowed;
+}
+
+export function textLatencyDecision({ budget, timings, profile, fitTarget }) {
+    const full = timings?.[`${profile}:full`];
+    const reduced = timings?.[`${profile}:${fitTarget}`];
+    if (!Number.isFinite(budget) || budget <= 0 || !full || !reduced) return { restore: false, reason: 'Unmeasured text cost; preserve residency.' };
+    if (![full.loadMs, full.tokensPerSecond, reduced.tokensPerSecond].every((value) => Number.isFinite(value) && value > 0)) return { restore: false, reason: 'Unmeasured text cost; preserve residency.' };
+    const retainedMs = (reduced.promptMs ?? 0) + 1000 * budget / reduced.tokensPerSecond;
+    const restoredMs = full.loadMs + (full.promptMs ?? 0) + 1000 * budget / full.tokensPerSecond;
+    return { restore: restoredMs < retainedMs, retainedMs, restoredMs, reason: restoredMs < retainedMs ? 'Full residency has the lower measured reply cost.' : 'Retained residency has the lower measured reply cost.' };
 }
 
 export function stableSamples(samples) {

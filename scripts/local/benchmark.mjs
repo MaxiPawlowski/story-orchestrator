@@ -2,20 +2,22 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { memorySnapshot, gpuMemory } from './telemetry.mjs';
+import { nativeArgs } from './backend.mjs';
 
 const configFile = process.argv[2];
 const profileName = process.argv[3] ?? 'normal';
 if (!configFile) throw new Error('Usage: node scripts/local/benchmark.mjs <config.json> [profile]');
 const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
+if (process.argv[4]) config.modelLoadMode = process.argv[4];
 const profile = config.profiles[profileName];
 if (!profile) throw new Error('Unknown profile.');
 await fs.mkdir(config.stateDir, { recursive: true });
-const stem = path.join(config.stateDir, `baseline-${profileName}-${Date.now()}`);
+const stem = path.join(process.env.SO_LOCAL_RECORD_DIR ?? config.stateDir, `baseline-${profileName}-${config.modelLoadMode ?? 'profile'}-${Date.now()}`);
 const before = await memorySnapshot();
 const url = `http://127.0.0.1:${config.backendPort}`;
 try { await fetch(`${url}/health`, { signal: AbortSignal.timeout(1000) }); throw new Error('Backend port is already owned by another server.'); }
 catch (error) { if (error.message === 'Backend port is already owned by another server.') throw error; }
-const args = ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias, '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified', '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', '512', '--sleep-idle-seconds', '-1', '--fit', 'on', '--fit-target', String(config.reserves.gpuMiB), ...profile.args];
+const args = nativeArgs(config, profile);
 const processHandle = spawn(config.binary, args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
 let logs = '';
 processHandle.stdout.on('data', (chunk) => { logs += chunk; });

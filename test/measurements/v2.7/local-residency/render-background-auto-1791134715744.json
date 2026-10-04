@@ -1,0 +1,129 @@
+{
+  "mode": "auto",
+  "family": "background",
+  "modelFiles": [
+    {
+      "kind": "checkpoints",
+      "name": "flux1-dev-fp8.safetensors"
+    }
+  ],
+  "replyTokens": 128,
+  "checkpoint": "flux1-dev-fp8.safetensors",
+  "estimatedMiB": 18890,
+  "before": {
+    "at": "2026-10-04T17:25:07.903Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 21848,
+        "freeMiB": 2479,
+        "utilization": 1
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 18123.890625,
+      "commitFreeMiB": 50745.37890625,
+      "pagesInputPerSec": 0
+    }
+  },
+  "textBefore": {
+    "elapsedMs": 3921,
+    "length": 638,
+    "timings": {
+      "cache_n": 20,
+      "prompt_n": 5,
+      "prompt_ms": 92.13,
+      "prompt_per_token_ms": 18.426,
+      "prompt_per_second": 54.271138608488,
+      "predicted_n": 128,
+      "predicted_ms": 3790.452,
+      "predicted_per_token_ms": 29.84607874015748,
+      "predicted_per_second": 33.50523895303252
+    },
+    "status": {
+      "phase": "text",
+      "activeText": 0,
+      "waitingText": 0,
+      "imageLease": false,
+      "text": {
+        "profile": "fast",
+        "desiredProfile": "fast",
+        "fitTargetMiB": null,
+        "pid": 22724,
+        "loading": false,
+        "loadMs": 22703,
+        "loads": 2,
+        "lastError": null
+      },
+      "objective": "total-wait",
+      "timings": {
+        "fast:full": {
+          "loadMs": 22703,
+          "tokensPerSecond": 33.50523895303252,
+          "promptMs": 447.146,
+          "samples": 7,
+          "at": "2026-10-04T17:25:11.859Z"
+        }
+      },
+      "lastTextDecision": null,
+      "lastDecision": "swap-text",
+      "lastNeedGpuMiB": 9059,
+      "lastError": null,
+      "imageCache": {
+        "at": "2026-10-04T17:16:01.973Z",
+        "mode": "evicted",
+        "ramRequiredMiB": 5500,
+        "availableMiB": 16360.95703125,
+        "admitted": true
+      },
+      "imageCacheMode": "evict",
+      "telemetry": {
+        "at": "2026-10-04T17:25:12.554Z",
+        "gpus": [
+          {
+            "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+            "totalMiB": 24576,
+            "usedMiB": 21848,
+            "freeMiB": 2479,
+            "utilization": 95
+          }
+        ],
+        "host": {
+          "totalMiB": 32677.85546875,
+          "availableMiB": 18003.3828125,
+          "commitFreeMiB": 50621.86328125,
+          "pagesInputPerSec": 0
+        }
+      },
+      "adapter": "managed",
+      "guarding": true,
+      "pid": 5976,
+      "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+      "maxContext": 98304
+    }
+  },
+  "needGpuMiB": 18890,
+  "ok": false,
+  "error": "{\"error\":{\"message\":\"Image admission refused: Insufficient physical RAM headroom.\",\"type\":\"local_residency\"}}",
+  "samples": [],
+  "after": {
+    "at": "2026-10-04T17:25:15.744Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 1382,
+        "freeMiB": 22945,
+        "utilization": 2
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 19802.640625,
+      "commitFreeMiB": 73026.75,
+      "pagesInputPerSec": 0
+    }
+  }
+}

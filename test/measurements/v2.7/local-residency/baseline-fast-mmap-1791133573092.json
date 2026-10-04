@@ -1,0 +1,189 @@
+{
+  "profile": "fast",
+  "args": [
+    "--model",
+    "C:/dev/models/hf/hub/models--TheDrummer--Artemis-31B-v1.1-GGUF/snapshots/65d0086759d0d45f728b610f48651d4a98d89ed4/Artemis-31B-v1m-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18889",
+    "--alias",
+    "TheDrummer/Artemis-31B-v1.1-GGUF",
+    "--offline",
+    "--no-mmproj",
+    "--no-webui",
+    "--threads",
+    "8",
+    "--threads-batch",
+    "8",
+    "--parallel",
+    "1",
+    "--kv-unified",
+    "--flash-attn",
+    "on",
+    "--cache-type-k",
+    "q8_0",
+    "--cache-type-v",
+    "q8_0",
+    "--cache-ram",
+    "512",
+    "--sleep-idle-seconds",
+    "-1",
+    "--fit",
+    "on",
+    "--fit-target",
+    "2048",
+    "--ctx-size",
+    "32768",
+    "--fit-ctx",
+    "32768",
+    "--n-gpu-layers",
+    "auto",
+    "--load-mode",
+    "mmap"
+  ],
+  "before": {
+    "at": "2026-10-04T17:06:13.778Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 1233,
+        "freeMiB": 23094,
+        "utilization": 5
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 20819.55859375,
+      "commitFreeMiB": 74985.09765625,
+      "pagesInputPerSec": 15
+    }
+  },
+  "startedAt": "2026-10-04T17:06:13.814Z",
+  "loadMs": 10140,
+  "loaded": {
+    "at": "2026-10-04T17:06:24.647Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 21684,
+        "freeMiB": 2643,
+        "utilization": 53
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 2385.44921875,
+      "commitFreeMiB": 53715.88671875,
+      "pagesInputPerSec": 0
+    }
+  },
+  "ok": false,
+  "error": "Loaded profile violates the physical RAM reserve; no generation attempted.",
+  "samples": [
+    {
+      "at": 1791133575393,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1456,
+          "freeMiB": 22871,
+          "utilization": 4
+        }
+      ]
+    },
+    {
+      "at": 1791133576904,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1456,
+          "freeMiB": 22871,
+          "utilization": 11
+        }
+      ]
+    },
+    {
+      "at": 1791133578408,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19264,
+          "freeMiB": 5063,
+          "utilization": 53
+        }
+      ]
+    },
+    {
+      "at": 1791133579909,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19264,
+          "freeMiB": 5063,
+          "utilization": 48
+        }
+      ]
+    },
+    {
+      "at": 1791133581409,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19264,
+          "freeMiB": 5063,
+          "utilization": 47
+        }
+      ]
+    },
+    {
+      "at": 1791133582912,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19264,
+          "freeMiB": 5063,
+          "utilization": 52
+        }
+      ]
+    },
+    {
+      "at": 1791133584403,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21684,
+          "freeMiB": 2643,
+          "utilization": 4
+        }
+      ]
+    }
+  ],
+  "afterStop": {
+    "at": "2026-10-04T17:06:28.303Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 1233,
+        "freeMiB": 23094,
+        "utilization": 3
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 20795.15625,
+      "commitFreeMiB": 74975.40625,
+      "pagesInputPerSec": 19
+    }
+  }
+}

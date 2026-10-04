@@ -7,18 +7,36 @@ import { pipeline } from 'node:stream/promises';
 import { NativeBackend } from './backend.mjs';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { memorySnapshot } from './telemetry.mjs';
+import { ImageCache } from './imageCache.mjs';
+import { ResponseTiming } from './responseTiming.mjs';
+import { createHash } from 'node:crypto';
 
 const configFile = process.argv[2];
 if (!configFile) throw new Error('Usage: node scripts/local/controller.mjs <config.json>');
 const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
+const sourceFiles = ['backend', 'controller', 'estimate', 'imageCache', 'models', 'policy', 'responseTiming', 'safetensors', 'scheduler', 'telemetry'];
+const source = createHash('sha256');
+for (const name of sourceFiles) source.update(name).update(await fs.readFile(new URL(`./${name}.mjs`, import.meta.url)));
+const controllerBuild = source.digest('hex');
 await fs.mkdir(config.stateDir, { recursive: true });
 const footprintsPath = path.join(config.stateDir, 'footprints.json');
 let footprints = {};
 try { footprints = JSON.parse(await fs.readFile(footprintsPath, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+const timingsPath = path.join(config.stateDir, 'text-timings.json');
+const modelStat = await fs.stat(config.model);
+const binaryStat = await fs.stat(config.binary);
+const timingIdentity = JSON.stringify({ model: config.model, modelBytes: modelStat.size, modelAt: modelStat.mtimeMs,
+    binary: config.binary, binaryAt: binaryStat.mtimeMs, mode: config.modelLoadMode ?? 'profile', profiles: config.profiles });
+let timings = {};
+try {
+    const stored = JSON.parse(await fs.readFile(timingsPath, 'utf8'));
+    if (stored.identity === timingIdentity) timings = stored.timings;
+} catch (error) { if (error.code !== 'ENOENT') throw error; }
 let telemetry = null;
 let telemetryAt = 0;
 let telemetryPending;
-const snapshot = async () => {
+const snapshot = async ({ fresh = false } = {}) => {
+    if (fresh) return memorySnapshot();
     if (Date.now() - telemetryAt < 2500 && telemetry) return telemetry;
     telemetryPending ??= memorySnapshot().then((data) => { telemetry = data; telemetryAt = Date.now(); return data; }).finally(() => { telemetryPending = null; });
     return telemetryPending;
@@ -48,20 +66,18 @@ const startComfy = async () => {
     throw new Error('ComfyUI did not become ready.');
 };
 const backend = new NativeBackend(config);
-const freeImages = async () => {
-    await jsonFetch('/free', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ unload_models: true, free_memory: true }) });
-    const deadline = Date.now() + 30000;
-    while (Date.now() < deadline) {
-        const stats = await jsonFetch('/system_stats');
-        if ((stats.devices ?? []).every((device) => device.torch_vram_total < 512 * 1024 * 1024)) { telemetryAt = 0; return; }
-        await new Promise((resolve) => setTimeout(resolve, 250));
-    }
-    throw new Error('ComfyUI accepted free but its model memory has not been released; text will not race the release.');
+const imageCache = new ImageCache({ config, jsonFetch, snapshot });
+const freeImages = async (options = {}) => {
+    await startComfy();
+    const result = await imageCache.free({ ...options, clear: options.clear ?? config.imageCacheMode === 'evict' });
+    telemetryAt = 0;
+    return result;
 };
 const scheduler = new ResidencyScheduler({ config, backend, snapshot, startComfy,
     queue: () => jsonFetch('/queue'),
     freeImages,
-    saveFootprints: (data) => fs.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints });
+    saveFootprints: (data) => fs.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
+    timings, saveTimings: (data) => fs.writeFile(timingsPath, JSON.stringify({ identity: timingIdentity, timings: data }, null, 2)) });
 const readBody = async (req) => {
     const chunks = []; let length = 0;
     for await (const chunk of req) { length += chunk.length; if (length > 8 * 1024 * 1024) throw new Error('Request exceeds 8 MiB.'); chunks.push(chunk); }
@@ -75,7 +91,7 @@ const server = http.createServer(async (req, res) => {
         const origin = req.headers.origin;
         if (origin && !/^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/.test(origin)) { answer(res, 403, { error: 'Use the local ST plugin or tray controls.' }); return; }
         const route = new URL(req.url, 'http://localhost').pathname;
-        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, { ...scheduler.status(), telemetry: await snapshot(), adapter: 'managed', guarding: true, pid: process.pid, configFile, maxContext: 98304 }); return; }
+        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, { ...scheduler.status(), controllerBuild, imageCache: imageCache.last, imageCacheMode: config.imageCacheMode ?? 'warm', telemetry: await snapshot(), adapter: 'managed', guarding: true, pid: process.pid, configFile, maxContext: 98304 }); return; }
         if (req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
             const body = await readBody(req);
             const data = route === '/lease' ? await scheduler.reserve(body) : route === '/renew' ? { renewed: scheduler.renew(body.lease) } : { released: await scheduler.release(body.lease) };
@@ -83,15 +99,27 @@ const server = http.createServer(async (req, res) => {
         }
         if (req.method === 'POST' && route.startsWith('/control/')) {
             const body = await readBody(req);
-            if (route === '/control/load') await scheduler.load(body.profile ?? config.defaultProfile);
+            if (route === '/control/load') {
+                if (body.fitTarget != null && (!config.experiments || !Number.isFinite(body.fitTarget) || body.fitTarget < config.reserves.gpuMiB)) throw new Error('Explicit fit targets require a bounded residency experiment.');
+                await scheduler.load(body.profile ?? config.defaultProfile, { fitTarget: body.fitTarget });
+            }
             else if (route === '/control/unload') await scheduler.unload();
             else if (route === '/control/automatic') scheduler.resume();
             else if (route === '/control/restore') await scheduler.restoreNow();
-            else if (route === '/control/start-comfy') await startComfy();
-            else if (route === '/control/free-images') { const queue = await jsonFetch('/queue'); if (queue.queue_running?.length || queue.queue_pending?.length) throw new Error('ComfyUI is busy; no cache will be freed.'); await scheduler.freeImages(); }
+            else if (route === '/control/start-comfy') await scheduler.exclusive(startComfy);
+            else if (route === '/control/free-images') await scheduler.exclusive(() => freeImages({ clear: typeof body.clear === 'boolean' ? body.clear : undefined }));
+            else if (route === '/control/cache-mode') await scheduler.exclusive(async () => {
+                if (!['warm', 'evict'].includes(body.profile)) throw new Error('Cache mode must be warm or evict.');
+                config.imageCacheMode = body.profile;
+            });
             else if (route === '/control/stop') {
-                if (scheduler.activeText || scheduler.lease || scheduler.imagePending) throw new Error('Finish the active work before stopping the controller.');
-                closing = true; await backend.unload(); if (comfyChild) comfyChild.kill();
+                await scheduler.exclusive(async () => {
+                    if (comfyChild) {
+                        const queue = await jsonFetch('/queue');
+                        if (queue.queue_running?.length || queue.queue_pending?.length) throw new Error('ComfyUI has an existing job; finish it before stopping the controller.');
+                    }
+                    closing = true; scheduler.manualHold = true; await backend.unload(); if (comfyChild) comfyChild.kill();
+                });
                 answer(res, 200, { stopped: true }); server.close(() => process.exit(0)); return;
             } else { answer(res, 404, { error: 'Unknown control.' }); return; }
             answer(res, 200, scheduler.status()); return;
@@ -108,13 +136,17 @@ const server = http.createServer(async (req, res) => {
         const abort = new AbortController();
         res.once('close', () => { if (!res.writableEnded) abort.abort(); });
         await scheduler.text(async () => {
-            if (body && ['/completion', '/v1/completions'].includes(route)) await backend.forRequest(body, abort.signal);
-            else await backend.load(backend.profile ?? config.defaultProfile);
+            if (body && ['/completion', '/v1/completions', '/v1/chat/completions'].includes(route)) await backend.forRequest(body, abort.signal);
+            else await backend.ensure(backend.profile ?? config.defaultProfile);
             const response = await fetch(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
             if (res.destroyed) return;
             res.writeHead(response.status, { 'content-type': response.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store' });
-            if (response.body) await pipeline(Readable.fromWeb(response.body), res); else res.end();
-        }, abort.signal);
+            if (response.body) {
+                const timing = new ResponseTiming(response.headers.get('content-type')?.includes('text/event-stream'));
+                await pipeline(Readable.fromWeb(response.body), timing, res);
+                if (response.ok && timing.timings) await scheduler.recordTiming({ timings: timing.timings }).catch((error) => { scheduler.lastError = error.message; });
+            } else res.end();
+        }, abort.signal, ['/completion', '/v1/completions', '/v1/chat/completions'].includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
     } catch (error) { answer(res, 409, { error: { message: error.message, type: 'local_residency' } }); }
 });
 const timer = setInterval(() => { void scheduler.sampleLease(); void scheduler.restoreIfIdle(); }, 2500);

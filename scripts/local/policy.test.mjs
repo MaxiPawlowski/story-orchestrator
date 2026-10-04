@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { admission, chooseResidency, renderSignature, stableSamples, withinReserve } from './policy.mjs';
+import { admission, chooseResidency, renderSignature, stableSamples, withinReserve, textLatencyDecision } from './policy.mjs';
 
 const snapshot = { gpus: [{ uuid: 'gpu', freeMiB: 8000 }], host: { availableMiB: 6000, commitFreeMiB: 90000 } };
 const reserves = { gpuMiB: 2048, ramMiB: 4096 };
@@ -36,4 +36,18 @@ test('footprints verify only after two consistent observations, never one', () =
     assert.equal(stableSamples([{ gpuMiB: 5000, ramMiB: 2000 }]), false);
     assert.equal(stableSamples([{ gpuMiB: 5000, ramMiB: 2000 }, { gpuMiB: 5100, ramMiB: 2050 }]), true);
     assert.equal(stableSamples([{ gpuMiB: 5000, ramMiB: 2000 }, { gpuMiB: 9000, ramMiB: 2000 }]), false);
+});
+
+test('commit exhaustion and missing telemetry cannot pass a reserve check', () => {
+    assert.equal(withinReserve({ ...snapshot, host: { ...snapshot.host, commitFreeMiB: 1000 } }, reserves), false);
+    assert.equal(withinReserve({ ...snapshot, gpus: [] }, reserves), false);
+    assert.equal(withinReserve({ ...snapshot, host: { availableMiB: 24000 } }, reserves), false);
+});
+
+test('total wait includes reload and prefill, and refuses an unmeasured speed comparison', () => {
+    const timings = { 'fast:full': { loadMs: 22000, promptMs: 1000, tokensPerSecond: 30 }, 'fast:11048': { tokensPerSecond: 3 } };
+    assert.equal(textLatencyDecision({ budget: 16, timings, profile: 'fast', fitTarget: 11048 }).restore, false);
+    assert.equal(textLatencyDecision({ budget: 256, timings, profile: 'fast', fitTarget: 11048 }).restore, true);
+    assert.equal(textLatencyDecision({ budget: 256, timings: {}, profile: 'fast', fitTarget: 11048 }).restore, false);
+    assert.equal(textLatencyDecision({ budget: -1, timings, profile: 'fast', fitTarget: 11048 }).restore, false);
 });

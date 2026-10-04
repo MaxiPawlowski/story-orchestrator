@@ -5,10 +5,16 @@ import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
 
 export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMiB) {
+    const args = [...profile.args];
+    if (config.modelLoadMode) {
+        const at = args.indexOf('--load-mode');
+        if (at >= 0) args.splice(at, 2);
+        args.push('--load-mode', config.modelLoadMode);
+    }
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', '512', '--sleep-idle-seconds', '-1',
-        '--fit', 'on', '--fit-target', String(fitTargetMiB), ...profile.args];
+        '--fit', 'on', '--fit-target', String(fitTargetMiB), ...args];
 }
 
 export class NativeBackend {
@@ -21,32 +27,36 @@ export class NativeBackend {
         this.desiredProfile = null;
         this.loading = null;
         this.lastError = null;
+        this.loadMs = null;
+        this.loads = 0;
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
         const fitTarget = Number.isFinite(options.fitTarget) ? Math.ceil(options.fitTarget) : null;
-        if (this.loading) await this.loading;
+        while (this.loading) await this.loading;
         if (this.child && this.profile === name && this.fitTarget === fitTarget) return;
         const profile = this.config.profiles[name];
         if (!profile || profile.disabled) throw new Error('That residency profile is unavailable.');
         this.loading = this.start(name, profile, fitTarget);
         try { await this.loading; }
-        catch (error) { this.lastError = error.message; await this.unload(); throw error; }
+        catch (error) { this.lastError = error.message; await this.stopOwned(); throw error; }
         finally { this.loading = null; }
     }
 
     async ensure(name = this.profile ?? this.config.defaultProfile) {
+        while (this.loading) await this.loading;
         return this.load(name, { fitTarget: this.fitTarget });
     }
 
     async start(name, profile, fitTarget) {
-        await this.unload();
+        const began = Date.now();
+        await this.stopOwned();
         let occupied = false;
         try { await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
         if (occupied) throw new Error('The backend port is owned by another server; it will not be stopped.');
         const snapshot = await memorySnapshot();
         const gpu = snapshot.gpus[0];
-        const gpuBudget = gpu.freeMiB - this.config.reserves.gpuMiB;
+        const gpuBudget = gpu.freeMiB - Math.max(this.config.reserves.gpuMiB, fitTarget ?? 0);
         const spillMiB = Math.max(0, (profile.estimatedGpuMiB ?? 21500) - gpuBudget);
         const ramRequired = (profile.estimatedRamMiB ?? 6000) + spillMiB;
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB || snapshot.host.commitFreeMiB < ramRequired + this.config.reserves.ramMiB) {
@@ -73,6 +83,8 @@ export class NativeBackend {
                         this.fitTarget = fitTarget;
                         if (fitTarget === null || this.desiredProfile === null) this.desiredProfile = name;
                         this.lastError = null;
+                        this.loadMs = Date.now() - began;
+                        this.loads += 1;
                         return;
                     }
                     admissionUntil ??= Date.now() + admissionWindowMs;
@@ -85,6 +97,11 @@ export class NativeBackend {
     }
 
     async unload() {
+        while (this.loading) await this.loading.catch(() => {});
+        await this.stopOwned();
+    }
+
+    async stopOwned() {
         this.fitTarget = null;
         const child = this.child;
         if (!child) return;
@@ -97,6 +114,7 @@ export class NativeBackend {
     async forRequest(body, signal) {
         await this.ensure(this.profile ?? this.config.defaultProfile);
         if (typeof body.prompt !== 'string') {
+            this.desiredProfile = 'normal';
             await this.ensure('normal');
             return;
         }
@@ -110,8 +128,8 @@ export class NativeBackend {
         if (!Number.isInteger(output) || output < 0 || output > 98304) throw new Error('Set a bounded output budget before generating.');
         const required = data.tokens.length + output + 256;
         if (required > 98304) throw new Error('Prompt and output exceed the preserved 98k limit; no text was truncated.');
-        if (required > 32768 && this.profile === 'fast') await this.ensure('normal');
+        if (required > 32768 && this.profile === 'fast') { this.desiredProfile = 'normal'; await this.ensure('normal'); }
     }
 
-    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), lastError: this.lastError }; }
+    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError }; }
 }

@@ -1,0 +1,1138 @@
+{
+  "mode": "auto",
+  "family": "scene",
+  "modelFiles": [
+    {
+      "kind": "checkpoints",
+      "name": "waiIllustriousSDXL_v170.safetensors"
+    }
+  ],
+  "replyTokens": 128,
+  "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+  "estimatedMiB": 9059,
+  "before": {
+    "at": "2026-10-04T17:14:54.154Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 1461,
+        "freeMiB": 22866,
+        "utilization": 5
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 19914.30859375,
+      "commitFreeMiB": 72515.68359375,
+      "pagesInputPerSec": 0
+    }
+  },
+  "textBefore": {
+    "elapsedMs": 21450,
+    "length": 647,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 25,
+      "prompt_ms": 112.067,
+      "prompt_per_token_ms": 4.482679999999999,
+      "prompt_per_second": 223.08083557157775,
+      "predicted_n": 128,
+      "predicted_ms": 4778.551,
+      "predicted_per_token_ms": 37.62638582677166,
+      "predicted_per_second": 26.577094186082768
+    },
+    "status": {
+      "phase": "text",
+      "activeText": 0,
+      "waitingText": 0,
+      "imageLease": false,
+      "text": {
+        "profile": "fast",
+        "desiredProfile": "fast",
+        "fitTargetMiB": null,
+        "pid": 19932,
+        "loading": false,
+        "loadMs": 16549,
+        "loads": 1,
+        "lastError": null
+      },
+      "objective": "total-wait",
+      "timings": {
+        "fast:full": {
+          "loadMs": 16549,
+          "tokensPerSecond": 26.577094186082768,
+          "promptMs": 447.146,
+          "samples": 5,
+          "at": "2026-10-04T17:15:15.635Z"
+        }
+      },
+      "lastTextDecision": null,
+      "lastDecision": null,
+      "lastNeedGpuMiB": null,
+      "lastError": null,
+      "imageCache": null,
+      "imageCacheMode": "evict",
+      "telemetry": {
+        "at": "2026-10-04T17:15:16.326Z",
+        "gpus": [
+          {
+            "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+            "totalMiB": 24576,
+            "usedMiB": 21796,
+            "freeMiB": 2531,
+            "utilization": 95
+          }
+        ],
+        "host": {
+          "totalMiB": 32677.85546875,
+          "availableMiB": 19223.4375,
+          "commitFreeMiB": 52099.23046875,
+          "pagesInputPerSec": 0
+        }
+      },
+      "adapter": "managed",
+      "guarding": true,
+      "pid": 5976,
+      "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+      "maxContext": 98304
+    }
+  },
+  "needGpuMiB": 9059,
+  "admissionMs": 2567,
+  "lease": {
+    "lease": "e0d6d19a-8938-4ffc-927a-6146affefd30",
+    "brokered": true,
+    "decision": "swap-text"
+  },
+  "admitted": {
+    "at": "2026-10-04T17:15:19.575Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 1330,
+        "freeMiB": 22997,
+        "utilization": 15
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 20934.75390625,
+      "commitFreeMiB": 74411.2578125,
+      "pagesInputPerSec": 0
+    }
+  },
+  "render": {
+    "elapsedMs": 37444,
+    "promptId": "5ccfcbaa-4c46-4579-b0bb-258f4842dc8f",
+    "imageBytes": 1407489,
+    "image": "C:\\dev\\so-lanes\\0\\debug\\local-residency\\render-scene-auto-1791134157016.png"
+  },
+  "afterRender": {
+    "at": "2026-10-04T17:15:57.725Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 8066,
+        "freeMiB": 16261,
+        "utilization": 3
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 18918.80078125,
+      "commitFreeMiB": 65097.51171875,
+      "pagesInputPerSec": 3322
+    }
+  },
+  "releaseMs": 4264,
+  "textAfter": {
+    "elapsedMs": 26626,
+    "length": 647,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 25,
+      "prompt_ms": 105.324,
+      "prompt_per_token_ms": 4.21296,
+      "prompt_per_second": 237.3628042991151,
+      "predicted_n": 128,
+      "predicted_ms": 3816.492,
+      "predicted_per_token_ms": 30.05111811023622,
+      "predicted_per_second": 33.2766320484885
+    },
+    "status": {
+      "phase": "text",
+      "activeText": 0,
+      "waitingText": 0,
+      "imageLease": false,
+      "text": {
+        "profile": "fast",
+        "desiredProfile": "fast",
+        "fitTargetMiB": null,
+        "pid": 22724,
+        "loading": false,
+        "loadMs": 22703,
+        "loads": 2,
+        "lastError": null
+      },
+      "objective": "total-wait",
+      "timings": {
+        "fast:full": {
+          "loadMs": 22703,
+          "tokensPerSecond": 33.2766320484885,
+          "promptMs": 447.146,
+          "samples": 6,
+          "at": "2026-10-04T17:16:28.615Z"
+        }
+      },
+      "lastTextDecision": null,
+      "lastDecision": "swap-text",
+      "lastNeedGpuMiB": 9059,
+      "lastError": null,
+      "imageCache": {
+        "at": "2026-10-04T17:16:01.973Z",
+        "mode": "evicted",
+        "ramRequiredMiB": 5500,
+        "availableMiB": 16360.95703125,
+        "admitted": true
+      },
+      "imageCacheMode": "evict",
+      "telemetry": {
+        "at": "2026-10-04T17:16:29.292Z",
+        "gpus": [
+          {
+            "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+            "totalMiB": 24576,
+            "usedMiB": 21848,
+            "freeMiB": 2479,
+            "utilization": 85
+          }
+        ],
+        "host": {
+          "totalMiB": 32677.85546875,
+          "availableMiB": 18103.30078125,
+          "commitFreeMiB": 50688.19140625,
+          "pagesInputPerSec": 0
+        }
+      },
+      "adapter": "managed",
+      "guarding": true,
+      "pid": 5976,
+      "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+      "maxContext": 98304
+    }
+  },
+  "totalCycleMs": 72965,
+  "controllerAfter": {
+    "phase": "text",
+    "activeText": 0,
+    "waitingText": 0,
+    "imageLease": false,
+    "text": {
+      "profile": "fast",
+      "desiredProfile": "fast",
+      "fitTargetMiB": null,
+      "pid": 22724,
+      "loading": false,
+      "loadMs": 22703,
+      "loads": 2,
+      "lastError": null
+    },
+    "objective": "total-wait",
+    "timings": {
+      "fast:full": {
+        "loadMs": 22703,
+        "tokensPerSecond": 33.2766320484885,
+        "promptMs": 447.146,
+        "samples": 6,
+        "at": "2026-10-04T17:16:28.615Z"
+      }
+    },
+    "lastTextDecision": null,
+    "lastDecision": "swap-text",
+    "lastNeedGpuMiB": 9059,
+    "lastError": null,
+    "imageCache": {
+      "at": "2026-10-04T17:16:01.973Z",
+      "mode": "evicted",
+      "ramRequiredMiB": 5500,
+      "availableMiB": 16360.95703125,
+      "admitted": true
+    },
+    "imageCacheMode": "evict",
+    "telemetry": {
+      "at": "2026-10-04T17:16:29.292Z",
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 85
+        }
+      ],
+      "host": {
+        "totalMiB": 32677.85546875,
+        "availableMiB": 18103.30078125,
+        "commitFreeMiB": 50688.19140625,
+        "pagesInputPerSec": 0
+      }
+    },
+    "adapter": "managed",
+    "guarding": true,
+    "pid": 5976,
+    "configFile": "C:/dev/tools/story-orchestrator-local/config.json",
+    "maxContext": 98304
+  },
+  "ok": true,
+  "samples": [
+    {
+      "at": 1791134120658,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 25
+        }
+      ]
+    },
+    {
+      "at": 1791134121653,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134122654,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134123669,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134124668,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134125682,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134126684,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134127699,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 7
+        }
+      ]
+    },
+    {
+      "at": 1791134128711,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 9
+        }
+      ]
+    },
+    {
+      "at": 1791134129721,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 14
+        }
+      ]
+    },
+    {
+      "at": 1791134130728,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 16
+        }
+      ]
+    },
+    {
+      "at": 1791134131739,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134132752,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 11
+        }
+      ]
+    },
+    {
+      "at": 1791134133759,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 11
+        }
+      ]
+    },
+    {
+      "at": 1791134134771,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 7
+        }
+      ]
+    },
+    {
+      "at": 1791134135779,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 6270,
+          "freeMiB": 18057,
+          "utilization": 9
+        }
+      ]
+    },
+    {
+      "at": 1791134136808,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 6
+        }
+      ]
+    },
+    {
+      "at": 1791134137800,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 8
+        }
+      ]
+    },
+    {
+      "at": 1791134138808,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 11
+        }
+      ]
+    },
+    {
+      "at": 1791134139816,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 9
+        }
+      ]
+    },
+    {
+      "at": 1791134140827,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 11
+        }
+      ]
+    },
+    {
+      "at": 1791134141839,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134142852,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7806,
+          "freeMiB": 16521,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134143881,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7924,
+          "freeMiB": 16403,
+          "utilization": 30
+        }
+      ]
+    },
+    {
+      "at": 1791134144876,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 7930,
+          "freeMiB": 16397,
+          "utilization": 3
+        }
+      ]
+    },
+    {
+      "at": 1791134145889,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8058,
+          "freeMiB": 16269,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134146899,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8220,
+          "freeMiB": 16107,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134147913,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 3
+        }
+      ]
+    },
+    {
+      "at": 1791134148956,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 96
+        }
+      ]
+    },
+    {
+      "at": 1791134149950,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 100
+        }
+      ]
+    },
+    {
+      "at": 1791134150944,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 100
+        }
+      ]
+    },
+    {
+      "at": 1791134151974,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 95
+        }
+      ]
+    },
+    {
+      "at": 1791134152981,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 100
+        }
+      ]
+    },
+    {
+      "at": 1791134153973,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 100
+        }
+      ]
+    },
+    {
+      "at": 1791134154984,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8412,
+          "freeMiB": 15915,
+          "utilization": 96
+        }
+      ]
+    },
+    {
+      "at": 1791134155994,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 10754,
+          "freeMiB": 13573,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134157007,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8066,
+          "freeMiB": 16261,
+          "utilization": 3
+        }
+      ]
+    },
+    {
+      "at": 1791134158032,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8066,
+          "freeMiB": 16261,
+          "utilization": 2
+        }
+      ]
+    },
+    {
+      "at": 1791134159043,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8066,
+          "freeMiB": 16261,
+          "utilization": 35
+        }
+      ]
+    },
+    {
+      "at": 1791134160038,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 8066,
+          "freeMiB": 16261,
+          "utilization": 39
+        }
+      ]
+    },
+    {
+      "at": 1791134161048,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1442,
+          "freeMiB": 22885,
+          "utilization": 34
+        }
+      ]
+    },
+    {
+      "at": 1791134162060,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1442,
+          "freeMiB": 22885,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134163051,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1447,
+          "freeMiB": 22880,
+          "utilization": 5
+        }
+      ]
+    },
+    {
+      "at": 1791134164063,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 1670,
+          "freeMiB": 22657,
+          "utilization": 3
+        }
+      ]
+    },
+    {
+      "at": 1791134165072,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 17990,
+          "freeMiB": 6337,
+          "utilization": 10
+        }
+      ]
+    },
+    {
+      "at": 1791134166077,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 16
+        }
+      ]
+    },
+    {
+      "at": 1791134167093,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 17
+        }
+      ]
+    },
+    {
+      "at": 1791134168106,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 19
+        }
+      ]
+    },
+    {
+      "at": 1791134169102,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 18
+        }
+      ]
+    },
+    {
+      "at": 1791134170116,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 19
+        }
+      ]
+    },
+    {
+      "at": 1791134171145,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 18
+        }
+      ]
+    },
+    {
+      "at": 1791134172160,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 17
+        }
+      ]
+    },
+    {
+      "at": 1791134173158,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 18
+        }
+      ]
+    },
+    {
+      "at": 1791134174173,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 19
+        }
+      ]
+    },
+    {
+      "at": 1791134175187,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 18
+        }
+      ]
+    },
+    {
+      "at": 1791134176201,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 17
+        }
+      ]
+    },
+    {
+      "at": 1791134177198,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 18
+        }
+      ]
+    },
+    {
+      "at": 1791134178210,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19478,
+          "freeMiB": 4849,
+          "utilization": 16
+        }
+      ]
+    },
+    {
+      "at": 1791134179223,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19515,
+          "freeMiB": 4812,
+          "utilization": 28
+        }
+      ]
+    },
+    {
+      "at": 1791134180231,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19515,
+          "freeMiB": 4812,
+          "utilization": 14
+        }
+      ]
+    },
+    {
+      "at": 1791134181247,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19418,
+          "freeMiB": 4909,
+          "utilization": 17
+        }
+      ]
+    },
+    {
+      "at": 1791134182259,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19418,
+          "freeMiB": 4909,
+          "utilization": 20
+        }
+      ]
+    },
+    {
+      "at": 1791134183272,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 19418,
+          "freeMiB": 4909,
+          "utilization": 19
+        }
+      ]
+    },
+    {
+      "at": 1791134184275,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21838,
+          "freeMiB": 2489,
+          "utilization": 2
+        }
+      ]
+    },
+    {
+      "at": 1791134185288,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 96
+        }
+      ]
+    },
+    {
+      "at": 1791134186303,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 96
+        }
+      ]
+    },
+    {
+      "at": 1791134187316,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 94
+        }
+      ]
+    },
+    {
+      "at": 1791134188332,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 96
+        }
+      ]
+    },
+    {
+      "at": 1791134189334,
+      "gpus": [
+        {
+          "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+          "totalMiB": 24576,
+          "usedMiB": 21848,
+          "freeMiB": 2479,
+          "utilization": 1
+        }
+      ]
+    }
+  ],
+  "after": {
+    "at": "2026-10-04T17:16:29.974Z",
+    "gpus": [
+      {
+        "uuid": "GPU-6bc09288-7538-b818-b070-7664b87c0289",
+        "totalMiB": 24576,
+        "usedMiB": 21848,
+        "freeMiB": 2479,
+        "utilization": 1
+      }
+    ],
+    "host": {
+      "totalMiB": 32677.85546875,
+      "availableMiB": 18100.140625,
+      "commitFreeMiB": 50695.3515625,
+      "pagesInputPerSec": 179
+    }
+  }
+}
