@@ -219,7 +219,7 @@ C4, C5, C7.
 
 | Item | Where |
 |---|---|
-| A index | `runtime/playsIndex.ts` (pure: rows, cap 500, F14, saga = 2+ chapters, Continue rows, group view), `runtime/playsIndexHost.ts` (written on manager notifications when a field changes; dropped when the open chat settles with no story, and on `CHAT_DELETED`/`GROUP_CHAT_DELETED`; no write before ST loads extension settings); key `extensionSettings["story-orchestrator"].plays` |
+| A index | `runtime/playsIndex.ts` (pure: rows, cap 500, F14, saga = authored `kind`, changed 2026-10-03, Continue rows, group view), `runtime/playsIndexHost.ts` (written on manager notifications when a field changes; dropped when the open chat settles with no story, and on `CHAT_DELETED`/`GROUP_CHAT_DELETED`; no write before ST loads extension settings); key `extensionSettings["story-orchestrator"].plays` |
 | A backfill | `runtime/playsBackfill.ts` (pure runner: cap 200, one chat per 1.5 s, paused while `body[data-generating]`, resumable, never repeated once `done`), started 15 s after load; reads the `/api/chats/group/get` header row (`stHost/groupChatFiles.ts`); key `playsBackfill` |
 | B badges + C2 | `stHost/charListBadges.ts` (group list, welcome recent chats, past chats; on `.ch_name`, never `.avatar`; card on hover/focus, Escape closes; `dispose` removes all), composed by `runtime/presenceBadges.ts`; CSS exception `.so-story-badge` / `.so-story-card` + tokens `--so-badge-story` / `--so-badge-saga`; `architecture.test.ts` pins it as the only list-DOM toucher |
 | C1 | `components/settings/ContinueList.tsx` in the Continue entry point (`#so-continue-list`); opens via `openStoryGroupChat` (the welcome screen's path: `openGroupById`, then `openGroupChat`) |

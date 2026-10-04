@@ -58,7 +58,7 @@ A branch made from a chat that plays a story does not pick the story up on its o
 ## Finding your story chats
 
 Groups and chats that play a story carry a small icon in SillyTavern's lists: the group list, the welcome
-screen's recent chats and a group's past chats. A saga, a story with two or more chapters, has its own icon.
+screen's recent chats and a group's past chats. A saga, a story its author marks as one (a whole campaign rather than one of its acts), has its own icon.
 Hover or focus the icon for a card with the story, its chapter, where you are and when you last played.
 
 **Your stories**, under Continue in the extension's settings, lists every chat that plays a story, newest

@@ -117,8 +117,10 @@ from Help. A drawer opened with no story says what to do next (v2.7 01 deviation
 
 ### Saga vs act indicator (decision 3, review A8)
 
-- **Rule (pure):** a story whose `chapters[]` holds 2 or more chapters is a **saga**; any other story is a **story**
-  (single act). `storyKind(story)` in a pure module, unit-tested on the campaign shapes (the Saga, an act, the tutorial).
+- **Rule (pure, changed 2026-10-03):** an optional authored `kind: "saga" | "story"` decides it, default `story`;
+  the chapter count never does. `storyKind(story)` returns `story.kind ?? "story"`, unit-tested with the field,
+  without it, and with chapters present (they are ignored). Chapter count was the original rule but every Adolion act
+  splits into 2–3 chapters, so it read the whole campaign and each act alike (v2.7 07 A6 finding).
 - **Where:** v2.7 06's group badge carries it: a distinct icon and colour token for a saga, with the kind in the
   badge's `title` and accessible name (colour is never the only signal). Built in v2.7 06 B; this plan owns the rule.
 
@@ -187,8 +189,8 @@ Claude-A note on 03's fallback refs, Sol split item 1 (static half here, LLM dra
   section text ≤ 1,200 chars, heading ≤ 80, title/tone/image ≤ 240, start label ≤ 40, `{{macro}}` refused (shown as
   written). Chapters read it in `validate/chapters.ts`.
 - **View.** `engine/briefing.ts`: `composeBriefing` (authored, else one section from `player_intro`; `description` never
-  read), `composeChapterBriefing` (for v2.7 06's C3 card), `briefingParagraphs`, **`storyKind`** (≥ 2 chapters = `saga`,
-  else `story`; exported from `@engine` for v2.7 06's badge).
+  read), `composeChapterBriefing` (for v2.7 06's C3 card), `briefingParagraphs`, **`storyKind`** (authored `kind` = `saga`,
+  else `story`, changed 2026-10-03; exported from `@engine` for v2.7 06's badge).
 - **Diagnostic `briefing-spoiler-risk`** (`studio/briefingDiagnostics.ts`, warning, consequence declared): story briefing
   vs later checkpoints (names, `player_name`s, id-shaped ids), enum values the start does not set, members the start
   checkpoint's `cast_changes.disable` mutes (with aliases); a chapter briefing vs checkpoints not yet reached at that

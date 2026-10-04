@@ -4,12 +4,12 @@
 
 Guide topic `story-basics` (the Studio's "How to write this" and the wizard's `readGuide` show the same topic).
 
-Fields: `title`, `description` (both required), `id`, `version`, `player_intro` (`schema.ts` `StoryV2`, `validate.ts` `readHeader`, `validate/storyOptions.ts` `readStoryOptions`).
+Fields: `title`, `description` (both required), `id`, `version`, `player_intro`, `kind` (`schema.ts` `StoryV2`, `validate.ts` `readHeader`, `validate/storyOptions.ts` `readStoryOptions`, `engine/briefing.ts` `storyKind`).
 
-- **What it does.** `title` and `description` tell the narrator, the wizard and the author what the story is. `player_intro` is the text a player reads before the first beat. `id` is the story's identity: a lowercase slug (letters, digits, `-`, `_`, at most 64 characters) that the library and every chat key the story by. `version` is a whole number from 1 that rises with each save.
-- **Good.** `"title": "The Pawnbroker's Debt"`, a two-sentence description of the premise and the stakes, and a `player_intro` that sets the scene without the twist.
-- **Bad.** A description that is the plot outline with the ending in it; a `player_intro` that names the culprit.
-- **If wrong.** Each chat pins a full copy of the story it plays. Changing the `id` after chats play the story makes a different story: the old chats keep the old copy and never see your edits. A story without an `id` gets one derived from its title on first save.
+- **What it does.** `title` and `description` tell the narrator, the wizard and the author what the story is. `player_intro` is the text a player reads before the first beat. `id` is the story's identity: a lowercase slug (letters, digits, `-`, `_`, at most 64 characters) that the library and every chat key the story by. `version` is a whole number from 1 that rises with each save. `kind` is `"saga"` or `"story"` (the default when absent): a saga gets its own icon and label on the group list, recent chats and the Continue list. Only those player badges read it; the model never does. Chapters do not make a story a saga: a single act split into chapters is still a `story`.
+- **Good.** `"title": "The Pawnbroker's Debt"`, a two-sentence description of the premise and the stakes, and a `player_intro` that sets the scene without the twist. `"kind": "saga"` only on the story that plays a whole campaign.
+- **Bad.** A description that is the plot outline with the ending in it; a `player_intro` that names the culprit; `"kind": "saga"` on every act of a campaign, so the badge no longer tells the campaign from its acts.
+- **If wrong.** Each chat pins a full copy of the story it plays. Changing the `id` after chats play the story makes a different story: the old chats keep the old copy and never see your edits. A story without an `id` gets one derived from its title on first save. A `kind` other than `"saga"` or `"story"` is refused and the story does not load (`story-kind-invalid`).
 
 ---
 

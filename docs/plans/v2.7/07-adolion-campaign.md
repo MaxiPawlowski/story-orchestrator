@@ -109,7 +109,8 @@ user is playtesting). No campaign content is quoted here.
   **Finding:** the plan 05 rule (≥ 2 chapters = saga) does not tell the full campaign from a single act on this
   campaign, so the badge colour will not carry the distinction the user asked for (plan 05 decision 3). Not fixed here
   (product rule, owned by v2.7 05/06); needs a rule change (e.g. an authored kind, or interludes / cross-act chapters)
-  or a decision to accept it.
+  or a decision to accept it. **Resolved 2026-10-03:** the authored `kind` field replaced the chapter rule (plan 05
+  §Saga vs act indicator); the campaign marks only the Saga `kind: "saga"`.
 
 ### Gates
 
