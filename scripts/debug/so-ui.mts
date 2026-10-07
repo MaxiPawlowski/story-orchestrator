@@ -931,6 +931,7 @@ const PLAYER_FORBIDDEN = [
 // and no author-only panel may be *reachable* on a player-visible surface. Text needles catch a
 // label; these catch the control itself, including one rendered with its label changed.
 export const PLAYER_FORBIDDEN_SELECTORS = [
+  '#so-guide [data-audience="author"]', '[data-so="guide-page"][data-doc^="author/"]', '[data-so="guide-nav-item"][data-page^="author/"]',
   '#so-edit-story', '#so-update-story', '#so-fix-with-wizard', '#so-stagecraft',
   '[data-so="curator-proposal"]', '[data-so="curator-op"]', '[data-so="curator-accept"]', '[data-so="curator-reject"]',
   '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',

@@ -403,7 +403,7 @@ test('planted DOM: roll chips rendered under a player message are caught by the 
   assert.ok(findings.includes('[data-so="roll-chip"] reachable under a message'), findings.join(' | '));
 });
 
-test('planted DOM: an author page of the guide reader in player mode is caught by the sweep', { todo: 'so-ui.mts PLAYER_FORBIDDEN_SELECTORS has no guide-reader selector (#so-guide [data-audience="author"], [data-so="guide-page"][data-doc^="author/"]); owned by another agent' }, async () => {
+test('planted DOM: an author page of the guide reader in player mode is caught by the sweep', async () => {
   const findings = await sweepPlanted({ panels: [{ tag: 'section', id: 'so-guide', children: [
     { tag: 'nav', attrs: { 'data-so': 'guide-nav' }, children: [{ attrs: { 'data-audience': 'author' }, text: 'Writing a story' }] },
     { attrs: { 'data-so': 'guide-page', 'data-doc': 'author/README.md' }, text: 'Writing a story for Story Orchestrator' },
