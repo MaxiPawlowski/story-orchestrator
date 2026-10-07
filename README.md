@@ -54,10 +54,10 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 ## Quick start
 
 1. **Memory model.** Make a Connection Manager profile (with the model's instruct template), pick it as the
-   **Memory model profile** under **General setup**, and press **Test memory model**. It is install-wide.
+   **Memory model profile** under **Memory**, and press **Test memory model**. It is install-wide.
 2. **A story.** **Start → Import a story** and load `examples/sun-ruins/quest-for-the-sun-ruins.json` (it needs the
    four cards, the group and the lorebook in that folder; **Fix with wizard** can create them), or turn on the wizard
-   under **Author services** and use **New story (wizard)**.
+   under **Authoring** and use **New story (wizard)**.
 3. **Play** in the story's group chat. The story bar above the chat box opens the drawer: where you are, what
    happened, what is open. **Repair** names anything missing.
 
@@ -76,7 +76,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Characters | Motives and inner voice | Per-character aims steer replies without narrating for the player (inner voice off by default). |
 | World | Story lore | A story's lorebooks switch on only in its own chats, scene by scene. |
 | World | World Info curator | Proposes lorebook updates inside the story's declared books; you review them. |
-| World | Backgrounds, illustrations, sprites | Checkpoint backgrounds; ComfyUI illustrations; the sprite stage (optional). |
+| Images | Backgrounds, illustrations, sprites | Checkpoint backgrounds; ComfyUI illustrations; the sprite stage (optional). |
 | Judge | Judgment model (optional) | Fast picks for speakers, lore, memory checks and scene tracking; never blocks. |
 | Authoring | Checkpoint Studio | Visual editor with consequence-first diagnostics and safe saves. |
 | Authoring | Setup wizard and story agent | Premise to playable story; creates cards, lorebook and group only with your OK. |
@@ -84,7 +84,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 
 ## Illustrations and scope
 
-Images are optional and need your own ComfyUI and an image-prompt profile (**General setup → Image service**). Install
+Images are optional and need your own ComfyUI and an image-prompt profile (**Images → Image service**). Install
 settings decide whether automation is allowed; a story can ask for art at its own moments; each chat can pause it or
 draw on demand from **Overview → Illustrations**. Change the default image models to ones your ComfyUI has. The GPU
 plugin is optional; configure its adapter when local text and image models need to share one GPU.

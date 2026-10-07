@@ -26,7 +26,7 @@ jest.mock("@services/STAPI", () => ({
     extensionSettings: {
       "story-orchestrator": {
         // What the install actually holds: a configured memory profile.
-        settings: { extraction: { enabled: true, profileId: "artemis-memory", cadence: 7, stabilityLag: 0, reconciliationMultiplier: 1.5 } },
+        settings: { extraction: { enabled: true, profileId: "artemis-memory", cadence: 7, stabilityLag: 0 } },
       },
     },
   }),

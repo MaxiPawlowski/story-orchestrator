@@ -10,6 +10,7 @@ import type { WriteResult } from "@utils/writeResult";
 import { guideUrl } from "@features/registry";
 import { settingHelp } from "@features/settingsCopy";
 import { log } from "@utils/log";
+import { DEV_ONLY_JUDGE_USES } from "@runtime/settingsModel";
 import { Advanced, CheckRow, FieldLabel } from "./Field";
 
 export interface JudgeSettingsPatch {
@@ -35,6 +36,9 @@ export interface JudgeSettingsGroupProps {
   onRefresh(): void;
   onRunSelfTest(): void;
 }
+
+export const offeredJudgeUses = (uses: readonly JudgeUseKey[], authorView: boolean, dev: boolean = __SO_DEV__): JudgeUseKey[] =>
+  uses.filter((use) => (authorView || !AUTHOR_JUDGE_USES.includes(use)) && (dev || !(DEV_ONLY_JUDGE_USES as readonly string[]).includes(use)));
 
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
@@ -84,7 +88,7 @@ interface JudgeUseRowsProps {
 
 const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange }: JudgeUseRowsProps) => (
   <div className="flex flex-col gap-1 pl-4">
-    {builtUses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use)).map((use) => {
+    {offeredJudgeUses(builtUses, authorView).map((use) => {
       const copy = JUDGE_USE_COPY[use];
       const dependency = JUDGE_USE_DEPENDENCIES[use];
       const blocked = dependency && !settings.uses[dependency] ? `Needs "${JUDGE_USE_COPY[dependency].label}" first.` : null;
@@ -224,7 +228,7 @@ export function JudgeSettingsGroup({
         <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
       </Advanced>
       <JudgeProviderNotices settings={settings} status={status} providers={inUse} onChange={onChange} />
-      {authorView && <div className="flex flex-wrap items-center gap-2 pl-4 text-sm">
+      {authorView && <Advanced id="so-judge-expansion-advanced" label="Outlines for the road ahead"><div className="flex flex-wrap items-center gap-2 text-sm">
         <FieldLabel htmlFor="so-judge-expansion-variants" setting="judge.expansion.variants" />
         <select
           id="so-judge-expansion-variants"
@@ -246,7 +250,7 @@ export function JudgeSettingsGroup({
           <option value="code">the judge's score</option>
           <option value="llm">the story model</option>
         </select>
-      </div>}
+      </div></Advanced>}
       {/* v2.3 plan 09: "enabled" is not "working". What is on and doing nothing says so here rather
           than sitting in the same list as the measured uses. */}
       {concerns.length > 0 && (

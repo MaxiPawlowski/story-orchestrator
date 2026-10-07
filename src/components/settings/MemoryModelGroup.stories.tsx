@@ -6,7 +6,7 @@ import { MemoryModelGroup } from "./MemoryModelGroup";
 
 const snapshot = (settings: Record<string, unknown> = {}): RuntimeSnapshot =>
   ({
-    extraction: { settings: { enabled: true, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0, ...settings } },
+    extraction: { settings: { enabled: true, profileId: null, cadence: 3, stabilityLag: 0, ...settings } },
     memory: { settings: { epistemicLedgerCapable: true } },
     roleRoutes: [],
     modelCallRing: [],

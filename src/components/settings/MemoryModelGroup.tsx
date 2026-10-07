@@ -40,17 +40,6 @@ const AdvancedReads = ({ settings, manager }: { settings: Settings; manager: Run
           onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
       </div>
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-reconcile" setting="extraction.reconciliationMultiplier" />
-        <input
-          id="so-extraction-reconcile"
-          type="number"
-          min={1}
-          step={0.1}
-          value={settings.reconciliationMultiplier}
-          onChange={(event) => manager.setExtractionSettings({ reconciliationMultiplier: Math.max(1, Number(event.target.value) || 1) })}
-        />
-      </div>
-      <div className="flex flex-col gap-1">
         <FieldLabel htmlFor="so-extraction-lag" setting="extraction.stabilityLag" />
         <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag}
           onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />

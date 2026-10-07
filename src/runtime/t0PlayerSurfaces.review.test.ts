@@ -21,7 +21,7 @@ const adolion = (labels?: Record<string, string>): NormalizedStoryV2 => parseSto
   roster: [],
 });
 
-const idle = derivePipelineStatus({ settings: { enabled: true, profileId: "p", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }, audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } as Partial<ExtractionRuntimeState> as ExtractionRuntimeState);
+const idle = derivePipelineStatus({ settings: { enabled: true, profileId: "p", cadence: 3, stabilityLag: 0 }, audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } as Partial<ExtractionRuntimeState> as ExtractionRuntimeState);
 
 const narrative = (overrides: Partial<NarrativeInput>) => buildNarrativeStatus({
   storyTitle: "Adventurer's Road", checkpointName: "The Adventurer's Guild, Aegis City", objective: null, lastTransition: null, openThreads: [], canon: "",

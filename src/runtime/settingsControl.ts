@@ -24,7 +24,7 @@ export class SettingsControl {
     this.refresh();
   }
 
-  pacing(settings: Partial<PacingSettings>) {
+  pacing(settings: Partial<Omit<PacingSettings, "alpha">>) {
     const { shapeOverride, ...global } = settings;
     if (Object.keys(global).length) setGlobalSettings({ pacing: global });
     const extras = this.deps.extras();

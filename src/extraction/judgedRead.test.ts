@@ -46,7 +46,7 @@ describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
 
 describe("scheduler and stall planning for the judge (v2.2 plan 06)", () => {
   it("remembers the boundary it queued a cadence read on", () => {
-    const host = { getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }), onSchedulerChange: () => undefined, getStory: () => null, getEngineState: () => null } as unknown as SchedulerHost;
+    const host = { getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 3, stabilityLag: 0 }), onSchedulerChange: () => undefined, getStory: () => null, getEngineState: () => null } as unknown as SchedulerHost;
     const scheduler = new ExtractionScheduler(host);
     scheduler.onBoundary(3, false, 5);
     expect(scheduler.cadenceQueuedAt(3)).toBe(true);

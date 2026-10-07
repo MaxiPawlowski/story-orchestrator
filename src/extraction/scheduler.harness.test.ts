@@ -22,7 +22,7 @@ const read = runSharedRead as jest.Mock;
 const HARNESS = "harness:claude:sonnet";
 
 function harness(readRoute: string, heavyRoute: string | null) {
-  const settings: SchedulerSettings = { enabled: true, profileId: readRoute, cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: readRoute, cadence: 1, stabilityLag: 0 };
   const probed: string[] = [];
   const answers: ProbeResult[] = [];
   const applied: number[] = [];

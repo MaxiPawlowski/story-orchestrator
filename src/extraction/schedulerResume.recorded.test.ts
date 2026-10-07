@@ -50,7 +50,7 @@ const windows = () => read.mock.calls.map((call) => `${call[0].window.from}-${ca
 const reasons = () => read.mock.calls.map((call) => call[0].reason);
 
 function harness(lastMessageId: () => number) {
-  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: recorded.cadence, reconciliationMultiplier: 2, stabilityLag: recorded.stabilityLag };
+  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: recorded.cadence, stabilityLag: recorded.stabilityLag };
   const host: SchedulerHost = {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: lastMessageId() }) as unknown as EngineState,

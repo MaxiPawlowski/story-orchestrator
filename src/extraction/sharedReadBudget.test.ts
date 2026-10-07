@@ -146,7 +146,7 @@ describe("v2.4 plan 03 D5: the scheduler's reads carry the budget from their set
     const host = {
       getStory: () => s,
       getEngineState: () => ({ ...engine.serialize(), lastMessageId: 299 }),
-      getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0, budget: budget(4096) }),
+      getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, stabilityLag: 0, budget: budget(4096) }),
       model: viaReply(callExtractionReply),
       getFacts: () => [],
       getFiredTransitions: () => [],

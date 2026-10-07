@@ -26,7 +26,7 @@ const result = (previousLastMessageId: number, lastMessageId: number): BoundaryR
 const manager = {
   getStory: () => null,
   getEngineState: () => null,
-  getExtractionSettings: () => ({ reconciliationMultiplier: 1.5 }),
+  getExtractionSettings: () => ({}),
   scheduleExpansionForActive: jest.fn(),
   detectSceneBreak: () => null,
   shouldCompactShortTerm: () => false,

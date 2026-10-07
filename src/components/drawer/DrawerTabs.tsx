@@ -123,7 +123,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
     {authorView && repair && <span data-so="drawer-repair-detail" className="text-xs opacity-70">{repair.detail}</span>}
     {authorView && onNewStory && (
       <button id="so-drawer-new-story" type="button" className="menu_button opacity-80" disabled={!snapshot.copilot.enabled}
-        title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Author services first."} onClick={onNewStory}>New story</button>
+        title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Authoring first."} onClick={onNewStory}>New story</button>
     )}
     {authorView && onEditStory && (
       <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}

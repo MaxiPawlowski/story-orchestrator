@@ -50,18 +50,18 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
             ? "Story lorebook entries rest off in their files; each chat sees its own story's entries switched on."
             : "Story Orchestrator switches story lorebook entries on and off in their files as a chat moves."}
         </div>
+        {authorView && (
+          <div data-so="wi-scan-memory" className="flex flex-col gap-1">
+            <CheckRow id="so-wi-scan-memory" setting="worldInfo.scanMemory" className="text-xs" checked={scanMemory} onChange={onScanMemory} />
+            <span className="text-xs opacity-70">{settingHelp("worldInfo.scanMemory")}</span>
+          </div>
+        )}
       </Advanced>
       {mode === "scan" && status && (
         <div data-so="wi-ledger" className="text-xs opacity-70">
           {status.active ? "Active" : busy ? "Preparing" : "Not active"} · {plural(status.ledger.entries, "entry rests", "entries rest")} off in {plural(status.ledger.books, "lorebook", "lorebooks")}
           {status.missing.length ? ` · ${plural(status.missing.length, "entry", "entries")} no longer in its lorebook` : ""}
           {status.unreadable.length ? ` · could not read ${status.unreadable.join(", ")}` : ""}
-        </div>
-      )}
-      {authorView && (
-        <div data-so="wi-scan-memory" className="flex flex-col gap-1">
-          <CheckRow id="so-wi-scan-memory" setting="worldInfo.scanMemory" className="text-xs" checked={scanMemory} onChange={onScanMemory} />
-          <span className="text-xs opacity-70">{settingHelp("worldInfo.scanMemory")}</span>
         </div>
       )}
       {unavailable && (

@@ -18,7 +18,7 @@ import { derivePipelineStatus, EDIT_CATCH_UP_TEXT, editRereadPending, hudChipLab
 import type { ExtractionRuntimeState } from "./types";
 
 const extraction = (scheduler: ExtractionRuntimeState["scheduler"], overrides: Partial<ExtractionRuntimeState> = {}) => ({
-  settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+  settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
   audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler, ...overrides,
 }) as Partial<ExtractionRuntimeState> as ExtractionRuntimeState;
 
@@ -48,7 +48,7 @@ describe("v2.7 plan 08 C: the pipeline says it is catching up after the player's
   it("control: a broken pipeline still says what is broken", () => {
     const broken = extraction({ ...idle, inFlight: true, lastError: "profile gone", rereadReason: "rollback:3:edit" });
     expect(derivePipelineStatus(broken).state).toBe("error");
-    expect(derivePipelineStatus(extraction({ ...idle, rereadReason: "rollback:3:edit" }, { settings: { enabled: false, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 } })).state)
+    expect(derivePipelineStatus(extraction({ ...idle, rereadReason: "rollback:3:edit" }, { settings: { enabled: false, profileId: "p1", cadence: 3, stabilityLag: 0 } })).state)
       .toBe("not-configured");
   });
 
@@ -63,7 +63,7 @@ describe("v2.7 plan 08 C: the scheduler reports a pending rollback re-read until
   const host = (onChange: (snapshot: ReturnType<ExtractionScheduler["getSnapshot"]>) => void, scheduler: () => ExtractionScheduler) => ({
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({}) as unknown as EngineState,
-    getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 }),
+    getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 0 }),
     getFacts: () => [], getFiredTransitions: () => [], getExpansionGateSources: () => [], getOpenArcs: () => [],
     applyExtractionAudit: async () => undefined,
     onSchedulerChange: () => onChange(scheduler().getSnapshot()),

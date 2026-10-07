@@ -27,7 +27,7 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 const makeHost = (settings: Partial<SchedulerSettings> = {}) => ({
   getStory: () => ({}) as unknown as NormalizedStoryV2,
   getEngineState: () => ({}) as unknown as EngineState,
-  getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, reconciliationMultiplier: 2, stabilityLag: 1, ...settings }),
+  getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 1, ...settings }),
   getFacts: () => [],
   getFiredTransitions: () => [],
   getExpansionGateSources: () => [],
@@ -297,7 +297,7 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     const read = runSharedRead as jest.Mock;
     read.mockReset();
     read.mockRejectedValue(new ModelCallError("transport", "API request failed: Response not OK"));
-    const { host, calls } = lapsedHost({ getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 1 }) });
+    const { host, calls } = lapsedHost({ getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, stabilityLag: 1 }) });
     jest.useFakeTimers();
     const scheduler = new ExtractionScheduler(host);
     scheduler.schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });

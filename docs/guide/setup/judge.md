@@ -11,7 +11,7 @@ writes to the story itself.
 
 1. Install the plugin (see [Server plugins](README.md#server-plugins)) and set `enableServerPlugins: true` in
    SillyTavern's `config.yaml`. Restart SillyTavern.
-2. In **Author services → Judge — install-wide, optional**, paste your key into **TypeSafe API key** and press
+2. In the **Judge** section, paste your key into **TypeSafe API key** and press
    **Save key**. It is stored in SillyTavern's own secrets on the server; it is never shown again and never sent to
    the page.
 3. **Use the judge** is on by default. The status line says whether the plugin answers.

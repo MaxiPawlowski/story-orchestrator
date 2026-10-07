@@ -1,7 +1,7 @@
 # The setup wizard
 
 The wizard turns a premise into a playable story, and creates the character cards, lorebook and group it needs.
-Turn it on under **Author services** in the settings, then use **Start → New story (wizard)** or the Studio's
+Turn it on under **Authoring** in the settings, then use **Start → New story (wizard)** or the Studio's
 **Wizard** tab.
 
 ## The four steps

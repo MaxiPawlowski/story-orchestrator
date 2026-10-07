@@ -4,7 +4,7 @@ import type { GlobalSettings } from "@runtime/settingsModel";
 import * as manifestModule from "../../manifest.json";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 
-export const FEATURE_AREAS = ["play", "memory", "characters", "world", "judge", "authoring", "setup"] as const;
+export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
 
 export const AREA_LABELS: Record<FeatureArea, string> = {
@@ -12,6 +12,7 @@ export const AREA_LABELS: Record<FeatureArea, string> = {
   memory: "Memory",
   characters: "Characters",
   world: "World",
+  images: "Images",
   judge: "Judge",
   authoring: "Authoring",
   setup: "Setup and diagnostics",
@@ -68,7 +69,7 @@ const JUDGE_USE_SINCE: Partial<Record<JudgeUseKey, string>> = {
 };
 
 const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
-  director: "characters", expressions: "world", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
+  director: "characters", expressions: "images", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
   expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters",
 };
@@ -100,14 +101,14 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Play an authored story on top of an ordinary chat.",
     what: "A story is a map of turning points with goals. Pick one for a chat and it follows your play, moving on when what it needs has "
       + "happened. Each chat keeps its own copy, so editing the story never changes a run in progress.",
-    where: settingsAt("#story-library-select", "This chat › Story for this chat"),
+    where: settingsAt("#story-library-select", "Playing › Story for this chat"),
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.0.0", needs: ["group-chat", "memory-profile"],
   },
   {
     id: "group-binding", name: "Group story", area: "play", audience: "player",
     oneLine: "A group can start every new chat with the same story.",
     what: "Choose a story for a group, and each new chat in that group starts playing it. Existing chats keep whatever they play.",
-    where: settingsAt("#so-group-story-select", "This chat › New chats start with"),
+    where: settingsAt("#so-group-story-select", "Playing › New chats start with"),
     settings: [], doc: "player/playing.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
   },
   {
@@ -116,7 +117,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "The first time a story starts in a group chat, a page says who you are, where you are, who is with you and how to play, in the author's words. "
       + "The opening scene still posts behind it. Each chat shows it once; Restart shows it again. Re-open it from Story briefing in the drawer or with /story intro. "
       + "The first one also explains the status strip, the notes under messages and the drawer.",
-    where: settingsAt("#so-briefing-enabled", "Display › Show the story briefing"),
+    where: settingsAt("#so-briefing-enabled", "Playing › Show the story briefing"),
     settings: ["display.briefing", "help.onboardingSeen"], guideTopic: "briefing", doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
     isOn: (settings) => settings.display.briefing,
   },
@@ -131,7 +132,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "hud", name: "Status strip", area: "play", audience: "player",
     oneLine: "One line above the chat input: where the story is and how tense it is.",
     what: "A small strip above where you type shows the current scene and the tension. A chip appears when the story is catching up or needs setup; click it to fix that.",
-    where: settingsAt("#so-hud-enabled", "Display › Show story status"),
+    where: settingsAt("#so-hud-enabled", "Playing › Show story status"),
     settings: ["display.hudEnabled"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.1.0", needs: ["story"],
     isOn: (settings) => settings.display.hudEnabled,
   },
@@ -139,7 +140,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "inline-notes", name: "Notes under messages", area: "play", audience: "player",
     oneLine: "Small icons under replies: where the story moved, what it remembered, which lore it used.",
     what: "Each reply can carry a row of icons. Click one to read what happened behind that reply. The legend button explains each icon. Story and Behind the scenes never show spoilers.",
-    where: settingsAt("#so-inline-level", "Display › Notes under messages"),
+    where: settingsAt("#so-inline-level", "Playing › Notes under messages"),
     settings: ["display.inline"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.6.0", needs: ["story"],
     isOn: (settings) => settings.display.inline.level > 0,
   },
@@ -147,7 +148,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "transition-notes", name: "Chat note when the story moves on", area: "play", audience: "player",
     oneLine: "Optionally post a short chat note at each new turning point.",
     what: "Off by default, because the note sits after the reply and stops you swiping that reply. The notes under messages show the same thing without that cost.",
-    where: settingsAt("#so-announce-transitions", "Display › Also post a chat note"),
+    where: settingsAt("#so-announce-transitions", "Playing › Also post a chat note"),
     settings: ["display.announceTransitions"], doc: "player/drawer-and-hud.md", status: "off-by-default", since: "2.0.0", needs: ["story"],
     isOn: (settings) => settings.display.announceTransitions,
   },
@@ -170,7 +171,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "pacing", name: "Tension and pacing", area: "play", audience: "author",
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
-    where: settingsAt("#so-pacing-hint", "Author services › Pacing"),
+    where: settingsAt("#so-pacing-hint", "Playing › Pacing"),
     settings: ["pacing"], guideTopic: "tension", doc: "author/topics/tension.md", status: "shipped", since: "2.0.0", needs: ["story"],
     isOn: (settings) => settings.pacing.hintEnabled,
   },
@@ -179,9 +180,9 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Remembers what happened so characters stay consistent.",
     what: "After replies, the memory model reads the chat, notes facts and scenes, and moves the story on when its goals are "
       + "met. What it remembers rides the prompt, so characters keep track of what happened.",
-    where: settingsAt("#so-extraction-profile", "General setup › Memory model"),
+    where: settingsAt("#so-extraction-profile", "Memory › Memory model"),
     settings: [
-      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.reconciliationMultiplier", "extraction.stabilityLag",
+      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.stabilityLag",
       "memory.enabled", "memory.injectionDepths", "memory.tierBudgets", "memory.tierTokenBudgets", "memory.scoreWeights",
     ],
     doc: "player/memory.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
@@ -199,7 +200,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Long stories write up each finished chapter and recap it when you return.",
     what: "For stories that declare chapters, a finished chapter becomes one written record. The record can stand in for its "
       + "messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
-    where: settingsAt("#so-chapter-recap", "Display › Chapters"),
+    where: settingsAt("#so-chapter-recap", "Memory › Chapters"),
     settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "off-by-default", since: "2.6.0", needs: ["story", "memory-profile"],
     isOn: (settings) => settings.memory.chapters?.recap === true || settings.memory.chapters?.seal === true,
   },
@@ -208,7 +209,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Catches a reply that breaks an established fact and restates the fact for the next reply.",
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, the "
       + "next reply's prompt restates that fact once, after your approval or on its own.",
-    where: settingsAt("#so-warden-enabled", "Author services › Continuity warden"),
+    where: settingsAt("#so-warden-enabled", "Memory › Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "judge.provider.warden"], doc: "author/topics/house-rules.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
     isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
   },
@@ -224,7 +225,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "talk-chain", name: "Several voices per turn", area: "characters", audience: "player",
     oneLine: "More than one character can answer one of your messages.",
     what: "In a group chat, a single message can be answered by several characters in turn; the chain stops when it is your turn again or the scene changes.",
-    where: settingsAt("#so-chain-enabled", "Author services › Speaker direction"),
+    where: settingsAt("#so-chain-enabled", "Characters › Speaker direction"),
     settings: ["talk.chain"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
     isOn: (settings) => settings.talk.chain.enabled,
   },
@@ -232,7 +233,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
     oneLine: "Tracks who knows what, so characters do not know things they never saw.",
     what: "The memory model also notes what each character knows, suspects or hides. Each character's prompt carries only its own knowledge, so secrets stay secret.",
-    where: settingsAt("#so-self-test", "General setup › Test memory model"),
+    where: settingsAt("#so-self-test", "Memory › Test memory model"),
     settings: ["memory.epistemicLedgerCapable"], doc: "author/topics/drives-motives.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
     isOn: (settings) => settings.memory.epistemicLedgerCapable,
   },
@@ -241,7 +242,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Characters prepare a private intent before they speak.",
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
       + "character. It can also read a reply's reasoning for what the character intends.",
-    where: settingsAt("#so-inner-beat", "Author services › Inner voice"),
+    where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
     settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: "author/topics/drives-motives.md", status: "off-by-default", since: "2.6.0",
     needs: ["memory-profile", "author-view"],
     isOn: (settings) => settings.memory.innerBeat === true || settings.memory.harvestReasoning === true,
@@ -250,21 +251,21 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "lorebook-switching", name: "Story lorebook switching", area: "world", audience: "author",
     oneLine: "Story lorebook entries switch on and off as the story moves.",
     what: "A story can switch lorebook entries on at a turning point. Per chat keeps each chat's entries separate; file writes change the lorebook files themselves.",
-    where: settingsAt("#so-wi-gating-mode", "Author services › Lorebooks"),
+    where: settingsAt("#so-wi-gating-mode", "World › Lorebooks"),
     settings: ["worldInfo.gatingMode", "worldInfo.normalized", "worldInfo.normalizedFrom"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped", since: "2.0.0",
   },
   {
     id: "story-lorebooks", name: "Story lorebooks", area: "world", audience: "author",
     oneLine: "A story's lorebooks load only in the chats that play it.",
     what: "The lorebooks a story lists are added to its own chats, so two stories never share lore. A story lorebook still switched on for every chat is flagged in Repair.",
-    where: settingsAt("#so-lorebooks-header", "Author services › Lorebooks"),
+    where: settingsAt("#so-lorebooks-header", "World › Lorebooks"),
     settings: ["worldInfo.keptGlobal"], guideTopic: "requirements", doc: "author/topics/requirements.md", status: "shipped", since: "2.6.0",
   },
   {
     id: "memory-lore", name: "Memory can trigger lore", area: "world", audience: "author",
     oneLine: "Established facts and scene history can activate lorebook entries.",
     what: "Facts, scene history and the current guidance join each lorebook scan, so an entry whose keys they mention activates. Private knowledge never joins.",
-    where: settingsAt("#so-wi-scan-memory", "Author services › Lorebooks"),
+    where: settingsAt("#so-wi-scan-memory", "World › Lorebooks"),
     settings: ["worldInfo.scanMemory"], doc: "author/topics/world-info.md", status: "shipped", since: "2.5.0",
     isOn: (settings) => settings.worldInfo.scanMemory,
   },
@@ -272,7 +273,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. It touches only the lorebooks the story lists, and never progress or memory.",
-    where: settingsAt("#so-curator-enabled", "Author services › Background helpers"),
+    where: settingsAt("#so-curator-enabled", "World › Background helpers"),
     settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped", since: "2.1.0",
     needs: ["memory-profile"],
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
@@ -282,12 +283,12 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
       + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
-    where: settingsAt("#so-curator-accept-mode", "Author services › Background helpers"),
+    where: settingsAt("#so-curator-accept-mode", "World › Background helpers"),
     settings: [], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped", since: "2.7.0",
     needs: ["memory-profile"],
   },
   {
-    id: "backgrounds", name: "Backgrounds", area: "world", audience: "author",
+    id: "backgrounds", name: "Backgrounds", area: "images", audience: "author",
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",
     where: studioAt("#so-studio-modal", "Turning point › Effects"),
@@ -302,18 +303,18 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "scenario", doc: "author/topics/scenario.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
   },
   {
-    id: "images", name: "Illustrations", area: "world", audience: "setup",
+    id: "images", name: "Illustrations", area: "images", audience: "setup",
     oneLine: "Draws scenes and characters through your image service.",
     what: "Uses SillyTavern’s image service by default. Stories can ask for pictures, or you can draw by hand. An optional prompt model improves the scene description; a template works without it.",
-    where: settingsAt("#so-image-settings", "General setup › Image service"),
+    where: settingsAt("#so-image-settings", "Images › Image service"),
     settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", since: "2.6.0", needs: ["group-chat"],
     isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
   },
   {
-    id: "sprites", name: "Sprite stage", area: "world", audience: "player",
+    id: "sprites", name: "Sprite stage", area: "images", audience: "player",
     oneLine: "Character sprites that change expression as replies stream.",
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",
-    where: settingsAt("#so-sprite-enabled", "General setup › Sprite stage"),
+    where: settingsAt("#so-sprite-enabled", "Images › Sprite stage"),
     settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "off-by-default", since: "2.6.0", needs: ["sprite-pack"],
     isOn: (settings) => settings.sprites.enabled,
   },
@@ -338,17 +339,17 @@ const CORE_FEATURES: readonly Feature[] = [
     where: studioAt("#so-sprite-edit-resolution", "Sprites › Edit resolution"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["comfyui"],
   },
   {
-    id: "sprite-animation", name: "Animated faces", area: "world", audience: "setup",
+    id: "sprite-animation", name: "Animated faces", area: "images", audience: "setup",
     oneLine: "Blink and talking-mouth frames give sprites movement.",
     what: "Packs with animation frames blink and move the speaker’s mouth while replies stream. Missing frames keep the static sprite. Reduced motion switches facial animation off.",
-    where: settingsAt("#so-sprite-mouth", "Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["sprite-pack"],
+    where: settingsAt("#so-sprite-mouth", "Images › Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["sprite-pack"],
   },
   {
     id: "judge", name: "Judge", area: "judge", audience: "setup",
     oneLine: "A second, fast model for yes/no and pick-one decisions.",
     what: "The judge answers small questions for the story: who speaks next, whether a memory is right, which lore matters. Each use can be "
       + "switched off and says what it sends; without a key every use falls back to its usual path.",
-    where: settingsAt("#so-judge-enabled", "Author services › Judge"),
+    where: settingsAt("#so-judge-enabled", "Judge"),
     settings: ["judge.enabled", "judge.model", "judge.timeoutMs", "judge.noticesSeen"], doc: "setup/judge.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
     isOn: (settings) => settings.judge.enabled,
   },
@@ -356,7 +357,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "road-ahead", name: "Prepared road ahead", area: "authoring", audience: "author",
     oneLine: "Writes the scenes between two turning points before play gets there.",
     what: "Where a story leaves a gap, the story model writes outline beats to fill it. The judge can write several outlines and keep the best.",
-    where: settingsAt("#so-judge-expansion-variants", "Author services › Judge"),
+    where: settingsAt("#so-judge-expansion-variants", "Judge › Outlines for the road ahead"),
     settings: ["judge.expansion"], guideTopic: "convergence", doc: "author/topics/convergence.md", status: "shipped", since: "2.0.0", needs: ["memory-profile", "author-view"],
   },
   {
@@ -408,42 +409,42 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "This list: every feature, whether it is on, and where to find it.",
     what: "The ? button opens this index. Show me jumps to a feature's setting; Read more opens its guide page. After an update, What's new lists the features you have not seen.",
     where: settingsAt("#so-help-toggle", "Help"),
-    settings: ["help.lastSeenVersion"], doc: "setup/README.md", status: "shipped", since: "2.7.0",
+    settings: ["help.lastSeenVersion", "help.openSections"], doc: "setup/README.md", status: "shipped", since: "2.7.0",
   },
   {
-    id: "memory-test", name: "Memory model test", area: "setup", audience: "setup",
+    id: "memory-test", name: "Memory model test", area: "memory", audience: "setup",
     oneLine: "Runs fixed scenes through the memory model and reports what it can do.",
     what: "The test sends a few short scenes and checks each kind of note the story needs. When the model cannot track private knowledge, it offers to switch that off.",
-    where: settingsAt("#so-self-test", "General setup › Test memory model"),
+    where: settingsAt("#so-self-test", "Memory › Test memory model"),
     settings: [], doc: "setup/memory-model.md", status: "shipped", since: "2.1.0", needs: ["memory-profile"],
   },
   {
-    id: "reply-thinking", name: "Reply thinking", area: "setup", audience: "setup",
+    id: "reply-thinking", name: "Reply thinking", area: "memory", audience: "setup",
     oneLine: "Limits how long the chat model thinks before each reply.",
     what: "On llama.cpp setups that think, each story reply gets a thinking budget. Medium was as clean as no limit and starts replying sooner.",
-    where: settingsAt("#so-reply-effort", "General setup › Reply thinking"),
+    where: settingsAt("#so-reply-effort", "Memory › Reply thinking"),
     settings: ["extraction.replyEffort"], doc: "setup/memory-model.md", status: "shipped", since: "2.6.0",
   },
   {
-    id: "models-per-task", name: "Models per task", area: "setup", audience: "setup",
+    id: "models-per-task", name: "Models per task", area: "memory", audience: "setup",
     oneLine: "Send each kind of background work to its own model.",
     what: "Story reads, summaries, the wizard, speaker direction, the curator and the inner voice can each use their own profile, or a cloud harness through the harness plugin. "
       + "Profiles are grouped by provider and labelled local or cloud, and a task on a cloud profile says what it sends.",
-    where: settingsAt("#so-role-profiles", "General setup › Models per task"),
+    where: settingsAt("#so-role-profiles", "Memory › Models per task"),
     settings: ["extraction.profiles", "extraction.routes", "extraction.reasoningBudget"], doc: "setup/memory-model.md", status: "shipped", since: "2.5.0",
   },
   {
     id: "capabilities", name: "Host capabilities", area: "setup", audience: "setup",
     oneLine: "Checks that SillyTavern has everything the extension needs, and copies a bug report.",
-    what: "Diagnostics lists any SillyTavern feature that is missing, the versions in use and the memory model's context size, with one button to copy it all for a bug report.",
-    where: settingsAt("#so-capabilities", "Diagnostics"),
+    what: "The Setup section lists any SillyTavern feature that is missing, the versions in use and the memory model's context size, with one button to copy it all for a bug report.",
+    where: settingsAt("#so-capabilities", "Setup › Host capabilities"),
     settings: [], doc: "player/troubleshooting.md", status: "shipped", since: "2.3.0",
   },
   {
     id: "experiments", name: "Experiments", area: "setup", audience: "author",
     oneLine: "Unmeasured trials, only in development builds.",
     what: "Each experiment sits behind its own switch, off by default, and is not offered in the published build.",
-    where: settingsAt("#so-diagnostics", "Diagnostics"),
+    where: settingsAt("#so-area-setup", "Setup"),
     settings: ["spikes"], doc: "setup/settings-reference.md", status: "experimental", since: "2.5.0",
   },
 ];

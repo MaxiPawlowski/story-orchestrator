@@ -74,13 +74,13 @@
         "U1",
         "I3"
       ],
-      "goal": "the memory profile is an install-level setting, so it is not stored per chat (the memory model controls sit in the collapsed General setup section since 544975fb, so the section is opened first: select-profile does not open it)",
+      "goal": "the memory profile is an install-level setting, so it is not stored per chat (the memory model controls sit in the collapsed Memory section since v2.7 plan 29, so the section is opened first: select-profile does not open it)",
       "requires": [
         "global-extraction-settings"
       ],
       "steps": [
         {
-          "eval": "const details = document.getElementById('so-general-setup'); if (!details) throw new Error('the General setup section (#so-general-setup) is missing from the settings panel'); details.open = true; return { generalSetupOpen: details.open };"
+          "eval": "const details = document.getElementById('so-area-memory'); if (!details) throw new Error('the Memory section (#so-area-memory) is missing from the settings panel'); details.open = true; return { memorySectionOpen: details.open };"
         },
         {
           "ui": {
@@ -232,7 +232,7 @@
       "goal": "after configuring the memory model in the settings panel, the first real transition fires",
       "steps": [
         {
-          "eval": "const details = document.getElementById('so-general-setup'); if (!details) throw new Error('the General setup section (#so-general-setup) is missing from the settings panel'); details.open = true; return { generalSetupOpen: details.open };"
+          "eval": "const details = document.getElementById('so-area-memory'); if (!details) throw new Error('the Memory section (#so-area-memory) is missing from the settings panel'); details.open = true; return { memorySectionOpen: details.open };"
         },
         {
           "ui": {

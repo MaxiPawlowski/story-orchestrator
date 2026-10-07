@@ -18,28 +18,24 @@ export default meta;
 
 type Story = StoryObj<typeof ChapterControls>;
 
-export const OffByDefault: Story = {
-  args: { manager: fakeManager() },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText("Chapter records"));
-    await expect(canvas.getByLabelText("Write a record when a chapter ends")).not.toBeChecked();
-    await expect(canvas.getByLabelText("Add the story so far to every prompt")).not.toBeChecked();
-    await expect(canvas.getByLabelText(/Leave ended chapters' messages out/)).not.toBeChecked();
-    await expect(canvas.getByLabelText(/Show "Previously…"/)).toBeChecked();
-    await expect(canvas.getByLabelText("Story so far budget")).toHaveValue("700");
-  },
-};
+const RECORD_IDS = ["so-chapter-seal", "so-chapter-fold", "so-chapter-story-so-far", "so-chapter-budget"];
 
-export const SwitchOnAndPickAnArm: Story = {
+export const PreviouslyIsOnByDefault: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText("Chapter records"));
-    await userEvent.click(canvas.getByLabelText("Write a record when a chapter ends"));
-    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ chapters: expect.objectContaining({ seal: true, chronicleTokens: 700 }) });
-    await userEvent.selectOptions(canvas.getByLabelText("Story so far budget"), "400");
-    await expect(args.manager.setMemorySettings).toHaveBeenLastCalledWith({ chapters: expect.objectContaining({ chronicleTokens: 400 }) });
+    await expect(canvas.getByLabelText(/Show "Previously…"/)).toBeChecked();
+    await userEvent.click(canvas.getByLabelText(/Show "Previously…"/));
+    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ chapters: expect.objectContaining({ recap: false }) });
+  },
+};
+
+export const ReleaseBuildHasNoChapterRecordsEvenInAuthorView: Story = {
+  args: { manager: fakeManager() },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-chapter-recap")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-chapter-advanced")).toBeNull();
+    for (const id of RECORD_IDS) await expect(canvasElement.querySelector(`#${id}`)).toBeNull();
   },
 };
 
@@ -47,6 +43,6 @@ export const PlayerSeesOnlyThePreviouslyToggle: Story = {
   args: { snapshot: snapshot(undefined, false) },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-chapter-recap")).not.toBeNull();
-    for (const id of ["so-chapter-seal", "so-chapter-fold", "so-chapter-story-so-far", "so-chapter-budget"]) await expect(canvasElement.querySelector(`#${id}`)).toBeNull();
+    for (const id of RECORD_IDS) await expect(canvasElement.querySelector(`#${id}`)).toBeNull();
   },
 };

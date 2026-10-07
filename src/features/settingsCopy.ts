@@ -1,3 +1,5 @@
+import type { FeatureArea } from "./registry";
+
 export interface SettingCopy {
   label: string;
   help: string;
@@ -29,11 +31,6 @@ export const SETTING_COPY = {
   "extraction.cadence": copy(
     "Read the chat every … messages",
     "How often the memory model reads the chat. Lower reacts faster but calls the memory model more often; higher saves calls and reacts later.",
-  ),
-  "extraction.reconciliationMultiplier": copy(
-    "Look further back when stuck",
-    "When the story seems stuck, the next read looks this many times further back to catch something it missed. Raise it if the story stalls after long replies; "
-      + "each step makes that one read bigger.",
   ),
   "extraction.stabilityLag": copy(
     "Wait before reading the newest messages",
@@ -152,21 +149,9 @@ export const SETTING_COPY = {
     "Voices per turn at most",
     "The most characters that may answer one of your messages. Higher makes busier scenes and longer waits.",
   ),
-  "talk.chain.stopOnTransition": copy(
-    "End the chain when the scene changes",
-    "When the story moves on mid-chain, the remaining characters stop, so the next reply starts from the new scene.",
-  ),
-  "talk.chain.holdExtraction": copy(
-    "Wait for the whole reply before reading the scene",
-    "Read the chat only after every character in the chain has answered. Off: each voice is read as it lands, so a scene change can interrupt the chain.",
-  ),
   "pacing.hintEnabled": copy(
     "Steer the tension",
     "Adds a quiet note to the prompt that nudges the reply toward the story's intended tension: build it up, or let it cool down.",
-  ),
-  "pacing.alpha": copy(
-    "Tension follows the latest scene by",
-    "How strongly the newest scene moves the measured tension, from 0 to 1. Higher reacts faster and jumps more; lower is smoother and slower.",
   ),
   "copilot.enabled": copy(
     "Enable the wizard",
@@ -287,3 +272,24 @@ export type SettingCopyKey = keyof typeof SETTING_COPY;
 export const settingCopy = (key: SettingCopyKey): SettingCopy => SETTING_COPY[key];
 
 export const settingHelp = (key: SettingCopyKey): string => SETTING_COPY[key].help;
+
+export interface SettingsAreaCopy {
+  label: string;
+  oneLine: string;
+  doc: string;
+}
+
+export const SETTINGS_AREA_COPY: Record<FeatureArea, SettingsAreaCopy> = {
+  play: { label: "Playing", oneLine: "Which story this chat plays, and what you see while you play.", doc: "player/playing.md" },
+  memory: { label: "Memory", oneLine: "The memory model that reads the chat, and what the story remembers.", doc: "setup/memory-model.md" },
+  characters: { label: "Characters", oneLine: "Who answers your messages in a group, and how many at once.", doc: "author/topics/talk-control.md" },
+  world: { label: "World", oneLine: "How a story's lorebooks are switched on, and the lorebook helper.", doc: "author/topics/world-info.md" },
+  images: { label: "Images", oneLine: "Optional pictures and character sprites; both need your own image setup.", doc: "setup/images.md" },
+  judge: { label: "Judge", oneLine: "An optional fast model for small choices; it never blocks a reply.", doc: "setup/judge.md" },
+  authoring: { label: "Authoring", oneLine: "Tools for writing stories.", doc: "author/README.md" },
+  setup: { label: "Setup", oneLine: "What SillyTavern features were found, and a copy for a bug report.", doc: "setup/README.md" },
+};
+
+export const SETTINGS_ADVANCED_LABEL = "Advanced";
+
+export const settingsGuideLabel = (area: FeatureArea): string => `Read the guide: ${SETTINGS_AREA_COPY[area].label}`;

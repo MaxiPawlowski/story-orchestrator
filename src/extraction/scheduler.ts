@@ -20,7 +20,6 @@ export interface SchedulerSettings {
   profileId: string | null;
   fallbackProfileId?: string | null;
   cadence: number;
-  reconciliationMultiplier: number;
   stabilityLag: number;
   pressureThreshold?: number;
   budget?: RequestBudget;

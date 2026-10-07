@@ -3,7 +3,7 @@ import type { ExtractionRuntimeState } from "./types";
 import { derivePipelineStatus, expansionInFlight, pipelineAction, PIPELINE_ACTION_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
 const state = (overrides: Partial<ExtractionRuntimeState> = {}) => ({
-  settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+  settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
   audits: [],
   reconciliationEvents: [],
   lastReadBoundary: 0,

@@ -363,7 +363,6 @@ export interface ExtractionRuntimeSettings {
   reasoningBudget?: ReasoningBudget;
   replyEffort?: ReplyEffort;
   cadence: number;
-  reconciliationMultiplier: number;
   stabilityLag: number;
 }
 

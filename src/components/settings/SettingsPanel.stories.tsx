@@ -17,7 +17,7 @@ const snapshot = (authorView: boolean): RuntimeSnapshot =>
     requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
     saveHealth: createSaveHealth(),
     copilot: { enabled: true },
-    extraction: { settings: { enabled: true, profileId: "artemis", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 } },
+    extraction: { settings: { enabled: true, profileId: "artemis", cadence: 3, stabilityLag: 0 } },
     memory: { settings: { epistemicLedgerCapable: true } },
     roleRoutes: [],
     modelCallRing: [],
@@ -121,5 +121,72 @@ export const JudgeGroupArrivesFromItsLazyChunk: Story = {
     await waitFor(() => expect(canvasElement.querySelector("#so-judge")).not.toBeNull());
     await expect(canvasElement.querySelector("#so-judge-status")).not.toBeNull();
     await expect(canvasElement.querySelector("[data-so='lazy-failed']")).toBeNull();
+  },
+};
+
+const AREA_IDS = ["so-area-play", "so-area-memory", "so-area-characters", "so-area-world", "so-area-images", "so-area-judge", "so-area-authoring", "so-area-setup"];
+
+const sectionIds = (root: HTMLElement) => [...root.querySelectorAll<HTMLDetailsElement>('[data-so="settings-area"]')].map((section) => section.id);
+
+export const PlayerSeesTheSectionsInReadmeOrder: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement }) => {
+    await expect(sectionIds(canvasElement)).toEqual(AREA_IDS.filter((id) => id !== "so-area-authoring"));
+    await expect((canvasElement.querySelector("#so-area-play") as HTMLDetailsElement).open).toBe(true);
+    await expect((canvasElement.querySelector("#so-area-memory") as HTMLDetailsElement).open).toBe(false);
+    await expect(canvasElement.querySelector("#so-area-play > summary")?.textContent).toContain("Which story this chat plays");
+    await expect(canvasElement.querySelector("#so-area-memory #so-extraction-profile")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-area-images #so-image-settings")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-area-characters #so-chain-enabled")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-inner-voice-settings")).toBeNull();
+    await expect(canvasElement.querySelector("#so-warden-enabled")).toBeNull();
+  },
+};
+
+export const AuthorSeesEverySection: Story = {
+  args: { snapshot: snapshot(true), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement }) => {
+    await expect(sectionIds(canvasElement)).toEqual(AREA_IDS);
+    await expect(canvasElement.querySelector("#so-area-authoring #so-copilot-enabled")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-area-memory #so-warden-enabled")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-area-world #so-curator-enabled")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-area-setup [data-so='engine-status']")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-inner-voice-settings")).toBeNull();
+    await expect(canvasElement.querySelector("#so-chapter-advanced")).toBeNull();
+  },
+};
+
+export const GuideButtonOpensTheAreaPage: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: { ...host(), openGuide: fn() } },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Read the guide: Memory" }));
+    await expect(args.host.openGuide).toHaveBeenCalledWith("setup/memory-model.md");
+    await expect((canvasElement.querySelector("#so-area-memory") as HTMLDetailsElement).open).toBe(false);
+    await userEvent.click(canvas.getByRole("button", { name: "Read the guide: Playing" }));
+    await expect(args.host.openGuide).toHaveBeenLastCalledWith("player/playing.md");
+    await expect((canvasElement.querySelector("#so-area-play") as HTMLDetailsElement).open).toBe(true);
+  },
+};
+
+export const AdvancedFoldHoldsTheChatNote: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement }) => {
+    const fold = canvasElement.querySelector("#so-area-play-advanced") as HTMLDetailsElement;
+    await expect(fold.open).toBe(false);
+    await expect(fold.querySelector("#so-announce-transitions")).not.toBeNull();
+    await userEvent.click(within(fold).getByText("Advanced"));
+    await expect(fold.open).toBe(true);
+  },
+};
+
+export const OpeningASectionIsRemembered: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement }) => {
+    const memory = canvasElement.querySelector("#so-area-memory") as HTMLDetailsElement;
+    await userEvent.click(memory.querySelector("summary") as HTMLElement);
+    await waitFor(() => expect(getGlobalSettings().help.openSections).toEqual(["play", "memory"]));
+    await userEvent.click(canvasElement.querySelector("#so-area-play > summary") as HTMLElement);
+    await waitFor(() => expect(getGlobalSettings().help.openSections).toEqual(["memory"]));
   },
 };

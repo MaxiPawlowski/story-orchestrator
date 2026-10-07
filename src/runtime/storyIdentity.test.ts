@@ -283,7 +283,7 @@ describe("settings homes", () => {
     const first = new RuntimeManager();
     await first.importStory(storyJson());
     const extras = blob().stories["sun-ruins"].extras as unknown as Record<string, Record<string, unknown>>;
-    extras.extraction = { ...extras.extraction, settings: { enabled: true, profileId: "chat-profile", cadence: 7, reconciliationMultiplier: 2, stabilityLag: 1 } };
+    extras.extraction = { ...extras.extraction, settings: { enabled: true, profileId: "chat-profile", cadence: 7, stabilityLag: 1 } };
     extras.ui = { authorView: true, announceTransitions: true, hudEnabled: false };
     const install = JSON.stringify(getGlobalSettings());
 

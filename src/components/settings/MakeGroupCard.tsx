@@ -41,7 +41,7 @@ export default function MakeGroupCard({ view, id = "so-make-group", wizardOn, on
       {storyId && missing.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" data-so="make-group-fix" className="menu_button" disabled={!wizardOn}
-            title={wizardOn ? "Open the wizard on the provisioning step, pre-filled with the missing cards." : "Turn on the wizard under Author services first."}
+            title={wizardOn ? "Open the wizard on the provisioning step, pre-filled with the missing cards." : "Turn on the wizard under Authoring first."}
             onClick={() => onFixWithWizard(storyId, missing)}>Fix with wizard</button>
         </div>
       )}

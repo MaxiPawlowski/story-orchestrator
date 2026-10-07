@@ -14,7 +14,7 @@ const narrative = (overrides: Parameters<typeof buildNarrativeStatus>[0] extends
   tensionLevel: "critical",
   pendingCount: 0,
   pipeline: derivePipelineStatus({
-    settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+    settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
     audits: [],
     reconciliationEvents: [],
     lastReadBoundary: 0,

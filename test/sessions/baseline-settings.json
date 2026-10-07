@@ -24,12 +24,10 @@
       "enabled": true,
       "fallbackProfileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
       "cadence": 3,
-      "reconciliationMultiplier": 1.5,
       "stabilityLag": 0,
       "replyEffort": "medium"
     },
     "pacing": {
-      "alpha": 0.3,
       "hintEnabled": true
     },
     "display": {
@@ -95,9 +93,7 @@
       "enabled": true,
       "chain": {
         "enabled": true,
-        "max": 3,
-        "stopOnTransition": true,
-        "holdExtraction": false
+        "max": 3
       }
     },
     "stagecraft": {

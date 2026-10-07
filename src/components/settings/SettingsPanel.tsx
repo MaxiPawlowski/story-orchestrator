@@ -7,7 +7,8 @@ import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
-import type { FeatureWhere } from "@features/registry";
+import { guideUrl, type FeatureArea, type FeatureWhere } from "@features/registry";
+import { requestGuide } from "@guide/request";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";
 import { GettingStarted } from "./GettingStarted";
@@ -17,7 +18,10 @@ import MakeGroupCard from "./MakeGroupCard";
 import type { MakeGroupOutcome } from "@runtime/makeGroup";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
-import { authoringSettings, DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
+import {
+  authoringSettings, ChapterGroup, DisplayGroup, InnerVoiceGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup, TransitionNoteRow, WardenGroup,
+} from "./PlayGroups";
+import { SettingsArea } from "./SettingsArea";
 import { CheckRow } from "./Field";
 import { log } from "@utils/log";
 
@@ -47,6 +51,7 @@ export interface SettingsHost {
   openPlay?: (row: ContinueRow) => void;
   helpOpen?: boolean;
   toggleHelp?: () => void;
+  openGuide?: (doc: string) => void;
 }
 
 interface SettingsPanelProps {
@@ -103,11 +108,29 @@ const useHostProbe = () => {
   return { capabilities, facts, probe };
 };
 
+const openGuideDoc = (doc: string) => {
+  if (requestGuide(doc)) return;
+  const url = guideUrl(doc);
+  if (url) window.open(url, "_blank", "noopener");
+};
+
+const useOpenAreas = () => {
+  const [open, setOpen] = useState<readonly string[]>(() => getGlobalSettings().help.openSections);
+  const toggle = (area: FeatureArea, next: boolean) => {
+    const sections = next ? [...new Set([...open, area])] : open.filter((id) => id !== area);
+    setOpen(setGlobalSettings({ help: { openSections: sections } }).help.openSections);
+  };
+  return { open, toggle };
+};
+
 const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   const [importOpen, setImportOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const judge = useJudgeControls(manager);
   const hostProbe = useHostProbe();
+  const areas = useOpenAreas();
+  const openGuide = host.openGuide ?? openGuideDoc;
+  const area = (id: FeatureArea) => ({ area: id, open: areas.open.includes(id), onToggle: areas.toggle, onGuide: openGuide });
 
   const { recheck } = judge;
   const { probe } = hostProbe;
@@ -161,48 +184,49 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
           />
-          <details id="so-current-chat" className="so-settings-section" open>
-            <summary>This chat <span className="opacity-70">— select and continue a story</span></summary>
-            <div className="flex flex-col gap-3 pt-2">
-              <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
-              {snapshot.noGroup && host.makeGroup && (
-                <MakeGroupCard view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={host.makeGroup}
-                  onFixWithWizard={(storyId, missing) => host.fixGroupWithWizard?.(storyId, missing)} />
-              )}
-              <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
-              <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
-            </div>
-          </details>
-          <details id="so-general-setup" className="so-settings-section">
-            <summary>General setup <span className="opacity-70">— shared by every chat</span></summary>
-            <div className="flex flex-col gap-3 pt-2">
-              <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
-              <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
-              <DisplayGroup snapshot={snapshot} manager={manager} />
-              <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
-              <Lazy fallback={null}><SpriteGroup manager={manager} /></Lazy>
-            </div>
-          </details>
-          <details id="so-author-services" className="so-settings-section">
-            <summary>Author services <span className="opacity-70">— optional, shared by every chat</span></summary>
-            <div className="flex flex-col gap-3 pt-2">
-              {authoringSettings(snapshot) && (
-                <CheckRow id="so-copilot-enabled" setting="copilot.enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })} />
-              )}
-              <LorebooksGroup snapshot={snapshot} manager={manager} />
-              <StagecraftGroup snapshot={snapshot} manager={manager} />
-              <Lazy fallback={null}><JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
-                wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} /></Lazy>
-              <TalkGroup snapshot={snapshot} manager={manager} />
-              <PacingGroup snapshot={snapshot} manager={manager} />
-            </div>
-          </details>
-          <details id="so-diagnostics" className="so-settings-section">
-            <summary>Diagnostics <span className="opacity-70">— ST capabilities and version</span></summary>
+          <SettingsArea {...area("play")} advanced={<TransitionNoteRow snapshot={snapshot} manager={manager} />}>
+            <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
+            {snapshot.noGroup && host.makeGroup && (
+              <MakeGroupCard view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={host.makeGroup}
+                onFixWithWizard={(storyId, missing) => host.fixGroupWithWizard?.(storyId, missing)} />
+            )}
+            <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
+            <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
+            <DisplayGroup snapshot={snapshot} manager={manager} />
+            <PacingGroup snapshot={snapshot} manager={manager} />
+          </SettingsArea>
+          <SettingsArea {...area("memory")}>
+            <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
+            <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <ChapterGroup snapshot={snapshot} manager={manager} />
+            <WardenGroup snapshot={snapshot} manager={manager} />
+          </SettingsArea>
+          <SettingsArea {...area("characters")}>
+            <TalkGroup snapshot={snapshot} manager={manager} />
+            <InnerVoiceGroup snapshot={snapshot} manager={manager} />
+          </SettingsArea>
+          <SettingsArea {...area("world")}>
+            <LorebooksGroup snapshot={snapshot} manager={manager} />
+            <StagecraftGroup snapshot={snapshot} manager={manager} />
+          </SettingsArea>
+          <SettingsArea {...area("images")}>
+            <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
+            <Lazy fallback={null}><SpriteGroup manager={manager} /></Lazy>
+          </SettingsArea>
+          <SettingsArea {...area("judge")}>
+            <Lazy fallback={null}><JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
+              wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} /></Lazy>
+          </SettingsArea>
+          {authoringSettings(snapshot) && (
+            <SettingsArea {...area("authoring")}>
+              <CheckRow id="so-copilot-enabled" setting="copilot.enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })} />
+            </SettingsArea>
+          )}
+          <SettingsArea {...area("setup")}>
             <CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} />
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
-          </details>
+          </SettingsArea>
         </div>
       </div>
     </div>

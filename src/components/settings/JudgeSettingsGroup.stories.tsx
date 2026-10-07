@@ -68,7 +68,6 @@ export const OnlyBuiltUsesAreListed: Story = {
       "so-judge-use-typed-extraction",
       "so-judge-use-stall-check",
       "so-judge-use-curator-filter",
-      "so-judge-use-expressions",
     ]);
     await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
     await userEvent.click(rows[1]);
@@ -155,6 +154,7 @@ export const AuthorExpansionControls: Story = {
     await expect(ids).toEqual(expect.arrayContaining(["so-judge-use-expansion-critic", "so-judge-use-expansion-lookahead"]));
     const pick = canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-pick");
     await expect(pick?.disabled).toBe(true);
+    await userEvent.click(within(canvasElement).getByText("Outlines for the road ahead"));
     await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants"), "variants select"), "2");
     await expect(args.onChange).toHaveBeenCalledWith({ expansion: { variants: 2 } });
   },
@@ -331,10 +331,11 @@ export const AuthorSeesWardenLoreRow: Story = {
   },
 };
 
-export const AuthorSeesExclusiveLoreReadiness: Story = {
+export const ExclusiveLoreIsDevOnlyButItsReadinessShowsInAuthorView: Story = {
   args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready, authorView: true },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-use-expressions")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("Exclusive lore selection");
   },
 };

@@ -35,7 +35,7 @@ const refused = () => new ModelCallError("transport", "API request failed: conne
 type Probe = (profileId: string, timeoutMs?: number) => Promise<ProbeResult>;
 
 function harness(probe: Probe) {
-  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, stabilityLag: 0 };
   const applied: number[] = [];
   const notes: Array<[string, string]> = [];
   const budgets: Array<number | undefined> = [];

@@ -342,7 +342,7 @@ export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverri
 // come from the install-wide store, with only the per-chat overrides taken from the chat.
 export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSettings, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
-  extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
+  extras.pacing = { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
   const { announceTransitions, hudEnabled, briefing, inline, presence } = global.display;
   extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, inline, presence };

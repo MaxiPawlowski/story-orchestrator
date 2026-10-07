@@ -15,7 +15,7 @@ plays.
 | Transitions | The exits between scenes and the condition (gate) that opens each one. |
 | Roster | The cast: card names, roles, aliases, drives. |
 | Diagnostics | Every problem the Studio finds, with what the story loses because of it. |
-| Wizard | The setup wizard (when it is turned on under Author services). See [The setup wizard](wizard.md). |
+| Wizard | The setup wizard (when it is turned on under Authoring). See [The setup wizard](wizard.md). |
 
 Each editor has a **How to write this** section with the matching topic from this guide.
 

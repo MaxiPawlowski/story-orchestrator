@@ -9,7 +9,7 @@ backend).
 1. In SillyTavern, make a **Connection Manager** profile for the model you want (Text Completion or Chat
    Completion). Give it an **instruct template** that matches the model: without one, many local models answer the
    memory model's prompts with loops of repeated tokens.
-2. In **Extensions → Story Orchestrator → General setup → Memory model — this install**, pick it under **Memory
+2. In **Extensions → Story Orchestrator → Memory → Memory model — this install**, pick it under **Memory
    model profile**.
 3. Press **Test memory model**. It asks the model a few sample questions and says what passed.
 
@@ -65,7 +65,7 @@ The memory model's input is sized to the profile's context:
 1. the **settings preset**'s context size, when the profile names a preset that has one;
 2. otherwise the model's known context, for models SillyTavern lists (OpenAI, Google, xAI);
 3. otherwise the provider's known context (DeepSeek 131,072 tokens, Claude 200,000, OpenAI, Google and xAI 128,000);
-4. otherwise 8,192 tokens. **Diagnostics** shows which one applied and why.
+4. otherwise 8,192 tokens. **Setup → Host capabilities** shows which one applied and why.
 
 A Text Completion profile always uses its preset's context size. For a Custom (OpenAI-compatible) endpoint or
 OpenRouter, give the profile a settings preset with the right context size.

@@ -11,12 +11,12 @@ import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
 import StoryLoreGlobal from "./StoryLoreGlobal";
 import { GroupHeader } from "./GroupHeader";
-import { Advanced, CheckRow, FieldLabel } from "./Field";
+import { CheckRow, FieldLabel } from "./Field";
 import { PresenceControls } from "./PresenceControls";
 
 const InlineControls = lazyRetry(() => import("./InlineControls"));
 const ChapterControls = lazyRetry(() => import("./ChapterControls"));
-const InnerVoiceControls = lazyRetry(() => import("./InnerVoiceControls"));
+const InnerVoiceControls = __SO_DEV__ ? lazyRetry(() => import("./InnerVoiceControls")) : null;
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -31,11 +31,19 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <GroupHeader title="Display" scope="install" id="so-display-header" />
     <Lazy fallback={null}><InlineControls snapshot={snapshot} manager={manager} /></Lazy>
-    <Lazy fallback={null}><ChapterControls snapshot={snapshot} manager={manager} /></Lazy>
     <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} onChange={(on) => manager.setUiSettings({ hudEnabled: on })} />
     <CheckRow id="so-briefing-enabled" setting="display.briefing" checked={snapshot.ui.briefing !== false} onChange={(on) => manager.setUiSettings({ briefing: on })} />
-    <CheckRow id="so-announce-transitions" setting="display.announceTransitions" checked={snapshot.ui.announceTransitions} onChange={(on) => manager.setUiSettings({ announceTransitions: on })} />
     <PresenceControls snapshot={snapshot} onChange={(presence) => manager.setUiSettings({ presence })} />
+  </div>
+);
+
+export const TransitionNoteRow = ({ snapshot, manager }: GroupProps) => (
+  <CheckRow id="so-announce-transitions" setting="display.announceTransitions" checked={snapshot.ui.announceTransitions} onChange={(on) => manager.setUiSettings({ announceTransitions: on })} />
+);
+
+export const ChapterGroup = ({ snapshot, manager }: GroupProps) => (
+  <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <Lazy fallback={null}><ChapterControls snapshot={snapshot} manager={manager} /></Lazy>
   </div>
 );
 
@@ -122,13 +130,30 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
       {snapshot.stagecraft.settings.curatorEnabled && snapshot.ready && snapshot.stagecraftScope.length === 0 && (
         <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
       )}
-      {snapshot.ui.authorView && <WardenControls snapshot={snapshot} manager={manager} />}
-      {snapshot.ui.authorView && <Lazy fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Lazy>}
     </div>
   );
 };
 
-export const TalkGroup = ({ snapshot, manager }: GroupProps) => {
+export const WardenGroup = ({ snapshot, manager }: GroupProps) => {
+  if (!snapshot.ui.authorView) return null;
+  return (
+    <div id="so-warden-settings" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+      <GroupHeader title="Continuity warden" scope="install" id="so-warden-header" />
+      <WardenControls snapshot={snapshot} manager={manager} />
+    </div>
+  );
+};
+
+export const InnerVoiceGroup = ({ snapshot, manager }: GroupProps) => {
+  if (!InnerVoiceControls || !snapshot.ui.authorView) return null;
+  return (
+    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+      <Lazy fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Lazy>
+    </div>
+  );
+};
+
+export const TalkGroup = ({ manager }: GroupProps) => {
   const [, bump] = useState(0);
   const chain = getGlobalSettings().talk.chain;
   const update = (patch: Partial<TalkChainSettings>) => {
@@ -151,12 +176,6 @@ export const TalkGroup = ({ snapshot, manager }: GroupProps) => {
           onChange={(event) => update({ max: Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, Math.round(Number(event.target.value) || 1))) })}
         />
       </div>
-      {snapshot.ui.authorView && (
-        <Advanced id="so-talk-advanced">
-          <CheckRow id="so-chain-stop-transition" setting="talk.chain.stopOnTransition" checked={chain.stopOnTransition} onChange={(on) => update({ stopOnTransition: on })} />
-          <CheckRow id="so-chain-hold-extraction" setting="talk.chain.holdExtraction" checked={chain.holdExtraction} onChange={(on) => update({ holdExtraction: on })} />
-        </Advanced>
-      )}
     </div>
   );
 };
@@ -165,20 +184,5 @@ export const PacingGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <GroupHeader title="Pacing" scope="install" id="so-pacing-header" />
     <CheckRow id="so-pacing-hint" setting="pacing.hintEnabled" checked={snapshot.pacing.hintEnabled} onChange={(on) => manager.setPacingSettings({ hintEnabled: on })} />
-    <Advanced id="so-pacing-advanced">
-      <div className="flex flex-col gap-1 text-sm">
-        <FieldLabel htmlFor="so-pacing-alpha" setting="pacing.alpha" />
-        <input
-          id="so-pacing-alpha"
-          className="text_pole"
-          type="number"
-          min={0}
-          max={1}
-          step={0.05}
-          value={snapshot.pacing.alpha}
-          onChange={(event) => manager.setPacingSettings({ alpha: Math.min(1, Math.max(0, Number(event.target.value) || 0)) })}
-        />
-      </div>
-    </Advanced>
   </div>
 );
