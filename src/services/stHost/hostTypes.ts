@@ -208,7 +208,6 @@ export interface TextgenSettingsHostModule {
   textgenerationwebui_presets: Array<Record<string, unknown>>;
   textgenerationwebui_preset_names: string[];
   setting_names: readonly string[];
-  setSettingByName: (setting: string, value: unknown, trigger?: boolean) => void;
   [key: string]: unknown;
 }
 

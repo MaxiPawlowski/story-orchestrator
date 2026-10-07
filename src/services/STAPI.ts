@@ -24,7 +24,6 @@ export {
   tgPresetObjs,
   tgPresetNames,
   TG_SETTING_NAMES,
-  setSettingByName,
   setGenerationParamsFromPreset,
   getTextGenSettingNames,
   findTextGenPreset,

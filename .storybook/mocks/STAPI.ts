@@ -25,7 +25,6 @@ export const tgPresetNames = ["Default", "Creative", "Balanced"];
 export const tgPresetObjs: Record<string, any>[] = [];
 export const TG_SETTING_NAMES: Record<string, string> = {};
 export const BIAS_CACHE: Record<string, any> = {};
-export const setSettingByName = (_name: string, _value: any) => {};
 export const displayLogitBias = () => {};
 export const setGenerationParamsFromPreset = (_preset: any) => {};
 export const getMessageTimeStamp = () => "";
