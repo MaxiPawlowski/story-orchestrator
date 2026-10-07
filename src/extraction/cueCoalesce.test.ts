@@ -40,7 +40,7 @@ const blackboard = { values: {}, versions: {}, latched: {} };
 const hostFor = (story: NormalizedStoryV2, lastMessageId: () => number, checkpoint = HUB): SchedulerHost => ({
   getStory: () => story,
   getEngineState: () => ({ activeCheckpointId: checkpoint, lastMessageId: lastMessageId(), blackboard }) as unknown as EngineState,
-  getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 }),
+  getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 0 }),
   getFacts: () => [],
   getFiredTransitions: () => [],
   getExpansionGateSources: () => [],

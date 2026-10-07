@@ -61,7 +61,7 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
     library: [],
     status: "Hydrated Quest for the Sun Ruins",
     extraction: {
-      settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 },
+      settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 1 },
       audits: [{
         id: "a12",
         reason: "cadence",

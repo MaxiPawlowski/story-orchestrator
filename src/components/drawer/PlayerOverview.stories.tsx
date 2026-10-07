@@ -8,7 +8,7 @@ import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { PlayerOverview } from "./PlayerOverview";
 
 const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): ExtractionRuntimeState => ({
-  settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+  settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
   audits: [],
   reconciliationEvents: [],
   lastReadBoundary: 4,
@@ -129,7 +129,7 @@ export const ModelNotAnswering: Story = {
 };
 
 export const NotConfigured: Story = {
-  args: { snapshot: snapshot({ extraction: extraction({ settings: { enabled: true, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 } }) }) },
+  args: { snapshot: snapshot({ extraction: extraction({ settings: { enabled: true, profileId: null, cadence: 3, stabilityLag: 0 } }) }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "Open story settings" }));

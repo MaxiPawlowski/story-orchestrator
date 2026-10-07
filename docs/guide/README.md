@@ -62,19 +62,19 @@ The extension is exercised against one host at a time; this is the one it was la
 
 **Not tested on other SillyTavern versions.** The extension imports SillyTavern modules by path (`/script.js`,
 `/scripts/world-info.js`, …) and hashes them at build time, so a version whose files differ is one nobody has run it
-against. **Diagnostics → Host capabilities** reports each feature it probes (`macros`, `slashCommands`,
+against. **Setup → Host capabilities** reports each feature it probes (`macros`, `slashCommands`,
 `backgrounds`, `vectors`, `judge`) as present, absent or error, and **Copy for a bug report** pastes the whole picture.
 
 ## First story in five minutes
 
 1. **Choose a memory model.** In SillyTavern, make a Connection Manager profile for a model (with the right instruct
-   template). In **Extensions → Story Orchestrator → General setup**, pick it as the **Memory model profile** and
+   template). In **Extensions → Story Orchestrator → Memory**, pick it as the **Memory model profile** and
    press **Test memory model**. ([More](setup/memory-model.md))
 2. **Get a story.**
    - The bundled example: **Start → Import a story** and load
      `examples/sun-ruins/quest-for-the-sun-ruins.json`. It needs four character cards, a group and a lorebook, all in
      the same folder ([how](author/examples.md)).
-   - Or your own: turn on the wizard under **Author services**, then **Start → New story (wizard)**. Describe a
+   - Or your own: turn on the wizard under **Authoring**, then **Start → New story (wizard)**. Describe a
      premise; it proposes the story and offers to create the cards, lorebook and group, one at a time.
 3. **Open the story's group chat** and choose the story under **Continue** if it is not already playing.
 4. **Play.** Click the story bar above the chat box to open the drawer: where you are, what happened, what is open.

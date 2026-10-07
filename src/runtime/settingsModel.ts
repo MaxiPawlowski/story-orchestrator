@@ -1,4 +1,4 @@
-import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
+import { MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
@@ -16,9 +16,11 @@ import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSetting
 export interface TalkChainSettings {
   enabled: boolean;
   max: number;
-  stopOnTransition: boolean;
-  holdExtraction: boolean;
 }
+
+export const TALK_CHAIN_FIXED = { stopOnTransition: true, holdExtraction: false } as const;
+
+export const RECONCILIATION_MULTIPLIER = 1.5;
 
 export const INLINE_CATEGORIES = ["progress", "memory", "threads", "lore", "cast", "pacing", "calls", "health"] as const;
 export type InlineCategory = (typeof INLINE_CATEGORIES)[number];
@@ -57,7 +59,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 // state, rings and the per-chat overrides listed in ChatOverrides.
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
-  pacing: { alpha: number; hintEnabled: boolean };
+  pacing: { hintEnabled: boolean };
   display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings; presence: PresenceSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
@@ -76,19 +78,29 @@ export interface HelpSettings {
   checklistDismissed: boolean;
   dismissedChecks: string[];
   onboardingSeen: boolean;
+  openSections: string[];
 }
 
-export const defaultHelpSettings = (): HelpSettings => ({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false });
+export const DEFAULT_OPEN_SECTIONS: readonly string[] = ["play"];
+
+export const defaultHelpSettings = (): HelpSettings => ({
+  lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: [...DEFAULT_OPEN_SECTIONS],
+});
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
+const SECTION_ID = /^[a-z]+$/;
+
+const uniqueIds = (value: unknown): string[] => (Array.isArray(value)
+  ? [...new Set(value.filter((id): id is string => typeof id === "string").map((id) => id.trim()).filter(Boolean))]
+  : []);
 
 export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
   lastSeenVersion: isRecord(value) && typeof value.lastSeenVersion === "string" && VERSION_PATTERN.test(value.lastSeenVersion) ? value.lastSeenVersion : null,
   checklistDismissed: isRecord(value) && value.checklistDismissed === true,
-  dismissedChecks: isRecord(value) && Array.isArray(value.dismissedChecks)
-    ? [...new Set(value.dismissedChecks.filter((id): id is string => typeof id === "string").map((id) => id.trim()).filter(Boolean))]
-    : [],
+  dismissedChecks: isRecord(value) ? uniqueIds(value.dismissedChecks) : [],
   onboardingSeen: isRecord(value) && value.onboardingSeen === true,
+  openSections: isRecord(value) && Array.isArray(value.openSections) ? uniqueIds(value.openSections).filter((id) => SECTION_ID.test(id)) : [...DEFAULT_OPEN_SECTIONS],
 });
 
 export const SPIKE_FLAGS = [
@@ -167,7 +179,7 @@ export interface ChatOverrides {
   talkEnabled: boolean | null;
 }
 
-export const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: true, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 });
+export const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: true, profileId: null, cadence: 3, stabilityLag: 0 });
 
 export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   enabled: true,
@@ -181,11 +193,11 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
+  pacing: { hintEnabled: true },
   display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT } },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
@@ -202,8 +214,6 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings): MemoryRuntimeSetting
   return memory;
 };
 
-const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
-
 const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
   const source = isRecord(value) ? value : {};
   const max = typeof source.max === "number" && Number.isInteger(source.max) && source.max >= 1 && source.max <= TALK_CHAIN_MAX_CAP
@@ -212,8 +222,6 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
   return {
     enabled: source.enabled !== false,
     max,
-    stopOnTransition: source.stopOnTransition !== false,
-    holdExtraction: source.holdExtraction === true,
   };
 };
 
@@ -222,10 +230,30 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain) };
 };
 
+export const DEV_ONLY_CHAPTER_KEYS = ["seal", "storySoFar", "fold", "chronicleTokens"] as const;
+
+export const DEV_ONLY_JUDGE_USES = ["loreExclusive", "expressions"] as const;
+
+const isDevBuild = () => typeof __SO_DEV__ !== "undefined" && __SO_DEV__;
+
+export const withoutDevOnlySettings = (settings: GlobalSettings, dev: boolean = isDevBuild()): GlobalSettings => {
+  if (dev) return settings;
+  const { innerBeat: _beat, innerFanOut: _fanOut, harvestReasoning: _harvest, ...memory } = settings.memory;
+  const chapters = memory.chapters ? Object.fromEntries(Object.entries(memory.chapters)
+    .filter(([key]) => !(DEV_ONLY_CHAPTER_KEYS as readonly string[]).includes(key))) as MemoryRuntimeSettings["chapters"] : undefined;
+  return {
+    ...settings,
+    memory: { ...memory, ...(chapters ? { chapters } : {}) },
+    judge: { ...settings.judge, uses: { ...settings.judge.uses, ...Object.fromEntries(DEV_ONLY_JUDGE_USES.map((use) => [use, false])) } },
+  };
+};
+
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
-  if (!isRecord(value)) return defaults;
-  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, ...extraction }: Record<string, unknown> =
+  if (!isRecord(value)) return withoutDevOnlySettings(defaults);
+  const {
+    profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, reconciliationMultiplier: _fixedReconciliation, ...extraction
+  }: Record<string, unknown> =
     isRecord(value.extraction) ? value.extraction : {};
   const fallbackProfileId = typeof rawFallback === "string" ? rawFallback.trim() : "";
   const profiles = sanitizePassProfiles(rawProfiles);
@@ -234,16 +262,13 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const pacing = isRecord(value.pacing) ? value.pacing : {};
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
-  return {
+  return withoutDevOnlySettings({
     extraction: {
       ...defaults.extraction,
       ...extraction,
       enabled: typeof extraction.enabled === "boolean" ? extraction.enabled : defaults.extraction.enabled,
       profileId: typeof extraction.profileId === "string" && extraction.profileId ? extraction.profileId : null,
       cadence: typeof extraction.cadence === "number" && extraction.cadence >= 1 ? extraction.cadence : defaults.extraction.cadence,
-      reconciliationMultiplier: typeof extraction.reconciliationMultiplier === "number" && extraction.reconciliationMultiplier >= 1
-        ? extraction.reconciliationMultiplier
-        : defaults.extraction.reconciliationMultiplier,
       stabilityLag: typeof extraction.stabilityLag === "number" && extraction.stabilityLag >= 0 ? extraction.stabilityLag : defaults.extraction.stabilityLag,
       ...(profiles ? { profiles } : {}),
       ...(routes ? { routes } : {}),
@@ -251,7 +276,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(fallbackProfileId ? { fallbackProfileId } : {}),
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
     },
-    pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
       inline: sanitizeInlineSettings(display.inline),
@@ -278,5 +303,5 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
     help: sanitizeHelpSettings(value.help),
-  };
+  });
 };

@@ -5,6 +5,7 @@ import { MemoryTab } from "../components/drawer/tabs/MemoryTab";
 import { PlayerOverview } from "../components/drawer/PlayerOverview";
 import { InlineControls } from "../components/settings/InlineControls";
 import { ChapterControls } from "../components/settings/ChapterControls";
+import { ChapterRecordControls } from "../components/settings/ChapterRecordControls";
 import { RoleProfilesGroup } from "../components/settings/RoleProfilesGroup";
 import { WorldInfoGatingGroup } from "../components/settings/WorldInfoGatingGroup";
 import EntryPoints from "../components/settings/EntryPoints";
@@ -104,11 +105,11 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
     expect(author).toContain("CP2 - SECRET ENTRY");
   });
 
-  it("M5: chapter seal, fold, story-so-far and budget are author-only; the Previously toggle stays", () => {
+  it("M5: chapter seal, fold, story-so-far and budget are author-only (and dev-only, v2.7 29); the Previously toggle stays", () => {
     const player = html(createElement(ChapterControls, { snapshot: snapshot(false), manager }));
     for (const id of ["so-chapter-seal", "so-chapter-fold", "so-chapter-story-so-far", "so-chapter-budget"]) expect(player).not.toContain(`id="${id}"`);
     expect(player).toContain('id="so-chapter-recap"');
-    const author = html(createElement(ChapterControls, { snapshot: snapshot(true), manager }));
+    const author = html(createElement(ChapterRecordControls, { stored: undefined, onWrite: noop }));
     for (const id of ["so-chapter-seal", "so-chapter-fold", "so-chapter-story-so-far", "so-chapter-budget"]) expect(author).toContain(`id="${id}"`);
   });
 
@@ -123,7 +124,7 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
     expect(page).not.toContain("Wendhope Lore");
     expect(page).not.toContain("so-entry-fix-with-wizard");
     expect(page).toMatch(/id="so-new-story-wizard"[^>]*disabled/);
-    expect(page).toContain("Turn on the wizard under Author services first.");
+    expect(page).toContain("Turn on the wizard under Authoring first.");
     const author = html(createElement(EntryPoints, { ...props, snapshot: snapshot(true, { ...lore, ui: { authorView: true } }) }));
     expect(author).toContain("Wendhope Lore");
     expect(author).toContain("so-entry-fix-with-wizard");

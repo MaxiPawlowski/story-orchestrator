@@ -9,13 +9,19 @@ Only one thing is required: a **memory model**. Everything else is optional and 
 | ComfyUI | Illustrations | [Images and the GPU plugin](images.md) |
 | Harness plugin | Running tasks through Claude Code, Codex or opencode logins on the server | [Harness](harness.md) |
 
-Every setting is in **Extensions → Story Orchestrator**:
+Every setting is in **Extensions → Story Orchestrator**, below **Start / Continue / Repair / Author**, in one section
+per area (the same areas as the README's feature table). Each section's **?** opens its page in this guide, and
+rarely changed settings sit under its **Advanced** fold. The panel remembers which sections you left open.
 
-- **This chat**: which story this chat plays.
-- **General setup — shared by every chat**: memory model, models per task, display, images, sprites.
-- **Author services — optional, shared by every chat**: the wizard, lorebooks, stagecraft (the World Info curator),
-  the judge, speaker direction, pacing.
-- **Diagnostics**: **Host capabilities** says which SillyTavern features the extension found, and **Copy for a bug
+- **Playing**: which story this chat plays, the story bar, notes under messages, the briefing, list marks, pacing.
+- **Memory**: the memory model, its fallback, reply thinking, the memory model test, models per task, chapters, the
+  continuity warden (Author view).
+- **Characters**: several voices per turn.
+- **World**: how story lorebooks switch on, and the lorebook curator (Author view, or before a story is loaded).
+- **Images**: illustrations and the sprite stage.
+- **Judge**: the key, the switch, and what it is used for.
+- **Authoring**: the wizard switch (Author view, or before a story is loaded).
+- **Setup**: **Host capabilities** says which SillyTavern features the extension found, and **Copy for a bug
   report** copies the whole picture.
 
 Each group says its scope in its title: "this install" settings affect every chat, "this chat" only the open one.

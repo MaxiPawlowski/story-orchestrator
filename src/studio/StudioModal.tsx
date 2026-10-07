@@ -211,7 +211,7 @@ const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSel
   return (
     <div className="flex h-full flex-col gap-3">
       {!copilotEnabled && isEmptyDraft && (
-        <div id="so-studio-wizard-off" className="st-subpanel p-3 text-sm">The wizard is off. Turn it on under Author services in the extension settings to start from a premise.</div>
+        <div id="so-studio-wizard-off" className="st-subpanel p-3 text-sm">The wizard is off. Turn it on under Authoring in the extension settings to start from a premise.</div>
       )}
       {copilotEnabled && isEmptyDraft && (
         <div id="so-studio-empty" className="st-subpanel flex flex-wrap items-center gap-2 p-3 text-sm">

@@ -382,7 +382,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
   if (!enabled || !runStage) {
     return (
       <div className="st-subpanel rounded p-3 text-sm st-muted" role="status" aria-label="Wizard unavailable">
-        The wizard is off or no memory model profile is selected. Turn it on under Author services in the settings panel and pick a memory model profile.
+        The wizard is off or no memory model profile is selected. Turn it on under Authoring in the settings panel and pick a memory model profile.
       </div>
     );
   }

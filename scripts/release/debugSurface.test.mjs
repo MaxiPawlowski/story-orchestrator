@@ -28,6 +28,14 @@ test("D3 (v2.7 31 §B): the prod bundle carries no warm-batch lease; the dev bun
   assert.ok(scripts("dist-dev").includes(marker), "control: the dev bundle lost the warm-batch lease, so the grep proves nothing");
 });
 
+test("D4 (v2.7 29): the prod bundle carries no dev-only settings control; the dev bundle does", { skip: noBuilds }, () => {
+  const markers = ["so-inner-fanout", "so-chapter-fold", "so-chapter-story-so-far"];
+  const prod = scripts("dist");
+  assert.deepEqual(markers.filter((marker) => prod.includes(marker)), []);
+  const dev = scripts("dist-dev");
+  assert.deepEqual(markers.filter((marker) => !dev.includes(marker)), [], "control: the dev bundle lost a dev-only control, so the grep proves nothing");
+});
+
 test("D2 control: a planted global name is caught", () => {
   assert.deepEqual(surfaceNames("x.storyOrchestratorRuntime=m;y[\"storyOrchestratorStop\"]=s;story-orchestrator"), ["storyOrchestratorRuntime", "storyOrchestratorStop"]);
 });

@@ -25,7 +25,7 @@ const okRead = async (options: { window: { from: number; to: number } }) => ({
 });
 
 function harness() {
-  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, stabilityLag: 0 };
   const probed: string[] = [];
   const probeAnswers: ProbeResult[] = [];
   const applied: number[] = [];

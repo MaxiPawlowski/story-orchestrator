@@ -30,7 +30,7 @@ const boundary = (number: number, applied: Array<{ from: number; to: number }> =
 const history = (log: ReturnType<typeof boundary>[]) => ({ from: { boundary: 0, messageId: 0 }, base: {}, log }) as unknown as EngineHistory;
 
 function harness(seed: () => number | null) {
-  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: 1, stabilityLag: 0 };
   const host: SchedulerHost = {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,

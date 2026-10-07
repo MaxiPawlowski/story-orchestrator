@@ -110,8 +110,8 @@ export async function revealSettingsControl(page, selector: string, { timeoutMs 
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const state = await evaluateInST(page, (wanted) => {
-      const general = document.querySelector('#so-general-setup') as HTMLDetailsElement | null;
-      if (general && general.tagName === 'DETAILS' && !general.open) general.open = true;
+      const memory = document.querySelector('#so-area-memory') as HTMLDetailsElement | null;
+      if (memory && memory.tagName === 'DETAILS' && !memory.open) memory.open = true;
       const node = document.querySelector(wanted);
       if (!node) return { found: false, opened: 0 };
       let opened = 0;

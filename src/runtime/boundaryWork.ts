@@ -3,6 +3,7 @@ import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionS
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import { sealAtState, storyEnded } from "./chapterPort";
 import type { RuntimeManager } from "./runtimeManager";
+import { RECONCILIATION_MULTIPLIER } from "./settingsModel";
 import { log } from "@utils/log";
 
 export const CONSOLIDATION_CADENCE = 10;
@@ -60,7 +61,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "reconciliation",
     order: 30,
     run: ({ manager, scheduler }) => {
-      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier, getChatWindow);
+      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), RECONCILIATION_MULTIPLIER, getChatWindow);
       if (!plan) return;
       manager.recordReconciliation(plan.descriptor);
       const reread = () => scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });

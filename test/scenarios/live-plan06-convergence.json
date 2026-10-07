@@ -2,7 +2,7 @@
   "steps": [
     { "import_story": { "file": "../fixtures/convergence-drift.story.json" } },
     { "ui": { "action": "select-profile" } },
-    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 }); return true;" },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 3, stabilityLag: 1 }); return true;" },
     { "expand": {} },
     { "wait": { "expansionStatus": "inserted", "timeoutMs": 300000 } },
     { "slash": "/cp set key_found true" },

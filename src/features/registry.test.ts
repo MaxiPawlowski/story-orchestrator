@@ -15,7 +15,7 @@ import {
   AREA_LABELS, FEATURE_AREAS, FEATURES, HOME_PAGE, NEED_LABELS, authorGuideDoc, compareVersions, coversSetting, featuresForSetting, guideUrl, newestSince,
   visibleFeatures, whatsNew, type FeatureAudience,
 } from "./registry";
-import { SETTING_COPY } from "./settingsCopy";
+import { SETTINGS_AREA_COPY, SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
 import { BRIEFING_COPY, HELP_COPY, ONBOARDING_LINES } from "./helpCopy";
 import { INLINE_CATEGORY_HELP, INLINE_LEGEND_COPY, INLINE_LEVEL_HELP, INLINE_LEVEL_LABELS, INLINE_STATE_LABELS } from "./inlineCopy";
@@ -88,6 +88,7 @@ const copyItems = (): CopyItem[] => [
   ...[STORY_HELP_STRING, storyHelpText(), SO_MEM_HELP_STRING, soMemHelpText()].map((text) => ({ source: "slash help", audience: "player" as const, text })),
   { source: "slash help /cp", audience: "author", text: CP_HELP_STRING },
   ...Object.values(AREA_LABELS).map((text) => ({ source: "area", audience: "player" as const, text })),
+  ...Object.values(SETTINGS_AREA_COPY).flatMap((copy) => [copy.label, copy.oneLine]).map((text) => ({ source: "settings area", audience: "player" as const, text })),
   ...Object.values(NEED_LABELS).map((text) => ({ source: "need", audience: "player" as const, text })),
 ];
 
@@ -246,8 +247,9 @@ describe("v2.7 plan 01 what's new and getting started", () => {
   });
 
   it("stores the last seen version install-wide and keeps only a version", () => {
-    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false });
-    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help).toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, dismissedChecks: [], onboardingSeen: false });
+    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
+    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help)
+      .toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
     expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "soon" } }).help.lastSeenVersion).toBeNull();
   });
 

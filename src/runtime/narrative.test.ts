@@ -4,7 +4,7 @@ import { derivePipelineStatus } from "./pipeline";
 import type { ExtractionRuntimeState } from "./types";
 
 const pipeline = (overrides: Partial<ExtractionRuntimeState["settings"]> = {}) => derivePipelineStatus({
-  settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0, ...overrides },
+  settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0, ...overrides },
   audits: [],
   reconciliationEvents: [],
   lastReadBoundary: 0,

@@ -31,7 +31,7 @@ const answerFor = (window: { from: number; to: number }) => ({
 });
 
 function harness() {
-  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, stabilityLag: 0 };
   let epoch = 1;
   const applied: number[] = [];
   const health: Array<[string, string]> = [];

@@ -34,7 +34,7 @@ import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
-import { getGlobalSettings, setGlobalSettings, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
+import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
@@ -378,7 +378,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(),
       clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
-  setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
+  setPacingSettings(settings: Partial<Omit<PacingSettings, "alpha">>) { this.settingsControl.pacing(settings); }
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
   setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) { this.settingsControl.copilot(settings); }
   setUiSettings(settings: UiSettingsPatch) { this.settingsControl.ui(settings); }
@@ -391,7 +391,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   getTalkState(): TalkRuntimeState { return this.extras.talk; }
 
   setTalkDirectionEnabled(enabled: boolean, scope: "chat" | "global" = "chat") { this.settingsControl.talk(enabled, scope); }
-  getTalkChainConfig() { return getGlobalSettings().talk.chain; }
+  getTalkChainConfig() { return { ...getGlobalSettings().talk.chain, ...TALK_CHAIN_FIXED }; }
   setTalkChainSettings(chain: Partial<TalkChainSettings>) { this.settingsControl.talkChain(chain); }
 
   private extractionHold = false;

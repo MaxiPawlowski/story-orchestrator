@@ -12,7 +12,7 @@ const { boundary, lastMessageId, checkpointStartedBoundary } = recorded.state;
 const popupThreads = () => recorded.popup.split("\nOpen threads\n")[1].split("\nThe story so far\n")[0].split("\n");
 
 const pipeline = derivePipelineStatus({
-  settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+  settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
   audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler: { queueDepth: 0, inFlight: false, lastError: null },
 } as Partial<ExtractionRuntimeState> as ExtractionRuntimeState);
 

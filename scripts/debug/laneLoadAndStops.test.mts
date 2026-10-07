@@ -34,15 +34,15 @@ function details(open: boolean, parent: any = null) {
   return { tagName: 'DETAILS', open, parentElement: parent };
 }
 
-test('the memory-profile select is revealed: the collapsed general setup and every ancestor details open', async () => {
-  const general = details(false);
-  const lazy = details(false, { tagName: 'DIV', parentElement: general });
+test('the memory-profile select is revealed: the collapsed memory section and every ancestor details open', async () => {
+  const memory = details(false);
+  const lazy = details(false, { tagName: 'DIV', parentElement: memory });
   const select = { tagName: 'SELECT', parentElement: lazy };
-  g.document = { querySelector: (selector: string) => (selector === '#so-general-setup' ? general : selector === '#so-extraction-profile' ? select : null) };
+  g.document = { querySelector: (selector: string) => (selector === '#so-area-memory' ? memory : selector === '#so-extraction-profile' ? select : null) };
   const page = { evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => fn(arg) };
   const state = await revealSettingsControl(page, '#so-extraction-profile', { timeoutMs: 0 });
   assert.deepEqual(state, { found: true, opened: 1 });
-  assert.equal(general.open, true);
+  assert.equal(memory.open, true);
   assert.equal(lazy.open, true);
 });
 

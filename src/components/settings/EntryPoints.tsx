@@ -25,7 +25,7 @@ export interface EntryPointsProps {
   gettingStarted?: React.ReactNode;
 }
 
-export const WIZARD_OFF_REASON = "Turn on the wizard under Author services first.";
+export const WIZARD_OFF_REASON = "Turn on the wizard under Authoring first.";
 
 const Row = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="so-task-card flex flex-col gap-1" data-so="entry-point" data-task={title.toLowerCase()}>

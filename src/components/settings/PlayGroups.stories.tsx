@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { DisplayGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
+import { DisplayGroup, InnerVoiceGroup, PacingGroup, StagecraftGroup, TalkGroup, TransitionNoteRow, WardenGroup } from "./PlayGroups";
 
 const snapshot = (authorView: boolean, storyId: string | null = "sun-ruins"): RuntimeSnapshot =>
   ({
@@ -29,8 +29,11 @@ const fakeManager = (): RuntimeManager =>
 const Groups = ({ snapshot: current, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => (
   <div className="flex flex-col gap-3">
     <DisplayGroup snapshot={current} manager={manager} />
+    <TransitionNoteRow snapshot={current} manager={manager} />
     <StagecraftGroup snapshot={current} manager={manager} />
+    <WardenGroup snapshot={current} manager={manager} />
     <TalkGroup snapshot={current} manager={manager} />
+    <InnerVoiceGroup snapshot={current} manager={manager} />
     <PacingGroup snapshot={current} manager={manager} />
   </div>
 );
@@ -58,6 +61,9 @@ export const AuthorView: Story = {
     await userEvent.click(curator);
     await expect(args.manager.setStagecraftSettings).toHaveBeenCalledWith({ curatorEnabled: false });
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-inner-voice-settings")).toBeNull();
+    await expect(canvasElement.querySelector("#so-pacing-alpha")).toBeNull();
+    await expect(canvasElement.querySelector("#so-chain-hold-extraction")).toBeNull();
   },
 };
 

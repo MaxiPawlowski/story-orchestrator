@@ -261,7 +261,6 @@ export async function capturePage(page) {
         enabled: settings?.extraction?.enabled ?? null,
         cadence: settings?.extraction?.cadence ?? null,
         stabilityLag: settings?.extraction?.stabilityLag ?? null,
-        reconciliationMultiplier: settings?.extraction?.reconciliationMultiplier ?? null,
         profileId: settings?.extraction?.profileId ?? null,
         profiles: settings?.extraction?.profiles ?? {},
       },

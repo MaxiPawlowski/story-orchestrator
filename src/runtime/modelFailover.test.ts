@@ -134,7 +134,7 @@ interface Harness {
 }
 
 function harness(fallbackProfileId: string | null, down: string[] = ["deepseek"]): Harness {
-  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0, ...(fallbackProfileId ? { fallbackProfileId } : {}) };
+  const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: 1, stabilityLag: 0, ...(fallbackProfileId ? { fallbackProfileId } : {}) };
   const h = { settings, notes: [] as Array<[string, string]>, probeAnswers: [] as ProbeResult[], probed: [] as string[], backend: backend(down), ran: [] as string[] } as Harness;
   const gate: FailoverGate = { open: (id) => h.scheduler.gate.open(id), failed: (id, kind, detail) => h.scheduler.gate.failed(id, kind, detail) };
   const model = createModelCallVia(replyOf(h.backend), { settings: () => settings, exists, gate, ownership: steady, planted: false });

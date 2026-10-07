@@ -37,7 +37,7 @@ interface Harness {
 }
 
 function harness(overrides: Partial<SchedulerHost> = {}): Harness {
-  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0 };
+  const settings: SchedulerSettings = { enabled: true, profileId: "artemis", cadence: 1, stabilityLag: 0 };
   let epoch = 1;
   const h = { settings, applied: [] as number[], probes: [] as number[], failures: [] as Array<[string, string]>, probeAnswers: [] as ProbeResult[], profiles: new Set(["artemis"]) } as Harness;
   const host: SchedulerHost = {

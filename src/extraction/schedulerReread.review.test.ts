@@ -41,7 +41,7 @@ function harness() {
   const host = {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getEngineState: () => ({ activeCheckpointId: "cp1", boundary: 5, lastMessageId: chat.last }),
-    getExtractionSettings: () => ({ enabled: true, cadence: 1, profileId: "p1", stabilityLag: 0, reconciliationMultiplier: 2 }),
+    getExtractionSettings: () => ({ enabled: true, cadence: 1, profileId: "p1", stabilityLag: 0 }),
     getFacts: () => [],
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
