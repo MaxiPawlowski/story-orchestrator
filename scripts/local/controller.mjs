@@ -75,7 +75,7 @@ const startComfy = async () => {
     }
     throw new Error('ComfyUI did not become ready.');
 };
-const backend = new NativeBackend(config);
+const backend = new NativeBackend(config, { snapshot: () => fast.snapshot() });
 const imageCache = new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: async () => {
     const response = await fetch(`${config.comfyUrl}/so-local/host-cache`, { method: 'POST', headers: { 'X-SO-Local': '1' }, signal: AbortSignal.timeout(15000) });
     if (response.status === 404 || response.status === 501) return false;
@@ -176,7 +176,7 @@ const server = http.createServer(async (req, res) => {
         }, abort.signal, ['/completion', '/v1/completions', '/v1/chat/completions'].includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
     } catch (error) { answer(res, 409, { error: { message: error.message, type: 'local_residency' } }); }
 });
-const timer = setInterval(() => { void scheduler.sampleLease(); void scheduler.restoreIfIdle(); }, 2500);
+const timer = setInterval(() => { void scheduler.sampleLease(); void scheduler.restoreIfIdle(); if (!closing) void scheduler.keepResident(); }, 2500);
 process.on('SIGTERM', () => { void backend.unload().finally(() => { if (comfyChild) comfyChild.kill(); fast.stop(); server.close(); clearInterval(timer); process.exit(0); }); });
 server.listen(config.gatewayPort, '127.0.0.1', () => console.log(`Local residency gateway listening on 127.0.0.1:${config.gatewayPort}`));
 server.on('error', (error) => { console.error(error.message); clearInterval(timer); process.exitCode = 1; });

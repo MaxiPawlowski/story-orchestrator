@@ -20,6 +20,28 @@ export class ResidencyScheduler {
         this.lastTextDecision = null;
         this.lastWorkflow = null;
         this.lastCacheMode = null;
+        this.reloadFailures = 0;
+        this.reloadRetryAt = null;
+    }
+
+    async keepResident(now = Date.now()) {
+        if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.activeText || this.manualHold || this.pending.length) return;
+        const state = this.backend.status();
+        if (state.pid || state.loading) return;
+        if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
+        if (this.reloadRetryAt && now < this.reloadRetryAt) return;
+        this.restoring = true;
+        const name = this.backend.desiredProfile ?? this.config.defaultProfile;
+        try {
+            try { await this.freeImages({ ramRequiredMiB: this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 }); }
+            catch (error) { this.lastError = error.message; }
+            await this.backend.load(name, { fitTarget: null });
+            this.reloadFailures = 0; this.reloadRetryAt = null; this.lastError = null;
+        } catch (error) {
+            this.lastError = error.message;
+            this.reloadFailures += 1;
+            this.reloadRetryAt = Date.now() + Math.min(this.config.textReloadMaxBackoffMs ?? 60000, 5000 * 2 ** (this.reloadFailures - 1));
+        } finally { this.restoring = false; void this.pump(); }
     }
 
     text(run, signal, budget = null) {
@@ -106,6 +128,8 @@ export class ResidencyScheduler {
             const fits = () => admission(snapshot, { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
             if (fits().allowed && benchmarkMode !== 'swap') {
                 decision = 'retain-text';
+            } else if (benchmarkMode !== 'swap' && this.streams({ snapshot, runtime, models, needRamMiB })) {
+                decision = 'stream-image';
             } else if (benchmarkMode !== 'swap' && this.backend.status().pid && room <= (this.config.shedCeilingMiB ?? 13000) && (benchmarkMode === 'shed' || this.shouldShed(room, body.nextTextTokens))) {
                 try {
                     await this.backend.load(this.backend.desiredProfile ?? this.config.defaultProfile, { fitTarget: room });
@@ -125,7 +149,7 @@ export class ResidencyScheduler {
                 snapshot = await this.snapshot({ fresh: true });
                 decision = 'swap-text';
             }
-            const admitted = fits();
+            const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' } : fits();
             if (!admitted.allowed) throw new Error(`Image admission refused: ${admitted.reason}`);
             this.lastDecision = decision;
             this.lastError = null;
@@ -138,6 +162,14 @@ export class ResidencyScheduler {
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) { this.lastError = error.message; throw error; }
         finally { this.imagePending = false; if (!this.lease) void this.pump(); }
+    }
+
+    streams({ snapshot, runtime, models, needRamMiB }) {
+        const policy = this.config.streamImages;
+        if (!policy?.enabled || !runtime?.streaming || !this.backend.status().pid || this.backend.status().fitTargetMiB != null) return false;
+        if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
+        if (models.reduce((sum, row) => sum + row.weightsMiB, 0) > (policy.maxWeightMiB ?? 8192)) return false;
+        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, { gpuMiB: 0, ramMiB: this.config.reserves.ramMiB }).allowed;
     }
 
     renew(id) { if (this.lease?.id !== id) return false; this.lease.touched = Date.now(); return true; }
@@ -203,8 +235,14 @@ export class ResidencyScheduler {
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
         const profile = this.config.profiles?.[this.backend.desiredProfile ?? this.config.defaultProfile];
-        const cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
-            maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+        let cache = null;
+        try {
+            cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
+                maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+        } catch (error) {
+            if (!/admission refused/.test(error.message)) throw error;
+            this.lastError = error.message;
+        }
         this.observe(await this.snapshot({ fresh: true }));
         this.lastWorkflow = lease.workflowKey;
         this.lastCacheMode = cache?.mode ?? null;
@@ -241,6 +279,7 @@ export class ResidencyScheduler {
         await this.backend.unload();
         await this.freeImages({ ramRequiredMiB: this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 });
         await this.backend.load(name, { fitTarget: null });
+        this.lastError = null;
     }
 
     async exclusive(run) {
@@ -266,6 +305,7 @@ export class ResidencyScheduler {
             await this.freeImages({ ramRequiredMiB: this.config.profiles?.[profile]?.estimatedRamMiB ?? 6500 });
             await this.backend.load(profile, options);
             this.manualHold = false;
+            this.lastError = null;
         });
     }
 

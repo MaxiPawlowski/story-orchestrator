@@ -19,6 +19,14 @@ and lifecycle operation shares the lease queue; a manual hold requires Automatic
   reduced resident request can restore when its bounded output budget makes a full reload cheaper.
 - `nextTextTokens`: expected next reply budget for image admission (default 256); a request can supply
   `nextTextTokens`. This is a cost estimate, not a claim that the model will use every output token.
+- `keepTextResident` (default true): with Automatic selected and nothing running, an absent text backend (after a
+  swap, a failed load, a failed restore) is reloaded at its desired profile once `textReloadGraceMs` (5000) has passed
+  since the last lease; a failed load retries with backoff 5 s doubling to `textReloadMaxBackoffMs` (60000). The native
+  backend's admission reads the fast NVML/GlobalMemoryStatusEx probe; the PowerShell CIM probe is only its fallback.
+- `streamImages` (default off; enabling it crosses the 2 GiB GPU reserve, owner decision): `{enabled, minFreeGpuMiB
+  (2400), maxWeightMiB (8192), kinds (['checkpoints'])}`. On a DynamicVRAM runtime, an SDXL-sized render keeps full text
+  resident (`stream-image`) and ComfyUI streams its weights from RAM; the physical-RAM reserve still applies.
+  Measured in `docs/plans/v2.7/22b-residency-harvest-2026-10-07.md`.
 - `idleRestoreMs`: idle full-speed restore (600000 on this install), serialized with reads and renders.
 - `imageCacheMode`: `warm` (default) offloads image weights but preserves the Comfy execution cache while RAM allows;
   `evict` also resets the cache. `cli.mjs cache-mode warm|evict` changes the running comparison arm, not disk config.
@@ -53,7 +61,12 @@ node scripts/local/benchmark.mjs <config.json> fast mmap
 node scripts/local/render-benchmark.mjs <config.json> auto scene 128
 node scripts/local/live-check.mjs <config.json> --cost
 node scripts/local/live-check.mjs <config.json> --idle
+node scripts/local/residency-arms.mjs <config.json> resident|ffn|reload scene|portrait [runs] [--cpu-ffn N] [--comfy-reserve GB] [--text-load-mode none|dio|mmap]
 ```
+
+`residency-arms` needs the controller stopped (`cli.mjs stop`): it owns its own llama-server and ComfyUI, measures
+image s, image→completed reply s, reply tok/s, peak VRAM, low GPU/RAM and the WDDM shared-usage delta, then stops both.
+Restart the controller afterwards.
 
 Render modes: `auto|swap|shed|solo`; explicit swap/shed arms require `experiments: true`. Families:
 `scene|portrait|background|hires|lora|edit|sprite`. LoRA needs an existing `benchmarkLora`; edit/sprite need
