@@ -4,6 +4,7 @@ import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
 import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt, runningTotals } from "./contract";
 import type { ParsedMemoryLine } from "@memory/index";
+import { onlyOutOfCharacter } from "./chatRows";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
@@ -187,12 +188,17 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
     return { window, record: { ...base, tokens, overBudget: fit.reason }, trimmedFrom: null, truncated: [] };
   }
   return {
-    window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}) },
+    window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}), ...oocFrom(window, fit.from) },
     record: { ...base, tokens: promptOverhead + fit.tokens },
     trimmedFrom: fit.trimmedFrom,
     truncated: fit.truncated,
   };
 }
+
+const oocFrom = (window: SharedReadWindow, from: number): Pick<SharedReadWindow, "ooc"> => {
+  const kept = (window.ooc ?? []).filter((id) => id >= from);
+  return kept.length ? { ooc: kept } : {};
+};
 
 async function reaskPlayerOnly(
   options: RunSharedReadOptions, contract: SharedReadContract, residual: readonly ScopedQuality[], answered: Set<string>,
@@ -216,11 +222,12 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const scope = scopeOf(options);
   const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
   const { window } = fitted;
+  const silent = onlyOutOfCharacter(window);
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
   // A judge that threw used to leave no trace, so its audit read exactly like one where the
   // judge was never asked. The read still falls back to the LLM; the audit says why.
   const failure: { message?: string } = {};
-  const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length
+  const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length && !silent
     ? await options.judgeTyped({
       story: options.story,
       state: options.state,
@@ -232,7 +239,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const contract = readContract(options, window, residual);
   const prompt = renderSharedReadPrompt(contract);
-  const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length
+  const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length && !silent
     ? options.model(prompt, { ...options.ask, maxTokens })
     : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
   let responseTokens = options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS;
@@ -271,6 +278,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(fitted.record ? { budget: { ...fitted.record, maxTokens: responseTokens } } : {}),
     ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
     ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
+    ...(window.ooc ? { outOfCharacter: window.ooc } : {}),
     ...(window.form ? { windowForm: window.form } : {}),
     ...(reask ? { reask: { keys: reask.keys, rawResponse: reask.rawResponse, accepted: reask.accepted.map((entry) => entry.delta.q) } } : {}),
   };

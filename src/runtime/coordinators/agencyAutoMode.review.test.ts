@@ -111,3 +111,20 @@ describe("v2.7 33 W2: the agency family has its own accept mode", () => {
     expect(env.asked).toEqual([]);
   });
 });
+
+describe("v2.7 finding 19: an OOC line is no player_message for the warden", () => {
+  it.each(["((brb))", "OOC: can we skip this?", "(OOC) one question"])("%s leaves agency unasked, and the continuity check still runs", async (text) => {
+    chat.splice(0, chat.length, { name: "Max", mes: "I wait.", is_user: true }, { name: "Guard", mes: "Fine.", is_user: false },
+      { name: "Max", mes: text, is_user: true }, { name: "Guard", mes: "You walk off.", is_user: false });
+    const env = harness({ warden: "review" }, [continuity]);
+    await env.coordinator.runWardenPass(3);
+    expect(env.asked).toEqual([expect.objectContaining({ agency: null, facts: ["The bridge fell."] })]);
+  });
+
+  it("control: a line with parentheses is the player's message", async () => {
+    chat.splice(0, chat.length, { name: "Max", mes: "I wait (patiently).", is_user: true }, { name: "Guard", mes: "You walk off.", is_user: false });
+    const env = harness({ warden: "review" }, [agency]);
+    await env.coordinator.runWardenPass(1);
+    expect(env.asked).toEqual([expect.objectContaining({ agency: { player: "Max", message: "I wait (patiently)." } })]);
+  });
+});

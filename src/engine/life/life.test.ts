@@ -6,7 +6,7 @@ import {
   CLOCK_DAY_KEY, TURN_OOC_KEY, agendaRepeatsKey, agendaStepKey, agendaWaitKey, moodKey, type NormalizedStoryV2, type PrimitiveValue,
 } from "../schema";
 import { deriveLife } from "./derive";
-import { isOocText } from "./ooc";
+import { isOocText } from "../ooc";
 import { awayMembers, effectiveMood, lifeScopeKeys } from "./presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, privateLifeLines } from "./lines";
 

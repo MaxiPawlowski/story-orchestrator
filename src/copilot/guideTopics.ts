@@ -86,7 +86,8 @@ export const GUIDE_TOPICS = {
     text: "read_as (choice for bool/enum, stated for a named number or name, rating for a scale) lets the judge read a plainly visible answer every turn; criteria say what "
       + "each option means. evidence_from: world means a player's own line cannot prove it (use it for outcomes gating an anchor); party for the party's own moves, "
       + "which the player's line may state. "
-      + "commit_evidence is a pattern the quoted evidence must match for a commitment. scope_hint {from, until} narrows when it is asked; never narrow past a gate that needs it.",
+      + "commit_evidence is a pattern the quoted evidence must match for a commitment. scope_hint {from, until} narrows when it is asked; never narrow past a gate that needs it. "
+      + "A player line wrapped in ((…)) or starting OOC: / (OOC is never read and is no player turn.",
   },
   "chance-roll": {
     title: "Chance rolls",

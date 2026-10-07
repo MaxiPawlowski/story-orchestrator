@@ -40,6 +40,7 @@ export interface SharedReadWindow {
   to: number;
   messages: ChatMessageWindowEntry[];
   form?: WindowForm;
+  ooc?: number[];
 }
 
 export interface SharedReadContract {
@@ -122,6 +123,7 @@ export interface SharedReadAudit {
   budget?: ReadBudgetRecord;
   trimmedFrom?: number;
   truncated?: number[];
+  outOfCharacter?: number[];
   windowForm?: WindowForm;
   reask?: { keys: string[]; rawResponse: string; accepted: string[] };
 }

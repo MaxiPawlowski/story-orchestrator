@@ -1,4 +1,7 @@
-import { agencyForCheckpoint, isOpenStretch, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import {
+  agencyForCheckpoint, isInCharacterPlayerLine, isOpenStretch,
+  type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue,
+} from "@engine/index";
 import type { SharedReadAudit } from "@extraction/types";
 import { findStubExpansionCandidate } from "@generation/planner";
 
@@ -58,10 +61,7 @@ const moves = ({ leaf, negated }: ExitLeaf, value: PrimitiveValue): boolean => {
 
 /** The chat positions of the player's own messages: what a turn is, in a group as in a solo chat. */
 export const playerTurnIds = (chat: readonly unknown[]): number[] =>
-  chat.flatMap((message, index) => {
-    const entry = message as { is_user?: boolean; is_system?: boolean } | null;
-    return entry?.is_user && !entry.is_system ? [index] : [];
-  });
+  chat.flatMap((message, index) => (isInCharacterPlayerLine(message) ? [index] : []));
 
 export const agencyRecovery = (
   story: NormalizedStoryV2 | null,

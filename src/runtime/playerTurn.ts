@@ -1,9 +1,15 @@
-import type { BoundaryContext } from "@engine/index";
+import { isInCharacterPlayerLine, isPlayerLine, type BoundaryContext } from "@engine/index";
+
+export function lastPlayerRow(chat: readonly unknown[]): number {
+  for (let index = chat.length - 1; index > 0; index -= 1) {
+    if (isPlayerLine(chat[index])) return index;
+  }
+  return 0;
+}
 
 export function lastPlayerMessageAt(chat: readonly unknown[], last: number): { lastPlayerMessageId?: number } {
   for (let index = Math.min(last, chat.length - 1); index >= 0; index -= 1) {
-    const row = chat[index] as { is_user?: unknown; is_system?: unknown } | null | undefined;
-    if (row?.is_user === true && row.is_system !== true) return { lastPlayerMessageId: index };
+    if (isInCharacterPlayerLine(chat[index])) return { lastPlayerMessageId: index };
   }
   return {};
 }

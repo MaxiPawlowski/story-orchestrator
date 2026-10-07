@@ -152,4 +152,14 @@ describe("V13: a refusal is counted in player turns, not replies", () => {
   it("reads the player's lines out of the chat, never a system note", () => {
     expect(playerTurnIds([{ is_user: false }, { is_user: true }, { is_user: true, is_system: true }, null, { is_user: true }])).toEqual([1, 4]);
   });
+
+  it("v2.7 finding 19: an OOC line is no refused turn; a line with parentheses still is", () => {
+    const chat = [{ is_user: true, mes: "I refuse the duel." }, { is_user: false }, { is_user: true, mes: "OOC: is this a fight?" }, { is_user: false },
+      { is_user: true, mes: "((brb))" }, { is_user: false }, { is_user: true, mes: "(OOC) back" }, { is_user: false }];
+    const turns = playerTurnIds(chat);
+    expect(turns).toEqual([0]);
+    expect(recoveryOf(story(), state("duel"), at("duel", [1, 3, 5, 7]), readOver(0, 7), turns)).toBeNull();
+    const inCharacter = playerTurnIds(chat.map((row) => (row.is_user ? { ...row, mes: "I shake my head (again)." } : row)));
+    expect(recoveryOf(story(), state("duel"), at("duel", [1, 3, 5, 7]), readOver(0, 7), inCharacter)).toMatchObject({ turns: 4 });
+  });
 });

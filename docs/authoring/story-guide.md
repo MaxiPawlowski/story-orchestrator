@@ -19,6 +19,8 @@ Two things follow, and most of the advice below comes from them:
 - **The story only knows what the chat shows.** A gate on a thought, a mood or something that happened off screen never opens, because nobody can quote it.
 - **The chat can be rewound.** Swipes, edits and deletions roll the story back. Effects are rebuilt from the path the chat took, so they must depend on the path, never on the clock.
 
+A player line that is wholly out of character (wrapped in `((…))`, or starting `OOC:` / `(OOC`) stays in the chat the narrator sees, but the reading model is never shown it: it sets no quality, fact or memory, and it is no player turn for open-stretch pace, agendas or a refused route (`src/engine/ooc.ts`). Tell players to correct the story with an edit, not an OOC line.
+
 ## Part 1: the fields
 
 ### Title, description, id and version
@@ -132,6 +134,7 @@ Fields: `read_as`, `criteria`, `player_labels`, `evidence_from`, `commit_evidenc
 - **`commit_evidence`.** A regular expression the quoted evidence must match before an extractor quality may be set, for values that mean a commitment. It exists because a companion's aside ("perhaps our friend Dalan") latched `path` too early (campaign `docs/STORY-TUTORIAL.md`). Cover the natural ways to accept: recall rose from 0.68 to 0.98 once `we ride`, `deal`, `agreed` were added, while a bare `we'?ll go` let "We'll go to the bar first" commit (`14-findings.md`, T0 and T1). It is matched case-insensitively and `\b` is ASCII only.
 - **`scope_hint`.** `{ from, until }` narrows where the quality is asked about. It is an optimisation only; never narrow past a gate that needs the reading (`quality-out-of-scope`). The campaign scopes each arc's qualities from the arc's first beat so the lobby does not read every arc at once (`PLAN.md`).
 - **`ledger_binding`.** `{ entity, field }` mirrors the value into the state ledger (for example the party's rank). Only extractor qualities may bind.
+- **Out-of-character lines.** A player line wrapped in `((…))` or starting `OOC:` / `(OOC` is left out of every read, so it can never prove a value; no rubric needs to guard against it.
 
 ### Chance rolls
 <!-- topic: chance-roll -->

@@ -1,3 +1,4 @@
+import { onlyOutOfCharacter } from "@extraction/chatRows";
 import type { ParsedDelta, TypedJudge } from "@extraction/types";
 import { buildTypedPlan, readTypedDeltas, TYPED_TIMEOUT_MS } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
@@ -7,7 +8,7 @@ import type { JudgeRuntime } from "./judge";
 export const createTypedJudge = (getJudge: () => JudgeRuntime | null): TypedJudge => async ({ story, state, qualities, window }) => {
   const judge = getJudge();
   const checkpoint = story.checkpointById[state.activeCheckpointId];
-  if (!judge?.active("typedExtraction") || !checkpoint) return null;
+  if (!judge?.active("typedExtraction") || !checkpoint || onlyOutOfCharacter(window)) return null;
   const messages = window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text, isUser: message.isUser }));
   const plan = buildTypedPlan(qualities, messages, { title: story.title, checkpointName: checkpoint.name, objective: checkpoint.objective });
   if (!plan) return null;

@@ -100,12 +100,15 @@ const boundaryEvents = (log: BoundaryLogEntry[]): JournalEvent[] => log.flatMap(
 const extractionEvents = (audits: SharedReadAudit[]): JournalEvent[] => audits.flatMap((audit) => {
   const base = { at: audit.createdAt, boundary: -1, messageId: audit.window.to };
   const accepted = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`);
+  const ooc = audit.outOfCharacter ?? [];
+  const leftOut = ooc.length ? `, ${ooc.length} out-of-character line${ooc.length === 1 ? "" : "s"} not read` : "";
   return [
     {
       ...base,
       kind: "extraction",
-      summary: `read ${audit.reason} msgs ${audit.window.from}-${audit.window.to} → ${accepted.length} accepted, ${audit.rejected.length} rejected`,
-      detail: { auditId: audit.id, scope: audit.scope, accepted, rejected: audit.rejected.map((item) => item.reason), sceneBreak: audit.sceneBreak?.reason ?? null },
+      summary: `read ${audit.reason} msgs ${audit.window.from}-${audit.window.to} → ${accepted.length} accepted, ${audit.rejected.length} rejected${leftOut}`,
+      detail: { auditId: audit.id, scope: audit.scope, accepted, rejected: audit.rejected.map((item) => item.reason), sceneBreak: audit.sceneBreak?.reason ?? null,
+        ...(ooc.length ? { outOfCharacter: ooc } : {}) },
     },
     ...audit.acceptedDeltas.map((entry) => ({
       ...base,

@@ -55,6 +55,17 @@ describe("buildSessionJournal", () => {
     for (const kind of ["extraction", "transition", "payload", "flag"]) expect(kinds.has(kind as never)).toBe(true);
   });
 
+  it("v2.7 finding 19: a read that left OOC lines out says so for the author, and a read without one reads as before", () => {
+    const read = (entry: SharedReadAudit) => buildSessionJournal({ records: [], boundaryLog: [], audits: [entry], reconciliationEvents: [], payloadCaptures: [], talkDecisions: [] })
+      .filter((event) => event.kind === "extraction");
+    const [plain] = read(audit());
+    expect(plain.summary).toBe("read cadence msgs 4-8 → 1 accepted, 1 rejected");
+    expect(plain.detail).not.toHaveProperty("outOfCharacter");
+    const [left] = read(audit({ outOfCharacter: [5, 7] }));
+    expect(left.summary).toBe("read cadence msgs 4-8 → 1 accepted, 1 rejected, 2 out-of-character lines not read");
+    expect(left.detail).toMatchObject({ outOfCharacter: [5, 7] });
+  });
+
   it("summarizes a transition by checkpoint ids", () => {
     expect(journal.find((event) => event.kind === "transition")?.summary).toBe("cp1 → cp2");
   });

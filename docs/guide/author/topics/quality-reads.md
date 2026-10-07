@@ -12,6 +12,7 @@ Fields: `read_as`, `criteria`, `player_labels`, `evidence_from`, `commit_evidenc
 - **`commit_evidence`.** A regular expression the quoted evidence must match before an extractor quality may be set, for values that mean a commitment. It exists because a companion's aside ("perhaps our friend Dalan") latched `path` too early (campaign `docs/STORY-TUTORIAL.md`). Cover the natural ways to accept: recall rose from 0.68 to 0.98 once `we ride`, `deal`, `agreed` were added, while a bare `we'?ll go` let "We'll go to the bar first" commit (`14-findings.md`, T0 and T1). It is matched case-insensitively and `\b` is ASCII only.
 - **`scope_hint`.** `{ from, until }` narrows where the quality is asked about. It is an optimisation only; never narrow past a gate that needs the reading (`quality-out-of-scope`). The campaign scopes each arc's qualities from the arc's first beat so the lobby does not read every arc at once (`PLAN.md`).
 - **`ledger_binding`.** `{ entity, field }` mirrors the value into the state ledger (for example the party's rank). Only extractor qualities may bind.
+- **Out-of-character lines.** A player line wrapped in `((…))` or starting `OOC:` / `(OOC` is left out of every read, so it can never prove a value; no rubric needs to guard against it.
 
 ---
 

@@ -5,7 +5,7 @@ import {
   type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue, type StoryClock,
 } from "../schema";
 import type { DerivedQualityView } from "../engine";
-import { latestPlayerLineIsOoc } from "./ooc";
+import { latestPlayerLineIsOoc } from "../ooc";
 
 type Write = { q: string; v: PrimitiveValue };
 type Values = Readonly<Record<string, PrimitiveValue>>;

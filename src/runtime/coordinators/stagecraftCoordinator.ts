@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import { isOocLine, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { failureClass } from "@extraction/breaker";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
@@ -83,7 +83,7 @@ const playerWroteBetween = (chat: unknown[], after: number, upTo: number): boole
 const readPlayerLine = (chat: unknown[], replyMessageId: number): string | null => {
   for (let index = Math.min(replyMessageId, chat.length) - 1; index >= 0; index -= 1) {
     const message = cleanWindowMessage(chat[index]);
-    if (message.keep && message.isUser) return message.text;
+    if (message.keep && message.isUser) return isOocLine(chat[index]) ? null : message.text;
   }
   return null;
 };

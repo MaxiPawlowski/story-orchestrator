@@ -28,8 +28,8 @@ import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import type { MemoryHosts } from "../hostPorts";
-import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, fitEntryToBlock, tokensFor } from "../entryTokens";
+import { lastPlayerRow } from "../playerTurn";
 import { enabledCharacterNames, rosterMemberName } from "../roster";
 import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
 import { required } from "@utils/guards";
@@ -223,7 +223,7 @@ export class MemoryCoordinator {
 
   sceneStart(to: number): number { return sceneRangeFrom(this.state.derived, to, this.state.storyStart); }
 
-  markStoryStart() { this.patch({ storyStart: playerTurnIds(this.deps.hosts.chat.chatRows()).at(-1) ?? 0 }, false); }
+  markStoryStart() { this.patch({ storyStart: lastPlayerRow(this.deps.hosts.chat.chatRows()) }, false); }
 
   get shortTermSummaryEnd(): number {
     return this.state.shortTermSummaryEnd;

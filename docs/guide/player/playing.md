@@ -69,6 +69,13 @@ next reply.
 If an edit reaches back further than the chat can rewind, the story stays where it is and offers **Re-read from the
 current scene** or **Restart story**.
 
+## Talking out of character
+
+To say something outside the story, wrap the whole message in double brackets, `((brb, dinner))`, or start it with
+`OOC:` or `(OOC`. The characters still see it, but the story does not read it: it changes nothing in the story,
+counts as no turn and is never remembered. Brackets inside an ordinary line, "I say (quietly) hello", are read as
+usual. To correct the story, edit the message instead.
+
 ## Stuck? "What could I do?"
 
 The lightbulb button in the story drawer (and **What could I do?** in the wand menu) asks the memory model for four
