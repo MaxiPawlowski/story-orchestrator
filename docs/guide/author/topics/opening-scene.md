@@ -9,7 +9,7 @@ Fields: each card's `first_mes` (on the SillyTavern card), the start checkpoint'
 - **What it does.** In a group every card with a first message greets at once when the chat opens. A scripted `onEnter` reply with `new_chat_only: true` posts only into an empty chat, so it is the story's own opener.
 - **Good.** One narrator card with an empty first message; the start beat disables the later cast; one `new_chat_only` opener: `{ "trigger": "onEnter", "member": "Adolion Narrator", "kind": "scripted", "new_chat_only": true, "text": "You came to Aegis City to make a name with a blade…" }`.
 - **Bad.** First messages written for each character's later beat. A greeting that addresses the player as a role ("You are the pawnbroker") while a card plays that role.
-- **If wrong.** Every member greeted at once in a fresh group and the thief was spoiled at message 0 (`test/sessions/T5/SUMMARY.md`). `new_chat_only` is accepted only on a scripted `onEnter` reply.
+- **If wrong.** Every member greeted at once in a fresh group and the thief was spoiled at message 0 (seen in a test session). `new_chat_only` is accepted only on a scripted `onEnter` reply.
 
 ---
 

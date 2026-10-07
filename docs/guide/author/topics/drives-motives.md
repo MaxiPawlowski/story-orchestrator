@@ -4,12 +4,12 @@
 
 Guide topic `drives-motives` (the Studio's "How to write this" and the wizard's `readGuide` show the same topic).
 
-Fields: `roster[].drive`, `checkpoints[].motives` (an object of roster id to text) (`schema.ts`, `validate/checkpoints.ts` `readMemberText`, `readMotives`; design in `docs/plans/v2.6/06-inner-voice.md` §A).
+Fields: `roster[].drive`, `checkpoints[].motives` (an object of roster id to text) (`schema.ts`, `validate/checkpoints.ts` `readMemberText`, `readMotives`).
 
 - **What it does.** A drive is what a character privately wants across the whole story. A motive is what they want at one beat. Both are injected only into that character's private block when they are drafted to speak ("What you want: …", "Right now: …"), and never shown to the player.
 - **Good.** Drive: `"match adventurers into parties that hold together"`. Motive at the guild hall: `"size up these strangers and find out whether they would stand their ground"`. One line each, in the character's own interest.
 - **Bad.** `"Lead the player to the ruins"` (a plan for the player), `"Be mysterious"` (a stage direction), or a motive keyed `player` or `{{user}}`.
-- **If wrong.** A motive for the player's persona is dropped (`motive-for-player`: "The player's choices are theirs, so nobody is told this motive."); a key no cast member has reaches nobody (`motive-member-unknown`). Without motives characters drift: in T3 three characters "had no motive of their own and repeated themselves" (`test/sessions/T3/SUMMARY.md`).
+- **If wrong.** A motive for the player's persona is dropped (`motive-for-player`: "The player's choices are theirs, so nobody is told this motive."); a key no cast member has reaches nobody (`motive-member-unknown`). Without motives characters drift: in T3 three characters "had no motive of their own and repeated themselves" (seen in a test session).
 
 ---
 

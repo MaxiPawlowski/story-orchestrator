@@ -4,7 +4,7 @@
 
 Guide topic `chapters` (the Studio's "How to write this" and the wizard's `readGuide` show the same topic).
 
-Fields: `chapters[]` (`id`, `title`, `player_title`, `kind`, `final`, `seal` with `open_threads`, `keep_tail`, `fold_messages`, `record_style`), `checkpoints[].chapter`, `memory.story_so_far` (`schema.ts` `Chapter`, `validate/chapters.ts`; design `docs/plans/v2.6/07-chapters-and-saga-memory.md`).
+Fields: `chapters[]` (`id`, `title`, `player_title`, `kind`, `final`, `seal` with `open_threads`, `keep_tail`, `fold_messages`, `record_style`), `checkpoints[].chapter`, `memory.story_so_far` (`schema.ts` `Chapter`, `validate/chapters.ts`).
 
 - **What it does.** Optional acts. Once one chapter is declared, every beat names one. When play leaves a chapter it is sealed into a written record, so later prompts carry the record instead of the whole transcript. `kind: "interlude"` never seals on its own; it seals with the next chapter. `final: true` marks the last chapter; the story ends when it reaches a beat with no exits there. `seal.open_threads` is `carry`, `close` or `decide`; `keep_tail` is how many messages stay verbatim after a fold; `record_style` is `prose` or `chronicle`. `memory.story_so_far` (`block`, `macro`, `off`) is how the record reaches the prompt. Sealing is still behind its measurement floors, so a chapter may not seal on every install yet.
 - **Good.** `[{ "id": "wendhope", "title": "Act I: Wendhope", "player_title": "The Silent Village" }, { "id": "driftmere", "title": "Act II: Driftmere", "player_title": "The Mining Town", "final": true }]`.

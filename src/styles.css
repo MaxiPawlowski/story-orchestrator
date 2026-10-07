@@ -752,6 +752,17 @@ dialog#so-briefing::backdrop {
   vertical-align: top;
 }
 
-#so-panels-root .so-guide-nav-item:hover {
-  color: var(--st-hover);
+#so-panels-root :is(.so-guide-nav-item, .so-guide-result) {
+  padding: 0.1rem 0.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--st-text-active);
+  font: inherit;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+#so-panels-root :is(.so-guide-nav-item, .so-guide-result):hover {
+  background: color-mix(in srgb, var(--st-border) 20%, transparent);
 }

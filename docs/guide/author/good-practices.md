@@ -2,7 +2,7 @@
 
 # Good practices and traps
 
-Each item names where it was learned. "Findings" is `docs/plans/v2.6/14-findings.md`; "campaign" is `C:\dev\adolion-campaign` at the commit pinned in `scripts/debug/adolion-fresh.pin.json`.
+Each item names where it was learned: a test session, the bundled campaign, or a diagnostic.
 
 **Qualities and gates**
 

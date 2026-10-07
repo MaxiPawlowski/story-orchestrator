@@ -55,6 +55,7 @@ export const GUIDE_COPY = {
   searchPlaceholder: "memory, images, quests…",
   noMatch: "No page matches. Try another word.",
   pages: "Pages",
+  content: "Guide page",
   onGitHub: "Open on GitHub",
   missing: "That page is not available here. Pick one from the list.",
   audience: { player: "Playing", setup: "Setup", author: "Writing stories" },

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { GuideReader } from "./GuideReader";
 import { slugify } from "./links";
 import type { GuidePage } from "./types";
@@ -31,7 +31,7 @@ const PAGES: GuidePage[] = [
 const meta: Meta<typeof GuideReader> = {
   title: "Panels/GuideReader",
   component: GuideReader,
-  args: { pages: PAGES, authorView: false, homePage: HOME, target: null },
+  args: { pages: PAGES, authorView: false, homePage: HOME, target: null, onTargetSeen: fn() },
   decorators: [(Story) => <div style={{ height: 560, display: "flex" }}><Story /></div>],
 };
 

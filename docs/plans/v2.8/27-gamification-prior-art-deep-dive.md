@@ -135,3 +135,24 @@ About 2.5–3 days of agent time: step 1 1 h, clones 30 min, 11 tier-1 notes ~45
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Run record
+
+**2026-10-07, 08:24–08:36 UTC (agent pass with 8 parallel review agents; docs only, no model calls, no lane, no pod).**
+
+- Step 1: download counts from Obsidian `community-plugin-stats.json` (2026-10-07); located Solo RPG Toolkit
+  (`alexkurowski/solo-toolkit`, 37,828) and Lonelog (`snifer/lonelog`, 4,405) and added both to tier 2.
+- Cloned (shallow) into `C:\dev\st-extensions-research\gamification\<repo>\source`, index with licences in
+  `gamification\README.md`: iron-vault `27e9c8b`, fantasy-statblocks `f248f4a`, dice-roller `58b3857`,
+  initiative-tracker `85f0873`, calendarium `388d66d`, foundryvtt-forien-quest-log `cf80921`, monks-enhanced-journal
+  `9d66fb9`, habitica `0989bbe` (blob-less sparse: quests/ops/fns/libs + server models/libs/api-v3), mythic-gme-support
+  `54c385b`, obsidian-progress-clocks `43752cf`, obsidian-gamified-pkm `4fef614` (tier 1); LifeQuest `d95610a`,
+  kuro-gamification `c0a8f45`, obsidian-tasks `7d8f441`, obsidian-dataview `5ad0994`, tasknotes `69535cd`,
+  obsidian-kanban `5134c05`, obsidian-leaflet `a26e36b`, foundryvtt-simple-calendar `f09bb96` (clone HEAD 2024-05-25,
+  older than GitHub's last push), kanka `c700f46`, opse-oracle-ttrpg `bbdfa7b`, solo-toolkit `8eec1fd`, lonelog
+  `ea64954` (tier 2). Tier 3: one paragraph each, not cloned.
+- Notes: 23 files in `docs/plans/v2.8/gamification-research/`. Report: `docs/plans/v2.8/27-gamification-report.md`
+  ("What plan 36 should take" at the top; 4 decisions for the user).
+- Licence findings: dice-roller and obsidian-leaflet ship no LICENSE file (`package.json` says MIT); kanka is Commons
+  Clause with no base licence (`composer.json` "proprietary"); content licences recorded per repo. No rules text,
+  oracle tables, odds charts or art copied (one illustrative odds figure removed from the iron-vault note on review).

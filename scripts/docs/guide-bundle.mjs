@@ -81,3 +81,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   writeFileSync(GUIDE_OUT, render(pages));
   console.log(`guide: ${pages.length} pages -> ${relative(root, GUIDE_OUT)}`);
 }
+
+const LEAKS = [/\b[A-Za-z]:[\\/](?![\\/])/, /docs\/plans\//, /\bso-lanes\b/, /\.debug[\\/]/, /test\/sessions\//];
+
+export const leaksIn = (pages) => pages.flatMap((page) => LEAKS
+  .filter((pattern) => pattern.test(page.body))
+  .map((pattern) => `${page.doc}: ${pattern}`));

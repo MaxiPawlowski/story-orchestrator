@@ -16,6 +16,7 @@ const meta: Meta<typeof HelpPanel> = {
   title: "Settings/HelpPanel",
   component: HelpPanel,
   args: { features: visibleFeatures(false), isOn, homePage: HOME, onShowMe: fn(), onClose: fn() },
+  render: ({ onOpenDoc: _onOpenDoc, ...args }) => <HelpPanel {...args} />,
 };
 
 export default meta;
@@ -69,6 +70,7 @@ export const Wide: Story = { parameters: { testViewport: { width: 1440, height: 
 
 export const OpensTheGuide: Story = {
   args: { onOpenDoc: fn() },
+  render: (args) => <HelpPanel {...args} />,
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "Open the guide" }));

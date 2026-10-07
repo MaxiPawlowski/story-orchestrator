@@ -118,3 +118,20 @@ No model calls, no lane, no pod.
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Run record
+
+**2026-10-07, 08:24–08:36 UTC (agent pass; docs only, no model calls, no lane, no pod).**
+
+- Cloned (shallow) `Coneja-Chibi/TunnelVision` → `C:\dev\st-extensions-research\tunnelvision-fully-autonomous-and-easy-lorebook\source`
+  @ `a01d7ee1bcd262283bfe72c00a6f06c18d4dc940` (2026-08-20). `source-mirror/` @ `da28e58` untouched; `da28e58` is an
+  ancestor of `a01d7ee` (provenance resolved). Commit log (117) read from a blob-less bare clone in the session
+  scratchpad, not kept.
+- Skimmed `ExtensionMuncher/TheLibrarian` @ `c012a0f` (2026-07-07) → `…\thelibrarian-source` (no LICENSE file).
+- ST host claims verified against `C:\dev\SillyTavern-MainBranch` @ `7c3994196` (2026-09-14).
+- Corpus: `MIRROR-NOTE.md` amended; corpus `README.md` TunnelVision row (commit, 101 files), clone count and
+  clone-failure note updated.
+- Report: `docs/plans/v2.8/25-tunnelvision-report.md` (21 new patterns, v2.4 ideas re-checked). Open PRs not read.
+- Found during the run (proposals, see report): our create near-dup check is the exact metric/threshold mismatch TV
+  fixed (`createCandidate.ts:5`, trigram 0.85); our pre-generation window likely includes the swiped reply
+  (`runtime/index.ts:129-135`), needs a jest case.

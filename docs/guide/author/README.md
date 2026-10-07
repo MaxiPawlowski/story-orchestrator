@@ -8,7 +8,7 @@ You do not need to read it top to bottom. The Studio shows the matching section 
 
 Where the guide says "the reading model" it means the memory model that reads the chat after each turn and fills in the story's qualities. Where it says "the judge" it means the small judgment model, which picks from lists. Where it says "the narrator" it means the model that writes the replies the player reads.
 
-Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engine/validate.ts` and `src/engine/validate/*.ts`, the agency defaults are `src/engine/agency.ts`, and the Studio checks are `src/studio/diagnostics.ts` (`DIAGNOSTIC_CONSEQUENCES`), `src/studio/authoringDiagnostics.ts` and `src/studio/chapterDiagnostics.ts`. The design is `docs/plans/v2/story-orchestrator-spec-v2.md` with its addenda in `docs/plans/v2.1` to `docs/plans/v2.6`. If this guide and the code disagree, the code is right and this guide is a bug.
+Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engine/validate.ts` and `src/engine/validate/*.ts`, the agency defaults are `src/engine/agency.ts`, and the Studio checks are `src/studio/diagnostics.ts` (`DIAGNOSTIC_CONSEQUENCES`), `src/studio/authoringDiagnostics.ts` and `src/studio/chapterDiagnostics.ts`. If this guide and the code disagree, the code is right and this guide is a bug.
 
 ## Start here
 

@@ -81,22 +81,22 @@ export function GuideReader({ pages, authorView, homePage, target, onTargetSeen 
               <div className="text-xs font-medium uppercase opacity-80">{GUIDE_COPY.audience[group.audience]}</div>
               {group.pages.map((entry) => (
                 <button key={entry.id} type="button" data-so="guide-nav-item" data-page={entry.id} aria-current={entry.id === page?.id ? "page" : undefined}
-                  className={`so-guide-nav-item text-left text-xs ${entry.id === page?.id ? "font-semibold" : "opacity-80"}`} onClick={() => go({ id: entry.id })}>
+                  className={`so-guide-nav-item text-left text-xs ${entry.id === page?.id ? "font-semibold" : ""}`} onClick={() => go({ id: entry.id })}>
                   {entry.title}
                 </button>
               ))}
             </div>
           ))}
         </nav>
-        <div ref={body} className="so-guide-content min-w-0 flex-1 overflow-y-auto pr-1">
+        <div ref={body} role="region" tabIndex={0} aria-label={page?.title ?? GUIDE_COPY.content} className="so-guide-content min-w-0 flex-1 overflow-y-auto pr-1">
           {hits ? (
             hits.length ? (
               <ul data-so="guide-results" className="flex flex-col gap-2">
                 {hits.map((hit) => (
                   <li key={hit.page.id}>
-                    <button type="button" data-so="guide-result" data-page={hit.page.id} className="text-left" onClick={() => go({ id: hit.page.id })}>
+                    <button type="button" data-so="guide-result" data-page={hit.page.id} className="so-guide-result text-left" onClick={() => go({ id: hit.page.id })}>
                       <div className="font-medium underline">{hit.page.title}</div>
-                      <div className="text-xs opacity-80">{hit.snippet}</div>
+                      <div className="text-xs">{hit.snippet}</div>
                     </button>
                   </li>
                 ))}
