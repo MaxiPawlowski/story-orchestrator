@@ -18,7 +18,7 @@ const player = (text: string, messageId = 1): EvidenceMessage => ({ messageId, t
 const npc = (text: string, messageId = 2): EvidenceMessage => ({ messageId, text, isUser: false, speaker: "Tobias" });
 const held = (...messages: EvidenceMessage[]) => applyCommitEvidence(story, [delta], () => messages).held;
 
-describe("v2.7 plan 07 E: a held commitment names the player's line and why it was held", () => {
+describe("v2.7 plan 09 E: a held commitment names the player's line and why it was held", () => {
   it.each([
     ["negated", "I don't see why we wouldn't take the Wendhope posting.", HOLD_REASONS.negated],
     ["hedged", "Maybe we take the Wendhope posting.", HOLD_REASONS.hedged],

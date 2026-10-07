@@ -10,23 +10,24 @@ beforeEach(() => {
   context.extensionSettings = {};
   context.chatMetadata = {};
   context.chatId = "chat-a";
-  context.groupId = null;
-  context.groups = [];
-  context.characters = [];
+  context.groupId = "g0";
+  context.groups = [{ id: "g0", members: ["a.png"], disabled_members: [] }];
+  context.characters = [{ avatar: "a.png", name: "Arin", scenario: "Arin's scene." }];
 });
 
 describe("story scenario host wiring (v2.7 02 C1)", () => {
-  it("runs with no flag: a stored spikes.sp5Scenario changes nothing", () => {
-    context.extensionSettings = { "story-orchestrator": { settings: { spikes: { sp5Scenario: false } } } };
+  it.each([true, false])("runs with no flag: a stored spikes.sp5Scenario %s changes nothing", (stored) => {
+    context.extensionSettings = { "story-orchestrator": { settings: { spikes: { sp5Scenario: stored } } } };
     const stop = startStoryScenario();
     expect(effectExtension(SCENARIO_EFFECT)?.name).toBe(SCENARIO_EFFECT);
+    expect(scenarioFrame()).toEqual({ override: "", cast: [{ name: "Arin", scenario: "Arin's scene." }] });
     stop();
   });
 
   it("start registers the effect and the frame reader, and its disposer takes both out", () => {
     const stop = startStoryScenario();
     expect(effectExtension(SCENARIO_EFFECT)?.name).toBe(SCENARIO_EFFECT);
-    expect(scenarioFrame()).toEqual({ override: "", cast: [] });
+    expect(scenarioFrame()).toEqual({ override: "", cast: [{ name: "Arin", scenario: "Arin's scene." }] });
     stop();
     expect(effectExtension(SCENARIO_EFFECT)).toBeNull();
     expect(scenarioFrame()).toBeNull();

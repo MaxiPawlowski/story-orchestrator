@@ -39,8 +39,8 @@ const scan = () => {
   return { owner: stats.owner, on: rows.filter((row) => row.on).map((row) => row.comment) };
 };
 
-describe("T7 I1/I2/I6: a reopened chat's first real scan is gated by its story", () => {
-  it("the pre-cache scan ST runs on CHAT_CHANGED, before the hydrate, reads no-story; the next scan after the hydrate is the continuous one", () => {
+describe("T7 I1/I2/I6: the scan gate provider keeps no scan state, so the scan after a reopen's hydrate is gated by the story whatever the pre-cache scan read", () => {
+  it("each scan re-chooses from the current chat, story and path: a no-story scan in between (the shape of ST's CHAT_CHANGED pre-cache scan) leaves the next story scan identical to the continuous one", () => {
     world.ownedChat = "chat-a";
     world.story = story;
     world.path = ["cp1"];

@@ -45,16 +45,21 @@ const declarationsOf = (files: string[], read: Read = diskRead): string[] => fil
   return found;
 });
 
-const removedModule = (specifier: string): string | null => {
+const removedModule = (specifier: string, modules: string[]): string | null => {
   const bare = specifier.replace(/^@(\w+)\//, "src/$1/").replace(/\.tsx?$/, "");
-  return REMOVED_MODULES.find((module) => module.replace(/\.tsx?$/, "").endsWith(bare.replace(/^(\.\.?\/)+/, ""))) ?? null;
+  return modules.find((module) => module.replace(/\.tsx?$/, "").endsWith(bare.replace(/^(\.\.?\/)+/, ""))) ?? null;
 };
 
-const importsOf = (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+const presentModules = (files: string[], modules: string[]): string[] => {
+  const present = new Set(files.map(rel));
+  return modules.filter((module) => present.has(module));
+};
+
+const importsOf = (files: string[], read: Read = diskRead, modules: string[] = REMOVED_MODULES): string[] => files.flatMap((path) => {
   const found: string[] = [];
   const visit = (node: ts.Node) => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
-      const module = removedModule(node.moduleSpecifier.text);
+      const module = removedModule(node.moduleSpecifier.text, modules);
       if (module) found.push(`${rel(path)} imports ${module}`);
       const bindings = node.importClause?.namedBindings;
       if (bindings && ts.isNamedImports(bindings)) {
@@ -73,8 +78,23 @@ describe("v2.7 plan 03 (D3, R3-16): solo-only code stays removed", () => {
   const files = allSources();
 
   it("no removed module exists under src/", () => {
-    const present = new Set(files.map(rel));
-    expect(REMOVED_MODULES.filter((module) => present.has(module))).toEqual([]);
+    expect(presentModules(files, REMOVED_MODULES)).toEqual([]);
+  });
+
+  it("control: a planted removed module that still exists fails the existence check", () => {
+    expect(presentModules(files, ["src/runtime/soloGenerationPlanted.ts", "src/utils/log.ts"])).toEqual(["src/utils/log.ts"]);
+  });
+
+  it("control: a planted import of a removed module fails the import check, by relative path and by alias", () => {
+    const planted = join(SRC, "runtime", "memoryInjector.ts");
+    const read: Read = (path) => (path === planted ? `import { plantedSolo } from "./soloGenerationPlanted";
+import { otherSolo } from "@runtime/soloGenerationPlanted";
+${diskRead(path)}` : diskRead(path));
+    expect(importsOf(files, read, ["src/runtime/soloGenerationPlanted.ts"])).toEqual([
+      "src/runtime/memoryInjector.ts imports src/runtime/soloGenerationPlanted.ts",
+      "src/runtime/memoryInjector.ts imports src/runtime/soloGenerationPlanted.ts",
+    ]);
+    expect(importsOf(files, read)).toEqual([]);
   });
 
   it("no removed definition is declared or exported anywhere under src/, tests included", () => {

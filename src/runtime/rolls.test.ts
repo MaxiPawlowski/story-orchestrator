@@ -137,8 +137,8 @@ describe("v2.7 06 C9 (b): the draws ring rolls back by message", () => {
     expect(SEEDS.map((seed) => ringMismatches(true, seed))).toEqual(SEEDS.map(() => 0));
   });
 
-  it("control: without the rollback the swiped messages keep their stale draws and the replay differs", () => {
-    expect(SEEDS.reduce((sum, seed) => sum + ringMismatches(false, seed), 0)).toBeGreaterThan(0);
+  it("control: without the rollback the swiped messages keep their stale draws and the replay differs, for every seed", () => {
+    expect(SEEDS.filter((seed) => ringMismatches(false, seed) === 0)).toEqual([]);
   });
 
   it("caps at the limit, refuses a draw with no message, and sanitizes a stored ring", () => {

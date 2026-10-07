@@ -85,6 +85,11 @@ describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", (
     pacing.updateSteering();
     expect(block()).not.toContain("You owe the duke money.");
     expect(block()).not.toContain("You rigged the blade.");
+    pacing.draftGuidance("forre");
+    expect(block()).toContain("Direction for Forre only: You owe the duke money.");
+    pacing.releaseDraftGuidance();
+    pacing.updateSteering();
+    expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
   });
 
   it("a withheld generation (quiet, impersonate) never carries a member part, until the hold is released", () => {
