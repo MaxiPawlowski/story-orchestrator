@@ -32,14 +32,15 @@ A reference of every setting: [Settings reference](settings-reference.md).
 
 ## Server plugins
 
-Three optional server plugins ship in `server-plugin/`. SillyTavern loads server plugins only when `config.yaml` has
+Four server plugins ship in `server-plugin/`: judge, and the optional GPU, media and harness plugins. SillyTavern loads server plugins only when `config.yaml` has
 `enableServerPlugins: true`, and only after a restart.
 
 - **From the release zip**: copy each plugin folder you want from `story-orchestrator/server-plugin/<name>/` to
   `<SillyTavern>/plugins/<name>/`, set `enableServerPlugins: true`, restart SillyTavern.
-- **From a source checkout**: `npm run plugin:install -- --st-root <SillyTavern>` copies all three (it refuses to
-  downgrade a newer installed copy without `--force`; `--check` only reports). It warns when `enableServerPlugins` is
-  off.
+- **From a source checkout**: `npm run plugin:install -- --st-root <SillyTavern>` installs the judge plugin, and
+  `--with gpu,media,harness` adds the others. A plugin already installed is kept in sync. Files are compared by
+  content, never by version, and a local `config.json` is never touched; `--check` lists the files that differ without
+  writing. It warns when `enableServerPlugins` is off.
 
 Install only the plugins you need. In particular the GPU plugin is for one specific machine setup; see
 [Images and the GPU plugin](images.md).

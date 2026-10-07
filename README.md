@@ -47,9 +47,10 @@ includes their runtime source. They run inside SillyTavern's Node server; the br
 | [GPU](server-plugin/story-orchestrator-gpu/README.md) | Coordination of local text generation and ComfyUI sharing a GPU. |
 | [Media](server-plugin/story-orchestrator-media/README.md) | Owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. |
 
-From a source checkout, `npm run plugin:install` installs judge. Add `-- --with gpu,media,harness` to install all
-four. Use `npm run plugin:install -- --with gpu,media,harness --check` to compare installed runtime files with this
-checkout, including changes within the same version. Installation preserves local `config.json` files.
+From a source checkout, `npm run plugin:install` installs judge and keeps every companion already installed in sync.
+Add `-- --with gpu,media,harness` to install all four. It compares each shipped file by content (never by version) and
+copies only the files that differ; `--check` lists them without writing and exits 2 when any differ. Installation
+never touches a local `config.json`.
 Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, and restart SillyTavern after installing or updating.
 From a release zip, copy the chosen companion folders from `server-plugin/` into `<SillyTavern>/plugins/`.
 

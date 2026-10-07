@@ -1,17 +1,32 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
 export const SERVER_PLUGINS = Object.freeze({
-    'story-orchestrator-judge': ['package.json', 'index.mjs'],
-    'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs', 'managed.mjs'],
-    'story-orchestrator-harness': ['package.json', 'index.mjs', 'agentBridge.mjs', 'mcpShim.mjs'],
-    'story-orchestrator-media': ['package.json', 'index.mjs', 'jobs.mjs', 'files.mjs', 'comfyTarget.mjs'],
+    'story-orchestrator-judge': Object.freeze({ optional: false }),
+    'story-orchestrator-gpu': Object.freeze({ optional: true }),
+    'story-orchestrator-harness': Object.freeze({ optional: true }),
+    'story-orchestrator-media': Object.freeze({ optional: true }),
 });
 
-export function selectedPlugins(withPlugins = []) {
+export const LOCAL_FILES = Object.freeze(['config.json']);
+const SKIPPED_DIRS = new Set(['fixtures', 'node_modules']);
+const isShipped = (rel, name) => !name.endsWith('.test.mjs') && name !== 'README.md' && !LOCAL_FILES.includes(rel);
+
+export function shippedFiles(dir, fsImpl = fs, prefix = '') {
+    if (!fsImpl.existsSync(dir)) return [];
+    return fsImpl.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) return SKIPPED_DIRS.has(entry.name) ? [] : shippedFiles(path.join(dir, entry.name), fsImpl, rel);
+        return entry.isFile() && isShipped(rel, entry.name) ? [rel] : [];
+    }).sort();
+}
+
+export function selectedPlugins(withPlugins = [], { stRoot = null, fsImpl = fs } = {}) {
     const names = ['story-orchestrator-judge', ...withPlugins.map((name) => `story-orchestrator-${name}`)];
     for (const name of names) if (!SERVER_PLUGINS[name]) throw new Error(`Unknown plugin ${name}. Choose gpu, harness or media.`);
-    return Object.fromEntries([...new Set(names)].map((name) => [name, SERVER_PLUGINS[name]]));
+    const installed = stRoot ? Object.keys(SERVER_PLUGINS).filter((name) => fsImpl.existsSync(path.join(stRoot, 'plugins', name))) : [];
+    return Object.keys(SERVER_PLUGINS).filter((name) => names.includes(name) || installed.includes(name));
 }
 
 const readVersion = (dir, fsImpl) => {
@@ -27,38 +42,30 @@ export function pluginVersions(extensionRoot, fsImpl = fs) {
     return Object.fromEntries(Object.keys(SERVER_PLUGINS).map((name) => [name, readVersion(path.join(extensionRoot, 'server-plugin', name), fsImpl)]));
 }
 
-export function compareVersions(left, right) {
-    const parts = (value) => String(value).split('.').map((part) => Number.parseInt(part, 10) || 0);
-    const [a, b] = [parts(left), parts(right)];
-    for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
-        const diff = (a[index] ?? 0) - (b[index] ?? 0);
-        if (diff) return Math.sign(diff);
-    }
-    return 0;
-}
+const hashFile = (file, fsImpl) => crypto.createHash('sha256').update(fsImpl.readFileSync(file)).digest('hex');
 
-export function planInstall({ extensionRoot, stRoot, plugins = SERVER_PLUGINS, fsImpl = fs }) {
-    return Object.entries(plugins).map(([name, files]) => {
+export function planInstall({ extensionRoot, stRoot, plugins = Object.keys(SERVER_PLUGINS), fsImpl = fs }) {
+    return plugins.map((name) => {
         const source = path.join(extensionRoot, 'server-plugin', name);
         const target = path.join(stRoot, 'plugins', name);
-        const sourceVersion = readVersion(source, fsImpl);
-        const installedVersion = fsImpl.existsSync(target) ? readVersion(target, fsImpl) : null;
-        const upToDate = files.every((file) => fsImpl.existsSync(path.join(target, file))
-            && fsImpl.readFileSync(path.join(target, file), 'utf-8') === fsImpl.readFileSync(path.join(source, file), 'utf-8'));
-        let action = 'install';
-        if (upToDate) action = 'unchanged';
-        else if (installedVersion && sourceVersion && compareVersions(installedVersion, sourceVersion) > 0) action = 'refuse-downgrade';
-        else if (installedVersion) action = 'upgrade';
-        return { name, source, target, files, sourceVersion, installedVersion, upToDate, action };
+        const files = shippedFiles(source, fsImpl);
+        if (!files.length) throw new Error(`No shipped files in ${source}.`);
+        const installed = fsImpl.existsSync(target);
+        const differs = files.filter((file) => !fsImpl.existsSync(path.join(target, file))
+            || hashFile(path.join(target, file), fsImpl) !== hashFile(path.join(source, file), fsImpl));
+        const action = !installed ? 'install' : differs.length ? 'update' : 'unchanged';
+        return { name, source, target, files, differs, upToDate: !differs.length, action };
     });
 }
 
-export function applyInstall(rows, { force = false, fsImpl = fs } = {}) {
+export function applyInstall(rows, { fsImpl = fs } = {}) {
     return rows.map((row) => {
         if (row.action === 'unchanged') return { ...row, copied: [] };
-        if (row.action === 'refuse-downgrade' && !force) return { ...row, copied: [] };
-        fsImpl.mkdirSync(row.target, { recursive: true });
-        for (const file of row.files) fsImpl.copyFileSync(path.join(row.source, file), path.join(row.target, file));
-        return { ...row, copied: [...row.files] };
+        for (const file of row.differs) {
+            if (LOCAL_FILES.includes(file)) throw new Error(`Refusing to overwrite local ${file} in ${row.target}.`);
+            fsImpl.mkdirSync(path.dirname(path.join(row.target, file)), { recursive: true });
+            fsImpl.copyFileSync(path.join(row.source, file), path.join(row.target, file));
+        }
+        return { ...row, copied: [...row.differs] };
     });
 }
