@@ -348,8 +348,9 @@ Planted controls for each in the same file.
 
 Conventions. A floor is the plan's text verbatim with a citation; `pass/fail: the assertion holds in both runs` where
 the source states a condition and no number; `record only` for counts (B1-C12, 35-M1). A `gap` field marks a row whose
-floor is not declared yet: C14-b (owner v2.7 02) and 16-19-S28 (S28 floors to copy from v2.7 19/24, owner v2.7 32);
-neither can be green until it is filled. Rows that only one B2 branch builds carry `branch` (35-K3/K4/K5-C5, 35-P3-K2,
+floor is not declared yet: C14-b (owner v2.7 02; no plan states one, so it needs an owner decision, §B1 runners record).
+16-19-S28's gap was closed on `v2.7-39-runners`: its floor is now v2.7 24 §Acceptance floors' four S28 rows, verbatim.
+A row with a gap cannot be green until it is filled. Rows that only one B2 branch builds carry `branch` (35-K3/K4/K5-C5, 35-P3-K2,
 35-P4-*, 35-ENC: SP6 PASS; 35-DROP: SP6 FAIL or INCOMPLETE); B2 deletes the rows of the branches not taken, each with
 a record line (rule 10). Rows from 16 §Per plan and plans 29–38 take ids `<plan>-<item>`; their jest-only gates run
 inside C1-gates. Every row runs on the one build (rule 9); the manifest carries no `build` field.
@@ -397,22 +398,24 @@ declarations; no `capture-failed.json`. Risk: the capture probe is newer than th
 in at `7ddcb292`, after the cut). If a case fails on a missing handle, that is a B0 blocker for 39, never a reason to
 move the cut. Record the commit, both hashes and the run headers in `test/measurements/v2.7/payload/base/`.
 
-**Stage B tooling readiness** (checked on disk 2026-10-07; nothing built here):
+**Stage B tooling readiness** (checked on disk 2026-10-07; nothing built here). The third column was a B0 blocker list;
+the runners it named were built on `v2.7-39-runners` the same day (§B1 runners record), so each cell now says what
+resolved it and what is still owed:
 
-| B1 measurement | Exists | Missing (B0 blocker, owner) |
+| B1 measurement | Exists | Was missing (B0 blocker, owner) → status |
 |---|---|---|
 | 35 SP6 K2–K5 | scorer `scripts/debug/lib/sp6Score.mts` (+ `so-sp6-score.mts`, `sp6Score.test.mts`, K5 pooling); K2 `test/scenarios/live-v25-09-sp6-k2.json`; campaign `lab/complications/sp6-adolion.journey.json`, `sp6-k4-lines.json`, `sp6-k5-stalled.json`; `scripts/check_lab.py` | — (ready; `check_lab.py` green is its prerequisite) |
 | 35 M1 | v2.6 session evidence (private `so-sessions`) | an extraction script for stub lengths and stub refusals (small; v2.7 35) |
-| 35 M2 | the curve scenario `v27-35-open-stretch-curve.json` (C2 only, not M2) | the stub lab copy (2–3 stubs made open; v2.7 38 A4); the second-model hook labeller and an M2 scorer (window, denominators; v2.7 35) |
-| 36 Q1 M1 | `so-live-suite.mts` per-tier scoring | the academy-act lab copy with quest qualities (v2.7 38 A4); an arm runner for 0/5/10/20 extra active qualities (v2.7 36) |
-| 36 Q1 M2 | — | 20 labelled completion cases (v2.7 38 A4 + second-model labels); a recall/false-latch scorer (v2.7 36) |
-| 37 M1 | `so-judge calibrate` (arm (c) shape) | ~20 labelled relationship windows (v2.7 38 A4); a three-arm runner and scorer (v2.7 37) |
-| 37 M2 | — | an axes-per-read cost runner over N ∈ {2, 4, 8, 16} (v2.7 37); the windows above |
-| S-17 / 37-S17 | — | a combined-scope runner over a 7-member cast with ≥ 3 quests (v2.7 37, after 36 M1 and 37 M2 tooling) |
-| 37 L3 | `test/fixtures/meanwhile-proposals.cases.json`; in-page `storyOrchestratorAgendaProposals.propose()` | a script that replays the 20 cases through the page and scores them (v2.7 37) |
-| 37 L6-C | `test/fixtures/judge/spike-voice.json` (floors frozen) | its 20 lab-copy rows (v2.7 38); `so-judge calibrate --use wardenVoice` is not in the tool's use list, so the route is unverified (v2.7 37) |
-| B1-C3 | `so-judge timeouts --records` (counts and the close); plugin `/status` `adaptive` | per-call cause attribution (client wait vs 4000 ms, plugin queue / lane / account hold, `Retry-After`, provider latency) and per-call `/status` sampling (v2.8 01 C3 measurement, run by 39 B1) |
-| B1-C12 | `extras.judge.calls` in the exported state | a per-loud-turn count (p50 / p95 / max) over the ring: trivial wiring, done at B1 |
+| 35 M2 | the curve scenario `v27-35-open-stretch-curve.json` (C2 only, not M2) | the stub lab copy (2–3 stubs made open; v2.7 38 A4); the second-model hook labeller and an M2 scorer (window, denominators; v2.7 35) → **resolved**: `scripts/debug/so-b1-hooks.mts` + `lib/hookScore.mts`; stub lab copy at campaign `lab/stretches/` (v2.7 38) |
+| 36 Q1 M1 | `so-live-suite.mts` per-tier scoring | the academy-act lab copy with quest qualities (v2.7 38 A4); an arm runner for 0/5/10/20 extra active qualities (v2.7 36) → **resolved**: `scripts/debug/so-b1-quest-scope.mts m1` + `lib/questScope.mts`; arms at campaign `lab/quests/`. Still owed: the cases state only `{q, v}`, so the facts and rejected tiers the floor names cannot be scored (the runner records INCOMPLETE) |
+| 36 Q1 M2 | — | 20 labelled completion cases (v2.7 38 A4 + second-model labels); a recall/false-latch scorer (v2.7 36) → **resolved**: `so-b1-quest-scope.mts m2`; cases at campaign `lab/quests/completion-cases.json` (second-model label check still owed, lab README) |
+| 37 M1 | `so-judge calibrate` (arm (c) shape) | ~20 labelled relationship windows (v2.7 38 A4); a three-arm runner and scorer (v2.7 37) → **resolved**: `scripts/debug/so-b1-life-reads.mts m1` + `lib/lifeReads.mts`; windows at campaign `lab/life/` (second-model label check still owed) |
+| 37 M2 | — | an axes-per-read cost runner over N ∈ {2, 4, 8, 16} (v2.7 37); the windows above → **resolved**: `so-b1-life-reads.mts m2` |
+| S-17 / 37-S17 | — | a combined-scope runner over a 7-member cast with ≥ 3 quests (v2.7 37, after 36 M1 and 37 M2 tooling) → **resolved**: `scripts/debug/so-b1-combined-scope.mts` + `lib/combinedScope.mts` |
+| 37 L3 | `test/fixtures/meanwhile-proposals.cases.json`; in-page `storyOrchestratorAgendaProposals.propose()` | a script that replays the 20 cases through the page and scores them (v2.7 37) → **resolved**: `scripts/debug/so-b1-meanwhile.mts` + `lib/meanwhileReplay.mts` (replays propose()'s prompt and parser per case through `storyOrchestratorLiveSuite.runMeanwhileCase`, because propose() reads the open chat) |
+| 37 L6-C | `test/fixtures/judge/spike-voice.json` (floors frozen) | its 20 lab-copy rows (v2.7 38); `so-judge calibrate --use wardenVoice` is not in the tool's use list, so the route is unverified (v2.7 37) → **resolved**: `so-judge.mts calibrate --use warden-voice` (alias `wardenVoice`) + `lib/voiceScore.mts`, in-page `storyOrchestratorJudge.calibrateVoice`; rows at campaign `lab/life/voice-rows.json`. The route is built, not live-verified (no model in this session) |
+| B1-C3 | `so-judge timeouts --records` (counts and the close); plugin `/status` `adaptive` | per-call cause attribution (client wait vs 4000 ms, plugin queue / lane / account hold, `Retry-After`, provider latency) and per-call `/status` sampling (v2.8 01 C3 measurement, run by 39 B1) → **resolved**: `scripts/debug/so-b1-judge-causes.mts follow` (recorder + `/status` samples) and `score --row B1-C3` + `lib/judgeCauses.mts` |
+| B1-C12 | `extras.judge.calls` in the exported state | a per-loud-turn count (p50 / p95 / max) over the ring: trivial wiring, done at B1 → **resolved**: `so-b1-judge-causes.mts score --row B1-C12` |
 | B1-C13b | — | absent (above) |
 | B1-R4 | `so-session` `rating-pack --arm/--gate`, `so-model-blind.mts`; 4 pairs in private `so-sessions` `rating-pack/R4/` | — (ready; `spikes.reasoningEffect` on) |
 
@@ -420,10 +423,18 @@ move the cut. Record the commit, both hashes and the run headers in `test/measur
 
 | Blocker | Rows | Owner |
 |---|---|---|
+<<<<<<< HEAD
 | C14-b has no predeclared floor | C14-b | v2.7 02 |
 | S28 floors not copied into the manifest | 16-19-S28 | v2.7 32 |
 | ~~33 W1 V0 needs the user's post-processor named~~ resolved 2026-10-07: the user runs none; the reference post-processor stands in (v2.7 33 §Gate record "W1 step 0 (V0)") | 33-W1-V0 | — |
 | lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
+=======
+| no prod-build drive path: `so-scenario`, `so-journey` and every `storyOrchestratorRuntime` read refuse a prod page, so a `prod` row can only be driven through DOM-level `so-ui` verbs and ST's own controls; that path is not built for most of the 99 `prod` rows | every `prod` row in C2–C8b | v2.7 39 (debug tooling) before C2 |
+| C14-b has no predeclared floor: still open. Searched v2.7 02, v2.7 14 and v2.8 01 on `v2.7-39-runners`; none states one (v2.8 01 only moves the row here), so there is no text to quote. **Needs an owner decision** | C14-b | v2.7 02 (owner decision) |
+| S28 floors not copied into the manifest → **resolved** on `v2.7-39-runners`: the manifest floor is v2.7 24 §Acceptance floors' four S28 rows, verbatim, cited with v2.7 19 §6 | 16-19-S28 | v2.7 32 |
+| 33 W1 V0 needs the user's post-processor named | 33-W1-V0 | user |
+| lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) → present on campaign branch `v2.7-38` (`lab/life`, `lab/quests`, `lab/stretches`); every label there still needs its second-model check (each lab README), and 36-Q1-M1's cases carry no facts / rejected expectations | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
+>>>>>>> v2.7-39-runners
 | B0-base not run (needs a lane and ST) | B0-base, C3-preservation, PC-* | v2.7 39 B0-live |
 
 Resolved 2026-10-07: the "no prod-build drive path" blocker (every `prod` row in C2–C8b could only be driven through
@@ -441,6 +452,96 @@ refused (planted control in `phaseCManifest.test.mjs`).
 debug:typecheck, lint, test:release 129 tests / 115 pass / 14 skipped, test:plugin, test:debug, test:replay 32 of 32
 killed); test-storybook:ci SKIPPED (worktree). `SO_ACCEPTANCE=1 node --test scripts/release/attestation.test.mjs`:
 1 fail, as designed (no `docs/release/2.7.0/attestation.json` yet).
+
+## B1 runners record (2026-10-07, branch `v2.7-39-runners`, built, not run)
+
+The stage-B1 tooling the B0 record listed as missing. Built against the in-page debug handles (no DOM-only prod path).
+No live run, no lane, no ST, no model in this session: every runner is unit-tested (scorer: planted pass and fail data;
+runner: a fake page, as `test:debug` does), none has produced a record yet.
+
+| Measured row | Runner (`node scripts/debug/…`) | Scorer (`scripts/debug/lib/…`) |
+|---|---|---|
+| 35-M2, 35-M2-C5 | `so-b1-hooks.mts label --runs <private runs.json> --labeller <profile> --run <n> [--row 35-M2-C5]` | `hookScore.mts` |
+| 36-Q1-M1 | `so-b1-quest-scope.mts m1 --lab <campaign lab/quests> --profile <read profile> --run <n>` | `questScope.mts` |
+| 36-Q1-M2 | `so-b1-quest-scope.mts m2 --lab <campaign lab/quests> --profile <read profile> --run <n>` | `questScope.mts` |
+| 37-M1, 37-M1-C5 | `so-b1-life-reads.mts m1 --lab <campaign lab/life> --profile <read profile> --run <n> [--row 37-M1-C5]` | `lifeReads.mts` |
+| 37-M2 | `so-b1-life-reads.mts m2 --lab <campaign lab/life> --profile <read profile> --run <n>` | `lifeReads.mts` |
+| S-17, 37-S17 | `so-b1-combined-scope.mts run --row S-17\|37-S17 --lab <campaign lab/life> --profile <read profile> --run <n> [--values <private values.json>]` | `combinedScope.mts` |
+| 37-L3 | `so-b1-meanwhile.mts run --profile <curator profile> --labeller <profile> --run <n>` | `meanwhileReplay.mts` |
+| 37-L6-C | `so-judge.mts calibrate --use warden-voice --lab <campaign lab/life> --run <n>` (alias `--use wardenVoice`) | `voiceScore.mts` |
+| B1-C3 | `so-b1-judge-causes.mts follow --out <calls.jsonl>` for the whole play, then `score --row B1-C3 --calls <journal-follow.jsonl> --samples <calls.jsonl> --turns <turns.jsonl> --run <n>` | `judgeCauses.mts` |
+| B1-C12 | `so-b1-judge-causes.mts score --row B1-C12 --calls <journal-follow.jsonl> --turns <turns.jsonl> --run <n>` | `judgeCauses.mts` |
+
+Conventions, the same for every runner (`scripts/debug/lib/b1Runs.mts`, `lib/b1Registry.mts`):
+
+- **Evidence where the manifest points.** The public summary (counts, rates, verdicts, never chat or campaign text) is
+  `test/phase-c/records/<row>/run-<n>.json`; prompts, replies and labels go to `SO_DEBUG_DIR/b1/<row>/run-<n>.raw.json`
+  for `npm run sessions:archive` (rule 6). A summary that carries any long private string is refused before anything is
+  written. Campaign ids are aliased in summaries (`stub-1`, row indexes): rule 7.
+- **Refuse, never skip.** A missing prerequisite (lab file, the page handle, a live read model, the judge plugin with a
+  key, a named profile, a second-model labeller) prints `not-runnable: …`, exits 2 and writes no record. `--run` takes
+  1 or 2 only. A short denominator, an errored read, an unparsed label or an axis never put in scope is INCOMPLETE,
+  never PASS.
+- **Lab data by path.** `--lab <dir>` or `SO_ADOLION_LAB` points at the campaign checkout (`C:\dev\adolion-campaign`
+  branch `v2.7-38`, `lab/quests`, `lab/life`); a lab or runs path inside this repo is refused. `--values` and the 35-M2
+  runs file stay in the private evidence.
+- **Second models.** Labels come from `--labeller` (pinned to the synthesis role for the run, restored after), refused
+  when it is the profile the measured role or the reply model runs on. The read rows pin `--profile` on the read role and
+  restore it.
+- **×2 and lanes.** `node scripts/debug/so-b1.mts combine <row>` is PASS only when both records are (RECORDED for a
+  record-only row); `so-b1.mts status` lists the runners and which records exist. `st-lanes.mts run <n> -- …so-b1-*.mts`
+  is refused like an integration play when more than `SO_MAX_LLM_LANES` lanes with a model are up (offline `score`
+  commands are exempt).
+- **Floors.** Each scorer carries its manifest floor verbatim and the numbers as constants; nothing is retuned.
+  B1-C12 is record only and says so (`RECORDED`).
+
+Product seams added for the runners (measurement surface only; with none of the new fields set the shipped read prompt
+is byte-identical, `extraction/fixtureRunArms.test.ts`): `ExtractionFixtureSpec` takes `scopeCaps` (per scope source,
+`null` uncaps), `scopeContext` (present / drafted / card cursor) and `showValues` (37 M1 arm (b): a "Current values"
+block a shipped read never carries), and returns each source's kept and dropped keys; `storyOrchestratorLiveSuite`
+`runFixture` also returns the scope, the per-source reads and the deltas after the rating guard, and gains
+`runMeanwhileCase` (37 L3) and `lifeBlock` (37 M2); `storyOrchestratorJudge.calibrateVoice` over `runVoiceCalibration`
+(`judge/wardenCalibration.ts`, jest `runtime/voiceCalibration.test.ts`).
+
+Readings the runners make where a plan leaves room (each one is in the runner's usage text; an owner may overrule):
+
+1. 35 M2: one record is the whole 3 stubs × 2 arms × 2 runs set, since the 90 % floor is "6 of 6" over an arm, so ×2 is
+   24 sessions. The floors bind the open arm; the expanded arm is recorded beside it. No run reaching `pull_after + 1`
+   leaves the hook floor without a denominator: INCOMPLETE. Arrival is read from the turn whose checkpoint leaves the stub
+   (the boundary lags one reply). The blind "felt free / felt steered" pairs are not part of this runner.
+2. 36 Q1 M1: the quest source is uncapped in every arm so arm n carries n extra keys (checked; a clipped arm is
+   INCOMPLETE). The completion cases state only `{q, v}`, so the facts and rejected tiers the floor names cannot be
+   measured and the record says INCOMPLETE until the cases carry those expectations (owner v2.7 38 with v2.7 36).
+3. 36 Q1 M2: a numeric `done_when` holds at or past its target; a false latch is the expected value written at all
+   (the lab's own scoring text).
+4. 37 M1: scored on the value that lands after the rating guard (the code step clamp); the raw over-step count is
+   recorded. The row is PASS when the arm that decides the default ((c) if it passes, else (a)) meets every floor and
+   (a) is within 5 points of (b).
+5. 37 M2: every member is present so the 16-axis arm can fill; the block cost is the window holder's private block at
+   the window's start value.
+6. S-17 / 37-S17: fairness is counted per scope key (stricter than per quest or pair); the overflow order is recorded for
+   B2, not judged; "≥ 3 active quests" is checked as ≥ 3 quest-source keys in the first read, with `--values` seeding the
+   activations if the lab copy needs them.
+7. 37 L3: every parsed proposal is the in-goal denominator; parser refusals for narrating the player are recorded, not
+   counted.
+8. B1-C3: a timeout's cause comes from the `/status` samples around the matched call: hold (cooling, a local refusal or
+   a `Retry-After`), queue (served count unchanged at the budget), provider (served, not answered in 4000 ms), else
+   unattributed. The page's own judge gate wait before the request leaves is not observable.
+
+Missing floors (rule: quote the plan text, never invent): **16-19-S28** filled from v2.7 24 §Acceptance floors (four
+S28 rows, verbatim). **C14-b**: no plan states a floor, so it needs an owner decision (v2.7 02); the row stays record
+only and cannot be green.
+
+Not built here: the 35-M1 extraction script (the campaign's `lab/stretches/measure_stubs.py` and `stub-lengths.json`
+exist on `v2.7-38`; whether they close 35-M1 is the 35 owner's call) and the prod-build drive path (being removed with
+the prod/dev split by another session).
+
+**Gates** (worktree, Storybook skipped: the runner finds no stories from a `.claude` worktree path).
+`npm run gates -- --no-storybook`: all green in 100.1 s (typecheck, typecheck:test, build, build:dev, lint,
+debug:typecheck, test 592 suites / 6,922 passed / 1 skipped, test:debug 1,131 pass, test:release 129 tests / 115 pass /
+14 skipped, test:plugin 114 / 111 pass / 3 skipped, test:replay 32 of 32 killed); test-storybook:ci SKIPPED (worktree).
+The first run was red on the ownership census (the live-suite probe's `applyRatingGrounding` call read as a write after
+an await); classified `local` in `test/findings/ownership-sites.json` (pure, the probe writes nothing), then green.
 
 ## Row manifest index
 

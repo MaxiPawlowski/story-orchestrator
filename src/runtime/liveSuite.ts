@@ -1,5 +1,10 @@
 import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
-import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
+import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
+import { applyRatingGrounding } from "@extraction/ratingGuard";
+import { agendaStepKey, parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
+import { loadGameLayer } from "@engine/validate/gameLayer";
+import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "./meanwhilePrompt";
+import { MEANWHILE_MAX_TOKENS } from "./coordinators/agendaProposalCoordinator";
 import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
 import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
@@ -27,6 +32,29 @@ export interface LiveFixtureResult {
   epistemic: Array<{ tag: string; subject: string; hiddenFrom?: string; content: string }>;
   ledger: Array<{ entity: string; entityType: string; field: string; value: string }>;
   judged?: { answered: string[]; answers: unknown; model: string | null; fallback?: string };
+  scope: string[];
+  sources: FixtureSourceRead[];
+  guarded: Array<{ q: string; v: unknown }>;
+}
+
+export interface MeanwhileCaseSpec {
+  story: unknown;
+  member: string;
+  agenda: string;
+  done: number;
+  window: Array<{ speaker: string; text: string }>;
+}
+
+export interface MeanwhileCaseResult {
+  prompt: string;
+  rawResponse: string;
+  proposals: MeanwhileParse["proposals"];
+  refused: MeanwhileParse["refused"];
+}
+
+export interface LifeBlockReading {
+  text: string;
+  tokens: number;
 }
 
 // `so-live-suite --judge`: a fixture's own hint sidecar ({key: {read_as, criteria?}})
@@ -52,6 +80,8 @@ export interface LiveSuiteHandle {
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
   summarizeRoleCalibration: (role: CalibrationRole, records: RoleCaseRecord[], options?: { floorIds?: string[] }) => RoleSummary;
   askModel: (prompt: string, maxTokens: number, role: PassRole) => Promise<ExtractionReply>;
+  runMeanwhileCase: (spec: MeanwhileCaseSpec) => Promise<MeanwhileCaseResult>;
+  lifeBlock: (story: unknown, values: Record<string, PrimitiveValue>, memberId: string) => Promise<LifeBlockReading>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -88,7 +118,22 @@ export function registerLiveSuite(manager: RuntimeManager) {
       return { estimate: budget.meter.count(text), contextLimit: budget.contextLimit, profileId: routedProfileId(role) };
     },
     askModel: (prompt, maxTokens, role) => model(prompt, { role, pass: ROLE_PASS[role], maxTokens }),
+    runMeanwhileCase: async (spec) => {
+      await loadGameLayer();
+      const story = parseStoryV2OrThrow(spec.story);
+      const prompt = buildMeanwhilePrompt(story, { [agendaStepKey(spec.member, spec.agenda)]: spec.done }, spec.window);
+      const rawResponse = await askText(model, prompt, { role: "curator", pass: "curator", maxTokens: MEANWHILE_MAX_TOKENS });
+      return { prompt, rawResponse, ...parseMeanwhile(rawResponse, story) };
+    },
+    lifeBlock: async (story, values, memberId) => {
+      const layer = await loadGameLayer();
+      const text = layer.life.privateLifeLines(parseStoryV2OrThrow(story), values, memberId);
+      const budget = requestBudgetFor("read");
+      await budget.meter.prime([text]);
+      return { text, tokens: text ? budget.meter.count(text) : 0 };
+    },
     runFixture: async (spec, options = {}) => {
+      await loadGameLayer();
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);
       let judged: LiveFixtureResult["judged"];
@@ -107,14 +152,20 @@ export function registerLiveSuite(manager: RuntimeManager) {
         }
       }
       const answered = judged?.answered ?? [];
-      const { story, prompt } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
+      const { story, prompt, sources } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
       const rawResponse = await askText(model, prompt, { role: "read", pass: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story);
+      const llmDeltas = parsed.deltas.filter((entry) => !answered.includes(entry.delta.q));
+      const judgedParsed = judgedDeltas.map((delta) => ({ delta: { q: delta.q, v: delta.v as PrimitiveValue }, evidence: delta.evidence }));
+      const guarded = applyRatingGrounding(story.qualityByKey, spec.blackboard?.values ?? {}, [...judgedParsed, ...llmDeltas]).accepted.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }));
       return {
         prompt,
         rawResponse,
-        deltas: [...judgedDeltas, ...parsed.deltas.filter((entry) => !answered.includes(entry.delta.q)).map((entry) => ({ q: entry.delta.q, v: entry.delta.v, evidence: entry.evidence }))],
+        deltas: [...judgedDeltas, ...llmDeltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, evidence: entry.evidence }))],
         ...liveReadTiers(parsed),
+        scope: first.scope.map((entry) => entry.key),
+        sources,
+        guarded,
         ...(judged ? { judged } : {}),
       };
     },

@@ -1,6 +1,10 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/runtime/liveSuite.ts#registerLiveSuite.handle.runFixture": {
+      "status": "local",
+      "note": "Dev live-suite probe (v2.7 39 B1 runners): applyRatingGrounding is pure over the probe's own parsed deltas and the spec's blackboard values; nothing reaches a chat, a store or the host. Tests: extraction/fixtureRunArms.test.ts."
+    },
     "src/sprites/builder/batchHost.ts#beginSpriteBatch.close": {
       "status": "local",
       "note": "Dev-only warm batch (v2.7 31 §B). Clears the slot only while it still holds this batch, after closing its own lease; cleanup stays valid after ownership lapses. Tests: builder/batchLease.test.ts."

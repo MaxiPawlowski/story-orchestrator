@@ -12,12 +12,14 @@ import { armSummary, costInputOf, costReport, costReportAcross, filterJudgeCalls
 import { K0_BRACKET_DIR, K0_FIXTURE_NAME, bracketFileNames, releaseCases, releaseFixturePath, releaseModes, type Brackets } from './lib/contradictionRelease.mts';
 import { busyRows, chunkRows, mergeCalibrationReports, CHUNK_PAUSE_MS, PLUGIN_CALLS_PER_MINUTE } from './lib/calibrationChunks.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
+import { VOICE_USES, scoreVoice } from './lib/voiceScore.mts';
+import { b1Problems, labDirOf, labProblems, readB1Facts, recordRef, refuse, runNumber, writeB1Record, type RunNumber } from './lib/b1Runs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--split <n>] [--min 0.85] [--chunk <rows>] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts|warden-voice] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--split <n>] [--min 0.85] [--chunk <rows>] [--record]
                                       --chunk asks the fixture in slices of <rows>, 61 s apart, so one run never exceeds the plugin's
                                       60 calls/min limit (scene, 66 calls); a run with any limiter refusal (fallback=busy) is refused, never recorded
                                       --provider asks that decision provider (default typesafe); the summary records it, and a llama run never reaches TypeSafe
@@ -29,6 +31,12 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
                                       exit 1 below the fixture's family floors, or below --min when there are none;
                                       an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json;
+                                      --use warden-voice (alias wardenVoice; v2.7 37 L6-C, 39 row 37-L6-C) --lab <campaign lab/life dir> [--run 1|2]:
+                                      the voice warden family alone over the lab's voice-rows.json, each row's voice (role, drive,
+                                      feelings) built in the page from esha-life.story.json's roster; floors from
+                                      test/fixtures/judge/spike-voice.json (OOC recall >= 0.80, false notes <= 0.10, 0 rewrite or
+                                      player-narration notes, fallback <= 1 of 20); --run writes test/phase-c/records/37-L6-C/run-<n>.json;
+                                      refuses (exit 2) without the lab rows or a configured judge
                                       --use continuity --fixture continuity-combined asks the continuity rows inside the combined warden request (T22/T23 regression);
                                       --use contradiction-release defaults to K0 (test/fixtures/memory/contradictions.json) and scores v2.5 plan 04's
                                       Phase A floors per wording in every band mode (Jaccard, and one vectors mode per recorded cosine bracket file;
@@ -218,6 +226,31 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
     await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.calibration.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), summary, rows: report.rows }, null, 2)}\n`);
   }
   return { ok: summary.ok };
+}
+
+const VOICE_ROWS_FILE = 'voice-rows.json';
+const VOICE_STORY_FILE = 'esha-life.story.json';
+
+async function calibrateVoice(page: any, lab: string, run: RunNumber | null, requestedModel: string | undefined, provider: JudgeCliProvider) {
+  const needs = { handles: ['storyOrchestratorJudge'], judge: true };
+  const problems = b1Problems(needs, await readB1Facts(page, needs));
+  if (problems.length) return refuse(problems);
+  const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'spike-voice.json'), 'utf-8'));
+  const doc = JSON.parse(await readFile(join(lab, VOICE_ROWS_FILE), 'utf-8'));
+  const story = JSON.parse(await readFile(join(lab, VOICE_STORY_FILE), 'utf-8'));
+  const rows = (doc.rows ?? []).map((row: any) => ({ id: String(row.id), member: String(row.member), label: row.label, reply: String(row.reply) }));
+  const raw = await evaluateInST(page, async ({ story, rows, model, provider }: { story: unknown; rows: unknown[]; model?: string; provider: string }) => {
+    const judge = (globalThis as any).storyOrchestratorJudge;
+    if (typeof judge?.calibrateVoice !== 'function') throw new Error('storyOrchestratorJudge.calibrateVoice missing (stale page: st-session.mts reload)');
+    const out = await judge.calibrateVoice(story, rows, model, provider);
+    return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
+  }, { story, rows, model: requestedModel, provider });
+  const verdict = providerVerdict(provider, raw.verdict, raw.model ?? null);
+  const scored = scoreVoice(raw.rows, fixture.floors, verdict);
+  const summary = { use: 'wardenVoice', source: 'v2.7 37 §L6 Calibration row L6-C', provider, requestedModel: requestedModel ?? null, model: raw.model, modelVerdict: verdict.verdict, p50LatencyMs: raw.p50LatencyMs, ...scored };
+  if (run) await writeB1Record({ rowId: '37-L6-C', run, summary, raw: { report: raw, rows }, privateText: [rows, story] });
+  console.log(JSON.stringify({ ...summary, rows: undefined, ...(run ? { record: recordRef('37-L6-C', run) } : {}) }, null, 2));
+  return { ok: scored.verdict === 'PASS' };
 }
 
 async function calibrateRelease(page: any, fixtureName: string, record: boolean, requestedModel: string | undefined, provider: JudgeCliProvider) {
@@ -429,6 +462,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
     process.exit(hasHelpFlag() ? 0 : 1);
   }
   const provider = readJudgeProvider(process.argv.includes('--provider') ? argValue('--provider', '') : undefined);
+  const voice = command === 'calibrate' && (VOICE_USES as readonly string[]).includes(argValue('--use', ''));
+  const voiceLab = voice ? labDirOf(process.argv.slice(2)) : null;
+  let voiceRun: RunNumber | null = null;
+  if (voice) {
+    const problems = labProblems(voiceLab, [VOICE_ROWS_FILE, VOICE_STORY_FILE]);
+    try { voiceRun = process.argv.includes('--run') ? runNumber(argValue('--run', '')) : null; } catch (error) { problems.push((error as Error).message); }
+    if (problems.length) { refuse(problems); process.exit(2); }
+  }
   runCli((page) => {
     if (command === 'status') return status(page);
     if (command === 'ask') return ask(page, arg);
@@ -438,6 +479,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
     if (command === 'limit-probe') return limitProbe(page, process.argv.includes('--send'));
     if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined, process.argv.includes('--facts') ? argValue('--facts', '') : undefined, provider);
     const requestedModel = process.argv.includes('--model') ? argValue('--model', '') : undefined;
+    if (voice) return calibrateVoice(page, voiceLab as string, voiceRun, requestedModel, provider);
     if (argValue('--use', 'director') === 'contradiction-release') return calibrateRelease(page, argValue('--fixture', K0_FIXTURE_NAME), process.argv.includes('--record'), requestedModel, provider);
     if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel, provider);
     return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel, provider);

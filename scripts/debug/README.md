@@ -93,6 +93,31 @@ copy, move or download weights.
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
 | `st-search.mts` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
+## Stage B1 runners (v2.7 39)
+
+The measurement runners for v2.7 39 stage B1 (`docs/plans/v2.7/39-test-from-zero.md` §B1 runners record). Each writes
+the public summary of one run to `test/phase-c/records/<row>/run-<n>.json` (counts only) and the prompts, replies and
+labels to `SO_DEBUG_DIR/b1/<row>/run-<n>.raw.json` (private: archive with `npm run sessions:archive`). Each refuses with
+`not-runnable: …` and exit 2, writing nothing, when a prerequisite is missing. `--run` is 1 or 2. Run them on a lane:
+`node scripts/debug/st-lanes.mts run <n> -- scripts/debug/<runner> …` (refused above `SO_MAX_LLM_LANES` model lanes, like
+an integration play; the offline `score` commands are exempt). Campaign lab data is read in place from `--lab <dir>` or
+`SO_ADOLION_LAB` (the campaign checkout, branch `v2.7-38`), never copied here.
+
+| Script | Rows | Key commands |
+|---|---|---|
+| `so-b1-hooks.mts` | 35-M2, 35-M2-C5 | `label --runs <private runs.json> --labeller <profile> --run <n> [--row 35-M2-C5]`, `score --raw <file>` — the open-stretch pull A/B from so-session `turns.jsonl` dirs; a second model labels each reply (hook, narrated decision) and each arrival (own move); window = the 6 player turns after `pull_after`, run end = arrival or `pull_after + 12` |
+| `so-b1-quest-scope.mts` | 36-Q1-M1, 36-Q1-M2 | `m1\|m2 --lab <lab/quests> --profile <read profile> --run <n>`, `score-m1\|score-m2 --raw <file>` — scope arms 0/5/10/20 (tiers, tokens, p50, `QUEST_SCOPE_CAP`) and completion recall / false latches |
+| `so-b1-life-reads.mts` | 37-M1, 37-M1-C5, 37-M2 | `m1\|m2 --lab <lab/life> --profile <read profile> --run <n> [--row 37-M1-C5]`, `score-m1\|score-m2` — relationship read arms (a) hidden (b) shown (c) typed judge; axes-per-read cost N ∈ {2, 4, 8, 16} + the life block ceiling (`REL_AXES_PER_READ`) |
+| `so-b1-combined-scope.mts` | S-17, 37-S17 | `run --row S-17\|37-S17 --lab <lab/life> --profile <read profile> --run <n> [--values <file>]`, `score` — quests, relationships and card pulls in the same reads vs a baseline with both sources at 0; both plans' ceilings and the 3-read fairness |
+| `so-b1-meanwhile.mts` | 37-L3 | `run --profile <curator profile> --labeller <profile> --run <n>`, `score` — the 20 meanwhile cases through `storyOrchestratorLiveSuite.runMeanwhileCase`, labelled in-goal by a second model, unreached references counted in code |
+| `so-judge.mts calibrate --use warden-voice` | 37-L6-C | `--lab <lab/life> [--run <n>]` (alias `--use wardenVoice`) — the voice warden over the lab's voice rows, floors from `test/fixtures/judge/spike-voice.json` |
+| `so-b1-judge-causes.mts` | B1-C3, B1-C12 | `follow --out <calls.jsonl>` (in-page recorder on the judge plugin calls + `/status` samples, beside `so-journal.mts follow`), `score --row B1-C3\|B1-C12 --calls <journal-follow.jsonl> [--samples <calls.jsonl>] [--turns <turns.jsonl>] --run <n>` — per-use timeouts with a cause each (hold / queue / provider / unattributed); lore-select requests per loud turn |
+| `so-b1.mts` | all of the above | `status` (runners and which records exist), `combine <row>` (PASS only when both runs pass) |
+
+Pure scorers live in `lib/hookScore.mts`, `lib/questScope.mts`, `lib/lifeReads.mts`, `lib/combinedScope.mts`,
+`lib/meanwhileReplay.mts`, `lib/voiceScore.mts`, `lib/judgeCauses.mts`, with shared plumbing in `lib/b1Runs.mts` and the
+row → runner list in `lib/b1Registry.mts` (its test fails when a manifest row's prerequisites stop naming its runner).
+
 ## Scenario Format
 
 ```json
