@@ -69,6 +69,32 @@ test('every scenario in the corpus states the install it needs: a lane, and a gr
   assert.ok(counts['no-model'] > 50 && counts.model > 50, JSON.stringify(counts));
 });
 
+const JOURNEYS = join(import.meta.dirname, '..', '..', 'test', 'journeys');
+const journeyGroupProblems = (name: string, doc: { setup?: { group?: unknown } }): string[] => {
+  const group = doc?.setup?.group;
+  const found: string[] = [];
+  if (typeof group === 'string' && /^\d+$/.test(group)) found.push(`${name}: setup.group ${group} is an id; ids differ per install, pin the group by name`);
+  if (/\b1759606632088\b/.test(JSON.stringify(doc))) found.push(`${name}: names the toy group by its id`);
+  return found;
+};
+
+test('every journey pins its group by name, never by an install-minted id', () => {
+  const files = readdirSync(JOURNEYS).filter((name) => name.endsWith('.journey.json'));
+  assert.ok(files.length >= 14, `expected the journey catalog, found ${files.length}`);
+  const docs = files.map((name) => ({ name, doc: JSON.parse(readFileSync(join(JOURNEYS, name), 'utf-8').replace(/^﻿/, '')) }));
+  assert.deepEqual(docs.flatMap(({ name, doc }) => journeyGroupProblems(name, doc)), []);
+  assert.ok(docs.filter(({ doc }) => doc?.setup?.group === TOY_GROUP_NAME).length >= 13);
+});
+
+test('control: a journey pinned by the toy id, or by any numeric id, is caught', () => {
+  assert.deepEqual(journeyGroupProblems('planted', { setup: { group: '1759606632088' } }), [
+    'planted: setup.group 1759606632088 is an id; ids differ per install, pin the group by name',
+    'planted: names the toy group by its id',
+  ]);
+  assert.deepEqual(journeyGroupProblems('planted', { setup: { group: '1000000000001' } }), ['planted: setup.group 1000000000001 is an id; ids differ per install, pin the group by name']);
+  assert.deepEqual(journeyGroupProblems('planted', { setup: { group: TOY_GROUP_NAME } }), []);
+});
+
 test('lane kinds: a no-model scenario refuses a lane whose model answers, and a model scenario refuses a dead one', () => {
   assert.match(requiresProblems({ lane: 'no-model' }, { modelReachable: true, modelProbe: 'answered' }).join(), /needs a no-model lane.*answered/);
   assert.match(requiresProblems({ lane: 'no-model' }, { modelReachable: null }).join(), /could not be probed/);

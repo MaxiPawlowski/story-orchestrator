@@ -8,6 +8,11 @@ import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets
 
 export const info = { id: 'story-orchestrator-media', name: 'Story Orchestrator media', description: 'Owned ComfyUI jobs and generated sprite files.' };
 const home = path.dirname(fileURLToPath(import.meta.url));
+export const ALLOWED_NODES = Object.freeze(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
+    'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
+    'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
+const allowedNodes = new Set(ALLOWED_NODES);
+export const unsupportedNode = (node) => !node || !allowedNodes.has(node.class_type) || !node.inputs || typeof node.inputs !== 'object';
 
 export async function init(router) {
     const config = await fs.readFile(path.join(home, 'config.json'), 'utf8').then(JSON.parse).catch((error) => {
@@ -17,9 +22,6 @@ export async function init(router) {
     const target = createComfyTarget({ configured: config.comfyUrl,
         readSettings: async (req) => JSON.parse(await fs.readFile(path.join(req.user.directories.root, 'settings.json'), 'utf8')) });
     const roots = config.modelRoots ?? {};
-    const allowedNodes = new Set(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
-        'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
-        'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
     const owner = (req) => {
         const root = req.user?.directories?.characters;
         if (!root) throw new Error('Open SillyTavern with a user session first.');
@@ -76,7 +78,7 @@ export async function init(router) {
         const graph = req.body.graph;
         if (!graph || typeof graph !== 'object' || Array.isArray(graph) || Object.keys(graph).length > 128) throw new Error('Invalid render recipe.');
         for (const node of Object.values(graph)) {
-            if (!node || !allowedNodes.has(node.class_type) || !node.inputs || typeof node.inputs !== 'object') throw new Error('The recipe contains an unsupported node.');
+            if (unsupportedNode(node)) throw new Error('The recipe contains an unsupported node.');
             if (node.class_type === 'LoadImage' && !(await ownsReference(user, node.inputs.image))) throw new Error('This reference image does not belong to this user. Upload it through the builder first.');
             if (node.class_type === 'SaveImage' && !/^so[-_][a-z0-9_-]{1,80}$/.test(node.inputs.filename_prefix)) throw new Error('Generated images need an owned output prefix.');
             if (['RMBG', 'BiRefNetRMBG'].includes(node.class_type)) {

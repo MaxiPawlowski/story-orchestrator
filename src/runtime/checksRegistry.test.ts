@@ -48,9 +48,22 @@ const REPAIR_ORDER = [
   "images-on-no-service", "image-model-missing", "image-model-retired",
 ];
 
+const duplicateIds = (registry: readonly Check[]): string[] =>
+  [...new Set(registry.map((check) => check.id).filter((id, index, ids) => ids.indexOf(id) !== index))];
+
+const repairOrder = (registry: readonly Check[]): string[] =>
+  repairSteps(everything({ ui: { authorView: true } }), registry).map((step) => step.check);
+
+const swapped = (registry: readonly Check[], a: string, b: string): Check[] => {
+  const ids = registry.map((check) => check.id);
+  const copy = [...registry];
+  [copy[ids.indexOf(a)], copy[ids.indexOf(b)]] = [copy[ids.indexOf(b)], copy[ids.indexOf(a)]];
+  return copy;
+};
+
 describe("v2.7 plan 04: one check registry", () => {
   it("every check has a unique id and a known severity", () => {
-    expect(new Set(CHECKS.map((check) => check.id)).size).toBe(CHECKS.length);
+    expect(duplicateIds(CHECKS)).toEqual([]);
     for (const check of CHECKS) expect(["blocks", "degrades", "info"]).toContain(check.severity);
   });
 
@@ -86,7 +99,8 @@ describe("v2.7 plan 04: one check registry", () => {
   it("control: a planted blocks check with a stored dismissal is still in Repair, and a planted duplicate id is caught", () => {
     const planted: Check = { id: "planted", area: "lore", scope: "install", audience: "author", severity: "blocks", detect: () => ({ consequence: "c", detail: "d" }) };
     expect(repairSteps(quiet({ dismissedChecks: ["planted"] }), [planted]).map((step) => step.check)).toEqual(["planted"]);
-    expect(new Set([...CHECKS, CHECKS[0]].map((check) => check.id)).size).toBeLessThan(CHECKS.length + 1);
+    expect(duplicateIds([...CHECKS, { ...CHECKS[3] }])).toEqual([CHECKS[3].id]);
+    expect(duplicateIds([...CHECKS, planted, { ...planted, severity: "info" }])).toEqual(["planted"]);
   });
 });
 
@@ -94,8 +108,23 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
   it("lists every finding in the declared order: blocks first, then degrades, each in registry order", () => {
     const steps = repairSteps(everything({ ui: { authorView: true } }));
     expect(steps.map((step) => step.check)).toEqual(REPAIR_ORDER);
+    expect(repairOrder(CHECKS)).toEqual(REPAIR_ORDER);
     const firstDegrade = steps.findIndex((step) => step.severity === "degrades");
     expect(steps.slice(firstDegrade).every((step) => step.severity === "degrades")).toBe(true);
+  });
+
+  it("control: a registry with two checks of one severity swapped fails the declared order", () => {
+    const reordered = repairOrder(swapped(CHECKS, "cast-absent", "lore-absent"));
+    expect(reordered).not.toEqual(REPAIR_ORDER);
+    expect(reordered).toEqual(REPAIR_ORDER.map((id) => (id === "cast-absent" ? "lore-absent" : id === "lore-absent" ? "cast-absent" : id)));
+    expect(repairOrder(swapped(CHECKS, "transcript-copiers", "orphaned-lorebooks"))).not.toEqual(REPAIR_ORDER);
+  });
+
+  it("control: a degrades check moved ahead of every blocks check still lists after them", () => {
+    const thinking = CHECKS.find((check) => check.id === "model-not-thinking") as Check;
+    const blocks = REPAIR_ORDER.slice(0, REPAIR_ORDER.indexOf("save-unconfirmed") + 1);
+    expect(repairOrder([thinking, ...CHECKS.filter((check) => check !== thinking)]))
+      .toEqual([...blocks, "model-not-thinking", ...REPAIR_ORDER.slice(blocks.length).filter((id) => id !== "model-not-thinking")]);
   });
 
   it("keeps the shipped degrades rows (privacy, thinking) in Repair", () => {

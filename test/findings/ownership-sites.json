@@ -39,31 +39,31 @@
     },
     "src/sprites/builder/builder.ts#SpriteBuilder.build": {
       "status": "checked",
-      "note": "v2.8 Belle pilot: draft/chat RunGuard before reference upload, before rendering and before retaining a preview. Cancellation releases the lease in finally. Upload is a separate synchronous ownership check in SpriteBuilder.save. Tests: sprites/builder/builder.test.ts, old draft and cancellation controls."
+      "note": "v2.7 18 + 21 Belle pilot: draft/chat RunGuard before reference upload, before rendering and before retaining a preview. Cancellation releases the lease in finally. Upload is a separate synchronous ownership check in SpriteBuilder.save. Tests: sprites/builder/builder.test.ts, old draft and cancellation controls."
     },
     "src/sprites/builder/host.ts#createSpriteBuilder.lease.acquire": {
       "status": "local",
-      "note": "v2.8: the returned lease owns its heartbeat timer and release; it changes no chat state. A reservation is checked by SpriteBuilder.build immediately after it answers."
+      "note": "v2.7 18: the returned lease owns its heartbeat timer and release; it changes no chat state. A reservation is checked by SpriteBuilder.build immediately after it answers."
     },
     "src/sprites/builder/host.ts#createSpriteBuilder.save": {
       "status": "local",
-      "note": "v2.8: starts the generated-file write synchronously after SpriteBuilder.save checks its retained RunGuard. Nothing after the await writes chat/draft state; returns the server's upload evidence. Files are content-keyed and the server refuses unowned or externally changed assets."
+      "note": "v2.7 18: starts the generated-file write synchronously after SpriteBuilder.save checks its retained RunGuard. Nothing after the await writes chat/draft state; returns the server's upload evidence. Files are content-keyed and the server refuses unowned or externally changed assets."
     },
     "src/sprites/builder/images.ts#cropReference": {
       "status": "local",
-      "note": "v2.8: allocates a local bitmap and canvas, returns encoded pixels, closes the bitmap in finally. No host or persistent state."
+      "note": "v2.7 18: allocates a local bitmap and canvas, returns encoded pixels, closes the bitmap in finally. No host or persistent state."
     },
     "src/sprites/builder/images.ts#decodeImage": {
       "status": "local",
-      "note": "v2.8: allocates a local canvas and returns bounded pixel data. No host or persistent state."
+      "note": "v2.7 18: allocates a local canvas and returns bounded pixel data. No host or persistent state."
     },
     "src/sprites/builder/onDemand.ts#OnDemandLooks.drain": {
       "status": "local",
-      "note": "v2.8: owns only this editor instance's in-memory queue, running flag and attempted keys. No chat writes; failures log to the console. OnDemandLooks.edit owns the generated asset and stage writes."
+      "note": "v2.7 20: owns only this editor instance's in-memory queue, running flag and attempted keys. No chat writes; failures log to the console. OnDemandLooks.edit owns the generated asset and stage writes."
     },
     "src/sprites/builder/onDemand.ts#OnDemandLooks.edit": {
       "status": "checked",
-      "note": "v2.8: mints a chat/story RunGuard before discovery, checks it together with the applied look before render, upload and stage application. Cached files are applied under the same check. The builder has its own upload guard."
+      "note": "v2.7 20: mints a chat/story RunGuard before discovery, checks it together with the applied look before render, upload and stage application. Cached files are applied under the same check. The builder has its own upload guard."
     },
     "src/runtime/spikes/editReread.ts#EditReread.cycle": {
       "status": "checked",

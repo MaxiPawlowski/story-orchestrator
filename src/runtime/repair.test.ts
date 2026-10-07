@@ -1,4 +1,4 @@
-import { nextRepairStep, REPAIR_TARGET_IDS, viewerRepairStep, WI_GATING_TARGET_ID } from "./repair";
+import { nextRepairStep, REPAIR_TARGET_IDS, viewerRepairStep, WI_GATING_TARGET_ID, type RepairStep } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import type { RuntimeSnapshot } from "./types";
 import type { WiGatingStatus } from "./worldInfoMode";
@@ -11,6 +11,13 @@ const snapshotWith = (overrides: Partial<RuntimeSnapshot> = {}): RuntimeSnapshot
     saveHealth: createSaveHealth(),
     ...overrides,
   }) as unknown as RuntimeSnapshot;
+
+type StepCore = Pick<RepairStep, "check" | "area" | "severity" | "consequence" | "detail">;
+const expected = (fields: StepCore & Partial<RepairStep>): RepairStep => ({
+  targetId: null, target: null, provisionable: false, player: null, action: null, opensGroup: false, dismissable: fields.severity !== "blocks", ...fields,
+});
+const setting = (id: string): Pick<RepairStep, "targetId" | "target"> => ({ targetId: id, target: { kind: "setting", id } });
+const MEMORY_MODEL_PLAYER = "The story will not advance on its own until it is set up in the extension settings.";
 
 describe("nextRepairStep", () => {
   it("says nothing when there is nothing missing", () => {
@@ -26,26 +33,22 @@ describe("nextRepairStep", () => {
       extraction: { settings: { enabled: false, profileId: null } },
       requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: [] },
     } as unknown as Partial<RuntimeSnapshot>));
-    expect(step).toMatchObject({
-      area: "memory-model",
+    expect(step).toEqual(expected({
+      check: "memory-model", area: "memory-model", severity: "blocks",
       consequence: "The story will not advance on its own until this is set.",
       detail: "Automatic story advancement is off.",
-      targetId: REPAIR_TARGET_IDS.memoryModel,
-      provisionable: false,
-      player: "The story will not advance on its own until it is set up in the extension settings.",
-    });
+      ...setting(REPAIR_TARGET_IDS.memoryModel),
+      player: MEMORY_MODEL_PLAYER,
+    }));
   });
 
   it("v2.4 plan 05: a story book another extension hides from the model is a lore step, worded without naming anyone", () => {
     const step = nextRepairStep(snapshotWith({ loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } } as Partial<RuntimeSnapshot>));
-    expect(step).toMatchObject({
-      area: "lore",
+    expect(step).toEqual(expected({
+      check: "lore-hidden", area: "lore", severity: "blocks",
       consequence: "Another extension is hiding this story's lorebook from the model.",
       detail: "Hidden from the model: Sun Ruins",
-      targetId: null,
-      provisionable: false,
-      player: null,
-    });
+    }));
   });
 
   it("a missing lorebook still comes before a hidden one, and a hidden one before the persona", () => {
@@ -56,14 +59,13 @@ describe("nextRepairStep", () => {
 
   it("a deleted profile is a memory-model step", () => {
     const step = nextRepairStep(snapshotWith({ extractionHealth: { kind: "config", detail: "The selected memory model profile no longer exists" } } as Partial<RuntimeSnapshot>));
-    expect(step).toMatchObject({
-      area: "memory-model",
+    expect(step).toEqual(expected({
+      check: "memory-model", area: "memory-model", severity: "blocks",
       consequence: "The story will not advance on its own until this is set.",
       detail: "The selected memory model profile no longer exists",
-      targetId: REPAIR_TARGET_IDS.memoryModel,
-      provisionable: false,
-      player: "The story will not advance on its own until it is set up in the extension settings.",
-    });
+      ...setting(REPAIR_TARGET_IDS.memoryModel),
+      player: MEMORY_MODEL_PLAYER,
+    }));
   });
 
   it("control: a memory model that is only not answering is not a repair step", () => {
@@ -80,18 +82,26 @@ describe("nextRepairStep", () => {
     const step = nextRepairStep(snapshotWith({
       requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: ["Wendhope"] },
     } as Partial<RuntimeSnapshot>));
-    expect(step?.area).toBe("cast");
-    expect(step?.detail).toContain("Belle");
-    expect(step?.provisionable).toBe(true);
+    const cast = "The story expects people who are not in this chat, so their scenes never arrive.";
+    expect(step).toEqual(expected({ check: "cast-absent", area: "cast", severity: "blocks", consequence: cast, detail: "No card on this install: Belle", provisionable: true, player: cast }));
     const lore = nextRepairStep(snapshotWith({ requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Wendhope"] } } as Partial<RuntimeSnapshot>));
-    expect(lore?.area).toBe("lore");
-    expect(lore?.provisionable).toBe(true);
+    expect(lore).toEqual(expected({
+      check: "lore-absent", area: "lore", severity: "blocks",
+      consequence: "The story reads from lore it cannot see, so nothing it needs to know is in play.",
+      detail: "No lorebook on this install: Wendhope",
+      provisionable: true,
+      player: "Background this story needs is not switched on in this chat, so it is not in play.",
+    }));
   });
 
   it("never offers to provision a persona", () => {
     const step = nextRepairStep(snapshotWith({ requirements: { ready: false, missingPersonas: ["Rhea"], missingMembers: [], missingLorebooks: [] } } as Partial<RuntimeSnapshot>));
-    expect(step?.area).toBe("persona");
-    expect(step?.provisionable).toBe(false);
+    expect(step).toEqual(expected({
+      check: "persona-unselected", area: "persona", severity: "blocks",
+      consequence: "This story is written for the persona \"Rhea\", and a different one is selected.",
+      detail: "Missing persona: Rhea. Select it in Persona Management.",
+      player: "This story is written for a different player character than the one selected.",
+    }));
   });
 
   it("reports an unlanded save last, and only while it is unlanded", () => {
@@ -105,14 +115,11 @@ describe("nextRepairStep", () => {
 
     it("is a lore row naming the chat first and the book last, and never offers the wizard", () => {
       const step = nextRepairStep(snapshotWith({ orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>));
-      expect(step).toMatchObject({
-        area: "lore",
+      expect(step).toEqual(expected({
+        check: "orphaned-lorebooks", area: "lore", severity: "degrades",
         consequence: "A deleted chat left its story memory behind in a lorebook.",
         detail: 'The "Crossing" chat started 2026-10-02 01:58: the host refused. Lorebook: Story Orchestrator - Crossing - chat-b',
-        targetId: null,
-        provisionable: false,
-        player: null,
-      });
+      }));
     });
 
     it("reads a row recorded without a label as a deleted chat (T4-3)", () => {
@@ -138,14 +145,12 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
 
   it("names the drifted entry, says what it costs first, and points at the gating control", () => {
     const step = nextRepairStep(snapshotWith({ wiGating: status({ drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>));
-    expect(step).toMatchObject({
-      area: "lore",
+    expect(step).toEqual(expected({
+      check: "wi-gating-drift", area: "lore", severity: "degrades",
       consequence: "A story lorebook entry was switched on outside the story; it will show in chats without the story.",
       detail: "Switched on outside the story: 1 entry in Ruins",
-      targetId: WI_GATING_TARGET_ID,
-      provisionable: false,
-      player: null,
-    });
+      ...setting(WI_GATING_TARGET_ID),
+    }));
   });
 
   it("raises the same row for a gated entry the scan could not switch off (missingKey)", () => {
@@ -181,14 +186,12 @@ describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", (
 
   it("names what stops, points at that role's own select, and comes after the memory model", () => {
     const routes = [route("read", "fallback"), route("director", "missing", "The profile chosen for speaker direction no longer exists (ID: gone)")];
-    expect(nextRepairStep(snapshotWith({ roleRoutes: routes } as Partial<RuntimeSnapshot>))).toMatchObject({
-      area: "model-role",
+    expect(nextRepairStep(snapshotWith({ roleRoutes: routes } as Partial<RuntimeSnapshot>))).toEqual(expected({
+      check: "model-role", area: "model-role", severity: "blocks",
       consequence: "Speaker direction falls back to ST's own choice.",
       detail: "The profile chosen for speaker direction no longer exists (ID: gone)",
-      targetId: "so-role-profile-director",
-      provisionable: false,
-      player: null,
-    });
+      ...setting("so-role-profile-director"),
+    }));
     expect(nextRepairStep(snapshotWith({ extraction: { settings: { enabled: true, profileId: null } }, roleRoutes: routes } as Partial<RuntimeSnapshot>))?.area).toBe("memory-model");
   });
 
@@ -222,14 +225,11 @@ describe("L2: a chat lorebook slot that displaces this chat's memory mirror (fil
   } as unknown as Partial<RuntimeSnapshot>);
 
   it("is a lore step when this chat owns a mirror book the slot keeps out", () => {
-    expect(nextRepairStep(conflicted({ name: "Story Orchestrator - S - c1", chatId: "c1" }))).toMatchObject({
-      area: "lore",
+    expect(nextRepairStep(conflicted({ name: "Story Orchestrator - S - c1", chatId: "c1" }))).toEqual(expected({
+      check: "memory-slot-taken", area: "lore", severity: "blocks",
       consequence: "This chat's story memory is not reaching the model, because the chat lorebook slot holds another book.",
       detail: "Chat lorebook: My Notes",
-      targetId: null,
-      provisionable: false,
-      player: null,
-    });
+    }));
   });
 
   it("control: with no mirror book yet there is nothing displaced, so no step", () => {
@@ -241,7 +241,13 @@ describe("CR-U: Repair per viewer", () => {
   const muted = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [], mutedMembers: ["Belle"] };
   it("names a muted member for player and author alike", () => {
     const step = nextRepairStep(snapshotWith({ requirements: muted } as Partial<RuntimeSnapshot>));
-    expect(step).toMatchObject({ area: "cast", consequence: "Belle is muted in this group, so the story cannot give them a turn.", provisionable: false });
+    const consequence = "Belle is muted in this group, so the story cannot give them a turn.";
+    expect(step).toEqual(expected({
+      check: "cast-muted", area: "cast", severity: "blocks", consequence,
+      detail: "Muted in the group: Belle. Unmute this member in the group's member list.",
+      target: { kind: "group-members" }, opensGroup: true, player: consequence,
+      action: { kind: "unmute-members", members: ["Belle"], label: "Unmute Belle" },
+    }));
     expect(viewerRepairStep(snapshotWith({ ui: { authorView: false }, requirements: muted } as unknown as Partial<RuntimeSnapshot>))?.consequence)
       .toBe("Belle is muted in this group, so the story cannot give them a turn.");
   });
@@ -253,7 +259,8 @@ describe("CR-U: Repair per viewer", () => {
       requirements: { ready: false, missingPersonas: ["Rhea"], missingMembers: [], missingLorebooks: [] },
     } as unknown as Partial<RuntimeSnapshot>);
     expect(nextRepairStep(snapshot)?.consequence).toBe("Another extension is hiding this story's lorebook from the model.");
-    expect(viewerRepairStep(snapshot)).toMatchObject({ area: "persona", consequence: "This story is written for a different player character than the one selected." });
+    const player = "This story is written for a different player character than the one selected.";
+    expect(viewerRepairStep(snapshot)).toEqual(expected({ check: "persona-unselected", area: "persona", severity: "blocks", consequence: player, detail: player, player }));
     expect(viewerRepairStep(snapshotWith({ ui: { authorView: false }, loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } } as unknown as Partial<RuntimeSnapshot>))).toBeNull();
   });
 

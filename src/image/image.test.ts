@@ -82,11 +82,14 @@ describe("Image Director merge", () => {
     expect(sanitizeImageSettings(legacy).purposes.scene).toMatchObject({ checkpoint: JANKU, family: "sdxl-noobai" });
   });
 
-  it("migrates a legacy image route while leaving automatic images off until validated", () => {
-    const legacy = { ...defaultImageSettings(), enabled: true, purposes: { ...defaultImageSettings().purposes, scene: { ...defaultImageSettings().purposes.scene, checkpoint: JANKU } } };
-    const settings = { ...sanitizeImageSettings(legacy), enabled: false };
-    expect(settings.purposes.scene.checkpoint).toBe(JANKU);
-    expect(settings.enabled).toBe(false);
+  it("migrates a legacy image route and keeps the stored on/off choice", () => {
+    const legacy = { ...defaultImageSettings(), purposes: { ...defaultImageSettings().purposes, scene: { ...defaultImageSettings().purposes.scene, checkpoint: JANKU } } };
+    expect(sanitizeImageSettings({ ...legacy, enabled: true })).toMatchObject({ enabled: true, purposes: { scene: { checkpoint: JANKU } } });
+    expect(sanitizeImageSettings({ ...legacy, enabled: false })).toMatchObject({ enabled: false, purposes: { scene: { checkpoint: JANKU } } });
+    const unset: Record<string, unknown> = { ...legacy };
+    delete unset.enabled;
+    expect(sanitizeImageSettings(unset).enabled).toBe(defaultImageSettings().enabled);
+    expect(sanitizeImageSettings({ ...legacy, enabled: "no" }).enabled).toBe(defaultImageSettings().enabled);
   });
 
   it("targets the reply, not the previous generated-image post or a muted future group member", () => {

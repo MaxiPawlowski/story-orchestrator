@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
 import { saveSprite, deleteSprite, reconcileSet, removeStorySprites, fingerprint, digest, referencePack, referenceSets, alphaRecipes,
     recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory } from './files.mjs';
+import { ALLOWED_NODES, init, unsupportedNode } from './index.mjs';
 
 test('cancelling a queued job removes only its prompt, never interrupts the running foreign job', async () => {
     const calls = [];
@@ -213,4 +214,54 @@ test('reference cleanup survives restart and removes only explicitly released, h
     assert.deepEqual(await referenceInventory(user), []);
     assert.equal(await fs.readFile(unrelated, 'utf8'), 'author input');
     await assert.rejects(pruneReferences(user, input, ['../my-input.png']), /explicit list/);
+});
+
+const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',
+    'KSampler', 'LoadImage', 'LoraLoader', 'PreviewImage', 'QwenImage21Cache', 'RMBG', 'SaveImage', 'SplitImageWithAlpha', 'TextEncodeQwenImage21',
+    'UNETLoader', 'UpscaleModelLoader', 'VAEDecode', 'VAEEncode', 'VAELoader'];
+const CUTOUT_NODES = ['RMBG', 'BiRefNetRMBG'];
+const repo = path.resolve(import.meta.dirname, '..', '..');
+const emittedNodes = (source) => [
+    ...[...source.matchAll(/class_type: "([A-Za-z0-9_]+)"|\bnode\("([A-Za-z0-9_]+)"/g)].map((match) => match[1] ?? match[2]),
+    ...[...(source.match(/EDIT_NODES = \[([^\]]*)\]/)?.[1] ?? '').matchAll(/"([A-Za-z0-9_]+)"/g)].map((match) => match[1]),
+];
+const unlisted = (names) => [...new Set(names)].filter((name) => !ALLOWED_NODES.includes(name)).sort();
+const clientNodes = async () => [
+    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'image', 'graph.ts'), 'utf8')),
+    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'builder', 'recipes.ts'), 'utf8')),
+    ...CUTOUT_NODES,
+];
+
+test('the render-recipe node allowlist is exactly the shipped list, and every node a client recipe emits is on it', async () => {
+    assert.deepEqual([...ALLOWED_NODES].sort(), SHIPPED_NODES);
+    assert.deepEqual(unlisted(await clientNodes()), []);
+    const emitted = new Set(await clientNodes());
+    assert.deepEqual(ALLOWED_NODES.filter((name) => !emitted.has(name)), []);
+});
+
+test('control: an unlisted node is refused, by the check and by the jobs route, before anything reaches ComfyUI', async (t) => {
+    assert.deepEqual(unlisted([...ALLOWED_NODES, 'DualCLIPLoader', 'FluxGuidance']), ['DualCLIPLoader', 'FluxGuidance']);
+    const planted = 'export const EDIT_NODES = ["LoadImage", "DualCLIPLoader"]; const g = { "1": { class_type: "EmptySD3LatentImage", inputs: {} }, "2": node("FluxGuidance", {}) };';
+    assert.deepEqual(unlisted(emittedNodes(planted)), ['DualCLIPLoader', 'EmptySD3LatentImage', 'FluxGuidance']);
+    assert.equal(unsupportedNode({ class_type: 'DualCLIPLoader', inputs: {} }), true);
+    assert.equal(unsupportedNode({ class_type: 'KSampler', inputs: {} }), false);
+    assert.equal(unsupportedNode({ class_type: 'KSampler' }), true);
+    assert.equal(unsupportedNode(null), true);
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-allow-'));
+    t.after(() => fs.rm(root, { recursive: true, force: true }));
+    const routes = {};
+    await init({ get: (name, run) => { routes[`get ${name}`] = run; }, post: (name, run) => { routes[`post ${name}`] = run; } });
+    const fetched = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (...args) => { fetched.push(String(args[0])); throw new Error('no network in this test'); };
+    t.after(() => { globalThis.fetch = realFetch; });
+    const answer = async (graph) => {
+        const out = {};
+        const res = { status: (code) => { out.status = code; return res; }, json: (body) => { out.body = body; return res; } };
+        await routes['post /jobs']({ user: { directories: { characters: root, root } }, body: { id: randomUUID(), graph } }, res);
+        return out;
+    };
+    assert.deepEqual(await answer({ '1': { class_type: 'KSampler', inputs: {} }, '2': { class_type: 'DualCLIPLoader', inputs: {} } }), { status: 400, body: { error: 'The recipe contains an unsupported node.' } });
+    assert.deepEqual(await answer({ '1': { class_type: 'EmptySD3LatentImage', inputs: {} } }), { status: 400, body: { error: 'The recipe contains an unsupported node.' } });
+    assert.deepEqual(fetched, []);
 });
