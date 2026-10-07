@@ -565,6 +565,11 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | S-16 | C5 | D | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
 | S-19 | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
 | S-19-OOC | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| S-19-OOC-b | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| 37-Q1 | C2 | D | dev-diagnostic | v2.7 39 §Rows owed by v2.7 37 |
+| 37-Q2 | C2 | D | dev-diagnostic | v2.7 39 §Rows owed by v2.7 37 |
+| 37-Q3 | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows owed by v2.7 37 |
+| S-13 | C5 | D + CL | prod | v2.7 39 §Rows for Sol findings 4–10 |
 | 37-S19 | C5 | D + RP | dev-diagnostic | v2.7 37 §Story clock Gate; 39 §Rows owed by v2.7 37 |
 | 37-M1-C5 | C5 | CL | prod | v2.7 37 §M1; 39 C5 (37 M1, M3) |
 | 37-M3 | C5 | RP + CL | prod | v2.7 37 §M3; 39 §Rows added |

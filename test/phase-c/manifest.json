@@ -5260,6 +5260,149 @@
         null,
         null
       ]
+    },
+    {
+      "id": "S-19-OOC-b",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-19-OOC-b warden note and story panel log (owner decisions 2026-10-07, `v2.7-owner-decisions`, not run)"
+      ],
+      "prerequisites": [
+        "S-19-OOC's chat with the continuity warden on in `review` and a story with a `log` widget (or the Journal's Log); a reply the warden flags, then each of `((…))`, `OOC: …`, `(OOC) …` answered by a reply, then accept the note; control: an in-character line in the same place"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the pending note stays pending through the OOC lines and the next loud generation carries it once; after the control line it lapses (`rejected`, `lapsed`); the story panel's log lists the in-character actions only, never an OOC line (jest: `stagecraftCoordinator.test.ts` \"an out-of-character player line is no new turn\", `gameProjection.test.ts`)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows added by the 2026-10-07 review (S-19-OOC-b)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-Q1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-Q1 unread relationship reads as `start` (owner decision 2026-10-07)"
+      ],
+      "prerequisites": [
+        "a copy of the 37-D1 story with `start: 2` on Arin's `trust` toward the player and a transition gated `rel_arin_player_trust >= 2`; control copy with `start: 1`"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the `start: 2` copy leaves its first checkpoint on the first boundary with no read (`so-state current` shows the value at version 0), the control waits for a read; a swipe back past the first read shows `start` again; reopen ≡ continuous run; no code write reaches the key (jest: `engine/life/life.test.ts` \"an unread relationship reads as its start\")",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37 (37-Q1)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-Q2",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-Q2 `per_chapter` without chapters refused (owner decision 2026-10-07)"
+      ],
+      "prerequisites": [
+        "import a copy of the 37-D1 story whose agenda paces `per_chapter`, with and without `chapters`"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "without chapters the import is refused at `roster.0.agenda.0.pace` with the plain message (use `per_n_boundaries` with `every`, or add chapters) and the Studio shows `agenda-pace-no-chapters` consequence first; with chapters it loads (jest: `validate/life.test.ts`, `studio/diagnostics.test.ts`)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37 (37-Q2)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-Q3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-Q3 addressed away member (owner decision 2026-10-07)"
+      ],
+      "prerequisites": [
+        "37-D2's night at the market; player lines \"Arin, are you there?\", an alias only Arin carries, an OOC line after the address, then \"I look around the market.\"; controls: the party at the docks, and an alias two members share"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the request ST sends after an address carries one `story_orchestrator_away_notice` line at depth 0 naming Arin as not here (resting prompt, not a private block) and the reply does not speak as Arin; after the unaddressed line, the docks control and the shared alias the block is absent and the payload is byte-identical to a chat without schedules (payload golden diff); quiet/impersonate requests never carry it (jest: `runtime/awayNotice.test.ts`)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37 (37-Q3)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-13",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-13 held-secret Memory tab (owner decision 2026-10-07, `v2.7-owner-decisions`, not run)"
+      ],
+      "prerequisites": [
+        "S-11's setup with fact rows that state the secret, paraphrase it, and mix it with a plain sentence, plus a plain row; open the drawer Memory tab in player mode, then Author view; pin, edit and exclude the trimmed row; retire the `[hiding]` row"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "player mode shows neither the secret nor its paraphrase, the mixed row trimmed to its plain sentence under its own id, and no count, gap or marker (the tab reads as a chat that never held the secret, `assert-player-clean`); pin/exclude act on the stored row and an edit keeps the withheld sentence in the store; Author view lists every row whole; after retiring the secret the rows show again (negative control) (jest: `secretMemoryTab.review.test.ts`, Storybook `PlayerMemoryHidesAHeldSecret`)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-13)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
     }
   ]
 }
