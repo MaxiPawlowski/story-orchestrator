@@ -18,12 +18,12 @@ jest.mock("./persistence", () => ({
   setSelectedStoryId: jest.fn(),
 }));
 jest.mock("./storyLibrary", () => ({
-  findStoryRecord: () => ({ id: "ruins", title: "The Ruins", version: 3, raw: {} }),
+  findStoryRecord: () => ({ id: "ruins", title: "The Ruins", raw: {} }),
   listStoryRecords: () => [],
   loadPinnedStory: () => null,
-  loadStoryRecord: () => ({ record: { id: "ruins", title: "The Ruins", version: 3 }, story: { qualities: [], checkpoints: [] } }),
+  loadStoryRecord: () => ({ record: { id: "ruins", title: "The Ruins" }, story: { qualities: [], checkpoints: [] } }),
   removeStoryRecord: () => true,
-  saveStoryRecord: jest.fn(() => ({ record: { id: "ruins", title: "The Ruins", version: 3 }, story: { qualities: [], checkpoints: [] } })),
+  saveStoryRecord: jest.fn(() => ({ record: { id: "ruins", title: "The Ruins" }, story: { qualities: [], checkpoints: [] } })),
 }));
 
 import { dropPersistedRuntime } from "./persistence";
@@ -41,7 +41,7 @@ const harness = () => {
     warn: jest.fn(),
     setStatus: jest.fn(),
     isLoaded: () => false,
-    loadedFallback: () => ({ record: { id: "ruins", version: 3 }, story: {} }),
+    loadedFallback: () => ({ record: { id: "ruins" }, story: {} }),
   };
   return { deps, selection: deps as unknown as StorySelectionDeps };
 };
@@ -59,8 +59,8 @@ describe("2026-10-02: a story is never activated without a chat that owns its ef
     expect(saveStoryRecord).toHaveBeenCalledTimes(1);
     expect(h.deps.loadStory).not.toHaveBeenCalled();
     expect(h.deps.restoreEffects).not.toHaveBeenCalled();
-    expect(h.deps.setStatus).toHaveBeenCalledWith("Saved “The Ruins” v3 to the library. Open a chat to play it.");
-    expect(noChatView(false)).toEqual({ notice: "Saved “The Ruins” v3 to the library. Open a chat to play it." });
+    expect(h.deps.setStatus).toHaveBeenCalledWith("Saved “The Ruins” to the library. Open a chat to play it.");
+    expect(noChatView(false)).toEqual({ notice: "Saved “The Ruins” to the library. Open a chat to play it." });
     expect(noChatView(true)).toBeNull();
     expect(h.deps.fail).not.toHaveBeenCalled();
   });

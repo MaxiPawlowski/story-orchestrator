@@ -33,7 +33,7 @@ import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { ApplyQueue } from "@engine/applyQueue";
 
-const story = { title: "S", id: "s1", version: 1, checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } }, qualityByKey: {}, roster: [{ id: "arin", name: "Arin" }], arc_bridges: [] };
+const story = { title: "S", id: "s1", checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } }, qualityByKey: {}, roster: [{ id: "arin", name: "Arin" }], arc_bridges: [] };
 
 const memoryState = (): MemoryRuntimeState => ({
   entries: [], excluded: [], writeLog: [],
@@ -43,7 +43,7 @@ const memoryState = (): MemoryRuntimeState => ({
 }) as MemoryRuntimeState;
 
 function harness() {
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memory = memoryState();
   const engine = { activeCheckpointId: "cp1", boundary: 1, lastMessageId: 3, blackboard: { values: {}, versions: {} } };

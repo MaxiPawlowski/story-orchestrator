@@ -74,7 +74,6 @@ export interface GlobalSettings {
 }
 
 export interface HelpSettings {
-  lastSeenVersion: string | null;
   checklistDismissed: boolean;
   dismissedChecks: string[];
   onboardingSeen: boolean;
@@ -84,10 +83,8 @@ export interface HelpSettings {
 export const DEFAULT_OPEN_SECTIONS: readonly string[] = ["play"];
 
 export const defaultHelpSettings = (): HelpSettings => ({
-  lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: [...DEFAULT_OPEN_SECTIONS],
+  checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: [...DEFAULT_OPEN_SECTIONS],
 });
-
-const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
 const SECTION_ID = /^[a-z]+$/;
 
@@ -96,7 +93,6 @@ const uniqueIds = (value: unknown): string[] => (Array.isArray(value)
   : []);
 
 export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
-  lastSeenVersion: isRecord(value) && typeof value.lastSeenVersion === "string" && VERSION_PATTERN.test(value.lastSeenVersion) ? value.lastSeenVersion : null,
   checklistDismissed: isRecord(value) && value.checklistDismissed === true,
   dismissedChecks: isRecord(value) ? uniqueIds(value.dismissedChecks) : [],
   onboardingSeen: isRecord(value) && value.onboardingSeen === true,

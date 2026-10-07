@@ -26,7 +26,7 @@ export const NewStory: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "From title" }));
     await expect(canvas.getByLabelText("Story id")).toHaveValue("the-ruins-heist");
-    await expect(canvas.getByLabelText("Story version")).toHaveValue("1");
+    await expect(canvas.queryByLabelText("Story version")).toBeNull();
   },
 };
 

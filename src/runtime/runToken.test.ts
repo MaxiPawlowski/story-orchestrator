@@ -9,7 +9,7 @@ import { RunOwner } from "./runOwner";
 const context = (overrides: Partial<RunContext> = {}): RunContext => ({
   chatId: "chat-a",
   storyId: "adolion-adventurer",
-  playedVersion: 9,
+  storyHash: "h9",
   sessionEpoch: 1,
   windowRevision: 0,
   lowestMutatedMessageId: null,
@@ -18,7 +18,7 @@ const context = (overrides: Partial<RunContext> = {}): RunContext => ({
 
 describe("V6: only mutations made after a token was minted can lapse it", () => {
   const owner = () => {
-    const runOwner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "s1", playedVersion: () => 1 });
+    const runOwner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "s1", storyHash: () => "h1" });
     runOwner.bump();
     return runOwner;
   };
@@ -85,9 +85,9 @@ describe("a result is discarded when it belongs to another world", () => {
     expect(tokenMatches(context({ storyId: "adolion-academy" }), token)).toMatchObject({ ok: false, reason: "story" });
   });
 
-  it("refuses a story that changed version while the work ran", () => {
-    const token = mintToken(context({ playedVersion: 9 }));
-    expect(tokenMatches(context({ playedVersion: 10 }), token)).toMatchObject({ ok: false, reason: "version" });
+  it("refuses a story whose content changed while the work ran", () => {
+    const token = mintToken(context({ storyHash: "h9" }));
+    expect(tokenMatches(context({ storyHash: "h10" }), token)).toMatchObject({ ok: false, reason: "revision" });
   });
 
   it("refuses work minted before a restart, even in the same chat and story", () => {

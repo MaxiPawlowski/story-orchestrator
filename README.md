@@ -127,7 +127,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
-| Setup | Help and what's new | This list: every feature, whether it is on, and where to find it. |  |
+| Setup | Help | This list: every feature, whether it is on, and where to find it. |  |
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials, only in development builds. | Experimental |
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |

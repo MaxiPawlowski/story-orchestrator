@@ -10,7 +10,6 @@ import { inlinePresence } from "@runtime/presence";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { createPresenceUi, GameOpeners, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
-import packageJson from "../package.json";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
@@ -40,9 +39,6 @@ import { HelpButton } from "./components/help/HelpButton";
 import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
 import { log } from "@utils/log";
-
-// The version the settings panel reports is the one this bundle was built from.
-const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
@@ -246,7 +242,6 @@ const useRuntimeSnapshot = () => {
 };
 
 const settingsHost: SettingsHost = {
-  extensionVersion: EXTENSION_VERSION,
   memoryModelLimit,
   recheckMemoryModel: () => contextLimits.invalidate(),
   openWizard: launch(openWizard),

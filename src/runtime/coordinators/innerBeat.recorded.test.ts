@@ -23,7 +23,7 @@ const idOf = (name: string) => roster.find((member) => member.name === name)!.id
 const checkpointAfter = (messageId: number) => recorded.transitions.filter((entry) => entry.messageId <= messageId).at(-1)?.to ?? recorded.start;
 
 const replay = async (draftFill: boolean) => {
-  const current: RunContext = { chatId: "t3-1", storyId: "adolion-deep", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "t3-1", storyId: "adolion-deep", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token) => tokenMatches(current, token) };
   const rows: Array<{ name: string; mes: string; is_user?: boolean }> = [];
   const state = { activeCheckpointId: recorded.start };

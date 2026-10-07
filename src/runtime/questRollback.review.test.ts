@@ -29,7 +29,7 @@ const harness = () => {
   engine.commitBoundary({ lastMessageId: 2, chatLength: 3 });
   engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "paid", v: true, source: "extractor" }] });
   engine.commitBoundary({ lastMessageId: 4, chatLength: 5 });
-  const context: RunContext = { chatId: "chat-a", storyId: "s", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "s", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const extras = { memory: { chapters: [] }, extraction: { audits: [] }, judge: { calls: [] }, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] } };
   const reapplied: number[] = [];

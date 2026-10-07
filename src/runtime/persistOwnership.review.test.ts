@@ -70,7 +70,7 @@ function claim(manager: Probe, chatId: string) {
  * the fix is there or not, which is the failure mode this whole plan exists to catch.
  */
 function makeWritable(manager: Probe) {
-  manager.loaded = { record: { id: "s1", version: 1, hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } };
+  manager.loaded = { record: { id: "s1", hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } };
   manager.loadedChatId = manager.owner.claimedChat();
   manager.engine = {
     serialize: () => ({ boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] }),

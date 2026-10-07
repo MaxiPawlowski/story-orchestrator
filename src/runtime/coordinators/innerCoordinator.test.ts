@@ -9,7 +9,6 @@ import { INNER_CALLS_PER_TURN, InnerCoordinator, type InnerCoordinatorDeps } fro
 const story = {
   title: "Vault",
   id: "vault",
-  version: 1,
   checkpointById: { cp1: { id: "cp1", name: "The Vault", objective: "Get inside.", type: "anchor", talk_control: { lead: "ponticius", speakers: [{ member: "arin", weight: 3 }, { member: "luke", weight: 1 }] } } },
   outgoingByCheckpoint: {},
   roster: [{ id: "arin", name: "Arin" }, { id: "ponticius", name: "Ponticius" }, { id: "luke", name: "Luke" }],
@@ -23,7 +22,7 @@ interface Setup {
 }
 
 function harness(setup: Setup = {}) {
-  const current: RunContext = { chatId: "chat-a", storyId: "vault", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "vault", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   const answers = [...(setup.answers ?? ["BEAT: Stall them at the door.\nTONE: wary"])];
   const prompts: string[] = [];
@@ -141,7 +140,7 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
   it("inner|aborted: a held inner call aborted by a chat switch cancels its request and writes nothing", async () => {
     const { deps, beats, persist } = harness();
     const world = { chat: "chat-a" };
-    const owner = new RunOwner({ openChatId: () => world.chat, storyId: () => "vault", playedVersion: () => 1 });
+    const owner = new RunOwner({ openChatId: () => world.chat, storyId: () => "vault", storyHash: () => "h1" });
     owner.bump();
     const signals: AbortSignal[] = [];
     const model = ((_prompt: string, ask: { signal?: AbortSignal }) => new Promise((_resolve, reject) => {
@@ -161,7 +160,7 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
 
   it("control: the same held call nobody aborts lands", async () => {
     const { deps, beats } = harness();
-    const owner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "vault", playedVersion: () => 1 });
+    const owner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "vault", storyHash: () => "h1" });
     owner.bump();
     let release: (value: { text: string; finish: string }) => void = () => {};
     const signals: AbortSignal[] = [];

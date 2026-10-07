@@ -17,7 +17,7 @@ type Path = "noop" | "applied" | "unavailable";
 type Pause = "stagecraft" | "reapply" | "persist";
 
 const harness = (path: Path, pauseAt: Pause | null) => {
-  const context: RunContext = { chatId: "chat-a", storyId: "s", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "s", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const extras = { memory: { chapters: [] }, extraction: { audits: [] }, judge: { calls: [] }, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] } } as unknown as RuntimeExtras;
   const calls: string[] = [];

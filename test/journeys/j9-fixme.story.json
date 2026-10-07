@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-j9-fixme",
-  "version": 1,
   "title": "SO-J9 Unrunnable Story",
   "description": "Journey J9 fixture for 'Fix with wizard': it requires a lorebook no check ever creates, so the unmet state is stable whatever order the checks run in.",
   "requirements": {

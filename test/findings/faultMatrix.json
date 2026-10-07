@@ -375,7 +375,7 @@
     },
     "persistence|duplicateCompletion": {
       "status": "covered",
-      "evidence": "src/runtime/storyUpdate.test.ts#does nothing when the chat already plays the saved version",
+      "evidence": "src/runtime/storyUpdate.test.ts#does nothing when the chat already plays the library copy",
       "alsoEvidence": ["src/runtime/chatSave.test.ts#a failed save after select+persist journals exactly one row, labelled with the selection"],
       "note": "Re-applying the version the chat already plays is a no-op. alsoEvidence (AE-04, 2026-09-25): one save request answering two writes (select + persist) is recorded once, not twice."
     },

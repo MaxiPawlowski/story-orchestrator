@@ -44,13 +44,12 @@ export const chatSaveHalf = (watched: boolean, taken: ChatSaveAnswer): string =>
 export interface ChatUpdateResult {
   applied: boolean;
   choice: "keep" | "restart" | "cancel" | null;
-  fromVersion: number | null;
   reason?: string;
 }
 
 export const chatUpdateOutcome = (outcome: ChatUpdateResult): ChatSaveOutcome | null => {
-  if (outcome.applied) return { applied: true, detail: outcome.choice === "restart" ? "this chat restarted on the new version" : "this chat is playing the new version now" };
-  if (outcome.choice === "cancel") return { applied: false, detail: outcome.fromVersion !== null ? `this chat keeps playing v${outcome.fromVersion}` : "this chat keeps the version it is playing" };
+  if (outcome.applied) return { applied: true, detail: outcome.choice === "restart" ? "this chat restarted on the library copy" : "this chat is playing the library copy now" };
+  if (outcome.choice === "cancel") return { applied: false, detail: "this chat keeps the copy it is playing" };
   return outcome.reason ? { applied: false, detail: outcome.reason } : null;
 };
 
@@ -68,13 +67,12 @@ const stampOf = (value: unknown) => Date.parse(String(value ?? "")) || 0;
 const UNREADABLE = "the server's settings could not be read back";
 
 /** Null when the server holds this record or a later save of it; otherwise what it holds instead. */
-export function missingFromServer(stored: unknown[] | null, record: Pick<StoryLibraryRecord, "id" | "version" | "updatedAt">): string | null {
+export function missingFromServer(stored: unknown[] | null, record: Pick<StoryLibraryRecord, "id" | "updatedAt">): string | null {
   if (stored === null) return UNREADABLE;
-  const held = stored.find((entry): entry is { version?: unknown; updatedAt?: unknown } => Boolean(entry) && typeof entry === "object" && (entry as { id?: unknown }).id === record.id);
+  const held = stored.find((entry): entry is { updatedAt?: unknown } => Boolean(entry) && typeof entry === "object" && (entry as { id?: unknown }).id === record.id);
   if (!held) return "the server's library does not hold it";
-  const version = typeof held.version === "number" ? held.version : 0;
-  if (version > record.version || (version === record.version && stampOf(held.updatedAt) >= stampOf(record.updatedAt))) return null;
-  return `the server holds v${version} saved ${String(held.updatedAt ?? "at an unknown time")}`;
+  if (stampOf(held.updatedAt) >= stampOf(record.updatedAt)) return null;
+  return `the server holds a copy saved ${String(held.updatedAt ?? "at an unknown time")}`;
 }
 
 const entryWithId = (stored: unknown[], id: string) => stored.find((entry): entry is { updatedAt?: unknown } => Boolean(entry) && typeof entry === "object" && (entry as { id?: unknown }).id === id);
@@ -164,8 +162,8 @@ export async function journalSettingsWrite(
   return outcome;
 }
 
-export const savedToLibrarySentence = (record: Pick<StoryLibraryRecord, "title" | "version">) => `Saved “${record.title}” v${record.version} to the library.`;
+export const savedToLibrarySentence = (record: Pick<StoryLibraryRecord, "title">) => `Saved “${record.title}” to the library.`;
 
-export const librarySaveSentence = (record: Pick<StoryLibraryRecord, "title" | "version">, evidence: LibrarySaveEvidence) => evidence.confirmed
+export const librarySaveSentence = (record: Pick<StoryLibraryRecord, "title">, evidence: LibrarySaveEvidence) => evidence.confirmed
   ? savedToLibrarySentence(record)
-  : `Saving “${record.title}” v${record.version}… not confirmed: ${evidence.reason}.`;
+  : `Saving “${record.title}”… not confirmed: ${evidence.reason}.`;

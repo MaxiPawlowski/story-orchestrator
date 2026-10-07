@@ -54,7 +54,6 @@ jest.mock("@services/STAPI", () => ({
 const storyJson = JSON.stringify({
   format: 2,
   id: "sun-ruins",
-  version: 1,
   title: "Quest for the Sun Ruins",
   description: "A desert expedition.",
   qualities: [{ key: "found_key", type: "bool", source: "extractor", rubric: "Did they find the key?" }],

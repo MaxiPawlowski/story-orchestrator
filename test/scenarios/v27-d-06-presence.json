@@ -26,7 +26,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v27d06-saga",
-        "version": 1,
         "title": "SO-V27D06 Saga",
         "kind": "saga",
         "description": "v2.7 06 live row: the saga of the pair.",
@@ -123,7 +122,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v27d06-act",
-        "version": 1,
         "title": "SO-V27D06 Act",
         "description": "v2.7 06 live row: a single act whose story display hides the chapter card.",
         "display": {

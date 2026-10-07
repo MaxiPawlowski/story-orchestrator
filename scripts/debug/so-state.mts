@@ -10,7 +10,6 @@ function decodeRuntime(entry) {
   return {
     storyId: entry.storyId ?? null,
     storyHash: entry.contentHashAtLoad ?? entry.storyHash ?? null,
-    playedVersion: entry.playedVersion ?? null,
     pinned: Boolean(entry.pinnedStory),
     storyTitle: entry.storyTitle ?? null,
     activeCheckpointId: engine.activeCheckpointId ?? null,
@@ -166,7 +165,7 @@ export async function dumpCurrentChatState(page) {
       group,
       selectedStoryId: selected,
       globalSettings: ctx.extensionSettings?.['story-orchestrator']?.settings ?? null,
-      libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((record) => ({ id: record.id ?? null, version: record.version ?? null, hash: record.hash, title: record.title })),
+      libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((record) => ({ id: record.id ?? null, hash: record.hash, title: record.title })),
       version: blob?.version ?? null,
       storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
       entry,

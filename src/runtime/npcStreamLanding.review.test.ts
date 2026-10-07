@@ -132,7 +132,7 @@ const checkpoint = {
 } as never;
 
 function harness() {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   let aborter = new AbortController();
   const ownership: RunOwnership = {
     mint: (window = null) => mintToken(current, window),

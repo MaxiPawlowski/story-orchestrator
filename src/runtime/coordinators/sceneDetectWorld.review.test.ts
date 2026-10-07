@@ -29,7 +29,7 @@ const full = { members: ["belle.png", "dalan.png", "tobias.png"], disabled_membe
 const withoutTobias = { members: ["belle.png", "dalan.png", "tobias.png"], disabled_members: ["tobias.png"] };
 
 function harness(owned = true) {
-  let current: RunContext = { chatId: "chat-a", storyId: "adolion-adventurer", playedVersion: 6, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "adolion-adventurer", storyHash: "h6", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),

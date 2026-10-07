@@ -9,7 +9,6 @@ export type PlayerSetupChoice = (typeof PLAYER_SETUP_CHOICES)[number];
 export interface PlayerSetupRecord {
   pending: boolean;
   storyId?: string;
-  version?: number;
   choice?: PlayerSetupChoice;
   avatarId?: string | null;
   name?: string;
@@ -35,7 +34,7 @@ export interface PersonaRead {
 
 export const freshPlayerSetup = (): PlayerSetupRecord => ({ pending: true });
 
-const RECORD_TYPES: Record<string, string> = { storyId: "string", version: "number", name: "string", locked: "boolean", createdHash: "string", lockFailed: "string" };
+const RECORD_TYPES: Record<string, string> = { storyId: "string", name: "string", locked: "boolean", createdHash: "string", lockFailed: "string" };
 
 export const sanitizePlayerSetup = (value: unknown): PlayerSetupRecord | undefined => {
   if (!isRecord(value) || typeof value.pending !== "boolean") return undefined;

@@ -135,9 +135,9 @@ try {
                 const spec = groups.find((g: any) => g.story === story.id)!;
                 const group = gc.groups.find((g: any) => g.name === spec.name);
                 const missing = spec.members.filter((avatar: string) => !ctx.characters.some((c: any) => c.avatar === avatar) || !group?.members.includes(avatar));
-                return { id: story.id, expected: story.version, installed: library?.version, briefing: Boolean(story.briefing), bound: Boolean(group && root.groupStories[String(group.id)] === story.id), missingMembers: missing.length };
+                return { id: story.id, installed: Boolean(library), briefing: Boolean(story.briefing), bound: Boolean(group && root.groupStories[String(group.id)] === story.id), missingMembers: missing.length };
             });
-            const problems = rows.filter((r: any) => r.expected !== r.installed || !r.bound || r.missingMembers || !r.briefing);
+            const problems = rows.filter((r: any) => !r.installed || !r.bound || r.missingMembers || !r.briefing);
             return { rows, problems: problems.length, count: rows.length };
         }, { stories, groups });
         if (report.inventory.problems) throw new Error('Campaign inventory does not match the current build.');

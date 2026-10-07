@@ -50,7 +50,7 @@ export const EXPECT_KEYS = new Set([
   'stateEquals', 'overSteer',
   // v2.4 plan 02 §10: the last runRollback outcome, and the window the scheduler reads next.
   'rollbackOutcome', 'nextReadWindow',
-  'stagecraft', 'storyId', 'storyIdentity', 'storyVersion', 'tension',
+  'stagecraft', 'storyId', 'storyIdentity', 'tension',
   // Comparison-suffixed keys the runner reads by bracket access; they are honoured, so they are
   // part of the vocabulary, not typos.
   'auditCount>=', 'reconciliationEvents>=', 'sceneBreaks>=',

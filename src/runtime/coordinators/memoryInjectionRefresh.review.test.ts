@@ -41,7 +41,6 @@ const SECRET = "the job comes from the Duke's steward";
 const story = {
   title: "S",
   id: "s1",
-  version: 1,
   checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } },
   qualityByKey: {},
   roster: [{ id: "ponticius", name: "Ponticius" }],
@@ -49,7 +48,7 @@ const story = {
 };
 
 function harness() {
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
     settings: { enabled: true, epistemicLedgerCapable: true, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } },

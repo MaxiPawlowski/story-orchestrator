@@ -87,7 +87,7 @@ const flush = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolv
 const storyListeners: Array<() => void> = [];
 let ownershipOk = true;
 const ownership: RunOwnership = {
-  mint: () => ({ chatId, storyId: "s", playedVersion: 1, sessionEpoch: 0, window: null, windowRevision: 0 }),
+  mint: () => ({ chatId, storyId: "s", storyHash: "h1", sessionEpoch: 0, window: null, windowRevision: 0 }),
   check: (): TokenCheck => (ownershipOk ? { ok: true } : { ok: false, reason: "window", detail: "message 1 was edited" }),
 };
 

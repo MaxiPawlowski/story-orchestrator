@@ -11,8 +11,6 @@ import type { ConvergenceReadout, PendingDeltaReadout, RuntimeSnapshot, StoryIde
 
 export const buildStoryIdentity = (loaded: StoryLibraryRecord | null, libraryRecord: StoryLibraryRecord | null, pinned: boolean): StoryIdentity => ({
   id: loaded?.id ?? null,
-  playedVersion: loaded?.version ?? null,
-  libraryVersion: libraryRecord?.version ?? null,
   pinned,
   drifted: Boolean(loaded && libraryRecord && libraryRecord.hash !== loaded.hash),
 });

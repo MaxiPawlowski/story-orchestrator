@@ -62,7 +62,7 @@ function harness(options: { uidKnown?: boolean } = {}) {
   let messageId = 10;
   // The chat this work belongs to. `switchChat` moves it, exactly as opening another chat does.
   let chatId = "chat-a";
-  const context = (): RunContext => ({ chatId, storyId: "review-independent", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
+  const context = (): RunContext => ({ chatId, storyId: "review-independent", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   let disabled = false;
   // V10: the author can rename the entry after a curator write; the revert must still find it.
   let comment = "Bridge";

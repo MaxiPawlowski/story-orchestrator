@@ -18,12 +18,12 @@ jest.mock("./persistence", () => ({
   setSelectedStoryId: jest.fn(),
 }));
 jest.mock("./storyLibrary", () => ({
-  findStoryRecord: () => ({ id: "ruins", title: "The Ruins", version: 3, raw: {} }),
+  findStoryRecord: () => ({ id: "ruins", title: "The Ruins", raw: {} }),
   listStoryRecords: () => [],
   loadPinnedStory: () => null,
-  loadStoryRecord: () => ({ record: { id: "ruins", title: "The Ruins", version: 3 }, story: { qualities: [], checkpoints: [] } }),
+  loadStoryRecord: () => ({ record: { id: "ruins", title: "The Ruins" }, story: { qualities: [], checkpoints: [] } }),
   removeStoryRecord: () => true,
-  saveStoryRecord: jest.fn(() => ({ record: { id: "ruins", title: "The Ruins", version: 3 }, story: { qualities: [], checkpoints: [] } })),
+  saveStoryRecord: jest.fn(() => ({ record: { id: "ruins", title: "The Ruins" }, story: { qualities: [], checkpoints: [] } })),
 }));
 
 import { dropPersistedRuntime } from "./persistence";
@@ -44,7 +44,7 @@ const harness = () => {
     warn: jest.fn(),
     setStatus: jest.fn(),
     isLoaded: () => false,
-    loadedFallback: () => ({ record: { id: "ruins", version: 3 }, story: {} }),
+    loadedFallback: () => ({ record: { id: "ruins" }, story: {} }),
   };
   return { deps, selection: deps as unknown as StorySelectionDeps };
 };
@@ -74,7 +74,7 @@ describe("v2.7 plan 03: no group, no story", () => {
     expect(await importStoryJson(h.selection, "{}")).toBe(false);
     expect(saveStoryRecord).toHaveBeenCalledTimes(1);
     expect(h.deps.loadStory).not.toHaveBeenCalled();
-    expect(h.deps.setStatus).toHaveBeenCalledWith(`Saved “The Ruins” v3 to the library. ${NO_GROUP_STATUS}.`, expect.any(String));
+    expect(h.deps.setStatus).toHaveBeenCalledWith(`Saved “The Ruins” to the library. ${NO_GROUP_STATUS}.`, expect.any(String));
   });
 
   it("restart in a one-on-one chat asks nothing and drops nothing", async () => {

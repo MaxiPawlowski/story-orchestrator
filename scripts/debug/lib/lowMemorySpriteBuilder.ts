@@ -8,7 +8,7 @@ async function start() {
   const csrf = await (await fetch('/csrf-token')).json();
   const headers = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf.token };
   const controller = new AbortController();
-  const context = { chatId: null, storyId: 'adolion-saga', playedVersion: 21, sessionEpoch: 1, windowRevision: 0 };
+  const context = { chatId: null, storyId: 'adolion-saga', storyHash: 'h21', sessionEpoch: 1, windowRevision: 0 };
   addEventListener('beforeunload', () => { context.sessionEpoch++; controller.abort(); }, { once: true });
   const rpc = async (plugin: string, route: string, body?: unknown, signal?: AbortSignal) => {
     const response = await fetch(`/api/plugins/${plugin}/${route}`, { headers, signal,

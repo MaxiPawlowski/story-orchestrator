@@ -15,7 +15,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./r
 import type { RuntimeExtras } from "./types";
 
 const harness = () => {
-  const context: RunContext = { chatId: "chat-a", storyId: "s", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "s", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const chatA = { memory: { chapters: [{ id: "c#1" }] }, extraction: { audits: [] }, judge: { calls: [] }, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] } };
   const chatB = { ...chatA, memory: { chapters: [] } };

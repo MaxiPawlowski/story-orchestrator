@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "spike-edits",
-  "version": 1,
   "title": "Spike edits",
   "description": "v2.5 plan 09 SP1/SP2 jest fixture: two extractor bools, three checkpoints, a back edge.",
   "qualities": [

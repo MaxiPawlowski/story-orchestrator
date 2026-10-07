@@ -59,7 +59,7 @@ function mirrorBook() {
 }
 
 function coordinatorHarness(epistemic: EpistemicEntry[], entries: MemoryEntry[] = ENTRIES) {
-  const context: RunContext = { chatId: "chat-a", storyId: "secret-mirror", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "secret-mirror", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const mirror = mirrorBook();
   const hosts = {
@@ -201,7 +201,7 @@ const FOLDED: MemoryEntry[] = [
 
 function recallHarness(epistemic: EpistemicEntry[], filtered = true) {
   const { coordinator } = coordinatorHarness(epistemic, FOLDED);
-  const context: RunContext = { chatId: "chat-a", storyId: "secret-mirror", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "secret-mirror", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const memory = {
     entries: FOLDED, arcs: [], chapters: [{ id: "arrival#1", chapterId: "arrival", playerTitle: "Arrival", status: "sealed", range: { from: 0, to: 9 } }],

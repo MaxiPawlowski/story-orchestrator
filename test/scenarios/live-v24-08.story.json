@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-08",
-  "version": 1,
   "title": "Live v2.4 08 - Author observability",
   "description": "Plan 08 live fixture story: two checkpoints, a speaker-directed hall, three qualities of three types so the per-quality macro renders a bool, an int and an enum.",
   "qualities": [

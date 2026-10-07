@@ -22,7 +22,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v27d10",
-        "version": 1,
         "title": "SO-V27D10 Edit Catch-up",
         "description": "v2.7 10 live row: an edit of the newest reply rolls a transition back and re-reads.",
         "qualities": [

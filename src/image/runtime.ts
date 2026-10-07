@@ -109,7 +109,7 @@ export class StoryImageDirector {
     if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || !snapshot.requirements.ready || !settings.enabled || this.override().paused
       || !automationAllowsCues(settings.automation.mode) || !art?.[kind === "checkpoint" ? "checkpoints" : "scenes"]
       || !beatIllustrated(story, kind === "checkpoint" ? name : snapshot.activeCheckpointId)) return;
-    const key = `${chat.id}:${snapshot.storyId}:${snapshot.storyIdentity.playedVersion}:${kind}:${name}:${snapshot.boundary}`;
+    const key = `${chat.id}:${snapshot.storyId}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
     if (!(await this.serviceReady(settings))) return;
     if (messageAlreadyDrawn(chat, at)) return;

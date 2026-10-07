@@ -52,7 +52,7 @@ await withST(async (page) => {
   page.on('request', count);
   const run = { began: new Date().toISOString(), warm, traffic, before: await (await fetch(`${controller}/status`)).json(), generated: 0 };
   report.memory = [{ phase: 'start', node: process.memoryUsage() }];
-  const story = { format: 2, id: 'so-saga-art-build', version: 1, title: 'SO Saga main-cast art',
+  const story = { format: 2, id: 'so-saga-art-build', title: 'SO Saga main-cast art',
     description: 'Isolated expression-animation workshop for the eight main characters.',
     roster: inventory.map((row) => ({ id: row.name.toLowerCase(), name: row.name, role: 'Portrait subject' })),
     requirements: { members: inventory.map((row) => row.name) }, qualities: [{ key: 'workshop', type: 'bool', source: 'code', rubric: 'Portrait workshop marker.' }],

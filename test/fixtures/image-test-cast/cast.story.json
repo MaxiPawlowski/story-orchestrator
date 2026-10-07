@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "soimg-cast",
-  "version": 1,
   "title": "SOIMG cast session",
   "description": "A synthetic multi-character portrait session: one visible change per member, independent of any campaign.",
   "roster": [

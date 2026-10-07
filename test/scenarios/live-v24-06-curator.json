@@ -6,7 +6,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v2406-curator",
-        "version": 1,
         "title": "SO-V2406 Curator",
         "description": "v2.4 plan 06 T17 live: a curator keeps one book honest.",
         "stagecraft": { "lorebooks": ["SO-V2406 Lore"] },

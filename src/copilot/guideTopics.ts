@@ -10,10 +10,10 @@ export interface GuideTopic {
 
 export const GUIDE_TOPICS = {
   "story-basics": {
-    title: "Title, description, id and version",
-    fields: "title, description, id, version, player_intro, kind",
+    title: "Title, description and id",
+    fields: "title, description, id, player_intro, kind",
     text: "The title and description tell the model and the author what the story is; player_intro is what a player reads before the first beat. The id is the story's identity "
-      + "(a lowercase slug the library keys by), and version counts the author's saves. kind is saga or story (default): only the player's badges read it, never the model; "
+      + "(a lowercase slug the library keys by); stories carry no version number. kind is saga or story (default): only the player's badges read it, never the model; "
       + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a two-sentence premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },

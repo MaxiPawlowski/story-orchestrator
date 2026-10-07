@@ -166,7 +166,7 @@ built from the live snapshot.
 
 `select_story` takes a story id (or, still, a hash or title). `restart_story` answers its own confirm popup: `{"restart_story": true}` confirms, `false` cancels.
 
-`expect` also takes `storyId` and `storyIdentity: { id?, playedVersion?, libraryVersion?, pinned?, drifted? }`, plus `activeCheckpointIn: [ids]` — real-model runs can overshoot a checkpoint between polls.
+`expect` also takes `storyId` and `storyIdentity: { id?, pinned?, drifted? }`, plus `activeCheckpointIn: [ids]` — real-model runs can overshoot a checkpoint between polls.
 
 `wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `checkpointNot`, `checkpointIn`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
 

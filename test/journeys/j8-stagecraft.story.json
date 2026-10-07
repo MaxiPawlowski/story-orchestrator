@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-j8-stagecraft",
-  "version": 1,
   "title": "SO-J8 Stagecraft",
   "description": "A courier waits out a flood, then crosses into the tavern once the road drains.",
   "requirements": { "lorebooks": ["SO-J8 Lore"] },

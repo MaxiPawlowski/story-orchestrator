@@ -7,7 +7,6 @@
         "format": 2,
         "id": "so-p02-ownership",
         "title": "SO-P02 Ownership Probe",
-        "version": 1,
         "description": "A story that depends on the author's own world lorebook without owning it.",
         "requirements": {
           "lorebooks": [

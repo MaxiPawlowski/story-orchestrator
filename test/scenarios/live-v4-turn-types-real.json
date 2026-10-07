@@ -7,7 +7,6 @@
         "format": 2,
         "id": "so-v4-turn-types-real",
         "title": "SO-V4 Turn Types Real",
-        "version": 1,
         "description": "Throwaway story: no talk control, so ST's own group activation picks the speakers.",
         "qualities": [
           {

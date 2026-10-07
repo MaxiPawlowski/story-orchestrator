@@ -21,7 +21,7 @@ const ACTIVATION_TEXT: Record<SpriteActivation, string> = {
   "user-on": "On in every chat: you switched it on.",
   "user-off": "Off in every chat: you switched it off, so a story that directs a stage does not turn it on.",
   story: "On for this chat: its story directs a stage. Switch it off to keep sprites off everywhere.",
-  off: "Off: this chat's story directs no stage. If a newer version of the story adds one, take it with Update or Restart in the Story Orchestrator drawer.",
+  off: "Off: this chat's story directs no stage. If an edited copy of the story adds one, take it with Update to the latest or Restart in the Story Orchestrator drawer.",
 };
 
 export function SpriteSettingsView({

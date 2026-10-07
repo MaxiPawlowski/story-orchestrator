@@ -1248,7 +1248,7 @@ Pinned Adolion build `d9e528dec66ef4df424e68e9c2ff188db0de1c79`. 36 cards. Start
   - Restart asks first, then returns to The Guild Hall with memory cleared. *(popup)*
   - A compatible save applies silently; the toolbar says saved. *(Studio)*
   - An invalidating save says the edit is in the library before asking. *(popup)*
-  - 'Update to vN' appears only in other chats of the story. *(Overview)*
+  - 'Update to the latest' appears only in other chats of the story. *(Overview)*
 - **Must not happen** (press the flag at once):
   - Restart touches another chat.
   - An update is applied to a chat that did not ask for it.
@@ -1396,7 +1396,7 @@ Pinned Adolion build `d9e528dec66ef4df424e68e9c2ff188db0de1c79`. 36 cards. Start
   - effects editor
   - diagnostics
   - hot-swap / invalidating choice
-- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`. `{story}` is the story this session's chats play, `:~` lets only its version move up (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
 - **Logged automatically:**
   - story update records
   - library in the run header diff
@@ -1435,7 +1435,7 @@ Pinned Adolion build `d9e528dec66ef4df424e68e9c2ff188db0de1c79`. 36 cards. Start
   - Repair
   - Fix with wizard
   - disabled member (known finding)
-- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`, `inventory.lorebooksSelected:-{story-books}`. `{story}` is the story this session's chats play, `:~` lets only its version move up (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`, `inventory.lorebooksSelected:-{story-books}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
 - **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - requirement readings

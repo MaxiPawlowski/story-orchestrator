@@ -5,7 +5,7 @@ import { setupWarnings, type SnapshotSources } from "./snapshotBuilder";
 import { readScenarioFrameWith, scenarioFrame } from "./storyScenario";
 
 const storyWith = (effects: Record<string, unknown> | undefined) => parseStoryV2OrThrow({
-  format: 2, id: "frame", version: 1, title: "Frame", description: "d",
+  format: 2, id: "frame", title: "Frame", description: "d",
   qualities: [{ key: "step", type: "int", source: "code", rubric: "Step." }],
   roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true, ...(effects ? { effects } : {}) }],

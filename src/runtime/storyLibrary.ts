@@ -12,7 +12,7 @@ const storyObject = (raw: unknown): Record<string, unknown> | null => (raw && ty
 
 const isStoryRecord = (value: unknown): value is StoryLibraryRecord => {
   const record = value as Partial<StoryLibraryRecord> | null;
-  return Boolean(record) && typeof record === "object" && typeof record?.id === "string" && Boolean(record.id) && typeof record.version === "number"
+  return Boolean(record) && typeof record === "object" && typeof record?.id === "string" && Boolean(record.id)
     && typeof record.hash === "string" && typeof record.title === "string" && Boolean(storyObject(record.raw));
 };
 
@@ -24,7 +24,7 @@ const warnOnce = (message: string) => {
   lastLibraryWarning = message;
 };
 
-// The read is a sanitizer and never writes. A record without an id or version is
+// The read is a sanitizer and never writes. A record without an id is
 // dropped with a warning; a duplicate id keeps the newer record.
 const sanitizeRecords = (stored: unknown[]): StoryLibraryRecord[] => {
   const valid = stored.filter(isStoryRecord);
@@ -35,7 +35,7 @@ const sanitizeRecords = (stored: unknown[]): StoryLibraryRecord[] => {
   }
   const dropped = stored.length - valid.length;
   const duplicates = valid.length - byId.size;
-  if (dropped || duplicates) warnOnce(`the story library holds ${dropped} record(s) without an id or version and ${duplicates} duplicate id(s); they are not read`);
+  if (dropped || duplicates) warnOnce(`the story library holds ${dropped} record(s) without an id and ${duplicates} duplicate id(s); they are not read`);
   return [...byId.values()];
 };
 
@@ -82,14 +82,12 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   const id = parsed.id ?? slugifyStoryId(parsed.title);
   const records = listStoryRecords();
   const existing = records.find((record) => record.id === id) ?? null;
-  // Same identity, new content: the library record is *updated*, never forked. A version the
-  // author did not raise still moves, so a chat can tell its pinned copy is behind.
-  const changed = existing ? hashStory({ ...body, id, version: existing.version }) !== existing.hash && hashStory(raw) !== existing.hash : false;
-  const version = existing && parsed.version <= existing.version ? existing.version + (changed ? 1 : 0) : parsed.version;
-  const stored = { ...body, id, version };
+  // Same identity, new content: the library record is *updated*, never forked. A chat tells its
+  // pinned copy is behind by the content hash. A `version` key from an external story is not ours.
+  const stored: Record<string, unknown> = { ...body, id };
+  delete stored.version;
   const record: StoryLibraryRecord = {
     id,
-    version,
     hash: hashStory(stored),
     title: parsed.title,
     description: parsed.description,
@@ -98,10 +96,10 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
     updatedAt: new Date().toISOString(),
   };
   writableSettingsRoot()[SETTINGS_KEY] = [...records.filter((entry) => entry.id !== id), record];
-  const evidence = recordSettingsWrite("library save not confirmed", `“${record.title}” v${record.version}`, () => confirmRecord(record));
+  const evidence = recordSettingsWrite("library save not confirmed", `“${record.title}”`, () => confirmRecord(record));
   if (evidence) armedSaves.set(record, evidence);
   getContext().saveSettingsDebounced();
-  return { record, story: { ...parsed, id, version } };
+  return { record, story: { ...parsed, id } };
 }
 
 /** Whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
@@ -121,16 +119,15 @@ export function removeStoryRecord(id: string): boolean {
 export function loadStoryRecord(record: StoryLibraryRecord): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(record.raw);
   if (isValidationErrorList(parsed)) return parsed;
-  return { record, story: { ...parsed, id: record.id, version: record.version } };
+  return { record, story: { ...parsed, id: record.id } };
 }
 
 // A chat plays its pinned copy, so it must load without consulting the library at all.
-export function loadPinnedStory(id: string, pinned: Record<string, unknown>, version: number, hash: string, title: string): LoadedStory | RuntimeSnapshot["validationErrors"] {
+export function loadPinnedStory(id: string, pinned: Record<string, unknown>, hash: string, title: string): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(pinned);
   if (isValidationErrorList(parsed)) return parsed;
   const record: StoryLibraryRecord = {
     id,
-    version,
     hash,
     title: parsed.title || title,
     description: parsed.description,
@@ -138,5 +135,5 @@ export function loadPinnedStory(id: string, pinned: Record<string, unknown>, ver
     importedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  return { record, story: { ...parsed, id, version } };
+  return { record, story: { ...parsed, id } };
 }

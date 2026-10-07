@@ -44,7 +44,7 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
     ready: true,
     storyId: "sun-ruins",
     storyHash: "v2-demo",
-    storyIdentity: { id: "sun-ruins", playedVersion: 1, libraryVersion: 1, pinned: true, drifted: false },
+    storyIdentity: { id: "sun-ruins", pinned: true, drifted: false },
     storyTitle: "Quest for the Sun Ruins",
     storyDescription: "A desert expedition toward a buried temple.",
     activeCheckpointId: "gate",
@@ -1295,11 +1295,11 @@ export const Empty: Story = {
 
 const driftedSnapshot = (): RuntimeSnapshot => {
   const snapshot = sampleSnapshot() as unknown as { storyIdentity: Record<string, unknown> };
-  snapshot.storyIdentity = { id: "sun-ruins", playedVersion: 1, libraryVersion: 3, pinned: true, drifted: true };
+  snapshot.storyIdentity = { id: "sun-ruins", pinned: true, drifted: true };
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
-// The author loop's entry points (plan 05): Edit story and the explicit "take the newer version"
+// The author loop's entry points (plan 05): Edit story and the explicit "take the library's copy"
 // are author-view only; Restart is the player's too.
 export const AuthorStoryControls: Story = {
   render: () => (
@@ -1310,7 +1310,7 @@ export const AuthorStoryControls: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "Edit story" })).toBeInTheDocument();
-    await expect(canvas.getByRole("button", { name: "Update to v3" })).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Update to the latest" })).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
   },
 };
@@ -1325,7 +1325,7 @@ export const PlayerStoryControls: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: "Edit story" })).toBeNull();
-    await expect(canvas.queryByRole("button", { name: /Update to v/ })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: /Update to the latest/ })).toBeNull();
   },
 };
 

@@ -14,7 +14,7 @@ const host = {
 };
 
 const draft = {
-  format: 2, id: "map", version: 1, title: "Map", description: "", qualities: [], checkpoints: [], transitions: [],
+  format: 2, id: "map", title: "Map", description: "", qualities: [], checkpoints: [], transitions: [],
   roster: [{ id: "halden", name: "Master Halden" }, { id: "marrow", name: "Envoy Marrow" }],
 } as unknown as StoryV2;
 

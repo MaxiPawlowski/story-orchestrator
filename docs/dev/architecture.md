@@ -212,7 +212,7 @@ These are stated in full in `.claude/rules/architecture.md`; this is the shape.
   (worst-first, consequence before detail) and **reveals** the control it names rather than
   duplicating it. The next-turn preview (`runtime/nextTurn.ts`) is composed from `INJECTION_REGISTRY`
   and the blocks ST actually holds, in ST's own assembly order.
-- **One save vocabulary**: `Saved "X" vN to the library.` and `Applied to this chat: …` /
+- **One save vocabulary**: `Saved "X" to the library.` and `Applied to this chat: …` /
   `Not applied to this chat: …` — two events, two owners. Every diagnostic code declares its
   consequence (`DIAGNOSTIC_CONSEQUENCES`), enforced by a jest case.
 - **A fault matrix cell is checked, not asserted in prose** (plan 11): `test/findings/faultMatrix.json`

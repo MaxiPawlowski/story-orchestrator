@@ -31,7 +31,7 @@ const driver = { context: null, activeNudge: null, controller: {} } as unknown a
 const snapshot = (authorView: boolean): RuntimeSnapshot => ({
   ready: true,
   storyId: "sun-ruins",
-  storyIdentity: { id: "sun-ruins", playedVersion: 1, libraryVersion: 1, pinned: true, drifted: false },
+  storyIdentity: { id: "sun-ruins", pinned: true, drifted: false },
   ui: { authorView, hudEnabled: true, inline: defaultInlineSettings(), announceTransitions: true },
   inline: { level: authorView ? 4 : 2, requested: 4, window: 20, categories: {}, newestMessageId: 0, byMessage: {} },
   pipeline: { state: "idle", text: "Up to date.", detail: "", needsSetup: false, nextAction: "wait" },

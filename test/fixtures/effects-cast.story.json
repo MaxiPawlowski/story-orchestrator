@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-cast-probe",
-  "version": 1,
   "title": "SO Cast Probe",
   "description": "v2.3 plan 06's live check. Two checkpoints that disagree about one GROUP member (road disables Tobias, hall enables him), so switching between them writes a `cast` effect whose `before` is the previous state — the ledger's account of a write into state no chat owns.",
   "qualities": [

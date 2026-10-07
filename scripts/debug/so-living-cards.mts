@@ -114,7 +114,7 @@ async function measureRound(page) {
       await page.evaluate(async ({ names, marker, colourNames, arm }) => {
         const rt = (globalThis as any).storyOrchestratorRuntime;
         const fields = (values) => Object.fromEntries(names.map((_name, at) => [`member${at}`, { hair: values[at] }]));
-        const story = { format: 2, id: `${marker.toLowerCase()}-s32`, version: 1, title: `${marker} portrait trial`, description: 'A synthetic public appearance change.',
+        const story = { format: 2, id: `${marker.toLowerCase()}-s32`, title: `${marker} portrait trial`, description: 'A synthetic public appearance change.',
           roster: names.map((name, at) => ({ id: `member${at}`, name, role: 'Portrait subject', card: { fields: { hair: { quality: `hair${at}`, visual: true } } } })),
           qualities: names.map((_name, at) => ({ key: `hair${at}`, type: 'enum', values: ['black', ...colourNames], source: 'extractor', rubric: 'Current established hair colour.' })),
           requirements: { members: names }, checkpoints: [

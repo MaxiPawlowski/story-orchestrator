@@ -71,7 +71,7 @@ const modelGate = {
   reset() { this.calls = 0; this.prompts = []; this.onCall = null; this.answer = "a summary"; },
 };
 function harness(arcCount: number, presummarised = 0) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
@@ -312,7 +312,7 @@ jest.mock("../consolidationMatches", () => ({
 const matchGate: { onBuild: (() => void) | null } = { onBuild: null };
 
 function consolidationHarness(groupSize: number) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
@@ -417,7 +417,7 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
   });
 
   function bridge() {
-    let current: RunContext = { chatId: "chat-a", storyId: "bridge", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    let current: RunContext = { chatId: "chat-a", storyId: "bridge", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
     const enqueued: unknown[] = [];
     const story = bridgeStory();
     const engine = new StoryEngine();

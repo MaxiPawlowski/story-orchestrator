@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
   executeSlashCommands: async (command: string) => { spoken.push(command); return { pipe: "" }; },
 }));
 
-const context: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+const context: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
 const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token: RunToken) => tokenMatches(context, token) };
 
 const checkpoint = (probability?: number) => ({

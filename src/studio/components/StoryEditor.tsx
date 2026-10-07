@@ -94,9 +94,6 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
             ) : null}
           </div>
         </Field>
-        <Field label="Version" hint="Bumps automatically when you save changed content under the same id. Chats keep playing the version they pinned until you apply the update from that chat.">
-          <input className="text_pole st-input" aria-label="Story version" readOnly value={draft.version ?? 1} />
-        </Field>
       </div>
       <Field label="Library description" hint="Existing stories use this as their public introduction. Keep it spoiler-safe; the Player introduction below replaces it in the drawer and recap.">
         <textarea

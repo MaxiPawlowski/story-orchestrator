@@ -51,9 +51,10 @@ question and always keep your current persona, untick **Ask who you are when a s
 
 ## Each chat keeps its own copy
 
-A chat keeps the exact version of the story it started with. Editing or deleting the story in the library never
-changes a game in progress. When a newer version exists, Author view shows **Update to v*N*** in the drawer. A
-small update is applied in place; a bigger one asks whether to **Keep playing**, **Restart story** or **Cancel**.
+A chat keeps the exact copy of the story it started with. Editing or deleting the story in the library never
+changes a game in progress. When the library's copy differs, Author view shows **Update to the latest** in the
+drawer. A small update is applied in place; a bigger one asks whether to **Keep playing**, **Restart story** or
+**Cancel**.
 
 ## Restart
 

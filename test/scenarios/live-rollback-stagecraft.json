@@ -7,7 +7,6 @@
         "format": 2,
         "id": "so-p04-stagecraft",
         "title": "SO-P04 Stagecraft Rollback",
-        "version": 1,
         "description": "An entry two curator writes touch, then a rollback past both.",
         "stagecraft": { "lorebooks": ["SO-J8 Lore"] },
         "requirements": { "lorebooks": ["SO-J8 Lore"] },

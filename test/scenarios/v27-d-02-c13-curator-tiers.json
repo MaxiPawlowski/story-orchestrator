@@ -22,7 +22,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v27d13",
-        "version": 1,
         "title": "SO-V27D13 Curator Tiers",
         "description": "v2.7 02 C13 live row: a curator op into a protected span, and an auto-tier entry.",
         "stagecraft": {

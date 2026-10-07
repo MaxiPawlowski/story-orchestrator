@@ -1,4 +1,5 @@
 import type { NormalizedStoryV2 } from "@engine/index";
+import { storyRevision } from "./hash";
 import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateRow, type ScanGateStats } from "./scanGatePlan";
 
 // Spike (host-free). Which gate a scan gets. The scan belongs to the loaded story
@@ -34,7 +35,7 @@ export class ScanGateProvider {
     const story = this.sources.story();
     const owns = Boolean(story) && chatId !== null && chatId === this.sources.ownedChat() && this.sources.ready();
     const path = owns ? this.sources.path() : [];
-    const key = [owns ? "story" : "no-story", chatId ?? "", owns ? `${story?.id ?? ""}@${story?.version ?? ""}` : "", path.join(">"), this.sources.libraryRevision()].join("|");
+    const key = [owns ? "story" : "no-story", chatId ?? "", owns && story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), this.sources.libraryRevision()].join("|");
     if (this.memo?.key === key) return this.memo.choice;
     const choice: ScanGateChoice = { gate: scanGatePlan(this.sources.library(), owns ? story : null, path), owner: owns ? "story" : "no-story", key };
     this.memo = { key, choice };

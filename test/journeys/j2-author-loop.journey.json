@@ -109,7 +109,6 @@
             "selector": "#so-studio-modal [data-so=\"story\"]",
             "contains": [
               "Story id",
-              "Version",
               "Library description",
               "Player introduction",
               "Dramatic shape",
@@ -147,7 +146,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot(); if (!before.storyId) throw new Error('no story id after import'); const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited by journey J2.'; await rt.importStory(JSON.stringify(story)); const after = rt.getSnapshot(); if (after.storyId !== before.storyId) throw new Error(`identity forked: ${before.storyId} -> ${after.storyId}`); const records = after.library.filter((record) => record.id === after.storyId); if (records.length !== 1) throw new Error(`library forked into ${records.length} records`); return { storyId: after.storyId, libraryVersion: records[0].version, identity: after.storyIdentity };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot(); if (!before.storyId) throw new Error('no story id after import'); const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited by journey J2.'; await rt.importStory(JSON.stringify(story)); const after = rt.getSnapshot(); if (after.storyId !== before.storyId) throw new Error(`identity forked: ${before.storyId} -> ${after.storyId}`); const records = after.library.filter((record) => record.id === after.storyId); if (records.length !== 1) throw new Error(`library forked into ${records.length} records`); return { storyId: after.storyId, libraryHash: records[0].hash, identity: after.storyIdentity };"
         },
         {
           "expect": {
@@ -256,7 +255,7 @@
         },
         {
           "expect": {
-            "storyVersion": {
+            "storyIdentity": {
               "drifted": false
             }
           }
@@ -365,7 +364,7 @@
         },
         {
           "expect": {
-            "storyVersion": {
+            "storyIdentity": {
               "drifted": true
             }
           }

@@ -13,7 +13,7 @@
 import { RunOwner } from "./runOwner";
 import { control } from "../../test/findings/ledger";
 
-const owner = () => new RunOwner({ openChatId: () => "chat-a", storyId: () => "s1", playedVersion: () => 1 });
+const owner = () => new RunOwner({ openChatId: () => "chat-a", storyId: () => "s1", storyHash: () => "h1" });
 
 control("work started now gets a signal that is not yet aborted", () => {
   const run = owner();

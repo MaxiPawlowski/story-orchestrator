@@ -117,8 +117,8 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
         {noChat && <div id="so-no-chat" role="status" className="text-xs opacity-90">{noChat.notice}</div>}
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
-            Playing your pinned copy{identity.playedVersion ? ` (v${identity.playedVersion})` : ""}.
-            {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
+            Playing your pinned copy.
+            {identity.drifted ? " The library's copy has changed since; this chat keeps playing what it started with." : ""}
             {playing && !playing.inLibrary ? " It is no longer in the library; this chat keeps playing it, and new chats can no longer pick it." : ""}
           </div>
         )}

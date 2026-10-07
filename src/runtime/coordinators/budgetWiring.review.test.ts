@@ -55,7 +55,7 @@ const seedChat = (length: number) => { host.chat = Array.from({ length }, (_, in
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
 function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?: number; countAsync?: (text: string) => Promise<number>; judgeUses?: string[] } = {}) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   type Audit = { reason: string; window: { from: number; to: number }; prompt: string; trimmedFrom?: number; budget?: { inputBudget: number; tokens: number } };
   const scenes: Array<{ text: string; window: { from: number; to: number } }> = [];
   const shortTerms: Array<{ text: string; window: { from: number; to: number } }> = [];

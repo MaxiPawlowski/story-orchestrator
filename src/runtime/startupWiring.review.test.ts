@@ -208,7 +208,7 @@ describe("v2.4 E3: startRuntime routes save evidence", () => {
     noteRecap.mockClear();
     answer();
     await settle();
-    expect(noteRecap.mock.calls.filter(([summary]) => summary === "library save not confirmed")).toEqual([["library save not confirmed", "“SO Import” v1: the settings save answered 500"]]);
+    expect(noteRecap.mock.calls.filter(([summary]) => summary === "library save not confirmed")).toEqual([["library save not confirmed", "“SO Import”: the settings save answered 500"]]);
     stopRuntime();
     noteRecap.mockRestore();
   });

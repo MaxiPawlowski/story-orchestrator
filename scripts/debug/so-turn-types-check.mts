@@ -27,7 +27,6 @@ Every chat the run creates is deleted by id afterwards; a story it imported is r
 const STORY = {
   format: 2,
   id: 'so-turn-types-check',
-  version: 1,
   title: 'Turn Types Check',
   description: 'Throwaway story for so-turn-types-check.mts.',
   qualities: [

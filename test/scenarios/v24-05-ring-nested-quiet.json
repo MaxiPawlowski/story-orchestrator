@@ -6,7 +6,6 @@
       "import_story": {
         "format": 2,
         "id": "v24-05-ring",
-        "version": 1,
         "title": "SO-V2405 Ring",
         "description": "v2.4 plan 05 T20 WI shapes: a story that gates one entry in a marker book that does not exist, so nothing is ever written.",
         "qualities": [],

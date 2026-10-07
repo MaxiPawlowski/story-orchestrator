@@ -7,7 +7,6 @@
         "format": 2,
         "id": "so-v10b-uid-revert",
         "title": "SO-V10B Uid Revert",
-        "version": 1,
         "description": "One entry a curator rewrites and the author renames.",
         "stagecraft": { "lorebooks": ["SO-V10B Lore"] },
         "qualities": [{ "key": "road_drained", "type": "bool", "source": "extractor", "rubric": "Has the road drained?" }],

@@ -86,7 +86,6 @@ export class ChatSave {
       storyId: loaded.record.id,
       storyTitle: loaded.story.title,
       pinnedStory: loaded.record.raw,
-      playedVersion: loaded.record.version,
       contentHashAtLoad: loaded.record.hash,
       engineState: engine.state,
       engineHistory: engine.history,

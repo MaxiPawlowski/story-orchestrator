@@ -15,7 +15,6 @@ jest.mock("@services/STAPI", () => ({
 const base = (): StoryV2 => ({
   format: 2,
   id: "redline",
-  version: 1,
   title: "The Redline Kingdom",
   description: "A map that redraws the kingdom.",
   qualities: [{ key: "ink", type: "int", source: "extractor", rubric: "How much does she understand?" }],
@@ -93,8 +92,8 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
 
   it("hands the history to the swap when the author saves from this chat", async () => {
     const { engine, story } = played();
-    const record = (raw: StoryV2, version: number): StoryLibraryRecord => ({ id: "redline", version, title: raw.title, hash: `h${version}`, raw } as unknown as StoryLibraryRecord);
-    const loaded: LoadedStory = { record: record(base(), 1), story };
+    const record = (raw: StoryV2, hash: string): StoryLibraryRecord => ({ id: "redline", title: raw.title, hash, raw } as unknown as StoryLibraryRecord);
+    const loaded: LoadedStory = { record: record(base(), "h1"), story };
     const swapStory = jest.fn(async () => undefined);
     const deps: StoryUpdateDeps = {
       getLoaded: () => loaded,
@@ -107,7 +106,7 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
       ownership: testOwnership(),
       chatOpen: () => true,
     };
-    const outcome = await applyStoryUpdate(deps, record(edited((draft) => { draft.checkpoints[1].guidance = "Run north."; }), 2));
+    const outcome = await applyStoryUpdate(deps, record(edited((draft) => { draft.checkpoints[1].guidance = "Run north."; }), "h2"));
     expect(outcome).toMatchObject({ applied: true, classification: "compatible" });
     const history = (swapStory.mock.calls[0] as unknown[])[3] as EngineHistory | null;
     expect(history?.log).toHaveLength(4);

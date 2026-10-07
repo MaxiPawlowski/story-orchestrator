@@ -217,7 +217,7 @@ export const KeyboardOnlyAuthoring: Story = {
       await step("save with Enter on Save", async () => {
         await tabTo(doc, isButton("Save"));
         await userEvent.keyboard("{Enter}");
-        await expect(await body.findByText(/Saved .Keyboard Heist. v\d+ to the library\./)).toBeInTheDocument();
+        await expect(await body.findByText(/Saved .Keyboard Heist. to the library\./)).toBeInTheDocument();
       });
       await step("export with Enter on Export JSON", async () => {
         await tabTo(doc, isButton("Export JSON"));

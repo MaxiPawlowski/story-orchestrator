@@ -12,8 +12,6 @@ export interface StoryUpdateOutcome {
   applied: boolean;
   classification: StoryDiffResult["classification"] | "unavailable";
   choice: StoryUpdateChoice | null;
-  fromVersion: number | null;
-  toVersion: number | null;
   storyId: string | null;
   dropped: string[];
   reason?: string;
@@ -35,14 +33,10 @@ export interface StoryUpdateDeps {
   groupOpen?: () => boolean;
 }
 
-const versionLabel = (from: number | null, to: number | null) => (from !== null && to !== null && from !== to ? ` (v${from} → v${to})` : "");
-
 export type StoryUpdateSource = "save" | "update";
 
 export interface StoryUpdateDescription {
   title: string;
-  from: number | null;
-  to: number | null;
   invalidating: string[];
   keptCount: number;
   source: StoryUpdateSource;
@@ -52,10 +46,8 @@ export interface StoryUpdateDescription {
 // edit from this chat.: it returns a description, not markup — the title of an
 // imported story and a diff message are both text somebody else wrote, and the host assigns popup
 // content to innerHTML (popup.js:534).
-export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null, source: StoryUpdateSource = "save"): StoryUpdateDescription => ({
+export const describeStoryUpdate = (title: string, diff: StoryDiffResult, source: StoryUpdateSource = "save"): StoryUpdateDescription => ({
   title,
-  from,
-  to,
   source,
   invalidating: diff.entries.filter((entry) => entry.kind === "invalidating").map((entry) => entry.message),
   keptCount: diff.entries.filter((entry) => entry.kind === "compatible").length,
@@ -66,13 +58,13 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   const root = doc.createElement("div");
   const para = (text: string) => { const node = doc.createElement("p"); node.append(doc.createTextNode(text)); root.append(node); };
   const heading = doc.createElement("h3");
-  heading.append(doc.createTextNode(`“${description.title}” changed under this chat${versionLabel(description.from, description.to)}`));
+  heading.append(doc.createTextNode(`“${description.title}” changed under this chat`));
   root.append(heading);
   // One save vocabulary. "Saved to the library" and "applied to this chat" are two
   // different events with different owners, and this popup is where they are most easily confused.
   para(description.source === "save"
     ? "Your edit is already saved to the library. What is left to decide is whether this chat takes it:"
-    : `The library holds ${description.to !== null ? `v${description.to}` : "a newer version"} of this story. What is left to decide is whether this chat takes it:`);
+    : "The library's copy of this story differs from the one this chat plays. What is left to decide is whether this chat takes it:");
   const list = doc.createElement("ul");
   description.invalidating.forEach((message) => { const item = doc.createElement("li"); item.append(doc.createTextNode(message)); list.append(item); });
   root.append(list);
@@ -81,10 +73,9 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
     ? "1 other change is applied to this chat as it stands."
     : `${description.keptCount} other changes are applied to this chat as they stand.`);
   const update = description.source === "save" ? "the edit" : "it";
-  const playing = description.from !== null ? `v${description.from}, the version it is playing now` : "the version it is playing now";
   const kept = description.source === "save" ? " Either way the library keeps your edit." : "";
   para(`Keep playing applies ${update} and drops only what no longer fits. Restart story applies ${update} and clears this chat's progress. ` +
-    `Cancel applies nothing — this chat keeps playing ${playing}.${kept}`);
+    `Cancel applies nothing — this chat keeps playing the copy it pinned.${kept}`);
   return root;
 };
 
@@ -92,8 +83,6 @@ export const emptyOutcome = (reason: string): StoryUpdateOutcome => ({
   applied: false,
   classification: "unavailable",
   choice: null,
-  fromVersion: null,
-  toVersion: null,
   storyId: null,
   dropped: [],
   reason,
@@ -135,15 +124,13 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
     applied: false,
     classification: diff.classification,
     choice: null,
-    fromVersion: loaded.record.version,
-    toVersion: record.version,
     storyId: record.id,
     dropped: diff.droppedQualityKeys,
     at: new Date().toISOString(),
   };
 
   if (diff.classification === "identical" && loaded.record.hash === record.hash) {
-    const outcome = { ...base, reason: "already playing this version" };
+    const outcome = { ...base, reason: "already playing the library copy" };
     deps.journal(outcome);
     return outcome;
   }
@@ -151,7 +138,7 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   let choice: StoryUpdateChoice = "keep";
   if (diff.classification === "invalidating") {
     const run = beginRun(deps.ownership);
-    const description = describeStoryUpdate(record.title, diff, loaded.record.version, record.version, target ? "save" : "update");
+    const description = describeStoryUpdate(record.title, diff, target ? "save" : "update");
     choice = (await showChoicePopup<StoryUpdateChoice>((doc) => renderStoryUpdate(description, doc), {
       okButton: { id: "keep", label: "Keep playing" },
       choices: [{ id: "restart", label: "Restart story" }],
@@ -161,13 +148,13 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   }
 
   if (choice === "cancel") {
-    const outcome = { ...base, choice, reason: "author kept this chat on its pinned version" };
+    const outcome = { ...base, choice, reason: "author kept this chat on its pinned copy" };
     deps.journal(outcome);
     return outcome;
   }
   if (choice === "restart") {
     const restarted = await deps.restart();
-    const outcome = { ...base, applied: restarted, choice, reason: restarted ? "restarted on the new version" : "restart declined" };
+    const outcome = { ...base, applied: restarted, choice, reason: restarted ? "restarted on the library copy" : "restart declined" };
     deps.journal(outcome);
     return outcome;
   }

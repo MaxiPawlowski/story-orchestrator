@@ -1,5 +1,6 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
+import { storyRevision } from "./hash";
 import { buildLoreRequests, loreCandidates, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
@@ -27,7 +28,7 @@ export interface CompleteLoreSelection {
   picks: Array<{ world: string; uid: number }>;
 }
 
-export const loreStoryKey = (story: NormalizedStoryV2): string => `${story.id ?? ""}@${story.version}`;
+export const loreStoryKey = (story: NormalizedStoryV2): string => `${story.id ?? ""}@${storyRevision(story)}`;
 
 export interface LoreSelection {
   trigger: LoreTrigger;
@@ -65,7 +66,7 @@ export class LoreSelector {
     // holds ENTRIES PICKED for one story's checkpoint and window, and a chat that swapped to another
     // story with the same lore scope used to match the departed story's cache and force its picks
     // into the new story's next generation (matrix).
-    const key = `${this.deps.getChatId() ?? ""}:${story.id ?? ""}:${story.version}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}`;
+    const key = `${this.deps.getChatId() ?? ""}:${loreStoryKey(story)}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}`;
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.

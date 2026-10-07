@@ -6,7 +6,7 @@ along, keeps track, and nudges the characters toward the next scene.
 
 You do not need to learn anything to play. These pages explain what you see on screen.
 
-- [Starting, continuing and restarting](playing.md): picking a story for a chat, restarting, newer versions,
+- [Starting, continuing and restarting](playing.md): picking a story for a chat, restarting, library updates,
   branches, the welcome-back recap and the `/story` command.
 - [The story bar, the drawer and the notes under messages](drawer-and-hud.md): what each part of the screen
   tells you.

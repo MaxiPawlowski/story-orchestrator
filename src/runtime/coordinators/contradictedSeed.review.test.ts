@@ -80,7 +80,6 @@ const SEED_LINE: ParsedMemoryLine = { tier: "facts", type: "fact", importance: 3
 const story = {
   title: "SO-J8 Stagecraft",
   id: "so-j8",
-  version: 1,
   checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } },
   qualityByKey: {},
   roster: [{ id: "arin", name: "Arin" }],
@@ -111,7 +110,7 @@ const memoryState = (): MemoryRuntimeState => ({
 });
 
 function harness() {
-  const current: RunContext = { chatId: "chat-a", storyId: "so-j8", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "so-j8", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memory = memoryState();
   const engine = { activeCheckpointId: "cp1", boundary: 0, lastMessageId: 0, blackboard: { values: {}, versions: {} } };

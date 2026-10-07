@@ -53,7 +53,7 @@ beforeEach(() => model.reset());
 
 const world = () => {
   const deps = { chat: "chat-a" };
-  const owner = new RunOwner({ openChatId: () => deps.chat, storyId: () => "s1", playedVersion: () => 1 });
+  const owner = new RunOwner({ openChatId: () => deps.chat, storyId: () => "s1", storyHash: () => "h1" });
   owner.bump();
   return { owner, deps, switchChat: () => { deps.chat = "chat-b"; owner.bump(); } };
 };

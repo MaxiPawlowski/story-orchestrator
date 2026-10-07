@@ -37,7 +37,7 @@ function loadedManager(persona: string, lastApplied: string | null) {
   globalThis.__requirementsTestContext = { chatId: "chat-a", name1: persona, chat: [], chatMetadata: {}, extensionSettings: {} };
   const manager = new RuntimeManager();
   const probe = manager as unknown as Probe;
-  probe.loaded = { record: { id: "s1", version: 1, hash: "h", raw: {} }, story: { title: "S", requirements: { personas: ["Mira"] } } };
+  probe.loaded = { record: { id: "s1", hash: "h", raw: {} }, story: { title: "S", requirements: { personas: ["Mira"] } } };
   probe.engine = { activeCheckpoint: { id: "start" }, checkpointPath: ["start"], stateLog: [], serialize: () => ({ boundary: 1, lastMessageId: 0 }) };
   probe.extras.requirements = { ready: persona === "Mira" };
   probe.extras.lastAppliedCheckpointId = lastApplied;

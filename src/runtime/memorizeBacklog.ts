@@ -148,14 +148,14 @@ export class MemorizeBacklog {
   // A player's own Stop is not a failure, so it is a note, never `lastError`.
   private async endBacklog(read: RunGuard, stop: AbortSignal, run: { completed: boolean; failure: string | null; windows: number }): Promise<boolean> {
     const lapse = read.lapsed();
-    if (lapse && lapse !== "window" && lapse !== "version") return false;
+    if (lapse && lapse !== "window" && lapse !== "revision") return false;
     const memory = this.deps.memory();
     const total = run.windows + 1;
     const processed = run.completed ? total : memory.backfill?.processed ?? 0;
     const stopped = !run.completed && !lapse && stop.aborted;
     const lastError = run.completed || stopped ? null
       : lapse === "window" ? BACKLOG_STOPPED_BY_EDIT
-        : lapse === "version" ? BACKLOG_STOPPED_BY_UPDATE
+        : lapse === "revision" ? BACKLOG_STOPPED_BY_UPDATE
           : run.failure ?? "Memorize backlog failed";
     memory.setBackfill({ running: false, processed, total, lastError, ...(stopped ? { stoppedNote: backlogStoppedByPlayer(processed, run.windows) } : {}) });
     this.deps.setStatus(run.completed ? "Memorize backlog complete" : stopped ? "Memorize backlog stopped" : "Memorize backlog failed");

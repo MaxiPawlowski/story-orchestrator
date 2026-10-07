@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-v2406-steering-off",
-  "version": 1,
   "title": "SO-V2406 Steering Off",
   "description": "v2.4 plan 06 live control: the same cp-bare as live-v24-06.story.json, with objective_block off.",
   "objective_block": "off",

@@ -257,7 +257,7 @@ test('T5-4 Fix with wizard: a session that existed at start allows exactly what 
   assert.deepEqual(blocking(start, unrepaired, allow), [], 'the card breaks its own story book on purpose');
 });
 
-test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, another group, a story removal and a version drop still block', () => {
+test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, another group and a story removal still block', () => {
   const { start, end, drafts } = continued();
   const { allow } = stopAllow(start, end, drafts, { headerAllow: ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}'] });
   const extraCard = clone(end);
@@ -278,12 +278,9 @@ test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, a
   const goneStory = clone(end);
   goneStory.inventory.v2Stories = ['adolion-war@10'];
   assert.deepEqual(blocking(start, goneStory, allow), ['inventory.v2Stories']);
-  const older = clone(start);
-  older.inventory.v2Stories = ['adolion-war@10', `${STORY}@3`];
-  assert.deepEqual(blocking(older, end, allow).filter((path) => path === 'inventory.v2Stories'), ['inventory.v2Stories']);
   const withOther = clone(end);
   withOther.inventory.v2Stories = [`${STORY}@2`];
-  assert.deepEqual(blocking(start, withOther, allow), ['inventory.v2Stories'], 'a version move does not excuse dropping another story');
+  assert.deepEqual(blocking(start, withOther, allow), ['inventory.v2Stories'], 'a story change does not excuse dropping another story');
 });
 
 test('T5-4 Fix with wizard: an existing session with no start ledger (an older header) allows nothing', () => {
@@ -298,7 +295,7 @@ test('T5-4 Fix with wizard: an existing session with no start ledger (an older h
   assert.deepEqual(stopAllow(stale.start, stale.end, stale.drafts, {}).wizard.allow, []);
 });
 
-test('T5-3 Studio edit: {story} names the continued chat\'s story, so only its version moving up is allowed', async () => {
+test('T5-3 Studio edit: {story} names the continued chat\'s story, so only its library copy changing is allowed', async () => {
   const card = findCard(await loadCards(), 'T5-3');
   assert.deepEqual(card.headerAllow, ['inventory.v2Stories:~{story}']);
   assert.equal(card.wizardAssets, undefined);
@@ -344,15 +341,15 @@ test('T5-1 staged arm: a group and lorebook entries in the ledger are neither ch
   assert.deepEqual(blocking(start, agentEnd, notAdopted.allow), ['inventory.groups']);
 });
 
-test('run header: :~ allows only one id@old out and one id@new in, upward; allow files carry comma items; charters check the tokens', () => {
-  const before = { inventory: { v2Stories: ['a@1', 'b@3'] } };
+test('run header: :~ allows only one id@old out and one id@new in; allow files carry comma items; charters check the tokens', () => {
+  const before = { inventory: { v2Stories: ['a@h1', 'b@h3'] } };
   const at = (v2Stories: string[]) => diffHeaders(before, { inventory: { v2Stories } }, ['inventory.v2Stories:~a'])[0]?.allowed ?? true;
-  assert.equal(at(['a@2', 'b@3']), true);
-  assert.equal(at(['a@0', 'b@3']), false);
-  assert.equal(at(['b@3']), false);
-  assert.equal(at(['a@1', 'a@2', 'b@3']), false);
-  assert.equal(at(['a@2']), false);
-  assert.equal(at(['a@2', 'b@3', 'c@1']), false);
+  assert.equal(at(['a@h2', 'b@h3']), true);
+  assert.equal(at(['a@h1', 'b@h3']), true);
+  assert.equal(at(['b@h3']), false);
+  assert.equal(at(['a@h1', 'a@h2', 'b@h3']), false);
+  assert.equal(at(['a@h2']), false);
+  assert.equal(at(['a@h2', 'b@h3', 'c@h1']), false);
   assert.deepEqual(parseAllow(['inventory.v2Stories:~a']).allow[0].sign, 'changed');
   assert.deepEqual(allowFileEntries('["inventory.wizardApplied:+k/Vaelrith, the Unflown", ""]'), ['inventory.wizardApplied:+k/Vaelrith, the Unflown']);
   assert.throws(() => allowFileEntries('{"a":1}'), /JSON array of strings/);

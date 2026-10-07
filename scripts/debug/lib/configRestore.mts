@@ -60,7 +60,7 @@ export interface LibraryRestorePlan {
 
 const fieldOf = (record: unknown, key: string): unknown => (record && typeof record === 'object' ? (record as Record<string, unknown>)[key] : undefined);
 const libraryKey = (record: unknown): string => idOfStory(record) ?? `hash:${String(fieldOf(record, 'hash') ?? JSON.stringify(record))}`;
-const libraryLabel = (record: unknown): string => `${idOfStory(record) ?? '?'}@${String(fieldOf(record, 'version') ?? '?')} (${String(fieldOf(record, 'hash') ?? 'no hash')})`;
+const libraryLabel = (record: unknown): string => `${idOfStory(record) ?? '?'} (${String(fieldOf(record, 'hash') ?? 'no hash')})`;
 
 /**
  * S12 / v2.5 plan 02 H1. Cleanup puts the library back to the snapshot taken before the run, keyed by

@@ -10,7 +10,7 @@ export const START_FEATURES: readonly Feature[] = [
       + "The opening scene still posts behind it. Each chat shows it once; Restart shows it again. Re-open it from Story briefing in the drawer or with /story intro. "
       + "The first one also explains the status strip, the notes under messages and the drawer.",
     where: settingsAt("#so-briefing-enabled", "Playing › Show the story briefing"),
-    settings: ["display.briefing", "help.onboardingSeen"], guideTopic: "briefing", doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
+    settings: ["display.briefing", "help.onboardingSeen"], guideTopic: "briefing", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
     isOn: (settings) => settings.display.briefing,
   },
   {
@@ -18,7 +18,7 @@ export const START_FEATURES: readonly Feature[] = [
     oneLine: "A story that says who you play asks you once, at the start: keep your persona, choose another, or create one.",
     what: "The chat keeps the persona you choose for the whole story, and the characters are told your role. A mid-story switch offers \"Switch back\". /story who shows it.",
     where: settingsAt("#so-player-setup-enabled", "Playing › Ask who you are when a story starts"),
-    settings: ["display.playerSetup"], guideTopic: "player", doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat", "story"],
+    settings: ["display.playerSetup"], guideTopic: "player", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
     isOn: (settings) => settings.display.playerSetup,
   },
 ];

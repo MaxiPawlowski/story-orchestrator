@@ -39,7 +39,6 @@ const ARIN_SECRET = "the north road washed out";
 const story = {
   title: "S",
   id: "s1",
-  version: 1,
   checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } },
   qualityByKey: {},
   roster: [{ id: "arin", name: "Arin" }, { id: "luke", name: "Luke" }, { id: "ponticius", name: "Ponticius" }],
@@ -50,7 +49,7 @@ const reply = (name: string) => ({ name, is_user: false, is_system: false, mes: 
 const note = { name: "Note", is_user: false, is_system: true, mes: "Checkpoint: The Gate", extra: { type: "comment", isSmallSys: true } };
 
 function harness(roster: Array<{ id: string; name: string }> = story.roster) {
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
     settings: {

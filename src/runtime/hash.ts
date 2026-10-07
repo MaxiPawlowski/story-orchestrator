@@ -18,3 +18,13 @@ export function fnv1a(text: string): string {
 export function hashStory(value: unknown): string {
   return `v2-${fnv1a(stable(value))}`;
 }
+
+const revisions = new WeakMap<object, string>();
+
+export const storyRevision = (story: object): string => {
+  const known = revisions.get(story);
+  if (known !== undefined) return known;
+  const revision = fnv1a(stable(story));
+  revisions.set(story, revision);
+  return revision;
+};

@@ -31,12 +31,12 @@ const stapi = {
   clearStoryExtensionPrompt: jest.fn(),
 };
 
-const story = { title: "S", id: "s1", version: 1, checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } }, qualityByKey: {}, roster: [], arc_bridges: [] };
+const story = { title: "S", id: "s1", checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "" } }, qualityByKey: {}, roster: [], arc_bridges: [] };
 
 const BUDGET = 300;
 
 function harness() {
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
     settings: { enabled: true, epistemicLedgerCapable: false, tierBudgets: { facts: 10, session_details: 10, short_term: 10, scene_history: 10 },

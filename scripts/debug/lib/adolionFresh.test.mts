@@ -19,8 +19,8 @@ const FIXED = ['Adolion World', 'Adolion Chronicle', 'Adolion - Aegis City Noble
 const manifest = buildManifest({
   commit: 'abc123',
   stories: [
-    { id: 'adolion-academy', version: 21, title: 'House Nightriver', checkpoints: [{}, {}], requirements: { lorebooks: ['Adolion World', 'Adolion Academy Checkpoints'], members: ['Adolion Narrator', 'Natalia'] } },
-    { id: 'adolion-esha', version: 6, title: 'Adolion: Eshalanore', checkpoints: [{ effects: { cast_changes: { disable: ['Belle', 'Natalia'], enable: ['Natalia'] } } }], requirements: { lorebooks: ['Adolion World', 'Adolion - Eshalanore'], members: ['Adolion Narrator', 'Belle'] } },
+    { id: 'adolion-academy', title: 'House Nightriver', checkpoints: [{}, {}], requirements: { lorebooks: ['Adolion World', 'Adolion Academy Checkpoints'], members: ['Adolion Narrator', 'Natalia'] } },
+    { id: 'adolion-esha', title: 'Adolion: Eshalanore', checkpoints: [{ effects: { cast_changes: { disable: ['Belle', 'Natalia'], enable: ['Natalia'] } } }], requirements: { lorebooks: ['Adolion World', 'Adolion - Eshalanore'], members: ['Adolion Narrator', 'Belle'] } },
   ],
   cards: ['Adolion Narrator', 'Natalia', 'Belle'].map((name) => ({ avatar: `${name}.png`, data: { data: { name } } })),
   books: [
@@ -51,9 +51,9 @@ const cleanInput = (): InventoryInput => ({
     extension_settings: { 'story-orchestrator': {
       groupStories: { 17: 'adolion-academy', 18: 'adolion-esha' },
       v2Stories: [
-        { id: 'adolion-academy', version: 21, hash: 'h1', title: 'House Nightriver', raw: { checkpoints: [{}, {}] } },
-        { id: 'adolion-esha', version: 6, hash: 'h2', title: 'Adolion: Eshalanore', raw: { checkpoints: [{}] } },
-        { id: 'so-j9-wizard', version: 1, hash: 'h3', title: 'Wizard', raw: {} },
+        { id: 'adolion-academy', hash: 'h1', title: 'House Nightriver', raw: { checkpoints: [{}, {}] } },
+        { id: 'adolion-esha', hash: 'h2', title: 'Adolion: Eshalanore', raw: { checkpoints: [{}] } },
+        { id: 'so-j9-wizard', hash: 'h3', title: 'Wizard', raw: {} },
       ],
       settings: { extraction: { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'p' }, image: { enabled: false, comfyUrl: '' }, sprites: { enabled: false, explicit: true } },
     } },
@@ -118,16 +118,16 @@ test('a listed story book needs no global selection, and any book selected for e
   assert.ok(!problems.some((line) => line.includes('not ready (install)')));
 });
 
-test('an installer SKIP, a lost group binding, a stale library version and a missing member each fail', () => {
+test('an installer SKIP, a lost group binding, a stale library copy and a missing member each fail', () => {
   const input = cleanInput();
   input.ledger = { lorebooks: input.ledger!.lorebooks!, characters: ['Natalia.png'] };
   input.settings.extension_settings['story-orchestrator'].groupStories = { 17: 'adolion-academy' };
-  input.settings.extension_settings['story-orchestrator'].v2Stories[0].version = 20;
+  input.settings.extension_settings['story-orchestrator'].v2Stories[0].raw = { checkpoints: [{}] };
   input.characters = input.characters.filter((avatar) => avatar !== 'Natalia.png');
   const problems = checkInventory(manifest, buildInventory(manifest, input));
   assert.ok(problems.some((line) => line.startsWith('installer ledger cards differ')));
   assert.ok(problems.includes('group Adolion - Eshalanore: bound to nothing, want adolion-esha'));
-  assert.ok(problems.some((line) => line.startsWith('story adolion-academy: library v20')));
+  assert.ok(problems.some((line) => line.startsWith('story adolion-academy: library “House Nightriver”/1 cp')));
   assert.ok(problems.includes('cards missing: Natalia.png'));
   assert.ok(problems.some((line) => line.startsWith('story adolion-academy not ready (install): lorebooks [] members [Natalia]')));
   assert.deepEqual(installerProblems('lorebook Adolion World (264 entries)\nSKIP card \'Belle\': already installed\nFAIL card \'X\': {}'), ["SKIP card 'Belle': already installed", "FAIL card 'X': {}"]);

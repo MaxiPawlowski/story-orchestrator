@@ -25,7 +25,7 @@ Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engin
 
 ## The fields, one page per topic (41)
 
-- [Title, description, id and version](topics/story-basics.md) (`story-basics`)
+- [Title, description and id](topics/story-basics.md) (`story-basics`)
 - [Briefing](topics/briefing.md) (`briefing`)
 - [Who the player is](topics/player.md) (`player`)
 - [Dramatic shape](topics/arc-template.md) (`arc-template`)

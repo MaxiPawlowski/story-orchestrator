@@ -44,7 +44,7 @@ const story = parseStoryV2OrThrow({
 const managerAt = () => {
   const runtime = new RuntimeManager();
   const probe = runtime as unknown as { loaded: unknown; engine: StoryEngine; effects: EffectsApplier; persist: () => Promise<void>; extras: RuntimeExtras };
-  probe.loaded = { record: { id: "war", version: 1, hash: "h", raw: {} }, story };
+  probe.loaded = { record: { id: "war", hash: "h", raw: {} }, story };
   probe.engine.loadStory(story);
   probe.persist = async () => {};
   const co = (runtime as unknown as { co: { pacing: { updateSteering: () => void }; memory: { updateInjection: () => void } } }).co;

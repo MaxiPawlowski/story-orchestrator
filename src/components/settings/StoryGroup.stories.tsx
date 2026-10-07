@@ -7,7 +7,7 @@ import { StoryGroup } from "./StoryGroup";
 const snapshot = (): RuntimeSnapshot =>
   ({
     storyId: null,
-    storyIdentity: { id: null, playedVersion: null, libraryVersion: null, pinned: false, drifted: false },
+    storyIdentity: { id: null, pinned: false, drifted: false },
     library: [{ id: "sun-ruins", title: "The Quest for the Sun Ruins" }],
     validationErrors: [],
     ui: { authorView: false },
@@ -76,7 +76,7 @@ const removedFromLibrary = (): RuntimeSnapshot =>
     ...snapshot(),
     storyId: "adolion-aegis",
     storyTitle: "Adolion Between the Roads",
-    storyIdentity: { id: "adolion-aegis", playedVersion: 12, libraryVersion: null, pinned: true, drifted: false },
+    storyIdentity: { id: "adolion-aegis", pinned: true, drifted: false },
     ui: { authorView: true },
   }) as unknown as RuntimeSnapshot;
 

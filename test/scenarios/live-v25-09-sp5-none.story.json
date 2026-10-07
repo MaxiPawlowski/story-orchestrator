@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-v25-sp5-none",
-  "version": 1,
   "title": "SO-SP5 No Scenario",
   "description": "v2.5 plan 09 SP5 spike C5: a story that sets no scenario, so the cards' own scenarios frame the chat.",
   "qualities": [{ "key": "step", "type": "int", "source": "code", "rubric": "Spike step." }],

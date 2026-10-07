@@ -31,7 +31,7 @@ const later: EngineState = {
 };
 
 const harness = (chronicleTokens = 700) => {
-  const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let memory = {
     entries: [shortTerm("st1", 4)], arcs: [], ledger: [], epistemic: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
@@ -147,7 +147,7 @@ describe("CR-E8: a re-seal that fails keeps the record it was replacing", () => 
 
 describe("AS-6: a re-seal owns unseal -> seal with one token, and never seals in another chat", () => {
   const worlds = () => {
-    const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
     const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
     const fresh = () => ({
       entries: [shortTerm("st1", 4)], arcs: [], ledger: [], epistemic: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },

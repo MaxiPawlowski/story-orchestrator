@@ -8,7 +8,7 @@ export interface RunOwnerDeps {
   /** The chat SillyTavern has open right now — not necessarily the one this run belongs to. */
   openChatId: () => string;
   storyId: () => string | null;
-  playedVersion: () => number | null;
+  storyHash: () => string | null;
 }
 
 /**
@@ -34,7 +34,7 @@ export class RunOwner {
   context = (): RunContext => ({
     chatId: this.deps.openChatId(),
     storyId: this.deps.storyId(),
-    playedVersion: this.deps.playedVersion(),
+    storyHash: this.deps.storyHash(),
     sessionEpoch: this.epoch,
     claimedChat: this.claimed,
     windowRevision: this.windowRevision,

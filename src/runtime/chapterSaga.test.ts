@@ -62,7 +62,7 @@ const recordReply = (prompt: string) => {
 };
 
 const sealHarness = () => {
-  const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let memory = {
     entries: [scene("s1", 2), scene("s2", 12), scene("s3", 22), scene("s4", 32)], arcs: [] as ArcEntry[], ledger: [], epistemic: [], chapters: [] as ChapterRecord[],

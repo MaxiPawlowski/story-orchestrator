@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-v15-cast",
-  "version": 1,
   "title": "SO-V15 Cast",
   "description": "v2.3 replan V15 live check: road disables Luke in the test group, so leaving, returning and restarting each have a group flag to put back or re-apply.",
   "qualities": [

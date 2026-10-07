@@ -7,7 +7,6 @@ import type { StoryV2 } from "./schema";
 const baseStory = (): StoryV2 => ({
   format: 2,
   id: "diff-fixture",
-  version: 1,
   title: "Diff fixture",
   description: "A tiny story used to classify edits.",
   qualities: [

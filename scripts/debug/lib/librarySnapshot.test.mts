@@ -22,7 +22,7 @@ test('H1 live shape: an import under an existing id replaced the record; cleanup
   root.v2Stories = [story('mine', 1, 'v2-de4f955d'), story('other', 4, 'v2-other'), story('run-made', 2, 'v2-edited')];
   const report = await restoreLibrary(fakePage, before, save) as any;
   assert.deepEqual(root.v2Stories, [story('mine', 1, 'v2-original'), story('other', 4, 'v2-other')]);
-  assert.deepEqual({ restored: report.restored, removed: report.removed, verified: report.verified, error: report.error }, { restored: ['mine@1 (v2-original)'], removed: ['run-made@2 (v2-edited)'], verified: true, error: undefined });
+  assert.deepEqual({ restored: report.restored, removed: report.removed, verified: report.verified, error: report.error }, { restored: ['mine (v2-original)'], removed: ['run-made (v2-edited)'], verified: true, error: undefined });
   assert.equal(saves, 1);
   assert.deepEqual(root.settings, { cadence: 3 }, 'only the library is written');
 });

@@ -52,7 +52,7 @@ jest.mock("@services/STAPI", () => ({
 const BRIEFING = { title: "Before the road", sections: [{ heading: "Who you are", text: "A courier." }], tone: "Grim." };
 
 const storyJson = (over: Record<string, unknown> = {}) => JSON.stringify({
-  format: 2, id: "road", version: 1, title: "The Road", description: "AUTHOR: the courier is the heir.",
+  format: 2, id: "road", title: "The Road", description: "AUTHOR: the courier is the heir.",
   player_intro: "You carry a letter.",
   qualities: [{ key: "found_key", type: "bool", source: "extractor", rubric: "Did they find the key?" }],
   checkpoints: [
@@ -126,7 +126,7 @@ describe("v2.7 05 activation sequence", () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson());
     manager.setUiSettings({ briefingSeen: true });
-    await manager.importStory(storyJson({ version: 2, briefing: { ...BRIEFING, title: "Rewritten" } }));
+    await manager.importStory(storyJson({ briefing: { ...BRIEFING, title: "Rewritten" } }));
     await manager.applyStoryUpdate();
     expect(manager.getSnapshot().briefing?.view?.title).toBe("Rewritten");
     expect(pending(manager)).toBe(false);

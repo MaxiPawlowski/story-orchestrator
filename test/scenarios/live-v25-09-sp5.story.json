@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-v25-sp5",
-  "version": 1,
   "title": "SO-SP5 Scenario",
   "description": "v2.5 plan 09 SP5 spike: checkpoints that set the chat's scenario override. The road sets none, so it keeps the gate's.",
   "qualities": [

@@ -115,7 +115,7 @@ export interface JudgeCallRecord {
   discarded?: JudgeDiscard;
 }
 
-export type JudgeDiscard = "chat" | "story" | "version" | "epoch" | "window";
+export type JudgeDiscard = "chat" | "story" | "revision" | "epoch" | "window";
 
 export interface JudgeResult {
   /** The call outlived the chat or session it was asked in, so it was not recorded. */

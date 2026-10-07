@@ -27,7 +27,6 @@ const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
 const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
-const WhatsNewHost = lazyRetry(() => import("../help/WhatsNewHost"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
 const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));
@@ -44,7 +43,6 @@ const GettingStarted = lazyRetry(() => import("./GettingStarted"));
 const StoryGroup = lazyRetry(() => import("./StoryGroup").then((module) => ({ default: module.StoryGroup })));
 
 export interface SettingsHost {
-  extensionVersion: string;
   memoryModelLimit: (profileId: string | null) => CapabilitiesGroupProps["memoryModel"];
   recheckMemoryModel: () => void;
   openWizard: () => void;
@@ -176,7 +174,6 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
         </div>
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
           {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
-          <Lazy fallback={null}><WhatsNewHost configured={Boolean(extraction.profileId)} authorView={snapshot.ui.authorView} onShowMe={host.showFeature} /></Lazy>
           <EntryPoints
             snapshot={snapshot}
             busy={busy}
@@ -234,7 +231,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </SettingsArea>
           )}
           <SettingsArea {...area("setup")}>
-            <Lazy fallback={null}><CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
+            <Lazy fallback={null}><CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} /></Lazy>
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
           </SettingsArea>

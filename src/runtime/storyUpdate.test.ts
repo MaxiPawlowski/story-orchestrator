@@ -23,7 +23,6 @@ const libraryProxy = () => library;
 const storyV1 = (): StoryV2 => ({
   format: 2,
   id: "hot-swap",
-  version: 1,
   title: "Hot swap",
   description: "Base.",
   qualities: [
@@ -38,9 +37,8 @@ const storyV1 = (): StoryV2 => ({
   roster: [],
 });
 
-const record = (raw: StoryV2, version: number, hash: string): StoryLibraryRecord => ({
+const record = (raw: StoryV2, hash: string): StoryLibraryRecord => ({
   id: raw.id as string,
-  version,
   hash,
   title: raw.title,
   description: raw.description,
@@ -57,12 +55,12 @@ const playedState = (story: NormalizedStoryV2): EngineState => {
   return engine.serialize();
 };
 
-const harness = (next: StoryV2, nextVersion = 2) => {
+const harness = (next: StoryV2, nextHash = "hash-2") => {
   const base = parseStoryV2OrThrow(storyV1());
   let current: RunContext = {
     chatId: "chat-a",
     storyId: "hot-swap",
-    playedVersion: 1,
+    storyHash: "h1",
     sessionEpoch: 1,
     windowRevision: 0,
     lowestMutatedMessageId: null,
@@ -71,10 +69,10 @@ const harness = (next: StoryV2, nextVersion = 2) => {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
   };
-  const loaded: LoadedStory = { record: record(storyV1(), 1, "hash-1"), story: base };
+  const loaded: LoadedStory = { record: record(storyV1(), "hash-1"), story: base };
   const state = playedState(base);
   library.clear();
-  library.set("hot-swap", record(next, nextVersion, "hash-2"));
+  library.set("hot-swap", record(next, nextHash));
   const swapped: Array<{ loaded: LoadedStory; state: EngineState | null; reanchored: boolean }> = [];
   const journalled: StoryUpdateOutcome[] = [];
   const restart = jest.fn(async () => true);
@@ -144,7 +142,7 @@ describe("applyStoryUpdate", () => {
     const outcome = await applyStoryUpdate(deps);
 
     expect(choice).not.toHaveBeenCalled();
-    expect(outcome).toMatchObject({ applied: true, classification: "compatible", choice: "keep", fromVersion: 1, toVersion: 2 });
+    expect(outcome).toMatchObject({ applied: true, classification: "compatible", choice: "keep" });
     expect(swapped).toHaveLength(1);
     expect(swapped[0].state?.blackboard.values).toEqual(expect.objectContaining({ trust: 3, mood: "angry" }));
     expect(swapped[0].reanchored).toBe(false);
@@ -272,13 +270,12 @@ describe("applyStoryUpdate", () => {
     expect(swapped[0].state?.activeCheckpointId).toBe("prologue");
   });
 
-  it("does nothing when the chat already plays the saved version", async () => {
-    const { deps, swapped, journalled } = harness(storyV1(), 1);
-    library.set("hot-swap", record(storyV1(), 1, "hash-1"));
+  it("does nothing when the chat already plays the library copy", async () => {
+    const { deps, swapped, journalled } = harness(storyV1(), "hash-1");
 
     const outcome = await applyStoryUpdate(deps);
 
-    expect(outcome).toMatchObject({ applied: false, classification: "identical", reason: "already playing this version" });
+    expect(outcome).toMatchObject({ applied: false, classification: "identical", reason: "already playing the library copy" });
     expect(swapped).toHaveLength(0);
     expect(journalled).toHaveLength(1);
   });
@@ -306,7 +303,7 @@ describe("applyStoryUpdate", () => {
 
   it("refuses a record that is a different story", async () => {
     const { deps } = harness(storyV1());
-    const other = record({ ...storyV1(), id: "somewhere-else" }, 1, "hash-x");
+    const other = record({ ...storyV1(), id: "somewhere-else" }, "hash-x");
 
     expect(await applyStoryUpdate(deps, other)).toMatchObject({ applied: false, classification: "unavailable" });
   });
@@ -319,32 +316,32 @@ describe("describeStoryUpdate", () => {
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     next.description = "Edited.";
     const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
-    const description = describeStoryUpdate("Hot swap", diff, 1, 2);
+    const description = describeStoryUpdate("Hot swap", diff);
     const text = renderStoryUpdate(description, fakeDoc().doc).textContent ?? "";
-    expect(text).toContain("(v1 → v2)");
+    expect(text).not.toMatch(/\bv\d/);
     expect(text).toContain("“mood”");
     // v2.3 plan 09: one save vocabulary — the library half is already done when this pops up.
     expect(text).toContain("Your edit is already saved to the library.");
     expect(text).toContain("1 other change is applied to this chat as it stands.");
-    expect(text).toContain("Cancel applies nothing — this chat keeps playing v1, the version it is playing now. Either way the library keeps your edit.");
+    expect(text).toContain("Cancel applies nothing — this chat keeps playing the copy it pinned. Either way the library keeps your edit.");
   });
 
-  it("T4-4: taken from the drawer in a chat that made no edit, the popup names the library's version, not an edit (T4-4-2 x-drive-1790920434406-update.json)", () => {
+  it("T4-4: taken from the drawer in a chat that made no edit, the popup names the library's copy, not an edit (T4-4-2 x-drive-1790920434406-update.json)", () => {
     const before = parseStoryV2OrThrow(storyV1());
     const next = storyV1();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
-    const text = renderStoryUpdate(describeStoryUpdate("Hot swap", diff, 30, 31, "update"), fakeDoc().doc).textContent ?? "";
+    const text = renderStoryUpdate(describeStoryUpdate("Hot swap", diff, "update"), fakeDoc().doc).textContent ?? "";
     expect(text).not.toContain("Your edit");
-    expect(text).toContain("The library holds v31 of this story.");
-    expect(text).toContain("this chat keeps playing v30, the version it is playing now.");
+    expect(text).toContain("The library's copy of this story differs from the one this chat plays.");
+    expect(text).toContain("this chat keeps playing the copy it pinned.");
   });
 
   it("T4-4: Cancel is never reported as applied, and each outcome is one sentence (T4-4-2 x-drive-1790920351290-save.json:55)", () => {
-    const outcome = (over: Partial<StoryUpdateOutcome>): StoryUpdateOutcome => ({ applied: false, classification: "invalidating", choice: null, fromVersion: 30, toVersion: 31, storyId: "s", dropped: [], at: "", ...over });
-    expect(chatUpdateSentence(outcome({ choice: "cancel", reason: "author kept this chat on its pinned version" }))).toBe("Not applied to this chat: this chat keeps playing v30.");
-    expect(chatUpdateSentence(outcome({ applied: true, choice: "keep", classification: "compatible" }))).toBe("Applied to this chat: this chat is playing the new version now.");
-    expect(chatUpdateSentence(outcome({ applied: true, choice: "restart" }))).toBe("Applied to this chat: this chat restarted on the new version.");
+    const outcome = (over: Partial<StoryUpdateOutcome>): StoryUpdateOutcome => ({ applied: false, classification: "invalidating", choice: null, storyId: "s", dropped: [], at: "", ...over });
+    expect(chatUpdateSentence(outcome({ choice: "cancel", reason: "author kept this chat on its pinned copy" }))).toBe("Not applied to this chat: this chat keeps the copy it is playing.");
+    expect(chatUpdateSentence(outcome({ applied: true, choice: "keep", classification: "compatible" }))).toBe("Applied to this chat: this chat is playing the library copy now.");
+    expect(chatUpdateSentence(outcome({ applied: true, choice: "restart" }))).toBe("Applied to this chat: this chat restarted on the library copy.");
     expect(chatUpdateSentence(outcome({ choice: "restart", reason: "restart declined" }))).toBe("Not applied to this chat: restart declined.");
     expect(chatUpdateSentence(undefined)).toBeNull();
   });
@@ -355,7 +352,7 @@ describe("describeStoryUpdate", () => {
     const marker = '<img src=x onerror="globalThis.reviewMarker=1">';
     const hostile = { classification: "invalidating", entries: [{ kind: "invalidating", message: marker }], droppedQualityKeys: [] } as never;
     const { doc, created, texts } = fakeDoc();
-    const rendered = renderStoryUpdate(describeStoryUpdate(marker, hostile, 1, 2), doc);
+    const rendered = renderStoryUpdate(describeStoryUpdate(marker, hostile), doc);
     expect(texts).toContain(marker);
     expect(rendered.textContent).toContain(marker);
     expect(created.every((tag) => /^[a-z][a-z0-9]*$/.test(tag))).toBe(true);

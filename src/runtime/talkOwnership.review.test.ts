@@ -26,7 +26,7 @@ function harness() {
   let current: RunContext = {
     chatId: "chat-a",
     storyId: "story-a",
-    playedVersion: 1,
+    storyHash: "h1",
     sessionEpoch: 1,
     windowRevision: 0,
     lowestMutatedMessageId: null,

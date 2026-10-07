@@ -23,7 +23,7 @@ import { control } from "../../test/findings/ledger";
 import { testOwnership } from "../../test/findings/testOwnership";
 
 function harness(withOwnership = true) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   let openChat = "chat-a";
   const bindings: string[] = [];
 

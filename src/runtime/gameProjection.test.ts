@@ -2,7 +2,7 @@ import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type StoryV2 } f
 import { composeGame, type GameSources } from "./widgets";
 
 const base = (): StoryV2 => ({
-  format: 2, id: "proj", version: 1, title: "Projection", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
+  format: 2, id: "proj", title: "Projection", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
   qualities: [
     { key: "resolve", type: "int", source: "extractor", rubric: "Resolve, 0-5.", display: { public: true, label: "Resolve", as: "meter", min: 0, max: 5 } },
     { key: "secret_plan", type: "bool", source: "extractor", rubric: "The keeper's secret plan." },

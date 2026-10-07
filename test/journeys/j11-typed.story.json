@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-j11-typed",
-  "version": 1,
   "title": "SO-J11 Typed",
   "description": "v2.2 plan 06 fixture: a hinted gate quality (read by the judge every turn) and a latching hinted enum.",
   "qualities": [

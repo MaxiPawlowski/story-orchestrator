@@ -3,7 +3,7 @@ import { parseStoryV2OrThrow } from "./validate";
 import { questClosedKey, questRewardKey, type EngineState } from "./index";
 
 const story = (quests: unknown[]) => parseStoryV2OrThrow({
-  format: 2, id: "quest-diff", version: 1, title: "Quest diff", description: "Synthetic.",
+  format: 2, id: "quest-diff", title: "Quest diff", description: "Synthetic.",
   qualities: [{ key: "paid", type: "bool", source: "extractor", rubric: "Was the debt paid?" }, { key: "coins", type: "int", source: "code", rubric: "Coins." }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }],
   transitions: [],

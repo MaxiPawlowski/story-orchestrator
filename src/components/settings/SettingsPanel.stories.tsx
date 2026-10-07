@@ -11,7 +11,7 @@ const snapshot = (authorView: boolean): RuntimeSnapshot =>
     ready: true,
     status: "Hydrated The Quest for the Sun Ruins",
     storyId: "sun-ruins",
-    storyIdentity: { id: "sun-ruins", playedVersion: 1, libraryVersion: 1, pinned: true, drifted: false },
+    storyIdentity: { id: "sun-ruins", pinned: true, drifted: false },
     library: [{ id: "sun-ruins", title: "The Quest for the Sun Ruins" }],
     validationErrors: [],
     requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
@@ -58,7 +58,6 @@ const fakeManager = (): RuntimeManager =>
   }) as unknown as RuntimeManager;
 
 const host = (): SettingsHost => ({
-  extensionVersion: "2.6.0",
   memoryModelLimit: () => null,
   recheckMemoryModel: fn(),
   openWizard: fn(),

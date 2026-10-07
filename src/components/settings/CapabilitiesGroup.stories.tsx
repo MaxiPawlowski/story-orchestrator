@@ -8,7 +8,7 @@ const facts = { stVersion: "1.13.4", stCommit: "abc1234", macroEngine: "new" as 
 const meta: Meta<typeof CapabilitiesGroup> = {
   title: "Settings/CapabilitiesGroup",
   component: CapabilitiesGroup,
-  args: { reports: [present], facts, extensionVersion: "2.3.0", onRefresh: fn() },
+  args: { reports: [present], facts, onRefresh: fn() },
 };
 
 export default meta;
@@ -60,7 +60,7 @@ export const CheckingSaysSo: Story = {
   },
 };
 
-// The whole point of the block: one paste that carries the version, the engine and every probe, so a
+// The whole point of the block: one paste that carries the host, the engine and every probe, so a
 // bug report does not start with three round trips asking which build it was.
 export const CopiesTheWholePicture: Story = {
   args: {
@@ -75,7 +75,6 @@ export const CopiesTheWholePicture: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Copy for a bug report" }));
     await expect(args.onCopy).toHaveBeenCalledTimes(1);
     const text = (args.onCopy as unknown as { mock: { calls: string[][] } }).mock.calls[0][0];
-    expect(text).toContain("Story Orchestrator 2.3.0");
     expect(text).toContain("SillyTavern 1.13.4 (abc1234)");
     expect(text).toContain("macros: new engine");
     expect(text).toContain("vectors: absent — no /api/vector routes");

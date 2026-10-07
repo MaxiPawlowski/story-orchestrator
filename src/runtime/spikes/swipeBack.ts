@@ -124,7 +124,7 @@ export class SwipeBack {
     const point = restorePoint(record.engineHistory, messageId);
     if (!point) return null;
     const scope = scopeHash(story, point, this.deps.host.getExpansionGateSources());
-    return { chat: chat.id, message: messageId, text: fingerprintOf(row), scope, story: `${record.storyId}@${record.playedVersion}` };
+    return { chat: chat.id, message: messageId, text: fingerprintOf(row), scope, story: `${record.storyId}@${record.contentHashAtLoad}` };
   }
 
   private capture() {

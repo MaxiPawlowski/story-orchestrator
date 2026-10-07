@@ -41,7 +41,7 @@ const start = () => {
   const nested: string[] = [];
   const controls = startLoreEvidence({
     chatId: () => "chat-1",
-    context: () => ({ chatId: "chat-1", storyId: "host", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedSince: () => null }),
+    context: () => ({ chatId: "chat-1", storyId: "host", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedSince: () => null }),
     story: () => story,
     state: () => ({ visitedPath: ["one"] } as never),
     mirrorBook: () => null,

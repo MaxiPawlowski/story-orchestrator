@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-v27-36-quests",
-  "version": 1,
   "title": "SO-V27-36 Quests",
   "description": "v2.7 plan 36 no-model fixture: a side quest, a hidden quest, a secret milestone, a public quality and a public check.",
   "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" }],

@@ -82,7 +82,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
   // reaches a lorebook FILE shared by every chat that uses the book, so a batch that outlives its
   // chat must stop where it is — these tests are what holds that.
   let chatId = "chat-a";
-  const context = (): RunContext => ({ chatId, storyId: "coordinator-fixture", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
+  const context = (): RunContext => ({ chatId, storyId: "coordinator-fixture", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const ownership = options.owned === false ? undefined : { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) };
   const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => (options.story === undefined ? story() : options.story),
