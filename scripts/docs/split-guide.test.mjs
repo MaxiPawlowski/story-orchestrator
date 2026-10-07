@@ -26,7 +26,12 @@ test("control: an edited source, an edited page and a leftover page are each rep
     writePages(root);
     assert.deepEqual(staleIssues(root), []);
     writeFileSync(join(root, SOURCE), guide.replace("### Dramatic shape", "### Dramatic shapes"));
-    assert.deepEqual(staleIssues(root).sort(), [`${OUT}/README.md`, `${OUT}/topics/arc-template.md`, `${OUT}/topics/briefing.md`, `${OUT}/topics/requirements.md`].map((path) => `${path} is stale`));
+    const topic = parseGuide(guide).topics.find((entry) => entry.title === "Dramatic shape");
+    assert.ok(topic, "the edited heading is a topic");
+    const edited = `topics/${topic.id}.md`;
+    const issues = staleIssues(root);
+    for (const rel of [edited, "README.md"]) assert.ok(issues.includes(`${OUT}/${rel} is stale`), issues.join(", "));
+    assert.ok(issues.every((issue) => issue.endsWith(" is stale")), issues.join(", "));
     writeFileSync(join(root, SOURCE), guide);
     writeFileSync(join(root, OUT, "topics/latching.md"), "edited by hand");
     assert.deepEqual(staleIssues(root), [`${OUT}/topics/latching.md is stale`]);

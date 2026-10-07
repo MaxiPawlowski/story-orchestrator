@@ -34,13 +34,20 @@ test('the frozen runs file validates against the story index (synthetic routes s
   assert.deepEqual(validateRuns(doc, index, syntheticRoutes(doc, index)), []);
 });
 
-test('the real pinned route blobs match their frozen sha256 and validate (skipped when the campaign repo is absent)', (t) => {
+test('the real pinned route blobs match their frozen sha256 and validate (required with SO_PHASE_C=1, skipped otherwise when the campaign repo is absent)', (t) => {
   const doc = loadDoc();
   const blobs: Record<string, Buffer | null> = {};
   for (const file of Object.keys(doc.campaign.routes)) {
-    try { blobs[file] = execFileSync('git', ['-C', doc.campaign.repo, 'show', `${doc.campaign.commit}:${file}`]); } catch { blobs[file] = null; }
+    try { blobs[file] = execFileSync('git', ['-C', doc.campaign.repo, 'show', `${doc.campaign.commit}:${file}`], { stdio: ['ignore', 'pipe', 'ignore'] }); } catch { blobs[file] = null; }
   }
-  if (Object.values(blobs).some((blob) => blob === null)) { t.skip('campaign repo not readable here'); return; }
+  const unreadable = Object.keys(blobs).filter((file) => blobs[file] === null);
+  if (unreadable.length) {
+    const reason = `campaign checkout ${doc.campaign.repo} at ${doc.campaign.commit} cannot show ${unreadable.join(', ')}`;
+    assert.notEqual(process.env.SO_PHASE_C, '1', `SO_PHASE_C=1 needs the frozen route blobs: ${reason}`);
+    t.diagnostic(reason);
+    t.skip(`${reason} (set SO_PHASE_C=1 to require it)`);
+    return;
+  }
   assert.deepEqual(freezeCheck(doc, blobs), []);
   assert.deepEqual(validateRuns(doc, loadIndex(), parseRouteBlobs(blobs)), []);
 });

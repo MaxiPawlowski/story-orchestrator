@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
+import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
 
 export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMiB) {
     const args = [...profile.args];
@@ -124,10 +125,11 @@ export class NativeBackend {
         if (!response.ok) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
         const data = await response.json();
         if (!Array.isArray(data.tokens)) throw new Error('Tokenizer did not return tokens.');
+        const limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext;
         const output = Number(body.n_predict ?? body.max_tokens ?? 1400);
-        if (!Number.isInteger(output) || output < 0 || output > 98304) throw new Error('Set a bounded output budget before generating.');
+        if (!Number.isInteger(output) || output < 0 || output > limit) throw new Error('Set a bounded output budget before generating.');
         const required = data.tokens.length + output + 256;
-        if (required > 98304) throw new Error('Prompt and output exceed the preserved 98k limit; no text was truncated.');
+        if (required > limit) throw new Error(`Prompt and output exceed the preserved ${limit}-token limit; no text was truncated.`);
         if (required > 32768 && this.profile === 'fast') { this.desiredProfile = 'normal'; await this.ensure('normal'); }
     }
 

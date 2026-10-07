@@ -12,11 +12,12 @@ import { ResponseTiming } from './responseTiming.mjs';
 import { createHash } from 'node:crypto';
 import { FastTelemetry } from './fastTelemetry.mjs';
 import { runtimeMemoryProfile } from './runtimeIdentity.mjs';
+import { comfyPort, controllerStatus, withControllerDefaults } from './controllerStatus.mjs';
 
 const configFile = process.argv[2];
 if (!configFile) throw new Error('Usage: node scripts/local/controller.mjs <config.json>');
-const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
-const sourceFiles = ['backend', 'controller', 'estimate', 'fastTelemetry', 'footprints', 'gguf', 'imageCache', 'models', 'policy', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry'];
+const config = withControllerDefaults(JSON.parse(await fs.readFile(configFile, 'utf8')));
+const sourceFiles = ['backend', 'controller', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gguf', 'imageCache', 'models', 'policy', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry'];
 const source = createHash('sha256');
 for (const name of sourceFiles) source.update(name).update(await fs.readFile(new URL(`./${name}.mjs`, import.meta.url)));
 source.update(await fs.readFile(new URL('./memory-probe.py', import.meta.url)));
@@ -57,7 +58,7 @@ const startComfy = async () => {
     try { await jsonFetch('/system_stats'); return; } catch {}
     if (!comfyChild) {
         const log = await fs.open(path.join(config.stateDir, `comfy-${Date.now()}.log`), 'a');
-        comfyChild = spawn(config.comfyPython, ['main.py', '--listen', '127.0.0.1', '--port', '8188', '--disable-auto-launch', '--cache-ram', '8', '--reserve-vram', '2', ...(config.comfyExtraArgs ?? [])],
+        comfyChild = spawn(config.comfyPython, ['main.py', '--listen', '127.0.0.1', '--port', comfyPort(config), '--disable-auto-launch', '--cache-ram', '8', '--reserve-vram', '2', ...(config.comfyExtraArgs ?? [])],
             { cwd: config.comfyRoot, windowsHide: true, stdio: ['ignore', log.fd, log.fd],
                 env: { ...process.env, ...(config.modelCacheRoot ? { HF_HOME: config.modelCacheRoot, HF_HUB_CACHE: path.join(config.modelCacheRoot, 'hub'),
                     HF_HUB_DISABLE_IMPLICIT_TOKEN: '1', TORCHINDUCTOR_CACHE_DIR: path.join(config.modelCacheRoot, 'torch'), CUDA_CACHE_PATH: path.join(config.modelCacheRoot, 'cuda') } : {}) } });
@@ -75,9 +76,7 @@ const startComfy = async () => {
     throw new Error('ComfyUI did not become ready.');
 };
 const backend = new NativeBackend(config);
-const imageCache = new ImageCache({ config, jsonFetch, snapshot, trim: async () => {
-    if (config.nativePoolTrim) await jsonFetch('/so-local/trim', { method: 'POST', headers: { 'X-SO-Local': '1' } });
-}, emptyHostCache: async () => {
+const imageCache = new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: async () => {
     const response = await fetch(`${config.comfyUrl}/so-local/host-cache`, { method: 'POST', headers: { 'X-SO-Local': '1' }, signal: AbortSignal.timeout(15000) });
     if (response.status === 404 || response.status === 501) return false;
     if (!response.ok) throw new Error(`ComfyUI host-cache release refused ${response.status}`);
@@ -102,7 +101,7 @@ const scheduler = new ResidencyScheduler({ config, backend, snapshot, startComfy
         for (const name of ['main.py', 'comfy/model_management.py', 'comfy/model_patcher.py']) code.update(await fs.readFile(path.join(config.comfyRoot, name)));
         code.update(await fs.readFile(new URL('./comfyMemoryGuard/__init__.py', import.meta.url)));
         return runtimeMemoryProfile(stats.system, code.digest('hex'), { hostCacheRelease: 'pressure-only-public-api-v1', cacheMode: config.imageCacheMode ?? 'warm',
-            warmReleaseMs: config.imageWarmReleaseMs ?? 5000, nativePoolTrim: config.nativePoolTrim === true });
+            warmReleaseMs: config.imageWarmReleaseMs ?? 5000 });
     } });
 fast.subscribe((snapshot) => scheduler.observe(snapshot));
 const readBody = async (req) => {
@@ -119,7 +118,7 @@ const server = http.createServer(async (req, res) => {
         if (origin && !/^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/.test(origin)) { answer(res, 403, { error: 'Use the local ST plugin or tray controls.' }); return; }
         const route = new URL(req.url, 'http://localhost').pathname;
         if (req.method === 'GET' && route === '/measurement') { answer(res, 200, scheduler.lastMeasurement ?? null); return; }
-        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, { ...scheduler.status(), controllerBuild, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null, imageCacheMode: config.imageCacheMode ?? 'warm', telemetry: await snapshot({ fresh: true }), adapter: 'managed', guarding: true, reserves: config.reserves, pid: process.pid, configFile, maxContext: 98304 }); return; }
+        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, controllerStatus({ config, scheduler: scheduler.status(), imageCache, telemetry: await snapshot({ fresh: true }), controllerBuild, pid: process.pid, configFile })); return; }
         if (req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
             const body = await readBody(req);
             const data = route === '/lease' ? await scheduler.reserve(body) : route === '/renew' ? { renewed: scheduler.renew(body.lease) } : { released: await scheduler.release(body.lease) };
@@ -153,10 +152,10 @@ const server = http.createServer(async (req, res) => {
             answer(res, 200, scheduler.status()); return;
         }
         if (req.method === 'GET' && route === '/v1/models') {
-            answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: 98304 } }] }); return;
+            answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: config.maxContext } }] }); return;
         }
         if (req.method === 'GET' && route === '/props') {
-            answer(res, 200, { default_generation_settings: { n_ctx: 98304 }, total_slots: 1 }); return;
+            answer(res, 200, { default_generation_settings: { n_ctx: config.maxContext }, total_slots: 1 }); return;
         }
         if (!['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots'].includes(route)) { answer(res, 404, { error: 'Unknown route.' }); return; }
         if (closing) throw new Error('Controller is stopping.');

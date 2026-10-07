@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PLAYER_TEXT_SURFACES } from './so-ui.mts';
+import { PLAYER_TEXT_SURFACES, assertPlayerClean } from './so-ui.mts';
 import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
@@ -291,4 +291,122 @@ test('T1 assert-player-clean: a planted leak on a player surface still fails, an
   assert.deepEqual(plant((record) => { record.texts.push({ surface: 'dialog[open] .popup-content', text: 'Welcome back. Steering: push the caravan north.' }); }), ['dialog[open] .popup-content: Steering:']);
   assert.deepEqual(plant((record) => { record.texts[2].text += '\nTypeError: x is not a function'; }).length, 2, 'raw error text fails on every surface, the settings panel included');
   assert.deepEqual(plant((record) => { record.attributes.push({ surface: '#story-orchestrator-settings', attr: 'title', value: 'Error: profile gone' }); }), ['#story-orchestrator-settings [title] shows raw error text (error prefix)']);
+});
+
+type PlantedSpec = { tag?: string; id?: string; class?: string; attrs?: Record<string, string>; text?: string; children?: PlantedSpec[] };
+
+const splitTopLevel = (selector: string, separator: (char: string) => boolean) => {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const char of selector) {
+    if (char === '[') depth += 1;
+    if (char === ']') depth -= 1;
+    if (depth === 0 && separator(char)) { if (current.trim()) parts.push(current.trim()); current = ''; continue; }
+    current += char;
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts;
+};
+
+const COMPOUND_TOKEN = /^(?:([a-z][a-z0-9]*)|#([\w-]+)|\.([\w-]+)|\[([\w-]+)(?:(\^?=)"([^"]*)")?\])/;
+
+class PlantedElement {
+  tag: string; id: string; classes: Set<string>; attrs: Map<string, string>; text: string; children: PlantedElement[] = []; parent: PlantedElement | null = null;
+  constructor(spec: PlantedSpec) {
+    this.tag = spec.tag ?? 'div';
+    this.id = spec.id ?? '';
+    this.classes = new Set((spec.class ?? '').split(' ').filter(Boolean));
+    this.attrs = new Map(Object.entries(spec.attrs ?? {}));
+    if (this.id) this.attrs.set('id', this.id);
+    this.text = spec.text ?? '';
+    for (const child of spec.children ?? []) { const node = new PlantedElement(child); node.parent = this; this.children.push(node); }
+  }
+  get classList() { return { contains: (name: string) => this.classes.has(name) }; }
+  get offsetParent() { return this.parent; }
+  get innerText(): string { return [this.text, ...this.children.map((child) => child.innerText)].filter(Boolean).join('\n'); }
+  get textContent() { return this.innerText; }
+  hasAttribute(name: string) { return this.attrs.has(name); }
+  getAttribute(name: string) { return this.attrs.get(name) ?? null; }
+  click() {}
+  descendants(): PlantedElement[] { return this.children.flatMap((child) => [child, ...child.descendants()]); }
+  matchesCompound(compound: string) {
+    const tokens: RegExpExecArray[] = [];
+    for (let rest = compound; rest;) {
+      const token = COMPOUND_TOKEN.exec(rest);
+      if (!token) throw new Error(`the planted DOM cannot read selector part "${rest}"`);
+      tokens.push(token);
+      rest = rest.slice(token[0].length);
+    }
+    return tokens.every(([, tag, id, cls, attr, op, value]) => {
+      if (tag) return this.tag === tag;
+      if (id) return this.id === id;
+      if (cls) return this.classes.has(cls);
+      const actual = this.attrs.get(attr);
+      if (actual === undefined) return false;
+      return op === '=' ? actual === value : op === '^=' ? actual.startsWith(value) : true;
+    });
+  }
+  matches(selector: string): boolean {
+    return splitTopLevel(selector, (char) => char === ',').some((alternative) => {
+      const parts = splitTopLevel(alternative, (char) => /\s/.test(char));
+      if (!this.matchesCompound(parts[parts.length - 1])) return false;
+      let at = parts.length - 2;
+      for (let node = this.parent; node && at >= 0; node = node.parent) if (node.matchesCompound(parts[at])) at -= 1;
+      return at < 0;
+    });
+  }
+  querySelectorAll(selector: string) { return this.descendants().filter((node) => node.matches(selector)); }
+  querySelector(selector: string) { return this.querySelectorAll(selector)[0] ?? null; }
+}
+
+const PLAYER_SHELL: PlantedSpec[] = [
+  { id: 'so-drawer', children: [{ class: 'drawer-toggle' }] },
+  { id: 'drawer-manager', class: 'openDrawer', children: [{ attrs: { role: 'tablist' } }] },
+  { id: 'chat', children: [{ class: 'mes', attrs: { mesid: '3' }, text: 'The road bends east.' }] },
+];
+
+async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSpec[] }) {
+  const g = globalThis as Record<string, any>;
+  const shell: PlantedSpec[] = JSON.parse(JSON.stringify(PLAYER_SHELL));
+  shell[2].children![0].children = plant.message ?? [];
+  const root = new PlantedElement({ tag: 'body', children: [...shell, { id: 'so-panels-root', children: plant.panels ?? [] }] });
+  g.document = { querySelectorAll: (selector: string) => root.querySelectorAll(selector), querySelector: (selector: string) => root.querySelector(selector),
+    getElementById: (id: string) => root.querySelector(`#${id}`) };
+  g.storyOrchestratorRuntime = { getSnapshot: () => ({ ui: { authorView: false }, inline: null }), getStory: () => null };
+  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined,
+    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined }) };
+  try {
+    return (await assertPlayerClean(page)).findings.map((finding: { needle: string }) => finding.needle);
+  } finally {
+    delete g.document;
+    delete g.storyOrchestratorRuntime;
+  }
+}
+
+test('planted DOM control: a player-only shell sweeps clean, and an unreadable selector would fail loudly', async () => {
+  assert.deepEqual(await sweepPlanted({ panels: [{ attrs: { 'data-so': 'help-panel' }, text: 'How to play: write what you do.' }] }), []);
+  assert.throws(() => new PlantedElement({}).matches('a:hover'), /cannot read selector part/);
+});
+
+test('planted DOM: the Activity panel opened in player mode is caught by the sweep', async () => {
+  const findings = await sweepPlanted({ panels: [{ id: 'so-panel-activity', children: [{ id: 'so-activity', attrs: { 'data-so': 'activity' },
+    children: [{ attrs: { 'data-so': 'activity-row' }, text: 'Rolled 4 of 6' }] }] }] });
+  for (const selector of ['#so-panel-activity', '#so-activity', '[data-so="activity"]', '[data-so="activity-row"]']) {
+    assert.ok(findings.includes(`${selector} reachable in #so-panels-root`), `${selector}: ${findings.join(' | ')}`);
+  }
+});
+
+test('planted DOM: roll chips rendered under a player message are caught by the inline sweep', async () => {
+  const findings = await sweepPlanted({ message: [{ attrs: { 'data-so': 'roll-chips', 'data-mesid': '3' }, children: [{ tag: 'button', attrs: { 'data-so': 'roll-chip' }, text: '4' }] }] });
+  assert.ok(findings.includes('[data-so="roll-chips"] reachable under a message'), findings.join(' | '));
+  assert.ok(findings.includes('[data-so="roll-chip"] reachable under a message'), findings.join(' | '));
+});
+
+test('planted DOM: an author page of the guide reader in player mode is caught by the sweep', { todo: 'so-ui.mts PLAYER_FORBIDDEN_SELECTORS has no guide-reader selector (#so-guide [data-audience="author"], [data-so="guide-page"][data-doc^="author/"]); owned by another agent' }, async () => {
+  const findings = await sweepPlanted({ panels: [{ tag: 'section', id: 'so-guide', children: [
+    { tag: 'nav', attrs: { 'data-so': 'guide-nav' }, children: [{ attrs: { 'data-audience': 'author' }, text: 'Writing a story' }] },
+    { attrs: { 'data-so': 'guide-page', 'data-doc': 'author/README.md' }, text: 'Writing a story for Story Orchestrator' },
+  ] }] });
+  assert.ok(findings.some((needle) => /guide|data-audience="author"/.test(needle) && needle.includes('reachable in #so-panels-root')), findings.join(' | '));
 });

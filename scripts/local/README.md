@@ -3,7 +3,10 @@
 `story-orchestrator-gpu`'s managed adapter sends leases to this controller. It owns its native llama-server and the
 ComfyUI process it starts; an already running ComfyUI is reused. Existing jobs are never interrupted.
 
-Config: `SO_LOCAL_CONFIG`, default `C:/dev/tools/story-orchestrator-local/config.json`. Start/stop/load/unload/automatic/
+Config: `SO_LOCAL_CONFIG`, default `C:/dev/tools/story-orchestrator-local/config.json`. Config keys with defaults:
+`maxContext` (98304: the context the gateway advertises on `/status`, `/props`, `/v1/models` and enforces before
+generating), `comfyUrl` (`http://127.0.0.1:8188`; the owned ComfyUI is started on this URL's port). `reserves` is
+required and is reported verbatim on `/status`. Start/stop/load/unload/automatic/
 restore/free-images/start-comfy are available through `node scripts/local/cli.mjs <action>` and the tray. Every text
 and lifecycle operation shares the lease queue; a manual hold requires Automatic or Load text to resume.
 
@@ -34,7 +37,6 @@ and lifecycle operation shares the lease queue; a manual hold requires Automatic
   remains a lower bound. Unknown/unverified runtimes keep the estimate; the physical-RAM reserve always applies.
 - Image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
   cache eviction. NVML must return to the lease baseline (512 MiB tolerance), including native allocations outside torch.
-  Nunchaku's idle-only `comfyMemoryGuard` trim seam is a spike option; stock Comfy uses ordinary release.
 - `modelLoadMode`: optional native loading-mode comparison; overrides the profile's `--load-mode`. Leave unset on
   this 32 GiB host: the measured `mmap` arm violated the physical RAM floor. `--cache-ram 512` is a prompt-state cache,
   not a model-weight hot store. Dense weight/layer placement is fixed at native startup; shedding restarts the backend.
@@ -70,6 +72,10 @@ queue. It changes only controller residency and leaves full text loaded. Discove
 source hash; `summarize.mjs <directory>` summarizes them and excludes wholly cached images from render repetitions.
 
 Tests: `node --test "scripts/local/*.test.mjs"`, included in `npm run test:debug`; overall gate `npm run gates`.
+
+Gate prerequisite: `python` (3.x, standard library only) on PATH. `comfyMemoryGuard.test.mjs` runs
+`comfyMemoryGuard.test.py` against the shipped Comfy helper with stubbed torch/aiohttp; without Python that case is
+skipped with the reason printed, so a gate record from such a machine does not cover the helper.
 
 ## Bulk sprite review
 
