@@ -1,6 +1,6 @@
 import type {
   ArcBridge, ArcTemplate, CardBinding, Chapter, ChapterSealPolicy, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
-  StoryBriefing, StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
+  StoryBriefing, StoryPlayer, StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
 
@@ -197,6 +197,13 @@ export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): S
 export const setBriefing = (draft: StoryDraft, briefing: StoryBriefing | undefined): StoryDraft => {
   const { briefing: _dropped, ...rest } = draft;
   return briefing ? { ...rest, briefing } : rest;
+};
+
+export const setPlayer = (draft: StoryDraft, player: StoryPlayer | undefined): StoryDraft => {
+  const { player: previous, ...rest } = draft;
+  const { card: _ignored, ...profile }: StoryPlayer = player ?? {};
+  const next: StoryPlayer = { ...profile, ...(previous?.card ? { card: previous.card } : {}) };
+  return Object.keys(next).length ? { ...rest, player: next } : rest;
 };
 
 export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft => {

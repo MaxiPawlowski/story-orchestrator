@@ -6,6 +6,7 @@ import { backgroundsModule } from "./modules";
 import { stImageReadiness } from "./stImage";
 import { mediaStatus, comfyDiscover } from "./media";
 import { listSlashCommands } from "./selectors";
+import { personaCrudAvailable } from "./personas";
 import { getHostVersion, macroEngineInUse } from "./version";
 import { installScanGating, probeScanGating } from "./worldInfoScan";
 
@@ -19,7 +20,7 @@ import { installScanGating, probeScanGating } from "./worldInfoScan";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "harness" | "contextBudget" | "wiScanGating" | "image" | "sprites";
+export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "harness" | "contextBudget" | "wiScanGating" | "image" | "sprites" | "personaCrud";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -129,6 +130,9 @@ const spritesProbe: Probe = async () => {
   return present("sprites API");
 };
 
+const personaCrudProbe: Probe = () => (personaCrudAvailable() ? present("/persona-create")
+  : absent("no /persona-create command: a story's start page cannot create a persona, so the player creates one in Persona Management and chooses it"));
+
 const PROBES: Record<CapabilityId, Probe> = {
   macros: macrosProbe,
   macroArgs: macroArgsProbe,
@@ -141,6 +145,7 @@ const PROBES: Record<CapabilityId, Probe> = {
   wiScanGating: wiScanGatingProbe,
   image: imageProbe,
   sprites: spritesProbe,
+  personaCrud: personaCrudProbe,
 };
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];

@@ -1,6 +1,6 @@
 import type { BriefingView } from "@engine/index";
 
-export type BriefingRequest = { kind: "story" } | { kind: "preview"; view: BriefingView | null; chapter?: BriefingView | null };
+export type BriefingRequest = { kind: "story" } | { kind: "identity" } | { kind: "preview"; view: BriefingView | null; chapter?: BriefingView | null };
 
 type Listener = (request: BriefingRequest) => void;
 

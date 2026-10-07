@@ -13,4 +13,4 @@ Fields: `briefing` (`title`, `image`, `sections[]` of `{heading, text}`, `tone`,
 
 ---
 
-[Author's guide](../README.md) · previous: [Title, description, id and version](story-basics.md) · next: [Dramatic shape](arc-template.md)
+[Author's guide](../README.md) · previous: [Title, description, id and version](story-basics.md) · next: [Who the player is](player.md)

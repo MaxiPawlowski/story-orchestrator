@@ -3,13 +3,14 @@ import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type Stagecr
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
 import BriefingEditor from "./BriefingEditor";
+import PlayerEditor from "./PlayerEditor";
 import { composeBriefing } from "@engine/index";
 import { requestBriefing } from "@runtime/briefingRequest";
 import StoryDisplayEditor from "./StoryDisplayEditor";
 import { useDraftStore } from "../draft";
 import { slugifyStoryId } from "@engine/index";
 import {
-  addArcBridge, removeArcBridge, setArcTemplate, setBriefing, setHouseRules, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge,
+  addArcBridge, removeArcBridge, setArcTemplate, setBriefing, setHouseRules, setLoreSelect, setPlayer, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge,
 } from "../mutations";
 
 export interface StoryEditorProps {
@@ -119,6 +120,7 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
       <BriefingEditor name="Briefing" hint={BRIEFING_HINT} briefing={draft.briefing}
         onChange={(next) => mutate((current) => setBriefing(current, next))}
         onPreview={() => requestBriefing({ kind: "preview", view: composeBriefing(draft) })} />
+      <PlayerEditor player={draft.player} onChange={(next) => mutate((current) => setPlayer(current, next))} />
       <Field label="Dramatic shape" hint="The tension curve the pacing hint steers toward across the story's anchors. A checkpoint's own tension_target always wins over the shape.">
         <select
           className="text_pole st-input"

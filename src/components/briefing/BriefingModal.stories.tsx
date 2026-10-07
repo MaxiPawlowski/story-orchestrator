@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { BriefingView } from "@engine/index";
 import { BRIEFING_COPY } from "@features/helpCopy";
+import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import { BriefingModal } from "./BriefingModal";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
@@ -68,6 +69,25 @@ export const Both: Story = {
   play: async ({ canvasElement }) => {
     const order = [...canvasElement.querySelectorAll('[data-so="briefing-before-you-start"], [data-so="briefing-story"]')].map((node) => node.getAttribute("data-so"));
     await expect(order).toEqual(["briefing-before-you-start", "briefing-story"]);
+  },
+};
+
+export const WithIdentity: Story = {
+  args: {
+    blocks: [BLOCK],
+    identity: {
+      rechoose: false, onChoose: fn(async () => ({ ok: true })),
+      view: {
+        storyId: "road", pending: true, needsPane: true, player: { role: "a hired courier", summary: "You carry a sealed letter." }, fixedName: null,
+        current: { avatarId: "max.png", name: "Max" }, personas: [{ avatarId: "max.png", name: "Max" }], canCreate: false,
+        record: { pending: true }, lockedName: null, switched: false, injected: true, beforeFirstMessage: true, castClash: null, descriptionEmpty: false, injectOff: false,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText(PLAYER_SETUP_COPY.heading);
+    const order = [...canvasElement.querySelectorAll('[data-so="briefing-before-you-start"], [data-so="player-setup"], [data-so="briefing-story"]')].map((node) => node.getAttribute("data-so"));
+    await expect(order).toEqual(["briefing-before-you-start", "player-setup", "briefing-story"]);
   },
 };
 

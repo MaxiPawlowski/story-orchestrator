@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
-import { dismissBriefing, readBriefingModal } from './lib/briefingHarness.mts';
+import { choosePlayerSetup, dismissBriefing, PLAYER_SETUP_CHOICES, readBriefingModal, readPlayerSetup, type PlayerSetupChoiceArg } from './lib/briefingHarness.mts';
 import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -1363,7 +1363,7 @@ export async function agentNewGoal(page) {
   return getAgentState(page);
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|player-setup|player-setup-choose|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1378,6 +1378,8 @@ drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
 briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
 briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
+player-setup: read the "Who you are in this story" pane (role, current persona, choices, pending) and the chat's persona lock.
+player-setup-choose keep|pick <name>|create [name]|skip: make that choice in the pane (skip = the start button); every choice leaves the chat locked.
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.
@@ -1493,6 +1495,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await readBriefingModal(page);
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-briefing');
+    }
+
+    if (subcommand === 'player-setup') {
+      const state = await readPlayerSetup(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-player-setup');
+    }
+
+    if (subcommand === 'player-setup-choose') {
+      const choice = process.argv[3] as PlayerSetupChoiceArg;
+      if (!PLAYER_SETUP_CHOICES.includes(choice)) throw new Error(`player-setup-choose takes ${PLAYER_SETUP_CHOICES.join('|')}`);
+      const result = await choosePlayerSetup(page, choice, process.argv.slice(4).join(' '));
+      console.log(JSON.stringify(result, null, 2));
+      if (!result.locked) process.exitCode = 1;
     }
 
     if (subcommand === 'briefing-dismiss') {

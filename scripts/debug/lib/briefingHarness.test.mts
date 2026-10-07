@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readBriefingSetting, restoreBriefing, suppressBriefing } from './briefingHarness.mts';
+import { readBriefingSetting, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './briefingHarness.mts';
 
 const fakePage = (initial: boolean | undefined) => {
   const settings = { display: { briefing: initial } as { briefing?: boolean } };
@@ -36,4 +36,22 @@ test('controls: an install already off is left alone, and a missing capture rest
   assert.deepEqual(writes, []);
   const unknown = fakePage(undefined);
   assert.equal(await readBriefingSetting(unknown.page), null);
+});
+
+test('v2.7 34: the start-setup question is suppressed and restored on its own key, leaving the briefing alone', async () => {
+  const settings = { display: { briefing: true, playerSetup: true } as Record<string, boolean> };
+  const writes: Array<Record<string, boolean>> = [];
+  (globalThis as Record<string, unknown>).storyOrchestratorRuntime = {
+    getGlobalSettings: () => settings,
+    setUiSettings: (patch: Record<string, boolean>) => { writes.push(patch); Object.assign(settings.display, patch); },
+  };
+  const page = {
+    evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => (String(fn).includes('/script.js') ? true : fn(arg)),
+    waitForResponse: async () => ({ ok: () => true, status: () => 200 }),
+  };
+  const suppressed = await suppressPlayerSetup(page);
+  assert.equal(suppressed.before, true);
+  assert.deepEqual(settings.display, { briefing: true, playerSetup: false });
+  assert.equal((await restorePlayerSetup(page, suppressed.before)).restored, true);
+  assert.deepEqual(writes, [{ playerSetup: false }, { playerSetup: true }]);
 });

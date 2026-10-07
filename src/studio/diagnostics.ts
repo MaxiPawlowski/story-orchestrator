@@ -10,6 +10,8 @@ import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMem
 import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnostics";
 import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnostics";
 import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
+import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
+import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -20,55 +22,7 @@ export interface Diagnostic extends ValidationError {
   consequence?: string;
 }
 
-export const DIAGNOSTIC_CODES = [
-  "undeclared-quality",
-  "op-type-mismatch",
-  "enum-value-invalid",
-  "anchor-unreachable",
-  "quality-out-of-scope",
-  "quality-never-in-scope",
-  "snapshot-latching-conflict",
-  "stub-no-anchor",
-  "threshold-unsatisfiable",
-  "talk-member-unknown",
-  "guidance-member-unknown",
-  "talk-lead-outside-speakers",
-  "talk-silence-without-director",
-  "talk-chain-member-unknown",
-  "talk-chain-empty",
-  "agency-alternate-unknown",
-  "agency-alternate-is-self",
-  "scene-read-location-empty",
-  "lore-select-inactive",
-  "lore-select-exclusive-empty",
-  "quality-hint-no-criteria",
-  "quality-hint-latching-note",
-  "quality-criteria-self-exclusion",
-  "latching-enum-placeholder",
-  "quality-rating-no-scale",
-  "quality-outcome-player-evidence",
-  "house-rule-compound",
-  "checkpoint-inherits-author-note",
-  "world-info-rests-off",
-  "motive-member-unknown",
-  "motive-for-player",
-  "chapter-missing",
-  "chapter-unknown",
-  "chapter-unreachable",
-  "chapter-no-exit",
-  "chapter-reentry",
-  "story-dead-end",
-  "requirement-member-roster-id",
-  "cast-member-no-card",
-  "background-missing",
-  "roster-member-is-player",
-  "cast-change-unknown-member",
-  "requirement-persona-missing",
-  "gate-open-on-arrival",
-  "cast-member-never-enabled",
-  "briefing-spoiler-risk",
-  "story-kind-invalid",
-] as const;
+export { DIAGNOSTIC_CODES };
 
 // Every code says what it costs the story before it says what is technically wrong: the
 // consequence is what an author can act on, and the message is how they find it. One line each, and
@@ -116,6 +70,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...ARRIVAL_CONSEQUENCES,
   ...BRIEFING_CONSEQUENCES,
   ...KIND_CONSEQUENCES,
+  ...PLAYER_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -534,6 +489,7 @@ const DIAGNOSTIC_CHECKS = [
   checkNeverEnabled,
   checkBriefingSpoilers,
   checkStoryKind,
+  checkPlayerProfile,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

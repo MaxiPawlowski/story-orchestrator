@@ -27,6 +27,7 @@ import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
 import { SettingsControl, type UiSettingsPatch } from "./settingsControl";
+import { lazyPlayerSetup } from "./playerSetupPort";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal, type RollbackListener } from "./rollback";
@@ -243,7 +244,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   async importStory(rawText: string) { return importStoryJson(this.selectionDeps, rawText); }
-  async selectStory(id: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, id); }
+  async selectStory(id: string, _mode?: "activate" | "hydrate") { return selectStory(this.selectionDeps, id); }
   async restartStory(alreadyConfirmed = false): Promise<boolean> { return restartStory(this.selectionDeps, this.loaded?.record.id ?? null, alreadyConfirmed); }
   async removeStory(id: string): Promise<boolean> { return removeStory(this.selectionDeps, id); }
 
@@ -390,7 +391,7 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   getTalkState(): TalkRuntimeState { return this.extras.talk; }
 
-  setTalkDirectionEnabled(enabled: boolean, scope: "chat" | "global" = "chat") { this.settingsControl.talk(enabled, scope); }
+  setTalkDirectionEnabled(on: boolean, scope: "chat" | "global" = "chat") { this.settingsControl.talk(on, scope); }
   getTalkChainConfig() { return { ...getGlobalSettings().talk.chain, ...TALK_CHAIN_FIXED }; }
   setTalkChainSettings(chain: Partial<TalkChainSettings>) { this.settingsControl.talkChain(chain); }
 
@@ -400,10 +401,10 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   recordLoreFired(record: LoreFiredRecord) { if (!this.loaded) return; this.extras.lore = recordLoreFired(this.extras.lore, record); void this.persist(); this.notify(); }
   setInlineSettings(patch: Partial<InlineSettings>) { this.setUiSettings({ inline: { ...this.extras.ui.inline, ...patch } }); }
-  recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
+  recordJudgeCall(call: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, call); this.touch(); }
   recordModelCall(record: ModelCallRecord) { this.extras.modelCalls = acceptModelCall(this.extras.modelCalls, record, this.loadedChatId); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
-  recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
+  recordSceneRead(scene: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene }; this.notify(); }
 
   recordTalkDecision(audit: TalkDecisionAudit) {
     this.extras.talk = { ...this.extras.talk, decisions: [...this.extras.talk.decisions, audit].slice(-TALK_DECISION_LIMIT) };
@@ -520,7 +521,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
-    reconcileEffectLedgerInto(this.extras.effects, (note) => this.noteRecap(note, "")); this.notify();
+    reconcileEffectLedgerInto(this.extras.effects, (note) => this.noteRecap(note, "")); await this.playerSetup.autoResolve(); this.notify();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
       stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
@@ -576,7 +577,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.engine.replaceGraph(story);
   }
 
-  getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null, coordinatorHosts.roster); }
+  getEnabledCharacterIds() { return enabledCharacterIds(this.loaded?.story ?? null, coordinatorHosts.roster); }
   getCardReadScope() { return this.extraction.cardScope(); }
 
   getActiveSpeakerId(): string | null { return activeSpeakerId(this.loaded?.story ?? null, coordinatorHosts.roster); }
@@ -614,5 +615,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     return this.loaded ? { before, after: this.extras.requirements.ready, behind: behindActive(this.extras.lastAppliedCheckpointId, this.engine.activeCheckpoint) } : null;
   } };
   refreshRequirementsNow() { return refreshRequirementsNow(this.requirementsHost); }
+  readonly playerSetup = lazyPlayerSetup({ ...this.lifecycle, extras: () => this.extras, loaded: () => this.loaded,
+    journal: (summary, detail) => this.noteRecap(summary, detail), requirements: this.requirementsHost });
 }
 export const runtimeManager = new RuntimeManager();

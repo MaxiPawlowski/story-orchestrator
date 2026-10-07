@@ -11,6 +11,7 @@ import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./v
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 import { indexCardFields, validateCardEffects } from "./cardFields";
+import { readPlayer } from "./validate/player";
 
 export { readChapters };
 
@@ -113,8 +114,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
 
   const checkpointById = indexUnique(checkpoints, (checkpoint) => checkpoint.id, (index) => `checkpoints.${index}.id`, "checkpoint", errors);
   const qualityByKey = indexUnique(qualities, (quality) => quality.key, (index) => `qualities.${index}.key`, "quality", errors);
-  const player = isRecord(json.player) ? json.player as StoryV2["player"] : undefined;
-  if (json.player !== undefined && !player) addError(errors, "player", "player must be an object");
+  const player = readPlayer(json.player, errors);
   const cardFieldByQuality = indexCardFields(roster, player, qualityByKey, errors);
   validateCardEffects({ checkpoints, qualityByKey, cardFieldByQuality }, errors);
 

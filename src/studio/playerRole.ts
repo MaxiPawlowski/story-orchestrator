@@ -1,4 +1,4 @@
-import type { RosterMember, StoryV2 } from "@engine/index";
+import { storyPlayerNames, type RosterMember, type StoryV2 } from "@engine/index";
 
 const ADDRESS = /\b(?:you\s+are|you're|you\s+play(?:\s+as)?|the\s+player\s+(?:is|plays(?:\s+as)?)|the\s+player\s+character\s+is)\s+(?:a|an|the)\s+([\p{L}'-]+(?:\s+[\p{L}'-]+){0,2})/giu;
 
@@ -18,9 +18,14 @@ export const playerRoles = (texts: readonly string[]): string[] => [
   ...new Set(texts.flatMap((text) => [...text.matchAll(ADDRESS)].flatMap((match) => prefixes(match[1])))),
 ];
 
+export const authoredPlayerRoles = (draft: Pick<StoryV2, "player">): string[] => (draft.player?.role ? prefixes(draft.player.role) : []);
+
+export const storyPlayerRoles = (draft: StoryV2, extra: readonly string[] = []): string[] =>
+  [...new Set([...authoredPlayerRoles(draft), ...playerRoles([...storyPlayerTexts(draft), ...extra])])];
+
 export const storyPlayerTexts = (draft: StoryV2): string[] => {
   const openers = draft.checkpoints.flatMap((checkpoint) => checkpoint.effects?.npc_replies ?? []).map((reply) => reply.text ?? "");
-  return [draft.description ?? "", draft.player_intro ?? "", ...openers].filter(Boolean);
+  return [draft.description ?? "", draft.player_intro ?? "", draft.player?.summary ?? "", ...openers].filter(Boolean);
 };
 
 export interface PlayerMatch {
@@ -39,6 +44,6 @@ export const memberIsPlayer = (member: Pick<RosterMember, "id" | "name">, roles:
 const PLAYER_ROLE = /^\s*(?:the\s+)?player\b|\bplayer[ -](?:persona|character)\b/i;
 
 export const rosterMemberIsPlayer = (member: RosterMember, draft: StoryV2): boolean =>
-  memberIsPlayer(member, playerRoles(storyPlayerTexts(draft)), draft.requirements?.personas ?? []) !== null
+  memberIsPlayer(member, storyPlayerRoles(draft), storyPlayerNames(draft)) !== null
   || foldName(member.id) === "player"
   || PLAYER_ROLE.test(member.role ?? "");

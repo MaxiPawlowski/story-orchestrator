@@ -26,6 +26,7 @@ export const INJECTION_REGISTRY = {
   storySoFar: { key: "story_orchestrator_story_so_far", depth: 8, writer: "runtime/memoryInjector", label: "The story so far" },
   chapterBridge: { key: "story_orchestrator_chapter_bridge", depth: 1, writer: "runtime/memoryInjector", label: "Chapter bridge" },
   cardOverlay: { key: "story_orchestrator_card_overlay", depth: 1, writer: "runtime/cardOverlayHost", label: "Current public character state" },
+  playerRole: { key: "story_orchestrator_player_role", depth: 10, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [

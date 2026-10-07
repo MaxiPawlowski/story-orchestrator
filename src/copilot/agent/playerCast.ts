@@ -1,5 +1,5 @@
-import type { StoryV2 } from "@engine/index";
-import { memberIsPlayer, playerRoles, storyPlayerTexts } from "../../studio/playerRole";
+import { storyPlayerNames, type StoryV2 } from "@engine/index";
+import { memberIsPlayer, playerRoles, storyPlayerRoles } from "../../studio/playerRole";
 import type { AgentOp, AgentSession } from "./types";
 
 const greetings = (session: AgentSession): string[] => session.steps.flatMap((step) => {
@@ -9,7 +9,7 @@ const greetings = (session: AgentSession): string[] => session.steps.flatMap((st
 });
 
 const rolesFor = (session: AgentSession, draft: StoryV2, extra: string[]): string[] =>
-  playerRoles([session.goal, ...storyPlayerTexts(draft), ...greetings(session), ...extra]);
+  storyPlayerRoles(draft, [session.goal, ...greetings(session), ...extra]);
 
 const castName = (op: AgentOp): { name: string; greeting: string[] } | null => {
   if (op.kind === "createCharacterCard") return { name: op.name, greeting: op.first_mes ? [op.first_mes] : [] };
@@ -20,7 +20,7 @@ const castName = (op: AgentOp): { name: string; greeting: string[] } | null => {
 export const playerCastProblem = (session: AgentSession, draft: StoryV2, op: AgentOp): string | null => {
   const cast = castName(op);
   if (!cast) return null;
-  const match = memberIsPlayer({ id: cast.name, name: cast.name }, rolesFor(session, draft, cast.greeting), draft.requirements?.personas ?? []);
+  const match = memberIsPlayer({ id: cast.name, name: cast.name }, rolesFor(session, draft, cast.greeting), storyPlayerNames(draft));
   if (!match) return null;
   const who = match.persona ? `"${cast.name}" is the player's persona` : `the player is the ${match.role} (the story addresses the player so)`;
   return `${who}; the player is never a card or a cast member. Cast only the characters the player meets`;

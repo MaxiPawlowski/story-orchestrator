@@ -43,6 +43,7 @@ export type StoryDiffCode =
   | "story-kind-changed"
   | "scene-read-changed"
   | "player-card-changed"
+  | "player-profile-changed"
   | "lore-select-changed"
   | "house-rules-changed"
   | "arc-template-changed"
@@ -325,7 +326,10 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");
-  if (!sameValue(previous.player, next.player)) push("compatible", "player-card-changed", "player", "The player’s public character fields changed.");
+  if (!sameValue(previous.player?.card, next.player?.card)) push("compatible", "player-card-changed", "player", "The player’s public character fields changed.");
+  if (!sameValue({ ...previous.player, card: undefined }, { ...next.player, card: undefined })) {
+    push("compatible", "player-profile-changed", "player", "Who the player is in this story changed; the persona this chat locked stays.");
+  }
   if (!sameValue(previous.arc_template, next.arc_template)) push("compatible", "arc-template-changed", "arc_template", "The dramatic shape changed.");
   if (!sameValue(previous.arc_bridges, next.arc_bridges)) push("compatible", "arc-bridges-changed", "arc_bridges", "How resolved threads feed convergence changed.");
   if (!sameValue(previous.chapters, next.chapters) || !sameValue(previous.chapterByCheckpoint, next.chapterByCheckpoint) || !sameValue(previous.memory, next.memory)) {

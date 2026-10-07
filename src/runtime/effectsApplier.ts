@@ -25,6 +25,7 @@ import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges
 import { InFlight } from "./inFlight";
 import { chatSettle } from "./chatSettle";
 import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
+import { identitySettled } from "./playerSetup";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -256,7 +257,7 @@ export class EffectsApplier {
     // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
     // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it
     // entirely. Every other onEnter beat stays below, after the cast it needs is enabled.
-    if (ready) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
+    if (ready && identitySettled(extras.playerSetup)) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
     const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);

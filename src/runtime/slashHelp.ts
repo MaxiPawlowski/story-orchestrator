@@ -8,6 +8,7 @@ export const STORY_VERBS: readonly SlashVerb[] = [
   { verb: "recap", usage: "/story recap", what: "where the story is right now" },
   { verb: "threads", usage: "/story threads", what: "what is still open" },
   { verb: "intro", usage: "/story intro", what: "open the story briefing again" },
+  { verb: "who", usage: "/story who", what: "who you play in this story" },
   { verb: "chapters", usage: "/story chapters", what: "the chapters that have ended" },
   { verb: "chapter", usage: "/story chapter <n>", what: "the summary of one ended chapter" },
   { verb: "chronicle", usage: "/story chronicle export", what: "copy the story so far as Markdown" },

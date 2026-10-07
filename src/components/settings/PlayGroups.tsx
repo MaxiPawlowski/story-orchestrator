@@ -34,6 +34,7 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
     <Lazy fallback={null}><InlineControls snapshot={snapshot} manager={manager} /></Lazy>
     <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} onChange={(on) => manager.setUiSettings({ hudEnabled: on })} />
     <CheckRow id="so-briefing-enabled" setting="display.briefing" checked={snapshot.ui.briefing !== false} onChange={(on) => manager.setUiSettings({ briefing: on })} />
+    <CheckRow id="so-player-setup-enabled" setting="display.playerSetup" checked={snapshot.ui.playerSetup !== false} onChange={(on) => manager.setUiSettings({ playerSetup: on })} />
     <PresenceControls snapshot={snapshot} onChange={(presence) => manager.setUiSettings({ presence })} />
   </div>
 );

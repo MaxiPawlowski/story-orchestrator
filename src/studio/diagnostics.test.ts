@@ -75,7 +75,10 @@ const seeded: StoryV2 = {
     { key: "dread", type: "int", source: "extractor", rubric: "How afraid is she?", read_as: "rating" },
   ],
   checkpoints: [
-    { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1, location: "hall" } },
+    {
+      id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1, location: "hall" },
+      effects: { npc_replies: [{ kind: "scripted", member: "The Guide", trigger: "onEnter", new_chat_only: true, text: "Welcome, {{user}}." }] },
+    },
     {
       id: "mid",
       name: "Mid",
@@ -111,6 +114,7 @@ const seeded: StoryV2 = {
   house_rules: ["No guns; no swords.", "Magic cannot heal wounds."],
   requirements: { members: ["warden"] },
   briefing: { sections: [{ heading: "Ahead", text: "Mind the Cache." }] },
+  player: { summary: "You will find the Cache." },
 };
 
 const anchor = (id: string, chapter?: string, start = false) => ({ id, name: id, objective: "", type: "anchor" as const, ...(chapter ? { chapter } : {}), ...(start ? { start } : {}) });

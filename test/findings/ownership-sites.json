@@ -589,6 +589,10 @@
       "status": "partial",
       "note": "v2.3 replan V3 (2026-09-23): COVERED: each branch awaits exactly one manager call and returns (the census reads the branches in text order); pin/exclude act on the open chat from the author's own command. NOT COVERED: the manager's memory setters are synchronous and take no token, so a command typed during a chat switch applies to the chat that is open."
     },
+    "src/runtime/slashCommands.ts#storyCommand": {
+      "status": "local",
+      "note": "v2.7 plan 34: the `replace` after the `who` branch's lazy import is String.replace on the typed page name; the command reads the snapshot and writes no chat state."
+    },
     "src/runtime/stateExport.ts#exportState": {
       "status": "local",
       "note": "v2.3 plan 05: the write is the clipboard, which no chat owns and which outlives nothing. The state it copies is read before the await and handed in, so a failure here cannot half-write chat state; the console fallback is the whole of its local effect."
@@ -752,6 +756,26 @@
     "src/runtime/playsBackfill.ts#runBackfill": {
       "status": "local",
       "note": "v2.7 06 A (2026-10-03): the plays-index backfill. It reads one group chat file per step and writes only install-wide rows keyed by THAT file's own chat id (never the open chat, never chat metadata), plus its own progress record; deps.alive() is re-read after every await and stops the loop when the runtime stops. A chat switch mid-run cannot misattribute a row, because the key is the file it read."
+    },
+    "src/runtime/playerSetupControl.ts#PlayerSetupControl.choose": {
+      "status": "checked",
+      "note": "v2.7 34: the start page's choice. One RunGuard for the whole choice; re-checked after settle (the persona writes) and after persist, before the requirements re-read and the hydrate that may post the opener. Tests: runtime/playerSetup.test.ts."
+    },
+    "src/runtime/playerSetupControl.ts#PlayerSetupControl.autoResolve": {
+      "status": "delegate",
+      "note": "v2.7 34: awaits PlayerSetupControl.settle, which owns the check; the guard is minted here, inside the load that called it."
+    },
+    "src/runtime/playerSetupControl.ts#PlayerSetupControl.avatarFor": {
+      "status": "checked",
+      "note": "v2.7 34: create then select; the token is re-checked after each host write, so a persona created for one chat is never selected after the chat changed. Tests: runtime/playerSetup.test.ts."
+    },
+    "src/runtime/playerSetupControl.ts#PlayerSetupControl.settle": {
+      "status": "checked",
+      "note": "v2.7 34: the chat lock is the last host write; the token is re-checked after it, before extras.playerSetup is written, so a lapsed choice records nothing. Tests: runtime/playerSetup.test.ts (lapsed control)."
+    },
+    "src/runtime/playerSetupControl.ts#PlayerSetupControl.switchBack": {
+      "status": "checked",
+      "note": "v2.7 34: the persona-switch finding's Switch back. Re-checked after the select and after the lock; it writes only the journal line and a notify."
     }
   }
 }

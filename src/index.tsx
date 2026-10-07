@@ -2,8 +2,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  addGroupMembers, bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
-  readProfileContextLimit, readProfilePresetName, setGroupMembersDisabled, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
+  readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
 import { inlinePresence } from "@runtime/presence";
@@ -22,10 +22,7 @@ import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
-import { runCastRepair } from "@runtime/castRepair";
-import { provisionableMissing, withoutPersonas, type OneClickFix, type RepairAction, type ShowMe } from "@runtime/repair";
-import { saveStoryRecord } from "@runtime/storyLibrary";
-import type { WriteResult } from "@utils/writeResult";
+import { provisionableMissing, type OneClickFix, type ShowMe } from "@runtime/repair";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -33,12 +30,10 @@ import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
 import MakeGroupCard from "./components/settings/MakeGroupCard";
-import { makeGroupFor } from "@runtime/makeGroupHost";
 import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import { HelpButton } from "./components/help/HelpButton";
-import BriefingHost from "./components/briefing/BriefingHost";
 import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
 import "./styles.css";
@@ -122,44 +117,13 @@ const openWizardForRequirements = async () => {
   });
 };
 
-const dropPersonaRequirement = async (names: string[]): Promise<WriteResult<object>> => {
-  const snapshot = manager.getSnapshot();
-  const active = snapshot.library.find((story) => story.id === snapshot.storyId);
-  const next = withoutPersonas(active?.raw ?? manager.getPlayedStoryRaw(), names);
-  if (!next) return { ok: false, reason: "No story is playing in this chat." };
-  const named = names.map((name) => `"${name}"`).join(", ");
-  const confirmed = await showConfirmPopup(`Remove the persona requirement ${named} from this story? The story is saved to the library and this chat takes the change.`, {
-    okButton: "Remove it", cancelButton: "Keep it",
-  });
-  if (!confirmed) return { ok: false, reason: `The story still requires ${named}.` };
-  const saved = saveStoryRecord(next);
-  if (Array.isArray(saved)) return { ok: false, reason: "The story could not be saved without that requirement; edit it in the Studio's Story tab." };
-  const outcome = await manager.applyStoryUpdate(saved.record);
-  return outcome.applied ? { ok: true } : { ok: false, reason: chatUpdateOutcome(outcome)?.detail ?? "The library has the change; this chat did not take it." };
-};
-
-const repairCast = async (action: RepairAction) => {
-  const result = await runCastRepair(action, {
-    add: addGroupMembers,
-    unmute: (names) => setGroupMembersDisabled(names, []),
-    dropPersonas: dropPersonaRequirement,
-    refresh: () => manager.refreshRequirementsNow(),
-    journal: (summary, detail) => manager.chatSave.note(summary, detail),
-    ownership: manager.requirementsHost.ownership,
-  });
-  if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
-};
-
 const openGroup = () => {
   const opened = openGroupMemberList();
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
-const fixSetup = async (action: OneClickFix) => {
-  if (action.kind !== "make-group") return repairCast(action);
-  const outcome = await makeGroupFor(manager, action.storyId);
-  if (!outcome.ok && outcome.reason !== "cancelled") window.toastr?.info?.(outcome.message, "Story Orchestrator");
-};
+const makeGroup = (storyId: string) => import("@runtime/makeGroupHost").then(({ makeGroupFor }) => makeGroupFor(manager, storyId));
+const fixSetup = (action: OneClickFix) => import("./setupFixes").then(({ createSetupFixes }) => createSetupFixes(manager).fixSetup(action));
 
 const showSetupTarget = (target: ShowMe) => {
   if (target.kind === "group-members") return openGroup();
@@ -228,6 +192,7 @@ const inlineActions: InlineActions = {
 const StudioModal = lazyRetry(() => import("./studio/StudioModal"));
 const InlineLayer = lazyRetry(() => import("./components/inline/InlineLayer"));
 const ImageChatPanel = lazyRetry(() => import("./image/ImageChatPanel"));
+const BriefingHost = lazyRetry(() => import("./components/briefing/BriefingHost"));
 
 const StudioHost = () => {
   const open = useSyncExternalStore(
@@ -285,7 +250,7 @@ const settingsHost: SettingsHost = {
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
   showFeature: (where) => showFeature(where),
-  makeGroup: (storyId) => makeGroupFor(manager, storyId),
+  makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
   openPlay: (row) => void openPlay(row),
   toggleHelp: () => togglePanel("help"),
@@ -355,7 +320,7 @@ const DrawerPanel = () => {
       </div>
       {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
       {!snapshot.ready && snapshot.noGroup && (
-        <MakeGroupCard id="so-make-group-drawer" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={(storyId) => makeGroupFor(manager, storyId)}
+        <MakeGroupCard id="so-make-group-drawer" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={makeGroup}
           onFixWithWizard={(storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId)} />
       )}
       {snapshot.ready && (
@@ -506,12 +471,13 @@ const mountInline = () => {
 };
 
 const BriefingRoot = () => (
-  <BriefingHost
+  <Lazy fallback={null}><BriefingHost
     snapshot={useRuntimeSnapshot()}
     setUi={(patch) => manager.setUiSettings(patch)}
     onboardingSeen={() => getGlobalSettings().help.onboardingSeen}
     markOnboardingSeen={() => { setGlobalSettings({ help: { onboardingSeen: true } }); }}
-  />
+    chooseIdentity={(request) => manager.playerSetup.choose(request)}
+  /></Lazy>
 );
 
 const mountBriefingHost = () => {

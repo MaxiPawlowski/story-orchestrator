@@ -88,6 +88,12 @@ describe("storyDiff classification table", () => {
     expect(run(edited((draft) => { draft.kind = "story"; })).classification).toBe("identical");
   });
 
+  it("v2.7 34: a player profile edit is compatible and is not reported as a card change", () => {
+    const result = run(edited((draft) => { draft.player = { role: "a courier" }; }));
+    expect(result.classification).toBe("compatible");
+    expect(result.entries).toEqual([expect.objectContaining({ code: "player-profile-changed", path: "player" })]);
+  });
+
   it("keeps an objective_block switch compatible, in both directions (v2.4 plan 06 X14)", () => {
     const off = edited((draft) => { draft.objective_block = "off"; });
     const result = run(off);

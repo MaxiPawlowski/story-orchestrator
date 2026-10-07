@@ -132,6 +132,9 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
       groups: (ctx.groups ?? []).filter((entry) => inScope('group', entry?.name, String(entry?.id))).map((entry) => ({ id: entry.id, name: entry.name })),
       // A marked story's memory mirror: `Story Orchestrator - <title> - <chatId>` (runtime/memoryMirror.ts).
       lorebooks: wi.filter((name) => inScope('lorebook', name, lower(name)) || lower(name).startsWith(`story orchestrator - ${needle}`)),
+      personas: Object.entries((ctx.powerUserSettings?.personas ?? {}) as Record<string, string>)
+        .filter(([avatar, name]) => lower(name).startsWith(needle) || lower(ctx.powerUserSettings?.persona_descriptions?.[avatar]?.title ?? '').startsWith(`story: ${needle}`))
+        .map(([avatar, name]) => ({ avatar, name })),
       protected: spared,
     };
   }, { marker: requireMarker(marker), baseline: usable, pinned: ledger });
@@ -150,7 +153,7 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
   return baseline && !usable ? { ...scoped, baselineUntrusted: reasons } : scoped;
 }
 
-export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length
+export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length + (found.personas?.length ?? 0)
   + (found.regexScripts?.length ?? 0) + (found.qrSets?.length ?? 0) + (found.sprites?.length ?? 0) + (found.spriteReferences?.length ?? 0);
 
 export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null } = {}) {
@@ -163,7 +166,7 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
   const removed = await evaluateInST(page, async ({ targets, baseline, books }) => {
     const ctx = SillyTavern.getContext();
     const headers = ctx.getRequestHeaders();
-    const report: { characters: string[]; groups: string[]; expressions: string[]; lorebooks: string[]; lorebooksViaHost: string[]; lorebooksUnlisted: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], expressions: [], lorebooks: books.lorebooks, lorebooksViaHost: books.viaHost, lorebooksUnlisted: books.unlisted, regexScripts: [], qrSets: [], evicted: books.evicted, staleCache: books.staleCache, errors: [...books.errors] };
+    const report: { characters: string[]; groups: string[]; expressions: string[]; lorebooks: string[]; lorebooksViaHost: string[]; lorebooksUnlisted: string[]; regexScripts: string[]; qrSets: string[]; personas: string[]; evicted: string[]; staleCache: string[]; errors: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], expressions: [], personas: [], lorebooks: books.lorebooks, lorebooksViaHost: books.viaHost, lorebooksUnlisted: books.unlisted, regexScripts: [], qrSets: [], evicted: books.evicted, staleCache: books.staleCache, errors: [...books.errors] };
     const post = async (url: string, body: unknown, label: string) => {
       const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
       if (!response.ok) report.errors.push(`${label}: ${response.status}`);
@@ -188,6 +191,11 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       if (await post('/api/characters/delete', { avatar_url: character.avatar, delete_chats: true }, `character ${character.name}`)) report.characters.push(character.name);
     }
     await ctx.getCharacters?.();
+    for (const persona of targets.personas ?? []) {
+      const result = await ctx.executeSlashCommandsWithOptions(`/persona-delete persona="${persona.avatar}" silent=true`, { handleParserErrors: false, handleExecutionErrors: true });
+      if (result?.pipe === 'true') report.personas.push(persona.name);
+      else report.errors.push(`persona ${persona.name}: delete refused`);
+    }
     if (targets.regexScripts.length && Array.isArray(ctx.extensionSettings?.regex)) {
       const ids = new Set(targets.regexScripts.map((script) => script.id));
       const before = ctx.extensionSettings.regex;
@@ -247,7 +255,7 @@ packs have no generated ownership and are never removed, except the root express
   --baseline <file>        an asset baseline (so-journey writes .debug/so-journey-asset-baseline.json).
                            Never implied: a stale one would count every ledger entry since it was taken.
 
-  list          print in-scope characters / groups / lorebooks / regex scripts / QR sets
+  list          print in-scope characters / groups / lorebooks / personas (marker-named, or titled "Story: <marker…>" by a story's start page) / regex scripts / QR sets
   remove        delete them, drop the test sessions, evict deleted books from the page cache, re-check
   assert-clean  exit 1 if any in-scope asset is still present`;
 

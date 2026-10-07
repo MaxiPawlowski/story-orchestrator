@@ -1,33 +1,42 @@
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
 
-export async function readBriefingSetting(page): Promise<boolean | null> {
-  return evaluateInST(page, () => {
-    const value = globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.display?.briefing;
+export type StartDisplayKey = 'briefing' | 'playerSetup';
+
+export async function readDisplaySetting(page, key: StartDisplayKey): Promise<boolean | null> {
+  return evaluateInST(page, (name) => {
+    const value = globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.display?.[name];
     return typeof value === 'boolean' ? value : null;
-  });
+  }, key);
 }
 
-async function writeBriefingSetting(page, on: boolean) {
-  await evaluateInST(page, (value) => { globalThis.storyOrchestratorRuntime?.setUiSettings?.({ briefing: value }); return true; }, on);
+export const readBriefingSetting = (page): Promise<boolean | null> => readDisplaySetting(page, 'briefing');
+
+async function writeDisplaySetting(page, key: StartDisplayKey, on: boolean) {
+  await evaluateInST(page, ({ name, value }) => { globalThis.storyOrchestratorRuntime?.setUiSettings?.({ [name]: value }); return true; }, { name: key, value: on });
   const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
-  const verified = await readBriefingSetting(page);
+  const verified = await readDisplaySetting(page, key);
   return { saved, verified, ok: verified === on && !('error' in saved) };
 }
 
-export async function suppressBriefing(page) {
-  const before = await readBriefingSetting(page);
+export async function suppressDisplay(page, key: StartDisplayKey) {
+  const before = await readDisplaySetting(page, key);
   if (before !== true) return { changed: false, before };
-  return { changed: true, before, ...(await writeBriefingSetting(page, false)) };
+  return { changed: true, before, ...(await writeDisplaySetting(page, key, false)) };
 }
 
-export async function restoreBriefing(page, before: boolean | null) {
+export async function restoreDisplay(page, key: StartDisplayKey, before: boolean | null) {
   if (before === null) return { restored: false, reason: 'no pre-run capture' };
-  const now = await readBriefingSetting(page);
+  const now = await readDisplaySetting(page, key);
   if (now === before) return { restored: false, unchanged: true, value: before };
-  const written = await writeBriefingSetting(page, before);
-  return { restored: true, from: now, to: before, ...written, ...(written.ok ? {} : { error: 'the briefing setting did not read back as restored' }) };
+  const written = await writeDisplaySetting(page, key, before);
+  return { restored: true, from: now, to: before, ...written, ...(written.ok ? {} : { error: `the ${key} setting did not read back as restored` }) };
 }
+
+export const suppressBriefing = (page) => suppressDisplay(page, 'briefing');
+export const restoreBriefing = (page, before: boolean | null) => restoreDisplay(page, 'briefing', before);
+export const suppressPlayerSetup = (page) => suppressDisplay(page, 'playerSetup');
+export const restorePlayerSetup = (page, before: boolean | null) => restoreDisplay(page, 'playerSetup', before);
 
 export interface BriefingModalState {
   open: boolean;
@@ -67,4 +76,57 @@ export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000
   await page.locator('#so-briefing-start').click();
   await page.waitForFunction(() => !(document.querySelector('dialog#so-briefing') as HTMLDialogElement | null)?.open, null, { timeout: timeoutMs });
   return { before, after: await readBriefingModal(page) };
+}
+
+export interface PlayerSetupPaneState {
+  open: boolean;
+  role: string | null;
+  current: string | null;
+  done: string | null;
+  canCreate: boolean;
+  choices: string[];
+  pending: boolean | null;
+  chatLock: string | null;
+}
+
+export async function readPlayerSetup(page): Promise<PlayerSetupPaneState> {
+  return evaluateInST(page, () => {
+    const pane = document.querySelector('#so-player-setup');
+    const text = (selector: string) => pane?.querySelector(selector)?.textContent?.trim() ?? null;
+    const host = globalThis as unknown as { SillyTavern?: { getContext?: () => { chatMetadata?: Record<string, unknown> } } };
+    const lock = host.SillyTavern?.getContext?.()?.chatMetadata?.persona;
+    return {
+      open: Boolean(pane),
+      role: text('[data-so="player-setup-role"]'),
+      current: text('[data-so="player-setup-current"]'),
+      done: text('[data-so="player-setup-done"]'),
+      canCreate: Boolean(pane?.querySelector('[data-so="player-setup-create"]')),
+      choices: Array.from(pane?.querySelectorAll('[data-so^="player-setup-"]') ?? []).map((node) => node.getAttribute('data-so') ?? '').filter((id) => /-(keep|pick|create)$/.test(id)),
+      pending: globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.playerSetup?.pending ?? null,
+      chatLock: typeof lock === 'string' && lock ? lock : null,
+    };
+  });
+}
+
+export const PLAYER_SETUP_CHOICES = ['keep', 'pick', 'create', 'skip'] as const;
+export type PlayerSetupChoiceArg = (typeof PLAYER_SETUP_CHOICES)[number];
+
+export async function choosePlayerSetup(page, choice: PlayerSetupChoiceArg, name = '', { timeoutMs = 10000 } = {}) {
+  const before = await readPlayerSetup(page);
+  if (!before.open) throw new Error('no start-setup pane is open (#so-player-setup)');
+  if (choice === 'skip') await page.locator('#so-briefing-start').click();
+  if (choice === 'keep') await page.locator('[data-so="player-setup-keep"]').click();
+  if (choice === 'pick') {
+    if (!name) throw new Error('player-setup-choose pick needs a persona name');
+    await page.locator('#so-player-setup-pick').selectOption({ label: name });
+    await page.locator('[data-so="player-setup-pick"]').click();
+  }
+  if (choice === 'create') {
+    await page.locator('[data-so="player-setup-create-form"] summary').click();
+    if (name) await page.locator('#so-player-setup-name').fill(name);
+    await page.locator('[data-so="player-setup-create"]').click();
+  }
+  await page.waitForFunction(() => globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.playerSetup?.pending === false, null, { timeout: timeoutMs });
+  const after = await readPlayerSetup(page);
+  return { before, after, locked: Boolean(after.chatLock) };
 }

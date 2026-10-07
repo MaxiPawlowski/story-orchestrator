@@ -158,7 +158,10 @@ export const REQUIREMENT_CHECKS: readonly Check[] = [
     return hidden.length ? { consequence: "Another extension is hiding this story's lorebook from the model.", detail: `Hidden from the model: ${hidden.join(", ")}` } : null;
   }, "story-lorebooks"),
   story("persona-absent", "persona", "player", fromRequirements(personaAbsent), "stories"),
-  story("persona-unselected", "persona", "player", fromRequirements(personaUnselected), "stories"),
+  story("persona-unselected", "persona", "player", (snapshot) => {
+    const finding = fromRequirements(personaUnselected)(snapshot);
+    return finding && snapshot.playerSetup?.beforeFirstMessage ? { ...finding, action: { kind: "open-player-setup", label: "Open the start page" } } : finding;
+  }, "stories"),
   story("memory-slot-taken", "lore", "author", (snapshot) => {
     const displaced = snapshot.requirements?.slotConflict;
     return displaced && snapshot.memory?.wiBook ? {

@@ -1,0 +1,18 @@
+export const PLAYER_SETUP_COPY = {
+  heading: "Who you are in this story",
+  assumes: "The story takes for granted:",
+  current: "Your persona:",
+  fixed: (name: string) => `This story is played as "${name}".`,
+  keep: (name: string) => `Play as ${name}`,
+  pick: "Choose another persona",
+  pickButton: "Use this persona",
+  create: "Create a persona for this story",
+  createName: "Name",
+  createDescription: "Description (the characters read this)",
+  createButton: "Create and use",
+  noCreate: "This SillyTavern version cannot create personas from here; create one in Persona Management, then choose it.",
+  playingAs: (name: string) => `Playing as ${name}. This chat keeps that persona for the whole story.`,
+  oldName: "Earlier messages in this chat keep the old name.",
+  yourCharacter: "Your character in this story",
+  lockedHint: "Chosen when the story started. To play someone else, start the story again.",
+} as const;
