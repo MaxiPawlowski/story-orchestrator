@@ -67,23 +67,33 @@ const impliesOpen = (held: GateLeaf, wanted: GateLeaf): boolean => {
   }
 };
 
-const optionsOf = (quality: Quality | undefined): PrimitiveValue[] | null => {
-  if (quality?.type === "bool") return [true, false];
+const BOOL_OPTIONS: readonly PrimitiveValue[] = Object.freeze([true, false]);
+
+const optionsOf = (quality: Quality | undefined): readonly PrimitiveValue[] | null => {
+  if (quality?.type === "bool") return BOOL_OPTIONS;
   return quality?.type === "enum" && quality.values?.length ? quality.values : null;
 };
 
-const allowed = (leaf: GateLeaf, options: PrimitiveValue[]): PrimitiveValue[] | null => {
+const allowed = (leaf: GateLeaf, options: readonly PrimitiveValue[]): PrimitiveValue[] | null => {
   if (leaf.op === "==") return options.filter((option) => option === scalar(leaf.v));
   if (leaf.op === "!=") return options.filter((option) => option !== scalar(leaf.v));
   if (leaf.op === "in" && Array.isArray(leaf.v)) return options.filter((option) => (leaf.v as PrimitiveValue[]).includes(option));
   return null;
 };
 
-const implies = (held: GateLeaf, wanted: GateLeaf, quality: Quality | undefined): boolean => {
+const allowedFor = (index: ArrivalIndex, leaf: GateLeaf): PrimitiveValue[] | null => {
+  if (index.allowed.has(leaf)) return index.allowed.get(leaf) ?? null;
+  if (!index.options.has(leaf.q)) index.options.set(leaf.q, optionsOf(index.qualities.get(leaf.q)));
+  const options = index.options.get(leaf.q);
+  const result = options ? allowed(leaf, options) : null;
+  index.allowed.set(leaf, result);
+  return result;
+};
+
+const implies = (index: ArrivalIndex, held: GateLeaf, wanted: GateLeaf): boolean => {
   if (held.q !== wanted.q) return false;
-  const options = optionsOf(quality);
-  const given = options ? allowed(held, options) : null;
-  const needed = options ? allowed(wanted, options) : null;
+  const given = allowedFor(index, held);
+  const needed = allowedFor(index, wanted);
   if (given && needed && given.length) return given.every((option) => needed.includes(option));
   return impliesOpen(held, wanted);
 };
@@ -100,10 +110,26 @@ interface Fact {
 const snapshotLeaves = (snapshot: Record<string, PrimitiveValue> | undefined): GateLeaf[] =>
   Object.entries(snapshot ?? {}).map(([q, v]) => ({ q, op: "==", v }));
 
-const byQuality = (leaves: GateLeaf[]): Map<string, GateLeaf[]> => {
+const byQuality = (index: ArrivalIndex, leaves: GateLeaf[]): Map<string, GateLeaf[]> => {
+  const cached = index.grouped.get(leaves);
+  if (cached) return cached;
   const grouped = new Map<string, GateLeaf[]>();
-  leaves.forEach((leaf) => grouped.set(leaf.q, [...(grouped.get(leaf.q) ?? []), leaf]));
+  leaves.forEach((leaf) => {
+    const list = grouped.get(leaf.q);
+    if (list) list.push(leaf);
+    else grouped.set(leaf.q, [leaf]);
+  });
+  index.grouped.set(leaves, grouped);
   return grouped;
+};
+
+const NO_LEAVES: GateLeaf[] = [];
+
+const conjunctsOf = (index: ArrivalIndex, gate: GateNode): GateLeaf[] | null => {
+  if (index.conjuncts.has(gate)) return index.conjuncts.get(gate) ?? null;
+  const leaves = conjuncts(gate);
+  index.conjuncts.set(gate, leaves);
+  return leaves;
 };
 
 interface ArrivalIndex {
@@ -112,6 +138,10 @@ interface ArrivalIndex {
   incoming: Map<string, Transition[]>;
   snapshots: Map<string, GateLeaf[]>;
   routes: Map<string, Transition[][]>;
+  conjuncts: WeakMap<GateNode, GateLeaf[] | null>;
+  grouped: WeakMap<GateLeaf[], Map<string, GateLeaf[]>>;
+  options: Map<string, readonly PrimitiveValue[] | null>;
+  allowed: WeakMap<GateLeaf, PrimitiveValue[] | null>;
 }
 
 const arrivalIndex = (draft: StoryV2): ArrivalIndex => {
@@ -123,6 +153,10 @@ const arrivalIndex = (draft: StoryV2): ArrivalIndex => {
     incoming,
     snapshots: new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, snapshotLeaves(checkpoint.state_snapshot)])),
     routes: new Map(),
+    conjuncts: new WeakMap(),
+    grouped: new WeakMap(),
+    options: new Map(),
+    allowed: new WeakMap(),
   };
 };
 
@@ -130,33 +164,42 @@ const routesInto = (index: ArrivalIndex, target: string): Transition[][] => {
   const cached = index.routes.get(target);
   if (cached) return cached;
   const routes: Transition[][] = [];
-  const walk = (route: Transition[], seen: Set<string>) => {
+  const reversed: Transition[] = [];
+  const seen = new Set<string>([target]);
+  const step = (entry: Transition) => {
+    reversed.push(entry);
+    seen.add(entry.from);
+    walk();
+    seen.delete(entry.from);
+    reversed.pop();
+  };
+  const walk = () => {
     if (routes.length >= MAX_ROUTES) return;
-    const before = (index.incoming.get(route[0].from) ?? []).filter((entry) => !seen.has(entry.from));
+    const before = (index.incoming.get(reversed[reversed.length - 1].from) ?? []).filter((entry) => !seen.has(entry.from));
     if (!before.length) {
-      routes.push(route);
+      routes.push(reversed.slice().reverse());
       return;
     }
-    before.forEach((entry) => walk([entry, ...route], new Set([...seen, entry.from])));
+    before.forEach(step);
   };
-  (index.incoming.get(target) ?? []).forEach((entry) => walk([entry], new Set([target, entry.from])));
+  (index.incoming.get(target) ?? []).forEach(step);
   routes.sort((left, right) => left.length - right.length);
   index.routes.set(target, routes);
   return routes;
 };
 
-const learn = (facts: Map<string, Fact>, leaves: GateLeaf[], origin: string, entering: boolean) => {
-  byQuality(leaves).forEach((grouped, q) => {
+const learn = (index: ArrivalIndex, facts: Map<string, Fact>, leaves: GateLeaf[], origin: string, entering: boolean) => {
+  byQuality(index, leaves).forEach((grouped, q) => {
     if (!facts.has(q)) facts.set(q, { leaves: grouped, origin, entering });
   });
 };
 
-const openedBy = (facts: Map<string, Fact>, wanted: GateLeaf[], qualities: Map<string, Quality>): Fact[] | null => {
+const openedBy = (index: ArrivalIndex, facts: Map<string, Fact>, wanted: GateLeaf[]): Fact[] | null => {
   const used: Fact[] = [];
   for (const leaf of wanted) {
     const fact = facts.get(leaf.q);
-    if (!fact || !(fact.entering || persists(qualities.get(leaf.q)))) return null;
-    if (!fact.leaves.some((given) => implies(given, leaf, qualities.get(leaf.q)))) return null;
+    if (!fact || !(fact.entering || persists(index.qualities.get(leaf.q)))) return null;
+    if (!fact.leaves.some((given) => implies(index, given, leaf))) return null;
     if (!used.includes(fact)) used.push(fact);
   }
   return used;
@@ -173,19 +216,18 @@ const reason = (exit: Transition, route: Transition[], used: Fact[]): string => 
 };
 
 const exitOpenOnArrival = (index: ArrivalIndex, exit: Transition): string | null => {
-  const { qualities } = index;
-  const wanted = conjuncts(exit.gate);
+  const wanted = conjunctsOf(index, exit.gate);
   if (!wanted?.length || exit.from === exit.to) return null;
-  const own = index.snapshots.get(exit.from) ?? [];
-  if (own.length && wanted.every((leaf) => own.some((given) => implies(given, leaf, qualities.get(leaf.q))))) return "the checkpoint's own state_snapshot already sets it";
+  const own = index.snapshots.get(exit.from) ?? NO_LEAVES;
+  if (own.length && wanted.every((leaf) => own.some((given) => implies(index, given, leaf)))) return "the checkpoint's own state_snapshot already sets it";
   for (const route of routesInto(index, exit.from)) {
     const facts = new Map<string, Fact>();
     for (let start = route.length - 1; start >= 0; start -= 1) {
       const edge = route[start];
       const entering = start === route.length - 1;
-      learn(facts, index.snapshots.get(edge.to) ?? [], `the state_snapshot of '${edge.to}'`, entering);
-      learn(facts, conjuncts(edge.gate) ?? [], `when the story left '${edge.from}'`, entering);
-      const used = openedBy(facts, wanted, qualities);
+      learn(index, facts, index.snapshots.get(edge.to) ?? NO_LEAVES, `the state_snapshot of '${edge.to}'`, entering);
+      learn(index, facts, conjunctsOf(index, edge.gate) ?? NO_LEAVES, `when the story left '${edge.from}'`, entering);
+      const used = openedBy(index, facts, wanted);
       if (used) return reason(exit, route.slice(start), used);
     }
   }

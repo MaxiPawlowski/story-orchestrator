@@ -19,11 +19,24 @@ const fold = (text: string) => text.trim().toLowerCase();
 
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const names = (text: string, term: string): boolean => {
+const MAX_PATTERNS = 4096;
+const patterns = new Map<string, RegExp | null>();
+
+const patternFor = (term: string): RegExp | null => {
   const needle = fold(term);
-  if (needle.length < MIN_TERM && !ID_SHAPE.test(needle)) return false;
-  return new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(needle)}(?![\\p{L}\\p{N}_])`, "u").test(fold(text));
+  const cached = patterns.get(needle);
+  if (cached !== undefined) return cached;
+  const pattern = needle.length < MIN_TERM && !ID_SHAPE.test(needle)
+    ? null
+    : new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(needle)}(?![\\p{L}\\p{N}_])`, "u");
+  if (patterns.size >= MAX_PATTERNS) patterns.clear();
+  patterns.set(needle, pattern);
+  return pattern;
 };
+
+const namesFolded = (folded: string, term: string): boolean => patternFor(term)?.test(folded) ?? false;
+
+const names = (text: string, term: string): boolean => namesFolded(fold(text), term);
 
 export interface Terms {
   checkpoints: string[];
@@ -83,13 +96,25 @@ const fields = (briefing: StoryBriefing, path: string): Array<[string, string]> 
   ]),
 ];
 
-const unique = (terms: string[]) => terms.filter((term, index) => terms.findIndex((other) => fold(other) === fold(term)) === index);
+const unique = (terms: string[]) => {
+  const seen = new Set<string>();
+  return terms.filter((term) => {
+    const key = fold(term);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
 
-export const namesTerms = (text: string, terms: Terms): string[] => [
-  ...unique(terms.checkpoints).filter((term) => names(text, term)).map((term) => `a later checkpoint ('${term}')`),
-  ...unique(terms.values).filter((term) => names(text, term)).map((term) => `a story value ('${term}')`),
-  ...unique(terms.muted).filter((term) => names(text, term)).map((term) => `a character who is not in the scene at the start ('${term}')`),
-];
+export const namesTerms = (text: string, terms: Terms): string[] => {
+  const folded = fold(text);
+  const named = (term: string) => namesFolded(folded, term);
+  return [
+    ...unique(terms.checkpoints).filter(named).map((term) => `a later checkpoint ('${term}')`),
+    ...unique(terms.values).filter(named).map((term) => `a story value ('${term}')`),
+    ...unique(terms.muted).filter(named).map((term) => `a character who is not in the scene at the start ('${term}')`),
+  ];
+};
 
 export const briefingTermsFor = (draft: StoryV2, startId: string): Terms => storyTerms(draft, startId);
 
