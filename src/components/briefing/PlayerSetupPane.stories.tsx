@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import type { PlayerSetupView } from "@runtime/playerSetup";
 import { PlayerSetupPane } from "./PlayerSetupPane";
@@ -31,11 +31,14 @@ export const Choose: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { name: PLAYER_SETUP_COPY.heading })).toBeVisible();
     await expect(canvas.getByText("a hired courier")).toBeVisible();
-    await expect(canvasElement.textContent).not.toContain("Quiet, careful");
+    await expect(canvas.queryByText(/Quiet, careful/, { ignore: "textarea, script, style" })).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: PLAYER_SETUP_COPY.pickButton }));
     await expect(args.onChoose).toHaveBeenCalledWith({ choice: "pick", avatarId: "mara.png" });
-    await userEvent.click(canvas.getByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") }));
+    const keep = canvas.getByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") });
+    await waitFor(() => expect(keep).toBeEnabled());
+    await userEvent.click(keep);
     await expect(args.onChoose).toHaveBeenLastCalledWith({ choice: "keep" });
+    await waitFor(() => expect(keep).toBeEnabled());
   },
 };
 

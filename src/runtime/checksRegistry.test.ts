@@ -126,9 +126,9 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
 
   it("control: a degrades check moved ahead of every blocks check still lists after them", () => {
     const thinking = CHECKS.find((check) => check.id === "model-not-thinking") as Check;
-    const blocks = REPAIR_ORDER.slice(0, REPAIR_ORDER.indexOf("save-unconfirmed") + 1);
+    const blocks = REPAIR_ORDER.filter((id) => CHECKS.find((check) => check.id === id)?.severity === "blocks");
     expect(repairOrder([thinking, ...CHECKS.filter((check) => check !== thinking)]))
-      .toEqual([...blocks, "model-not-thinking", ...REPAIR_ORDER.slice(blocks.length).filter((id) => id !== "model-not-thinking")]);
+      .toEqual([...blocks, "model-not-thinking", ...REPAIR_ORDER.filter((id) => !blocks.includes(id) && id !== "model-not-thinking")]);
   });
 
   it("keeps the shipped degrades rows (privacy, thinking) in Repair", () => {
