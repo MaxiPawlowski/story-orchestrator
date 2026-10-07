@@ -24,6 +24,14 @@ export const blockingLines = (snapshot: RuntimeSnapshot): string[] => beforeYouS
 
 export const identityDue = (snapshot: RuntimeSnapshot): boolean => Boolean(snapshot.playerSetup?.pending && (snapshot.playerSetup.needsPane || snapshot.playerSetup.record?.lockFailed));
 
+export const duePaneEmpty = (snapshot: RuntimeSnapshot, canChoose: boolean): boolean => {
+  const state = snapshot.briefing ?? null;
+  const setup = snapshot.playerSetup ?? null;
+  const briefing = Boolean(state?.enabled && state.view);
+  const identity = Boolean(canChoose && setup?.record && (setup.needsPane || setup.record.lockFailed));
+  return !briefing && !identity && blockingLines(snapshot).length === 0;
+};
+
 export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen, chooseIdentity }: BriefingHostProps) => {
   const [opened, setOpened] = useState<Opened | null>(null);
   const latest = useRef(snapshot);
@@ -52,6 +60,11 @@ export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSe
   useEffect(() => {
     if (opened && opened.kind !== "preview" && opened.storyId !== storyId) setOpened(null);
   }, [opened, storyId]);
+
+  const empty = duePaneEmpty(snapshot, Boolean(chooseIdentity));
+  useEffect(() => {
+    if (opened?.kind === "due" && empty) setOpened(null);
+  }, [opened, empty]);
 
   if (!opened) return null;
   if (opened.kind === "preview") return <BriefingModal briefing={opened.view} chapter={opened.chapter} onClose={() => setOpened(null)} />;
