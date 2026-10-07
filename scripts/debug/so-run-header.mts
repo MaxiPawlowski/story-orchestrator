@@ -20,6 +20,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
 import { readLivePresets } from './lib/sessionPageReads.mts';
 import type { LivePresets } from './lib/presetOverlay.mts';
+import { laneHeaderField } from './lib/lanePods.mts';
 
 const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [options]
 
@@ -50,6 +51,7 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
 
 Fields: build.head/manifest (dist), campaign.pinCommit/pinBranch (adolion-fresh pin) and
 campaign.installed.commit/sha256 (this lane's adolion-fresh inventory, null off an adolion-fresh lane),
+lane.n/pod/port/podId (SO_LANE and <lane>/pod.json from st-lanes.mts pod; pod 0 when unassigned, null off a lane),
 bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
 judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
@@ -394,7 +396,8 @@ export async function captureHeader(page, label: string) {
   if (thirdParty.installed === null) page_.warnings = [...page_.warnings, 'the installed extension list was not read (/api/extensions/discover): an extension installed or removed by a run cannot be diffed'];
   const { campaign, warnings: campaignWarnings } = readCampaign();
   page_.warnings = [...page_.warnings, ...campaignWarnings];
-  return { label, capturedAt: new Date().toISOString(), build, campaign, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, prompt, thirdParty };
+  const lane = laneHeaderField(process.env.SO_LANE, resolve(DEBUG_DIR, '..'));
+  return { label, capturedAt: new Date().toISOString(), build, campaign, lane, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, prompt, thirdParty };
 }
 
 // Flatten to dot-paths so a diff names the exact field. Arrays stay whole at their leaf, because
