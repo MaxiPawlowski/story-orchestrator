@@ -484,6 +484,7 @@ export interface RuntimeSnapshot {
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
+  stylesMissing?: boolean;
   /** Transcript copiers switched on while a group plays a story, held secret or not: the player alert must not reveal that one is held. */
   secretLeaks?: string[];
   /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */

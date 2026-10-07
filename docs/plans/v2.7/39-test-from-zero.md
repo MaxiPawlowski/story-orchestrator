@@ -223,13 +223,13 @@ name), members, judge: "off"}` and mocks every model call; run each `node script
 
 | Block | Lane-hours (est.) |
 |---|---|
-| B1 measurements (35 Phase 1 + M2 ≈ 7–9, 36 M1/M2 ≈ 2; 37 M1/M2 and S-17 are CL) | ~9–11 |
+| B1 measurements (35 Phase 1 + M2 ≈ 7–9; 36 M1/M2, 37 M1/M2 and S-17 are CL: DeepSeek reads on cloud lanes, no pod, reconciled with the manifest 2026-10-07, 39a owner note) | ~7–9 |
 | B1 rows from v2.8 01 (B1-C3 + B1-C12 shared play ≈ 2, B1-R4 16 pairs ≈ 2; B1-C13b is CL) | ~4 |
 | C4 journeys ×2 | ~6 |
 | C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 37 M3, S-19, 02/08–10 O-rows; C4-R6 + C4-J8 ≈ 1.5) | ~20.5–22.5 |
 | C7 Adolion ×2 | ~6 |
 | C8 smoke, C8b stranger install | 0 (DeepSeek) |
-| **Total** | **~45.5–49.5 lane-hours ≈ 24–27 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $17–19.5; at most the approved ≈ 27 pod-hours / ≈ $20 with a 150% stop; was ~40–44 ≈ 21–24 before the v2.8 01 split added ≈ 5.5 lane-hours) |
+| **Total** | **~43.5–47.5 lane-hours ≈ 23–26 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $16.5–19; was ~45.5–49.5 ≈ 24–27 while 36 M1/M2 were charged to the pod; at most the approved ≈ 27 pod-hours / ≈ $20 with a 150% stop; was ~40–44 ≈ 21–24 before the v2.8 01 split added ≈ 5.5 lane-hours) |
 
 Pod rules: `v2.6 gotchas` (direct SSH tunnel, `MAX_UPTIME_HOURS`, restart renews the window, record ports); stop the
 pod at every pause; `test/sessions/BUDGET.md` updated per block.

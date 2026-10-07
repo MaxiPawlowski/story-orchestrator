@@ -1,0 +1,87 @@
+{
+  "format": 2,
+  "id": "so-v2734-fixed-name",
+  "version": 1,
+  "title": "SO-V2734 Fixed Name",
+  "description": "v2.7 plan 34 no-model fixture: a player block, a briefing and a scripted new-chat opener.",
+  "player": {
+    "role": "a lantern-bearer for hire",
+    "summary": "You carry the only light on the old mine road.",
+    "assumes": [
+      "can read a map"
+    ],
+    "name": {
+      "mode": "fixed",
+      "value": "SO-V2734 Fixed"
+    }
+  },
+  "briefing": {
+    "title": "The Mine Road",
+    "start_label": "Light the lamp",
+    "sections": [
+      {
+        "heading": "Where you are",
+        "text": "A gravel road climbing toward a shut mine, the last lamp-post behind you."
+      }
+    ]
+  },
+  "qualities": [
+    {
+      "key": "reached_gate",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party reached the mine gate?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "road",
+      "name": "The mine road",
+      "type": "anchor",
+      "start": true,
+      "objective": "Walk the road to the gate.",
+      "effects": {
+        "npc_replies": [
+          {
+            "member": "DM Narrator",
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "new_chat_only": true,
+            "text": "SO-V2734-OPENER The lamps along the mine road gutter as you arrive."
+          }
+        ]
+      }
+    },
+    {
+      "id": "gate",
+      "name": "The mine gate",
+      "type": "anchor",
+      "objective": "Open the gate."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "road",
+      "to": "gate",
+      "priority": 1,
+      "gate": {
+        "q": "reached_gate",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "role": "a guide who knows the road"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ]
+}

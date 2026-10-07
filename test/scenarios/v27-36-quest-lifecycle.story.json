@@ -1,0 +1,46 @@
+{
+  "format": 2,
+  "id": "so-v27-36-quest-lifecycle",
+  "version": 1,
+  "title": "SO-V27-36 Quest Lifecycle",
+  "description": "v2.7 plan 39 row S-16 no-model fixture: an offer the party ignores, an offer it accepts and completes, and a quest that is done and failed in one boundary.",
+  "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }],
+  "qualities": [
+    { "key": "heard_rumour", "type": "bool", "source": "extractor", "rubric": "Did the party hear the harbour rumours?" },
+    { "key": "accepted_debt", "type": "bool", "source": "extractor", "rubric": "Did the party agree to settle the ferryman's debt?" },
+    { "key": "accepted_cat", "type": "bool", "source": "extractor", "rubric": "Did the party agree to look for the lost cat?" },
+    { "key": "paid", "type": "bool", "source": "extractor", "rubric": "Was the ferryman's debt paid?" },
+    { "key": "found_map", "type": "bool", "source": "extractor", "rubric": "Did the party find the smuggler's map?" },
+    { "key": "lost_map", "type": "bool", "source": "extractor", "rubric": "Did the party lose the smuggler's map?" },
+    { "key": "left_town", "type": "bool", "source": "extractor", "rubric": "Has the party left town?" },
+    { "key": "coins", "type": "int", "source": "code", "rubric": "Coins the party earned from quests." }
+  ],
+  "checkpoints": [
+    { "id": "harbour", "name": "The harbour", "player_name": "The harbour", "objective": "Look around the harbour.", "type": "anchor", "start": true },
+    { "id": "road", "name": "The road", "player_name": "The road", "objective": "Travel on.", "type": "anchor" }
+  ],
+  "transitions": [{ "from": "harbour", "to": "road", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }],
+  "quests": [
+    {
+      "id": "cat", "title": "The lost cat", "kind": "side", "giver": "arin",
+      "offered_when": { "q": "heard_rumour", "op": "==", "v": true },
+      "visible_when": { "q": "accepted_cat", "op": "==", "v": true },
+      "done_when": { "q": "paid", "op": "==", "v": true },
+      "reward": { "set": { "coins": { "add": 100 } }, "label": "A grateful owner" }
+    },
+    {
+      "id": "debt", "title": "The ferryman's debt", "kind": "side", "giver": "narrator",
+      "offered_when": { "q": "heard_rumour", "op": "==", "v": true },
+      "visible_when": { "q": "accepted_debt", "op": "==", "v": true },
+      "steps": [{ "text": "Pay what is owed", "done_when": { "q": "paid", "op": "==", "v": true } }],
+      "reward": { "set": { "coins": { "add": 3 } }, "label": "Free passage" }
+    },
+    {
+      "id": "map", "title": "The smuggler's map", "kind": "side",
+      "visible_when": { "q": "heard_rumour", "op": "==", "v": true },
+      "done_when": { "q": "found_map", "op": "==", "v": true },
+      "failed_when": { "q": "lost_map", "op": "==", "v": true },
+      "reward": { "set": { "coins": { "add": 10 } }, "label": "The smuggler's cut" }
+    }
+  ]
+}

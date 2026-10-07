@@ -1,0 +1,37 @@
+{
+  "format": 2,
+  "id": "so-v27-37-agenda-effect",
+  "version": 1,
+  "title": "SO-V27-37D3 Agenda Effect",
+  "description": "v2.7 plan 37 no-model fixture: an agenda whose first step posts a scripted narrator line and whose second step enables a test lorebook entry.",
+  "requirements": { "lorebooks": ["SO-V27-37D3 Lore"] },
+  "roster": [
+    {
+      "id": "arin", "name": "Arin", "role": "a guide with a debt",
+      "agenda": [{
+        "id": "debt", "goal": "Repay the smuggler before the festival", "pace": "per_n_boundaries", "every": 2,
+        "steps": [
+          {
+            "text": "SO-D3-STEP-ONE sold a ring at the market",
+            "effect": { "npc_replies": [{ "trigger": "onEnter", "member": "narrator", "kind": "scripted", "text": "SO-D3-NPC-LINE A ring glints at a stall." }] }
+          },
+          {
+            "text": "SO-D3-STEP-TWO paid the smuggler", "public": true,
+            "effect": { "world_info": { "enable": [{ "lorebook": "SO-V27-37D3 Lore", "comments": ["SO-D3 smuggler paid"] }] } }
+          }
+        ]
+      }]
+    },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "qualities": [
+    { "key": "confessed", "type": "bool", "source": "extractor", "rubric": "Did Arin confess her debt?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The market", "type": "anchor", "start": true, "objective": "Meet Arin." },
+    { "id": "confession", "name": "The confession", "type": "anchor", "objective": "Hear Arin out." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "confession", "priority": 1, "gate": { "q": "confessed", "op": "==", "v": true } }
+  ]
+}
