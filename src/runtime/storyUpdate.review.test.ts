@@ -18,12 +18,12 @@ const invalidating = { classification: "invalidating", entries: [], droppedQuali
 const rendered = (value: unknown) => (typeof value === "string" ? value : JSON.stringify(value));
 
 control("an ordinary story title survives the update description", () => {
-  expect(rendered(describeStoryUpdate("Crossing", invalidating, 1, 2))).toContain("Crossing");
+  expect(rendered(describeStoryUpdate("Crossing", invalidating))).toContain("Crossing");
 });
 
 finding("R7", () => {
   const marker = '<img src=x onerror="globalThis.reviewMarker=1">';
-  const text = rendered(describeStoryUpdate(marker, invalidating, 1, 2));
+  const text = rendered(describeStoryUpdate(marker, invalidating));
   must(
     !text.includes(marker),
     "an imported story title reached the update popup as live markup: the description interpolates the title into HTML and the host assigns it to innerHTML, so an authored story can execute script in the popup",

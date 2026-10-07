@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-03-stub",
-  "version": 1,
   "title": "Live v2.4 03 — Stub wedge",
   "description": "v2.4 plan 03 live gate 4: the start anchor reaches a stub, so every reply at the start asks for the stub's chain to be generated. The chain is what the chat switch interrupts.",
   "arc_template": "rising",

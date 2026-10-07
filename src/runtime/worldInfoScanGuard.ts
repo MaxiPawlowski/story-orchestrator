@@ -1,4 +1,5 @@
 import type { NormalizedStoryV2 } from "@engine/index";
+import { storyRevision } from "./hash";
 import { applyScanGate, emptyScanGateStats, scanGatePlan, type ScanEntry, type ScanGate, type ScanGateStats } from "./scanGatePlan";
 import { releasePlan } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
@@ -50,7 +51,7 @@ export class ScanGuard {
     const owner = this.owner();
     const story = owner === "no-story" ? null : this.sources.story();
     const path = owner === "story" ? this.sources.path() : [];
-    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${story.version ?? ""}` : "", path.join(">"),
+    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"),
       this.sources.libraryRevision()].join("|");
     if (this.memo?.key !== key) this.memo = { key, owner, gate: scanGuardGate(this.sources.library(), story, path, owner) };
     return { owner: this.memo.owner, gate: this.memo.gate };

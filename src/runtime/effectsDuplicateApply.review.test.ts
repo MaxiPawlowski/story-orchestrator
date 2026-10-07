@@ -100,7 +100,7 @@ describe("AS-10: an import's activate and a concurrent hydrate of the same check
 
 describe("v2.6 03 SP5: a hydrate never joins an activate that the same world change made lapse", () => {
   it("the epoch moves while the activate writes the cast: the hydrate applies the checkpoint itself", async () => {
-    const world: RunContext = { chatId: "chat-a", storyId: "saga", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const world: RunContext = { chatId: "chat-a", storyId: "saga", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
     const ownership: RunOwnership = {
       mint: (window) => mintToken(world, window ?? null),
       check: (token) => (token.sessionEpoch === world.sessionEpoch ? { ok: true } : { ok: false, reason: "epoch", detail: "moved" }),

@@ -4,7 +4,6 @@ import { agencyRecovery as recoveryOf, AGENCY_STALL_TURNS, playerTurnIds, REFUSA
 const raw = (agency?: Record<string, unknown>, stub = false) => ({
   format: 2,
   id: "refusal-probe",
-  version: 1,
   title: "Refusal Probe",
   description: "A checkpoint whose only exit asks the player to accept a duel.",
   qualities: [

@@ -83,7 +83,7 @@ export function missingArt(plan: ArtFile[], exists: (path: string) => boolean): 
 export function castStory(cast: Cast) {
   const id = (member: CastMember) => member.short;
   return {
-    format: 2, id: `${cast.marker.toLowerCase()}-cast`, version: 1, title: `${cast.marker} cast session`,
+    format: 2, id: `${cast.marker.toLowerCase()}-cast`, title: `${cast.marker} cast session`,
     description: 'A synthetic multi-character portrait session: one visible change per member, independent of any campaign.',
     roster: cast.members.map((member) => ({ id: id(member), name: member.name, role: 'Portrait subject',
       card: { fields: { [member.card.field]: { quality: member.card.quality, visual: true } } } })),

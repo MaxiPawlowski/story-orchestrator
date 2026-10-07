@@ -103,7 +103,7 @@ export class PlayerSetupControl {
     const choice: PlayerSetupChoice = request.choice === "retry" ? previous?.choice ?? "skip" : request.choice;
     const createdHash = avatar.createdHash ?? (request.choice === "retry" ? previous?.createdHash : undefined);
     const base: PlayerSetupRecord = {
-      pending: true, storyId: loaded.record.id, version: loaded.story.version ?? 1, choice, avatarId: avatar.avatarId,
+      pending: true, storyId: loaded.record.id, choice, avatarId: avatar.avatarId,
       ...(name ? { name } : {}), locked: false, ...(createdHash ? { createdHash } : {}),
     };
     if (!locked.ok) {

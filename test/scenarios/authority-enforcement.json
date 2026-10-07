@@ -7,7 +7,6 @@
         "format": 2,
         "id": "authority-enforcement",
         "title": "Authority Enforcement Gate Check",
-        "version": 1,
         "description": "Planted extractor responses that must be refused, and legal ones that must be taken.",
         "qualities": [
           {

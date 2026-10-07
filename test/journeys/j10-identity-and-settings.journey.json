@@ -52,7 +52,7 @@
           }
         },
         {
-          "eval": "const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; if (blob.version < 6) throw new Error(`expected a v6 blob, got ${blob.version}`); if (!blob.stories['sun-ruins']?.pinnedStory) throw new Error('story was not pinned into the chat'); if (blob.selectedStoryId !== 'sun-ruins') throw new Error(`selection not keyed by id: ${blob.selectedStoryId}`); return { keys: Object.keys(blob.stories), playedVersion: blob.stories['sun-ruins'].playedVersion };"
+          "eval": "const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; if (blob.version < 7) throw new Error(`expected a v7 blob, got ${blob.version}`); if (!blob.stories['sun-ruins']?.pinnedStory) throw new Error('story was not pinned into the chat'); if (blob.selectedStoryId !== 'sun-ruins') throw new Error(`selection not keyed by id: ${blob.selectedStoryId}`); return { keys: Object.keys(blob.stories), contentHashAtLoad: blob.stories['sun-ruins'].contentHashAtLoad };"
         }
       ]
     },
@@ -162,7 +162,7 @@
             "activeCheckpoint": "cp2",
             "storyIdentity": {
               "pinned": true,
-              "libraryVersion": null
+              "drifted": false
             }
           }
         }

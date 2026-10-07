@@ -147,12 +147,12 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
         id="so-update-story"
         type="button"
         className="menu_button"
-        title="Take the newer version from the library into this chat."
+        title="Take the library's copy of this story into this chat."
         onClick={() => void manager.applyStoryUpdate().then((outcome) => {
           const line = chatUpdateSentence(outcome);
           if (line) window.toastr?.info?.(line, "Story Orchestrator");
         })}
-      >Update to v{snapshot.storyIdentity.libraryVersion}</button>
+      >Update to the latest</button>
     )}
   </div>
   );

@@ -67,7 +67,7 @@ try {
             const blob = ctx.chatMetadata.story_orchestrator, record = blob.stories[blob.selectedStoryId];
             const reply = ctx.chat.at(-1);
             if (!reply?.mes?.trim() || reply.is_user) throw new Error('Production reply is empty.');
-            return { storyId: blob.selectedStoryId, version: record.playedVersion, boundary: record.engineState.boundary, replyLength: reply.mes.length, audits: record.extras.extraction.audits.length };
+            return { storyId: blob.selectedStoryId, hash: record.contentHashAtLoad, boundary: record.engineState.boundary, replyLength: reply.mes.length, audits: record.extras.extraction.audits.length };
         });
         await page.waitForTimeout(5000);
         await page.waitForFunction(async () => {
@@ -83,7 +83,7 @@ try {
         report.readyChat = await page.evaluate(() => {
             const ctx = (globalThis as any).SillyTavern.getContext();
             const blob = ctx.chatMetadata.story_orchestrator, record = blob.stories[blob.selectedStoryId];
-            return { chatId: ctx.chatId, groupId: ctx.groupId, storyId: blob.selectedStoryId, version: record.playedVersion, pinned: Boolean(record.pinnedStory?.briefing), playerMessages: ctx.chat.filter((m: any) => m.is_user).length, briefingOpen: Boolean(document.querySelector('dialog#so-briefing[open]')) };
+            return { chatId: ctx.chatId, groupId: ctx.groupId, storyId: blob.selectedStoryId, hash: record.contentHashAtLoad, pinned: Boolean(record.pinnedStory?.briefing), playerMessages: ctx.chat.filter((m: any) => m.is_user).length, briefingOpen: Boolean(document.querySelector('dialog#so-briefing[open]')) };
         });
         if (report.readyChat.playerMessages || !report.readyChat.pinned) throw new Error('The ready-to-play chat is not fresh.');
         await page.screenshot({ path: resolve('test/sessions/evidence/measurements-v2.7/main-rollout/production-ready.png') });

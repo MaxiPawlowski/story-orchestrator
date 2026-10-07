@@ -143,7 +143,7 @@ export const reapDecisions = (): ReapDecision[] => reapLog.list();
 // run that heard the event. `end()` (stopRuntime) lapses every reap still waiting on its confirm.
 export function lifetimeOwnership(): { ownership: RunOwnership; end: () => void } {
   let lifetime = 0;
-  const context = (): RunContext => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: lifetime, windowRevision: 0 });
+  const context = (): RunContext => ({ chatId: null, storyId: null, storyHash: null, sessionEpoch: lifetime, windowRevision: 0 });
   return {
     ownership: { mint: () => mintToken(context()), check: (token) => tokenMatches(context(), token) },
     end: () => { lifetime += 1; },

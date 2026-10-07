@@ -56,7 +56,7 @@ export const WaitsForVisualNovelMode: Story = {
 export const NoStoryStageSaysHowToGetOne: Story = {
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-sprite-vn-hint")).toBeNull();
-    await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("Update or Restart");
+    await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("Update to the latest or Restart");
   },
 };
 

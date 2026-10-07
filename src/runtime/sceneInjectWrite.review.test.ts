@@ -29,7 +29,7 @@ const state = { activeCheckpointId: "cp1", boundary: 3, lastMessageId: 9 } as ne
 type Write = { ok: true; changed: boolean } | { ok: false; reason: string };
 
 function harness(answer: (attempt: number) => Write, host?: { held: string | null }) {
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let scene: { facts?: { location?: string | null } } | null = null;
   const writes: Array<string | null> = [];

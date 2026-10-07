@@ -17,7 +17,7 @@ const harness = (switchDuring: "generation" | "critic" | null) => {
     "chat-a": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
     "chat-b": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
   };
-  const context: RunContext = { chatId: "chat-a", storyId: story.id ?? "s", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const context: RunContext = { chatId: "chat-a", storyId: story.id ?? "s", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const switchChat = () => { context.chatId = "chat-b"; context.sessionEpoch += 1; };
   const replaced: unknown[] = [];

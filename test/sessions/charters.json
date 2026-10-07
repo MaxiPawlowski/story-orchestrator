@@ -880,7 +880,7 @@
         { "what": "Restart asks first, then returns to The Guild Hall with memory cleared.", "where": "popup" },
         { "what": "A compatible save applies silently; the toolbar says saved.", "where": "Studio" },
         { "what": "An invalidating save says the edit is in the library before asking.", "where": "popup" },
-        { "what": "'Update to vN' appears only in other chats of the story.", "where": "Overview" }
+        { "what": "'Update to the latest' appears only in other chats of the story.", "where": "Overview" }
       ],
       "mustNotHappen": [
         "Restart touches another chat.",

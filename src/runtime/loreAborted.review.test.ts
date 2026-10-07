@@ -18,7 +18,6 @@ jest.mock("@services/STAPI", () => ({
 
 const story = {
   id: "s1",
-  version: 1,
   title: "S",
   lore_select: { lorebooks: ["Book"] },
   checkpointById: { cp1: { id: "cp1", name: "The Hall", objective: "Look around" } },
@@ -34,7 +33,7 @@ const vault = { world: "Book", uid: 1, comment: "the vault", content: "A sealed 
 type Answer = { answers: Record<string, unknown> | null; model: string | null; fallback?: string };
 
 function harness(onAsk: (world: { switchChat(): void }) => Answer, onEntries: (world: { switchChat(): void }) => void = () => {}) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   const world = {
     switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: current.sessionEpoch + 1 }; },

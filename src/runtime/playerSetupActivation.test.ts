@@ -92,7 +92,7 @@ const host: PersonaHost = {
 const OPENER = { member: "Narrator", trigger: "onEnter", kind: "scripted", new_chat_only: true, text: "The road opens." };
 
 const storyJson = (over: Record<string, unknown> = {}) => JSON.stringify({
-  format: 2, id: "road", version: 1, title: "The Road", description: "D",
+  format: 2, id: "road", title: "The Road", description: "D",
   qualities: [{ key: "found_key", type: "bool", source: "extractor", rubric: "Did they find the key?" }],
   checkpoints: [
     { id: "start", name: "Start", objective: "Look around.", type: "anchor", start: true, effects: { npc_replies: [OPENER] } },
@@ -147,7 +147,7 @@ describe("v2.7 34 activation: readiness, identity, briefing, opener", () => {
     expect(chosen).toMatchObject({ ok: true, choice: "pick", avatarId: "mara.png", name: "Mara", locked: true });
     expect(writes).toEqual(["select mara.png", "lock mara.png"]);
     expect(sendas()).toBe(1);
-    expect(blob().stories.road.extras?.playerSetup).toMatchObject({ pending: false, storyId: "road", version: 1, choice: "pick" });
+    expect(blob().stories.road.extras?.playerSetup).toMatchObject({ pending: false, storyId: "road", choice: "pick" });
   });
 
   it("a new chat in a bound group runs the same order: Before you start and identity, then the opener", async () => {

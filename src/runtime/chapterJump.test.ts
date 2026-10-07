@@ -23,7 +23,7 @@ import type { MemoryRuntimeState } from "./types";
 const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
 
 const harness = (seal = true) => {
-  const current: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token) => tokenMatches(current, token) };
   let memory = { chapters: [] as ChapterRecord[], settings: { chapters: { seal } } } as unknown as MemoryRuntimeState;
   const state = { activeCheckpointId: "market", visitedPath: ["gate", "market"], boundary: 4, lastMessageId: 9, blackboard: { values: { step: 1 }, versions: {}, latched: {} } };

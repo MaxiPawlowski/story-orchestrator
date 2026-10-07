@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-03",
-  "version": 1,
   "title": "Live v2.4 03 — Off-path hygiene",
   "description": "A guild hall where the party decides whether to take a caravan job. (v2.4 plan 03 live gates 1-3 and 6: pay_discussed is the one extractor quality, so each reply schedules an ordinary cadence read; the way out also needs go, a code quality only /cp can set, so a real read can never fire the transition by itself; no stub, so no expansion runs.)",
   "player_intro": "A guild hall where the party decides whether to take a caravan job.",

@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-j11-stall",
-  "version": 1,
   "title": "SO-J11 Stall",
   "description": "v2.2 plan 06 fixture: two short checkpoints whose gates only a stall re-check can settle.",
   "qualities": [

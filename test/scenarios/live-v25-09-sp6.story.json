@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v25-09-sp6",
-  "version": 1,
   "title": "Live v2.5 09 SP6 - Complication pool",
   "description": "SP6 live fixture: a waystation that wants critical tension while the scene is a quiet wait, so it sits below target (escalate) turn after turn. Its pool releases one complication after 2 consecutive escalate boundaries. The narrator speaks every turn, so one player send is one loud generation.",
   "qualities": [

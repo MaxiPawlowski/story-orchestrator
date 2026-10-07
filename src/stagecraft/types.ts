@@ -118,7 +118,7 @@ export interface CuratorPassOutcome {
    * while the model was answering, so its result was thrown away rather than written into whatever
    * is open now. Names which part of the world moved.
    */
-  discarded?: "chat" | "story" | "version" | "epoch" | "window";
+  discarded?: "chat" | "story" | "revision" | "epoch" | "window";
 }
 
 // What the last pass actually said, kept whether it proposed anything or not — "the curator stayed

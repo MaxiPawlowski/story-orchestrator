@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "generated-fork-probe",
-  "version": 1,
   "title": "Generated Fork",
   "description": "A stub whose generated chain is expected to branch: the same beat is written with more than one outcome, so the merge has an outcomes[1] to lose (R9).",
   "arc_template": "rising",

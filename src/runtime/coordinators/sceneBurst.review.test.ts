@@ -45,7 +45,7 @@ function harness() {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, sceneTracker: true, lookahead: true } };
   const pending: Pending[] = [];
   const ring: Array<{ use: string; fallback?: string; cached?: boolean }> = [];
-  let current: RunContext = { chatId: "chat-a", storyId: "scene-burst", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "scene-burst", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),

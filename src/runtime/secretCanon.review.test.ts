@@ -63,7 +63,7 @@ const STORED = [
 const REPLY = "WHAT HAS HAPPENED:\nKel and Bram held the ford.\nCURRENT STATE:\nThe company rests.";
 
 function harness(epistemic: EpistemicEntry[], canon: { text: string; stale?: boolean } | null = null, entries: MemoryEntry[] = ENTRIES) {
-  const context: RunContext = { chatId: "chat-a", storyId: "secret-canon", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "secret-canon", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const prompts: string[] = [];
   const model = async (prompt: string, _ask: ModelAsk) => { prompts.push(prompt); return { text: REPLY, finish: "stop" as const }; };

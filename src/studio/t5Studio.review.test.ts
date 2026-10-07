@@ -87,7 +87,7 @@ describe("T5-3 LOW: saving keeps the checkpoint the author was editing", () => {
     const draft = redline() as StoryDraft;
     useDraftStore.getState().loadDraft(draft);
     useDraftStore.getState().selectCheckpoint("redline");
-    useDraftStore.getState().loadDraft({ ...draft, version: 2 }, "h2", undefined, { keepSelection: true });
+    useDraftStore.getState().loadDraft({ ...draft, description: `${draft.description} Saved.` }, "h2", undefined, { keepSelection: true });
     expect(useDraftStore.getState().selectedCheckpointId).toBe("redline");
     useDraftStore.getState().loadDraft(draft);
     expect(useDraftStore.getState().selectedCheckpointId).toBe("start");

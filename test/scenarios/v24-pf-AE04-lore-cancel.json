@@ -7,7 +7,6 @@
       "import_story": {
         "format": 2,
         "id": "v24-pf-ae04-lore",
-        "version": 1,
         "title": "SO-PF-AE04 Lore Story",
         "description": "v2.4 post-freeze AE04-L1: a lore-select judge call that lapses or goes unanswered is not cached.",
         "qualities": [],

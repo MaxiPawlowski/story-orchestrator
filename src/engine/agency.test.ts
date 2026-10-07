@@ -4,7 +4,6 @@ import { parseStoryV2 } from "./validate";
 const story = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({
   format: 2,
   id: "agency-probe",
-  version: 1,
   title: "Agency Probe",
   description: "A story with one quality and two anchors.",
   qualities: [{ key: "q", type: "bool", source: "code", rubric: "Whether the probe fired." }],

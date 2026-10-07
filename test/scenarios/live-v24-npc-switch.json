@@ -14,7 +14,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v24-npc-switch",
-        "version": 1,
         "title": "SO-NPCSW NPC reply switch",
         "description": "v2.4 follow-up U5 live gate: an llm npc_replies onEnter reply whose chat is switched away mid /trigger.",
         "qualities": [

@@ -87,7 +87,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private readonly owner = new RunOwner({
     openChatId: () => String(getContext().chatId ?? ""),
     storyId: () => this.loaded?.record.id ?? null,
-    playedVersion: () => this.loaded?.record.version ?? null,
+    storyHash: () => this.loaded?.record.hash ?? null,
   });
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
   invalidateRuns() { this.extractionHold = false; this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
@@ -137,7 +137,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       journal: (outcome) => {
         this.lastStoryUpdate = outcome;
         this.journal.record("story",
-            `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`,
+            `story updated (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`,
             this.journalContext(), outcome.reason);
         this.extras.journal = this.journal.getRecords();
       },
@@ -198,7 +198,7 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted, carry) => this.loadStory(loaded, mode, persisted ?? null, carry ?? null),
-    carryOver: () => (this.loaded ? restartCarry(this.extras, this.engine.activeCheckpoint?.name, this.engine.currentBoundary, this.loaded.record.version) : null),
+    carryOver: () => (this.loaded ? restartCarry(this.extras, this.engine.activeCheckpoint?.name, this.engine.currentBoundary) : null),
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
     beginRun: () => beginRun(this.owner.ownership),
     clearStory: async (status, note) => {

@@ -80,7 +80,7 @@ await withST(async (page) => {
           models } } });
       rt.setExtractionSettings({ enabled: true, cadence: 1000, stabilityLag: 0, profileId: memory.id,
         profiles: { ...rt.getGlobalSettings().extraction.profiles, read: memory.id } });
-      const story = { format: 2, id: marker.toLowerCase(), version: 1, title: marker, description: 'An isolated appearance and image/read recovery check.',
+      const story = { format: 2, id: marker.toLowerCase(), title: marker, description: 'An isolated appearance and image/read recovery check.',
         roster: [{ id: rosterId, name: character, role: 'Portrait subject', card: { fields: { hair: { quality: 'hair', visual: true } } } }],
         qualities: [{ key: 'hair', type: 'enum', values: ['black', 'green'], source: 'extractor', rubric: 'Established current hair colour, green after the dye.' }],
         requirements: { members: [character] }, checkpoints: [{ id: 'start', name: 'Portrait', type: 'anchor', start: true, objective: 'Pose after dyeing the hair green.', illustrate: false,

@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-01-t10",
-  "version": 1,
   "title": "Live v2.4 01 T10 — Note then no_repeat",
   "description": "Two checkpoints with the same talk control (lead Ponticius, no_repeat). The transition posts a Note between two real turns, so the second turn's pick shows whether the speaker survived the Note.",
   "qualities": [

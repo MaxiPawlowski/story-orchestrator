@@ -7,7 +7,6 @@
       "import_story": {
         "format": 2,
         "id": "v24-pf-ae04-scene",
-        "version": 1,
         "title": "SO-PF-AE04 Scene Story",
         "description": "v2.4 post-freeze AE04-S1: a refused scene tracker write is reported as refused and journaled once.",
         "qualities": [

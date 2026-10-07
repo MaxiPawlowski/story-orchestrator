@@ -22,7 +22,6 @@ const { listAllLorebooks, upsertWIEntry } = host;
 const draft = {
   format: 2,
   id: "ownership-story",
-  version: 1,
   title: "Ownership story",
   description: "Fixture",
   requirements: { lorebooks: ["Story Book"] },
@@ -36,7 +35,7 @@ function harness() {
   let current: RunContext = {
     chatId: "chat-a",
     storyId: "ownership-story",
-    playedVersion: 1,
+    storyHash: "h1",
     sessionEpoch: 1,
     windowRevision: 0,
     lowestMutatedMessageId: null,

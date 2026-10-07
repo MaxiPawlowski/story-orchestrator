@@ -49,7 +49,7 @@ const harness = () => {
   const boundaries: Boundary[] = [];
   const replies: Array<(id: number) => void> = [];
   const snapshot = {
-    ready: true, requirements: { ready: true }, storyId: "story", storyIdentity: { playedVersion: 1 }, boundary: 3,
+    ready: true, requirements: { ready: true }, storyId: "story", storyIdentity: { pinned: true }, boundary: 3,
     activeCheckpointId: "cp2", blackboard: {}, scene: null, lore: { fired: [] },
   };
   const story = { illustrations: { checkpoints: true, scenes: true }, checkpointById: { cp2: { player_name: "The gate" } }, roster: [], requirements: {} };

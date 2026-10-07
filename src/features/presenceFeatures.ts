@@ -10,7 +10,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story its author marks as one, "
       + "has its own icon. The marks come from a list of the chats you played, which fills in by itself as you open chats.",
     where: settingsAt("#so-presence-list-badges", "Playing › Mark story groups in the lists"),
-    settings: ["display.presence.listBadges"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat"],
+    settings: ["display.presence.listBadges"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.listBadges,
   },
   {
@@ -18,7 +18,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Hover a group's story icon to see the story, its chapter and when you last played.",
     what: "The card shows only names you have already reached. A story can switch its card off; switching it off here hides it for every story.",
     where: settingsAt("#so-presence-group-card", "Playing › Story card on hover"),
-    settings: ["display.presence.groupCard"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat"],
+    settings: ["display.presence.groupCard"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.groupCard,
   },
   {
@@ -26,7 +26,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Under Continue: every chat that plays a story, newest first, one click to open it.",
     what: "Each row names the story, the chapter and place you reached and when you last played. A chat keeps its row while it still plays the story, even after the story leaves your library.",
     where: settingsAt("#so-presence-continue-list", "Playing › Your stories list"),
-    settings: ["display.presence.continueList"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat"],
+    settings: ["display.presence.continueList"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.continueList,
   },
   {
@@ -34,7 +34,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "A full-width card under the message where a new chapter opens.",
     what: "When the story enters a new chapter, a title card appears under that message with the chapter's name. Swiping that reply away takes the card with it.",
     where: settingsAt("#so-presence-chapter-card", "Playing › Chapter title cards"),
-    settings: ["display.presence.chapterCard"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story"],
+    settings: ["display.presence.chapterCard"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.chapterCard,
   },
   {
@@ -42,7 +42,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Story recap, the story briefing, flag this moment and the story drawer, from the extensions wand.",
     what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story drawer.",
     where: settingsAt("#so-presence-wand", "Playing › Story entries in the wand menu"),
-    settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story"],
+    settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.wand,
   },
   {
@@ -51,7 +51,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     what: "\"Climb: 15 + 4 vs 12, success\" sits under the reply the check decided. The roll is drawn from the chat itself, so a swipe or a reopened chat shows the same roll. "
       + "A check the author keeps hidden shows only in the story's telling. Author view also shows every other roll and background draw.",
     where: settingsAt("#so-presence-roll-chips", "Playing › Dice chips under messages"),
-    settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story"],
+    settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.rollChips,
   },
   {
@@ -59,7 +59,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "A movable panel listing what the machine did behind each recent message.",
     what: "Story moves, memory notes, lore, speaker picks, model calls and rolls in one list, newest first, each linked to its message. Drag it anywhere; it remembers where you left it.",
     where: drawerAt("#so-open-activity", "Activity"),
-    settings: [], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story", "author-view"],
+    settings: [], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story", "author-view"],
   },
   {
     id: "suggestions", name: "What could I do?", area: "play", audience: "player",
@@ -67,7 +67,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     what: "Click the lightbulb in the story drawer or pick it from the wand menu. The memory model suggests four things you could do or say, from what you have already seen. "
       + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
     where: drawerAt("#so-open-suggestions", "What could I do?"),
-    settings: ["display.presence.suggestions"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["story", "memory-profile"],
+    settings: ["display.presence.suggestions"], doc: "player/playing.md", status: "shipped", needs: ["story", "memory-profile"],
     isOn: (settings) => settings.display.presence.suggestions,
   },
   {
@@ -76,20 +76,20 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     what: "A short line in the Scheduler tab lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
       + "Counted in code, with no model call. It only reports; nothing reaches the prompt.",
     where: drawerAt("[data-so=\"repetition\"]", "Scheduler › Repetition"),
-    settings: [], doc: "player/drawer-and-hud.md", status: "experimental", since: "2.7.0", needs: ["story", "author-view"],
+    settings: [], doc: "player/drawer-and-hud.md", status: "experimental", needs: ["story", "author-view"],
   },
   {
     id: "guide", name: "Guide", area: "setup", audience: "player",
     oneLine: "The whole guide inside SillyTavern: playing, setup and writing stories.",
     what: "Open the guide from Help or with /story guide. Read more in Help opens the page about that feature. Pages about writing stories show only in Author view.",
     where: settingsAt("#so-help-toggle", "Help → Open the guide"),
-    settings: [], doc: "player/README.md", status: "shipped", since: "2.7.0",
+    settings: [], doc: "player/README.md", status: "shipped",
   },
   {
     id: "open-stretches", name: "Open stretches", area: "authoring", audience: "author",
     oneLine: "Free play between two turning points, with no task.",
     what: "An open bridge scene has no goal line. After a few turns the world points toward the next place; the player leaves by their own move.",
     where: { selector: "#so-studio-modal", label: "Studio › Checkpoints", surface: "studio" },
-    settings: [], guideTopic: "open-stretches", doc: "author/topics/open-stretches.md", status: "experimental", since: "2.7.0", needs: ["story"],
+    settings: [], guideTopic: "open-stretches", doc: "author/topics/open-stretches.md", status: "experimental", needs: ["story"],
   },
 ];

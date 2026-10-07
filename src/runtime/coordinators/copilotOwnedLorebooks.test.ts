@@ -18,7 +18,7 @@ const host = {
 };
 const { createCharacterCard, createLorebook, upsertWIEntry } = host;
 
-const draft = { format: 2, id: "owned", version: 1, title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
+const draft = { format: 2, id: "owned", title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
 
 const harness = (stored: WizardSessionState | null) => {
   let session = stored;

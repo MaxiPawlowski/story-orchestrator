@@ -4,7 +4,7 @@ import { testOwnership } from "../../test/findings/testOwnership";
 
 const owner = (chat = "chat-a") => {
   const deps = { chat };
-  const runOwner = new RunOwner({ openChatId: () => deps.chat, storyId: () => "s1", playedVersion: () => 1 });
+  const runOwner = new RunOwner({ openChatId: () => deps.chat, storyId: () => "s1", storyHash: () => "h1" });
   runOwner.bump();
   return { runOwner, deps };
 };

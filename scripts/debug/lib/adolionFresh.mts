@@ -9,7 +9,7 @@ export const CHECKPOINT_BOOK = /^Adolion .+ Checkpoints$/;
 export const GROUP_PREFIX = 'Adolion - ';
 export const MIRROR_PREFIX = 'Story Orchestrator - ';
 
-export interface ManifestStory { id: string; version: number; title: string; checkpoints: number; lorebooks: string[]; members: string[]; personas: string[]; startCast: { disable: string[]; enable: string[] } }
+export interface ManifestStory { id: string; title: string; checkpoints: number; lorebooks: string[]; members: string[]; personas: string[]; startCast: { disable: string[]; enable: string[] } }
 export interface ManifestGroup { name: string; story: string; members: string[] }
 export interface ManifestCard { avatar: string; name: string }
 export interface ManifestBook { name: string; entries: number }
@@ -59,7 +59,7 @@ export function buildManifest(input: ManifestInput): AdolionManifest {
     const start = checkpoints.find((checkpoint) => checkpoint.start === true) ?? checkpoints[0];
     const cast = record(record(start?.effects).cast_changes);
     return {
-      id: String(story.id), version: Number(story.version), title: String(story.title ?? story.id),
+      id: String(story.id), title: String(story.title ?? story.id),
       checkpoints: checkpoints.length,
       lorebooks: sorted(strings(requirements.lorebooks)), members: sorted(strings(requirements.members)), personas: sorted(strings(requirements.personas)),
       startCast: { disable: sorted(strings(cast.disable)), enable: sorted(strings(cast.enable)) },
@@ -238,7 +238,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
 
 export interface InventoryBook { name: string; entries: number; enabled: number; contentSha: string }
 export interface InventoryGroup { name: string; story: string | null; members: string[]; disabled: string[] }
-export interface InventoryStory { id: string; version: number; hash: string; title: string; checkpoints: number }
+export interface InventoryStory { id: string; hash: string; title: string; checkpoints: number }
 export interface RuntimeReadiness { ready: boolean; storyId: string | null; missingLorebooks: string[]; missingMembers: string[]; missingPersonas: string[] }
 export interface Inventory {
   commit: string;
@@ -304,7 +304,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
     })).sort((a, b) => a.name.localeCompare(b.name) || String(a.story).localeCompare(String(b.story))),
     library: (Array.isArray(root.v2Stories) ? root.v2Stories : []).map(record)
       .filter((entry) => storyIds.has(entry.id) || String(entry.id ?? '').startsWith('adolion-'))
-      .map((entry) => ({ id: String(entry.id), version: Number(entry.version), hash: String(entry.hash ?? ''), title: String(entry.title ?? ''), checkpoints: Array.isArray(entry.raw?.checkpoints) ? entry.raw.checkpoints.length : 0 }))
+      .map((entry) => ({ id: String(entry.id), hash: String(entry.hash ?? ''), title: String(entry.title ?? ''), checkpoints: Array.isArray(entry.raw?.checkpoints) ? entry.raw.checkpoints.length : 0 }))
       .sort((a, b) => a.id.localeCompare(b.id)),
     selected: sorted(strings(record(record(input.settings.world_info_settings).world_info).globalSelect)),
     extraction: Object.keys(extraction).length ? canonical({ enabled: extraction.enabled, cadence: extraction.cadence, stabilityLag: extraction.stabilityLag, profileId: extraction.profileId ?? null }) as Record<string, unknown> : null,
@@ -373,7 +373,7 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
   for (const story of manifest.stories) {
     const found = inventory.library.find((candidate) => candidate.id === story.id);
     if (!found) problems.push(`story missing from the library: ${story.id}`);
-    else if (found.version !== story.version || found.checkpoints !== story.checkpoints) problems.push(`story ${story.id}: library v${found.version}/${found.checkpoints} cp, build v${story.version}/${story.checkpoints} cp`);
+    else if (found.title !== story.title || found.checkpoints !== story.checkpoints) problems.push(`story ${story.id}: library “${found.title}”/${found.checkpoints} cp, build “${story.title}”/${story.checkpoints} cp`);
   }
   const strayStories = inventory.library.filter((story) => !manifest.stories.some((wanted) => wanted.id === story.id)).map((story) => story.id);
   if (strayStories.length) problems.push(`stories not in the build: ${strayStories.join(', ')}`);

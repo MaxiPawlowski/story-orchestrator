@@ -90,7 +90,7 @@ const memoryState = (): MemoryRuntimeState => ({
 });
 
 function harness() {
-  const current: RunContext = { chatId: "chat-a", storyId: "f1a", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "f1a", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memory = memoryState();
   const engine = { activeCheckpointId: "yard", boundary: 3, lastMessageId: 7, blackboard: { values: {}, versions: {} } };

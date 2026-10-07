@@ -23,7 +23,7 @@ const OP: AgentOp = { kind: "updateCheckpoint", id: "start", patch: { objective:
 
 const epochOwnership = () => {
   const world = { epoch: 0 };
-  const context = (): RunContext => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: world.epoch, windowRevision: 0 });
+  const context = (): RunContext => ({ chatId: null, storyId: null, storyHash: null, sessionEpoch: world.epoch, windowRevision: 0 });
   const ownership: RunOwnership = { mint: () => mintToken(context()), check: (token) => tokenMatches(context(), token) };
   return { world, ownership };
 };

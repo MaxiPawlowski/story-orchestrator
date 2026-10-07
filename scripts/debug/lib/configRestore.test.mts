@@ -25,7 +25,7 @@ test('H1: a story that existed under the same id is put back exactly as it was, 
   const afterRun = [story('other', 3, 'v2-other'), story('v24-01-delete-decode', 1, 'v2-de4f955d')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
-  assert.deepEqual(plan.restored, ['v24-01-delete-decode@1 (v2-original)']);
+  assert.deepEqual(plan.restored, ['v24-01-delete-decode (v2-original)']);
   assert.deepEqual(plan.removed, []);
   assert.equal(plan.changed, true);
   assert.notEqual(plan.next[1], mine, 'the plan writes copies, never the captured objects');
@@ -36,7 +36,7 @@ test('H1: a story the run created is removed, including an edited re-import the 
   const afterRun = [story('other', 3, 'v2-other'), story('so-v25-fixture', 2, 'v2-edited')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
-  assert.deepEqual(plan.removed, ['so-v25-fixture@2 (v2-edited)']);
+  assert.deepEqual(plan.removed, ['so-v25-fixture (v2-edited)']);
   assert.deepEqual(plan.restored, []);
 });
 
@@ -50,7 +50,7 @@ test('a pre-existing story the run deleted comes back, in its old place', () => 
   const records = [story('a', 1, 'h-a'), story('b', 2, 'h-b')];
   const plan = planLibraryRestore({ trusted: true, records }, [story('b', 2, 'h-b')]);
   assert.deepEqual(plan.next, records);
-  assert.deepEqual(plan.restored, ['a@1 (h-a)']);
+  assert.deepEqual(plan.restored, ['a (h-a)']);
 });
 
 test('an untrusted or missing capture removes nothing, and keeps what it cannot account for (S6)', () => {
@@ -93,7 +93,7 @@ test('A25: a refused import that still wrote a record is removed, because the re
   const before = { trusted: true, records: [story('user-story', 1, 'h-user')] };
   const plan = planLibraryRestore(before, [...before.records, story('refused-import', 1, 'h-refused')]);
   assert.deepEqual(plan.next, before.records);
-  assert.deepEqual(plan.removed, ['refused-import@1 (h-refused)']);
+  assert.deepEqual(plan.removed, ['refused-import (h-refused)']);
 });
 
 test('A25 control: an unreadable library before the run removes nothing, so no user story is at risk', () => {

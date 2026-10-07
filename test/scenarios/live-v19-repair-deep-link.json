@@ -6,7 +6,6 @@
     { "import_story": {
       "format": 2,
       "id": "so-v19-repair",
-      "version": 1,
       "title": "SO-V19 Repair",
       "description": "One checkpoint; the check is about setup, not play.",
       "qualities": [{ "key": "ready", "type": "bool", "source": "code", "rubric": "Moved on." }],

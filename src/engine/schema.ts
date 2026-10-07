@@ -457,7 +457,6 @@ export const HOUSE_RULE_MAX_CHARS = 240;
 export interface StoryV2 {
   format: 2;
   id?: string;
-  version?: number;
   title: string;
   description: string;
   player_intro?: string;
@@ -502,7 +501,6 @@ export interface NormalizedTransition extends Transition {
 }
 
 export interface NormalizedStoryV2 extends StoryV2 {
-  version: number;
   startCheckpointId: string;
   checkpointById: Record<string, Checkpoint>;
   outgoingByCheckpoint: Record<string, NormalizedTransition[]>;

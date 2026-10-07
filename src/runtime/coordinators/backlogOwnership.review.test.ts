@@ -33,7 +33,7 @@ const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resol
 type SceneJob = { priority: number; reason: string; run: () => Promise<void> };
 
 function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void = () => {}) {
-  let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  let current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const stored: string[] = [];
   let commits = 0;
   const saves = { count: 0, onSave: null as null | ((count: number) => void) };

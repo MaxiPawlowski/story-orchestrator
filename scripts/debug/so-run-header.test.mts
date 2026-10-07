@@ -34,7 +34,7 @@ const header = (overrides: Record<string, any> = {}) => ({
   extraction: { enabled: true, cadence: 3, stabilityLag: 0, profileId: 'artemis' },
   stagecraft: { curatorEnabled: false, acceptMode: 'review', wardenEnabled: false },
   chat: { groupId: '17897', chatId: 'chat-a', chatLength: 4, authorView: false },
-  story: { id: 'adolion-adventurer', playedVersion: 9, contentHash: 'h1', boundary: 2, activeCheckpointId: 'guild-hall' },
+  story: { id: 'adolion-adventurer', contentHash: 'h1', boundary: 2, activeCheckpointId: 'guild-hall' },
   group: { disabledMembers: ['tobias'] },
   inventory: { v2Stories: ['adolion-adventurer@9'], wizardSessions: [], lorebooksSelected: ['Adolion World'] },
   ...overrides,

@@ -2,7 +2,7 @@ import { RunOwner } from "./runOwner";
 import { REQUIREMENTS_DEBOUNCE_MS, RequirementsWatch, refreshRequirementsNow, type RequirementsHost, type RequirementsReading } from "./requirementsWatch";
 
 let openChat = "chat-a";
-const owner = new RunOwner({ openChatId: () => openChat, storyId: () => "s1", playedVersion: () => 1 });
+const owner = new RunOwner({ openChatId: () => openChat, storyId: () => "s1", storyHash: () => "h1" });
 
 function host(reading: RequirementsReading | null, during?: () => void) {
   const calls: string[] = [];

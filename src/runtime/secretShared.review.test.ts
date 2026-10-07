@@ -87,7 +87,7 @@ const ARCS = [
 const ERA = { id: "era-1", recordIds: ["old#1"], text: "Kel showed Aria the silver key to the old vault. The company crossed the ford.", messageId: 2 };
 
 function coordinatorHarness(epistemic: EpistemicEntry[]) {
-  const context: RunContext = { chatId: "chat-a", storyId: "secret-shared", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const context: RunContext = { chatId: "chat-a", storyId: "secret-shared", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const writes = new Map<string, string>();
   const prompt = { setStoryExtensionPrompt: (key: string, value: string) => { writes.set(key, value); }, clearStoryExtensionPrompt: (key: string) => { writes.delete(key); } };
@@ -128,7 +128,7 @@ describe("chapter seal and held secrets: the seal input is the resting view, so 
   const WRITTEN = "SUMMARY:\nthe span was played through.\nSHORT:\nthe span ended.";
 
   const sealHarness = (filter: (text: string) => string) => {
-    const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
     const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
     let memory = {
       entries: ENTRIES, arcs: ARCS.map((arc) => ({ ...arc, openedMessageId: 7 })), ledger: [{ id: "l1", entity: "Kel", entityType: "person", field: "belt", value: "a silver key to the old vault", createdAt: 7, messageId: 7 }],

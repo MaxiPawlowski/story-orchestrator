@@ -55,7 +55,7 @@ lane.n/pod/port/podId (SO_LANE and <lane>/pod.json from st-lanes.mts pod; pod 0 
 bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
 judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
-story.id/playedVersion/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
+story.id/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
 wizardApplied (<session key>/<ledgered name>)/lorebooksSelected/groups (<id>@<name>).`;
 
 const safeName = (value: string) => String(value ?? 'run').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
@@ -285,7 +285,6 @@ export async function capturePage(page) {
       story: {
         id: selectedStoryId,
         title: storyEntry?.storyTitle ?? null,
-        playedVersion: storyEntry?.playedVersion ?? null,
         contentHash: storyEntry?.contentHashAtLoad ?? null,
         activeCheckpointId: storyEntry?.engineState?.activeCheckpointId ?? null,
         boundary: storyEntry?.engineState?.boundary ?? null,
@@ -297,7 +296,7 @@ export async function capturePage(page) {
       },
       // The three inventories a run can mutate without anyone noticing (S8, S11, S12).
       inventory: {
-        v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.version ?? '?'}`).sort(),
+        v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.hash ?? '?'}`).sort(),
         wizardSessions: (Array.isArray(root.wizardSessions)
           ? root.wizardSessions.map((session: any, index: number) => (typeof session?.key === 'string' ? session.key : String(index)))
           : Object.keys(root.wizardSessions ?? {})).sort(),
@@ -435,7 +434,6 @@ const ALLOW_ALIASES: Record<string, string> = {
   chatId: 'chat.chatId',
   groupId: 'chat.groupId',
   storyId: 'story.id',
-  storyVersion: 'story.playedVersion',
   contentHash: 'story.contentHash',
   authorView: 'chat.authorView',
   cadence: 'extraction.cadence',
@@ -535,18 +533,10 @@ function matchesPath(allow: string, path: string): boolean {
 
 const matchesItem = (value: string, item: string) => value === item || value.startsWith(`${item}@`);
 
-const versionOf = (value: string) => {
-  const at = value.lastIndexOf('@');
-  const version = at >= 0 ? Number(value.slice(at + 1)) : Number.NaN;
-  return Number.isFinite(version) ? version : null;
-};
-
-export function versionMovedUp(added: string[], removed: string[], item: string): boolean {
+export function copyChanged(added: string[], removed: string[], item: string): boolean {
   const into = added.filter((value) => matchesItem(value, item));
   const out = removed.filter((value) => matchesItem(value, item));
-  if (into.length !== 1 || out.length !== 1) return false;
-  const [after, before] = [versionOf(into[0]), versionOf(out[0])];
-  return after !== null && before !== null && after > before;
+  return into.length === 1 && out.length === 1 && into[0] !== out[0];
 }
 
 export const SERVED_ALLOWANCE = 'served-bundle';
@@ -621,7 +611,7 @@ export function diffHeaders(
           difference.allowedBy = entry.raw;
           break;
         }
-        const moved = (item: string) => versionMovedUp(difference.added ?? [], difference.removed ?? [], item);
+        const moved = (item: string) => copyChanged(difference.added ?? [], difference.removed ?? [], item);
         if (entry.sign === 'changed') {
           if (!moved(entry.item as string)) continue;
         } else if (!((difference[entry.sign] ?? []) as string[]).some((value) => matchesItem(value, entry.item as string))) continue;

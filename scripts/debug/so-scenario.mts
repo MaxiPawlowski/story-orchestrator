@@ -78,8 +78,7 @@ stagecraft steps ({stagecraft: {action, ...}}):
   accept-op | reject-op ({id?, index?}), apply (writes accepted ops now, as a boundary would), state
 
 expect verbs:
-  storyId, storyIdentity ({id,playedVersion,libraryVersion,pinned,drifted}),
-  storyVersion ({played,library,drifted}), hotSwap ({applied,classification,choice,boundaryAtLeast,dropped}),
+  storyId, storyIdentity ({id,pinned,drifted}), hotSwap ({applied,classification,choice,boundaryAtLeast,dropped}),
   activeCheckpoint, activeCheckpointIn, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
@@ -234,14 +233,6 @@ function evaluateExpect(state, expected) {
   // Real-model runs can overshoot a checkpoint between polls; assert the set the story may be in.
   if (Array.isArray(expected.activeCheckpointIn) && !expected.activeCheckpointIn.includes(actual.activeCheckpoint)) {
     failures.push(`activeCheckpoint: expected one of ${expected.activeCheckpointIn.join(', ')}, got ${actual.activeCheckpoint}`);
-  }
-  // assertStoryVersion: what this chat plays versus what the library holds (plan 05).
-  if (expected.storyVersion) {
-    const identity = state?.liveSnapshot?.storyIdentity ?? {};
-    const spec = expected.storyVersion as { played?: number; library?: number; drifted?: boolean };
-    if (spec.played !== undefined && identity.playedVersion !== spec.played) failures.push(`storyVersion.played: expected ${spec.played}, got ${identity.playedVersion}`);
-    if (spec.library !== undefined && identity.libraryVersion !== spec.library) failures.push(`storyVersion.library: expected ${spec.library}, got ${identity.libraryVersion}`);
-    if (spec.drifted !== undefined && Boolean(identity.drifted) !== spec.drifted) failures.push(`storyVersion.drifted: expected ${spec.drifted}, got ${Boolean(identity.drifted)}`);
   }
   // assertHotSwap: the last library→chat update and what it cost the run.
   if (expected.hotSwap) {

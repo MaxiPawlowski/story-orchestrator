@@ -62,7 +62,7 @@ let running: WiGating | null = null;
 export const wiGating = (): WiGating | null => running;
 
 const library = () => listStoryRecords().map((record) => record.raw);
-const libraryRevision = () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(",");
+const libraryRevision = () => listStoryRecords().map((record) => `${record.id}:${record.hash}`).join(",");
 
 const startScanGuard = (deps: ScanGatingWiring) => {
   const guard = new ScanGuard({
@@ -116,7 +116,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   const timings: number[] = [];
   let owners: { revision: string; of: (lorebook: string, comment: string) => string[] } | null = null;
   const ownersOf = () => {
-    const revision = listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(",");
+    const revision = listStoryRecords().map((record) => `${record.id}:${record.hash}`).join(",");
     if (owners?.revision !== revision) owners = { revision, of: gatedBy(listStoryRecords().map((record) => ({ title: record.title, raw: record.raw }))) };
     return owners.of;
   };

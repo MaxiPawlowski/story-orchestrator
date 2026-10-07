@@ -60,7 +60,7 @@ const harness = (record: CuratorProposalRecord) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { ...createStagecraft().settings, curatorEnabled: true, acceptMode: "auto" }, proposals: [record] };
   const journal: string[] = [];
   let chatId = "chat-a";
-  const context = (): RunContext => ({ chatId, storyId: "write-ahead-fixture", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
+  const context = (): RunContext => ({ chatId, storyId: "write-ahead-fixture", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => story(),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 12, lastMessageId: 24, blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState),

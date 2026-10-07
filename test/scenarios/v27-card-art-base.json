@@ -11,7 +11,7 @@
   },
   "steps": [
     { "import_story": {
-      "format": 2, "id": "soimg-base", "version": 1, "title": "SOIMG base", "description": "A synthetic card-art base check.",
+      "format": 2, "id": "soimg-base", "title": "SOIMG base", "description": "A synthetic card-art base check.",
       "roster": [{"id": "wren", "name": "SOIMG Wren", "role": "Portrait subject"}],
       "qualities": [], "requirements": {"members": ["SOIMG Wren"]},
       "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Build a portrait base.", "illustrate": false}],

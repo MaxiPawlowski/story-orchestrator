@@ -50,7 +50,7 @@ const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Re
   // One mutable identity, used by BOTH the story the deps hand out and the ownership context, the
   // way the runtime keeps them in step (RunOwner reads the loaded record).
   let storyId = "lore-fixture";
-  const context: RunContext = { chatId: "chat-1", storyId, playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const context: RunContext = { chatId: "chat-1", storyId, storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const selector = new LoreSelector({
     judge: () => judge,
@@ -147,7 +147,7 @@ describe("L5: the complete selection exclusive mode may act on", () => {
   it("records this generation's picks only when every chunk answered and the force landed", async () => {
     const env = setup();
     await env.selector.select("MESSAGE_SENT");
-    expect(env.selector.completeSelection()).toEqual({ chatId: "chat-1", storyKey: "lore-fixture@1", messageId: 4, picks: [{ world: "Story Lore", uid: 1 }, { world: "story lore", uid: 6 }] });
+    expect(env.selector.completeSelection()).toEqual({ chatId: "chat-1", storyKey: expect.stringMatching(/^lore-fixture@[0-9a-f]{8}$/), messageId: 4, picks: [{ world: "Story Lore", uid: 1 }, { world: "story lore", uid: 6 }] });
   });
 
   it("X3: a judge that did not answer leaves no selection, so the keyword scan stands", async () => {
@@ -170,7 +170,7 @@ describe("L5: the complete selection exclusive mode may act on", () => {
     env.setLastMessageId(6);
     env.setStoryId("elsewhere");
     await env.selector.select("GENERATION_STARTED");
-    expect(env.selector.completeSelection()).toMatchObject({ storyKey: "elsewhere@1", messageId: 6 });
+    expect(env.selector.completeSelection()).toMatchObject({ storyKey: expect.stringMatching(/^elsewhere@[0-9a-f]{8}$/), messageId: 6 });
   });
 });
 

@@ -59,17 +59,17 @@ describe("v2.5 plan 11: the install-wide root carries schema 1", () => {
     expect(settingsRoot().schema).toBe(SETTINGS_SCHEMA);
   });
 
-  it("a library record without an id or version is dropped on read, and the read writes nothing", () => {
-    const stored = [{ hash: "h1", title: "Old", raw: { id: "old" }, importedAt: "2026-09-01T00:00:00.000Z" }, { id: "kept", version: 1, hash: "h2", title: "Kept", raw: { id: "kept" }, importedAt: "x", updatedAt: "x" }];
+  it("a library record without an id is dropped on read, and the read writes nothing", () => {
+    const stored = [{ hash: "h1", title: "Old", raw: { id: "old" }, importedAt: "2026-09-01T00:00:00.000Z" }, { id: "kept", hash: "h2", title: "Kept", raw: { id: "kept" }, importedAt: "x", updatedAt: "x" }];
     settings["story-orchestrator"] = { v2Stories: stored };
     const before = JSON.stringify(settings);
     expect(listStoryRecords().map((record) => record.id)).toEqual(["kept"]);
     expect(JSON.stringify(settings)).toBe(before);
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("1 record(s) without an id or version"));
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("1 record(s) without an id"));
   });
 
   it("a duplicate id keeps the newer record", () => {
-    const record = (title: string, updatedAt: string) => ({ id: "same", version: 1, hash: title, title, raw: { id: "same" }, importedAt: updatedAt, updatedAt });
+    const record = (title: string, updatedAt: string) => ({ id: "same", hash: title, title, raw: { id: "same" }, importedAt: updatedAt, updatedAt });
     settings["story-orchestrator"] = { v2Stories: [record("Newer", "2026-09-02T00:00:00.000Z"), record("Older", "2026-09-01T00:00:00.000Z")] };
     expect(listStoryRecords().map((entry) => entry.title)).toEqual(["Newer"]);
   });

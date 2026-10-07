@@ -7,7 +7,6 @@
         "format": 2,
         "id": "live-authority",
         "title": "Live Authority Gate Check",
-        "version": 1,
         "description": "A real read, with bait.",
         "qualities": [
           {

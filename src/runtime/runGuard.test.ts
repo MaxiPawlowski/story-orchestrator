@@ -11,7 +11,7 @@ function world() {
   let current: RunContext = {
     chatId: "chat-a",
     storyId: "s1",
-    playedVersion: 1,
+    storyHash: "h1",
     sessionEpoch: 1,
     windowRevision: 0,
     lowestMutatedMessageId: null,
@@ -47,7 +47,7 @@ describe("beginRun", () => {
   test("a story swap, a version bump and a restart each lapse the run", () => {
     for (const [patch, reason] of [
       [{ storyId: "s2" }, "story"],
-      [{ playedVersion: 2 }, "version"],
+      [{ storyHash: "h2" }, "revision"],
       [{ sessionEpoch: 2 }, "epoch"],
     ] as const) {
       const w = world();

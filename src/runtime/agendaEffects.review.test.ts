@@ -54,7 +54,7 @@ describe("v2.7 plan 37 L3: an agenda step's world_info is part of the path repla
   });
 });
 
-const context: RunContext = { chatId: "c1", storyId: "character-life-lab", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+const context: RunContext = { chatId: "c1", storyId: "character-life-lab", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
 const ownership: RunOwnership = { mint: (window) => mintToken(context, window ?? null), check: (token) => tokenMatches(context, token) };
 
 const port = (story: NormalizedStoryV2) => {

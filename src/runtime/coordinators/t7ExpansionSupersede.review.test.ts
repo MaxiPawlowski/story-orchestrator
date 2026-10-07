@@ -15,7 +15,7 @@ const key = `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.t
 
 const harness = () => {
   const store: ExpansionRuntimeState = { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
-  const context: RunContext = { chatId: "chat-a", storyId: story.id ?? "s", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const context: RunContext = { chatId: "chat-a", storyId: story.id ?? "s", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let release: (value: string) => void = () => undefined;
   const slow = new Promise<string>((resolve) => { release = resolve; });

@@ -70,7 +70,7 @@ const host: ScenarioHost = {
 };
 
 const story = (id: string) => parseStoryV2OrThrow({
-  format: 2, id, version: 1, title: id, description: "d",
+  format: 2, id, title: id, description: "d",
   qualities: [{ key: "step", type: "int", source: "code", rubric: "Step." }],
   roster: [],
   checkpoints: [{ id: "start", name: "start", objective: "o", type: "anchor", start: true }],

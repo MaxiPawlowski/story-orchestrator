@@ -52,7 +52,6 @@ jest.mock("@services/STAPI", () => ({
 const storyJson = (over: Record<string, unknown> = {}) => JSON.stringify({
   format: 2,
   id: "sun-ruins",
-  version: 1,
   title: "Quest for the Sun Ruins",
   description: "A desert expedition.",
   qualities: [{ key: "found_key", type: "bool", source: "extractor", rubric: "Did they find the key?" }],
@@ -87,7 +86,7 @@ describe("story identity", () => {
     expect(snapshot.storyHash).toMatch(/^v2-/);
     expect(Object.keys(blob().stories)).toEqual(["sun-ruins"]);
     expect(blob().selectedStoryId).toBe("sun-ruins");
-    expect(listStoryRecords()[0]).toMatchObject({ id: "sun-ruins", version: 1 });
+    expect(listStoryRecords()[0]).toMatchObject({ id: "sun-ruins" });
   });
 
   it("an id-less story takes its title's slug, written into the stored copy", async () => {
@@ -97,24 +96,35 @@ describe("story identity", () => {
     expect(listStoryRecords()[0].raw.id).toBe("quest-for-the-sun-ruins");
   });
 
-  it("A7: the same id-less story imported twice is one record, and edited content is that record at version+1", async () => {
+  it("A7: the same id-less story imported twice is one record, and edited content is that record with a new hash", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ id: undefined }));
+    const first = listStoryRecords()[0].hash;
     await manager.importStory(storyJson({ id: undefined }));
-    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 1]]);
+    expect(listStoryRecords().map((record) => [record.id, record.hash])).toEqual([["quest-for-the-sun-ruins", first]]);
     await manager.importStory(storyJson({ id: undefined, description: "Rewritten." }));
-    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 2]]);
+    const records = listStoryRecords();
+    expect(records.map((record) => record.id)).toEqual(["quest-for-the-sun-ruins"]);
+    expect(records[0].hash).not.toBe(first);
   });
 
-  it("T4-4: a save that moves the version stores that version in the story itself, and saving the stored copy again moves nothing (T4-4-1 v30 vs raw 29)", async () => {
+  it("an external story's version key is ignored: it imports, the stored copy drops it, and it does not change the hash", async () => {
+    const manager = new RuntimeManager();
+    expect(await manager.importStory(storyJson({ version: 12 }))).toBe(true);
+    const [record] = listStoryRecords();
+    expect("version" in record.raw).toBe(false);
+    expect("version" in record).toBe(false);
+    await manager.importStory(storyJson());
+    expect(listStoryRecords().map((entry) => entry.hash)).toEqual([record.hash]);
+  });
+
+  it("saving the stored copy again keeps its hash", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson());
     await manager.importStory(storyJson({ description: "Rewritten." }));
     const [record] = listStoryRecords();
-    expect(record.version).toBe(2);
-    expect(record.raw.version).toBe(2);
     await manager.importStory(JSON.stringify(record.raw));
-    expect(listStoryRecords().map((entry) => [entry.version, entry.raw.version, entry.hash])).toEqual([[2, 2, record.hash]]);
+    expect(listStoryRecords().map((entry) => entry.hash)).toEqual([record.hash]);
   });
 
   it("control: a different title is a second record, and an id-carrying import keeps its id", async () => {
@@ -131,13 +141,13 @@ describe("story identity", () => {
     expect(manager.getSnapshot().validationErrors[0].path).toBe("id");
   });
 
-  it("updates the library record in place when the same id is re-imported, bumping the version", async () => {
+  it("updates the library record in place when the same id is re-imported", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson());
     await manager.importStory(storyJson({ description: "Rewritten." }));
     const records = listStoryRecords();
     expect(records).toHaveLength(1);
-    expect(records[0]).toMatchObject({ id: "sun-ruins", version: 2, description: "Rewritten." });
+    expect(records[0]).toMatchObject({ id: "sun-ruins", description: "Rewritten." });
   });
 
   it("pins the story into the chat and hydrates the pinned copy on re-select", async () => {
@@ -167,7 +177,7 @@ describe("story identity", () => {
     await reopened.loadSelectedFromChat();
     expect(reopened.getSnapshot().storyId).toBe("sun-ruins");
     expect(reopened.getSnapshot().activeCheckpointId).toBe("door");
-    expect(reopened.getSnapshot().storyIdentity).toMatchObject({ pinned: true, libraryVersion: null });
+    expect(reopened.getSnapshot().storyIdentity).toMatchObject({ pinned: true, drifted: false });
   });
 
   it("does not push a library edit into a chat that already pinned the story", async () => {
@@ -178,10 +188,10 @@ describe("story identity", () => {
     const reopened = new RuntimeManager();
     await reopened.loadSelectedFromChat();
     expect(reopened.getSnapshot().storyDescription).toBe("A desert expedition.");
-    expect(reopened.getSnapshot().storyIdentity).toMatchObject({ playedVersion: 1, libraryVersion: 2, drifted: true });
+    expect(reopened.getSnapshot().storyIdentity).toMatchObject({ pinned: true, drifted: true });
   });
 
-  it("restart clears progress and re-pins the latest library version", async () => {
+  it("restart clears progress and re-pins the library's copy", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson());
     await manager.setQuality("found_key", "true");
@@ -195,7 +205,7 @@ describe("story identity", () => {
     expect(await playing.restartStory()).toBe(true);
     expect(playing.getSnapshot().activeCheckpointId).toBe("start");
     expect(playing.getSnapshot().storyDescription).toBe("Rewritten.");
-    expect(playing.getSnapshot().storyIdentity).toMatchObject({ playedVersion: 2, drifted: false });
+    expect(playing.getSnapshot().storyIdentity).toMatchObject({ pinned: true, drifted: false });
   });
 
   it("T4-4: restart keeps this chat's Author view and its journal, and journals the restart (T4-4-2 x-state-A-after-restart.json:44)", async () => {
@@ -213,7 +223,7 @@ describe("story identity", () => {
     expect(blob().stories["sun-ruins"].extras.journal.some((record) => record.kind === "flag" && record.summary === "before the restart")).toBe(true);
     const records = manager.getSessionJournal();
     const restarted = records.find((record) => record.summary === "Story restarted");
-    expect(restarted?.detail).toMatchObject({ note: expect.stringContaining("restarted from Door (boundary 2, v1) on v1") });
+    expect(restarted?.detail).toMatchObject({ note: expect.stringContaining("restarted from Door (boundary 2) on the library copy") });
     expect(records.indexOf(restarted!)).toBeGreaterThan(records.findIndex((record) => record.kind === "flag"));
   });
 

@@ -13,7 +13,7 @@ jest.mock("./context", () => ({
 
 type Answer = { ok: boolean; status: number; json: () => Promise<unknown> };
 const pending: Array<{ url: string; resolve: (answer: Answer) => void; reject: (error: Error) => void }> = [];
-let serverSettings: unknown = JSON.stringify({ extension_settings: { "story-orchestrator": { v2Stories: [{ id: "s1", version: 2 }] } } });
+let serverSettings: unknown = JSON.stringify({ extension_settings: { "story-orchestrator": { v2Stories: [{ id: "s1" }] } } });
 
 const base = ((url: string) => {
   if (url.includes("/api/settings/get")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ settings: serverSettings }) });
@@ -102,7 +102,7 @@ describe("v2.4 plan 02 §7 (T8): the save watcher heals and reports each request
   });
 
   it("reads the server's copy of one extension's settings out of the JSON string it answers", async () => {
-    expect(await readServerExtensionSettings("story-orchestrator")).toEqual({ v2Stories: [{ id: "s1", version: 2 }] });
+    expect(await readServerExtensionSettings("story-orchestrator")).toEqual({ v2Stories: [{ id: "s1" }] });
     expect(await readServerExtensionSettings("someone-else")).toEqual({});
     serverSettings = { not: "a string" };
     expect(await readServerExtensionSettings("story-orchestrator")).toBeNull();

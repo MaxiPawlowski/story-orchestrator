@@ -1,6 +1,7 @@
 import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveSources } from "./loreExclusive";
+import { loreStoryKey } from "./loreSelect";
 
 const story = (exclusive: boolean | "absent" = true): NormalizedStoryV2 => parseStoryV2OrThrow({
   format: 2,
@@ -13,6 +14,8 @@ const story = (exclusive: boolean | "absent" = true): NormalizedStoryV2 => parse
   roster: [],
   lore_select: { lorebooks: ["Story Lore"], ...(exclusive === "absent" ? {} : { exclusive }) },
 });
+
+const LX_KEY = loreStoryKey(story());
 
 const entry = (uid: number, comment: string, patch: Partial<HostScannableEntry> = {}, world = "Story Lore"): HostScannableEntry => ({ world, uid, comment, content: comment, disable: false, ...patch });
 const arrays = (): HostScannableEntry[][] => [[
@@ -36,7 +39,7 @@ const sources = (patch: Partial<LoreExclusiveSources> = {}): LoreExclusiveSource
   messageId: () => 4,
   loud: () => true,
   vectorsScanWorldInfo: () => false,
-  selection: () => ({ chatId: "chat-1", storyKey: "lx@1", messageId: 4, picks: [{ world: "story lore", uid: 1 }] }),
+  selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 4, picks: [{ world: "story lore", uid: 1 }] }),
   ...patch,
 });
 
@@ -88,9 +91,9 @@ describe("L5: exclusive lore-select on the scan copies", () => {
     ["not-loud", { loud: () => false }],
     ["vectors-wi", { vectorsScanWorldInfo: () => true }],
     ["no-selection", { selection: () => null }],
-    ["no-selection", { selection: () => ({ chatId: "chat-2", storyKey: "lx@1", messageId: 4, picks: [] }) }],
-    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: "other@1", messageId: 4, picks: [] }) }],
-    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: "lx@1", messageId: 3, picks: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-2", storyKey: LX_KEY, messageId: 4, picks: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: "other@0", messageId: 4, picks: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 3, picks: [] }) }],
   ] as Array<[string, Partial<LoreExclusiveSources>]>)("X3/X5: refused (%s) leaves the keyword scan exactly as loaded", (reason, patch) => {
     const scan = arrays();
     const before = JSON.stringify(scan);

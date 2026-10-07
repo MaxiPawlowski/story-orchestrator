@@ -99,7 +99,7 @@ class WiGatingRuntime implements WiGating {
   private readonly lifetime: RunOwnership;
 
   constructor(private readonly deps: WiGatingDeps) {
-    const mint = () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: this.generation, window: null, windowRevision: 0 });
+    const mint = () => ({ chatId: null, storyId: null, storyHash: null, sessionEpoch: this.generation, window: null, windowRevision: 0 });
     this.alive = {
       mint,
       check: (token) => (!this.disposed && token.sessionEpoch === this.generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),

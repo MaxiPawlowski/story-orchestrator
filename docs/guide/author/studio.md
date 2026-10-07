@@ -9,7 +9,7 @@ plays.
 | Tab | What you edit |
 |---|---|
 | Graph | The story as a map of scenes and exits. Click a node to edit it. |
-| Story | Title, description, id and version, the player introduction, dramatic shape, requirements, thread bridges, the curator's lorebook scope, illustrations. |
+| Story | Title, description and id, the player introduction, dramatic shape, requirements, thread bridges, the curator's lorebook scope, illustrations. |
 | Qualities | The facts the story tracks, with their rubrics and how they are read. |
 | Checkpoints | The scenes: objective, tension target, guidance, and what happens on arrival (lore, author's note, background, cast changes, scripted lines). |
 | Transitions | The exits between scenes and the condition (gate) that opens each one. |
@@ -33,11 +33,12 @@ Fix the errors before you play; warnings are worth reading. The guide topic name
 
 ## Saving
 
-**Save** writes the story to your library as a new version (`Saved "X" vN to the library.`). The toolbar says
-`unsaved draft` while there are changes.
+**Save** writes the story to your library (`Saved "X" to the library.`). The toolbar says `unsaved draft` while
+there are changes. Stories carry no version number: a chat tells that the library holds a different copy by its
+content.
 
-Saving does not switch other chats to the new version; each chat keeps the copy it plays. When you save from the
-chat that plays the story:
+Saving does not switch other chats to the edited story; each chat keeps the copy it plays, and Author view shows
+**Update to the latest** in that chat's drawer. When you save from the chat that plays the story:
 
 - a compatible edit is applied there at once (`Applied to this chat: …`);
 - an edit that invalidates progress asks whether this chat should **Keep playing** (only the parts that no longer

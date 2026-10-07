@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-an-role-probe",
-  "version": 1,
   "title": "SO AN Role Probe",
   "description": "Live check: an authored author_note role reaches ST's Author's Note and the assembled prompt.",
   "qualities": [

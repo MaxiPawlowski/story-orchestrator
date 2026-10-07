@@ -71,7 +71,7 @@ describe("T5-2 MEDIUM: a draft has its own key, so the agent session of one draf
     expect(useDraftStore.getState().draftKey).toBe(wizardSessionKey({ id: "the-pawnbroker" }));
     useDraftStore.getState().newDraft();
     const key = useDraftStore.getState().draftKey;
-    useDraftStore.getState().loadDraft({ ...newStoryDraft(), id: "saved-now", version: 1 }, "hash", key);
+    useDraftStore.getState().loadDraft({ ...newStoryDraft(), id: "saved-now" }, "hash", key);
     expect(useDraftStore.getState().draftKey).toBe(key);
   });
 });

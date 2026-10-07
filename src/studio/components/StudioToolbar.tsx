@@ -58,7 +58,7 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave =
       setFeedback({ type: "error", message: `${result.length} validation error(s) block save.`, blocked: true });
       return;
     }
-    const saved = { ...current, id: result.record.id, version: result.record.version };
+    const saved = { ...current, id: result.record.id };
     const draftKey = useDraftStore.getState().draftKey;
     const storyKey = draftKeyFor(saved);
     if (onRekeySession && storyKey !== draftKey) onRekeySession(draftKey, storyKey);

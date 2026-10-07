@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-08-director",
-  "version": 1,
   "title": "Live v2.4 08 - Routed director",
   "description": "Plan 08 routing fixture: live-v24-08 with the LLM director on in both checkpoints, so a real turn asks the routed director profile.",
   "qualities": [

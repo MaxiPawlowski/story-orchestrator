@@ -12,8 +12,8 @@ import { gettingStartedShown, gettingStartedSteps } from "@runtime/repair";
 import { THINKING_CHECK, THINKING_PLAYER_TEXT } from "@runtime/checks";
 import { GUIDE_TOPIC_IDS } from "@copilot/guideTopics";
 import {
-  AREA_LABELS, FEATURE_AREAS, FEATURES, HOME_PAGE, NEED_LABELS, authorGuideDoc, compareVersions, coversSetting, featuresForSetting, guideUrl, newestSince,
-  visibleFeatures, whatsNew, type FeatureAudience,
+  AREA_LABELS, FEATURE_AREAS, FEATURES, HOME_PAGE, NEED_LABELS, authorGuideDoc, coversSetting, featuresForSetting, guideUrl,
+  visibleFeatures, type FeatureAudience,
 } from "./registry";
 import { SETTINGS_AREA_COPY, SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
@@ -102,13 +102,12 @@ const LEAKS: Array<[string, RegExp]> = [
 const PLAYER_ONLY_LEAKS: Array<[string, RegExp]> = [["snake_case id", /\b[a-z0-9]+(?:_[a-z0-9]+)+\b/]];
 
 describe("v2.7 plan 01 feature registry", () => {
-  it("gives every feature a unique id, a known area, a guide page path and a version", () => {
+  it("gives every feature a unique id, a known area and a guide page path", () => {
     const ids = FEATURES.map((feature) => feature.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const feature of FEATURES) {
       expect(FEATURE_AREAS).toContain(feature.area);
       expect(feature.doc).toMatch(/^(player|author|setup)\/[A-Za-z0-9/-]+\.md$/);
-      expect(feature.since).toMatch(/^\d+\.\d+\.\d+$/);
       expect(feature.oneLine.trim().length).toBeGreaterThan(0);
       expect(feature.what.trim().length).toBeGreaterThan(feature.oneLine.length / 2);
       if (feature.guideTopic) expect(GUIDE_TOPIC_IDS).toContain(feature.guideTopic);
@@ -231,26 +230,11 @@ describe("v2.7 plan 01 slash help", () => {
   });
 });
 
-describe("v2.7 plan 01 what's new and getting started", () => {
-  it("compares versions numerically", () => {
-    expect(compareVersions("2.10.0", "2.9.1")).toBe(1);
-    expect(compareVersions("2.6.0", "2.6.0")).toBe(0);
-    expect(compareVersions("2.4.0", "2.6.0")).toBe(-1);
-  });
-
-  it("shows nothing on a fresh install, everything since 2.4 on an upgraded one, nothing once seen", () => {
-    expect(whatsNew({ lastSeen: null, configured: false, authorView: false })).toEqual([]);
-    const upgraded = whatsNew({ lastSeen: null, configured: true, authorView: false });
-    expect(upgraded.length).toBeGreaterThan(0);
-    expect(upgraded.every((feature) => compareVersions(feature.since, "2.4.0") > 0 && feature.audience !== "author")).toBe(true);
-    expect(whatsNew({ lastSeen: newestSince(), configured: true, authorView: true })).toEqual([]);
-  });
-
-  it("stores the last seen version install-wide and keeps only a version", () => {
-    expect(defaultGlobalSettings().help).toEqual({ lastSeenVersion: null, checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
+describe("v2.7 plan 01 getting started", () => {
+  it("stores the help state install-wide, and an unknown key is not kept", () => {
+    expect(defaultGlobalSettings().help).toEqual({ checklistDismissed: false, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
     expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "2.7.0", checklistDismissed: true } }).help)
-      .toEqual({ lastSeenVersion: "2.7.0", checklistDismissed: true, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
-    expect(sanitizeGlobalSettings({ help: { lastSeenVersion: "soon" } }).help.lastSeenVersion).toBeNull();
+      .toEqual({ checklistDismissed: true, dismissedChecks: [], onboardingSeen: false, openSections: ["play"] });
   });
 
   it("keeps the checklist until the memory model is set, and folds it when done or hidden", () => {

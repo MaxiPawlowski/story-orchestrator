@@ -7,7 +7,6 @@
         "format": 2,
         "id": "v20e-journal-contract",
         "title": "V20e journal contract",
-        "version": 1,
         "description": "Two planted reads over the same turns: the older's key_taken is superseded by the newer's, its torch_seen still applies (per-key supersession).",
         "qualities": [
           {

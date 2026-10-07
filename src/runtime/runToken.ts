@@ -7,7 +7,7 @@
 // message index was not enough — two chats sitting at index 7 compare equal.
 //
 // So a task mints a token when it starts and re-checks it immediately before it writes. The token
-// is the whole identity of the work: which chat, which story at which version, which run of the
+// is the whole identity of the work: which chat, which story at which content hash, which run of the
 // runtime, and which window of messages the answer was computed from.
 
 import { NEVER_ABORTS } from "@utils/signals";
@@ -20,7 +20,7 @@ export interface MessageWindow {
 export interface RunToken {
   chatId: string | null;
   storyId: string | null;
-  playedVersion: number | null;
+  storyHash: string | null;
   /** Bumped by the manager on loadStory, select, restart, clear, CHAT_CHANGED and stop. */
   sessionEpoch: number;
   /** The window the work read. `null` for work that does not read the transcript. */
@@ -29,7 +29,7 @@ export interface RunToken {
   windowRevision: number;
 }
 
-export type TokenMismatch = "chat" | "story" | "version" | "epoch" | "window";
+export type TokenMismatch = "chat" | "story" | "revision" | "epoch" | "window";
 
 export type TokenCheck = { ok: true } | { ok: false; reason: TokenMismatch; detail: string };
 
@@ -37,7 +37,7 @@ export type TokenCheck = { ok: true } | { ok: false; reason: TokenMismatch; deta
 export interface RunContext {
   chatId: string | null;
   storyId: string | null;
-  playedVersion: number | null;
+  storyHash: string | null;
   sessionEpoch: number;
   windowRevision: number;
   /**
@@ -54,7 +54,7 @@ export function mintToken(current: RunContext, window: MessageWindow | null = nu
   return {
     chatId: current.chatId,
     storyId: current.storyId,
-    playedVersion: current.playedVersion,
+    storyHash: current.storyHash,
     sessionEpoch: current.sessionEpoch,
     window: window ? { from: window.from, to: window.to } : null,
     windowRevision: current.windowRevision,
@@ -82,8 +82,8 @@ export function tokenMatches(current: RunContext, token: RunToken): TokenCheck {
   if (current.storyId !== token.storyId) {
     return { ok: false, reason: "story", detail: `this result belongs to story ${String(token.storyId)}, the chat now plays ${String(current.storyId)}` };
   }
-  if (current.playedVersion !== token.playedVersion) {
-    return { ok: false, reason: "version", detail: `the story moved from version ${String(token.playedVersion)} to ${String(current.playedVersion)} while this ran` };
+  if (current.storyHash !== token.storyHash) {
+    return { ok: false, reason: "revision", detail: "the story this chat plays was updated while this ran" };
   }
   if (current.windowRevision !== token.windowRevision && token.window) {
     const lowest = current.lowestMutatedSince ? current.lowestMutatedSince(token.windowRevision) : current.lowestMutatedMessageId;

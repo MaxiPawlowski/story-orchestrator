@@ -7,7 +7,6 @@
     { "import_story": {
       "format": 2,
       "id": "so-v15b-ledger",
-      "version": 1,
       "title": "SO-V15b Ledger",
       "description": "A second checkpoint that sets an Author's Note and a background.",
       "qualities": [{ "key": "ready", "type": "bool", "source": "code", "rubric": "Moved on." }],

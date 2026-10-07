@@ -22,7 +22,7 @@ const harness = () => {
   const context = (): RunContext => ({
     chatId: world.chatId,
     storyId: "evidence",
-    playedVersion: 1,
+    storyHash: "h1",
     sessionEpoch: world.epoch,
     windowRevision: world.revision,
     lowestMutatedSince: (revision) => {

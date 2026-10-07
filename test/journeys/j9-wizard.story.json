@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "so-j9-wizard",
-  "version": 1,
   "title": "SO-J9 Courier Run",
   "description": "Journey J9 wizard fixture: a two-anchor story whose only unmet requirement is a lorebook the wizard can create.",
   "requirements": {

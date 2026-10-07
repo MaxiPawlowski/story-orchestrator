@@ -40,7 +40,7 @@ function harness({ ownership = true }: { ownership?: boolean } = {}) {
   let release!: () => void;
   const held = new Promise<void>((resolve) => { release = resolve; });
 
-  const ctx = (): RunContext => ({ chatId, storyId: "s1", playedVersion: 1, sessionEpoch: epoch, windowRevision: 0, lowestMutatedMessageId: null });
+  const ctx = (): RunContext => ({ chatId, storyId: "s1", storyHash: "h1", sessionEpoch: epoch, windowRevision: 0, lowestMutatedMessageId: null });
   const runtime = new JudgeRuntime({
     getSettings: () => ({ enabled: true, model: "jev-1.13.0", timeoutMs: 5000, uses: { sceneTracker: true }, expansion: { variants: 1, temperature: 0.7, pick: "code" } }) as never,
     // JudgeTransport is a FUNCTION, not an object. Passing an object made every call fall back,
@@ -145,7 +145,7 @@ describe("V3: the unavailable fallback belongs to the chat it was asked in", () 
     let epoch = 1;
     let release!: () => void;
     const held = new Promise<void>((resolve) => { release = resolve; });
-    const ctx = (): RunContext => ({ chatId, storyId: "s1", playedVersion: 1, sessionEpoch: epoch, windowRevision: 0, lowestMutatedMessageId: null });
+    const ctx = (): RunContext => ({ chatId, storyId: "s1", storyHash: "h1", sessionEpoch: epoch, windowRevision: 0, lowestMutatedMessageId: null });
     const runtime = new JudgeRuntime({
       getSettings: () => ({ enabled: true, model: "jev-1.13.0", timeoutMs: 5000, uses: { sceneTracker: true }, expansion: { variants: 1, temperature: 0.7, pick: "code" } }) as never,
       transport: (async () => ({ model: "jev-1.13.0", answers: {} })) as never,

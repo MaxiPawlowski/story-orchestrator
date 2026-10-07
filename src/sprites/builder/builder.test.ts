@@ -22,7 +22,7 @@ const request: SpriteBuildRequest = { character: "Test", set: "pilot", label: "h
 const fixture = () => {
   let owns = true;
   const deps: BuilderDeps = {
-    ownership: { mint: () => ({ chatId: "chat", storyId: "story", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, window: null }),
+    ownership: { mint: () => ({ chatId: "chat", storyId: "story", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, window: null }),
       check: () => owns ? { ok: true } : { ok: false, reason: "epoch", detail: "changed" } },
     decode: async (src) => src === "base" ? base : edit,
     encode: () => "encoded", crop: async () => "cropped", resize: (input) => input,

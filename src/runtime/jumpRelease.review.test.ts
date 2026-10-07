@@ -42,7 +42,7 @@ describe("v2.6 plan 04 C4: /cp activate releases the source, then applies the ta
   it("releases while the engine still stands at the source, and hands the applier the target's path only", async () => {
     const runtime = new RuntimeManager();
     const probe = runtime as unknown as { loaded: unknown; engine: StoryEngine; effects: EffectsApplier; persist: () => Promise<void> };
-    probe.loaded = { record: { id: "jump", version: 1, hash: "h", raw: {} }, story };
+    probe.loaded = { record: { id: "jump", hash: "h", raw: {} }, story };
     probe.engine.loadStory(story);
     probe.persist = async () => {};
     const co = (runtime as unknown as { co: { pacing: { updateSteering: () => void }; memory: { updateInjection: () => void } } }).co;
@@ -67,7 +67,7 @@ describe("CR-E3 / CR-E4: every caller of activateCheckpoint gets the chapter-jum
   const managerAt = () => {
     const runtime = new RuntimeManager();
     const probe = runtime as unknown as { loaded: unknown; engine: StoryEngine; effects: EffectsApplier; persist: () => Promise<void>; extras: RuntimeExtras };
-    probe.loaded = { record: { id: "chapters-mini", version: 1, hash: "h", raw: {} }, story: chaptered };
+    probe.loaded = { record: { id: "chapters-mini", hash: "h", raw: {} }, story: chaptered };
     probe.engine.loadStory(chaptered);
     probe.engine.activateCheckpoint("market", { lastMessageId: 1, chatLength: 2 });
     probe.persist = async () => {};

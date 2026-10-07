@@ -167,8 +167,7 @@ export const hostFacts = async (): Promise<HostFacts> => {
 };
 
 /** One block of text for the clipboard, so a report carries the whole picture. */
-export const renderCapabilityReport = (reports: CapabilityReport[], facts: HostFacts, extensionVersion: string): string => [
-  `Story Orchestrator ${extensionVersion}`,
+export const renderCapabilityReport = (reports: CapabilityReport[], facts: HostFacts): string => [
   `SillyTavern ${facts.stVersion ?? "unknown"}${facts.stCommit ? ` (${facts.stCommit})` : ""}`,
   `macros: ${facts.macroEngine} engine`,
   ...reports.map((report) => `${report.id}: ${report.state} — ${report.detail}`),

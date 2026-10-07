@@ -23,7 +23,7 @@ declare global {
   };
 }
 
-const LOADED = { record: { id: "s1", version: 1, hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } } as unknown as LoadedStory;
+const LOADED = { record: { id: "s1", hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } } as unknown as LoadedStory;
 
 function harness(options: { loaded?: LoadedStory | null; owns?: boolean; claimedChat?: string; loadedChat?: string } = {}) {
   let saves = 0;
@@ -37,7 +37,7 @@ function harness(options: { loaded?: LoadedStory | null; owns?: boolean; claimed
   const extras: RuntimeExtras = createExtras(getGlobalSettings);
   const world = { epoch: 1, extras };
   const ownership: RunOwnership = {
-    mint: () => ({ chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: world.epoch, windowRevision: 0, lowestMutatedMessageId: null }) as unknown as RunToken,
+    mint: () => ({ chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: world.epoch, windowRevision: 0, lowestMutatedMessageId: null }) as unknown as RunToken,
     check: (token: RunToken) => ((token as unknown as { sessionEpoch: number }).sessionEpoch === world.epoch ? { ok: true } : { ok: false, reason: "sessionEpoch", detail: "moved" }) as never,
   };
   const owner = { ownsOpenChat: () => options.owns ?? true, claimedChat: () => options.claimedChat ?? "chat-a", ownership } as unknown as RunOwner;
@@ -212,7 +212,7 @@ describe("ChatSave: one request serving two writes (E3 dedupe)", () => {
 });
 
 describe("ChatSave: a save's outcome belongs to the chat it was armed in (v2.5 batch 2, C2)", () => {
-  const OTHER = { record: { id: "s2", version: 1, hash: "h2", raw: { format: 2, id: "s2" } }, story: { title: "T" } } as unknown as LoadedStory;
+  const OTHER = { record: { id: "s2", hash: "h2", raw: { format: 2, id: "s2" } }, story: { title: "T" } } as unknown as LoadedStory;
   const lost: SaveObservation = { requested: false, status: null, ok: false, timedOut: false, failed: false, lost: "the open chat changed before the save ran" };
 
   function switching() {

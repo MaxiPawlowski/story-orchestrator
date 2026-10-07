@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v25-09-sp7",
-  "version": 1,
   "title": "Live v2.5 09 SP7 - Seeded chance",
   "description": "SP7 live fixture: a hall where the rules pick the speaker by weight (D4b), a gate whose onEnter NPC reply rolls at 0.5 (D4), and a code roll quality drawn at gate entry that decides which way the gate goes (D5 machinery).",
   "qualities": [

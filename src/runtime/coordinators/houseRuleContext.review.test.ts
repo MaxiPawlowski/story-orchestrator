@@ -29,7 +29,7 @@ const view = { getStory: () => story(), getState: () => engineState };
 
 const evidenceFor = (replyMessageId: number) => {
   const evidence = new LoreEvidence();
-  const context = (): RunContext => ({ chatId: "chat-1", storyId: "rules", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedSince: () => null });
+  const context = (): RunContext => ({ chatId: "chat-1", storyId: "rules", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedSince: () => null });
   evidence.attach({ chatId: () => "chat-1", context, now: () => "2026-10-02T00:00:00.000Z" });
   const entry = (uid: number, comment: string, content: string, world: string, constant = false): ScanInput => ({ world, uid, comment, content, constant });
   evidence.opened({ type: "normal" });

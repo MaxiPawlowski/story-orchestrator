@@ -17,7 +17,7 @@ function harness({ usage = { input_tokens: 296, output_tokens: 20 } as Record<st
   const world = { chatId: "chat-a", storyId: "s1" };
   let gate: Promise<void> | null = null;
   let open: () => void = () => {};
-  const ctx = (): RunContext => ({ chatId: world.chatId, storyId: world.storyId, playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
+  const ctx = (): RunContext => ({ chatId: world.chatId, storyId: world.storyId, storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const runtime = new JudgeRuntime({
     getSettings: () => ({ enabled: true, model: "jev-1.13.0", timeoutMs: 5000, uses: {}, expansion: { variants: 1, temperature: 0.7, pick: "code" } }) as never,
     transport: (async (asked: { state: Record<string, unknown> }) => {
@@ -104,7 +104,7 @@ describe("AE-04 judgeRing|aborted: a judge call the epoch cancels", () => {
   function epochHarness() {
     const chats: Record<string, JudgeRuntimeState> = { "chat-a": createJudgeRuntime(), "chat-b": createJudgeRuntime() };
     const world = { chatId: "chat-a", storyId: "s1" };
-    const owner = new RunOwner({ openChatId: () => world.chatId, storyId: () => world.storyId, playedVersion: () => 1 });
+    const owner = new RunOwner({ openChatId: () => world.chatId, storyId: () => world.storyId, storyHash: () => "h1" });
     owner.bump();
     const signals: AbortSignal[] = [];
     const rows: JudgeCallRecord[] = [];

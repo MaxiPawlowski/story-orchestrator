@@ -12,7 +12,7 @@ const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "t
 const STATE = { boundary: 4, lastMessageId: 9, blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState;
 
 const harness = (reply: string) => {
-  const context: RunContext = { chatId: "c1", storyId: "character-life-lab", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const context: RunContext = { chatId: "c1", storyId: "character-life-lab", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   let proposals: AgendaProposalsState | undefined;
   const journal: string[] = [];
   const prompts: string[] = [];

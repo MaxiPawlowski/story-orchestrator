@@ -10,7 +10,7 @@
   },
   "steps": [
     { "import_story": {
-      "format": 2, "id": "soimg-card-reply", "version": 1, "title": "SOIMG card reply", "description": "A synthetic portrait after a visible hair-colour change.",
+      "format": 2, "id": "soimg-card-reply", "title": "SOIMG card reply", "description": "A synthetic portrait after a visible hair-colour change.",
       "roster": [{"id": "wren", "name": "SOIMG Wren", "role": "Portrait subject", "card": {"fields": {"hair": {"quality": "hair", "visual": true}}}}],
       "qualities": [{"key": "hair", "type": "enum", "values": ["auburn", "green"], "source": "extractor", "rubric": "The established current hair colour."}],
       "requirements": {"members": ["SOIMG Wren"]},

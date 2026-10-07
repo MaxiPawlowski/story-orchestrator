@@ -5,7 +5,7 @@ import { parseChatFile, playerLines, transcriptToScenario, turnRecordEval } from
 import { globalsReadButNeverWritten, validateFixture } from './lib/scenarioSchema.mts';
 
 const story = JSON.parse(readFileSync(new URL('../../examples/sun-ruins/quest-for-the-sun-ruins.json', import.meta.url), 'utf-8'));
-const header = { chat_metadata: { story_orchestrator: { version: 6, chatId: 'c1', selectedStoryId: 'sun-ruins', stories: { 'sun-ruins': { pinnedStory: story, playedVersion: 3 } } } }, user_name: 'unused', character_name: 'unused' };
+const header = { chat_metadata: { story_orchestrator: { version: 6, chatId: 'c1', selectedStoryId: 'sun-ruins', stories: { 'sun-ruins': { pinnedStory: story, contentHashAtLoad: 'v2-abc' } } } }, user_name: 'unused', character_name: 'unused' };
 const row = (fields: Record<string, unknown>) => JSON.stringify({ send_date: '2026-09-24T08:00:00.000Z', mes: '', ...fields });
 const chat = [
   JSON.stringify(header),

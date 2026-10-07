@@ -172,15 +172,16 @@ describe("v2.5 plan 09 SP1 S2: no stale hit", () => {
     await world.play(script);
     const id = spikeContext.chat.length - 1;
     await world.newSwipe(id, "stone path");
-    const next = { ...JSON.parse(SPIKE_STORY), version: 2, description: "v2: same graph, new words." };
+    const pinnedBefore = chatStore.read()?.contentHashAtLoad;
+    const next = { ...JSON.parse(SPIKE_STORY), description: "Same graph, new words." };
     await world.manager.importStory(JSON.stringify(next));
     const update = await world.manager.applyStoryUpdate();
     await world.settle();
-    const played = chatStore.read()?.playedVersion;
+    const repinned = chatStore.read()?.contentHashAtLoad !== pinnedBefore;
     await world.swipeTo(id, 0);
     const hits = spike.stats.hits;
     world.close();
-    return { hits, played, update: update.classification };
+    return { hits, repinned, update: update.classification };
   };
 
   const scopeCase = async (part?: keyof SwipeKey) => {
@@ -208,10 +209,10 @@ describe("v2.5 plan 09 SP1 S2: no stale hit", () => {
     await expect(textCase("text")).resolves.toBe(1);
   });
 
-  it("(story version) a compatible v2 update between B and the swipe-back: 0 hits; a key without the version hits", async () => {
+  it("(story copy) a compatible update between B and the swipe-back: 0 hits; a key without the story copy hits", async () => {
     const kept = await versionCase();
-    expect(kept).toEqual({ hits: 0, played: 2, update: "compatible" });
-    await expect(versionCase("story")).resolves.toEqual({ hits: 1, played: 2, update: "compatible" });
+    expect(kept).toEqual({ hits: 0, repinned: true, update: "compatible" });
+    await expect(versionCase("story")).resolves.toEqual({ hits: 1, repinned: true, update: "compatible" });
   });
 
   it("(scope) the restore point's scope changes, text and version do not: 0 hits; a key without the scope hits", async () => {

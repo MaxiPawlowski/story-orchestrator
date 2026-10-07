@@ -22,7 +22,6 @@
       "import_story": {
         "format": 2,
         "id": "so-v27d04",
-        "version": 1,
         "title": "SO-V27D04 Health",
         "description": "v2.7 04 live row: a group story missing one member, played with no memory model and Summarize on.",
         "requirements": {
@@ -180,7 +179,7 @@
       "log": true
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const ctx = SillyTavern.getContext(); if (ctx.groupId) throw new Error('solo_chat did not leave the group'); ctx.chatMetadata.story_orchestrator = { version: 6, chatId: ctx.chatId, selectedStoryId: 'so-v27d04', stories: {} }; await ctx.saveMetadata?.(); await globalThis.storyOrchestratorRuntime.loadSelectedFromChat(); const snapshot = await until(() => { const value = globalThis.storyOrchestratorRuntime.getSnapshot(); return value.noGroup ? value : null; }, 5000, 'the solo chat to read as noGroup'); if (snapshot.ready) throw new Error('the story plays in a one-on-one chat'); return { noGroup: snapshot.noGroup?.storyId ?? null };",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const ctx = SillyTavern.getContext(); if (ctx.groupId) throw new Error('solo_chat did not leave the group'); ctx.chatMetadata.story_orchestrator = { version: 7, chatId: ctx.chatId, selectedStoryId: 'so-v27d04', stories: {} }; await ctx.saveMetadata?.(); await globalThis.storyOrchestratorRuntime.loadSelectedFromChat(); const snapshot = await until(() => { const value = globalThis.storyOrchestratorRuntime.getSnapshot(); return value.noGroup ? value : null; }, 5000, 'the solo chat to read as noGroup'); if (snapshot.ready) throw new Error('the story plays in a one-on-one chat'); return { noGroup: snapshot.noGroup?.storyId ?? null };",
       "log": true
     },
     {

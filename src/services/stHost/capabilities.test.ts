@@ -219,8 +219,7 @@ describe("capability probes", () => {
   it("reports the host facts a bug report needs, and one paste carries all of it", async () => {
     await expect(hostFacts()).resolves.toEqual({ stVersion: "1.13.4", stCommit: "abc1234", macroEngine: "new" });
     const reports = await capabilityReport();
-    const text = renderCapabilityReport(reports, await hostFacts(), "2.3.0");
-    expect(text).toContain("Story Orchestrator 2.3.0");
+    const text = renderCapabilityReport(reports, await hostFacts());
     expect(text).toContain("SillyTavern 1.13.4 (abc1234)");
     expect(text).toContain("macros: new engine");
     reports.forEach((report) => expect(text).toContain(`${report.id}: ${report.state}`));

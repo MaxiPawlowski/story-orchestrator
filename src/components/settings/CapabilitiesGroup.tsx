@@ -5,7 +5,6 @@ export interface CapabilitiesGroupProps {
   reports: CapabilityReport[] | "checking";
   /** What it is running on, which a present/absent probe cannot say. */
   facts?: HostFacts | null;
-  extensionVersion?: string;
   /** The memory model's context limit and where it came from, never failed closed. */
   memoryModel?: MemoryModelLimit | null;
   onRefresh(): void;
@@ -14,7 +13,7 @@ export interface CapabilitiesGroupProps {
 
 // 08. An install-health read-out, not a control: it exists so a missing host capability is
 // named where the author is standing, instead of surfacing as an effect that quietly did nothing, and
-// so a bug report carries the version, the engine and every probe in one paste. Nothing here is a
+// so a bug report carries the host, the engine and every probe in one paste. Nothing here is a
 // story spoiler, so it needs no persona gate.
 export interface MemoryModelLimit {
   value: number;
@@ -35,13 +34,12 @@ export const describeMemoryModelLimit = (limit: MemoryModelLimit) =>
   `Memory model context: ${tokens(limit.value)} tokens ${limitOrigin(limit)} · up to ` +
     `${tokens(limit.inputBudget)} per read`;
 
-export function CapabilitiesGroup({ reports, facts = null, extensionVersion = "", memoryModel = null, onRefresh, onCopy }: CapabilitiesGroupProps) {
+export function CapabilitiesGroup({ reports, facts = null, memoryModel = null, onRefresh, onCopy }: CapabilitiesGroupProps) {
   const checking = reports === "checking";
   const broken = checking ? [] : reports.filter((report) => report.state !== "present");
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
 
   const report = [
-    `Story Orchestrator ${extensionVersion || "(version unknown)"}`,
     `SillyTavern ${facts?.stVersion ?? "unknown"}${facts?.stCommit ? ` (${facts.stCommit})` : ""}`,
     `macros: ${facts?.macroEngine ?? "unknown"} engine`,
     ...(memoryModel ? [describeMemoryModelLimit(memoryModel)] : []),
@@ -74,7 +72,7 @@ export function CapabilitiesGroup({ reports, facts = null, extensionVersion = ""
       </div>
       {facts && (
         <div id="so-host-facts" className="text-xs opacity-80">
-          SillyTavern {facts.stVersion ?? "unknown"}{facts.stCommit ? ` (${facts.stCommit})` : ""} · {facts.macroEngine} macro engine{extensionVersion ? ` · extension ${extensionVersion}` : ""}
+          SillyTavern {facts.stVersion ?? "unknown"}{facts.stCommit ? ` (${facts.stCommit})` : ""} · {facts.macroEngine} macro engine
         </div>
       )}
       {memoryModel && <div id="so-context-limit" className="text-xs opacity-80">{describeMemoryModelLimit(memoryModel)}</div>}

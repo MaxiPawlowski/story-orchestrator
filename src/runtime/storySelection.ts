@@ -114,7 +114,7 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 }
 
 // Selecting is never destructive: a chat that already played this story hydrates its pinned copy
-// (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
+// (library edits, and even deletion, cannot reach it); a story new to this chat pins the copy the
 // library holds right now. Reset lives only in restartStory().
 export async function selectStory(deps: StorySelectionDeps, id: string, chosen = true): Promise<boolean> {
   if (refusedWithoutChat(deps, id) || refusedWithoutGroup(deps, id)) return false;
@@ -132,7 +132,7 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
   const record = findStoryRecord(id);
   const persisted = loadPersistedRuntime(id);
   if (persisted) {
-    const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.playedVersion, persisted.contentHashAtLoad, persisted.storyTitle);
+    const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.contentHashAtLoad, persisted.storyTitle);
     if (!isValidationErrorList(pinned)) {
       await deps.loadStory(pinned, "hydrate", persisted);
       return true;
@@ -152,8 +152,8 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
   return true;
 }
 
-// The only reset path. Drops this chat's progress for the story and re-pins the latest library
-// version, so a restart also adopts whatever the author changed meanwhile.
+// The only reset path. Drops this chat's progress for the story and re-pins the library's copy,
+// so a restart also adopts whatever the author changed meanwhile.
 export async function restartStory(deps: StorySelectionDeps, currentId: string | null, alreadyConfirmed = false): Promise<boolean> {
   if (!hasOpenChat() || !hasOpenGroup()) return false;
   const unreadable = currentId ? null : unreadableStored();
@@ -186,7 +186,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   if (!next) return false;
   await deps.loadStory(next, "activate", null, carry);
   const cleared = "the chat keeps its messages; checkpoint progress, blackboard and story memory were cleared";
-  deps.setStatus("Story restarted", note ?? `restarted${carry ? ` from ${carry.from}` : ""} on v${next.record.version}: ${cleared}`);
+  deps.setStatus("Story restarted", note ?? `restarted${carry ? ` from ${carry.from}` : ""} on the library copy: ${cleared}`);
   return true;
 }
 

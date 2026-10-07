@@ -12,7 +12,6 @@ export async function dumpStoryLibrary(page) {
     return {
       stories: records.map((record) => ({
         id: record.id ?? null,
-        version: record.version ?? null,
         hash: record.hash,
         title: record.title,
         description: record.description ?? null,

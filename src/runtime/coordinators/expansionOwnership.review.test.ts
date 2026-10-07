@@ -56,7 +56,7 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
     "chat-a": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
     "chat-b": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
   };
-  const context: RunContext = { chatId: "chat-a", storyId: "expansion-ownership", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const context: RunContext = { chatId: "chat-a", storyId: "expansion-ownership", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let persists = 0;
   const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } },

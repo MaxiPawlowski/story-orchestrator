@@ -7,7 +7,7 @@ import { useDraftStore } from "./draft";
 
 export const AGENT_BRIDGE_TIMEOUT_MS = 600_000;
 
-const draftContext = (): RunContext => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: useDraftStore.getState().runEpoch, windowRevision: 0 });
+const draftContext = (): RunContext => ({ chatId: null, storyId: null, storyHash: null, sessionEpoch: useDraftStore.getState().runEpoch, windowRevision: 0 });
 
 export const draftOwnership: RunOwnership = {
   mint: () => mintToken(draftContext()),

@@ -6,7 +6,6 @@
       "import_story": {
         "format": 2,
         "id": "v24-05-lore",
-        "version": 1,
         "title": "SO-V2405 Lore",
         "description": "v2.4 plan 05 T12 live: lore-select forces one entry per turn from a marker book.",
         "qualities": [],

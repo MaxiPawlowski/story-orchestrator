@@ -52,14 +52,13 @@ function harness(setup: Setup = {}) {
   const story = {
     title: "S",
     id: "s1",
-    version: 1,
     checkpointById: { cp1: { id: "cp1", name: "CP1", objective: "", ...(setup.motives === false ? {} : { motives: { arin: "get Ponticius to sign the vault pass", nobody: "x" } }) } },
     qualityByKey: {},
     roster: setup.roster ?? DEFAULT_ROSTER,
     requirements: { personas: ["Max"] },
     arc_bridges: [],
   };
-  const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+  const current: RunContext = { chatId: "chat-a", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
     settings: { enabled: true, epistemicLedgerCapable: setup.capable !== false, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } },

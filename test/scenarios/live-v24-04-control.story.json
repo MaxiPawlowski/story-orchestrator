@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-04-control",
-  "version": 1,
   "title": "Live v2.4 04 — The Sun Idol (control)",
   "description": "The same vault with evidence_from and the player-attempts clause absent, so every read behaves as it did before v2.4 plan 04. (v2.4 plan 04 live gate control arm.)",
   "qualities": [

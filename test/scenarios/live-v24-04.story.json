@@ -1,7 +1,6 @@
 {
   "format": 2,
   "id": "live-v24-04",
-  "version": 1,
   "title": "Live v2.4 04 — The Sun Idol",
   "description": "A vault where the Sun Idol rests on a pressure plate. (v2.4 plan 04 live gates: idol_taken gates the way into the next anchor and reads evidence only from lines the player did not write; the altar checkpoint opts into the player-attempts clause; door_open is an ordinary quality so each reply schedules a cadence read.)",
   "qualities": [

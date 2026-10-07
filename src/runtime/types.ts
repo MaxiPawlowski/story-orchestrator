@@ -64,7 +64,6 @@ export interface PayloadCapture {
 
 export interface StoryLibraryRecord {
   id: string;
-  version: number;
   hash: string;
   title: string;
   description: string;
@@ -372,7 +371,6 @@ export interface PersistedStoryRuntime {
   storyId: string;
   storyTitle: string;
   pinnedStory: Record<string, unknown>;
-  playedVersion: number;
   contentHashAtLoad: string;
   engineState: EngineState;
   // The bounded boundary log and the floor it reaches.
@@ -410,8 +408,6 @@ export interface ConvergenceReadout {
 
 export interface StoryIdentity {
   id: string | null;
-  playedVersion: number | null;
-  libraryVersion: number | null;
   pinned: boolean;
   drifted: boolean;
 }

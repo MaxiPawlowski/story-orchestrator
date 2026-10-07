@@ -62,7 +62,7 @@ describe("v2.7 34 the player-role block (Sol r3 R3-03: off only for the verified
 describe("v2.7 34 the setup record and view", () => {
   it("sanitizes a stored record and treats an absent one as settled (a chat from before this shipped)", () => {
     expect(sanitizePlayerSetup({ pending: false, storyId: "road", version: 2, choice: "pick", avatarId: "a.png", name: "A", locked: true, extra: 1 }))
-      .toEqual({ pending: false, storyId: "road", version: 2, choice: "pick", avatarId: "a.png", name: "A", locked: true });
+      .toEqual({ pending: false, storyId: "road", choice: "pick", avatarId: "a.png", name: "A", locked: true });
     expect(sanitizePlayerSetup({ choice: "pick" })).toBeUndefined();
     expect(sanitizePlayerSetup({ pending: true, choice: "steal" })).toEqual({ pending: true });
     expect(identitySettled(undefined)).toBe(true);

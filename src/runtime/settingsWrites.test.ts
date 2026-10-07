@@ -59,7 +59,7 @@ describe("v2.4 E3: library writes record save evidence", () => {
   it("a library save hands over its evidence, and the Studio reads that same one", async () => {
     host.observation = answered(500);
     const { record } = saved(story());
-    expect(heard.map(({ summary, label }) => ({ summary, label }))).toEqual([{ summary: "library save not confirmed", label: "“Heist” v1" }]);
+    expect(heard.map(({ summary, label }) => ({ summary, label }))).toEqual([{ summary: "library save not confirmed", label: "“Heist”" }]);
     expect(confirmLibrarySave(record)).toBe(heard[0].evidence);
     expect(host.observed).toBe(1);
     await expect(heard[0].evidence).resolves.toMatchObject({ confirmed: false, reason: "the settings save answered 500" });
