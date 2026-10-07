@@ -85,9 +85,9 @@ Plans 01–28 below are history: built or recorded, every gate re-run in Phase C
 | 31 | `31-flux-out-and-tooling-split.md` | FLUX removed; product vs local tooling; machine values out of shipped code; parallel gates decision | — | D | built, on master 2026-10-07 (gates green; live rows in 39) |
 | 32 | `32-images-and-living-characters.md` | completes 17–21/24/26 + 28's product pieces: route A default, talking sprites, living cards, changed looks | 31 | D, LI, CL | built, on master 2026-10-07 (gates green; live rows in 39) |
 | 33 | `33-player-loop-fixes.md` | edit re-read, agency notes reach players, responsiveness + repetition, "What could I do?" | — | D, CL, RP | built, on master 2026-10-07 (gates green; live rows in 39) |
-| 34 | `34-player-persona-and-start-setup.md` | who you are in this story (was v2.8 03) | 05 | D, RP | building 2026-10-07 |
+| 34 | `34-player-persona-and-start-setup.md` | who you are in this story (was v2.8 03) | 05 | D, RP | built, on master 2026-10-07 (S30-1 + RP rows in 39) |
 | 35 | `35-world-pressure-and-open-stretches.md` | SP6 measurement, open stretches, the one complication component, stall/adversity signals | 33 W2 | D, RP | phase 2 built, on master 2026-10-07; SP6 + N3/N5 prepared, phases 3–4 wait on M2 (39) |
-| 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | seeded |
+| 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | building 2026-10-07 |
 | 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | decided (v2.8) |
 | 38 | `38-adolion-campaign.md` | campaign upkeep + Saga assets/outfits + lab copies for 35–37 (was v2.8 02; 07 A3/A6 live, 28 assets) | 32, 35–37 | D, LI, RP | decided (v2.8) |
 | 39 | `39-test-from-zero.md` | Phase C: freeze, every row ×2 from zero, real-model and image acceptance, close-out | all | all | seeded |
