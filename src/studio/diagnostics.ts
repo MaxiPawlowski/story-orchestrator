@@ -11,6 +11,7 @@ import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnosti
 import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnostics";
 import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
 import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
+import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -71,6 +72,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...BRIEFING_CONSEQUENCES,
   ...KIND_CONSEQUENCES,
   ...PLAYER_CONSEQUENCES,
+  ...LIFE_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -490,6 +492,7 @@ const DIAGNOSTIC_CHECKS = [
   checkBriefingSpoilers,
   checkStoryKind,
   checkPlayerProfile,
+  checkAgendaPace,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

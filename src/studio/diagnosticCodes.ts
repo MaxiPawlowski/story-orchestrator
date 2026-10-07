@@ -48,4 +48,5 @@ export const DIAGNOSTIC_CODES = [
   "story-kind-invalid",
   "opener-uses-player-name",
   "player-spoiler-risk",
+  "agenda-pace-no-chapters",
 ] as const;

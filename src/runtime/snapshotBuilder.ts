@@ -3,7 +3,7 @@ import {
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
 } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { castVoices, sceneFieldsInConflict, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
@@ -400,7 +400,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     status: sources.status, noChat: noChatView(hasOpenChat()), noGroup: loaded ? null : noGroupOf(), dismissedChecks: getGlobalSettings().help.dismissedChecks,
     extraction: extras.extraction,
     expansion: extras.expansion,
-    memory: extras.memory,
+    memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     pacing: extras.pacing,
     copilot: extras.copilot,

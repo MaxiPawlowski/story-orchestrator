@@ -64,3 +64,18 @@ describe("the player projection shows only what the player has reached", () => {
     expect(composed.player.widgets.map((widget) => widget.id)).not.toContain("author-board");
   });
 });
+
+describe("owner decision 2026-10-07: the story panel's action log never lists an out-of-character line", () => {
+  const chatOf = (lines: Array<[boolean, string]>) => lines.map(([isUser, mes]) => ({ is_user: isUser, mes, name: isUser ? "Max" : "Keeper" }));
+  const actions = (chat: unknown[]) => composeGame({ ...sources(base(), {}), chat }).player.log.filter((row) => row.kind === "action").map((row) => row.text);
+
+  test("((…)), OOC: and (OOC lines are left out; the in-character lines stay in order", () => {
+    const chat = chatOf([[true, "I open the gate."], [false, "It creaks."], [true, "((brb, coffee))"], [true, "OOC: can we slow down?"], [true, "(OOC) sorry"], [true, "I step through."]]);
+    expect(actions(chat)).toEqual(["I step through.", "I open the gate."]);
+  });
+
+  test("control: the same lines in character are all listed", () => {
+    const chat = chatOf([[true, "I open the gate."], [false, "It creaks."], [true, "brb, coffee"], [true, "can we slow down?"], [true, "sorry"], [true, "I step through."]]);
+    expect(actions(chat)).toEqual(["I step through.", "sorry", "can we slow down?", "brb, coffee", "I open the gate."]);
+  });
+});

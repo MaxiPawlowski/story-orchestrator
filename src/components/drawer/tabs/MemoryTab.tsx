@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
-import { isEstablished, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
+import { isEstablished, MEMORY_TIERS, withWithheld, type MemoryEntry, type MemoryTier } from "@memory/index";
 import { MEMORY_TIER_LABELS, memorizeProgressText, PLAYER_COPY, pinnedOverflowText } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
@@ -82,11 +82,12 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
 
-  const characterIds = Array.from(new Set(snapshot.memory.entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
-  const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
+  const entries = authorView ? snapshot.memory.entries : snapshot.memoryShown ?? snapshot.memory.entries;
+  const characterIds = Array.from(new Set(entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
+  const filtered = characterFilter ? entries.filter((entry) => entry.characterId === characterFilter) : entries;
   // Superseded and folded entries are bookkeeping: the player curates established facts only.
   const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted");
-  const searchable = snapshot.memory.entries.length > MEMORY_SEARCH_FROM;
+  const searchable = entries.length > MEMORY_SEARCH_FROM;
   const needle = query.trim().toLowerCase();
   const shown = visible
     .filter((entry) => !hiddenTiers.includes(entry.tier))
@@ -121,7 +122,9 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   };
   const saveEdit = async () => {
     if (!editingId) return;
-    await manager.editMemoryEntry(editingId, draftText);
+    const original = snapshot.memory.entries.find((entry) => entry.id === editingId)?.text;
+    const shownText = entries.find((entry) => entry.id === editingId)?.text;
+    await manager.editMemoryEntry(editingId, original !== undefined && shownText !== undefined ? withWithheld(original, shownText, draftText) : draftText);
     setEditingId(null);
   };
 
@@ -167,12 +170,12 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
         </div>
       )}
       {MEMORY_TIERS.map((tier) => {
-        const entries = shown.filter((entry) => entry.tier === tier);
-        if (!entries.length) return null;
+        const rows = shown.filter((entry) => entry.tier === tier);
+        if (!rows.length) return null;
         return (
           <div key={tier} className="border-t border-solid border-white/10 mt-1 pt-1">
-            <div className="opacity-100">{MEMORY_TIER_LABELS[tier]} ({entries.length})</div>
-            {entries.map((entry) => (
+            <div className="opacity-100">{MEMORY_TIER_LABELS[tier]} ({rows.length})</div>
+            {rows.map((entry) => (
               <MemoryRow key={entry.id} entry={entry} snapshot={snapshot} manager={manager} authorView={authorView} editing={editingId === entry.id}
                 draftText={draftText} onDraft={setDraftText} onSave={() => void saveEdit()} onCancel={() => setEditingId(null)}
                 onEdit={() => startEdit(entry.id, entry.text)} onExclude={() => void excludeWithUndo(entry.id)} />

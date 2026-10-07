@@ -971,6 +971,22 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(0);
   });
 
+  it("owner decision 2026-10-07: an out-of-character player line is no new turn, so the reply after it never lapses a pending note", async () => {
+    for (const ooc of ["((one sec, phone))", "OOC: is this the bridge from before?", "(OOC) sorry, typo"]) {
+      (setStoryExtensionPrompt as jest.Mock).mockClear();
+      mockChat.splice(2);
+      const env = harness({ settings: wardenOn("review"), warden: warden() });
+      await env.coordinator.runWardenPass(1);
+      mockChat.push({ name: "Max", mes: ooc, is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
+      await env.coordinator.runWardenPass(3);
+      const first = env.read().proposals.find((record) => record.messageId === 1);
+      expect(first?.ops[0].status).toBe("pending");
+      await env.coordinator.setOpDecision(first!.id, 0, "accepted");
+      env.coordinator.onGenerationStarted("normal", false);
+      expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+    }
+  });
+
   it("T2-3: a group round's later replies never lapse a pending note, so the author can accept it and the next generation carries it", async () => {
     const env = harness({ settings: wardenOn("review"), warden: warden() });
     await env.coordinator.runWardenPass(1);

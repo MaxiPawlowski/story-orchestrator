@@ -1,9 +1,12 @@
 import {
+  clearStoryExtensionPrompt,
   countTokens,
+  getContext,
   noteHostSettingsLoaded,
   profileExists,
   readExtensionPromptBlocks,
   readPromptBudget,
+  setStoryExtensionPrompt,
   subscribeToHostEvents,
   tokenizerIdentity,
   EXTENSION_SETTINGS_LOADED_EVENT,
@@ -17,8 +20,15 @@ import { attachPromptBuckets } from "../promptBucketsHost";
 import { roleHealth } from "../roleHealth";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
+import { awayNoticeLine, createAwayNotice } from "../awayNotice";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
+
+const awayNotice = createAwayNotice({
+  line: () => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []),
+  set: setStoryExtensionPrompt,
+  clear: clearStoryExtensionPrompt,
+});
 
 type IntentOf<K extends GenerationIntent["kind"]> = Extract<GenerationIntent, { kind: K }>;
 
@@ -26,6 +36,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   opened: (intent: IntentOf<"opened">) => {
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
+    awayNotice.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
     live.talk?.onGenerationStarted(intent.params);
   },
@@ -42,6 +53,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
   },
   closed: (intent: IntentOf<"closed">) => {
+    awayNotice.closed();
     if (intent.reason !== "chat-changed") {
       runtimeManager.clearPrivateInjection();
       runtimeManager.clearCopilotNudge();

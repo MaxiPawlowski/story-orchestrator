@@ -28,13 +28,14 @@ export const INJECTION_REGISTRY = {
   cardOverlay: { key: "story_orchestrator_card_overlay", depth: 1, writer: "runtime/cardOverlayHost", label: "Current public character state" },
   playerRole: { key: "story_orchestrator_player_role", depth: 10, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
   checkOutcome: { key: "story_orchestrator_check_outcome", depth: 0, writer: "runtime/checkOutcomeHost", label: "Outcomes the story decided" },
+  awayNotice: { key: "story_orchestrator_away_notice", depth: 0, writer: "runtime/awayNotice", label: "Who is not here" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
   new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.epistemic.key, INJECTION_REGISTRY.checkpointGuidance.key]),
   new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
   new Set([INJECTION_REGISTRY.sceneTracker.key, INJECTION_REGISTRY.chapterBridge.key, INJECTION_REGISTRY.cardOverlay.key]),
-  new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key]),
+  new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.awayNotice.key]),
 ];
 
 const NEVER_SCANNABLE: ReadonlySet<string> = new Set(["epistemic", "ledger"]);

@@ -587,6 +587,46 @@ export const AuthorMemoryShowsAHeldClaimAsConflicted: Story = {
   },
 };
 
+const heldSecretSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: { entries: Array<Record<string, unknown>> }; memoryShown?: unknown[]; ui: Record<string, unknown> };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  const row = (id: string, text: string) => ({
+    id, tier: "facts", text, type: "fact", importance: 3, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 9, recallCount: 0,
+  });
+  const kept = snapshot.memory.entries;
+  snapshot.memory.entries = [...kept, row("secret", "Kel carries a silver key to the old vault."), row("mixed", "Kel trusts Aria. Kel carries a silver key to the old vault.")];
+  snapshot.memoryShown = [...kept, row("mixed", "Kel trusts Aria.")];
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const PlayerMemoryHidesAHeldSecret: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={heldSecretSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openMemoryTab(canvas);
+    await expect(canvas.getByText(/Kel trusts Aria/)).toBeInTheDocument();
+    await expect(canvas.queryByText(/silver key/)).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="memory-row"][data-id="mixed"]')).not.toBeNull();
+  },
+};
+
+export const AuthorMemoryShowsAHeldSecret: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={heldSecretSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openMemoryTab(canvas);
+    await expect(canvas.getAllByText(/silver key/).length).toBeGreaterThan(0);
+  },
+};
+
 export const Payload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
