@@ -117,3 +117,19 @@ export const AuthorPageInPlayerMode: Story = {
     await expect(await within(canvasElement).findByText("That page is not available here. Pick one from the list.")).toBeInTheDocument();
   },
 };
+
+const PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYPj/HwADAgH/eL9GtQAAAABJRU5ErkJggg==";
+
+export const ShowsBundledImagesOnly: Story = {
+  args: {
+    pages: [page("setup/README", "setup", ["# Setup", "", "![The settings panel](../assets/panel.png)", "", "![Remote](https://example.com/a.png)"])],
+    target: { id: "setup/README" },
+    assetSrc: (asset: string) => (asset === "assets/panel.png" ? PIXEL : undefined),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole("img", { name: "The settings panel" })).toHaveAttribute("src", PIXEL);
+    await expect(canvas.queryByRole("img", { name: "Remote" })).toBeNull();
+    await expect(canvas.getByText("Remote")).toBeInTheDocument();
+  },
+};

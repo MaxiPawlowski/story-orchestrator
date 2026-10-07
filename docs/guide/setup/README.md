@@ -26,6 +26,8 @@ rarely changed settings sit under its **Advanced** fold. The panel remembers whi
 
 Each group says its scope in its title: "this install" settings affect every chat, "this chat" only the open one.
 
+![Sketch of the settings panel: one section per area, each with its ? guide button](../assets/settings-sections.png)
+
 A reference of every setting: [Settings reference](settings-reference.md).
 
 ## Server plugins

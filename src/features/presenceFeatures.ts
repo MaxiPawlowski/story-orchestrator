@@ -25,7 +25,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "continue-list", name: "Your stories", area: "play", audience: "player",
     oneLine: "Under Continue: every chat that plays a story, newest first, one click to open it.",
     what: "Each row names the story, the chapter and place you reached and when you last played. A chat keeps its row while it still plays the story, even after the story leaves your library.",
-    where: settingsAt("#so-continue-list", "Continue › Your stories"),
+    where: settingsAt("#so-presence-continue-list", "Playing › Your stories list"),
     settings: ["display.presence.continueList"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.continueList,
   },

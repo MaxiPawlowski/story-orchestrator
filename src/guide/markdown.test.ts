@@ -34,6 +34,13 @@ describe("guide markdown", () => {
     expect(parseMarkdown("<!-- generated -->\nText")).toEqual([{ kind: "paragraph", children: [{ kind: "text", text: "Text" }] }]);
   });
 
+  it("reads an image with its alt text, and searches by the alt text", () => {
+    expect(parseInline("See ![The panel](../assets/panel.png) here")).toEqual([
+      { kind: "text", text: "See " }, { kind: "image", src: "../assets/panel.png", alt: "The panel" }, { kind: "text", text: " here" },
+    ]);
+    expect(plainText("![The **panel**](../assets/panel.png)")).toBe("The panel");
+  });
+
   it("turns a page into searchable plain text", () => {
     expect(plainText("# Memory\n\n- Pin **facts**\n\n| A |\n|---|\n| cell |")).toBe("Memory\nPin facts \nA cell");
   });

@@ -228,7 +228,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
     oneLine: "Tracks who knows what, so characters do not know things they never saw.",
     what: "The memory model also notes what each character knows, suspects or hides. Each character's prompt carries only its own knowledge, so secrets stay secret.",
-    where: settingsAt("#so-self-test", "Memory › Test memory model"),
+    where: settingsAt("#so-epistemic-capable", "Memory › Advanced › Track what each character knows"),
     settings: ["memory.epistemicLedgerCapable"], doc: "author/topics/drives-motives.md", status: "shipped", since: "2.0.0", needs: ["memory-profile"],
     isOn: (settings) => settings.memory.epistemicLedgerCapable,
   },

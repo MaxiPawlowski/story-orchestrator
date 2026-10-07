@@ -46,6 +46,15 @@ test("the capability list is the one the code declares", { skip: !existsSync(joi
   assert.equal(new Set(manifest.capabilities).size, manifest.capabilities.length, "a capability is listed twice");
 });
 
+test("the guide's bundled images are listed with their sizes", { skip: !existsSync(join(root, "dist", "index.js")) && "no dist/index.js — run npm run build first" }, () => {
+  const manifest = generate();
+  assert.ok(manifest.guideAssets.length >= 1, "the manifest lists no guide images");
+  for (const asset of manifest.guideAssets) {
+    assert.match(asset.path, /^docs\/guide\/assets\//);
+    assert.equal(asset.bytes, readFileSync(join(root, asset.path)).length, asset.path);
+  }
+});
+
 test("the host section names the SillyTavern it was built against", { skip: !existsSync(join(root, "dist", "index.js")) && "no dist/index.js — run npm run build first" }, () => {
   const manifest = generate();
   assert.ok(manifest.host.version, "no host version — a build that cannot say which SillyTavern it was made against cannot be reproduced");

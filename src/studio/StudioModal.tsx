@@ -14,6 +14,7 @@ import GameEditor from "./components/GameEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
 import GuideDisclosure from "./components/GuideDisclosure";
+import StudioGuideDialog from "./components/StudioGuideDialog";
 import { STUDIO_TAB_GUIDE } from "./guideTabs";
 import StudioCopilot, { type WizardHost, type WizardMode } from "./components/StudioCopilot";
 import type { AgentTurnRunner } from "./components/AgentWizard";
@@ -272,6 +273,7 @@ const StudioFooter = ({ onSaved, onRekeySession }: { onSaved?: StudioSaveHandler
 const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const [wizardMode, setWizardMode] = useState<WizardMode>("staged");
+  const [guideDoc, setGuideDoc] = useState<string | null>(null);
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Wizard" }] : BASE_TABS;
   const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
@@ -316,7 +318,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} />
         <StudioTabList tabs={tabs} activeTab={activeTab} onSelect={setTab} />
         <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
-          {STUDIO_TAB_GUIDE[activeTab] && <GuideDisclosure key={activeTab} topics={STUDIO_TAB_GUIDE[activeTab] ?? []} />}
+          {STUDIO_TAB_GUIDE[activeTab] && <GuideDisclosure key={activeTab} topics={STUDIO_TAB_GUIDE[activeTab] ?? []} onOpenGuide={setGuideDoc} />}
           <GateReplayContext.Provider value={replay}>
             <StudioTabContent
               activeTab={activeTab}
@@ -334,6 +336,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         </div>
         <StudioFooter onSaved={onSaved} onRekeySession={wizardHost?.rekeySession} />
       </div>
+      {guideDoc && <StudioGuideDialog doc={guideDoc} onClose={() => setGuideDoc(null)} />}
     </dialog>,
     document.body,
   );

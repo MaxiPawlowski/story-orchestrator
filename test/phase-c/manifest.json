@@ -759,14 +759,15 @@
         "section": "§Sequence C2 (finding 20); v2.7 29/30 Review (Sol) finding 20"
       },
       "prerequisites": [
-        "the build served on a lane",
-        "one feature whose setting is off (inner voice, a fresh install)"
+        "the shipped build served on a lane (one build since the prod/dev split was removed)",
+        "a story loaded in a group chat, so the drawer targets mount",
+        "Author view on for the author features, off for the player pass"
       ],
       "reset": "lane",
       "tier": [
         "D"
       ],
-      "assertion": "every Help \"Show me\" target and every \"?\"/Repair/Studio guide link resolves to a visible control or a rendered guide heading; the Studio guide link opens the reader while #so-studio-modal is open (hit-test by pointer and keyboard); every shipped feature is listed, and the one whose setting is off says it is off",
+      "assertion": "rendered, not declared: for every feature Help lists (player pass, then Author view), Show me reveals an element matching its where.selector and ui {action: \"hit-test\"} reports it topmost (never missing, offscreen or overlay); every settings area \"?\", the Repair row link and each Studio tab's \"Open in the guide\" (Story, Qualities, Checkpoints, Transitions, Roster, Game) shows [data-so=\"guide-page\"] for the named page, scrolled to the named heading when one is given; the Studio link opens #so-studio-guide-reader while #so-studio-modal stays open, its close button hit-tests topmost, and it closes by pointer and by Escape with the Studio still open; the setup page's bundled screenshot renders as [data-so=\"guide-image\"] with a data: source and no remote image renders. Deterministic half: jest showMeTargets.test.ts (static render tree) and the GuideOpensAboveTheStudioFromEveryTab story",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
         "citation": "39 C2; v2.7 29 / 30 finding 20"

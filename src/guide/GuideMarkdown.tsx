@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { parseMarkdown, type Block, type Inline, type ListBlock } from "./markdown";
-import { resolveLink, slugger } from "./links";
+import { resolveAsset, resolveLink, slugger } from "./links";
 import type { GuideTarget } from "./types";
 
 export interface GuideMarkdownProps {
@@ -9,13 +9,14 @@ export interface GuideMarkdownProps {
   homePage: string;
   onNavigate?: (target: GuideTarget) => void;
   hrefFor?: (target: GuideTarget) => string;
+  assetSrc?: (asset: string) => string | undefined;
 }
 
 export const headingDomId = (slug: string) => `so-guide-h-${slug}`;
 
 const HEADING_TAGS = ["h2", "h3", "h4", "h5", "h6", "h6"] as const;
 
-export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor }: GuideMarkdownProps) {
+export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetSrc }: GuideMarkdownProps) {
   const slug = slugger();
 
   const inline = (nodes: Inline[], key = "i"): ReactNode[] => nodes.map((node, index) => {
@@ -38,6 +39,12 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor }: Guid
           );
         }
         return <span key={id}>{inline(node.children, id)}</span>;
+      }
+      case "image": {
+        const asset = resolveAsset(doc, node.src);
+        const src = asset && node.alt.trim() ? assetSrc?.(asset) : undefined;
+        if (src) return <img key={id} src={src} alt={node.alt} data-so="guide-image" data-asset={asset ?? undefined} className="so-guide-image" loading="lazy" />;
+        return node.alt.trim() ? <span key={id} data-so="guide-image-refused">{node.alt}</span> : null;
       }
       default: return null;
     }

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
+import { ASSET_DIR, buildAssets } from "./guide-bundle.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const SITE_OUT = join(root, ".guide-site");
@@ -57,7 +58,7 @@ header strong{font-size:1.05rem}header input{flex:1;min-width:180px;padding:6px 
 .layout{display:flex;max-width:1200px;margin:0 auto}nav{width:260px;flex-shrink:0;padding:16px;border-right:1px solid var(--line);font-size:.9rem}
 nav h2{margin:16px 0 4px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}nav ul{list-style:none;margin:0;padding:0}
 nav li a{display:block;padding:2px 4px;border-radius:4px;text-decoration:none;color:var(--fg)}nav li a[aria-current]{font-weight:600;background:var(--code)}
-main{flex:1;min-width:0;padding:16px 24px 64px}main h2{font-size:1.7rem;margin:.4em 0}main h3{font-size:1.25rem;margin-top:1.4em}main h4,main h5,main h6{font-size:1.05rem}
+main{flex:1;min-width:0;padding:16px 24px 64px}main img{max-width:100%;height:auto;border-radius:6px}main h2{font-size:1.7rem;margin:.4em 0}main h3{font-size:1.25rem;margin-top:1.4em}main h4,main h5,main h6{font-size:1.05rem}
 code{background:var(--code);padding:0 .25em;border-radius:4px;font-size:.88em}pre{background:var(--code);padding:12px;border-radius:6px;overflow-x:auto}pre code{padding:0}
 table{border-collapse:collapse;display:block;overflow-x:auto;font-size:.92rem}th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
 blockquote{margin:0;padding-left:12px;border-left:3px solid var(--line);color:var(--muted)}#results{list-style:none;padding:0}#results li{margin:0 0 12px}#results small{display:block;color:var(--muted)}
@@ -92,6 +93,10 @@ export async function buildSite({ out = SITE_OUT, homePage = "https://github.com
     load("GuideMarkdown.mjs"), load("pages.generated.mjs"), load("markdown.mjs"), import("react"), import("react-dom/server"),
   ]);
   rmSync(out, { recursive: true, force: true });
+  const assets = buildAssets();
+  mkdirSync(join(out, "assets"), { recursive: true });
+  for (const asset of assets) copyFileSync(join(ASSET_DIR, posix.basename(asset.path)), join(out, asset.path));
+  const known = new Set(assets.map((asset) => asset.path));
   const index = [];
   for (const page of GUIDE_PAGES) {
     const file = fileFor(page.id);
@@ -99,6 +104,7 @@ export async function buildSite({ out = SITE_OUT, homePage = "https://github.com
     const base = depth ? "../".repeat(depth) : "./";
     const content = renderToStaticMarkup(React.createElement(GuideMarkdown, {
       doc: page.doc, body: page.body, homePage, hrefFor: (target) => relativeHref(page.id, target),
+      assetSrc: (asset) => (known.has(asset) ? posix.relative(posix.dirname(file), asset) : undefined),
     }));
     const target = join(out, file);
     mkdirSync(dirname(target), { recursive: true });

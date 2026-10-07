@@ -58,5 +58,7 @@ export const GUIDE_COPY = {
   content: "Guide page",
   onGitHub: "Open on GitHub",
   missing: "That page is not available here. Pick one from the list.",
+  openInGuide: "Open in the guide",
+  close: "Close the guide",
   audience: { player: "Playing", setup: "Setup", author: "Writing stories" },
 } as const;

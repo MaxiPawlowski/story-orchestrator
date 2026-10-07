@@ -202,3 +202,32 @@ Source: v2.7 39 §Review 2026-10-07 (Sol). Both tasks below are owned by this pl
 |---|---|---|
 | 20 | **Superseded 2026-10-07 (one build, 00-overview §Decisions):** every feature ships, so Help lists every feature and one whose setting is off says so; no availability flag. Was: **Help availability filtering:** registry features gain an availability flag (`devOnly`, or a predicate over the build and capabilities). A release-build Help lists only features whose control can mount. "Show me" renders only when its target exists in the current build and persona, and otherwise points to the guide page. Test: a release-build fixture where every listed "Show me" target resolves, plus a planted dev-only feature that must not appear | §Open items (the dev-only Help entries) |
 | 20 | **Settings reference owner:** a `docs:settings` script generates `docs/guide/setup/settings-reference.md` and the README Features table from the registry and settings areas; a drift test fails on a hand edit. Deviation 5 is closed here, before 39 Z, instead of "stays with v2.7 01 step Z" | §Deviations 5 |
+
+### Finding 20 built (2026-10-07, branch `v2.7-finding-20`)
+
+- **Availability filtering: not built, by decision.** The prod/dev split is being removed in parallel (one build,
+  everything shipped), so a `devOnly` flag would filter nothing. Replaced by a target check:
+  `src/features/showMeTargets.test.ts` walks the render tree from each surface's mount in `src/index.tsx`
+  (`SettingsRoot`, `DrawerPanel`, `StudioHost`, `HudMount` + `InlineMount`): JSX tags resolved through imports, path
+  aliases and `lazyRetry(() => import(...))`, then asserts every registry feature's `where.selector` is defined by a
+  file that surface renders (`id` literal, id string in a map, or `` `so-…${}` `` template; `[data-so="…"]`).
+  Controls: a missing id, an id on another surface (drawer `#so-memory-search` read as settings) and an id defined only
+  by an unrendered file all fail. A full jsdom mount was not used: the panel and drawer need the STAPI mock and a
+  near-complete snapshot, and the static tree catches the same class (a target nothing mounts).
+- **Broken targets found and fixed:** `private-knowledge` pointed at `#so-self-test` (the test button, not its
+  control) → `#so-epistemic-capable` (Memory › Advanced); `continue-list` pointed at `#so-continue-list`, which is not
+  rendered when the list is switched off → its switch `#so-presence-continue-list`. `inner-voice` (`#so-inner-beat`)
+  mounts only behind `__SO_DEV__ ? lazyRetry(...)` today; the check accepts that form because the split removal ships
+  it.
+- **Settings reference owner (deviation 5 closed):** `npm run docs:settings` (`scripts/docs/settings-docs.mjs`, esbuild
+  over `src/features/settingsReference.ts`, now a direct devDependency) writes `docs/guide/setup/settings-reference.md`
+  (one section per area, one row per `SETTING_COPY` key: label, where, help, default, key) and the README Features
+  table between `<!-- features:start … -->` / `<!-- features:end -->` (every feature but the individual judge uses,
+  with status), then rebuilds the guide bundle. Drift: `src/features/settingsReference.test.ts` fails on a stale or
+  hand-edited file, with a planted-edit control.
+- C2: `C2-rendered-targets` (39 + `test/phase-c/manifest.json`) now checks rendered targets on the one build; the
+  planted dev-only prerequisite is gone.
+- Gates (2026-10-07): `npm run gates -- --no-storybook`: all green in 117.8s (typecheck, build 1,178,573 B main
+  under the 1,250,000 B budget, build:dev, test 592 suites / 6929 tests, lint, typecheck:test, debug:typecheck,
+  test:replay 32/32 killed, test:debug, test:plugin, test:release). Storybook skipped (`--no-storybook`): it cannot run
+  from a worktree, so the new stories are written, not run. Live C2 rows not run.
