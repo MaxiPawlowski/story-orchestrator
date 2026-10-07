@@ -1,6 +1,6 @@
 # Implementation Overview — Story Orchestrator v2.8
 
-**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Proposed cuts (not decided): 12, 14, 15 (fold into v2.7 38 D13d), 21 (→ v2.9). Details: §Build order.
+**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v2.9, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order.
 
 **Status: PLANNED (opened 2026-10-03 from the v2.7 split).** v2.8 = the rest of the defined plans: everything the user
 decided on 2026-10-03 that is not an urgent fix or a quick win with deterministic gates (those are v2.7), and not
@@ -179,7 +179,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 22 | written (exploration); decided (M1 first); not run |
 | 23 | written 2026-10-03 (story widgets); not decided |
 | 24 | written 2026-10-03 (test plan); runs last |
-| 25–30 | SEEDED 2026-10-07 from the user's idea list; need the user's answers to each plan's §Decisions |
+| 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
 
 ## Review 2026-10-03
 

@@ -146,3 +146,7 @@ v2.7 31 (FLUX out, machine numbers out of shipped code), v2.7 32 (image product 
 policy,models,footprints}.mjs`; `src/services/stHost/gpuBroker.ts`; `src/sprites/builder/batchHost.ts`;
 `docs/plans/v2.7/17-self-contained-images.md` §C, `22-local-residency.md`, `25-flux-memory-and-backend-spikes.md`;
 `C:\dev\tray\README.md`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

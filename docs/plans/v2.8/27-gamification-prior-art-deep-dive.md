@@ -131,3 +131,7 @@ About 2.5–3 days of agent time: step 1 1 h, clones 30 min, 11 tier-1 notes ~45
   <https://community.obsidian.md/plugins/lifequest>, <https://community.obsidian.md/plugins/kuro-gamification>,
   <https://community.obsidian.md/plugins/gamified-pkm>, <https://community.obsidian.md/plugins/iron-vault>,
   <https://obsidianstats.com/plugins/progress-clocks>, <https://community.obsidian.md/plugins/opse-oracle>
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

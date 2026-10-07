@@ -56,3 +56,7 @@ plans; the close-out (step Z) checks pages against the shipped UI.
 
 `01-docs-and-in-app-guidance.md`, `29-settings-by-area.md`, `docs/guide/README.md`, `src/components/help/`,
 `src/copilot/guideTopics.ts`, `src/studio/guideTabs.ts`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

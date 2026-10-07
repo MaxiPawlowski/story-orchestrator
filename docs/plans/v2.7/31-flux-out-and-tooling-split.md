@@ -62,3 +62,7 @@ image jest without FLUX; a seeded install with `flux-dev` stored shows the fallb
 green, identical counts: jest 6,414 passed / 1 skipped; test:plugin 104 / 3 skipped; defect replay 32 of 32 killed;
 Storybook green. Wall 443.4 s and 401.4 s (test:replay 288.6 / 263.6 s, Storybook 169.3 / 119.0 s). Verdict: **parallel
 kept** (user: "parallel if it's nice"). §A/§B not built.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

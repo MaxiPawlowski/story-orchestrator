@@ -232,3 +232,7 @@ v2.8 01 §C, O10, C3, §G; v2.7 10 (option C); v2.9 04 (D6/T22; option D now her
 stays); v2.8 04 (C5 here; C4, C7, C9 (a) stay); v2.8 09, v2.8 10 (reuse the projection); v2.7 06 (panel frame,
 display toggles); v2.7 37 L6 (needs W2); v2.8 20 L6 (why N7 is out); v2.7 39 (Phase C re-run); v2.8 15 (a merged
 cue + scene read changes R5′).
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Post-processor (W1 step 0, decision 1): not named by the user; Recast-shaped scripted fixtures cover it until named.

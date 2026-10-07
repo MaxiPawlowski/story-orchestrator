@@ -69,3 +69,7 @@ pod at every pause; `test/sessions/BUDGET.md` updated per block.
 ## Links
 
 `16-test-plan.md`, `00-overview.md`, `v2.8/01-v27-carry-over.md`, `v2.8/24-test-plan.md`, `.claude/rules/debug-scripts.md`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. RunPod budget **approved** (about 27 pod-hours, stop at 150%).

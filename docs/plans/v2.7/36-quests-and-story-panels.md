@@ -201,3 +201,7 @@ v2.8 18, v2.8 04, v2.8 23 (merged here); v2.7 06 (frame, toggles, roll store); v
 (persona); v2.7 38 (Adolion lab copy); v2.7 35 (world pressure, the one complication component); v2.7 37 (character life, shared scope source,
 agenda origin); v2.7 39 (re-run from zero); v2.8 20, v2.8 11 (proposal contract); `.claude/rules/architecture.md`
 (two personas, rollback ≡ replay, chance seeded, stagecraft isolation).
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

@@ -213,3 +213,7 @@ image-completion,sprite-quality,saga-main-cast}/`.
 - RunPod budget for S32-1 ×2 and the W6 streamed runs.
 - Whether the W2 sanitize should keep a user's own explicit FLUX checkpoint mapping on an SDXL-family row (it would
   render with the wrong graph) or drop it with a Repair row.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

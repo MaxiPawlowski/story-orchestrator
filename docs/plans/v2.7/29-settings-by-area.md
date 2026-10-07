@@ -60,3 +60,7 @@ area from day one).
 
 `01-docs-and-in-app-guidance.md` §D/§Triage proposal, `30-in-plugin-guide.md`, `README.md` §Features,
 `src/features/registry.ts`, `src/components/settings/SettingsPanel.tsx`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. The v2.7 01 triage table is approved as proposed; new rows added at build.

@@ -136,3 +136,7 @@ bundled workflow), v2.8 23 (if the STscript reading is chosen).
 ST `public/scripts/extensions/stable-diffusion/index.js` (`:340`, `:1335`, `:4221`, `:5788`), ST
 `src/endpoints/stable-diffusion.js:485-560`; `src/services/stHost/stImage.ts`; `src/image/{catalog,graph,queue}.ts`;
 `docs/plans/v2.7/17-self-contained-images.md`; `.claude/skills/st-image-generation`, `.claude/skills/st-scripting`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Decision 1: **image workflows** (ST ComfyUI workflows), not STscript/QR.

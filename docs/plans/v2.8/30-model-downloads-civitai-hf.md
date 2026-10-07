@@ -123,3 +123,7 @@ into the plugin), v2.8 29 (bundled workflows list their models), v2.7 04 (Repair
 `src/image/catalog.ts`; `server-plugin/story-orchestrator-media/{index.mjs,README.md}`;
 `server-plugin/story-orchestrator-judge/index.mjs`; `src/services/stHost/judge.ts`; `scripts/local/models.mjs`;
 ST `src/endpoints/secrets.js`; `docs/plans/v2.7/17-self-contained-images.md`; v2.8 28, 29.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

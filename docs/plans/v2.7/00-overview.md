@@ -233,7 +233,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 26 | IMPLEMENTED CANDIDATE (2026-10-06); D and image/read/reply regression green; **user visual approval given 2026-10-07** (neutral/happy and the eight-character playback pack) |
 | 27 | COMPLETE (2026-10-06): plugin + nine stories on the main install, regular expression sprites |
 | 28 | IN BUILD: eight base packs generated and verified (238/238, 58 speaking composites recomposed), user approved 2026-10-07. Open: 31 authored outfits, living-card prompt repair + S32-1 rerun, text→image recovery gate (red: RAM admission), Saga integration ×2 |
-| 29–33, 35, 36, 39 | SEEDED 2026-10-07; each needs the user's answers to its §Decisions before build |
+| 29–33, 35, 36, 39 | APPROVED 2026-10-07 (user: all recommendations; image workflows; RunPod budget approved); Phase A first (30, 29, 31), then v2.8 26 (pulled in) |
 | 34, 37, 38 | moved from v2.8 03, 20, 02 (decided there); re-homed headers 2026-10-07; not built |
 | 01–28 | history: every gate re-runs in Phase C (39); no earlier green counts |
 ## Review 2026-10-03

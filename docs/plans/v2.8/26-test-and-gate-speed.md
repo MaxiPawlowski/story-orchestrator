@@ -52,3 +52,7 @@ and any flake are recorded in v2.7 31 §C's gate record.
 ## Links
 
 `scripts/release/gates.mjs`, `package.json` scripts, `v2.7/31-flux-out-and-tooling-split.md` §C, `v2.7/39-test-from-zero.md`.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. **Pulled into v2.7** before Phase C (this file stays the plan).

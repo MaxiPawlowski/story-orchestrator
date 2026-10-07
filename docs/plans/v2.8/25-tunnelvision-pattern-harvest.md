@@ -114,3 +114,7 @@ No model calls, no lane, no pod.
 - `docs/plans/v2.7/23-local-residency-freetoken.md`, `15-sp10-tool-call-turns.md`, `02-v26-carry-in.md` (C13)
 - `docs/plans/v2.8/11-curator-create-op.md`, `21-smart-context-harvest.md`, `22-living-story-director.md`
 - Upstream: <https://github.com/Coneja-Chibi/TunnelVision> · mirror: <https://github.com/Stephanie1364/TunnelVision>
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

@@ -1,6 +1,6 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-> **2026-10-07:** 04 option D (agency notes → `auto`) moved to v2.7 33 W2. Proposed (not decided): drop 01 (SP1 swipe-back cache) and 05.1 (2D rig) now.
+> **2026-10-07:** 04 option D (agency notes → `auto`) moved to v2.7 33 W2. Decided (recommendations): 01 (SP1 swipe-back cache) and 05.1 (2D rig) dropped.
 
 **Status: DEFERRED (created 2026-10-03 at the v2.7 split).** v2.9 = everything the user deferred from the v2.7 plan set
 on 2026-10-03, and the deferred remainders of plans that moved to v2.7 or v2.8. **Nothing here is scheduled until v2.8
