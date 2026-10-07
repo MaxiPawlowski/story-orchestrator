@@ -26,6 +26,8 @@ import { loadInnerRender } from "@memory/index";
 import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { hasOpenGroup } from "./persistence";
+import { createGamePort } from "./gamePort";
+import type { EffectsApplier } from "./effectsApplier";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -48,6 +50,7 @@ export interface ManagerPort {
   announce: (text: string) => Promise<void>;
   rollback: Pick<RollbackDeps, "journal" | "context" | "refreshRequirements" | "reapplyCheckpoint" | "notices" | "onApplied">;
   storyUpdate: Pick<StoryUpdateDeps, "swapStory" | "restart" | "journal">;
+  effects: () => EffectsApplier;
 }
 
 export function wireCoordinators(port: ManagerPort) {
@@ -156,6 +159,7 @@ export function wireCoordinators(port: ManagerPort) {
     saveWizardSession: (session) => saveWizardSession(session),
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
   });
+  const game = createGamePort({ engine, loaded: port.loaded, extras: port.extras, effects: port.effects, ownership: lifecycle.ownership, persist: lifecycle.persist, notify: lifecycle.notify });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
     restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), extras: () => port.extras(),
@@ -168,5 +172,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, rollbackDeps, storyUpdateDeps };
 }

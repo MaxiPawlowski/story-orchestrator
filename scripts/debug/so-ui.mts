@@ -971,8 +971,10 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-curator-enabled', '#so-curator-accept-mode', '#so-copilot-enabled', '[data-so="self-test-error-detail"]',
   // v2.7 plan 01: the Help panel lists author features and the author's guide only in Author view.
   '[data-so="help-feature"][data-audience="author"]', '[data-so="help-guide-topics"]', '[data-so="whats-new-feature"][data-audience="author"]',
-  // v2.7 plan 06: the Activity panel, its opener and the roll-chip switch are Author view only (roll chips are swept under #chat).
-  '#so-open-activity', '#so-panel-activity', '#so-activity', '[data-so="activity"]', '[data-so="activity-row"]', '#so-presence-roll-chips', '[data-so="roll-chip"]',
+  // v2.7 plan 06: the Activity panel and its opener are Author view only. v2.7 plan 36: a public check's dice chip is player copy;
+  // every other roll and draw stays author-only (also swept under #chat), and so do the Journal's author half and hidden quests.
+  '#so-open-activity', '#so-panel-activity', '#so-activity', '[data-so="activity"]', '[data-so="activity-row"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="roll-chip"][data-source="npc"]', '[data-so="roll-chip"][data-source="talk"]',
+  '[data-so="journal-author"]', '[data-so="journal-hidden"]', '[data-so="journal-overflow"]',
 ];
 
 const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];
@@ -1014,7 +1016,7 @@ export function rawValueFindings(texts: Array<{ tab: string; surface: string; te
 // v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
 // copy only; details, actions, the inspector button and any level-3/4 row are author view.
 export const INLINE_PLAYER_FORBIDDEN_SELECTORS = [
-  '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]', '[data-so="roll-chips"]', '[data-so="roll-chip"]',
+  '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="roll-chip"][data-source="npc"]', '[data-so="roll-chip"][data-source="talk"]',
   '[data-so="inline-item"][data-level="3"]', '[data-so="inline-item"][data-level="4"]', '[data-so="inline-strip"][data-level="3"]', '[data-so="inline-strip"][data-level="4"]',
 ];
 

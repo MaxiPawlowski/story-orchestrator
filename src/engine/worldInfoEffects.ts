@@ -26,6 +26,9 @@ export function readWorldInfoEffect(value: unknown): { enable: WorldInfoRef[]; d
 export const checkpointWorldInfo = (checkpoint: unknown) =>
   readWorldInfoEffect(isRecord(checkpoint) && isRecord(checkpoint.effects) ? checkpoint.effects.world_info : undefined);
 
+const questRewardWorldInfo = (story: unknown) => (isRecord(story) && Array.isArray(story.quests) ? story.quests : [])
+  .map((quest) => readWorldInfoEffect(isRecord(quest) && isRecord(quest.reward) && isRecord(quest.reward.effects) ? quest.reward.effects.world_info : undefined));
+
 export const addGatedEntry = (set: GatedWorldInfo, lorebook: string, comment: string) => {
   const comments = set.get(lorebook) ?? new Set<string>();
   comments.add(comment);
@@ -41,6 +44,9 @@ export function gatedWorldInfo(stories: unknown[]): GatedWorldInfo {
     for (const checkpoint of checkpoints) {
       const { enable, disable } = checkpointWorldInfo(checkpoint);
       for (const ref of [...enable, ...disable]) ref.comments.forEach((comment) => addGatedEntry(gated, ref.lorebook, comment));
+    }
+    for (const reward of questRewardWorldInfo(story)) {
+      for (const ref of [...reward.enable, ...reward.disable]) ref.comments.forEach((comment) => addGatedEntry(gated, ref.lorebook, comment));
     }
   }
   return gated;

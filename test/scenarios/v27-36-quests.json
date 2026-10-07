@@ -1,0 +1,18 @@
+{
+  "_note": "v2.7 plan 36 (NOT YET RUN; batched into plan 39): the Journal, the Stat sheet and a public dice chip in player mode, with a hidden quest, an author note and an unearned secret milestone that must not reach any player surface. No model call: every write is a /cp set boundary.",
+  "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
+  "steps": [
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
+    { "import_story": { "file": "v27-36-quests.story.json" } },
+    { "slash": "/sendas name=Arin The ferryman wants his coin." },
+    { "slash": "/cp set accepted true" },
+    { "slash": "/cp set resolve 3" },
+    { "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const titles = (snap.game?.quests ?? []).map((quest) => quest.title); if (JSON.stringify(titles) !== JSON.stringify([\"The ferryman's debt\"])) throw new Error('player quests: ' + JSON.stringify(titles)); return { titles, sheet: snap.game?.sheet };" },
+    { "slash": "/cp set at_wall true" },
+    { "eval": "const rows = globalThis.storyOrchestratorRuntime.extras.checks?.records ?? []; if (rows.length !== 1 || rows[0].checkId !== 'climb') throw new Error('check records: ' + JSON.stringify(rows)); return rows.map((row) => row.outcome);" },
+    { "ui": { "action": "open-drawer" } },
+    { "eval": "document.querySelector('#so-open-journal')?.click(); await new Promise((resolve) => setTimeout(resolve, 800)); const text = document.querySelector('#so-journal')?.textContent ?? ''; if (!text.includes(\"The ferryman's debt\") || !text.includes('A helping hand')) throw new Error('journal: ' + text.slice(0, 300)); for (const leak of ['SO-HIDDEN-QUEST-TITLE', 'SO-HIDDEN-STEP', 'SO-AUTHOR-NOTE', 'SO-SECRET-MILESTONE']) if (document.body.textContent.includes(leak)) throw new Error('leak: ' + leak); return true;" },
+    { "eval": "const chips = [...document.querySelectorAll('#chat [data-so=\"roll-chip\"]')].map((chip) => chip.getAttribute('data-source')); if (chips.some((source) => source !== 'check')) throw new Error('author chips in player mode: ' + chips); return chips;" },
+    { "ui": { "action": "assert-player-clean" }, "log": 1500 }
+  ]
+}

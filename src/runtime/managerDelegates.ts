@@ -26,6 +26,7 @@ export abstract class CoordinatorDelegates {
   protected abstract readonly co: WiredCoordinators;
 
   get chapters() { return this.co.memory.chapters; }
+  get game() { return this.co.game; }
   refreshMemoryInjection() { this.co.memory.updateInjection(); }
 
   async runCopilotStage(

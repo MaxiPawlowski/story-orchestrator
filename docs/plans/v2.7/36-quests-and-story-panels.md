@@ -240,3 +240,129 @@ additions and are part of this plan's build; each gets a validator rule and a je
 
 Refused (traps): XP/levels/currency, streaks, wall-clock, loss for inaction, click-to-reroll, player-editable status,
 author JS/callbacks.
+
+## Gate record
+
+### 2026-10-07: build on `v2.7-36-quests` (from `v2.7-image-track-wip` @ `1910441b`), deterministic tiers only
+
+Every §Decisions answer is the Recommended one, and items 1 to 12 of §Adopted are built. No live run, no LLM run, no
+Storybook run: those are owed to v2.7 39 (see "Not run").
+
+**What was built**
+
+- Format (`engine/gameSchema.ts`, `schema.ts`): `quests[]` (status `hidden → offered → active → done | failed`, steps
+  with `failed_when`/`visible_when`/`progress`, `requires`, `progress`, `labels`, `giver`, `author_note`, `reward`
+  `{set, effects, label, visible_when}`), `milestones[]`, `widgets[]` (`meters | track | log | clock | board`, closed
+  `bind` grammar, `audience`, `accent`, `icon`), `qualities[].display`, `checkpoints[].checks[]`, `transitions[].check`,
+  story `display.journal | stat_sheet | widgets`.
+- Validators in `engine/validate/{quests,checks,checkRefs,display,widgets}.ts`, loaded as one lazy chunk through
+  `engine/validate/gameLayer.ts` (see deviations): `rel_*` and checkpoint-gated WI keys refused as public; an offered
+  quest needs `visible_when` and never fails on time alone; reward on a quest done at the start refused; `requires`
+  cycles refused; check quality must be a code bool, not latching/monotonic/rolled; a player widget binds public
+  qualities only; clock 2 to 12 segments.
+- Engine (`engine/quests.ts`, `engine/storyChecks.ts`, `engine.ts`): status, scope keys, the closed latch, rewards'
+  `set` applied with the reward latch at the boundary's derive step; seeded check resolution (`resolveCheck`).
+- Extraction (`extraction/scopeSources.ts`, `scope.ts`): one source list (`card`, `quest`; v2.7 37 registers
+  `relationship`), quest cap `QUEST_SCOPE_CAP = 5` (placeholder until M1), overflow named by the
+  `quest-scope-overflow` check (author, degrades).
+- Runtime: checks through the chance seam (`storyCheckDraws.ts`), `extras.checks` ring (cap 100, rolled back by message,
+  sanitized), third roll producer; steering block `INJECTION_REGISTRY.checkOutcome` (depth 0, lazy
+  `checkOutcomeHost.ts`); quest-reward host effects through `gamePort.ts` (boundary work `game`, order 5) and
+  `EffectsApplier.applyQuestRewards`, ledger rows tagged `origin {kind: "quest", id, boundary, messageId}`; reward
+  `world_info` through the path replay (`worldInfoPlan(story, path, rewarded)`); `/story quests`; narrative quests and
+  epilogue milestones; L1 inline chips; chronicle milestones.
+- Projection (lazy `runtime/widgets.ts`, `gameSheet.ts`, `gameSnapshot.ts`): `snapshot.game` (player) and
+  `snapshot.gameAuthor` (Author view only); synthesized Journal (track + log) and Stat sheet; authored widgets replace
+  them.
+- UI: `components/widgets/WidgetCard.tsx`, `components/panels/{Journal,StatSheet,Widget}Panel.tsx` in `PanelFrame`,
+  openers `#so-open-journal`, `#so-open-stat-sheet`, `#so-open-widgets`, wand entries; public check chips in player
+  mode (`[data-source="check"]`, no detail); toggles in `PresenceControls`; Studio "Game" tab (`GameEditor`:
+  Quests, Milestones, Checks, Public qualities, Story panels) over `studio/gameMutations.ts`; agent tools
+  `setQuests | setMilestones | setWidgets | setQualityDisplay | setCheckpointChecks | setTransitionCheck`
+  (`copilot/agent/gameOps.ts`); every new component has a `.stories.tsx` (390/768/1440 fits).
+- Docs: `story-guide.md` topics `quests`, `checks`, `widgets` (+ compact twins in `guideTopics.ts`, `npm run
+  docs:guide`), player guide `playing.md` (Journal, stat sheet, panels, `/story quests`) and `drawer-and-hud.md` (dice
+  chips), spoiler checklist rows in `docs/plans/v2.1/test-plan.md`.
+- Lists: `test/sessions/baseline-settings.json` (`display.presence.journal|statSheet|widgets`),
+  `test/findings/ownership-sites.json` (`EffectsApplier.applyQuestRewards`, `createGamePort.dispatch`; the two
+  `applyWorldInfo`/`replayWorldInfoFiles` rows renamed to `effectSteps.ts`), `test/findings/errorCopy.json` (three rows),
+  `PLAYER_FORBIDDEN_SELECTORS` / `INLINE_PLAYER_FORBIDDEN_SELECTORS` in `scripts/debug/so-ui.mts`,
+  `architecture.test.ts` presence list (the projection and panel files never touch a prompt seam). No new model call
+  site, judge use or coordinator.
+
+**Independent review (Sol), three points, resolved**
+
+1. *Origin-specific rollback.* `revertOriginSince(kind, messageId)` was built and then **removed**: per-origin undo of
+   interleaved writes to one target is unsound, exactly as the review says (the negative control in
+   `questRewards.review.test.ts` shows a quest-only undo refusing a target a later checkpoint write holds). There is now
+   ONE chronological undo: every rollback path (swipe, edit, delete) that moves the engine runs the existing
+   `restoreFor({since})` → `restorePlan`, newest first across every origin, compare-and-set per target, then re-applies
+   the active checkpoint. A boundary that only latched a quest now counts as a move (`questLatchesMoved` in
+   `engine.shouldRollbackFromMessage`), so the latch, the reward's `set` writes and its host effects all roll back
+   together and rollback ≡ replay holds (`quests.test.ts`: 4 seeds × 100 boundaries = 400 cuts, plus a negative
+   control). Origin is preserved through compaction (`compactLedger` never merges rows of different origins) and
+   hydration (`sanitizeEffects` keeps the row), and a pending row from a failed save reconciles like any other.
+   Tests: `questRewards.review.test.ts` (mixed origins on one target, a cut between them, external edit, compaction both
+   ways, reopen, failed save), `questRollback.review.test.ts` (swipe/edit/delete through `runRollback` with a real
+   engine, and a control after the completion). v2.7 37 agendas and v2.7 35 complications only tag `origin`; they get no
+   undo of their own. On the history-unavailable path the engine does not move, so the latch and its host writes are
+   left together (consistent, recorded here).
+2. *Quest lifecycle.* Acceptance is `visible_when`: the quest turns active the moment it holds, so an offered quest
+   must declare one (validator), and an ignored offer stays offered and never fails. Terminal state is persisted:
+   `quest_<id>_closed` (code enum `done | failed`, latching, added by the validator) is written at the boundary that
+   closes the quest, so a completion gate that toggles back does not reopen it; failed wins when both gates hold at one
+   boundary. Story updates: a changed reward after it was earned is `quest-reward-changed-earned` (compatible, not given
+   again); a removed active quest is `quest-removed` (compatible); a removed quest this chat closed is
+   `quest-removed-closed` (invalidating, so keep/restart/cancel is asked). Tests: `quests.test.ts` (ignored offer,
+   toggle-back, failed precedence, rollback past completion), `questDiff.test.ts` (four update cases).
+3. *Floors and budgets.* The steering header now asks for the outcome positively ("Show each one happening in this
+   reply, as it fell: never change it, never skip it"), and Q3's floor is restated as two halves, both frozen before
+   the 39 run: **reflected** (the narrator shows the given outcome) in **≥ 18 of 20** public checks, and
+   **contradicted** in **≤ 1 of 20**; a run where outcomes are ignored can no longer pass. Overflow priority: active
+   quests, then offered, then hidden, and inside each status a round robin (every quest's first key before any quest's
+   second, authored order), so no older active quest is starved by a busier newer one (`questScope.test.ts`,
+   `quests.test.ts`). The plan's "newest activation first" is replaced by this. **Plan 39 owes one combined-budget
+   row**: M1 measured with quest keys AND card pulls in the same read (and relationship axes once v2.7 37 registers),
+   not each cap alone; `QUEST_SCOPE_CAP` stays the placeholder 5 until that row passes.
+
+Coordinator line budget: noted as 560 (`test/findings/codeHealth.json`); this plan adds no coordinator and touches none.
+`runtimeManager.ts` is at 696 of 700 effective lines.
+
+**Deviations from the plan text**
+
+- `twist` is `{quality}` (a code bool the gate can read), not `twist: true`.
+- Reward `world_info` is applied by the checkpoint path replay with the rewarded quests' entries, not ledgered per row
+  (world info is never ledgered); in `gatingMode: "scan"` (spike, default off) and in the WI evidence ring rewards are
+  not carried.
+- Secret milestones are **not listed** until earned, instead of "???": the spoiler property (player view byte-identical
+  with and without hidden items) failed on the "???" row, which reveals that a secret exists (same reason as v2.7 K1).
+- Overflow is a `quest-scope-overflow` check row (author, degrades), not a journal record.
+- Boundary-work entry is `game` (order 5: check records + reward dispatch), not `quest-rewards`.
+- The game-layer validators load as a lazy chunk (`engine/validate/gameLayer.ts`; `index.tsx` awaits it before
+  `startRuntime`, the Studio chunk installs it statically, jest through `test/support/gameLayer.setup.ts`). Before it
+  loads, a story using quests, checks, displays or widgets is refused with one plain message, never half-read
+  (`gameLayer.test.ts`). Without this the prod main bundle was 1,261,734 B, over the 1,250,000 B budget.
+- The W prior-art table (st-extensions-research trackers) was **not written**; owed (doc only).
+
+**Commands (worktree, 2026-10-07)**
+
+- `npx tsc --noEmit`: clean. `npm run typecheck:test`: clean. `npm run lint`: clean.
+- `npm run gates -- --no-storybook`: **all green in 108.9 s** (build, typecheck, build:dev, test:debug 1093 pass,
+  test 568 suites / 6677 pass / 1 skipped, test:plugin, debug:typecheck, test:replay 32 of 32 killed, typecheck:test,
+  test:release, lint). `test-storybook:ci` **SKIPPED** (Storybook cannot run from a worktree).
+- `node --test scripts/debug/so-ui.test.mts`: 32 pass.
+- Prod `dist/index.js`: **1,240,986 B** (budget 1,250,000; baseline 1,217,053).
+
+**Not run (owed to v2.7 39)**
+
+- Storybook interaction + a11y at 390/768/1440 for the 12 new story files.
+- No-model scenario `test/scenarios/v27-36-quests.json` (+ `v27-36-quests.story.json`), `requires` lane `no-model`,
+  group "Group: Arin, DM Narrator": schema-validated and every `eval` syntax-checked, **never run**.
+- Live D on a lane ×2, `assert-player-clean` with every panel open, M1/M2 (CL), Q3 reflected/contradicted (RP), the
+  academy-act and Saga pilots.
+
+**Open questions**
+
+- Should an unearned secret milestone show a count ("1 more to find")? Not built: a count also reveals.
+- Should an offered quest ever expire? Today it waits forever; expiring would need a non-time gate the author writes.
+- `QUEST_SCOPE_CAP` and the combined budget with card pulls (and v2.7 37 relationships) are unmeasured.

@@ -1,4 +1,5 @@
-import type { ApplyQueueEntry, BoundaryLogEntry, NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import { questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { questMoveText } from "@features/gameCopy";
 import type { SharedReadAudit, ReconciliationEvent } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
 import type { ArcEntry, ConflictPair, DerivedRecord, MemoryEntry } from "@memory/index";
@@ -94,6 +95,18 @@ const changedKeys = (entry: BoundaryLogEntry) => {
     .filter((key) => before[key] !== after[key])
     .map((key) => `${key}: ${before[key] === undefined ? "∅" : value(before[key])} → ${after[key] === undefined ? "∅" : value(after[key])}`);
 };
+
+function questItems(sources: InlineSources): Draft[] {
+  const quests = sources.story?.quests ?? [];
+  if (!quests.length) return [];
+  return sources.boundaryLog.flatMap((entry) => quests.flatMap((quest): Draft[] => {
+    const from = questStatus(quest, valueReader(entry.before.blackboard.values));
+    const to = questStatus(quest, valueReader(entry.after.blackboard.values));
+    if (from === to || to === "hidden") return [];
+    const text = questMoveText(to, quest.title, quest.labels);
+    return [{ id: `progress:quest:${entry.boundary}:${quest.id}`, messageId: entry.context.lastMessageId, category: "progress", level: 1, state: "applied", text }];
+  }));
+}
 
 function progressItems(sources: InlineSources): Draft[] {
   const { story } = sources;
@@ -386,7 +399,7 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
   const newest = sources.chatLength - 1;
   const oldest = newest - Math.max(1, sources.settings.window) + 1;
   const drafts = [
-    ...progressItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
+    ...progressItems(sources), ...questItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
     ...castItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
   ];
   const level = effectiveInlineLevel(sources.settings.level, sources.authorView);

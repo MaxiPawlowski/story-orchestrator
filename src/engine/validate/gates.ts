@@ -4,6 +4,7 @@ import {
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, isPrimitive } from "./common";
+import { gameLayer } from "./gameLayer";
 
 export const readGate = (value: unknown, path: string, errors: ValidationError[]): GateNode | null => {
   if (!isRecord(value)) {
@@ -59,7 +60,8 @@ export const readTransition = (value: unknown, path: string, errors: ValidationE
   if (isRecord(value.effects)) transition.effects = value.effects as Transition["effects"];
   if (typeof value.extractor_trigger === "string") transition.extractor_trigger = value.extractor_trigger;
   if (typeof value.extraction_hint === "string") transition.extraction_hint = value.extraction_hint;
-  return transition;
+  const check = value.check === undefined ? null : gameLayer()?.readCheck(value.check, `${path}.check`, errors) ?? null;
+  return check ? { ...transition, check } : transition;
 };
 
 const typeMatches = (type: QualityType, value: PrimitiveValue): boolean => {

@@ -49,6 +49,7 @@ const byMessage = <T extends { messageId: number }>(items: readonly T[]): Record
 
 export function inlinePresence(level: number, authorView: boolean, presence: PresenceView | undefined, rolls: readonly RollRecord[] | undefined): InlinePresence {
   if (!presence || level < 1) return { cards: {}, rolls: {} };
-  const showRolls = authorView && level >= ROLL_CHIP_LEVEL && presence.shown.rollChips;
-  return { cards: byMessage(presence.chapterCards), rolls: showRolls ? byMessage(rolls ?? []) : {} };
+  const author = authorView && level >= ROLL_CHIP_LEVEL && presence.shown.rollChips;
+  const shown = author ? rolls ?? [] : (rolls ?? []).filter((roll) => presence.shown.rollChips && roll.source === "check" && roll.narrate).map(({ detail: _detail, ...roll }) => roll);
+  return { cards: byMessage(presence.chapterCards), rolls: byMessage(shown) };
 }

@@ -658,6 +658,48 @@ dialog#so-briefing::backdrop {
   overflow-wrap: anywhere;
 }
 
+#so-panels-root .so-game-bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--st-border) 50%, transparent);
+  overflow: hidden;
+}
+
+#so-panels-root .so-game-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--so-game-accent, var(--SmartThemeQuoteColor, #6aa1d8));
+}
+
+#so-panels-root .so-game-boxes {
+  display: inline-flex;
+  gap: 3px;
+}
+
+#so-panels-root .so-game-box {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--st-border);
+  border-radius: 2px;
+}
+
+#so-panels-root .so-game-box--on {
+  background: var(--so-game-accent, var(--SmartThemeQuoteColor, #6aa1d8));
+}
+
+#so-panels-root .so-game-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+#so-panels-root [data-accent="gold"] { --so-game-accent: #c9a227; }
+#so-panels-root [data-accent="green"] { --so-game-accent: #4f9d69; }
+#so-panels-root [data-accent="red"] { --so-game-accent: #c0504d; }
+#so-panels-root [data-accent="blue"] { --so-game-accent: #4a7fc1; }
+#so-panels-root [data-accent="violet"] { --so-game-accent: #8a63c4; }
+
 /* The one exception to the mount-root scope (v2.7 06 B): marks inside ST's own lists, never touching .avatar. */
 .so-story-badge {
   margin-left: 0.35em;

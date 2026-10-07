@@ -2,8 +2,9 @@ import type { RuntimeSnapshot } from "./types";
 import { SILENT_REPLY_WINDOW } from "./thinkingSilence";
 import { DEGRADING_SETUP_CHECKS, IMAGE_CHECKS, INFO_SETUP_CHECKS, MODEL_CHECKS, REQUIREMENT_CHECKS } from "./checksSetup";
 import { PERSONA_BLOCK_CHECKS, PERSONA_DEGRADE_CHECKS, PERSONA_INFO_CHECKS } from "./checksPersona";
+import { GAME_CHECKS } from "./checksGame";
 
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest";
 
 export type CheckScope = "install" | "chat" | "story";
 export type CheckAudience = "player" | "author";
@@ -141,7 +142,7 @@ export const STORY_NEEDS_GROUP_CHECK: Check = {
 
 export const CHECKS: readonly Check[] = [
   ...MODEL_CHECKS, STORY_NEEDS_GROUP_CHECK, ...REQUIREMENT_CHECKS, ...PERSONA_BLOCK_CHECKS,
-  SECRET_LEAK_CHECK, THINKING_CHECK, ...PERSONA_DEGRADE_CHECKS, ...DEGRADING_SETUP_CHECKS, ...IMAGE_CHECKS, ...INFO_SETUP_CHECKS, ...PERSONA_INFO_CHECKS,
+  SECRET_LEAK_CHECK, THINKING_CHECK, ...PERSONA_DEGRADE_CHECKS, ...DEGRADING_SETUP_CHECKS, ...IMAGE_CHECKS, ...GAME_CHECKS, ...INFO_SETUP_CHECKS, ...PERSONA_INFO_CHECKS,
 ];
 
 const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(check.engineFree) || Boolean(snapshot.storyId);

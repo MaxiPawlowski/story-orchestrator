@@ -72,8 +72,11 @@ Small icons under each message show what the story did at that point. Click an i
 | chip | What the memory model noticed. |
 | warning triangle | The story stepped back, or had trouble. |
 
-When the story enters a new chapter, a title card with the chapter's name appears under that message. In Author
-view at Behind the scenes or higher, each dice roll and background draw also shows as a chip under its message.
+When the story enters a new chapter, a title card with the chapter's name appears under that message. When the
+story rolls a check it chose to show you, the roll sits under the reply it decided, for example "Climb: 15 + 4 vs
+12, success"; a swipe or a reopened chat shows the same roll. In Author view at Behind the scenes or higher, every
+other dice roll and background draw also shows as a chip under its message. **Dice chips under messages** in the
+settings turns them off.
 
 Inside a note: a spinner means in progress, a clock means waiting for the next turn, a check means applied, a
 crossed circle means refused.

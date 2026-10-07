@@ -12,6 +12,7 @@ import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
 import { checkRequirementsOp, resolveCastOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
+import { applyGameOp, describeGameOp, GAME_AGENT_KINDS, gameOpProblem, type GameAgentOp } from "./gameOps";
 import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
 import { greetingClash, playerCastProblem } from "./playerCast";
 import { callKey, createdRefusal, rejectedRefusal } from "./rejected";
@@ -26,11 +27,16 @@ const CHECK_LINES = 12;
 
 const now = () => new Date().toISOString();
 
-const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(["setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive"]);
+const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(
+  ["setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", ...GAME_AGENT_KINDS] as AgentOnlyOp["kind"][],
+);
+
+const isGameOp = (op: AgentOnlyOp): op is GameAgentOp => GAME_AGENT_KINDS.has(op.kind);
 
 const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => AGENT_ONLY_KINDS.has(op.kind);
 
 const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
+  if (isGameOp(op)) return applyGameOp(draft, op);
   switch (op.kind) {
     case "setHouseRules": return setHouseRules(draft, op.rules);
     case "setPlayer": return setPlayer(draft, op.player);
@@ -42,6 +48,7 @@ const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
 };
 
 const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
+  if (isGameOp(op)) return describeGameOp(op);
   switch (op.kind) {
     case "setHouseRules": return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
     case "setPlayer": return { action: "update", entity: "story.player", label: op.player.role ? `The player plays ${op.player.role}` : "Set who the player is" };
@@ -69,6 +76,7 @@ const chaptersProblem = (draft: StoryV2, op: Extract<AgentOnlyOp, { kind: "setCh
 };
 
 const agentOnlyProblem = (draft: StoryV2, op: AgentOnlyOp): string | null => {
+  if (isGameOp(op)) return gameOpProblem(draft, op);
   if (op.kind === "setHouseRules" || op.kind === "setPlayer") return null;
   if (op.kind === "setChapters") return chaptersProblem(draft, op);
   const member = op.kind === "setCheckpointMotive" ? op.member : op.id;

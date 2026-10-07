@@ -193,7 +193,7 @@ describe("player_turns_in_checkpoint (v2.7 35 Phase 2)", () => {
   });
 
   it("writes nothing when the story does not declare the quality, and composes with the chance seam", () => {
-    const view = { boundary: 1, activeCheckpointId: "camp", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 3 };
+    const view = { boundary: 1, activeCheckpointId: "camp", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 3, values: {} };
     const rows = [{ is_user: true }, { is_user: false }, { is_user: true }, { is_user: false }];
     const bare = parseStoryV2OrThrow({ ...RAW, qualities: RAW.qualities.slice(1), transitions: RAW.transitions.slice(1) });
     expect(playerTurnValues(bare, view, rows)).toEqual([]);

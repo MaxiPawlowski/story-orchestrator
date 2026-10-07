@@ -9,6 +9,7 @@ export const STORY_VERBS: readonly SlashVerb[] = [
   { verb: "threads", usage: "/story threads", what: "what is still open" },
   { verb: "intro", usage: "/story intro", what: "open the story briefing again" },
   { verb: "who", usage: "/story who", what: "who you play in this story" },
+  { verb: "quests", usage: "/story quests", what: "your quests, what you carry and your milestones" },
   { verb: "chapters", usage: "/story chapters", what: "the chapters that have ended" },
   { verb: "chapter", usage: "/story chapter <n>", what: "the summary of one ended chapter" },
   { verb: "chronicle", usage: "/story chronicle export", what: "copy the story so far as Markdown" },

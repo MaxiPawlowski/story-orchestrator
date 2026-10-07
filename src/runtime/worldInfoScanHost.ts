@@ -3,7 +3,7 @@ import {
   installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, vectorsScanWorldInfo,
   type ScanGatingHandle,
 } from "@services/STAPI";
-import { replayWorldInfoFiles } from "./effectsApplier";
+import { replayWorldInfoFiles } from "./effectSteps";
 import { onSettingsWrite } from "./librarySave";
 import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveRefusal, type LoreExclusiveStats } from "./loreExclusive";
 import type { CompleteLoreSelection } from "./loreSelect";

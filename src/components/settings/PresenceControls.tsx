@@ -16,11 +16,14 @@ const ID: Record<keyof PresenceSettings, string> = {
   wand: "so-presence-wand",
   rollChips: "so-presence-roll-chips",
   suggestions: "so-presence-suggestions",
+  journal: "so-presence-journal",
+  statSheet: "so-presence-stat-sheet",
+  widgets: "so-presence-widgets",
 };
 
 export const PresenceControls = ({ snapshot, onChange }: PresenceControlsProps) => {
   const presence = snapshot.ui.presence ?? defaultPresenceSettings();
-  const keys = PRESENCE_SETTING_KEYS.filter((key) => key !== "rollChips" || snapshot.ui.authorView);
+  const keys = PRESENCE_SETTING_KEYS;
   return (
     <div data-so="presence-controls" className="flex flex-col gap-1">
       {keys.map((key) => (

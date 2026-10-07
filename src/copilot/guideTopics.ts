@@ -260,6 +260,27 @@ export const GUIDE_TOPICS = {
       + "used once it has fired in the chat, or always from a \"Public appearance:\" line. effects.stage {framing, spotlight, cast} places sprites for a beat. "
       + "display.lore_names_public shows lore names in the timeline; off when one spoils. display.continue_list|group_card|chapter_card|wand|roll_chips|suggestions false hides it.",
   },
+  quests: {
+    title: "Quests and milestones",
+    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, milestones[]",
+    text: "Status is computed every turn: hidden until visible_when (the acceptance), offered (never fails) while offered_when holds, then active, done or failed (failed wins); the end latches. "
+      + "done_when defaults to every step done or progress {quality, of} reached; requires adds another quest's done gate. reward lands once: set writes code qualities, "
+      + "effects switch world_info, cast_changes, npc_replies (onEnter); a swipe takes it back. Milestones {id, title, when, secret}; a secret one is unlisted until earned.",
+  },
+  checks: {
+    title: "Checks",
+    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist",
+    text: "A seeded roll once per visit: {id, label, quality (code bool), roll {sides, target, dice}, modifiers [{q, v, add, label}], narrate public|hidden}. "
+      + "Total = dice + modifiers that hold, read each turn; quality is total >= target. outcome {quality, bands: margin, partial_margin} writes miss|weak|strong; "
+      + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. The next reply is told the outcome; public adds a chip.",
+  },
+  widgets: {
+    title: "Stats and story panels",
+    fields: "qualities[].display, widgets[], bind, audience, display.journal, display.stat_sheet, display.widgets",
+    text: "display {public: true, label, as: item|count|meter|boxes|word, group, min, max, bands, hide_when_empty, trend} puts a quality on the Stat sheet; never on rel_* "
+      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
+      + "no markup. A player widget shows public qualities only; empty sections never render.",
+  },
 } as const satisfies Record<string, GuideTopic>;
 
 export type GuideTopicId = keyof typeof GUIDE_TOPICS;

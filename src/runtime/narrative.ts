@@ -6,7 +6,7 @@ import type { LatestScene } from "./recapCurrent";
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
 // popup renders the same thing modally, and /story recap prints its text — three surfaces, one
 // source. Player voice only: checkpoint names, thread texts, no ids, no counters, no gates.
-export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "story" | "chapters" | "end" | "pending" | "status";
+export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "quests" | "story" | "chapters" | "end" | "pending" | "status";
 
 export interface NarrativeSection {
   id: NarrativeSectionId;
@@ -111,6 +111,8 @@ export interface NarrativeInput {
   /** Sealed chapters as "title — short", the current one last; the saga record once the story ended. */
   chapters?: string[];
   epilogue?: string | null;
+  quests?: string[];
+  milestones?: string[];
 }
 
 export interface NarrativeStatus {
@@ -164,8 +166,9 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   if (input.openThreads.length) {
     sections.push({ id: "threads", label: "Open threads", lines: input.openThreads });
   }
+  if (input.quests?.length) sections.push({ id: "quests", label: "Quests", lines: input.quests });
 
-  if (input.epilogue) sections.push({ id: "end", label: "The End", lines: [input.epilogue] });
+  if (input.epilogue) sections.push({ id: "end", label: "The End", lines: [input.epilogue, ...(input.milestones?.length ? [`Milestones: ${input.milestones.join(", ")}`] : [])] });
   if (input.chapters?.length) sections.push({ id: "chapters", label: "Your story", lines: input.chapters });
   const canon = input.canon.trim();
   if (canon) sections.push({ id: "story", label: input.chapters?.length ? "This chapter" : "The story so far", lines: [excerpt(canon)] });

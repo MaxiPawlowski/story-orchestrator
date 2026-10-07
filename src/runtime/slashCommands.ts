@@ -160,6 +160,7 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     const lines = (await import("./yourCharacter")).yourCharacterLines(manager.getSnapshot().playerSetup);
     return lines.length ? dump(lines.join("\n")) : show(NO_STORY_BRIEFING);
   }
+  if (command === "quests") return dump((await import("./gameSummary")).gameSummaryText(manager.getSnapshot().game));
   if (command === "guide") {
     const page = parts[1]?.replace(/^\/+/, "");
     return requestGuide(page ? (page.endsWith(".md") ? page : `${page}.md`) : undefined) ? "" : show(GUIDE_UNAVAILABLE);

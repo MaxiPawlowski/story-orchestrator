@@ -8,13 +8,14 @@ import {
 } from "@services/STAPI";
 import { inlinePresence } from "@runtime/presence";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { createPresenceUi, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
+import { createPresenceUi, GameOpeners, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
+import { loadGameLayer } from "@engine/validate/gameLayer";
 import { createMountRegistry } from "@utils/mountRegistry";
 import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
@@ -42,6 +43,7 @@ import { log } from "@utils/log";
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
+await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
@@ -311,6 +313,7 @@ const DrawerPanel = () => {
             <button id="so-open-suggestions" type="button" data-so="open-suggestions" className="menu_button fa-solid fa-lightbulb" aria-expanded={panels.includes("suggestions")}
               aria-label={PRESENCE_TEXT.suggestionsOpen} title={PRESENCE_TEXT.suggestionsOpen} onClick={() => togglePanel("suggestions")} />
           )}
+          <GameOpeners snapshot={snapshot} />
           {snapshot.ready && snapshot.ui.authorView && (
             <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
               aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />

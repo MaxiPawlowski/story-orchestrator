@@ -9,6 +9,11 @@ export const addError = (errors: ValidationError[], path: string, message: strin
   errors.push({ path, message });
 };
 
+export const refuse = <T,>(errors: ValidationError[], path: string, message: string, value: T): T => {
+  addError(errors, path, message);
+  return value;
+};
+
 export const asString = (value: unknown): string | null => typeof value === "string" && value.trim() ? value : null;
 
 export const isOneOf = <T extends readonly string[]>(value: unknown, values: T): value is T[number] => {

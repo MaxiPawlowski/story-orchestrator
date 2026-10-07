@@ -33,6 +33,7 @@ import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
 import { CHAT_LOADING_STATUS, loadInlineComposer } from "./snapshotBuilder";
+import { loadGameComposer } from "./gameSnapshot";
 import { loadChapterKit } from "./chapterPort";
 
 export const FEATURE_FAILED_TEXT = (feature: string) => `${feature} could not load — reload SillyTavern.`;
@@ -95,6 +96,8 @@ const registerHostSurfaces = () => {
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   runtimeDisposers.push(startStoryScenario());
+  void import("./checkOutcomeHost").then(({ startCheckOutcome }) => { if (started) runtimeDisposers.push(startCheckOutcome(runtimeManager)); })
+    .catch((error: unknown) => featureFailed("Check outcomes", error));
   startPersonaHost();
   if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
     if (!started) return;
@@ -157,6 +160,7 @@ export function startRuntime() {
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });
+  void loadGameComposer().then(() => { if (started) runtimeManager.notify(); });
   void loadChapterKit().then((kit) => {
     if (!started) return;
     try { runtimeDisposers.push(kit.registerChapterMacros(runtimeManager)); } catch (error) { log.warn("chapter macros unavailable", error); }

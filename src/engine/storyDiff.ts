@@ -1,5 +1,5 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
-import { STORY_DISPLAY_TOGGLES, type NormalizedStoryV2, type PrimitiveValue, type Transition } from "./schema";
+import { questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES, type NormalizedStoryV2, type PrimitiveValue, type Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
 
@@ -49,6 +49,11 @@ export type StoryDiffCode =
   | "arc-template-changed"
   | "arc-bridges-changed"
   | "chapters-changed"
+  | "game-changed"
+  | "quest-removed"
+  | "quest-removed-closed"
+  | "quest-reward-changed-earned"
+  | "check-changed"
   | "text-changed";
 
 export interface StoryDiffEntry {
@@ -269,6 +274,7 @@ const diffTransitions = (ctx: DiffContext) => {
       push("compatible", "transition-removed", `transitions.${key}`, `The way ${label} was removed.`);
       return;
     }
+    if (!sameValue(transition.check, after.check)) push("compatible", "check-changed", `transitions.${key}.check`, `The check on ${label} changed.`);
     if (sameValue(transition.gate, after.gate)) return;
     if (!frontier) {
       push("compatible", "gate-changed", `transitions.${key}.gate`, `What it takes to go ${label} changed.`);
@@ -312,6 +318,23 @@ const diffRoster = (ctx: DiffContext) => {
   });
 };
 
+const diffQuests = ({ previous, next, values, push }: DiffContext) => {
+  const after = new Map((next.quests ?? []).map((quest) => [quest.id, quest]));
+  for (const quest of previous.quests ?? []) {
+    const kept = after.get(quest.id);
+    const closed = values[questClosedKey(quest.id)];
+    if (!kept) {
+      const verb = closed === "done" ? "finished" : "failed";
+      if (typeof closed === "string") push("invalidating", "quest-removed-closed", `quests.${quest.id}`, `“${quest.title}” is gone from the story, and this chat already ${verb} it.`);
+      else push("compatible", "quest-removed", `quests.${quest.id}`, `“${quest.title}” left the story; this chat stops tracking it.`);
+      continue;
+    }
+    if (values[questRewardKey(quest.id)] === true && !sameValue(quest.reward, kept.reward)) {
+      push("compatible", "quest-reward-changed-earned", `quests.${quest.id}.reward`, `The reward for “${quest.title}” changed; this chat already received the old one and is not given the new one.`);
+    }
+  }
+};
+
 const diffStoryFields = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
@@ -335,6 +358,10 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.chapters, next.chapters) || !sameValue(previous.chapterByCheckpoint, next.chapterByCheckpoint) || !sameValue(previous.memory, next.memory)) {
     push("compatible", "chapters-changed", "chapters", "The story's chapters changed; chapters already sealed keep their records.");
   }
+  if (!sameValue([previous.quests, previous.milestones, previous.widgets], [next.quests, next.milestones, next.widgets])) {
+    push("compatible", "game-changed", "quests", "The story's quests, milestones or panels changed; what this chat already reached stays.");
+  }
+  diffQuests(ctx);
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 

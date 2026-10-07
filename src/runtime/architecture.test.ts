@@ -121,6 +121,8 @@ describe("architecture guards", () => {
       "services/stHost/charListBadges.ts", "services/stHost/storyWand.ts", "services/stHost/groupChatFiles.ts", "presenceUi.tsx",
       "components/panels/PanelFrame.tsx", "components/panels/ActivityPanel.tsx", "components/inline/ChapterCard.tsx", "components/inline/RollChips.tsx",
       "components/settings/ContinueList.tsx", "components/settings/PresenceControls.tsx", "studio/components/StoryDisplayEditor.tsx",
+      "runtime/widgets.ts", "runtime/gameSheet.ts", "runtime/gameSnapshot.ts", "runtime/gameTypes.ts", "runtime/gameSummary.ts",
+      "components/widgets/WidgetCard.tsx", "components/panels/JournalPanel.tsx", "components/panels/StatSheetPanel.tsx", "components/panels/WidgetPanel.tsx",
     ];
     const PROMPT_SEAM = /setStoryExtensionPrompt|clearStoryExtensionPrompt|setExtensionPrompt|INJECTION_REGISTRY|updateInjection|GENERATE_AFTER_DATA|registerHostMacro|chat_metadata\.note/;
     const offenders = PRESENCE.filter((file) => PROMPT_SEAM.test(readFileSync(join(SRC, file), "utf8")));

@@ -1,5 +1,5 @@
 import { generateMemoryId } from "@memory/index";
-import { EFFECT_LEDGER_LIMIT, type EffectLedgerRow, type EffectLedgerStatus, type EffectTarget } from "./types";
+import { EFFECT_LEDGER_LIMIT, type EffectLedgerRow, type EffectLedgerStatus, type EffectOrigin, type EffectTarget } from "./types";
 
 // Host effects touch state shared with every other chat: a group's disabled members, a
 // lorebook FILE, the Author's Note, the preset, the background. A chat that changes one therefore
@@ -38,9 +38,13 @@ export interface EffectWrite {
   boundary: number;
   messageId: number;
   at: string;
+  origin?: EffectOrigin;
 }
 
 export const pendingRow = (write: EffectWrite): EffectLedgerRow => ({ ...write, id: generateMemoryId(), status: "pending" });
+
+const sameOrigin = (left: EffectOrigin | undefined, right: EffectOrigin | undefined): boolean =>
+  (left?.kind ?? null) === (right?.kind ?? null) && (left?.id ?? null) === (right?.id ?? null);
 
 const owesRestore = (row: EffectLedgerRow) => row.status === "applied" || row.status === "pending";
 
@@ -57,7 +61,7 @@ export function compactLedger(rows: EffectLedgerRow[]): EffectLedgerRow[] {
     const at = lastOnTarget.get(key);
     const previous = at === undefined ? null : out[at];
     if (previous && at !== undefined && previous.status === "applied" && row.status === "applied" && previous.messageId === row.messageId
-      && previous.effect === row.effect && same(previous.after, row.before)) {
+      && previous.effect === row.effect && sameOrigin(previous.origin, row.origin) && same(previous.after, row.before)) {
       const merged = { ...row, before: previous.before };
       if (same(merged.before, merged.after)) {
         out.splice(at, 1);

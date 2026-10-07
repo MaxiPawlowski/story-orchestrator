@@ -96,6 +96,17 @@ an update. A chat keeps its row while it still plays its story, even after the s
 Each of these can be switched off under Display, and a story can switch its own off; a story can never turn one
 on that you switched off.
 
+## Journal, stat sheet and story panels
+
+A story with side quests gives you a **Journal**: the quests you have found, their steps and progress, what a
+quest gives you when the story shows it, the main line so far, milestones you have earned, and a short log. A quest
+you have not found yet is not listed at all. A story that shows some of your stats gives you a **Stat sheet**, and a
+story can add its own panels (a clock filling up, a quest board). Open them from the buttons under the drawer's
+Overview or from the wand menu; each opens in its own panel you can move and resize. **Journal**, **Stat sheet** and
+**Story panels** in the settings turn each off, and the author can switch them off for one story.
+
+A swipe or an edit of the reply that finished a quest takes the quest, and whatever it gave you, back with it.
+
 ## Coming back after a break
 
 After eight hours or more away, opening the chat shows a **Welcome back** recap: where you are, what happened
@@ -114,6 +125,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story chronicle export` | Copies the whole chronicle as Markdown. |
 | `/story intro` | Opens the story briefing again. |
 | `/story who` | Who you play in this story. |
+| `/story quests` | The quests you have found and where each stands. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
 

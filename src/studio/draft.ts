@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
 import { wizardSessionKey } from "@wizard/index";
+import { installGameLayer } from "@engine/validate/gameLayer";
+import { GAME_LAYER } from "@engine/validate/gameLayerImpl";
 import { runDiagnostics, type Diagnostic, type DiagnosticsContext } from "./diagnostics";
 
 export type StoryDraft = StoryV2;
@@ -14,6 +16,8 @@ export const newStoryDraft = (): StoryDraft => ({
   transitions: [],
   roster: [],
 });
+
+installGameLayer(GAME_LAYER);
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 

@@ -1,5 +1,6 @@
 import type { Chapter, RosterView, StoryPlayer } from "@engine/index";
 import type { ProposalOp } from "../types";
+import type { GameAgentOp } from "./gameOps";
 
 export type AgentOnlyOp =
   | { kind: "setHouseRules"; rules: string[] }
@@ -7,7 +8,8 @@ export type AgentOnlyOp =
   | { kind: "setChapters"; chapters: Chapter[]; assign: Record<string, string> }
   | { kind: "setRosterDrive"; id: string; drive: string }
   | { kind: "setRosterView"; id: string; view: RosterView }
-  | { kind: "setCheckpointMotive"; id: string; member: string; motive: string };
+  | { kind: "setCheckpointMotive"; id: string; member: string; motive: string }
+  | GameAgentOp;
 
 export type AgentOp = ProposalOp | AgentOnlyOp;
 

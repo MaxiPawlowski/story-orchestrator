@@ -1,10 +1,11 @@
 import * as coreMutations from "../../studio/mutations";
 import * as innerVoiceMutations from "../../studio/innerVoiceMutations";
+import * as gameMutations from "../../studio/gameMutations";
 import { AGENT_TOOLS, EDIT_TOOLS, MUTATIONS_WITHOUT_A_TOOL, PROVISION_TOOLS, checkToolCall, renderToolSchema, toolJsonSchema } from "./tools";
 
 describe("agent tool set (v2.6 plan 11 A1)", () => {
   it("backs every edit tool by a mutations.ts export, and names a reason for every export without a tool", () => {
-    const exported = Object.keys({ ...coreMutations, ...innerVoiceMutations }).sort();
+    const exported = Object.keys({ ...coreMutations, ...innerVoiceMutations, ...gameMutations }).sort();
     const backing = Object.values(EDIT_TOOLS).flatMap((spec): string[] => [spec.backedBy, ...("composes" in spec ? spec.composes : [])]);
     const excluded = Object.keys(MUTATIONS_WITHOUT_A_TOOL);
     expect(exported.filter((name) => !backing.includes(name as never) && !excluded.includes(name))).toEqual([]);
