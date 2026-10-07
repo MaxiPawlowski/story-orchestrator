@@ -3,6 +3,7 @@ import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { GuideReader } from "./GuideReader";
 import { slugify } from "./links";
 import type { GuidePage } from "./types";
+import { fitsAt, VIEWPORTS } from "../../.storybook/fit";
 
 const HOME = "https://github.com/MaxiPawlowski/story-orchestrator";
 
@@ -96,6 +97,19 @@ export const AuthorView: Story = {
     await expect(canvas.getByRole("heading", { name: "Gates" })).toBeInTheDocument();
   },
 };
+
+const phoneNav = async (canvasElement: HTMLElement) => {
+  await expect(canvasElement.querySelector('[data-so="guide-nav"]')).not.toBeVisible();
+  return canvasElement.querySelector('[data-so="guide-nav-select"]');
+};
+const sideNav = async (canvasElement: HTMLElement) => {
+  await expect(canvasElement.querySelector('[data-so="guide-nav-select"]')).not.toBeVisible();
+  return canvasElement.querySelector('[data-so="guide-nav"]');
+};
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, phoneNav);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, sideNav);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, sideNav);
 
 export const AuthorPageInPlayerMode: Story = {
   args: { target: { id: "author/topics/gates" } },

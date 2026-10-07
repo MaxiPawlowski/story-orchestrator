@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { whatsNew } from "@features/registry";
 import { WhatsNewCard } from "./WhatsNewCard";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof WhatsNewCard> = {
   title: "Settings/WhatsNewCard",
@@ -36,4 +37,8 @@ export const NothingNew: Story = {
   },
 };
 
-export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
+const gotIt = (canvasElement: HTMLElement) => within(canvasElement).getByRole("button", { name: "Got it" });
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, gotIt);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, gotIt);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, gotIt);

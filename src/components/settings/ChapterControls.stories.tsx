@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { ChapterControls } from "./ChapterControls";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const snapshot = (chapters?: Record<string, unknown>, authorView = true): RuntimeSnapshot => ({ memory: { settings: { chapters } }, ui: { authorView } }) as unknown as RuntimeSnapshot;
 
@@ -42,6 +43,17 @@ export const SwitchOnAndPickAnArm: Story = {
     await expect(args.manager.setMemorySettings).toHaveBeenLastCalledWith({ chapters: expect.objectContaining({ chronicleTokens: 400 }) });
   },
 };
+
+const author = { args: { manager: fakeManager() } };
+const openRecords = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByText("Chapter records"));
+  return canvas.getByLabelText("Story so far budget");
+};
+
+export const Phone: Story = { ...author, ...fitsAt(VIEWPORTS.phone, openRecords) };
+export const Tablet: Story = { ...author, ...fitsAt(VIEWPORTS.tablet, openRecords) };
+export const Wide: Story = { ...author, ...fitsAt(VIEWPORTS.wide, openRecords) };
 
 export const PlayerSeesOnlyThePreviouslyToggle: Story = {
   args: { snapshot: snapshot(undefined, false) },

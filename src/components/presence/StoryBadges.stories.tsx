@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { mountStoryBadges, type StoryBadge } from "@services/stHost/charListBadges";
 import { mountStoryWand } from "@services/stHost/storyWand";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const SAGA: StoryBadge = { title: "Sun Ruins", kind: "saga", kindLabel: "Saga", chapterTitle: "The Siege", checkpointName: "The Gate", lastPlayed: "2 days ago", card: true };
 const ACT: StoryBadge = { title: "Moon Well", kind: "story", kindLabel: "Story", lastPlayed: "just now", card: true };
@@ -47,6 +48,15 @@ export const SagaAndStoryWithCard: Story = {
     await expect(document.querySelector('[data-so="story-card"]')).toBeNull();
   },
 };
+
+const firstBadge = async (canvasElement: HTMLElement) => {
+  await waitFor(() => expect(canvasElement.querySelectorAll('[data-so="story-badge"]')).toHaveLength(3));
+  return canvasElement.querySelector('[data-so="story-badge"]');
+};
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, firstBadge);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, firstBadge);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, firstBadge);
 
 const Wand = ({ onRecap, onFlag }: { onRecap: () => void; onFlag: () => void }) => {
   useEffect(() => {

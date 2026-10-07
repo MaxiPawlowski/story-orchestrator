@@ -3,6 +3,7 @@ import { useState } from "react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { StoryBriefing } from "@engine/index";
 import { BriefingEditor } from "./BriefingEditor";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const Harness = ({ initial, onChange, onPreview }: { initial?: StoryBriefing; onChange: (next: StoryBriefing | undefined) => void; onPreview: () => void }) => {
   const [briefing, setBriefing] = useState(initial);
@@ -31,6 +32,13 @@ export const Empty: Story = {
     await expect(args.onChange).toHaveBeenLastCalledWith({ title: "The Road", sections: [] });
   },
 };
+
+const withSections = { args: { initial: { title: "The Road", tone: "Grim.", sections: [{ heading: "Who you are", text: "A courier with a debt and a sealed letter." }] } } };
+const addSection = (canvasElement: HTMLElement) => within(canvasElement).getByRole("button", { name: "+ Section" });
+
+export const Phone: Story = { ...withSections, ...fitsAt(VIEWPORTS.phone, addSection) };
+export const Tablet: Story = { ...withSections, ...fitsAt(VIEWPORTS.tablet, addSection) };
+export const Wide: Story = { ...withSections, ...fitsAt(VIEWPORTS.wide, addSection) };
 
 export const Full: Story = {
   args: {

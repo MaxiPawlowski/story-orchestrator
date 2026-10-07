@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "@storybook/test";
 import { InlineLegend } from "./InlineLegend";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof InlineLegend> = {
   title: "Inline/InlineLegend",
@@ -32,4 +33,11 @@ export const AuthorLevels: Story = {
   },
 };
 
-export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
+const openLegend = async (canvasElement: HTMLElement) => {
+  await userEvent.click(within(canvasElement).getByRole("button", { name: "What do these icons mean?" }));
+  return canvasElement.querySelector('[data-so="inline-legend"]');
+};
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, openLegend);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, openLegend);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, openLegend);

@@ -4,6 +4,7 @@ import { setupFindings } from "@runtime/repair";
 import { createSaveHealth } from "@runtime/saveHealth";
 import type { RuntimeSnapshot } from "@runtime/types";
 import SetupSection, { SETUP_COPY } from "./SetupSection";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const snapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => ({
   storyId: "quest",
@@ -133,6 +134,27 @@ export const PrivacyLegSecretHeld: Story = {
   },
 };
 
-export const Phone: Story = { args: { findings: setupFindings(snapshot(many)) }, parameters: { testViewport: { width: 390, height: 844 } } };
-export const Tablet: Story = { args: { findings: setupFindings(snapshot(many)) }, parameters: { testViewport: { width: 768, height: 1024 } } };
-export const Desktop: Story = { args: { findings: setupFindings(snapshot(many)) }, parameters: { testViewport: { width: 1440, height: 900 } } };
+const DUPLICATE_IDS = { config: { rules: [{ id: "duplicate-id", enabled: false }, { id: "duplicate-id-active", enabled: false }] } };
+
+export const PrivacyLegReadsTheSameWithAndWithoutAHeldSecret: Story = {
+  parameters: { a11y: DUPLICATE_IDS },
+  render: (args) => (
+    <>
+      <div data-arm="held"><SetupSection {...args} findings={setupFindings(snapshot({ secretLeaks: ["Summarize"], secretsHeld: true }))} /></div>
+      <div data-arm="unheld"><SetupSection {...args} findings={setupFindings(snapshot({ secretLeaks: ["Summarize"], secretsHeld: false }))} /></div>
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    const text = (arm: string) => canvasElement.querySelector(`[data-arm="${arm}"] #so-setup`)?.textContent ?? null;
+    await expect(text("held")).not.toBeNull();
+    await expect(text("held")).toContain("Summarize");
+    await expect(text("held")).toBe(text("unheld"));
+  },
+};
+
+const crowded = { args: { findings: setupFindings(snapshot(many)) } };
+const firstAction = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="setup-row"] button');
+
+export const Phone: Story = { ...crowded, ...fitsAt(VIEWPORTS.phone, firstAction) };
+export const Tablet: Story = { ...crowded, ...fitsAt(VIEWPORTS.tablet, firstAction) };
+export const Desktop: Story = { ...crowded, ...fitsAt(VIEWPORTS.wide, firstAction) };
