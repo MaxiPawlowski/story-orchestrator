@@ -7,7 +7,7 @@
         "format": 2,
         "title": "Runtime Gate Check",
         "description": "Plan 02 live runtime validation story.",
-        "requirements": { "personas": ["Max"], "members": ["DM Narrator"] },
+        "requirements": { "members": ["DM Narrator"] },
         "qualities": [
           { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
           { "key": "messages_in_checkpoint", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundaries in the active checkpoint." },
