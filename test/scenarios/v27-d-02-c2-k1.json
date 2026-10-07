@@ -1,0 +1,150 @@
+{
+  "name": "v27-d-02-c2-k1",
+  "objective": "v2.7 02 C2-K1 / step-0 K1 live (D) row, no model. A group story plays while both transcript copiers are on (Summarize: main source, interval > 0, position not NONE; Vector Storage: chat vectors). The player-visible surfaces (HUD #so-hud-setup chip: text, title, check, counts; the drawer Setup row for transcript-copiers; the settings Repair row #so-entry-repair) are read in player mode without a held secret, then again after a [hiding] row is seeded: they must be byte-identical, so the alert never reveals that a secret exists. The author detail (Author view only) must differ: 'No secret is held yet' before, 'A secret is held right now' after; player mode shows no detail in either arm. The secret's own words never appear on a player surface. Ends with so-ui assert-player-clean. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c2-k1.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "Ponticius"
+    ],
+    "judge": "off",
+    "why": "the secret is planted through applyExtractionAudit (no read), the copiers are ST extension settings (ext_setting, restored by the runner); the subject is the K1 player-copy invariance, not extraction or the judge"
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const disabled = SillyTavern.getContext().extensionSettings.disabledExtensions ?? []; const off = ['memory', 'vectors'].filter((name) => disabled.includes(name)); if (off.length) throw new Error(`needs SillyTavern's ${off.join(' and ')} extension enabled on this lane (disabledExtensions lists it), or the copier read can never fire`); const rt = globalThis.storyOrchestratorRuntime; globalThis.__v27dK1 = { capableBefore: rt.getGlobalSettings().memory.epistemicLedgerCapable === true }; return globalThis.__v27dK1;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d-k1",
+        "version": 1,
+        "title": "SO-V27D K1 Secrets",
+        "description": "v2.7 02 C2-K1 live row: a group story with a held secret, played while transcript copiers are on.",
+        "qualities": [
+          {
+            "key": "ledger_found",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the ledger been found?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "hall",
+            "name": "The counting hall",
+            "objective": "Talk about the missing ledger.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "ponticius",
+            "name": "Ponticius"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setEpistemicLedgerCapable(true); return { capable: globalThis.storyOrchestratorRuntime.getGlobalSettings().memory.epistemicLedgerCapable };"
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "memoryFrozen",
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "source",
+        "value": "main"
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "promptInterval",
+        "value": 100
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "position",
+        "value": 0
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "vectors",
+        "key": "enabled_chats",
+        "value": true
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.notify(); const leaks = await until(() => { const value = rt.getSnapshot().secretLeaks ?? []; return value.length === 2 ? value : null; }, 5000, 'snapshot.secretLeaks naming both copiers (Summarize, Vector Storage)'); if (rt.getSnapshot().secretsHeld) throw new Error('a secret is held before any was seeded: the without-secret arm would measure nothing'); const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); globalThis.__v27dK1.read = () => { const hud = document.querySelector('#so-hud-setup'); const row = document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"transcript-copiers\"]'); const detail = row?.querySelector('[data-so=\"setup-detail\"]') ?? null; const repair = document.querySelector('#so-entry-repair'); return { hud: hud ? { text: norm(hud), title: hud.getAttribute('title'), check: hud.getAttribute('data-check'), blocks: hud.getAttribute('data-blocks'), degrades: hud.getAttribute('data-degrades') } : null, row: row ? norm(row) : null, rowDetail: detail ? norm(detail) : null, repair: repair ? norm(repair) : null, }; }; return { leaks, secretsHeld: false };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the without-secret player arm must run in player mode'); const a = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 8000, 'the transcript-copiers Setup row and the #so-hud-setup chip in player mode'); if (a.rowDetail) throw new Error(`player mode shows the author detail: ${a.rowDetail}`); if (!/Summarize/.test(a.row) || !/Vector Storage/.test(a.row)) throw new Error(`the player row does not name both copiers: ${a.row}`); globalThis.__v27dK1.playerA = a; return a;",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const a = await until(() => { const value = globalThis.__v27dK1.read(); return value.rowDetail ? value : null; }, 5000, 'the author detail of the transcript-copiers row in Author view'); if (!a.rowDetail.includes('No secret is held yet')) throw new Error(`the without-secret author detail does not say no secret is held: ${a.rowDetail}`); globalThis.__v27dK1.authorA = a; rt.setUiSettings({ authorView: false }); await until(() => !globalThis.__v27dK1.read().rowDetail, 5000, 'the detail to leave with Author view off'); return { authorDetail: a.rowDetail };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setEpistemicLedgerCapable(true); const audit = { id: 'v27d-k1-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }; await rt.applyExtractionAudit(audit, [], [], [], [{ tag: 'hiding', subject: 'Arin', hiddenFrom: 'Ponticius', content: 'the stolen ledger under the floor' }], []); rt.notify(); await until(() => rt.getSnapshot().secretsHeld === true, 5000, 'snapshot.secretsHeld after seeding a [hiding] row'); const row = rt.getEpistemic().find((entry) => entry.tag === 'hiding' && entry.subject === 'Arin'); if (!row) throw new Error(`the [hiding] row did not land: ${JSON.stringify(rt.getEpistemic())}`); return { secretsHeld: true, hiddenFrom: row.hiddenFrom };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const b = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 5000, 'the player surfaces after the seed'); const a = globalThis.__v27dK1.playerA; if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`K1: the player-visible alert changed when a secret was held. without: ${JSON.stringify(a)} with: ${JSON.stringify(b)}`); const surfaces = ['#drawer-manager', '#so-hud-root', '#story-orchestrator-settings'].map((selector) => document.querySelector(selector)?.textContent ?? '').join(' '); if (/stolen ledger/i.test(surfaces)) throw new Error('the held secret itself appears on a player surface'); return { identical: true, player: b };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const b = await until(() => { const value = globalThis.__v27dK1.read(); return value.rowDetail && value.rowDetail !== globalThis.__v27dK1.authorA.rowDetail ? value : null; }, 5000, 'the author detail to change once a secret is held'); const a = globalThis.__v27dK1.authorA; if (!b.rowDetail.includes('A secret is held right now')) throw new Error(`the with-secret author detail does not say a secret is held: ${b.rowDetail}`); if (a.row.replace(a.rowDetail, '') !== b.row.replace(b.rowDetail, '')) throw new Error(`the author row changed outside its detail: ${a.row} vs ${b.row}`); rt.setUiSettings({ authorView: false }); await until(() => !globalThis.__v27dK1.read().rowDetail, 5000, 'the detail to leave with Author view off'); return { before: a.rowDetail, after: b.rowDetail };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v27dK1?.capableBefore; if (typeof before === 'boolean') rt.setEpistemicLedgerCapable(before); rt.setUiSettings({ authorView: false }); return { capableRestored: before ?? null };",
+        "log": true
+      }
+    ]
+  }
+}

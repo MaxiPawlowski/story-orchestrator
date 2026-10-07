@@ -1,0 +1,144 @@
+{
+  "name": "v27-d-09-commit-hold",
+  "objective": "v2.7 09 option E live (D) row, no model. A mocked read (storyOrchestratorDebugExtractionResponse through the extract verb) proposes took_job=true while the player's only line refuses it ('I don't take the job, not yet.'): the commit guard holds the reading, the story stays at the offer, and the session journal (the so-journal show read, via getSessionJournal) carries the held row with its reason '(negated)' and the player's own line ('the player wrote \"I don't take the job, not yet.\"'). Control: a later line that does take it commits through the same mocked read and the story moves on, so the guard is not blanket. The row is author detail: player mode never shows it. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-09-commit-hold.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Ponticius"
+    ],
+    "judge": "off",
+    "why": "the read is mocked (extract debugResponse); the subject is the commit guard's held journal row, not extraction quality (the real-play leg is v2.8 01 O11)"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d-hold",
+        "version": 1,
+        "title": "SO-V27D Commitment Hold",
+        "description": "v2.7 live (D) fixture: a commitment quality the player has to say in their own words.",
+        "qualities": [
+          {
+            "key": "took_job",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the player accepted the guild's job?",
+            "commit_evidence": "\\b(?:take|takes|took|taken|accept|accepts|accepted)\\b"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "offer",
+            "name": "The offer",
+            "objective": "Hear the guild's offer.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "job",
+            "name": "On the job",
+            "objective": "Do the job.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "offer",
+            "to": "job",
+            "priority": 1,
+            "gate": {
+              "q": "took_job",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "ponticius",
+            "name": "Ponticius"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "I don't take the job, not yet."
+    },
+    {
+      "slash": "/sendas name=Ponticius The guild will wait for your answer."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_job value=true evidence=\"I don't take the job\"",
+        "reason": "v27d-09-refusal"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; const held = await until(() => rt.getSessionJournal().find((event) => JSON.stringify(event).includes('commitment reading')), 5000, 'a held commitment row in the journal'); const strings = []; const walk = (value) => { if (typeof value === 'string') strings.push(value); else if (value && typeof value === 'object') Object.values(value).forEach(walk); }; walk(held); const text = strings.join(' '); if (!text.includes('took_job') || !text.includes('(negated)')) throw new Error(`the held row does not give the reason: ${text}`); if (!text.includes('the player wrote \"I don\\'t take the job, not yet.\"')) throw new Error(`the held row does not quote the player's line: ${text}`); if (rt.getEngineState().activeCheckpointId !== 'offer') throw new Error(`the refusal moved the story: ${rt.getEngineState().activeCheckpointId}`); if (rt.getEngineState().blackboard.values.took_job === true) throw new Error('the refusal committed took_job'); return { held: held.summary, detail: held.detail ?? null };",
+      "log": true
+    },
+    {
+      "send": "Fine. I take the job."
+    },
+    {
+      "slash": "/sendas name=Ponticius Then we leave at dawn."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_job value=true evidence=\"I take the job\"",
+        "reason": "v27d-09-accept"
+      }
+    },
+    {
+      "wait": {
+        "checkpoint": "job",
+        "timeoutMs": 15000
+      }
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const text = document.querySelector('#drawer-manager')?.textContent ?? ''; if (/negated|took_job|the player wrote/.test(text)) throw new Error('player mode shows the held row\\'s author detail'); return { playerClean: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": true
+    }
+  ]
+}

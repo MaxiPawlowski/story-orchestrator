@@ -1,0 +1,145 @@
+{
+  "name": "v27-d-10-edit-catch-up",
+  "objective": "v2.7 10 option C live (D) row, no model. A mocked read carries the story start -> door at the boundary of Arin's reply. The main read lane is then held by a scheduler job that waits for the scenario (so the edit's re-read stays queued until released; the hold is a scheduler job, not a model call). Editing the newest reply rolls the story back and queues the 'rollback:<id>:edit' re-read: the pipeline reads catching-up ('Catching up after your edit…', HUD chip 'catching up after your edit') while it waits, and assert-player-clean is green in that state. Control: before the edit the same held lane does not read catching-up. Released, the re-read runs on the pinned mock (SCENE_NONE), its audit lands, rereadReason clears and the pipeline settles to idle. The existing plan03a-edit-rollback never asserts catching-up. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-10-edit-catch-up.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "every read is mocked (SCENE_NONE pin, extract debugResponse); the hold is a scheduler job the scenario releases; the real re-read leg is v2.8 01 O10"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d10",
+        "version": 1,
+        "title": "SO-V27D10 Edit Catch-up",
+        "description": "v2.7 10 live row: an edit of the newest reply rolls a transition back and re-reads.",
+        "qualities": [
+          {
+            "key": "player_has_key",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player take the brass key?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Find the key.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "door",
+            "name": "Door",
+            "objective": "Use the key.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "door",
+            "priority": 1,
+            "gate": {
+              "q": "player_has_key",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "brass key"
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "slash": "/sendas name=Arin You pocket the brass key."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=player_has_key value=true evidence=\"I take the brass key\"",
+        "reason": "v27d10-key"
+      }
+    },
+    {
+      "wait": {
+        "checkpoint": "door",
+        "timeoutMs": 15000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const pipe = () => globalThis.storyOrchestratorRuntime.getSnapshot().pipeline; const sched = () => globalThis.storyOrchestratorRuntime.getSnapshot().extraction.scheduler; const rt = globalThis.storyOrchestratorRuntime; if (!rt.scheduler || typeof rt.scheduler.schedule !== 'function') throw new Error('the runtime has no attached scheduler'); globalThis.__v27d10 = { audits: rt.getExtractionAudits().length }; rt.scheduler.schedule({ priority: 1, reason: 'v27d10-hold', run: () => new Promise((resolve) => { globalThis.__v27d10.release = resolve; }) }); await until(() => typeof globalThis.__v27d10.release === 'function', 5000, 'the hold job to start on the read lane'); await new Promise((r) => setTimeout(r, 500)); if (pipe().state === 'catching-up') throw new Error('control: the pipeline reads catching-up with no edit'); return { heldLane: true, pipeline: pipe().state, scheduler: sched() };",
+      "log": true
+    },
+    {
+      "edit": {
+        "messageId": "last",
+        "text": "You leave the key on its hook."
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const pipe = () => globalThis.storyOrchestratorRuntime.getSnapshot().pipeline; const sched = () => globalThis.storyOrchestratorRuntime.getSnapshot().extraction.scheduler; const rt = globalThis.storyOrchestratorRuntime; await until(() => pipe().state === 'catching-up', 8000, 'the pipeline to read catching-up after the edit'); const reason = sched().rereadReason; if (!/^rollback:\\d+:edit$/.test(String(reason))) throw new Error(`the queued re-read is not the edit's: ${reason}`); if (rt.getEngineState().activeCheckpointId !== 'start') throw new Error(`the edit did not roll the story back: ${rt.getEngineState().activeCheckpointId}`); const hud = document.getElementById('so-hud-pipeline')?.textContent?.trim() ?? null; if (hud !== 'catching up after your edit') throw new Error(`the HUD chip reads ${JSON.stringify(hud)}`); return { pipeline: pipe().text, reason, hud };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "pipeline"
+      },
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const pipe = () => globalThis.storyOrchestratorRuntime.getSnapshot().pipeline; const sched = () => globalThis.storyOrchestratorRuntime.getSnapshot().extraction.scheduler; const rt = globalThis.storyOrchestratorRuntime; if (pipe().state !== 'catching-up') throw new Error(`the re-read ran before it was released: ${pipe().state}`); globalThis.__v27d10.release(); await until(() => !sched().rereadReason && !sched().inFlight && sched().queueDepth === 0, 15000, 'the edit re-read to run and leave the queue'); const audits = rt.getExtractionAudits(); const reread = audits.slice(globalThis.__v27d10.audits).find((audit) => String(audit.reason).startsWith('rollback:')); if (!reread) throw new Error(`no re-read audit landed: ${JSON.stringify(audits.slice(globalThis.__v27d10.audits).map((audit) => audit.reason))}`); await until(() => pipe().state === 'idle', 10000, `the pipeline to settle to idle (it reads ${pipe().state})`); return { reread: reread.reason, pipeline: pipe().state };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "if (typeof globalThis.__v27d10?.release === 'function') globalThis.__v27d10.release(); return { released: true };"
+      }
+    ]
+  }
+}

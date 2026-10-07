@@ -1,0 +1,209 @@
+{
+  "name": "v27-d-04-health-center",
+  "objective": "v2.7 04 live (D) complete fixture, no model. A group story whose requirements name a member with no card, played with no memory model and Summarize on. Player mode, drawer Overview: the Setup section lists memory-model and cast-absent (blocks, the Before you start rows at boundary 0) before transcript-copiers (degrades), every blocks row before every degrades row and info after both; blocks rows have no dismiss control, the degrades row has one; the HUD #so-hud-setup counts equal the rendered blocks/degrades rows (info and the save row never counted). Show me on the memory-model row lands on #so-extraction-profile. Author view adds the detail. With a seeded held secret the player rows read the same. A stored dismissal of memory-model (blocks) is ignored. Dismissing transcript-copiers moves it to the dismissed list, drops the HUD degrades count by one, and survives a reload. No toast carries a check's copy. Solo control: a one-on-one chat holding the story shows only story-needs-group. Not expressed: the one-click fixes (cast-unbound / cast-muted would edit the shared toy group's member list; covered by castRepair jest and the make-a-group card in v27-03-no-group-solo-blob.json). Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-04-health-center.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "no memory model is part of the fixture; the held secret is planted through applyExtractionAudit; Summarize is an ext_setting the runner restores; a model would only add reads the fixture does not measure"
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const disabled = SillyTavern.getContext().extensionSettings.disabledExtensions ?? []; const off = ['memory', 'vectors'].filter((name) => disabled.includes(name)); if (off.length) throw new Error(`needs SillyTavern's ${off.join(' and ')} extension enabled on this lane (disabledExtensions lists it), or the copier read can never fire`); const rt = globalThis.storyOrchestratorRuntime; const settings = rt.getGlobalSettings(); sessionStorage.setItem('v27d04', JSON.stringify({ dismissed: settings.help.dismissedChecks ?? [], capable: settings.memory.epistemicLedgerCapable === true })); return JSON.parse(sessionStorage.getItem('v27d04'));",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d04",
+        "version": 1,
+        "title": "SO-V27D04 Health",
+        "description": "v2.7 04 live row: a group story missing one member, played with no memory model and Summarize on.",
+        "requirements": {
+          "members": [
+            "Arin",
+            "SO-V27D04 Nobody"
+          ]
+        },
+        "qualities": [
+          {
+            "key": "bell_rung",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the bell been rung?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "square",
+            "name": "The square",
+            "objective": "Wait for the bell.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "nobody",
+            "name": "SO-V27D04 Nobody"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ profileId: '' }); await until(() => !rt.getGlobalSettings().extraction.profileId, 3000, 'the memory model to clear'); return { profileId: null };",
+      "log": true
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "memoryFrozen",
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "source",
+        "value": "main"
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "promptInterval",
+        "value": 100
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "memory",
+        "key": "position",
+        "value": 0
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.notify(); await until(() => (rt.getSnapshot().secretLeaks ?? []).includes('Summarize'), 5000, 'snapshot.secretLeaks to name Summarize'); globalThis.__v27d04 = { toasts: [] }; globalThis.__v27d04.observer = new MutationObserver((mutations) => { for (const mutation of mutations) for (const node of mutation.addedNodes) if (node instanceof HTMLElement && (node.classList.contains('toast') || node.querySelector?.('.toast'))) globalThis.__v27d04.toasts.push(node.textContent ?? ''); }); globalThis.__v27d04.observer.observe(document.body, { childList: true, subtree: true }); return { leaks: rt.getSnapshot().secretLeaks };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the order arm must run in player mode'); const rows = await until(() => { const value = rowsNow(); return ['memory-model', 'cast-absent', 'transcript-copiers'].every((id) => value.some((row) => row.check === id)) ? value : null; }, 8000, 'memory-model, cast-absent and transcript-copiers in the drawer Setup section'); const at = (id) => rows.findIndex((row) => row.check === id); if (!(at('memory-model') < at('cast-absent') && at('cast-absent') < at('transcript-copiers'))) throw new Error(`the Setup rows are out of order: ${rows.map((row) => row.check).join(', ')}`); const rank = { blocks: 0, degrades: 1, info: 2 }; for (let index = 1; index < rows.length; index += 1) if (rank[rows[index].severity] < rank[rows[index - 1].severity]) throw new Error(`a ${rows[index].severity} row follows a ${rows[index - 1].severity} row: ${rows.map((row) => `${row.check}:${row.severity}`).join(', ')}`); const blockRows = rows.filter((row) => row.severity === 'blocks'); if (blockRows.some((row) => row.dismiss)) throw new Error(`a blocks row offers a dismiss: ${blockRows.filter((row) => row.dismiss).map((row) => row.check).join(', ')}`); if (!rows.find((row) => row.check === 'transcript-copiers').dismiss) throw new Error('the degrades row has no \"I know, keep it\"'); if (!rows.find((row) => row.check === 'memory-model').showMe) throw new Error('the memory-model row has no Show me'); if (rows.some((row) => row.detail)) throw new Error('player mode shows an author detail'); const before = document.querySelector('#so-before-you-start'); if (!before || !before.querySelector('[data-check=\"memory-model\"]')) throw new Error('Before you start does not list the memory-model blocker at boundary 0'); const hud = hudNow(); if (!hud) throw new Error('no #so-hud-setup chip'); const counted = (severity) => rows.filter((row) => row.severity === severity && row.check !== 'save-unconfirmed').length; if (hud.blocks !== counted('blocks') || hud.degrades !== counted('degrades')) throw new Error(`the HUD counts ${JSON.stringify(hud)} differ from the rows (blocks ${counted('blocks')}, degrades ${counted('degrades')}; info rows ${counted('info')} are never counted)`); globalThis.__v27d04.player = rows; globalThis.__v27d04.hud = hud; return { order: rows.map((row) => `${row.check}:${row.severity}`), hud };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const visible = (selector) => { const node = document.querySelector(selector); if (!node || node.offsetParent === null) return false; const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }; const button = document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"memory-model\"] [data-so=\"setup-show-me\"]'); button.click(); await until(() => visible('#so-extraction-profile'), 5000, 'Show me on the memory-model row to land on #so-extraction-profile'); return { landed: '#so-extraction-profile' };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const rows = await until(() => { const value = rowsNow(); return value.find((row) => row.check === 'memory-model' && row.detail) ? value : null; }, 5000, 'Author view to add the memory-model detail'); rt.setUiSettings({ authorView: false }); await until(() => !rowsNow().some((row) => row.detail), 5000, 'the detail to leave with Author view off'); return { authorRows: rows.map((row) => `${row.check}:${row.severity}${row.detail ? '+detail' : ''}`) };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setEpistemicLedgerCapable(true); const audit = { id: 'v27d04-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }; await rt.applyExtractionAudit(audit, [], [], [], [{ tag: 'hiding', subject: 'Arin', hiddenFrom: 'SO-V27D04 Nobody', content: 'the bell rope is cut' }], []); rt.notify(); await until(() => rt.getSnapshot().secretsHeld === true, 5000, 'snapshot.secretsHeld after seeding a [hiding] row'); const row = rt.getEpistemic().find((entry) => entry.tag === 'hiding' && entry.subject === 'Arin'); if (!row) throw new Error(`the [hiding] row did not land: ${JSON.stringify(rt.getEpistemic())}`); return { secretsHeld: true, hiddenFrom: row.hiddenFrom };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rows = await until(() => { const value = rowsNow(); return value.some((row) => row.check === 'transcript-copiers') ? value : null; }, 5000, 'the Setup rows after the seed'); const text = (list) => JSON.stringify(list.map((row) => [row.check, row.text])); if (text(rows) !== text(globalThis.__v27d04.player)) throw new Error(`the player Setup rows changed when a secret was held: ${text(globalThis.__v27d04.player)} -> ${text(rows)}`); if (JSON.stringify(hudNow()) !== JSON.stringify(globalThis.__v27d04.hud)) throw new Error('the HUD chip changed when a secret was held'); return { identical: true };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; rt.setCheckDismissed('memory-model', true); await sleep(600); const rows = rowsNow(); const kept = rows.some((row) => row.check === 'memory-model'); const dismissedRow = document.querySelector('[data-so=\"setup-dismissed-row\"][data-check=\"memory-model\"]'); rt.setCheckDismissed('memory-model', false); if (!kept || dismissedRow) throw new Error('a stored dismissal of a blocks finding (memory-model) was honoured'); return { blocksDismissalIgnored: true };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; const before = hudNow(); document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"transcript-copiers\"] [data-so=\"setup-dismiss\"]').click(); await until(() => !rowsNow().some((row) => row.check === 'transcript-copiers') && document.querySelector('[data-so=\"setup-dismissed-row\"][data-check=\"transcript-copiers\"]'), 5000, 'the dismissed degrades row to move to the dismissed list'); if (!(rt.getGlobalSettings().help.dismissedChecks ?? []).includes('transcript-copiers')) throw new Error('the dismissal is not stored install-wide (help.dismissedChecks)'); const after = await until(() => { const value = hudNow(); return value && value.degrades === before.degrades - 1 ? value : null; }, 5000, 'the HUD degrades count to drop by one'); await sleep(2500); globalThis.__v27d04.observer.disconnect(); const copy = globalThis.__v27d04.player.map((row) => row.text.slice(0, 40)); const loud = globalThis.__v27d04.toasts.filter((toast) => copy.some((fragment) => fragment && toast.includes(fragment))); if (loud.length) throw new Error(`a check toasted: ${JSON.stringify(loud)}`); return { hudBefore: before, hudAfter: after, toastsSeen: globalThis.__v27d04.toasts.length };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rows = await until(() => { const value = rowsNow(); return value.some((row) => row.check === 'memory-model') ? value : null; }, 10000, 'the Setup section after the reload'); if (rows.some((row) => row.check === 'transcript-copiers')) throw new Error('the dismissal did not survive the reload'); if (!document.querySelector('[data-so=\"setup-dismissed-row\"][data-check=\"transcript-copiers\"]')) throw new Error('the dismissed row is missing from the dismissed list after the reload'); return { afterReload: rows.map((row) => row.check) };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "character": "Arin"
+      },
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const ctx = SillyTavern.getContext(); if (ctx.groupId) throw new Error('solo_chat did not leave the group'); ctx.chatMetadata.story_orchestrator = { version: 6, chatId: ctx.chatId, selectedStoryId: 'so-v27d04', stories: {} }; await ctx.saveMetadata?.(); await globalThis.storyOrchestratorRuntime.loadSelectedFromChat(); const snapshot = await until(() => { const value = globalThis.storyOrchestratorRuntime.getSnapshot(); return value.noGroup ? value : null; }, 5000, 'the solo chat to read as noGroup'); if (snapshot.ready) throw new Error('the story plays in a one-on-one chat'); return { noGroup: snapshot.noGroup?.storyId ?? null };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; await until(() => document.querySelector('#so-make-group-drawer') || document.querySelector('[data-so=\"setup-row\"][data-check=\"story-needs-group\"]'), 8000, 'the make-a-group card or the story-needs-group row'); const checks = [...document.querySelectorAll('[data-so=\"setup-row\"]')].map((row) => row.getAttribute('data-check')); const other = checks.filter((id) => id !== 'story-needs-group'); if (other.length) throw new Error(`the solo control shows more than story-needs-group: ${checks.join(', ')}`); if (document.querySelector('#so-hud-setup') && document.querySelector('#so-hud-setup').getAttribute('data-check') !== 'story-needs-group') throw new Error('the solo HUD names another check'); return { soloChecks: checks, card: Boolean(document.querySelector('#so-make-group-drawer')) };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; const saved = JSON.parse(sessionStorage.getItem('v27d04') ?? 'null'); if (!saved) return { restored: false }; rt.setCheckDismissed('transcript-copiers', saved.dismissed.includes('transcript-copiers')); rt.setCheckDismissed('memory-model', saved.dismissed.includes('memory-model')); rt.setEpistemicLedgerCapable(saved.capable); rt.setUiSettings({ authorView: false }); sessionStorage.removeItem('v27d04'); return { restored: true, dismissed: rt.getGlobalSettings().help.dismissedChecks };",
+        "log": true
+      }
+    ]
+  }
+}

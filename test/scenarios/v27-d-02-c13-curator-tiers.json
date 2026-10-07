@@ -1,0 +1,165 @@
+{
+  "name": "v27-d-02-c13-curator-tiers",
+  "objective": "v2.7 02 C13 live (D) row, no model. A story lorebook (marker SO-V27D13) holds 'The north gate' (a {{// so:protect}} span) and 'The market square' ({{// so:auto}}). With the curator on in accept mode auto, one mocked curator pass (stagecraft curate with debugResponse) proposes a rewrite of each: the gate rewrite drops the protected span and is refused at plan time ('touches protected text', no op on the card); the market rewrite is on an auto-tier entry and is accepted on the spot. The next rendered reply's boundary writes it; a swipe of that reply rolls it back to the entry's before-image, while the gate entry is never touched. Cleanup restores the stagecraft settings and deletes the marker book. Payload invariance on the curator request is the jest pin (curatorTiers.review.test.ts), not repeated here. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c13-curator-tiers.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "the curator and the read are mocked (debugResponse); the subject is the tier/span refusal, the auto acceptance and the swipe revert at the write edge, not a real curator (v2.8 01 O14)"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d13",
+        "version": 1,
+        "title": "SO-V27D13 Curator Tiers",
+        "description": "v2.7 02 C13 live row: a curator op into a protected span, and an auto-tier entry.",
+        "stagecraft": {
+          "lorebooks": [
+            "SO-V27D13 Lore"
+          ]
+        },
+        "requirements": {
+          "lorebooks": [
+            "SO-V27D13 Lore"
+          ]
+        },
+        "qualities": [
+          {
+            "key": "gate_open",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "road",
+            "name": "The road",
+            "objective": "Reach the gate.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "gate",
+            "name": "At the gate",
+            "objective": "Get through.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "road",
+            "to": "gate",
+            "priority": 1,
+            "gate": {
+              "q": "gate_open",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); const book = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V27D13 Lore' }, { requirements: { lorebooks: [] } }); if (!book.ok && !String(book.message).includes('already exists')) throw new Error(`could not create the story lorebook: ${book.message}`); for (const [comment, keys] of [['The north gate', ['gate', 'warden']], ['The market square', ['market', 'square']]]) { const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V27D13 Lore', comment, keys, content: 'placeholder', constant: true }, { requirements: { lorebooks: ['SO-V27D13 Lore'] } }); if (!entry.ok) throw new Error(`could not write ${comment}: ${entry.message}`); } const data = await ctx.loadWorldInfo('SO-V27D13 Lore'); const mark = (kind) => '{{' + '/'.repeat(2) + ' so:' + kind + '}}'; const texts = { 'The north gate': `The north gate is barred. ${mark('protect')}Only the warden carries the iron key.${mark('end')} Guards watch the road.`, 'The market square': `${mark('auto')}The market square is crowded at noon.` }; if (texts['The north gate'] !== \"The north gate is barred. {{/\" + \"/ so:protect}}Only the warden carries the iron key.{{/\" + \"/ so:end}} Guards watch the road.\" || texts['The market square'] !== \"{{/\" + \"/ so:auto}}The market square is crowded at noon.\") throw new Error('the marker builder does not produce the documented markers'); for (const entry of Object.values(data?.entries ?? {})) if (texts[entry.comment]) entry.content = texts[entry.comment]; await wi.saveWorldInfo('SO-V27D13 Lore', data, true); const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V27D13 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await readBook(); if (now.gate !== texts['The north gate'] || now.market !== texts['The market square']) throw new Error(`the marked entries did not reach the server: ${JSON.stringify(now)}`); globalThis.__v27d13 = { original: now, settings: rt.getStagecraftState().settings }; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' }); const settings = rt.getStagecraftState().settings; if (!settings.curatorEnabled || settings.acceptMode !== 'auto') throw new Error(`the curator settings did not stick: ${JSON.stringify(settings)}`); return { original: now, acceptMode: settings.acceptMode };",
+      "log": true
+    },
+    {
+      "send": "I walk up the road to the north gate."
+    },
+    {
+      "stagecraft": {
+        "action": "curate",
+        "reason": "v27d13",
+        "expectOps": 1,
+        "attempts": 1,
+        "debugResponse": "[rewrite] The north gate || The north gate stands wide open and nobody guards it.\n[rewrite] The market square || {{// so:auto}}The market square is empty at dusk."
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; const state = rt.getStagecraftState(); const record = (state.proposals ?? []).slice(-1)[0]; if (!record) throw new Error('the curator pass made no proposal'); const ops = record.ops.map((entry) => ({ kind: entry.op.kind, comment: entry.op.comment, status: entry.status })); if (ops.some((op) => op.comment === 'The north gate')) throw new Error(`an op into the protected span reached the card: ${JSON.stringify(ops)}`); const market = ops.find((op) => op.comment === 'The market square'); if (!market || market.status !== 'accepted') throw new Error(`the auto-tier op was not accepted on the spot: ${JSON.stringify(ops)}`); if (!JSON.stringify(state).includes('touches protected text')) throw new Error(`the refusal is not recorded: ${JSON.stringify(state.lastPass ?? null).slice(0, 600)}`); const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V27D13 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await readBook(); if (now.market !== globalThis.__v27d13.original.market) throw new Error('the accepted op was written before a boundary'); globalThis.__v27d13.record = record.id; return { ops, dropped: state.lastPass?.dropped ?? null };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin The gate looms ahead in the rain."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V27D13 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await until(async () => { const read = await readBook(); return read.market.includes('empty at dusk') ? read : null; }, 10000, 'the boundary to write the accepted auto-tier op'); if (now.gate !== globalThis.__v27d13.original.gate) throw new Error(`the protected entry changed: ${now.gate}`); const applied = rt.getStagecraftState().proposals.flatMap((record) => record.ops).filter((entry) => entry.status === 'applied'); if (!applied.length) throw new Error('the ring holds no applied op'); return { market: now.market, applied: applied.length };",
+      "log": true
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=gate_open value=true evidence=\"I walk up the road to the north gate\"",
+        "reason": "v27d13-gate"
+      }
+    },
+    {
+      "wait": {
+        "checkpoint": "gate",
+        "timeoutMs": 15000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const reply = ctx.chat[ctx.chat.length - 1]; if (!reply || reply.is_user || reply.name !== 'Arin') throw new Error(`the newest message is not Arin's reply: ${JSON.stringify(reply && { name: reply.name, is_user: reply.is_user })}`); reply.swipes = [reply.mes, 'The gate is grey and silent in the rain.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipes: reply.swipes.length };",
+      "log": true
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V27D13 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await until(async () => { const read = await readBook(); return read.market === globalThis.__v27d13.original.market ? read : null; }, 15000, 'the swipe to revert the applied op to its before-image'); if (now.gate !== globalThis.__v27d13.original.gate) throw new Error(`the protected entry changed: ${now.gate}`); if (!rt.getSnapshot().lastRollback) throw new Error('the swipe did not roll the story back'); return { market: now.market, checkpoint: rt.getEngineState().activeCheckpointId };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; delete globalThis.storyOrchestratorDebugCuratorResponse; const before = globalThis.__v27d13?.settings; if (before) rt.setStagecraftSettings({ curatorEnabled: before.curatorEnabled, acceptMode: before.acceptMode }); return { restored: before ?? null };",
+        "log": true
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-V27D13"
+        }
+      }
+    ]
+  }
+}

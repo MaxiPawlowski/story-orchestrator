@@ -1,0 +1,238 @@
+{
+  "name": "v27-d-06-presence",
+  "objective": "v2.7 06 live (D) row, no model. Two group chats in two stories (a saga with chapters, an act whose story display sets chapter_card false): the plays index (extensionSettings plays) holds a row per chat with the right story and kind; the saga chat shows the opening chapter card ('Arrival') after its first boundary and the act chat shows none (per-story off, while its story has chapters); the settings Continue list (#so-continue-list) lists both, the newer (act) first, each with its kind; the group's list entry carries one .so-story-badge naming the most recently played story, and no solo character entry carries a badge; the wand menu holds the Story entries and 'Open the story drawer' opens the drawer; the Help panel moved with the arrow keys keeps its position across a reload (panels.help). Cleanup restores the panels key and drops the plays rows of the run's chats. Not expressed: paging a 10-per-page list across two pages (the toy install has too few groups; charListBadges.test.ts pages a fake list), library delete keeps a pinned row (presenceIndex.test.ts F14), the payload-invariance capture with every item on and off. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-06-presence.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "scripted messages only; a model would only add reads the presence surfaces do not depend on"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); const root = SillyTavern.getContext().extensionSettings['story-orchestrator'] ?? {}; if (window.innerWidth < 768) throw new Error(`needs a viewport at least 768 px wide (panels dock below it), this one is ${window.innerWidth}`); save06({ panelsBefore: root.panels === undefined ? null : root.panels, chatA: String(SillyTavern.getContext().chatId) }); return read06();",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d06-saga",
+        "version": 1,
+        "title": "SO-V27D06 Saga",
+        "kind": "saga",
+        "description": "v2.7 06 live row: the saga of the pair.",
+        "chapters": [
+          {
+            "id": "arrival",
+            "title": "Arrival at Harrowgate",
+            "player_title": "Arrival"
+          },
+          {
+            "id": "siege",
+            "title": "The Siege of Harrowgate",
+            "player_title": "The Siege",
+            "final": true
+          }
+        ],
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "extractor",
+            "monotonic": true,
+            "rubric": "How far has the party come?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gate",
+            "name": "The Gate",
+            "objective": "Reach the town gate.",
+            "type": "anchor",
+            "start": true,
+            "chapter": "arrival"
+          },
+          {
+            "id": "walls",
+            "name": "The Walls",
+            "objective": "Hold the walls.",
+            "type": "anchor",
+            "chapter": "siege"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "gate",
+            "to": "walls",
+            "priority": 1,
+            "gate": {
+              "q": "step",
+              "op": ">=",
+              "v": 1
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "We reach the gate at dusk."
+    },
+    {
+      "slash": "/sendas name=Arin The gate is shut for the night."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const plays = () => SillyTavern.getContext().extensionSettings['story-orchestrator']?.plays ?? {}; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const chatA = String(SillyTavern.getContext().chatId); const row = await until(() => plays()[chatA], 8000, `a plays row for the saga chat ${chatA}`); if (row.storyId !== 'so-v27d06-saga' || row.kind !== 'saga') throw new Error(`the saga chat's row is wrong: ${JSON.stringify(row)}`); const card = await until(() => [...document.querySelectorAll('[data-so=\"chapter-card\"]')].find((node) => norm(node).includes('Arrival')), 8000, 'the opening chapter card (Arrival) in the saga chat'); return { row, card: norm(card) };",
+      "log": true
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); const ctx = SillyTavern.getContext(); const chatB = String(ctx.chatId); if (chatB === read06().chatA) throw new Error('/newchat did not open a second chat'); if (!ctx.groupId) throw new Error('the second chat is not a group chat'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); save06({ chatB }); return { chatB };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d06-act",
+        "version": 1,
+        "title": "SO-V27D06 Act",
+        "description": "v2.7 06 live row: a single act whose story display hides the chapter card.",
+        "display": {
+          "chapter_card": false
+        },
+        "chapters": [
+          {
+            "id": "coast",
+            "title": "The Coast Road",
+            "player_title": "The Coast"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "extractor",
+            "monotonic": true,
+            "rubric": "How far has the party come?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "road",
+            "name": "The Road",
+            "objective": "Walk to the coast.",
+            "type": "anchor",
+            "start": true,
+            "chapter": "coast"
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "We set out along the coast road."
+    },
+    {
+      "slash": "/sendas name=Arin The coast road is long and the wind is cold."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const plays = () => SillyTavern.getContext().extensionSettings['story-orchestrator']?.plays ?? {}; const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); const rt = globalThis.storyOrchestratorRuntime; const chatB = read06().chatB; const row = await until(() => plays()[chatB], 8000, `a plays row for the act chat ${chatB}`); if (row.storyId !== 'so-v27d06-act' || row.kind !== 'story') throw new Error(`the act chat's row is wrong: ${JSON.stringify(row)}`); if (!plays()[read06().chatA]) throw new Error('the saga chat\\'s row is gone'); if (!rt.getBoundaryLog().length) throw new Error('the act chat committed no boundary, so a missing chapter card would prove nothing'); await sleep(1500); if (document.querySelector('[data-so=\"chapter-card\"]')) throw new Error('the act story sets chapter_card false and a chapter card shows'); return { row };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rows = await until(() => { const list = [...document.querySelectorAll('#so-continue-list [data-so=\"continue-row\"]')]; return list.some((row) => norm(row).includes('SO-V27D06 Act')) && list.some((row) => norm(row).includes('SO-V27D06 Saga')) ? list : null; }, 8000, 'both stories in the Continue list (#so-continue-list)'); const act = rows.findIndex((row) => norm(row).includes('SO-V27D06 Act')); const saga = rows.findIndex((row) => norm(row).includes('SO-V27D06 Saga')); if (act > saga) throw new Error('the Continue list puts the older play first'); if (rows[act].getAttribute('data-kind') !== 'story' || rows[saga].getAttribute('data-kind') !== 'saga') throw new Error(`the Continue rows carry the wrong kinds: act=${rows[act].getAttribute('data-kind')} saga=${rows[saga].getAttribute('data-kind')}`); return { continue: rows.slice(0, 4).map((row) => norm(row)) };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const groupId = String(SillyTavern.getContext().groupId); const block = document.querySelector(`#rm_print_characters_block .group_select[data-grid=\"${groupId}\"]`); if (!block) throw new Error(`the toy group ${groupId} is not on the character list's current page, so its badge cannot be read`); const badge = await until(() => block.querySelector('.so-story-badge'), 8000, 'the story badge on the group entry'); if (block.querySelectorAll('.so-story-badge').length !== 1) throw new Error('the group entry carries more than one badge'); if (!badge.classList.contains('so-story-badge--story')) throw new Error(`the badge does not name the most recent play (the act): ${badge.className}`); if (!String(badge.getAttribute('title') ?? '').includes('SO-V27D06 Act')) throw new Error(`the badge title does not name the act: ${badge.getAttribute('title')}`); const solo = document.querySelectorAll('#rm_print_characters_block .character_select .so-story-badge').length; if (solo) throw new Error(`${solo} solo character entr(ies) carry a story badge`); return { badge: badge.getAttribute('title') };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const menu = document.querySelector('#extensionsMenu'); if (!menu) throw new Error('ST has no #extensionsMenu'); const missing = ['so-wand-recap', 'so-wand-flag', 'so-wand-drawer'].filter((id) => !menu.querySelector(`#${id}`)); if (missing.length) throw new Error(`the wand menu lacks ${missing.join(', ')}`); const drawer = document.getElementById('drawer-manager'); if (drawer?.classList.contains('openDrawer')) document.querySelector('#so-drawer .drawer-toggle')?.click(); await until(() => !document.getElementById('drawer-manager')?.classList.contains('openDrawer'), 5000, 'the drawer to close before the wand opens it'); menu.querySelector('#so-wand-drawer').click(); await until(() => document.getElementById('drawer-manager')?.classList.contains('openDrawer'), 5000, 'the wand entry to open the story drawer'); return { wand: ['so-wand-recap', 'so-wand-flag', 'so-wand-drawer'], drawerOpened: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); document.querySelector('#so-help-toggle-drawer').click(); const panel = await until(() => document.querySelector('#so-panel-help'), 5000, 'the Help panel (#so-panel-help)'); if (panel.getAttribute('data-docked') === 'true') throw new Error('the Help panel is docked; the position leg needs a floating panel'); const bar = panel.querySelector('[data-so=\"panel-bar\"]'); const start = { left: panel.style.left, top: panel.style.top }; bar.focus(); for (let i = 0; i < 3; i += 1) { bar.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); bar.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); await sleep(100); } await until(() => panel.style.left !== start.left && panel.style.top !== start.top, 3000, 'the arrow keys to move the panel'); await sleep(2500); const stored = SillyTavern.getContext().extensionSettings['story-orchestrator']?.panels?.help; if (!stored || `${stored.x}px` !== panel.style.left || `${stored.y}px` !== panel.style.top) throw new Error(`the moved position is not stored: ${JSON.stringify(stored)} vs ${panel.style.left},${panel.style.top}`); save06({ moved: { left: panel.style.left, top: panel.style.top } }); document.querySelector('#so-help-toggle-drawer').click(); await until(() => !document.querySelector('#so-panel-help'), 5000, 'the Help panel to close'); return { from: start, to: read06().moved };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); document.querySelector('#so-help-toggle-drawer').click(); const panel = await until(() => document.querySelector('#so-panel-help'), 5000, 'the Help panel after the reload'); const moved = read06().moved; if (panel.style.left !== moved.left || panel.style.top !== moved.top) throw new Error(`the panel did not keep its position across the reload: ${panel.style.left},${panel.style.top} vs ${moved.left},${moved.top}`); document.querySelector('#so-help-toggle-drawer').click(); await until(() => !document.querySelector('#so-panel-help'), 5000, 'the Help panel to close'); return { kept: moved };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const save06 = (patch) => sessionStorage.setItem('v27d06', JSON.stringify({ ...JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'), ...patch })); const read06 = () => JSON.parse(sessionStorage.getItem('v27d06') ?? '{}'); const ctx = SillyTavern.getContext(); const saved = read06(); const root = ctx.extensionSettings['story-orchestrator']; if (!root || !saved.chatA) return { restored: false }; if (saved.panelsBefore === null) delete root.panels; else root.panels = saved.panelsBefore; for (const chatId of [saved.chatA, saved.chatB].filter(Boolean)) if (root.plays) delete root.plays[chatId]; ctx.saveSettingsDebounced(); await new Promise((r) => setTimeout(r, 1500)); sessionStorage.removeItem('v27d06'); return { restored: true, droppedRows: [saved.chatA, saved.chatB].filter(Boolean) };",
+        "log": true
+      }
+    ]
+  }
+}

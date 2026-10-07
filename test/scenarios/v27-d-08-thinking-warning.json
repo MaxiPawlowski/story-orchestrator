@@ -1,0 +1,146 @@
+{
+  "name": "v27-d-08-thinking-warning",
+  "objective": "v2.7 08 option A live (D) row, no model. Harvest on and knowledge tracking on; five /sendas replies made into 'generated' replies through ST's own message fields (extra.api set, not 'manual'; extra.reasoning empty) and saved: four are not enough (no finding, the window is not filled), the fifth raises model-not-thinking (snapshot.thinkingSilent) with the player copy in player mode and no detail; Author view adds the detail and the settings line under the harvest switch (#so-inner-harvest-silent); one reply carrying reasoning clears it; with harvest off the same silent replies raise nothing. so-ui assert-player-clean with the finding shown. Cleanup restores the install-wide memory settings. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-08-thinking-warning.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "the replies are /sendas posts given extra.api through ST's message fields, so nothing generates; the real-reply leg (fix vs thinking overlay) is v2.8 01 O9"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const memory = rt.getGlobalSettings().memory; globalThis.__v27d08 = { harvest: memory.harvestReasoning === true, capable: memory.epistemicLedgerCapable === true }; rt.setMemorySettings({ harvestReasoning: true, epistemicLedgerCapable: true }); return globalThis.__v27d08;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d08",
+        "version": 1,
+        "title": "SO-V27D08 Thinking",
+        "description": "v2.7 08 live row: replies with and without reasoning while harvest is on.",
+        "qualities": [
+          {
+            "key": "storm_over",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the storm passed?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "inn",
+            "name": "The inn",
+            "objective": "Wait out the storm.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "We wait for the storm to pass."
+    },
+    {
+      "slash": "/sendas name=Arin The wind is still howling."
+    },
+    {
+      "slash": "/sendas name=Arin Rain hammers the shutters."
+    },
+    {
+      "slash": "/sendas name=Arin The innkeeper brings more candles."
+    },
+    {
+      "slash": "/sendas name=Arin Someone knocks at the door."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const ctx = SillyTavern.getContext(); let marked = 0; for (const row of ctx.chat) { if (row.is_user || row.is_system) continue; row.extra = { ...(row.extra ?? {}), api: 'textgenerationwebui', model: 'scripted', reasoning: '' }; marked += 1; } await ctx.saveChat(); globalThis.storyOrchestratorRuntime.notify(); await sleep(800); const rt = globalThis.storyOrchestratorRuntime; if (marked !== 4) throw new Error(`expected four replies, marked ${marked}`); if (rt.getSnapshot().thinkingSilent) throw new Error('four silent replies raised the warning: the window is five'); if (thinkRow()) throw new Error('a model-not-thinking row shows with four replies'); return { marked, thinkingSilent: false };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin It is only the wind after all."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const ctx = SillyTavern.getContext(); let marked = 0; for (const row of ctx.chat) { if (row.is_user || row.is_system) continue; row.extra = { ...(row.extra ?? {}), api: 'textgenerationwebui', model: 'scripted', reasoning: '' }; marked += 1; } await ctx.saveChat(); globalThis.storyOrchestratorRuntime.notify(); const rt = globalThis.storyOrchestratorRuntime; await until(() => rt.getSnapshot().thinkingSilent === true, 5000, 'snapshot.thinkingSilent after five silent generated replies'); return { marked, thinkingSilent: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const row = await until(() => thinkRow(), 8000, 'the model-not-thinking Setup row in player mode'); if (!norm(row).includes(\"Characters' private intentions are not being tracked\")) throw new Error(`the player row does not carry the player copy: ${norm(row)}`); if (row.querySelector('[data-so=\"setup-detail\"]')) throw new Error('player mode shows the author detail'); const hud = document.querySelector('#so-hud-setup'); return { row: norm(row), hud: hud ? hud.getAttribute('data-check') : null };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const line = await until(() => document.querySelector('#so-inner-harvest-silent'), 8000, 'the harvest line (#so-inner-harvest-silent) in Author view'); const detail = await until(() => thinkRow()?.querySelector('[data-so=\"setup-detail\"]'), 5000, 'the author detail on the model-not-thinking row'); if (!norm(detail).includes('The last 5 replies')) throw new Error(`the author detail does not name the window: ${norm(detail)}`); rt.setUiSettings({ authorView: false }); return { line: norm(line), detail: norm(detail) };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const last = ctx.chat[ctx.chat.length - 1]; last.extra = { ...(last.extra ?? {}), reasoning: 'She weighs whether the storm will hold before she answers.' }; await ctx.saveChat(); rt.notify(); await until(() => rt.getSnapshot().thinkingSilent === false && !thinkRow(), 5000, 'one reply with reasoning to clear the warning'); return { cleared: true };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const ctx = SillyTavern.getContext(); let marked = 0; for (const row of ctx.chat) { if (row.is_user || row.is_system) continue; row.extra = { ...(row.extra ?? {}), api: 'textgenerationwebui', model: 'scripted', reasoning: '' }; marked += 1; } await ctx.saveChat(); globalThis.storyOrchestratorRuntime.notify(); const rt = globalThis.storyOrchestratorRuntime; await until(() => rt.getSnapshot().thinkingSilent === true, 5000, 'the warning back with the reasoning removed'); rt.setMemorySettings({ harvestReasoning: false }); await until(() => rt.getSnapshot().thinkingSilent === false, 5000, 'harvest off to clear the warning'); await sleep(800); if (thinkRow()) throw new Error('with harvest off a model-not-thinking row still shows'); return { harvestOff: true };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v27d08; if (before) rt.setMemorySettings({ harvestReasoning: before.harvest, epistemicLedgerCapable: before.capable }); rt.setUiSettings({ authorView: false }); return { restored: before ?? null };",
+        "log": true
+      }
+    ]
+  }
+}
