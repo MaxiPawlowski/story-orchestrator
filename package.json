@@ -46,6 +46,7 @@
     "test:release": "node --test \"scripts/release/*.test.mjs\" \"scripts/docs/*.test.mjs\"",
     "docs:guide": "node scripts/docs/split-guide.mjs && node scripts/docs/guide-bundle.mjs",
     "guide:build": "node scripts/docs/guide-bundle.mjs",
+    "guide:site": "node scripts/docs/guide-site.mjs",
     "gates": "node scripts/release/gates.mjs"
   },
   "eslintConfig": {

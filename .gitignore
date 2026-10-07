@@ -65,3 +65,5 @@ notes/
 /test/sessions/T7/suite/
 /test/sessions/T7/RERUN.md
 /test/sessions/T7/SUITE.md
+/.guide-site/
+/.guide-site-build-*/

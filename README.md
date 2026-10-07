@@ -5,7 +5,9 @@ exits that open on what the chat actually shows. A second model reads each reply
 story's facts and memory, and the extension steers the cast, the lore and the pacing toward the next scene. Swipes,
 edits and deletions roll the story back with the chat. You play by chatting, as always.
 
-**Guide:** [docs/guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md) ·
+**Guide website:** [maxipawlowski.github.io/story-orchestrator](https://maxipawlowski.github.io/story-orchestrator/) (the same pages ship inside the extension: Help → Open the guide).
+
+**Guide sources:** [docs/guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md) ·
 [Player](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/player/README.md) ·
 [Setup](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/README.md) ·
 [Author](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/author/README.md) ·

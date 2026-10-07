@@ -1,19 +1,17 @@
 #!/usr/bin/env node
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const SITE_OUT = join(root, ".guide-site");
-const BUILD = join(root, ".guide-site-build");
 const SOURCES = ["types.ts", "links.ts", "markdown.ts", "GuideMarkdown.tsx", "pages.generated.ts"];
 const AUDIENCE_LABELS = { player: "Playing", setup: "Setup", author: "Writing stories" };
 const AUDIENCE_ORDER = ["player", "setup", "author"];
 
 const compileRenderer = () => {
-  rmSync(BUILD, { recursive: true, force: true });
-  mkdirSync(BUILD, { recursive: true });
+  const build = mkdtempSync(join(root, ".guide-site-build-"));
   for (const file of SOURCES) {
     const source = readFileSync(join(root, "src", "guide", file), "utf8");
     const { outputText } = ts.transpileModule(source, {
@@ -21,8 +19,9 @@ const compileRenderer = () => {
       fileName: file,
     });
     const rewritten = outputText.replace(/from "\.\/([A-Za-z.]+)"/g, (_match, name) => `from "./${name.replace(/\.tsx?$/, "")}.mjs"`);
-    writeFileSync(join(BUILD, file.replace(/\.tsx?$/, ".mjs")), rewritten);
+    writeFileSync(join(build, file.replace(/\.tsx?$/, ".mjs")), rewritten);
   }
+  return build;
 };
 
 export const fileFor = (id) => (id === "README" ? "index.html" : id.endsWith("/README") ? `${id.slice(0, -"README".length)}index.html` : `${id}.html`);
@@ -86,8 +85,8 @@ const pageHtml = ({ title, nav, content, base, home }) => `<!doctype html>
 `;
 
 export async function buildSite({ out = SITE_OUT, homePage = "https://github.com/MaxiPawlowski/story-orchestrator" } = {}) {
-  compileRenderer();
-  const load = (name) => import(pathToFileURL(join(BUILD, name)).href);
+  const build = compileRenderer();
+  const load = (name) => import(pathToFileURL(join(build, name)).href);
   const [{ GuideMarkdown }, { GUIDE_PAGES }, { plainText }, React, { renderToStaticMarkup }] = await Promise.all([
     load("GuideMarkdown.mjs"), load("pages.generated.mjs"), load("markdown.mjs"), import("react"), import("react-dom/server"),
   ]);
@@ -107,7 +106,7 @@ export async function buildSite({ out = SITE_OUT, homePage = "https://github.com
   }
   writeFileSync(join(out, "search-index.json"), JSON.stringify(index));
   writeFileSync(join(out, ".nojekyll"), "");
-  rmSync(BUILD, { recursive: true, force: true });
+  rmSync(build, { recursive: true, force: true });
   return { pages: GUIDE_PAGES.length, out };
 }
 
