@@ -10,11 +10,11 @@ const ciRuns = (yaml) => [...yaml.matchAll(/^\s+run: npm (?:run )?([\w:-]+)\s*$/
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 
 test("CR-P21: npm run gates is the overview rule 16 chain, in order, and every step is a real script", () => {
-  assert.deepEqual([...GATE_STEPS].sort(), ["build", "build:dev", "debug:typecheck", "lint", "test", "test-storybook:ci", "test:debug", "test:plugin", "test:release", "test:replay", "typecheck", "typecheck:test"]);
+  assert.deepEqual([...GATE_STEPS].sort(), ["build", "debug:typecheck", "lint", "test", "test-storybook:ci", "test:debug", "test:plugin", "test:release", "test:replay", "typecheck", "typecheck:test"]);
   assert.equal(new Set(GATE_STEPS).size, GATE_STEPS.length);
   assert.equal(pkg.scripts.gates, "node scripts/release/gates.mjs");
   assert.deepEqual(GATE_STEPS.filter((step) => !pkg.scripts[step]), []);
-  assert.deepEqual(GATE_DEPS["test:release"], ["build", "build:dev"], "test:release reads both builds, so it waits for both");
+  assert.deepEqual(GATE_DEPS["test:release"], ["build"], "test:release reads the build, so it waits for it");
   assert.deepEqual(Object.values(GATE_DEPS).flat().filter((dep) => !GATE_STEPS.includes(dep)), []);
   assert.deepEqual(GATE_DEPS["test:debug"], ["build"], "plan 26: so-run-header.test reads dist/manifest.json, which webpack clears mid-build");
   assert.deepEqual(GATE_DEPS["test:replay"], [], "plan 26: the replay checks its own baseline, so it does not wait for jest");
@@ -30,7 +30,7 @@ test("plan 26: a step starts once its needs are done, longest first; a skipped n
   assert.equal(nextReady(steps, all, new Map([["build", null]])), undefined, "test:release waits while build runs");
   all.add("build");
   assert.equal(nextReady(steps, all, new Map()), "test:release");
-  const skipped = gateSteps(["--skip=build,build:dev"]).steps;
+  const skipped = gateSteps(["--skip=build"]).steps;
   assert.equal(nextReady(skipped, new Set(skipped.filter((step) => step !== "test:release")), new Map()), "test:release");
 });
 

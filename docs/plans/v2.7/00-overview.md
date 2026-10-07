@@ -181,6 +181,7 @@ re-read each against the current tree, then fix.
 | Raw evidence | to the private `so-sessions` repo (done: `test/sessions/evidence/`, pushed 2026-10-07) |
 | New v2.8 ideas | TunnelVision harvest, test/gate speed, gamification prior art, GPU broker in the ST plugin, ST workflows in stories, Civitai/HF model downloads → v2.8 25–30 |
 | v2.8 01 split (owner) | measurements into 39 B1, build work + model A/B stay in v2.8 01 |
+| One build (owner) | never released publicly, so one build (`npm run build`, branch `v2.7-one-build`): the bundle always ships the debug/test handles (`storyOrchestrator*` globals, debug-response seams, spike and harness modules as lazy chunks); every feature the prod build stripped or forced off is an ordinary install setting, off by default (judge uses `loreExclusive`, `expressions`, `wardenVoice`; inner voice; chapter records; `spikes.*`); measured-and-passed features keep their defaults. No `build:dev`, `serve:dev`, `dist-dev/`, `--flavor` or manifest `flavor`; bundle budget 1,250,000 B unchanged. Closes 39 rule 9's prod/dev-diagnostic split and its "no prod-build drive path" B0 blocker; supersedes 29's release-build stripping and finding 20's availability flag |
 
 ## Decisions (user, 2026-10-03)
 

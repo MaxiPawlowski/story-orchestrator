@@ -28,5 +28,4 @@ module.exports = {
   reporters: ["default", "<rootDir>/scripts/jest-findings-reporter.cjs"],
   clearMocks: true,
   setupFiles: ["<rootDir>/test/support/gameLayer.setup.ts"],
-  globals: { __SO_DEV__: true },
 };

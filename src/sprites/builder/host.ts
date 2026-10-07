@@ -39,7 +39,7 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
         if (!result.ok) throw new Error(result.reason);
       } };
       };
-      const batch = __SO_DEV__ ? activeSpriteBatch() : null;
+      const batch = activeSpriteBatch();
       return batch ? batch.acquire(gpuRequest.workflowKey, acquire) : acquire();
     },
     save: async (candidate, expectedHash) => {

@@ -7,7 +7,6 @@ export const CALL_TIMEOUT_MS_PER_INPUT_TOKEN = 2;
 export const TIMEOUT_RETRY_SCALE = 2;
 
 export const debugCallBudgetScale = (kind?: string): number => {
-  if (typeof __SO_DEV__ === "undefined" || !__SO_DEV__) return 1;
   const scale: unknown = Reflect.get(globalThis, "storyOrchestratorDebugCallBudgetScale");
   if (!(typeof scale === "number" && Number.isFinite(scale) && scale > 0)) return 1;
   const target: unknown = Reflect.get(globalThis, "storyOrchestratorDebugCallBudgetTarget");

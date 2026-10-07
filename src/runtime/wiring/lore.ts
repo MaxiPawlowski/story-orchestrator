@@ -70,7 +70,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     force: forceActivateEntries,
     ownership: runtimeManager.getOwnership(),
   });
-  if (__SO_DEV__) globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
+  globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
   const loreWatch = startLoreEvidence({
     chatId,
     context: () => runtimeManager.getRunContext(),
@@ -86,7 +86,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   disposers.push(() => loreWatch.dispose());
   disposers.push(startSamplerOverlay({ chatId, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   startReplyEffort(disposers, generation);
-  if (__SO_DEV__) globalThis.storyOrchestratorLoreEvidence = loreEvidence;
+  globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   const storyLore = startStoryLore({ chatId, ownedChat: () => runtimeManager.getLoadedChatId(), story: () => runtimeManager.getStory() });
   disposers.push(storyLore.dispose);
   disposers.push(readCopiersWith(() => transcriptCopiersOn(getContext().extensionSettings)));

@@ -4,8 +4,8 @@ import { ROOT, prodFiles, rel } from "../../test/support/codeHealth";
 
 const LINK = /(?:href|src)=\{?["'`]([^"'`]+)["'`]/g;
 const EXTENSION_PREFIX = /^\/?scripts\/extensions\/third-party\/story-orchestrator\//;
-const UNSHIPPED_IN_EXTENSION = /^(?:\.\/)?(?:docs|test|scripts|src|dist-dev|\.debug|\.claude)\//;
-const UNSHIPPED_RELATIVE = /^\.?\/?(?:docs|test|src|dist-dev|\.debug|\.claude)\//;
+const UNSHIPPED_IN_EXTENSION = /^(?:\.\/)?(?:docs|test|scripts|src|\.debug|\.claude)\//;
+const UNSHIPPED_RELATIVE = /^\.?\/?(?:docs|test|src|\.debug|\.claude)\//;
 const isUnshipped = (href: string) => (EXTENSION_PREFIX.test(href) ? UNSHIPPED_IN_EXTENSION.test(href.replace(EXTENSION_PREFIX, "")) : UNSHIPPED_RELATIVE.test(href));
 const README_ANCHORS = (text: string) => new Set(text.split(/\r?\n/).filter((line) => line.startsWith("#")).map((line) => line.replace(/^#+\s*/, "").toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-")));
 

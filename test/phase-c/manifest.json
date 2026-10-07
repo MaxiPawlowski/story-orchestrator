@@ -15,10 +15,6 @@
     "LT",
     "human"
   ],
-  "builds": [
-    "prod",
-    "dev-diagnostic"
-  ],
   "stages": [
     "B0",
     "B1",
@@ -75,7 +71,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "payload goldens of the pinned predecessor captured with --label base into test/measurements/v2.7/payload/base, every case present, index.json written, no capture-failed.json",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -102,7 +97,6 @@
       "tier": [
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the complication block placement over loud and quiet requests",
       "floor": {
         "text": "the block rides exactly the next loud request, never quiet/impersonate",
@@ -131,7 +125,6 @@
         "RP",
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "releases per run and agency flags vs control",
       "floor": {
         "text": "≥ 20 releases per run; `agencyCheck` flags ≤ control mean + 1; judge-off column recorded",
@@ -157,7 +150,6 @@
       "tier": [
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "no released line restated verbatim",
       "floor": {
         "text": "0 verbatim restatements",
@@ -184,7 +176,6 @@
       "tier": [
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "share of releases that reach the band within 6 boundaries",
       "floor": {
         "text": "pooled over the ×2 runs per arm, ≥ 20 measured releases pooled: release ≥ 60 % reach the band within 6 boundaries, control ≤ 30 %; per-run rates reported",
@@ -209,7 +200,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "stub stretch lengths, refusal/agency-recovery rate in stubs, flags in stubs vs anchors",
       "floor": {
         "text": "record only",
@@ -238,7 +228,6 @@
         "RP",
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "open-stretch pull: no narrated decisions, the player arrives by their own move, a hook inside the pull window",
       "floor": {
         "text": "0 narrated player decisions in open stretches; the player reaches the destination by their own move in at least 90% of runs; every run past `pull_after` player turns shows at least one hook within the pull window. Window: the 6 player turns after `pull_after`; run end at `arrive_when` or `pull_after + 12` player turns; the 90 % floor is over every run of the arm (6 of 6)",
@@ -265,7 +254,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "read accuracy, tokens and latency per scope arm; sets QUEST_SCOPE_CAP",
       "floor": {
         "text": "no tier (`plotDeltaAccuracy`, facts, rejected) drops more than **3 points** vs arm 0; prompt tokens per read **≤ +15 %**, p50 read latency **≤ +20 %**; the highest passing arm sets `QUEST_SCOPE_CAP` (floor 5; if arm 5 fails, Q1 ships without side quests discovered by extraction)",
@@ -291,7 +279,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "`done_when` recall and false latches",
       "floor": {
         "text": "`done_when` latched within **N = 3 player turns** of the act in **≥ 0.80** of cases, false latches **≤ 1 of 20**",
@@ -321,7 +308,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "relationship read direction accuracy per arm; decides the default read path",
       "floor": {
         "text": "direction accuracy ≥ 0.80; stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points below arm (b) on direction accuracy (else the anchoring guard is reconsidered, not the floor). The arm that passes decides the read path's default (judge first only if (c) passes).",
@@ -350,7 +336,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "prompt cost of the relationship, mood and agenda blocks; sets REL_AXES_PER_READ",
       "floor": {
         "text": "the relationship + mood + agenda blocks together add ≤ 350 prompt tokens per drafted member at p95 and ≤ 600 at max over the 20 lab windows; extraction prompt growth ≤ +12 % tokens with p50 latency ≤ +15 %.",
@@ -379,7 +364,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the combined scope budget and fairness across sources",
       "floor": {
         "text": "36's M1 token/latency floors and 37's M2 ceiling hold together; overflow priority as B2 decides; fairness: no active quest left out of scope for more than 3 consecutive reads; caps passing separately is not enough",
@@ -407,7 +391,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "S-17 with the relationship source; records the cross-source overflow order B2 decides",
       "floor": {
         "text": "36's M1 token/latency floors and this plan's M2 ceiling must hold at once … no active quest or present pair waits more than 3 consecutive reads. Each cap passing alone does not accept the combined feature.",
@@ -430,14 +413,13 @@
       ],
       "prerequisites": [
         "test/fixtures/meanwhile-proposals.cases.json (20 cases)",
-        "dev build, globalThis.storyOrchestratorAgendaProposals.propose() on the CL route",
+        "globalThis.storyOrchestratorAgendaProposals.propose() on the CL route",
         "second-model labels"
       ],
       "reset": "offline",
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "meanwhile proposals stay in goal and never narrate the player",
       "floor": {
         "text": "in-goal rate ≥ 0.85, 0 narrated player actions, 0 references to unreached content in a spoiler subset",
@@ -467,7 +449,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "voice warden OOC recall and false notes, offline replay",
       "floor": {
         "text": "**OOC recall ≥ 0.80** (≥ 8 of 10 OOC replies noted), **false-note rate ≤ 0.10** (≤ 1 of 10 in-character replies noted), **0 notes that propose a rewrite or narrate a player action**, fallback rate (timeout / too-large / error) ≤ 1 in 20. Run ×2 offline replay; both runs must pass.",
@@ -501,7 +482,6 @@
         "CL",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "warden and lore-check timeouts per use, each attributed to one cause (client wait vs 4000 ms, plugin queue wait, provider latency) or counted unattributed; R4 latency with wardenLore on recorded",
       "floor": {
         "text": "formal `so-judge timeouts` per run; floor 1 timeout in 50 per use, never retuned (v2.8 01 C3; J2 bar)",
@@ -530,7 +510,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "lore-select judge requests per loud turn (p50, p95, max) from extras.judge.calls",
       "floor": {
         "text": "record only",
@@ -553,7 +532,7 @@
       ],
       "prerequisites": [
         "llama.cpp thinking setup on the pod",
-        "dev build with spikes.reasoningEffect",
+        "spikes.reasoningEffect on",
         "20 climax turns across 2 stories (4 pairs in so-sessions rating-pack/R4/)",
         "Astra as the delegated blind rater"
       ],
@@ -561,7 +540,6 @@
       "tier": [
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "16 more blind pairs, arm checkpoint high vs control install medium; preference share and p95 latency vs control",
       "floor": {
         "text": "preference share (floor ≥ 60 %) and p95 latency vs control (floor ≤ 2×)",
@@ -588,8 +566,7 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
-      "assertion": "one commit plus its prod and dev bundle sha256 recorded before C1; so-run-header capture baseline written",
+      "assertion": "one commit plus its bundle sha256 recorded before C1; so-run-header capture baseline written",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
         "citation": "39 rule 2"
@@ -607,13 +584,12 @@
         "section": "§Sequence C0"
       },
       "prerequisites": [
-        "frozen candidate dev build staged on a no-model lane"
+        "frozen candidate build staged on a no-model lane"
       ],
       "reset": "lane",
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0, every case present",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -639,7 +615,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "npm run gates (full, with Storybook) twice; the Storybook plays owed by 29, 30, 34, 36 and 37 run here",
       "floor": {
         "text": "green twice in a row with identical counts",
@@ -658,14 +633,13 @@
         "section": "§Sequence C1"
       },
       "prerequisites": [
-        "npm run build (prod)"
+        "npm run build"
       ],
       "reset": "local",
       "tier": [
         "D"
       ],
-      "build": "prod",
-      "assertion": "npm run test:release on the prod build: build manifest, versions, bundle budget, dev-only surfaces absent (v2.7 29 D4, 31 FLUX nodes and lease, 32 W4 D4: no lease-pool code and no 2048/4096 reserve)",
+      "assertion": "npm run test:release on the one build: build manifest, versions, bundle budget, the shipped harness surface present (one build 2026-10-07: D1-D4), no FLUX nodes (31), 32 W4 D4: no lease-pool code and no 2048/4096 reserve",
       "floor": {
         "text": "0 bundle hits",
         "citation": "v2.7 32 W4 (D4 half); v2.7 29 §Gates; v2.7 31 §Gates"
@@ -690,7 +664,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "images off and quiet on a clean host",
       "floor": {
         "text": "clean-host 0 render attempts and 0 errors with no backend",
@@ -710,13 +683,12 @@
       },
       "prerequisites": [
         "the pinned predecessor's test/findings/codeHealth.json",
-        "prod build"
+        "the one build"
       ],
       "reset": "local",
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "each codeHealth list ⊆ the predecessor's, each budget ≤ the predecessor's, the guard constants equal the file; main entry within budget with each 35–37 production path's cost recorded in B3",
       "floor": {
         "text": "coordinator **560**, manager 700, file 600 … main entry ≤ 1,250,000 B",
@@ -744,8 +716,7 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
-      "assertion": "main entry and the lazy game-layer chunk measured; the proposal coordinator and its prompt absent from prod",
+      "assertion": "main entry and the lazy game-layer chunk measured; the proposal coordinator and its prompt absent from the main entry (a lazy chunk)",
       "floor": {
         "text": "main entry ≤ 1,250,000 B",
         "citation": "39 C1b; v2.7 37 §Gates"
@@ -763,14 +734,13 @@
         "section": "§Sequence C2; v2.7 16 §Regression"
       },
       "prerequisites": [
-        "no-model lanes 1–4, dev build",
+        "no-model lanes 1–4",
         "run header around the batch"
       ],
       "reset": "lane",
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "mocked scenario corpus (test/scenarios/*.json except live-*) x2 --strict, run-header diff declared paths only",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -789,15 +759,14 @@
         "section": "§Sequence C2 (finding 20); v2.7 29/30 Review (Sol) finding 20"
       },
       "prerequisites": [
-        "prod build served on a lane",
-        "a planted dev-only feature (29 R20a)"
+        "the build served on a lane",
+        "one feature whose setting is off (inner voice, a fresh install)"
       ],
       "reset": "lane",
       "tier": [
         "D"
       ],
-      "build": "prod",
-      "assertion": "every Help \"Show me\" target and every \"?\"/Repair/Studio guide link resolves to a visible control or a rendered guide heading; the Studio guide link opens the reader while #so-studio-modal is open (hit-test by pointer and keyboard); the planted dev-only feature does not appear",
+      "assertion": "every Help \"Show me\" target and every \"?\"/Repair/Studio guide link resolves to a visible control or a rendered guide heading; the Studio guide link opens the reader while #so-studio-modal is open (hit-test by pointer and keyboard); every shipped feature is listed, and the one whose setting is off says it is off",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
         "citation": "39 C2; v2.7 29 / 30 finding 20"
@@ -822,7 +791,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "assert-player-clean and a DOM snapshot diff of the player surfaces identical with and without the held secret",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -847,7 +815,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "adolion-fresh seed + check green on one lane; drift accepted with a reason",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -876,7 +843,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "in-app walk from cleared memory model to the first send (no reply); Show me landings; settings-header \"?\" opens/toggles",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -902,7 +868,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "payload capture shows the authored scenario block and nothing else; leaving writes nothing; removing the story restores the pre-story value",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -931,7 +896,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "transcript-copier alert identical for the player with and without a held secret",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -960,7 +924,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "so-journal show on a seeded held judge-typed reading names the cut; the row is author-only",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -989,7 +952,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "an op into a protected span refused; an applied op reverted by a swipe; curator request bytes identical",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1018,7 +980,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the role picker lists each route in the right group; no route changed (run-header profiles diff empty)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1044,7 +1005,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "legacy solo blob: make-a-group card only, no extraction call, no injection in the dry-run capture, select refused; make a group creates and binds a group; cleanup deletes it",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1073,7 +1033,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "Repair order, Show me, no toast; the HUD count equals blocks + degrades rows; with and without a seeded secret",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1102,7 +1061,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "briefing once per new chat, not on reopen, again on Restart; /story intro and the drawer button re-open it; the setting off suppresses it",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1131,7 +1089,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "badges and Continue list across two stories; chapter card on a seeded chapter; wand targets; per-story off; panel position after reload",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1156,7 +1113,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the nine bound groups show the badge and the right saga/act kind (counts only)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1185,7 +1141,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the thinking finding appears and clears over scripted replies with and without extra.reasoning; harvest off gives none",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1214,7 +1169,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "so-journal show on a seeded held commitment row",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1243,7 +1197,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "editing the newest reply shows catching-up until the mocked audit lands, then idle; guide line present",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1268,7 +1221,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "assert-player-clean green with each open",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1293,7 +1245,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "change a setting, reload, read it back unchanged",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1318,7 +1269,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "so-ui assert-player-clean on the live panel",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1343,7 +1293,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "a settings \"?\" opens the reader at the right page and heading",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1368,7 +1317,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "the Repair row's link opens the right guide page",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1393,7 +1341,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "#so-guide-search finds a page",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1418,7 +1365,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the image-model-retired Repair row names each row; the setting falls back to the default, no error",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1444,7 +1390,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "no /api/sd/, media job or /prompt request; no lastError; image health absent on both routes",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1469,7 +1414,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "assert-player-clean green with W2 notes, W3 attention and the W4 suggestions panel",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1495,7 +1439,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "every choice, Skip included, leaves chat_metadata.persona set",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1520,7 +1463,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "picking it puts the playerRole block in the dry-run payload",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1545,7 +1487,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "persona-switch appears with Switch back; clicking it restores the locked persona and clears the finding",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1570,7 +1511,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the pane is not re-shown, the lock holds, Your character in this story has no switch controls",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1595,7 +1535,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the pane is re-offered and a new lock written",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1620,7 +1559,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the opener waits until the fixed-name persona is locked, then posts once",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1645,7 +1583,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the identity pane still shows and locks",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1670,7 +1607,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the story refuses, no pane, no lock written",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1695,7 +1631,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "setup off by default (auto-Skip still locks); so-assets lists/removes marker-titled personas; so-run-header records inventory.personas and the chat lock",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1720,7 +1655,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the pane reads the current user's personas only",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1749,7 +1683,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "no opener before success or the explicit continue; lock-failed UI and persona-lock blocks check; the pending record survives a reload; Try again locks and posts once; continue posts once with locked false and the journal line",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1778,7 +1711,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "B's chat_metadata.persona unchanged (server copy); no opener in A or B; A still pending; setPersonaLockState never called while B is open",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1807,7 +1739,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "both side-exit stories refused at import naming the transition; Studio diagnostics name it on edit; every shipped stretch story imports clean (counts only for Adolion)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1833,7 +1764,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "turn count, no objective line, no hook before pull_after, gentle then strong pull",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1858,7 +1788,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "assert-player-clean green; no objective line at inline L1/L2",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1884,7 +1813,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "discovery, completion, reward, swipe and reopen leave host state equal to replay",
       "floor": {
         "text": "0 host-state mismatches",
@@ -1909,7 +1837,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "/cp set updates the panels; a swipe reverts; per-story off hides; position survives reload",
       "floor": {
         "text": "`assert-player-clean` 0 findings with every panel open",
@@ -1934,7 +1861,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "assert-player-clean sweeps Journal, Stat sheet, every player widget and a hidden-check chip",
       "floor": {
         "text": "`assert-player-clean` 0 findings",
@@ -1963,7 +1889,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "an agenda step lands after two /cp set boundaries; an OOC line neither moves nor counts; a night schedule puts Arin away; drafted blocks carry only their own member's state; player mode shows none; assert-player-clean with the drawer open",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -1993,7 +1918,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the talk decision never names Arin while she is away; disabled_members unchanged (run-header diff)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2022,7 +1946,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the entry is on after the landing boundary and off after a swipe/delete of that reply; the NPC reply posts once and a swipe rewinds its marker",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2047,7 +1970,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "no relationship value, mood, agenda step, meanwhile fact or away reason in player surfaces; who-is-here shows player-safe names only",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2067,14 +1989,13 @@
       },
       "prerequisites": [
         "B0-base goldens",
-        "frozen candidate dev build on a no-model lane",
+        "frozen candidate build on a no-model lane",
         "test/measurements/v2.7/payload/declared.json"
       ],
       "reset": "lane",
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "so-payload-golden capture --label c3, then diff base→c3 with --declared: only declared hunks, no stale declaration",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2100,7 +2021,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "diff c0→c3 with no declarations",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2130,7 +2050,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: no player profile gives no role block, byte-identical to base; on: role block in the resting prompt and each drafted member's request; negative control (delete the block) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2160,7 +2079,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: no stretch, byte-identical to base; on: no objective line; no pull before pull_after; pull line after it; negative control (inject the objective line) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2190,7 +2108,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: no checks, byte-identical to base; on: one outcome steering line per attempted check, no roll numbers; negative control (drop the outcome line) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2220,7 +2137,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: agency family review, byte-identical to base; on: the note at continuityNote on the next loud request; negative control (strip the note) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2250,7 +2166,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: no quests, read prompt byte-identical, byte-identical to base; on: scope keys per quest status, cap respected; negative control (add an out-of-status key) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2280,7 +2195,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "off: no relationships, byte-identical to base; on: axes of present members only, REL_AXES_PER_READ respected; negative control (add an absent member's axis) makes the check fail",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2309,7 +2223,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the planted secret appears in no shared or off-path request and in no other member's request",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2334,7 +2247,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "suggestions, shared read / scene / epistemic passes, warden (with the attention question) and curator requests captured on base and candidate; each differs only by declared hunks",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2361,7 +2273,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J0 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2389,7 +2300,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J1 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2417,7 +2327,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J2 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2445,7 +2354,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J3 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2473,7 +2381,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J4 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2501,7 +2408,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J5 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2529,7 +2435,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J6 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2557,7 +2462,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J7 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2585,7 +2489,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J8 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2613,7 +2516,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J9 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2641,7 +2543,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J10 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2669,7 +2570,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J11 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2697,7 +2597,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J12 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2725,7 +2624,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J13 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2753,7 +2651,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "journey J14 --strict, cleanup clean, first-attempt rate printed",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2780,7 +2677,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "J6 with plan 33 W1 on",
       "floor": {
         "text": "J6 green ×2 with the flag on",
@@ -2806,7 +2702,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "a fresh install reaches a first real reply using only in-app guidance",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2833,7 +2728,6 @@
         "LI",
         "CL"
       ],
-      "build": "prod",
       "assertion": "one real image cue per beat",
       "floor": {
         "text": "no internal checkpoint name in the prompt",
@@ -2860,7 +2754,6 @@
         "LI",
         "RP"
       ],
-      "build": "prod",
       "assertion": "only the fired Appearance entry reaches the image prompt",
       "floor": {
         "text": "only the fired one reaches the image prompt",
@@ -2885,7 +2778,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "no automatic cue on the illustrate: false beat; the chapter look override applies",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2910,7 +2802,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "the narrator gives no card-description look",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -2936,7 +2827,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "one real curator pass",
       "floor": {
         "text": "the excluded entry is never shown or written",
@@ -2961,7 +2851,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "the copier row and #so-hud-setup show in player mode and clear when off",
       "floor": {
         "text": "the player copy must be identical with and without held secrets",
@@ -2987,7 +2876,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the thinking row, HUD chip and harvest line after 5 real replies in player and author view; the thinking overlay gives none",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3012,7 +2900,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "editing the newest reply",
       "floor": {
         "text": "pipeline `catching-up` until the re-read audit lands",
@@ -3037,7 +2924,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "so-journal show lists the held commitment row",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3062,7 +2948,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "each \"Live: NOT run\" line of a merged v2.7 gate record maps to a manifest row (walk recorded with the mapping)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3088,7 +2973,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the scenario in real replies",
       "floor": {
         "text": "the scenario reaches the prompt and the reply follows it",
@@ -3113,7 +2997,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "one agentic-wizard authoring run",
       "floor": {
         "text": "proposes a valid `effects.scenario` when asked and never otherwise (W1-style checks, ×2)",
@@ -3139,7 +3022,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "the promoted SP8 tiers and spans hold under a real curator pass",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3165,7 +3047,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "spoiler terms beyond check_player_copy.py and agreement with the authored player copy (counts only)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3191,7 +3072,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "one agentic authoring run",
       "floor": {
         "text": "creates/asks for a group with that member (and the narrator when the story has one), ×2",
@@ -3217,7 +3097,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "extraction quality on the inputs the context table enlarges",
       "floor": {
         "text": "record only",
@@ -3246,7 +3125,6 @@
         "CL",
         "RP"
       ],
-      "build": "prod",
       "assertion": "over-steer after a lore note (v2.5 08 R6 rubric, v2.4 07 judge rubric): the reply after a lore note does not restate it or swing past it; the warden-facts arm is the baseline",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3273,7 +3151,6 @@
         "CL",
         "RP"
       ],
-      "build": "prod",
       "assertion": "G-L7 J8 on/off",
       "floor": {
         "text": "J8 green ×2 in each arm",
@@ -3299,7 +3176,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the install-wide reply thinking budget off/low/medium/high over n ≥ 3 group turns each; memory requests carry no budget key",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3326,7 +3202,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced",
       "floor": {
         "text": "the \"no audit\" case explained; the user's post-processor's event order traced",
@@ -3353,7 +3228,6 @@
         "CL",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the next request carries the settled text in every burst case",
       "floor": {
         "text": "the next request carries the settled text in every burst case, ×2",
@@ -3380,7 +3254,6 @@
         "CL",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "an edit counts before the next reply",
       "floor": {
         "text": "4 of 4, ×2",
@@ -3406,7 +3279,6 @@
         "CL",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "extra reads per settled edit and hold p95",
       "floor": {
         "text": "R5′: extra reads per settled edit net of displaced reads ≤ 1; hold p95 recorded",
@@ -3436,7 +3308,6 @@
         "D",
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "ends like a replay of the edited chat, gate kept and gate broken",
       "floor": {
         "text": "edit of the gating reply with an onEnter post ends like a replay of the edited chat",
@@ -3464,7 +3335,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "the agency check in auto mode over a long session",
       "floor": {
         "text": "at least 1 reply narrating the player's action, decision or words, caught by the check. Notes rated \"helpful or invisible\" in at least 80 % of cases, and 0 notes that produced an OOC or over-corrected reply. Missing either floor means E or keep `review`.",
@@ -3490,7 +3360,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "J8.10 with the agency check in auto mode",
       "floor": {
         "text": "J8.10 green ×2",
@@ -3516,7 +3385,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "attention detection calibration",
       "floor": {
         "text": "ignores recall ≥ 0.85, responds specificity ≥ 0.95 (agency's pair)",
@@ -3542,7 +3410,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "warden p95 and timeout/refusal rate recorded; continuity, agency and house-rules fixture rates unchanged",
       "floor": {
         "text": "existing continuity, agency and house-rules fixture rates unchanged (P2); timeouts stay 1 in 50, never retuned",
@@ -3567,7 +3434,6 @@
       "tier": [
         "CL"
       ],
-      "build": "dev-diagnostic",
       "assertion": "real-judge attention checks in a group",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3592,7 +3458,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "suggestions fill the input and never send",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3617,7 +3482,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "no unreached checkpoint name in suggestions (string check against the story's unreached names)",
       "floor": {
         "text": "never sent, fill the input only, no unreached checkpoint name in 10 runs on a story with a gated route",
@@ -3643,7 +3507,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "suggestion sets rated fits / generic / off",
       "floor": {
         "text": "≥ 75 % `fits`; ≥ 90 % of sets hold one suggestion that engages the current objective or an open thread; 0 suggestions that state an outcome for the player (\"you find the key\"); 0 exact duplicates of the player's last line; p95 click-to-fill ≤ 10 s",
@@ -3672,7 +3535,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "start setup, persona name and role in the first reply's prompt, first narrator reply consistent with the role",
       "floor": {
         "text": "10 fresh story starts across 3 stories ×2. Pass: the start-setup step is reached or auto-skipped as designed in 10/10; the chosen persona's name and the story's `player` role appear in the first reply's prompt (dry-run capture) in 10/10; a second-model rater judges the first narrator reply consistent with the player role in ≥ 9/10; 0 replies narrate the player's own action.",
@@ -3697,7 +3559,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the start-setup pane copy checked in play (each finding filed)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3727,7 +3588,6 @@
         "D",
         "RP"
       ],
-      "build": "prod",
       "assertion": "placement None gives the playerRole block once; In prompt with the line gives none; line deleted brings it back; one real request per step agrees with the dry run",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3755,7 +3615,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "the suggestions request and the shown suggestions hold no checkpoint name or id; unnamed scenes skipped; the current scene reads Current scene",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3783,7 +3642,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "the suggestion request restates no held secret; negative control with the row retired carries the paraphrase; member requests unchanged",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3813,7 +3671,6 @@
         "CL",
         "RP"
       ],
-      "build": "prod",
       "assertion": "requests during the swipe equal those of the chat with the reply deleted (rule 12); the discarded text reaches no judge or memory request; the landed swipe is in the next read",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3841,7 +3698,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "the canon request, stored canon, Overview, /story recap and away recap restate no held secret; the kept-out member's and resting requests carry it nowhere; retired row brings the paraphrase back; a chat without a held secret sends a byte-identical canon request",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3869,7 +3725,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "seal, era and saga requests and every stored and shown chapter text restate no held secret; dossiers keep it only for a holder; inline L1/L2 chips, expansion, curator and warden inputs restate none; retired row brings it back; no-secret chats send byte-identical requests",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3898,7 +3753,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "one chronological undo across origins (restoreFor), origins survive compaction and hydrate, externally-changed recorded, host state = replay",
       "floor": {
         "text": "0 host mismatches",
@@ -3926,7 +3780,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the 36 quest lifecycle",
       "floor": {
         "text": "0 host mismatches",
@@ -3956,7 +3809,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "an OOC message counts no player turn, yields no delta, ticks no agenda; story_day/time_of_day move only by 37's producer; Continue/swipe/reopen ≡ continuous run",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -3987,7 +3839,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "OOC lines stay in the request but in no read window; an OOC-only window makes no call; turn counts, refusal streak and awaits-the-player ignore them, the control counts; no warden player_message for an OOC reply; chats without OOC lines send byte-identical read prompts",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4017,7 +3868,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "time_of_day moves one step per boundary, story_day only on a wrap; Continue/swipe/reopen ≡ continuous run; an OOC line ticks no agenda",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4042,7 +3892,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "37-M1 re-run on the candidate with the B2 default read path",
       "floor": {
         "text": "direction accuracy ≥ 0.80; stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points below arm (b) on direction accuracy",
@@ -4075,7 +3924,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "character life on vs off, player value",
       "floor": {
         "text": "on preferred in **≥ 12 of 20**; on rated worse on consistency in **≤ 2 of 20**; **0** leaks of a relationship value, mood, agenda step or meanwhile fact into player surfaces. Required exercise per run (else the run is INCOMPLETE): **≥ 1** axis moved by a read, **≥ 1** agenda step advanced, **≥ 1** schedule drop, **≥ 1** mood re-read.",
@@ -4103,7 +3951,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "the narration reflects and never contradicts the given check outcome",
       "floor": {
         "text": "narrator contradicts the given outcome in **≤ 1** (second-model labelled), **and** the narration shows the given outcome (its consequence is visible in the reply, second-model labelled) in **≥ 18 of 20**",
@@ -4130,7 +3977,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the quest pilot plays (counts only)",
       "floor": {
         "text": "≥ 1 quest activated and ≥ 1 step done",
@@ -4156,7 +4002,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the quest pilot plays on the Saga (counts only)",
       "floor": {
         "text": "≥ 1 quest activated and ≥ 1 step done",
@@ -4182,7 +4027,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "35-M2 re-run on the candidate as acceptance",
       "floor": {
         "text": "0 narrated player decisions in open stretches; the player reaches the destination by their own move in at least 90% of runs; every run past `pull_after` player turns shows at least one hook within the pull window",
@@ -4209,7 +4053,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "35-K3 re-run on the candidate",
       "floor": {
         "text": "≥ 20 releases per run; `agencyCheck` flags ≤ control mean + 1; judge-off column recorded",
@@ -4235,7 +4078,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "35-K4 re-run on the candidate",
       "floor": {
         "text": "0 verbatim restatements",
@@ -4261,7 +4103,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "35-K5 re-run on the candidate",
       "floor": {
         "text": "pooled over the ×2 runs per arm, ≥ 20 measured releases pooled: release ≥ 60 % reach the band within 6 boundaries, control ≤ 30 %",
@@ -4288,7 +4129,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the released complication block on the production path; assert-player-clean on a release",
       "floor": {
         "text": "the block rides exactly the next loud request, never quiet/impersonate",
@@ -4316,7 +4156,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "M2 with pressure on",
       "floor": {
         "text": "M2's three floors hold with pressure on",
@@ -4344,7 +4183,6 @@
         "RP",
         "CL"
       ],
-      "build": "prod",
       "assertion": "agency flags over pressure releases",
       "floor": {
         "text": "K3 (agency flags ≤ no-pressure control + 1)",
@@ -4370,7 +4208,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "no restatement over pressure releases",
       "floor": {
         "text": "K4 (0 verbatim restatements)",
@@ -4396,7 +4233,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "encounter generation golden and the contract-drop test; encounter titles player-safe",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4422,7 +4258,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "the validator refuses pressure/trigger and a clock widget with a consequence line; DROPPED_SPIKES planted-import control fails; guide drift marks pools unsupported",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4452,7 +4287,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "the card overlay keeps the changed look in mentioning replies",
       "floor": {
         "text": "≥90% of mentioning replies agree with Y and ≥15 mentioning replies per arm; the baseline arm must be worse",
@@ -4478,7 +4312,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "talking-sprite performance during a streamed reply",
       "floor": {
         "text": "no task >50 ms; animator ≤1 ms/frame; decoded stage memory ≤64 MB; layout/paint on overlays only; lazy chunk grows ≤4 KB",
@@ -4504,7 +4337,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "route A story-authored illustrations",
       "floor": {
         "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2. A run of refusals fails however well named.",
@@ -4529,7 +4361,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "route A with the template arm",
       "floor": {
         "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2",
@@ -4555,7 +4386,6 @@
         "LI",
         "CL"
       ],
-      "build": "prod",
       "assertion": "route A with the cloud director",
       "floor": {
         "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2",
@@ -4580,7 +4410,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "route B renders use only discovered models",
       "floor": {
         "text": "LI 10 of 10 route B renders use only discovered models, ×2",
@@ -4606,7 +4435,6 @@
         "LI",
         "CL"
       ],
-      "build": "prod",
       "assertion": "built template prompt and spoiler rules hold (player_name, only looks the player has seen)",
       "floor": {
         "text": "≥ 9 of 10 render per arm (the W1 floor, per arm)",
@@ -4631,7 +4459,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "route B render, a Studio sprite build and an on-demand look complete without the broker",
       "floor": {
         "text": "LI 3 of 3 paths complete without the broker, ×2",
@@ -4659,7 +4486,6 @@
         "LI",
         "CL"
       ],
-      "build": "prod",
       "assertion": "sprite builder sample rated",
       "floor": {
         "text": "second-model rating of the sample ≥ 90 % \"same character\" and ≥ 90 % \"label visible\"",
@@ -4684,7 +4510,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "a cancelled build leaves nothing",
       "floor": {
         "text": "a cancel mid-run leaves no file",
@@ -4709,7 +4534,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "the install is as before",
       "floor": {
         "text": "`so-assets` cleanup leaves the install as before (sha256 inventory diff)",
@@ -4734,7 +4558,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "base creation",
       "floor": {
         "text": "four candidates + alpha, author picks, QA passes",
@@ -4759,7 +4582,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "talking-sprite frames pass QA",
       "floor": {
         "text": "≥90% frames pass QA on the first seed",
@@ -4784,7 +4606,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "seam or pop visible in rated clips",
       "floor": {
         "text": "seam or pop visible in ≤5% of rated clips",
@@ -4811,7 +4632,6 @@
         "LI",
         "RP"
       ],
-      "build": "prod",
       "assertion": "the reply wait is bounded and look frames pass QA",
       "floor": {
         "text": "at most the one edit in progress; ≥90% frames pass QA on the first seed",
@@ -4837,7 +4657,6 @@
         "LI",
         "RP"
       ],
-      "build": "prod",
       "assertion": "changed-look sets rated",
       "floor": {
         "text": "≥90% \"same character\" and ≥90% \"changed attribute visible\"; time-to-first-frame recorded (no floor; never blocking)",
@@ -4863,7 +4682,6 @@
         "LI",
         "RP"
       ],
-      "build": "prod",
       "assertion": "the look lifecycle behaves as designed; onDemand stays off until it passes ×2",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4889,7 +4707,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "only the declared model lines differ from the golden",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4914,7 +4731,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "existing expression reference adoption",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4941,7 +4757,6 @@
         "LT",
         "CL"
       ],
-      "build": "prod",
       "assertion": "S28 talking sprites: blind, preference and performance floors",
       "floor": {
         "text": "v2.7 19 S28 floors (blind/preference/performance), not closed by Belle alone",
@@ -4968,7 +4783,6 @@
       "tier": [
         "LT"
       ],
-      "build": "prod",
       "assertion": "a living-card reply on the local route",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -4994,7 +4808,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "the sprite script asserts no hard-coded C: path; tray status OK",
       "floor": {
         "text": "one set re-rendered byte-equivalent or QA-equivalent",
@@ -5019,7 +4832,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "blink/mouth frames per expression for the campaign cast (counts only)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5044,7 +4856,6 @@
       "tier": [
         "LI"
       ],
-      "build": "prod",
       "assertion": "every Saga main-cast asset and authored outfit present and passing QA (counts only)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5073,7 +4884,6 @@
         "LI",
         "CL"
       ],
-      "build": "prod",
       "assertion": "the stage matches a replay of the chat after a reply, a swipe, an edit, a delete, a reopen and a chat switch (no expression from another swipe or another text); with Character Expressions on the stage still shows and ST's expression picture is hidden only while it shows; at 390×844 the stage shows as the strip with no /vn hint; a missing frame, label or set leaves the static or fallback sprite and is named by stage-pack-missing or the Studio's stage-sprite-unknown; seam or pop visible in ≤5% of rated clips (v2.7 32 Decision 2)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs; seam or pop visible in ≤5% of rated clips",
@@ -5098,7 +4908,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "check_all.sh --fast, validate-stories on all nine + tutorial, check_player_copy.py, check_triggers.py with the coverage rule",
       "floor": {
         "text": "no gating transition loses its trigger",
@@ -5125,7 +4934,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "every story starts, plays N turns, reopen, rollback, chapter (counts only)",
       "floor": {
         "text": "every reply rendered; one boundary committed per reply; no `error` or stalled pipeline state for > 2 consecutive turns; at least one checkpoint transition by turn N; reopen after turn 6 restores the same checkpoint, memory counts and talk state; one swipe + one edit roll back and replay to the same state; save health ok; `assert-player-clean` green; no ComfyUI call unless the story enables images",
@@ -5151,7 +4959,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "character-life exercise per run",
       "floor": {
         "text": "≥ 1 relationship axis moved by a read, ≥ 1 agenda step advanced and reverted by the swipe, ≥ 1 schedule drop driven by the story clock, ≥ 1 mood re-read at a scene break. Without them the run is INCOMPLETE for that story, not a pass.",
@@ -5177,7 +4984,6 @@
       "tier": [
         "RP"
       ],
-      "build": "prod",
       "assertion": "quest pilot exercise (counts only)",
       "floor": {
         "text": "≥ 1 quest activated and ≥ 1 step done",
@@ -5203,7 +5009,6 @@
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "5 turns: every reply rendered, a boundary per reply, no console error, no stall/error, save health ok, assert-player-clean green, Activity lists the turn's work, plays index updated, no ComfyUI call (plumbing only)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5222,13 +5027,12 @@
         "section": "§Sequence C8b"
       },
       "prerequisites": [
-        "prod build, empty extension settings, no optional GPU broker, no Adolion assets"
+        "the one build, empty extension settings, no optional GPU broker, no Adolion assets"
       ],
       "reset": "lane",
       "tier": [
         "CL"
       ],
-      "build": "prod",
       "assertion": "following the installed guide alone reaches the first real rendered reply in a group story; each uncovered step recorded",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5253,7 +5057,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "settings reference + README table regenerated from the registry (drift test fails a hand edit), guide vs UI, What's new 2.7",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5279,7 +5082,6 @@
       "tier": [
         "D"
       ],
-      "build": "prod",
       "assertion": "SO_ACCEPTANCE=1 npm run test:release after the attestation is written: attestation present, candidate commit = the frozen commit (built commit descends from it with no source change), bundle.served.sha256 = build = attested, no drift",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5308,7 +5110,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the pending note stays pending through the OOC lines and the next loud generation carries it once; after the control line it lapses (`rejected`, `lapsed`); the story panel's log lists the in-character actions only, never an OOC line (jest: `stagecraftCoordinator.test.ts` \"an out-of-character player line is no new turn\", `gameProjection.test.ts`)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5336,7 +5137,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the `start: 2` copy leaves its first checkpoint on the first boundary with no read (`so-state current` shows the value at version 0), the control waits for a read; a swipe back past the first read shows `start` again; reopen ≡ continuous run; no code write reaches the key (jest: `engine/life/life.test.ts` \"an unread relationship reads as its start\")",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5364,7 +5164,6 @@
       "tier": [
         "D"
       ],
-      "build": "dev-diagnostic",
       "assertion": "without chapters the import is refused at `roster.0.agenda.0.pace` with the plain message (use `per_n_boundaries` with `every`, or add chapters) and the Studio shows `agenda-pace-no-chapters` consequence first; with chapters it loads (jest: `validate/life.test.ts`, `studio/diagnostics.test.ts`)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5393,7 +5192,6 @@
         "D",
         "RP"
       ],
-      "build": "dev-diagnostic",
       "assertion": "the request ST sends after an address carries one `story_orchestrator_away_notice` line at depth 0 naming Arin as not here (resting prompt, not a private block) and the reply does not speak as Arin; after the unaddressed line, the docks control and the shared alias the block is absent and the payload is byte-identical to a chat without schedules (payload golden diff); quiet/impersonate requests never carry it (jest: `runtime/awayNotice.test.ts`)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
@@ -5422,7 +5220,6 @@
         "D",
         "CL"
       ],
-      "build": "prod",
       "assertion": "player mode shows neither the secret nor its paraphrase, the mixed row trimmed to its plain sentence under its own id, and no count, gap or marker (the tab reads as a chat that never held the secret, `assert-player-clean`); pin/exclude act on the stored row and an edit keeps the withheld sentence in the store; Author view lists every row whole; after retiring the secret the rows show again (negative control) (jest: `secretMemoryTab.review.test.ts`, Storybook `PlayerMemoryHidesAHeldSecret`)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",

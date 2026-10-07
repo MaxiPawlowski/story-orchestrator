@@ -57,14 +57,12 @@ const memoryModelLimit = (profileId: string | null) => {
   return { ...limit, inputBudget: inputBudget(limit, DEFAULT_MAX_TOKENS).input };
 };
 
-if (__SO_DEV__) {
-  ui.global("storyOrchestratorRuntime", manager);
-  void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
-  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_HARNESS }) => {
-    ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
-    if (__SO_DEV__) ui.global("storyOrchestratorWizardAgent", { ...WIZARD_AGENT, resolveAgentHarness: WIZARD_HARNESS });
-  });
-}
+ui.global("storyOrchestratorRuntime", manager);
+void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
+void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_HARNESS }) => {
+  ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
+  ui.global("storyOrchestratorWizardAgent", { ...WIZARD_AGENT, resolveAgentHarness: WIZARD_HARNESS });
+});
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate
 // React roots, so the modal lives in its own root with a module-level open flag both can flip.
@@ -480,7 +478,7 @@ const mountInline = () => {
   root.hidden = true;
   document.body.appendChild(root);
   ui.root(root, <InlineMount hosts={mounted.hosts} />);
-  if (__SO_DEV__) ui.global("storyOrchestratorInline", { attachTimes: () => mounted.hosts.attachTimes() });
+  ui.global("storyOrchestratorInline", { attachTimes: () => mounted.hosts.attachTimes() });
   return true;
 };
 
@@ -545,4 +543,4 @@ const stopExtension = () => {
   stopRuntime();
 };
 
-if (__SO_DEV__) ui.global("storyOrchestratorStop", stopExtension);
+ui.global("storyOrchestratorStop", stopExtension);

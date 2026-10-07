@@ -14,7 +14,7 @@ const attestation = (over = {}) => ({
   served: { sha256: BUNDLE },
   ...over,
 });
-const manifest = (over = {}) => ({ flavor: "prod", extension: { revision: { commit: CANDIDATE, dirty: true } }, bundle: { sha256: BUNDLE }, source: { sha256: SOURCE }, ...over });
+const manifest = (over = {}) => ({ extension: { revision: { commit: CANDIDATE, dirty: true } }, bundle: { sha256: BUNDLE }, source: { sha256: SOURCE }, ...over });
 const git = (ancestor = true, changed = []) => ({ isAncestor: () => ancestor, changedSources: () => changed });
 
 test("acceptance mode is the explicit SO_ACCEPTANCE=1 (or npm --acceptance), never implied", () => {
@@ -37,7 +37,7 @@ test("drift from the attested bundle fails; the attested bundle itself passes (p
   assert.match(driftProblems({ attestedBundle: BUNDLE, current: null, acceptance: true })[0], /no dist\/index\.js/);
 });
 
-test("the candidate check passes on the candidate's own prod build (positive control)", () => {
+test("the candidate check passes on the candidate's own build (positive control)", () => {
   assert.deepEqual(candidateProblems({ attestation: attestation(), manifest: manifest(), currentBundle: BUNDLE, git: git() }), []);
   assert.deepEqual(candidateProblems({ attestation: attestation(), manifest: manifest({ extension: { revision: { commit: LATER } } }), currentBundle: BUNDLE, git: git(true, []) }), [], "a docs-only commit after the candidate builds the same sources");
 });
@@ -47,7 +47,6 @@ test("the candidate check names each planted defect", () => {
   assert.match(problems({ candidate: { commit: "4ebe1db" } }).join("\n"), /not a full commit hash/);
   assert.match(problems({ served: { sha256: OTHER } }).join("\n"), /served\.sha256 .* is not the attested bundle/);
   assert.match(problems({}, null).join("\n"), /no dist\/manifest\.json/);
-  assert.match(problems({}, manifest({ flavor: "dev" })).join("\n"), /dev build/);
   assert.match(problems({}, manifest({ bundle: { sha256: OTHER } }), OTHER).join("\n"), /built bundle .* is not the attested/);
   assert.match(problems({}, manifest(), OTHER).join("\n"), /does not describe dist\/index\.js/);
   assert.match(problems({}, manifest({ source: { sha256: OTHER } })).join("\n"), /built source .* is not the attested source/);

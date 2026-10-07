@@ -38,7 +38,6 @@ declare global {
     toastr?: CustomToastr;
   }
 
-  var __SO_DEV__: boolean;
   var talkControlInterceptor: TalkControlInterceptor | undefined;
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorImage: import("./src/image/runtime").StoryImageDirector | undefined;

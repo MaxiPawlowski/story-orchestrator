@@ -261,8 +261,8 @@ describe("judge settings", () => {
   it("enables shipped uses by default except those below their floor, and keeps the judge configurable", () => {
     const defaults = defaultJudgeSettings();
     expect(defaults.enabled).toBe(true);
-    expect(JUDGE_USES_OFF_BY_DEFAULT).toEqual(["houseRules", "attentionCheck", "wardenVoice"]);
-    expect(JUDGE_USE_KEYS.filter((key) => defaults.uses[key] !== true)).toEqual(["houseRules", "attentionCheck", "wardenVoice"]);
+    expect(JUDGE_USES_OFF_BY_DEFAULT).toEqual(["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"]);
+    expect(JUDGE_USE_KEYS.filter((key) => defaults.uses[key] !== true)).toEqual(["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"]);
     expect(sanitizeJudgeSettings({ ...defaults, uses: { ...defaults.uses, houseRules: true } }).uses.houseRules).toBe(true);
     expect(defaults.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "code" });
     expect(defaults.model).toBe("jev-1.13.0");
@@ -288,8 +288,8 @@ describe("judge settings", () => {
     expect(judgeUseActive({ ...on, enabled: false }, "director")).toBe(false);
   });
 
-  it("L5: loreExclusive is on by default, its own switch, and needs loreSelect", () => {
-    expect(defaultJudgeSettings().uses.loreExclusive).toBe(true);
+  it("L5: loreExclusive is off by default (one build, 2026-10-07), its own switch, and needs loreSelect", () => {
+    expect(defaultJudgeSettings().uses.loreExclusive).toBe(false);
     const exclusive = sanitizeJudgeSettings({ enabled: true, uses: { loreExclusive: true, loreSelect: false } });
     expect(judgeUseActive(exclusive, "loreExclusive")).toBe(false);
     expect(judgeUseActive({ ...exclusive, uses: { ...exclusive.uses, loreSelect: true } }, "loreExclusive")).toBe(true);

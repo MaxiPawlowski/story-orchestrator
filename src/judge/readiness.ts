@@ -171,7 +171,7 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: "Not measured yet: dev-only until its fixture passes twice, then off by default. Rides the warden's call.",
+    recommendation: "Not measured yet, so off by default. Rides the warden's call.",
   },
 };
 

@@ -17,7 +17,7 @@ import { PresenceControls } from "./PresenceControls";
 
 const InlineControls = lazyRetry(() => import("./InlineControls"));
 const ChapterControls = lazyRetry(() => import("./ChapterControls"));
-const InnerVoiceControls = __SO_DEV__ ? lazyRetry(() => import("./InnerVoiceControls")) : null;
+const InnerVoiceControls = lazyRetry(() => import("./InnerVoiceControls"));
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -160,7 +160,7 @@ export const WardenGroup = ({ snapshot, manager }: GroupProps) => {
 };
 
 export const InnerVoiceGroup = ({ snapshot, manager }: GroupProps) => {
-  if (!InnerVoiceControls || !snapshot.ui.authorView) return null;
+  if (!snapshot.ui.authorView) return null;
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <Lazy fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Lazy>

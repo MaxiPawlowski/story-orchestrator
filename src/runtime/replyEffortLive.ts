@@ -6,7 +6,7 @@ import { getGlobalSettings } from "./settingsStore";
 
 export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => void) => startReplyEffort({
   effort: () => getGlobalSettings().extraction.replyEffort,
-  checkpointOverride: () => __SO_DEV__ && getGlobalSettings().spikes.reasoningEffect,
+  checkpointOverride: () => getGlobalSettings().spikes.reasoningEffect,
   storyChat: () => runtimeManager.getRunContext().chatId,
   openChat: () => getContext().chatId ?? null,
   checkpointId: () => runtimeManager.getActiveCheckpointInfo()?.id ?? null,

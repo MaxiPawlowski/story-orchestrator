@@ -8,8 +8,8 @@ import { exampleFiles, noticeIssues, renderNotices } from "./notices.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const { bundledPackages, packageOf } = createRequire(import.meta.url)("./bundledPackages.cjs");
-const statsPath = join(root, ".build", "packages-prod.json");
-const noStats = !existsSync(statsPath) && "no .build/packages-prod.json: run npm run build first";
+const statsPath = join(root, ".build", "packages.json");
+const noStats = !existsSync(statsPath) && "no .build/packages.json: run npm run build first";
 const dependencies = Object.keys(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).dependencies ?? {});
 const notices = () => readFileSync(join(root, "THIRD-PARTY-NOTICES.md"), "utf8");
 

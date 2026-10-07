@@ -1,8 +1,3 @@
-export const FLAVOURS = { prod: "dist", dev: "dist-dev" };
-
-export const flavourIssues = (manifest, expected) =>
-  manifest?.flavor === expected ? [] : [`manifest flavor is ${manifest?.flavor === undefined ? "undefined" : JSON.stringify(manifest.flavor)}, expected ${JSON.stringify(expected)}`];
-
 export const fileListIssues = (listing, manifest) => {
   const named = new Set((manifest?.files ?? []).map((file) => file.path));
   const present = new Set(listing);
@@ -22,8 +17,6 @@ export const absolutePathValues = (value, at = []) => {
 };
 
 export const livereloadHits = (text) => (text.match(/livereload/gi) ?? []).length;
-
-export const PROD_GLOBAL_ALLOWLIST = [];
 
 export const surfaceNames = (text) => [...new Set(text.match(/storyOrchestrator[A-Z]\w*/g) ?? [])].sort();
 

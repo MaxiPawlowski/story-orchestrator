@@ -151,8 +151,8 @@ export const AuthorSeesEverySection: Story = {
     await expect(canvasElement.querySelector("#so-area-memory #so-warden-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-area-world #so-curator-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-area-setup [data-so='engine-status']")).not.toBeNull();
-    await expect(canvasElement.querySelector("#so-inner-voice-settings")).toBeNull();
-    await expect(canvasElement.querySelector("#so-chapter-advanced")).toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-inner-voice-settings")).not.toBeNull());
+    await waitFor(() => expect(canvasElement.querySelector("#so-chapter-advanced")).not.toBeNull());
   },
 };
 

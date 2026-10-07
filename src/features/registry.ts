@@ -1,4 +1,4 @@
-import { JUDGE_USE_COPY, JUDGE_USE_KEYS, AUTHOR_JUDGE_USES, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_USE_COPY, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, type JudgeUseKey } from "@judge/settings";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
@@ -91,7 +91,7 @@ const judgeUseFeature = (use: JudgeUseKey): Feature => {
     where: settingsAt(`#so-judge-use-${kebab(use)}`, `Judge › ${copy.label}`),
     settings: [`judge.uses.${use}`, `judge.provider.${use}`],
     doc: "setup/judge.md",
-    status: "shipped",
+    status: JUDGE_USES_OFF_BY_DEFAULT.includes(use) ? "off-by-default" : "shipped",
     since: JUDGE_USE_SINCE[use] ?? "2.2.0",
     needs: ["judge-plugin"],
     isOn: (settings) => settings.judge.enabled && settings.judge.uses[use],

@@ -1,8 +1,10 @@
 export const EXTENSION_BASE = "/scripts/extensions/third-party/story-orchestrator";
 export const GENERATE_INTERCEPTOR = "talkControlInterceptor";
 
-export const globalIssues = (keys, allowlist) => [
-  ...keys.filter((key) => key.startsWith("storyOrchestrator") && !allowlist.includes(key)).map((key) => `the artifact exposes ${key}, which is not on the prod allowlist`),
+export const RUNTIME_HANDLE = "storyOrchestratorRuntime";
+
+export const globalIssues = (keys) => [
+  ...(keys.includes(RUNTIME_HANDLE) ? [] : [`${RUNTIME_HANDLE} is missing: the one build ships the runtime handle`]),
   ...(keys.includes(GENERATE_INTERCEPTOR) ? [] : [`${GENERATE_INTERCEPTOR} is missing: manifest.json generate_interceptor names it`]),
 ];
 

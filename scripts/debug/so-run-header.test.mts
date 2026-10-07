@@ -269,7 +269,7 @@ test('an unknown lorebook selection is not an empty one', () => {
 test('the build half reads plan 08s nested manifest, not flat fields', () => {
   const build = readBuild();
   assert.equal(typeof build.manifest?.version, 'string', 'extension.version is read');
-  assert.ok(['prod', 'dev'].includes(String(build.manifest?.flavor)), 'the flavour the lanes serve is recorded');
+  assert.equal('flavor' in (build.manifest ?? {}), false, 'there is one build, so no flavour is recorded');
   assert.match(String(build.manifest?.bundleSha256), /^[0-9a-f]{64}$/, 'bundle.sha256 is read');
   assert.equal(typeof build.manifest?.sourceFiles, 'number');
   assert.equal(build.manifest?.sourceSha256, (build.manifest as any)?.sourceSha256, 'one source hash, not two shapes');

@@ -1,10 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import {
-  DEFAULT_OPEN_SECTIONS, DEV_ONLY_CHAPTER_KEYS, DEV_ONLY_JUDGE_USES, TALK_CHAIN_FIXED, defaultGlobalSettings, sanitizeGlobalSettings, withoutDevOnlySettings,
-} from "@runtime/settingsModel";
+import { DEFAULT_OPEN_SECTIONS, TALK_CHAIN_FIXED, defaultGlobalSettings, sanitizeGlobalSettings } from "@runtime/settingsModel";
 import { offeredJudgeUses } from "@components/settings/JudgeSettingsGroup";
-import { BUILT_JUDGE_USES } from "@judge/settings";
+import { chapterSettings } from "@runtime/chapters";
+import { BUILT_JUDGE_USES, JUDGE_USES_OFF_BY_DEFAULT } from "@judge/settings";
 import { AREA_LABELS, FEATURE_AREAS, FEATURES } from "./registry";
 import { SETTINGS_AREA_COPY, SETTING_COPY, settingsGuideLabel } from "./settingsCopy";
 import { jargonIn } from "./jargon";
@@ -82,36 +81,44 @@ describe("v2.7 plan 29 fixed defaults", () => {
   });
 });
 
-describe("v2.7 plan 29 dev-only settings", () => {
-  const stored = sanitizeGlobalSettings({
-    memory: { innerBeat: true, innerFanOut: "top2", harvestReasoning: true, chapters: { seal: true, storySoFar: true, fold: true, chronicleTokens: 700, recap: false } },
-    judge: { uses: { loreExclusive: true, expressions: true, director: true } },
+describe("one build (2026-10-07): the settings the release build used to strip are ordinary settings, off by default", () => {
+  const FORMERLY_STRIPPED_USES = ["loreExclusive", "expressions", "wardenVoice"] as const;
+
+  it("a fresh install reads every one of them off", () => {
+    const fresh = sanitizeGlobalSettings(undefined);
+    expect(fresh.memory.innerBeat).toBeUndefined();
+    expect(fresh.memory.innerFanOut).toBeUndefined();
+    expect(fresh.memory.harvestReasoning).toBeUndefined();
+    const chapters = chapterSettings(fresh.memory.chapters);
+    expect([chapters.seal, chapters.storySoFar, chapters.fold]).toEqual([false, false, false]);
+    expect(FORMERLY_STRIPPED_USES.map((use) => fresh.judge.uses[use])).toEqual([false, false, false]);
+    expect(FORMERLY_STRIPPED_USES.filter((use) => !JUDGE_USES_OFF_BY_DEFAULT.includes(use))).toEqual([]);
   });
 
-  it("a dev build keeps them as stored", () => {
-    expect(withoutDevOnlySettings(stored, true)).toBe(stored);
-    expect(stored.memory.innerBeat).toBe(true);
+  it("control: a measured use keeps its default on", () => {
+    expect(sanitizeGlobalSettings(undefined).judge.uses.director).toBe(true);
+    expect(sanitizeGlobalSettings(undefined).judge.uses.loreSelect).toBe(true);
   });
 
-  it("a release build reads every dev-only setting at its default and keeps the rest", () => {
-    const prod = withoutDevOnlySettings(stored, false);
-    expect(prod.memory).not.toHaveProperty("innerBeat");
-    expect(prod.memory).not.toHaveProperty("innerFanOut");
-    expect(prod.memory).not.toHaveProperty("harvestReasoning");
-    expect(DEV_ONLY_CHAPTER_KEYS.filter((key) => prod.memory.chapters && key in prod.memory.chapters)).toEqual([]);
-    expect(prod.memory.chapters?.recap).toBe(false);
-    expect(DEV_ONLY_JUDGE_USES.map((use) => prod.judge.uses[use])).toEqual([false, false, false]);
-    expect(prod.judge.uses.director).toBe(true);
+  it("a stored value is kept as stored, on or off", () => {
+    const stored = sanitizeGlobalSettings({
+      memory: { innerBeat: true, innerFanOut: "top2", harvestReasoning: true, chapters: { seal: true, storySoFar: true, fold: true, chronicleTokens: 700, recap: false } },
+      judge: { uses: { loreExclusive: true, expressions: true, wardenVoice: true, director: false } },
+    });
+    expect([stored.memory.innerBeat, stored.memory.innerFanOut, stored.memory.harvestReasoning]).toEqual([true, "top2", true]);
+    expect(stored.memory.chapters).toMatchObject({ seal: true, storySoFar: true, fold: true, chronicleTokens: 700, recap: false });
+    expect(FORMERLY_STRIPPED_USES.map((use) => stored.judge.uses[use])).toEqual([true, true, true]);
+    expect(stored.judge.uses.director).toBe(false);
   });
 
-  it("offers the dev-only judge uses only in a dev build", () => {
-    expect(offeredJudgeUses(BUILT_JUDGE_USES, true, false).filter((use) => (DEV_ONLY_JUDGE_USES as readonly string[]).includes(use))).toEqual([]);
-    expect(offeredJudgeUses(BUILT_JUDGE_USES, true, true)).toEqual(expect.arrayContaining([...DEV_ONLY_JUDGE_USES].filter((use) => BUILT_JUDGE_USES.includes(use))));
+  it("offers every built judge use in author view", () => {
+    expect(offeredJudgeUses(BUILT_JUDGE_USES, true)).toEqual([...BUILT_JUDGE_USES]);
+    expect(offeredJudgeUses(BUILT_JUDGE_USES, true)).toEqual(expect.arrayContaining([...FORMERLY_STRIPPED_USES]));
   });
 
-  it("loads the dev-only controls only behind the dev flag", () => {
-    expect(read("src/components/settings/PlayGroups.tsx")).toContain('__SO_DEV__ ? lazyRetry(() => import("./InnerVoiceControls")) : null');
-    expect(read("src/components/settings/ChapterControls.tsx")).toContain('__SO_DEV__ ? lazyRetry(() => import("./ChapterRecordControls")) : null');
+  it("loads the inner voice and chapter record controls lazily, with no build flag", () => {
+    expect(read("src/components/settings/PlayGroups.tsx")).toContain('const InnerVoiceControls = lazyRetry(() => import("./InnerVoiceControls"));');
+    expect(read("src/components/settings/ChapterControls.tsx")).toContain('const ChapterRecordControls = lazyRetry(() => import("./ChapterRecordControls"));');
     expect(read("src/components/settings/ChapterControls.tsx")).not.toContain("so-chapter-seal");
   });
 });

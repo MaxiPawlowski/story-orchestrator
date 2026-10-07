@@ -1,5 +1,5 @@
 {
-  "_note": "v2.5 plan 12 F1 live gate on the DEV build (no model call). Serve dev first: npm run build:dev && npm run serve:dev, then node scripts/debug/st-session.mts reload (a lane: st-lanes.mts run <n> -- scripts/debug/st-session.mts reload). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-12-lazy-chunks.json --sandbox --group <group id>. Proves the lazy author tabs and the lazy Studio load from ST's served dist/ (every chunk 200, rendered), and that author view off shows none of them. The artifact half (prod bundle) is so-artifact-smoke.mts probe.",
+  "_note": "v2.5 plan 12 F1 live gate on the one build (no model call). Build and stage first: npm run build && npm run stage, then node scripts/debug/st-session.mts reload (a lane: st-lanes.mts run <n> -- scripts/debug/st-session.mts reload). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-12-lazy-chunks.json --sandbox --group <group id>. Proves the lazy author tabs and the lazy Studio load from ST's served dist/ (every chunk 200, rendered), and that author view off shows none of them. The artifact half (prod bundle) is so-artifact-smoke.mts probe.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"],"judge":"off"},
   "steps": [
     {

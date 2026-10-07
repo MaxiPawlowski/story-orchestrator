@@ -5,7 +5,7 @@
   "fixCommit": "v2.6 plan 01: the wizard agent global goes through ui.global",
   "file": "src/studio/StudioModal.tsx",
   "find": "export const WIZARD_AGENT = wizardAgent;",
-  "replace": "export const WIZARD_AGENT = wizardAgent;\nif (__SO_DEV__) Object.assign(globalThis, { storyOrchestratorWizardAgent: wizardAgent });",
+  "replace": "export const WIZARD_AGENT = wizardAgent;\nObject.assign(globalThis, { storyOrchestratorWizardAgent: wizardAgent });",
   "tests": [
     "src/studio/lazyGlobals.guard.test.ts"
   ]

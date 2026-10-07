@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import { ChapterRecordControls } from "./ChapterRecordControls";
 
 const meta: Meta<typeof ChapterRecordControls> = {
-  title: "Settings/ChapterRecordControls (dev build)",
+  title: "Settings/ChapterRecordControls",
   component: ChapterRecordControls,
   args: { stored: undefined, onWrite: fn() },
 };

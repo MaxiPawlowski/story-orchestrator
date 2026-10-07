@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { agendaStepKey, parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import { VOICE_QUESTION, buildWardenRequests, defaultJudgeSettings, readWarden, wardenRecordP, type JudgeRequest, type JudgeSettings, type WardenInput } from "@judge/index";
-import { withoutDevOnlySettings, defaultGlobalSettings } from "../settingsModel";
+import { defaultGlobalSettings, sanitizeGlobalSettings } from "../settingsModel";
 import { createWarden, voiceProfile, wardenFamilies } from "../continuity";
 import { JudgeRuntime } from "../judge";
 import { testOwnership } from "../../../test/findings/testOwnership";
@@ -32,12 +32,12 @@ const judgeWith = (uses: Partial<JudgeSettings["uses"]>, voiceScore = 0.2) => {
 const reply = { speaker: "Arin", text: "Arin beams and tells the stranger everything about her debts, delighted to trust anyone at all." };
 
 describe("v2.7 plan 37 L6: the out-of-character family rides the warden's call, dark", () => {
-  it("is off by default and dropped from a release build's settings", () => {
+  it("is an ordinary setting, off by default, and kept on once switched on", () => {
     expect(defaultJudgeSettings().uses.wardenVoice).toBe(false);
+    expect(sanitizeGlobalSettings(undefined).judge.uses.wardenVoice).toBe(false);
     const on = defaultGlobalSettings();
     on.judge.uses.wardenVoice = true;
-    expect(withoutDevOnlySettings(on, false).judge.uses.wardenVoice).toBe(false);
-    expect(withoutDevOnlySettings(on, true).judge.uses.wardenVoice).toBe(true);
+    expect(sanitizeGlobalSettings(on).judge.uses.wardenVoice).toBe(true);
   });
 
   it("joins the families only while its use is on and the story has character life", () => {

@@ -65,7 +65,7 @@ test('T4-2 stop: a group chat the session created (a branch) is declared, a fore
 const SERVED = 'ceb15ac19ec07dec3a70c5d80785b611d806cad5e9659520e5d54a8a2182ab19';
 const mismatch = (served: string, dist: string) => `the page is running a bundle that is not the built one: served ${served.slice(0, 16)} vs dist ${dist.slice(0, 16)}`;
 const t0Header = ({ head, bundleSha256, served, dirty = true, extraWarnings = [] as string[] }: { head: string; bundleSha256: string; served: string; dirty?: boolean; extraWarnings?: string[] }) => ({
-  build: { head, dirty, manifest: { version: '2.4.0', flavor: 'prod', bundleSha256, builtAt: `built-${head}`, fileSha256: head.slice(0, 16), sourceSha256: `src-${head}`, bundleBytes: head.length } },
+  build: { head, dirty, manifest: { version: '2.4.0', bundleSha256, builtAt: `built-${head}`, fileSha256: head.slice(0, 16), sourceSha256: `src-${head}`, bundleBytes: head.length } },
   bundle: { served: { http: 200, sha256: served, bytes: 1284044 } },
   warnings: [mismatch(served, bundleSha256), ...extraWarnings],
   chat: { chatId: 'chat-a', chatLength: 1, groupId: 'g', authorView: false },

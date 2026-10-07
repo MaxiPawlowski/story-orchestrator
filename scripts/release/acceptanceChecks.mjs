@@ -25,7 +25,6 @@ export const candidateProblems = ({ attestation, manifest, currentBundle, git })
   if (!SHA256.test(attested.bundle?.sha256 ?? "")) problems.push("build.attested.bundle.sha256 is not a sha256");
   if (served.sha256 !== attested.bundle?.sha256) problems.push(`served.sha256 ${String(served.sha256).slice(0, 12)} is not the attested bundle ${String(attested.bundle?.sha256).slice(0, 12)}`);
   if (!manifest) return [...problems, "no dist/manifest.json: the candidate's build cannot be checked"];
-  if (manifest.flavor !== "prod") problems.push(`dist/manifest.json is the ${manifest.flavor} build; the attestation describes the prod build`);
   if (currentBundle !== undefined && manifest.bundle?.sha256 !== currentBundle) problems.push("dist/manifest.json does not describe dist/index.js");
   if (manifest.bundle?.sha256 !== attested.bundle?.sha256) problems.push(`built bundle ${String(manifest.bundle?.sha256).slice(0, 12)} is not the attested ${String(attested.bundle?.sha256).slice(0, 12)}`);
   if (manifest.source?.sha256 !== attested.source?.sha256) problems.push(`built source ${String(manifest.source?.sha256).slice(0, 12)} is not the attested source ${String(attested.source?.sha256).slice(0, 12)}`);

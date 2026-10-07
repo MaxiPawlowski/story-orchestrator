@@ -11,14 +11,13 @@ export const GATE_DEPS = {
   "test-storybook:ci": [],
   test: [],
   build: [],
-  "build:dev": [],
   "test:debug": ["build"],
   typecheck: [],
   "typecheck:test": [],
   lint: [],
   "debug:typecheck": [],
   "test:plugin": [],
-  "test:release": ["build", "build:dev"],
+  "test:release": ["build"],
 };
 
 export const GATE_STEPS = Object.keys(GATE_DEPS);
@@ -29,7 +28,7 @@ export const REPLAY_WORKERS_UNDER_GATES = "4";
 
 const USAGE = `npm run gates -- [--serial] [--no-storybook] [--skip=a,b] [--jobs=n]
   Runs ${GATE_STEPS.join(", ")}.
-  Each step starts as soon as the steps it needs are done (test:release after build and build:dev,
+  Each step starts as soon as the steps it needs are done (test:release and
   test:debug after build: so-run-header reads dist/manifest.json, which webpack clears while it builds),
   longest first, at most --jobs at once (default ${DEFAULT_JOBS}); --serial runs one at a time.
   The first red step stops new starts; running steps finish and print.

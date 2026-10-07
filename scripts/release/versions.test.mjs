@@ -71,7 +71,7 @@ test("UP: clean-host.sh keeps a pre-release suffix in the version it files its r
 });
 
 test("Q2t: both clean-host scripts run every machine gate by default", () => {
-  const gates = ["typecheck", "typecheck-test", "lint", "test", "build", "build-dev", "release", "debug", "plugin", "storybook"];
+  const gates = ["typecheck", "typecheck-test", "lint", "test", "build", "release", "debug", "plugin", "storybook"];
   const sh = /^GATES="([^"]+)"/m.exec(cleanHost("clean-host.sh"))?.[1].split(",");
   const ps = /\[string\]\$Gates = "([^"]+)"/.exec(cleanHost("clean-host.ps1"))?.[1].split(",");
   assert.deepEqual(sh, gates);
