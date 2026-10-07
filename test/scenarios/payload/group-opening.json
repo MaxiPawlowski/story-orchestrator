@@ -1,7 +1,7 @@
 {
   "_note": "v2.7 payload invariance (16 rule 3, 39 C0/C3), case group-opening. Run ONLY through `node scripts/debug/so-payload-golden.mts capture`, which installs `globalThis.__soPayloadGolden` (dry-run capture + model-call tripwire) before the run; so-scenario alone fails at step 1 on purpose. No model call: every turn is scripted (`send` is /send compact, the replies are /sendas), extraction and the curator are pinned, the judge is off, and the tripwire fails the case on any /generate or judge request. Each capture is ST's own dry-run assembly (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY) with the member drafted through the runtime's draft hook (onMemberDrafted) and released after; ST's group dry run renders the first enabled member's card, so a member capture differs from the resting one only in what the extension stages for that member. Sun-ruins in the toy group: cp1 effects (Author's Note, gated World Info, cast) and the opening and first scripted turn. cp2 and cp3 carry llm onEnter replies and are deliberately not entered.",
   "requires": {
-    "group": "1759606632088",
+    "group": "Group: Arin, DM Narrator",
     "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
     "judge": "off",
     "why": "a fixed cast state at the start of every capture (cp1 then disables Ponticius and Luke; the capture tool re-enables them after cleanup), and no judge request"

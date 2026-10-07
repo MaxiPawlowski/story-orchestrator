@@ -1,7 +1,7 @@
 {
   "_note": "v2.7 payload invariance (16 rule 3, 39 C0/C3), case group-memory. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe, the tripwire and how a member capture is taken). Same story, group and pins; one scripted turn, then one mocked read (the extract verb with a debugResponse, no model) plants a fact and a [hiding] knowledge row, so the captures carry the memory tiers, the per-member private block and the resting prompt with the secret withheld. The epistemic capability is switched on for the run and put back by the cleanup steps.",
   "requires": {
-    "group": "1759606632088",
+    "group": "Group: Arin, DM Narrator",
     "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
     "judge": "off",
     "why": "a fixed cast state at the start of every capture, and judge memoryVerify would drop the planted lines (judge-off lane rule, T7 SUITE)"
