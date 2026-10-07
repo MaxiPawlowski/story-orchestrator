@@ -6,6 +6,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskFlavourIssue } from './lib/bundleFlavour.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -15,7 +16,10 @@ selection, judge settings) never crosses lanes and journeys can run side by side
 is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest.
 
   seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails)
-  start <n...> [--headed]      start lane n's server (port ${'8100+n'}) and browser (CDP ${'9300+n'})
+  start <n...> [--headed] [--judge-lanes <k>]
+                               start lane n's server (port ${'8100+n'}) and browser (CDP ${'9300+n'}); --judge-lanes
+                               gives its judge plugin 1/k of the TypeSafe account (every lane's plugin limits
+                               itself alone, so k judge lanes would otherwise ask for k accounts)
   stop <n...>                  stop lane n's browser and server
   status                       list lanes and whether each is up
   env <n>                      print the environment that points a debug script at lane n
@@ -24,12 +28,17 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
                                copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
   restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
+  pod <n> <k|cloud> [--pod-id <id>]
+                               point stopped lane n's pod-tunnel profiles (loopback 18080-18089) at pod k's
+                               tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
+                               closed port (18079), so a cloud-only lane fails loudly on any pod call and
+                               counts on no pod. The lane-load rule counts model lanes per pod
   batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--allow-load] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
                                item that many times back to back on the SAME lane, so "twice" stays
                                "two consecutive runs on one install". Refused while more than
-                               SO_MAX_LLM_LANES (default 2) lanes with a model are up: on 2026-10-03 five
+                               SO_MAX_LLM_LANES (default 2) lanes with a model are up on one pod: on 2026-10-03 five
                                LLM lanes on one pod made a 4-token completion take 56 s and turned
                                backend latency into red runs (T7 SUITE.md finding 4). No-model lanes do
                                not count; --allow-load overrides.`;
@@ -117,14 +126,15 @@ async function seed(n: number, fresh: boolean) {
   return { lane: n, seeded: true, from: source, to: target };
 }
 
-async function start(n: number, headed: boolean) {
+async function start(n: number, headed: boolean, judgeLanes: number | null = null) {
   const lane = lanePaths(n);
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
-  if (!(await isUp(lane.port))) {
+  const wasUp = await isUp(lane.port);
+  if (!wasUp) {
     const log = await open(lane.log, 'a');
     const server = spawn(process.execPath, ['server.js', '--port', String(lane.port), '--dataRoot', lane.data, '--browserLaunchEnabled', 'false', '--listen', 'false'], {
-      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true,
+      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}) },
     });
     server.unref();
     await writeFile(lane.pid, String(server.pid ?? ''), 'utf-8');
@@ -137,7 +147,8 @@ async function start(n: number, headed: boolean) {
   }
   const session = await runNode(['scripts/debug/st-session.mts', 'start', ...(headed ? ['--headed'] : [])], laneEnv(n));
   if (session.code !== 0) throw new Error(`lane ${n}'s browser did not start: ${session.output.slice(-600)}`);
-  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug };
+  const judgeShare = judgeLanes ? (wasUp ? `not applied: the server was already up (stop lane ${n} first)` : judgeShareEnv(judgeLanes)) : null;
+  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug, judgeShare };
 }
 
 async function killTree(pid: number) {
@@ -158,7 +169,8 @@ async function status() {
   const entries = existsSync(LANES_ROOT) ? (await readdir(LANES_ROOT)).filter((name) => /^\d+$/.test(name)).map(Number).sort((a, b) => a - b) : [];
   return Promise.all(entries.map(async (n) => {
     const lane = lanePaths(n);
-    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: await isUp(lane.port), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
+    const pod = readLanePod(lane.root);
+    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: await isUp(lane.port), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), pod: pod ? pod.pod : 0, podId: pod?.podId ?? null, browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
   }));
 }
 
@@ -193,6 +205,20 @@ async function setModelAccess(n: number, on: boolean) {
   const judge = judgeEnabledIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
   if (judge !== on) throw new Error(`lane ${n}: judge.enabled reads ${judge} after writing ${on}`);
   return { lane: n, model: on ? 'restored' : 'removed', removedKeys: removed.length, secretsRestored: restored, judgeEnabled: judge };
+}
+
+async function assignPod(n: number, pod: number | null, podId: string | null) {
+  const lane = lanePaths(n);
+  if (await isUp(lane.port)) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
+  const settingsPath = resolve(lane.data, 'default-user', 'settings.json');
+  if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
+  const port = podTunnelPort(pod);
+  const { next, changed } = retargetProfiles(JSON.parse(await readFile(settingsPath, 'utf-8')), port);
+  await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+  const ports = podPortsIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
+  if (ports.some((found) => found !== port)) throw new Error(`lane ${n}: pod-tunnel profiles read ${ports.join(', ')} after writing ${port}`);
+  await writeFile(resolve(lane.root, LANE_POD_FILE), JSON.stringify({ pod, port, podId, at: new Date().toISOString() }, null, 2), 'utf-8');
+  return { lane: n, pod: pod ?? 'cloud', port, podId, changed };
 }
 
 // v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
@@ -247,9 +273,8 @@ export const DEFAULT_MAX_LLM_LANES = 2;
 
 export const isIntegrationPlay = (script: string[]) => /so-integration\.mts$/.test(script[0] ?? '') && script[1] === 'play';
 
-export function laneLoadProblem(lanes: Array<{ lane: number; serverUp: boolean; noModel?: boolean }>, max: number = DEFAULT_MAX_LLM_LANES): string | null {
-  const llm = lanes.filter((entry) => entry.serverUp && !entry.noModel).map((entry) => entry.lane);
-  return llm.length > max ? `${llm.length} lanes with a model are up (${llm.join(', ')}), more than ${max}: one pod serves LLM_PARALLEL requests and the rest queue, so backend latency would read as red runs (T7: a 4-token completion took 56 s under 5 lanes). Stop a lane, make it a no-model lane, or pass --allow-load` : null;
+export function laneLoadProblem(lanes: Array<{ lane: number; serverUp: boolean; noModel?: boolean; pod?: number | null }>, max: number = DEFAULT_MAX_LLM_LANES): string | null {
+  return podLoadProblem(lanes, max);
 }
 
 async function main() {
@@ -257,11 +282,20 @@ async function main() {
   if (!command || command === '--help') { console.log(USAGE); return; }
   let out: unknown;
   if (command === 'seed') out = await Promise.all(laneNumbers(rest).map((n) => seed(n, rest.includes('--fresh'))));
-  else if (command === 'start') out = await Promise.all(laneNumbers(rest).map((n) => start(n, rest.includes('--headed'))));
+  else if (command === 'start') {
+    const judgeLanes = Number(argValue('--judge-lanes', '0')) || null;
+    out = await Promise.all(laneNumbers(rest.filter((arg, index) => rest[index - 1] !== '--judge-lanes')).map((n) => start(n, rest.includes('--headed'), judgeLanes)));
+  }
   else if (command === 'stop') out = await Promise.all(laneNumbers(rest).map(stop));
   else if (command === 'status') out = await status();
   else if (command === 'no-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, false)));
   else if (command === 'restore-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, true)));
+  else if (command === 'pod') {
+    const [n] = laneNumbers(rest.slice(0, 1));
+    const pod = parsePodArg(rest[1]);
+    if (!n || pod === undefined) { console.log(USAGE); process.exitCode = 2; return; }
+    out = await assignPod(n, pod, argValue('--pod-id'));
+  }
   else if (command === 'env') {
     const [n] = laneNumbers(rest);
     out = Object.entries(laneEnv(n)).map(([key, value]) => `${key}=${value}`).join(' ');
