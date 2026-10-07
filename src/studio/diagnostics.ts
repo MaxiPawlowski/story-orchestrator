@@ -213,6 +213,9 @@ const checkQualitiesInScope = (run: DiagnosticRun) => {
   const referencedKeys = boundCardQualities(draft.roster ?? [], draft.player);
   draft.transitions.forEach((transition) => walkLeaves(transition.gate, (leaf) => referencedKeys.add(leaf.q)));
   draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => referencedKeys.add(key)));
+  (draft.quests ?? []).flatMap((quest) => [quest.visible_when, quest.offered_when, quest.done_when, quest.failed_when,
+    ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])])
+    .forEach((gate) => gate && walkLeaves(gate, (leaf) => referencedKeys.add(leaf.q)));
   draft.qualities.forEach((quality, index) => {
     if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY) return;
     if (!referencedKeys.has(quality.key)) {
