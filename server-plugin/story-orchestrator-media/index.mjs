@@ -20,7 +20,7 @@ export async function init(router) {
     const jobs = new ComfyJobs({ url });
     const allowedNodes = new Set(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
         'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
-        'FluxGuidance', 'ConditioningZeroOut', 'EmptySD3LatentImage', 'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
+        'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
     const owner = (req) => {
         const root = req.user?.directories?.characters;
         if (!root) throw new Error('Open SillyTavern with a user session first.');

@@ -6,7 +6,6 @@ import { renderSignature } from './policy.mjs';
 import { memorySnapshot, gpuMemory } from './telemetry.mjs';
 import { bytesToMiB, estimateGpuMiB } from './estimate.mjs';
 import { readSafetensorsBytes } from './safetensors.mjs';
-import { fluxSpikeGraph, spikeModelFiles } from './fluxSpikeGraph.mjs';
 
 const configFile = process.argv[2];
 const mode = process.argv[3] ?? 'solo';
@@ -25,21 +24,17 @@ const moduleFrom = async (file) => {
     return import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 };
 const { buildGraph } = await moduleFrom('src/image/graph.ts');
-const { CHECKPOINTS, FAMILIES, WAI, FLUX, JANKU } = await moduleFrom('src/image/catalog.ts');
-const checkpoint = CHECKPOINTS.find((row) => row.file === (familyName === 'background' ? FLUX : familyName === 'portrait' ? JANKU : WAI));
+const { CHECKPOINTS, FAMILIES, WAI, JANKU } = await moduleFrom('src/image/catalog.ts');
+const checkpoint = CHECKPOINTS.find((row) => row.file === (familyName === 'portrait' ? JANKU : WAI));
 const family = FAMILIES[checkpoint.family];
 const size = family.sizes.wide;
 const loras = familyName === 'lora' ? [{ file: config.benchmarkLora, weight: 0.6 }] : [];
 if (familyName === 'lora' && !config.benchmarkLora) throw new Error('Choose an installed SDXL benchmarkLora in the config before measuring LoRA.');
-let graph = buildGraph({ checkpoint, family, loras, positive, negative: 'text, watermark, low quality',
-    size, seed, hires: familyName === 'hires', upscaler: family.upscaler });
+let graph = buildGraph({ checkpoint, family, loras, positive: familyName === 'background' ? `${positive}, no humans, scenery` : positive,
+    negative: 'text, watermark, low quality', size, seed, hires: familyName === 'hires', upscaler: family.upscaler });
 const checkpointPath = `${config.checkpointDir ?? 'C:/dev/models/checkpoints'}/${checkpoint.file}`;
 let modelFiles = [{ kind: 'checkpoints', name: checkpoint.file }, ...loras.map((lora) => ({ kind: 'loras', name: lora.file }))];
 if (familyName === 'hires') modelFiles.push({ kind: 'upscale_models', name: family.upscaler });
-if (familyName === 'background' && config.fluxSpike?.arm !== 'stock' && config.fluxSpike?.arm) {
-    graph = fluxSpikeGraph({ ...config.fluxSpike, positive, size, seed });
-    modelFiles = spikeModelFiles(config.fluxSpike);
-}
 if (['edit', 'sprite'].includes(familyName)) {
     if (!config.benchmarkEdit?.reference) throw new Error('Set benchmarkEdit models and a ComfyUI reference image before measuring edit/sprite.');
     const { editGraph, editInstruction } = await moduleFrom('src/sprites/builder/recipes.ts');
@@ -62,7 +57,7 @@ const text = async () => {
     if (!data.content?.trim()) throw new Error('Text benchmark answered without a visible reply.');
     return { elapsedMs: Date.now() - began, length: data.content?.length, timings: data.timings, status: await (await fetch(`${url}/status`)).json() };
 };
-const result = { mode, family: familyName, arm: config.fluxSpike?.arm ?? 'stock', positive, modelFiles, seed, replyTokens,
+const result = { mode, family: familyName, arm: 'stock', positive, modelFiles, seed, replyTokens,
     checkpoint: checkpoint.file, estimatedMiB, before: await memorySnapshot() };
 const samples = [];
 let lease;

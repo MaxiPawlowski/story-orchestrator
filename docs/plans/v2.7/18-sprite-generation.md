@@ -47,6 +47,8 @@ is superseded for this image track on this installation; no copying or migration
 
 ### 2. Backend capabilities
 
+> Superseded by v2.7 31 (2026-10-07) for FLUX: no FLUX (Kontext or other) recipe is planned; FLUX is out of the product.
+
 - **Route B only** (v2.7 17's ComfyUI advanced route). Reference **edits** need an edit-capable model; route A (ST Image
   Generation) does generation, not reference edits, for most sources, so the builder refuses with a reason on route A.
 - A capability probe (cached per page load, `error` not cached, like `stHost/capabilities.ts`): ComfyUI reachable;

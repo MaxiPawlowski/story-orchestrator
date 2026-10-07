@@ -72,6 +72,8 @@ install.
 
 ### A. Two render routes
 
+> Superseded by v2.7 31 (2026-10-07): FLUX is out of the product; §A.2's "FLUX" recipe is dropped and backgrounds use the SDXL wide row.
+
 1. **ST Image Generation route (route A, new default).**
    - Render through ST's own Image Generation extension (`/imagine quiet=true` or its `generatePicture`, via a new
      `stHost` module).

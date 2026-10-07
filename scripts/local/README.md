@@ -59,12 +59,10 @@ Render modes: `auto|swap|shed|solo`; explicit swap/shed arms require `experiment
 or moved. `SO_LOCAL_RECORD_DIR` points to an existing archive directory. Records include admission, render, release,
 reply and total cycle time; a reserve refusal stays failed.
 
-Plan 25's candidates are built by `candidateConfig.mjs`, preserving the old interpreter/config. GGUF uses a validated
-GGUF header and a conservative full-file byte bound. `flux-components.py` extracts byte-identical CLIP/T5/VAE tensors
-from the existing checkpoint into the off-C: spike directory; `verifyFluxWeights.py` checks public quantized downloads.
-`normalCandidate.mjs` enables the original custom-node installation under the supported environment, and
-`promoteLocal.mjs` backs up the old config before selecting that verified interpreter for playtest. Quantized backends
-do not become defaults through these helpers. `archiveFlux.mjs` collects model/repo/environment pins, images and results.
+The `background` family renders the SDXL wide row (`no humans, scenery`) on the default checkpoint; FLUX and plan 25's
+FLUX spike helpers were removed by v2.7 31. GGUF text models are sized from a validated GGUF header and a conservative
+full-file byte bound (`gguf.mjs`). `promoteLocal.mjs` backs up the old config before selecting a verified interpreter
+for playtest.
 
 `live-check` drives real auxiliary/text requests under a reduced fit target, validates full restoration and optionally
 the actual idle timer or cost-based restoration. It needs `experiments: true`, an idle controller and an empty Comfy

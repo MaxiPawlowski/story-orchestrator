@@ -174,7 +174,8 @@
         "mode": "everyN",
         "everyN": 5
       },
-      "safeMode": false
+      "safeMode": false,
+      "retired": []
     },
     "sprites": {
       "enabled": false,

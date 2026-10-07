@@ -1,5 +1,7 @@
 # Plan 25 — FLUX memory repair and backend spikes
 
+> Superseded by v2.7 31 (2026-10-07): FLUX is out of the product and this plan's spike scripts are removed; kept as history.
+
 **Status (2026-10-05): implemented; local/transport discovery green; overall acceptance PARTIAL. D green in plan 24's
 full gate rerun; story-level Qwen image/read/reply recovery green ×2 there.** Approved by
 the user. Owner: local residency (plans 22–23), independent of plan 24's

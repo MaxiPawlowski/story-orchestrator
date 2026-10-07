@@ -1,3 +1,14 @@
+const LOOPBACK = ['127.0.0.1', 'localhost', '[::1]', '::1'];
+export const DEFAULT_BROKER_PORT = 18888;
+
+export function brokerAddress(config = {}) {
+    const listenHost = config.listenHost ?? '127.0.0.1';
+    const listenPort = config.listenPort ?? DEFAULT_BROKER_PORT;
+    if (!LOOPBACK.includes(listenHost)) throw new Error('The GPU broker text proxy must listen on a loopback address.');
+    if (!Number.isInteger(listenPort) || listenPort < 1 || listenPort > 65535) throw new Error('The GPU broker listen port must be 1..65535.');
+    return { listenHost, listenPort, controllerUrl: config.controllerUrl ?? `http://127.0.0.1:${DEFAULT_BROKER_PORT}` };
+}
+
 export function mountManagedRoutes(router, url, fetchImpl = fetch) {
     const target = new URL(url);
     if (!['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname) || target.protocol !== 'http:') throw new Error('Managed GPU controller must be an HTTP loopback service.');

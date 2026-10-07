@@ -26,7 +26,9 @@ const DROPPED_SPIKES = [
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost.ts", "src/runtime/replyEffortLive.ts", "src/services/stHost/llamaCpp.ts", "src/utils/replyEffort.ts"];
 
-const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
+const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
+
+const isDevOnly =(path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
 
 const staticReach = (files: string[], read?: (path: string) => string) =>
@@ -139,6 +141,26 @@ import "./runtime/spikes/toolTurnSummary";
   it("SP8.b (v2.7 02 C13): the curator tiers ship in the prod entry graph, through the stagecraft barrel, and are not dev-only", () => {
     expect(staticReach(files)).toContain("src/stagecraft/curatorTiers.ts");
     expect(isDevOnly("src/stagecraft/curatorTiers.ts")).toBe(false);
+  });
+
+  it("v2.7 31 §B: the warm-batch lease is reached only through a dynamic import, never statically from the sprites chunk", () => {
+    const sprites = join(SRC, "sprites", "start.tsx");
+    const present = new Set(files.map(rel));
+    expect(WARM_BATCH.filter((path) => !present.has(path))).toEqual([]);
+    const fromSprites = [...reachableFrom(buildGraph(files, { includeDynamic: false }), sprites)].map(rel);
+    expect(fromSprites.filter((path) => WARM_BATCH.includes(path))).toEqual([]);
+    const staticImporters = [...buildGraph(files, { includeDynamic: false }).entries()]
+      .filter(([from, targets]) => !WARM_BATCH.includes(rel(from)) && targets.some((target) => WARM_BATCH.includes(rel(target)))).map(([from]) => rel(from));
+    expect(staticImporters).toEqual([]);
+    expect(staticReach(files).filter((path) => WARM_BATCH.includes(path))).toEqual([]);
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), sprites)].map(rel)).toEqual(expect.arrayContaining(WARM_BATCH));
+  });
+
+  it("control: a planted static import of the warm-batch host in the sprites start is reached", () => {
+    const sprites = join(SRC, "sprites", "start.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === sprites ? `import { beginSpriteBatch } from "./builder/batchHost";\nvoid beginSpriteBatch;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: false }, read), sprites, read)].map(rel)).toEqual(expect.arrayContaining(WARM_BATCH));
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {

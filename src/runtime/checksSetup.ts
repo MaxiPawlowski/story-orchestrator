@@ -200,6 +200,18 @@ export const IMAGE_CHECKS: readonly Check[] = [
       } : null;
     },
   }),
+  degrades({
+    id: "image-model-retired", area: "image", scope: "install", audience: "author", feature: "images",
+    detect: (snapshot) => {
+      const retired = snapshot.imageRetired ?? [];
+      return retired.length ? {
+        consequence: "A picture setting chose a model Story Orchestrator no longer supports, so it now uses the default SDXL model.",
+        detail: `Replaced with the default: ${retired.map((entry) => `${entry.where} (${entry.was})`).join(", ")}. FLUX is no longer supported; `
+          + "backgrounds use the SDXL wide picture type. Pick another model under Picture types, or dismiss this row.",
+        target: { kind: "setting", id: IMAGE_TARGET_ID },
+      } : null;
+    },
+  }),
 ];
 
 export const INFO_SETUP_CHECKS: readonly Check[] = [

@@ -61,7 +61,6 @@ const TAG_SKILL = [
   "Copy fixed hair, eyes, clothing from their descriptions. Do not include names, ages, artist names or quality tags.",
   "Describe one frozen moment and use a camera/framing tag.",
 ].join(" ");
-const PROSE_SKILL = "Write 2–5 English sentences for FLUX: visible subject, fixed appearance, pose, setting and light. For scenery, omit people. Avoid tag lists, text in the image and artist names.";
 
 export const imageMessages = (request: ImageRequest, scene: ImageScene, route: Route): Array<{ role: string; content: string }> => {
   const menu = route.allowed.map((file) => {
@@ -73,7 +72,7 @@ export const imageMessages = (request: ImageRequest, scene: ImageScene, route: R
     `The checkpoint must be one of: ${route.allowed.join(", ")}. Use the default ${route.checkpoint.file} unless another allowed model clearly fits better.`,
     `The aspect must be one of ${ASPECTS.join(", ")}; shot one of ${SHOTS.join(", ")}.`,
     `Default framing: ${route.shot}. Output only people actually visible in the "visible" list.`,
-    route.allowed.some((file) => CHECKPOINTS.find((item) => item.file === file)?.family === "flux-dev") ? PROSE_SKILL : TAG_SKILL,
+    TAG_SKILL,
   ].join("\n");
   const user = [
     `PURPOSE: ${request.purpose}; scene image is the target reply, background contains no people.`,
@@ -114,10 +113,7 @@ export const parseImageReply = (raw: string, route: Route): ImageReply => {
 
 export const assembleImagePrompt = (route: Route, reply: ImageReply | null, text: string): { positive: string; negative: string } => {
   const prompt = reply?.prompt ?? text;
-  const style = route.family.promptStyle;
-  const positive = style === "tags"
-    ? [route.checkpoint.qualityBlock, ...route.positive, prompt, route.shot === "close" ? "close-up" : route.shot.replaceAll("_", " ")].filter(Boolean).join(", ")
-    : [prompt, ...route.positive].filter(Boolean).join(". ");
-  const negative = style === "tags" ? [route.checkpoint.negativeBlock, ...route.negative, reply?.negative].filter(Boolean).join(", ") : "";
+  const positive = [route.checkpoint.qualityBlock, ...route.positive, prompt, route.shot === "close" ? "close-up" : route.shot.replaceAll("_", " ")].filter(Boolean).join(", ");
+  const negative = [route.checkpoint.negativeBlock, ...route.negative, reply?.negative].filter(Boolean).join(", ");
   return { positive, negative };
 };
