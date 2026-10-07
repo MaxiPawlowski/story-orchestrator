@@ -160,7 +160,9 @@ raw requests and replies in private `so-sessions` (rule 6). Campaign rows report
 
 C4's live checks (v2.8 01 §B C4: the separate warden-lore arm, built in v2.6, no code owed) run in C5 as acceptance:
 **C4-R6** over-steer after a lore note (v2.5 08 R6 rubric) and **C4-J8** G-L7 J8 on/off, ×2 each, CL + RP, `prod`.
-C4's R4 latency leg is recorded in B1-C3. 39 C5 already names C14-b (an acceptance row, not a measurement), so it is
+**R4-live** (from v2.8 01 §E "Also owed"): the shipped install-wide reply thinking budget, off/low/medium/high × n ≥ 3
+group turns, memory requests carry no budget key, one Chat Completion arm (`v2.6/05-reasoning-control.md` §Live), ×2, RP,
+`prod`, ≈0.5 lane-hour. C4's R4 latency leg is recorded in B1-C3. 39 C5 already names C14-b (an acceptance row, not a measurement), so it is
 not repeated here. v2.8 01 §A (O-rows) is C5; v2.8 01 §C (option A) is v2.7 33 W1.
 
 ### Rows for Sol findings 4–10 (code fixes on `v2.7-fix-sol-review`)

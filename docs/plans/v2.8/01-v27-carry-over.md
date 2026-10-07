@@ -134,8 +134,8 @@ in v2.7 08; option C (turning thinking on from a non-thinking setup) is refused 
   control; arm = checkpoint `high`, control = install `medium`. Data: 16 more pairs (4 of 20 exist,
   `test/sessions/rating-pack/R4/status.json`). **The pairs and their ratings are collected in v2.7 39 B1-R4**
   (2026-10-07, data only); the lift and the Studio control stay here and start from that record.
-- **Also owed:** the reply-effort ST live gate (off/low/medium/high × n ≥ 3 group turns, memory requests carry no
-  budget key, a CC arm), `v2.6/05-reasoning-control.md` §Live.
+- ~~**Also owed:** the reply-effort ST live gate~~ → v2.7 39 C5 row **R4-live** (2026-10-07: acceptance of shipped code,
+  not build work).
 - Gates: `npm run gates`; live per CLAUDE.md runtime tier; guide topic + registry entry (rule 10). Tier: D impl, RP
   acceptance.
 
