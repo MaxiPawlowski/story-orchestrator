@@ -6,6 +6,7 @@ import { personaHost, personaRead, type PlayerSetupDeps, type PlayerSetupRequest
 
 const LAPSED = "the chat changed before the choice was saved";
 export const PERSONAS_UNREACHABLE = "SillyTavern's personas are not reachable from here";
+export const ALREADY_SETTLED = "the identity step is already settled";
 
 interface Settled {
   outcome: WriteResult<PlayerSetupRecord>;
@@ -93,6 +94,7 @@ export class PlayerSetupControl {
     if (!loaded) return notRecorded(couldNot("no story is playing in this chat"));
     const previous = this.deps.extras().playerSetup;
     if (request.choice === "unlocked") return this.continueUnlocked(previous);
+    if ((request.choice === "skip" || request.choice === "retry") && !previous?.pending) return notRecorded(couldNot(ALREADY_SETTLED));
     const avatar = await this.avatarFor(request, previous, loaded.story.title, run);
     if (!avatar.ok) return notRecorded(avatar);
     const host = personaHost();

@@ -352,6 +352,39 @@ describe("v2.7 34 activation: readiness, identity, briefing, opener", () => {
     expect(mockPersonas.avatarId).toBe("max.png");
   });
 
+  it("B0-live F12: closing the start page after Keep never re-records the settled choice as skip", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    await manager.playerSetup.choose({ choice: "keep" });
+    writes.length = 0;
+    const late = await manager.playerSetup.choose({ choice: "skip" });
+    expect(late).toEqual({ ok: false, reason: "the identity step is already settled" });
+    expect(writes).toEqual([]);
+    expect(manager.getSnapshot().playerSetup?.record).toMatchObject({ pending: false, choice: "keep", locked: true });
+    expect(sendas()).toBe(1);
+  });
+
+  it("B0-live F12: closing the start page after Start without keeping it never retries the lock", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    useHost(refusing());
+    await manager.playerSetup.choose({ choice: "pick", avatarId: "mara.png" });
+    await manager.playerSetup.choose({ choice: "unlocked" });
+    writes.length = 0;
+    expect(await manager.playerSetup.choose({ choice: "retry" })).toEqual({ ok: false, reason: "the identity step is already settled" });
+    expect(writes).toEqual([]);
+    expect(manager.getSnapshot().playerSetup?.record).toMatchObject({ pending: false, locked: false, choice: "pick" });
+    expect(manager.getSnapshot().playerSetup?.record).not.toHaveProperty("lockFailed");
+    expect(sendas()).toBe(1);
+  });
+
+  it("control: a pending step still takes skip and retry", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    expect(await manager.playerSetup.choose({ choice: "skip" })).toMatchObject({ ok: true, choice: "skip", locked: true });
+    expect(sendas()).toBe(1);
+  });
+
   it("control: a choice whose chat changed before it was saved records nothing", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ player: PLAYER }));
