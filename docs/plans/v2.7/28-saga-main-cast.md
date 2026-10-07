@@ -34,7 +34,7 @@ No model moves/downloads, pods, original art overwrite, global character edits f
 ## Gate record
 
 In progress. A code audit confirms two integration gaps: on-demand stills never generate blink/talk, and their callback
-never refreshes `actor.frames`. The eight-character campaign data does not yet bind living-card qualities.
+never refreshes `actor.frames`. The eight-character campaign data binds living-card qualities since campaign `d9e528d` (2026-10-07: `card_<name>_{outfit,hair,condition}`, roster `card.fields`, built by `scripts/campaign/living_cards.py`).
 
 ### Model residency review — 2026-10-06
 

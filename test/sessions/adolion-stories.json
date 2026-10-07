@@ -1,5 +1,5 @@
 {
- "commit": "35ad03256738a30b027c258205f0220825db419c",
+ "commit": "d9e528dec66ef4df424e68e9c2ff188db0de1c79",
  "stories": {
   "adolion-academy": {
    "title": "Adolion: House Nightriver",
@@ -130,7 +130,22 @@
     "acad_at_ball",
     "ritual_stopped",
     "heir_injuries",
-    "location"
+    "location",
+    "card_natalia_outfit",
+    "card_natalia_hair",
+    "card_natalia_condition",
+    "card_shiya_outfit",
+    "card_shiya_hair",
+    "card_shiya_condition",
+    "card_ronan_outfit",
+    "card_ronan_hair",
+    "card_ronan_condition",
+    "card_javon_outfit",
+    "card_javon_hair",
+    "card_javon_condition",
+    "card_eriana_outfit",
+    "card_eriana_hair",
+    "card_eriana_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -443,7 +458,16 @@
     "party_rank",
     "guild_reputation",
     "party_injuries",
-    "location"
+    "location",
+    "card_tobias_outfit",
+    "card_tobias_hair",
+    "card_tobias_condition",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -685,7 +709,16 @@
     "aegis_exam",
     "aegis_back_at_guild",
     "aegis_city_favour",
-    "location"
+    "location",
+    "card_tobias_outfit",
+    "card_tobias_hair",
+    "card_tobias_condition",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -971,7 +1004,13 @@
     "deep_back_in_aegis",
     "rival_bond",
     "deep_standing_with_partner",
-    "location"
+    "location",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -1193,7 +1232,13 @@
     "east_homeward",
     "east_village_trust",
     "eastern_debt",
-    "location"
+    "location",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -1387,7 +1432,13 @@
     "forest_oath",
     "esha_out_of_the_trees",
     "esha_dread",
-    "location"
+    "location",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -1604,7 +1655,13 @@
     "night_pact",
     "night_sunrise",
     "night_inquisition_suspicion",
-    "location"
+    "location",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -3480,7 +3537,31 @@
     "saga_board_4",
     "saga_back_from_esha",
     "saga_muster_answered",
-    "saga_war_called"
+    "saga_war_called",
+    "card_tobias_outfit",
+    "card_tobias_hair",
+    "card_tobias_condition",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition",
+    "card_natalia_outfit",
+    "card_natalia_hair",
+    "card_natalia_condition",
+    "card_shiya_outfit",
+    "card_shiya_hair",
+    "card_shiya_condition",
+    "card_ronan_outfit",
+    "card_ronan_hair",
+    "card_ronan_condition",
+    "card_javon_outfit",
+    "card_javon_hair",
+    "card_javon_condition",
+    "card_eriana_outfit",
+    "card_eriana_hair",
+    "card_eriana_condition"
    ],
    "roster": [
     "Adolion Narrator",
@@ -4022,7 +4103,19 @@
     "war_outcome",
     "war_home",
     "war_front",
-    "location"
+    "location",
+    "card_belle_outfit",
+    "card_belle_hair",
+    "card_belle_condition",
+    "card_dalan_outfit",
+    "card_dalan_hair",
+    "card_dalan_condition",
+    "card_natalia_outfit",
+    "card_natalia_hair",
+    "card_natalia_condition",
+    "card_ronan_outfit",
+    "card_ronan_hair",
+    "card_ronan_condition"
    ],
    "roster": [
     "Adolion Narrator",
