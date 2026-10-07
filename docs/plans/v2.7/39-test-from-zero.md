@@ -26,10 +26,10 @@ the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the dete
 
 | Step | What | Tier | Where |
 |---|---|---|---|
-| C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate | D | lane 1 |
+| C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate: `node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0` (cases `test/scenarios/payload/*.json`, no model call) | D | lane 1 |
 | C1 | `npm run gates` (full, Storybook, main checkout) ×2; `npm run test:release` on prod | D | local |
 | C2 | mocked scenario corpus ×2; every plan's live (D) row ×2 (v2.7 16 §Per plan + rows of 29–38) | D | no-model lanes 1–4 in parallel |
-| C3 | payload invariance: every plan that touches model input, captured vs C0 goldens, declared diffs only | D | no-model lane |
+| C3 | payload invariance: every plan that touches model input, captured vs C0 goldens, declared diffs only: `so-payload-golden.mts capture --label c3 --out test/measurements/v2.7/payload/c3`, then `diff test/measurements/v2.7/payload/c0 test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/declared.json` (exit 1 on an undeclared or stale diff) | D | no-model lane |
 | C4 | journeys J0–J14 `--strict` ×2; J6 again with plan 33 W1 on (V8) | D + RP | model lanes ≤ 2 |
 | C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O14), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card), 34, 35 (Phase 1 K2–K5 first, then M2), 36, 37, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
 | C6 | image rows: 32's route A/B, S32-2, multi-character sprite rows; 38's asset checks | LI + CL | local ComfyUI, isolated lane |

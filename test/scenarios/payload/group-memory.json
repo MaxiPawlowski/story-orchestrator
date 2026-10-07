@@ -1,0 +1,28 @@
+{
+  "_note": "v2.7 payload invariance (16 rule 3, 39 C0/C3), case group-memory. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe, the tripwire and how a member capture is taken). Same story, group and pins; one scripted turn, then one mocked read (the extract verb with a debugResponse, no model) plants a fact and a [hiding] knowledge row, so the captures carry the memory tiers, the per-member private block and the resting prompt with the secret withheld. The epistemic capability is switched on for the run and put back by the cleanup steps.",
+  "requires": {
+    "group": "1759606632088",
+    "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture, and judge memoryVerify would drop the planted lines (judge-off lane rule, T7 SUITE)"
+  },
+  "steps": [
+    { "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; return { pinned: ['read', 'curator'] };" },
+    { "import_story": { "file": "../../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__soPayloadCapable = rt.getSnapshot().memory.settings.epistemicLedgerCapable === true; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error('the epistemic capability did not stick'); return { cadence: 0, capable: true, before: globalThis.__soPayloadCapable };" },
+    { "send": "I count the coins in my purse while Arin studies the board." },
+    { "slash": "/sendas name=Arin raw=false Arin checks his brass compass by the board and slips a sealed notice into his coat." },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
+    { "extract": { "debugResponse": "FACT importance=2 text=\"Arin checks a brass compass by the job board.\" evidence=\"Arin checks his brass compass by the board\"\n[hiding] Arin from DM Narrator | Arin slipped a sealed notice from the board into his coat.", "reason": "cadence" } },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const hidden = rt.getEpistemic().filter((entry) => entry.tag === 'hiding' && !entry.supersededBy); if (hidden.length !== 1) throw new Error(`the planted [hiding] row did not land exactly once: ${JSON.stringify(rt.getEpistemic().map((e) => [e.tag, e.subject, e.hiddenFrom]))}`); return { hidden: hidden.length };" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('memory-rest');" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('memory-dm', { member: 'DM Narrator' });" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('memory-arin', { member: 'Arin' });" }
+  ],
+  "cleanup": {
+    "steps": [
+      { "eval": "if (typeof globalThis.__soPayloadCapable === 'boolean') globalThis.storyOrchestratorRuntime?.setEpistemicLedgerCapable(globalThis.__soPayloadCapable); const restored = globalThis.__soPayloadCapable; delete globalThis.__soPayloadCapable; return { restored };" }
+    ]
+  }
+}

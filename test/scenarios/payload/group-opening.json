@@ -1,0 +1,26 @@
+{
+  "_note": "v2.7 payload invariance (16 rule 3, 39 C0/C3), case group-opening. Run ONLY through `node scripts/debug/so-payload-golden.mts capture`, which installs `globalThis.__soPayloadGolden` (dry-run capture + model-call tripwire) before the run; so-scenario alone fails at step 1 on purpose. No model call: every turn is scripted (`send` is /send compact, the replies are /sendas), extraction and the curator are pinned, the judge is off, and the tripwire fails the case on any /generate or judge request. Each capture is ST's own dry-run assembly (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY) with the member drafted through the runtime's draft hook (onMemberDrafted) and released after; ST's group dry run renders the first enabled member's card, so a member capture differs from the resting one only in what the extension stages for that member. Sun-ruins in the toy group: cp1 effects (Author's Note, gated World Info, cast) and the opening and first scripted turn. cp2 and cp3 carry llm onEnter replies and are deliberately not entered.",
+  "requires": {
+    "group": "1759606632088",
+    "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture (cp1 then disables Ponticius and Luke; the capture tool re-enables them after cleanup), and no judge request"
+  },
+  "steps": [
+    { "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; return { pinned: ['read', 'curator'] };" },
+    { "import_story": { "file": "../../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const at = rt.getActiveCheckpointInfo()?.id; if (at !== 'cp1') throw new Error(`the story did not start at cp1: ${at}`); return { cadence: 0, checkpoint: at };" },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('opening-rest');" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('opening-dm', { member: 'DM Narrator' });" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('opening-arin', { member: 'Arin' });" },
+    { "send": "I order a cider at the bar and wave Arin over." },
+    { "slash": "/sendas name=\"DM Narrator\" raw=false The tavern hums; a bard tunes a lute by the hearth while the job board creaks in the draught." },
+    { "slash": "/sendas name=Arin raw=false Arin drops onto the stool beside you, still buckling a shoulder strap. You are late again." },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('turn-rest');" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('turn-dm', { member: 'DM Narrator' });" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('turn-arin', { member: 'Arin' });" },
+    { "eval": "return await globalThis.__soPayloadGolden.capture('turn-ponticius', { member: 'Ponticius' });" }
+  ]
+}
