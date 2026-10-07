@@ -75,9 +75,9 @@ test('the no-LLM row splits by the lane each scenario requires, keeps prior-step
   const plan = noLlmSuiteRows(scenarios);
   assert.equal(plan.rows.length, 2);
   const [noModel, live] = plan.rows;
-  assert.match(noModel.command, /st-lanes\.mts no-model <n>.*batch .*--group 1759606632088 test\/scenarios\/b\.json; .*restore-model <n>$/);
+  assert.match(noModel.command, /st-lanes\.mts no-model <n>.*batch .*--group "Group: Arin, DM Narrator" test\/scenarios\/b\.json; .*restore-model <n>$/);
   assert.doesNotMatch(noModel.command, /a\.json|c\.json|d\.json/);
-  assert.match(live.command, /--group 1759606632088 test\/scenarios\/a\.json test\/scenarios\/c\.json$/);
+  assert.match(live.command, /--group "Group: Arin, DM Narrator" test\/scenarios\/a\.json test\/scenarios\/c\.json$/);
   assert.equal(live.minutes, 3);
   assert.deepEqual(plan.excluded, [{ asset: 'test/scenarios/d.json', prior: 'so-timeout-arm scale <base-run.log>' }]);
   assert.deepEqual(plan.preconditions.map((row) => [row.asset, row.lane, row.needs]), [
@@ -87,7 +87,8 @@ test('the no-LLM row splits by the lane each scenario requires, keeps prior-step
   ]);
   const exists = () => true;
   for (const row of plan.rows) assert.deepEqual(suiteRowProblems(row, exists), []);
-  assert.equal(TOY_GROUP, '1759606632088');
+  assert.equal(TOY_GROUP, 'Group: Arin, DM Narrator');
+  assert.doesNotMatch(TOY_GROUP, /^\d+$/);
   assert.match(noLlmSuiteRows(scenarios, { group: 'X' }).rows[1].command, /--group X /);
   assert.deepEqual(noLlmSuiteRows([]).rows, []);
 });

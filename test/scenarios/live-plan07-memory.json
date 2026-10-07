@@ -1,4 +1,5 @@
 {
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"]},
   "steps": [
     {
       "import_story": {

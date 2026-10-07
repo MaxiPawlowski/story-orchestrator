@@ -56,7 +56,7 @@
     "J12": 3.9
   },
   "overheadMinutes": 3,
-  "defaultGroup": "1759606632088",
+  "defaultGroup": "Group: Arin, DM Narrator",
   "armJourneys": {
     "J13": "the 01-fixes row (on arm, --judge-uses houseRules --warden-mode auto) and the judge-off column (off arm, --judge-uses off)"
   },
@@ -85,12 +85,12 @@
         },
         {
           "id": "01-v25-01",
-          "what": "`st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-01-real-books.json` in scan mode (G1 a/b, G2, G5 Repair row + re-normalise, G8 p95); G1(c)/G5 extension-disabled half by `_design` with `--keep` (manual, one lane run); `live-v25-01-g7-sticky.json` rides the live-scenario section",
+          "what": "`st-lanes.mts batch --lanes <n> --repeat 2 --group \"Group: Arin, DM Narrator\" test/scenarios/live-v25-01-real-books.json` in scan mode (G1 a/b, G2, G5 Repair row + re-normalise, G8 p95); G1(c)/G5 extension-disabled half by `_design` with `--keep` (manual, one lane run); `live-v25-01-g7-sticky.json` rides the live-scenario section",
           "minutes": 45,
           "capMinutes": 30,
           "capReason": "the scanGatingActive mutant is a defect-replay kill now (scan-mode-file-writes-before-gating)",
           "note": "plan 14 tier T1 (T1-4 lore that appears and disappears)",
-          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-01-real-books.json",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group \"Group: Arin, DM Narrator\" test/scenarios/live-v25-01-real-books.json",
           "when": "always",
           "config": "as named in What",
           "artifacts": [
@@ -195,12 +195,12 @@
         },
         {
           "id": "01-v25-08",
-          "what": "G-L1 U6 `so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group 1759606632088` in FILE mode (fixture fixed in 01: seeds its own relationship fact after schedulerIdle, asserts file mode, expectReply; the no-LLM half is memory-mirror-file.json); G-L4 P2 J3 with `worldInfo.scanMemory` off then on; G-L5 X5 `live-v25-08-l5-fallback.json` with Vectors > World Info on + `/api/vector/` recorder, and the story-flag column (keyword arm, `lore_select.exclusive: true`); G-J J3/J7 in scan mode",
+          "what": "G-L1 U6 `so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group \"Group: Arin, DM Narrator\"` in FILE mode (fixture fixed in 01: seeds its own relationship fact after schedulerIdle, asserts file mode, expectReply; the no-LLM half is memory-mirror-file.json); G-L4 P2 J3 with `worldInfo.scanMemory` off then on; G-L5 X5 `live-v25-08-l5-fallback.json` with Vectors > World Info on + `/api/vector/` recorder, and the story-flag column (keyword arm, `lore_select.exclusive: true`); G-J J3/J7 in scan mode",
           "minutes": 75,
           "capMinutes": 45,
           "capReason": "L6 step-0 J7 replay is J7 (journeys section)",
           "note": "plan 14 tiers: U6/L4 T2 (memory mirror), L5/G-J T1",
-          "command": "node scripts/debug/so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group 1759606632088",
+          "command": "node scripts/debug/so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group \"Group: Arin, DM Narrator\"",
           "when": "always",
           "config": "as named in What",
           "artifacts": [

@@ -1,6 +1,7 @@
 {
   "name": "live-v13-refusal",
   "objective": "v2.3 replan V13 (and plan 07's missing refusal fixture, L4), with the real model reading every turn: the prepared route asks the player to accept a duel, the player refuses twice and negotiates. The refused-route card must appear only after real reads covered both turns and moved no exit; it must state only what the code knows, offer the authored alternate, and offer no 'Generate the road ahead' on an authored exit. Control: a turn that accepts the duel moves the exit, the story transitions, and the card is gone.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     {
       "import_story": {

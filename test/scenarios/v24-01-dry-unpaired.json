@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 01 T6, RED on the pre-T6 tree (no backend). Two ST-shaped dry-run STARTEDs that are never closed (itemization/token counting: dryRun === true, the foreign-emitter fixture's dryUnpaired plus a dry quiet) arrive inside an open loud group generation with Arin drafted. A dry run is not a generation (D9): it must not take a payload capture, must not withhold the drafted member's private block, and must not open or nest anything. Pre-T6 the dry run captured a payload and a dry quiet withheld the block for the rest of the turn.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

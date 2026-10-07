@@ -1,5 +1,6 @@
 {
   "_note": "v2.3 plan 04 (R2, live). Two curator writes to ONE entry, applied at two boundaries, then a rollback past both: the entry has to come back to its ORIGINAL text, not to the intermediate one the older record still holds. The curator is driven with debug responses on purpose — this proves the write order and the before-image chain, which no prompt can.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     {
       "import_story": {

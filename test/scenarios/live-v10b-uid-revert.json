@@ -1,5 +1,6 @@
 {
   "_note": "v2.3 replan V10 (target-uid addressing, live, no model). A curator write to a real lorebook entry, then the author renames the entry, then a rollback past the write: the entry is found by its recorded uid and gets its ORIGINAL text back under its NEW name. Before V10 the revert addressed the entry by name, so a renamed entry was not found and the name-based upsert created a second entry under the old name instead. The curator reply is a debug response on purpose: this proves addressing, which no prompt can.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "import_story": {

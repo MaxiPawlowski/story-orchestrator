@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 06 T16a objective line, LIVE (real model, profile selected, no debugResponse; so-scenario run <file> --sandbox --group <id>, twice). Every non-dry GENERATE_AFTER_DATA request is recorded with the checkpoint active when it was built. A request on cp-bare (objective, no own Author's Note: the predicate a generated checkpoint takes) must carry 'Objective: Find the brass key'; a request on cp-noted (authors its own note) must carry no 'Objective:' line. The over-steer probe (family objective) measures reply N+1 on cp-bare against the cp-noted control reply to the same player line; it gates on restating the line or narrating the objective as achieved. Extraction cadence is pinned high so a real read cannot move the story mid-check; the pinned value is restored by the runner (S11). Control arm with objective_block off: live-v24-06-objective-off.json.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     { "import_story": { "file": "live-v24-06.story.json" } },
     { "ui": { "action": "select-profile" } },

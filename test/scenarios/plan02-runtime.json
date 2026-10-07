@@ -1,6 +1,6 @@
 {
   "_note": "Held opener (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): an onEnter npc_reply entered while the last reply addresses the player waits. The fixture makes that deterministic with an Arin line ending on a question, asserts the opener is held (no line, no npcFired), still held after the player line alone, fires once at the next rendered reply after the player answered (a /sendas line, the same afterSpeak path as a real reply), lands after the player line, and never fires again.",
-  "requires": { "group": "1759606632088", "members": ["DM Narrator"], "why": "the story requires DM Narrator (requirements gate fireOnEnter); toy group pinned so the cast is known" },
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["DM Narrator"],"judge":"off","why":"the story requires DM Narrator (requirements gate fireOnEnter); toy group pinned so the cast is known"},
   "steps": [
     {
       "import_story": {

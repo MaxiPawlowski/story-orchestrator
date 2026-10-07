@@ -1,7 +1,7 @@
 {
   "name": "live-v8-memory-decisions",
   "objective": "v2.3 replan V8, on the real host: a Discard clicked in the reconciliation panel is written to the chat (the row leaves the store AND the saved metadata, and its text is excluded), and a manual edit stores the exact count from ST's own tokenizer and marks the text as the author's. Extraction is planted on purpose: neither decision consumes a model, and the facts must share one source message so a single edit quarantines both.",
-  "requires": {"judge": "off", "why": "facts are planted through a mocked read on purpose (the subject is the queue/quarantine, not extraction); judge memoryVerify (on by default since v2.6 rule 5) drops planted lines the transcript does not support, so on a judge-on lane they never land (green x2 on the judge-off no-model lane, T7 SUITE)"},
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off","why":"facts are planted through a mocked read on purpose (the subject is the queue/quarantine, not extraction); judge memoryVerify (on by default since v2.6 rule 5) drops planted lines the transcript does not support, so on a judge-on lane they never land (green x2 on the judge-off no-model lane, T7 SUITE)"},
   "steps": [
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     { "ui": { "action": "select-profile" } },

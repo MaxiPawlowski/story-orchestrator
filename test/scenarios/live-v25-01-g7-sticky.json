@@ -1,5 +1,6 @@
 {
   "_note": "v2.5 plan 01 G7: 05-H5 live. A sticky entry (SO-T13 Xentar 'CP1 - Scenario', sticky 3; helpers t13-manual.js) activated in file mode stays active across the switch to per-chat gating made through the product's confirm (no reload, unlike the v2.4 spike's S9), with ST's own sticky record hash still matching the scan's entry hash. Run on a CLEAN HOST at each ST version the README claims (overview V10), and on a lane: so-scenario run test/scenarios/live-v25-01-g7-sticky.json --sandbox --group <a group holding Arin, Ponticius and Luke>. It saves and restores any real library book the confirm normalises. PREDECLARED (plan 01 G7): PASS = CP1 - Scenario fires on the first scan-mode turn AND the sticky record hash matches; no one-time loss is accepted, so any loss FAILS. Never retuned.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [
     {
       "inject_script": "../fixtures/interop/t13-spike.js"

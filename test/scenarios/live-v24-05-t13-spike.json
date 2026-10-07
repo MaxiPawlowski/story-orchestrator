@@ -6,6 +6,7 @@
     "S7": "judge.uses.loreSelect on, a story whose lore_select scope is SO-T13 Xentar, chat B (story A at its start, so CP4 entries are gated off). One real turn. PASS = no CP4 comment appears among the judge's lore candidates (rt.getSnapshot().loreForced.p keys) and none in the ring; a forced gated-off copy never lands (05-H6, disable is checked before the forced check at world-info.js:4801 < :4885).",
     "S9": "In file mode, give 'CP1 - Mission' `sticky: 3`, play one real turn in chat A at cp-1 so it activates, switch gatingMode to scan and reload, play one more turn. PASS = the entry is still active (ring), or the one-time loss is stated in the report; FAIL only if it recurs on the next switch. 1.18.0: H5 is not re-checked live (this install is 1.19.0)."
   },
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [
     {
       "inject_script": "../fixtures/interop/t13-spike.js"

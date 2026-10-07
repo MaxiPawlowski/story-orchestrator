@@ -1,5 +1,6 @@
 {
   "_note": "Held opener (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): the tricky scripted line waits while the last reply addresses the player (an Arin question makes that deterministic); asserted held, still held after the player line alone, then released once by the next rendered reply, before the verbatim checks run. The transition note is off by default since W11 (T0 sessions 2026-10-01): the announced step switches announceTransitions on for that one transition and puts it back in a finally.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "eval": "globalThis.__soQuoteWant = {\"an\":\"SO-QUOTE-PROBE a | b || c\\nline two \\\"quoted\\\" and \\\\\\\"pre-escaped\\\\\\\" C:\\\\path\\\\to\\\\ {{char}} {: /echo x :} \\\\n-literal\\nlast line ends with backslash \\\\\",\"npc\":\"SO-QUOTE-NPC \\\"Halt\\\" | who goes\\nthere? back\\\\slash \\\\n-literal\",\"comment\":\"◈ Quote | \\\"Probe\\\" {x} — first line second | line\"}; return 'probe ready';"

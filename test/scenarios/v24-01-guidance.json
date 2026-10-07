@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 01 guidance (D7, X7), no backend. Sun-ruins authors guidance on cp1 and cp-4a and none on cp2. The active checkpoint's guidance must sit in story_orchestrator_guidance (system, depth 4) on load and on /cp activate, be composed by the next-turn preview, be withheld while a quiet run is open and restored at its end, and be cleared on a guidance-less checkpoint. RED on 931add3/eb50a00: nothing injects guidance, so step 3 fails first.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return 'extraction pinned';" },
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },

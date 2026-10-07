@@ -1,6 +1,7 @@
 {
   "name": "v24-02-unrecognized-blob",
   "objective": "v2.4 plan 02 T11, v2.5 plan 11 (no model). A chat whose story state was saved by ANOTHER Story Orchestrator build (a v7-shaped blob, seeded verbatim) is read detached: no story, the stored blob byte-identical in memory and in the server's chat file after a save, blob-unreadable journaled and flagged on the snapshot. An explicit selection (import) is refused with 'saved by another version of Story Orchestrator: Restart to replace it'; a cancelled Restart changes nothing; only a confirmed Restart replaces it, with a fresh blob of this build's version stamped for this chat and the refused story started.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "eval": "globalThis.__v2402LibBefore = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []).map((r) => r.id); return { libraryBefore: globalThis.__v2402LibBefore };",

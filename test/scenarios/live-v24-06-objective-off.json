@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 06 T16a control arm, LIVE (so-scenario run <file> --sandbox --group <id>, twice): the same cp-bare with objective_block off. No request and no guidance block may carry an 'Objective:' line; the objective itself still reaches the model the way it did before plan 06 (the story_* macros), which this fixture does not measure.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     { "import_story": { "file": "live-v24-06-off.story.json" } },
     { "ui": { "action": "select-profile" } },

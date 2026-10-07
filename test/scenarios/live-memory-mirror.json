@@ -1,4 +1,5 @@
 {
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"]},
   "steps": [
     {"reload": true},
     {"import_story": {"format": 2, "id": "so-mirror-gate", "title": "SO-MIRROR Gate", "description": "Memory World Info mirror: a fresh chat creates its own lorebook through ST's create path, sees it listed without a reload, binds it to the chat, and the entries fire in a real generation.", "qualities": [{"key": "location", "type": "enum", "values": ["hall", "vault"], "source": "extractor", "rubric": "Where is the party now?"}], "checkpoints": [{"id": "start", "name": "The hall", "objective": "Explore the hall.", "type": "anchor", "start": true}], "transitions": [], "roster": [{"id": "arin", "name": "Arin"}, {"id": "narrator", "name": "DM Narrator"}]}},

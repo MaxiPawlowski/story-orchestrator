@@ -1,5 +1,6 @@
 {
   "_note": "v2.3 plan 02 §R5/§R6, deterministic: the parser origin stamp and the consumer scope/evidence checks, proved by planted responses rather than by hoping a model misbehaves. No backend needed. What this fixture does NOT assert: that an accepted delta reaches the blackboard — see the plan 02 Gate record, open question 1.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "import_story": {

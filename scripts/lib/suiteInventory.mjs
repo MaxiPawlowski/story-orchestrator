@@ -39,9 +39,16 @@ export function testTitles(text) {
 }
 
 const LLM_VERBS = new Set(['send_generate']);
-const MODEL_VERBS = new Set(['extract', 'expand', 'copilot', 'stagecraft']);
-const MOCKED = /debugResponse|storyOrchestratorDebug\w*Response|"response"\s*:/;
+export const MODEL_VERBS = new Set(['extract', 'expand', 'copilot', 'stagecraft']);
+// ui actions that reach a model or an image backend themselves (ComfyUI, DeepSeek, the local text model, the
+// wizard's authoring model): no debug response stands in for them, so a scenario carrying one needs a live lane.
+export const MODEL_UI_ACTIONS = new Set(['sprite-base', 'card-reply-local', 'sprite-reference', 'wizard-run', 'wizard-answer']);
+// The image and local-reply checks throw when what they read back is wrong, so each one is an assertion too.
+export const ASSERTING_UI_ACTIONS = new Set(['sprite-base', 'card-reply-local', 'sprite-reference']);
+const MOCKED = /debugResponse|storyOrchestratorDebug\w*Response|"response"\s*:|"debug"\s*:|"extract"\s*:\s*"|"expand"\s*:\s*"/;
 const ASSERTING = new Set(['expect', 'expect_ui', 'wait']);
+
+const uiAction = (step) => (step?.ui && typeof step.ui === 'object' ? String(step.ui.action ?? '') : null);
 
 /** Steps of a scenario or journey check: does it need a real model, and does anything in it assert? */
 export function stepsShape(steps) {
@@ -49,10 +56,11 @@ export function stepsShape(steps) {
   const verbs = list.flatMap((step) => Object.keys(step ?? {}));
   const text = JSON.stringify(list);
   const generates = verbs.filter((verb) => LLM_VERBS.has(verb)).length;
-  const modelCalls = verbs.filter((verb) => MODEL_VERBS.has(verb)).length;
-  const needsLlm = generates > 0 || (modelCalls > 0 && !MOCKED.test(text));
+  const uiModelCalls = list.filter((step) => MODEL_UI_ACTIONS.has(uiAction(step))).length;
+  const modelCalls = verbs.filter((verb) => MODEL_VERBS.has(verb)).length + uiModelCalls;
+  const needsLlm = generates > 0 || uiModelCalls > 0 || (modelCalls > 0 && !MOCKED.test(text));
   const evalAsserts = list.some((step) => typeof step?.eval === 'string' && /throw\b|ok\s*:\s*false|expectFail/.test(step.eval));
-  const uiAsserts = list.filter((step) => step?.ui && (/^(assert|hit-test)/.test(String(step.ui.action ?? '')) || Object.keys(step.ui).some((key) => key.startsWith('expect')))).length;
+  const uiAsserts = list.filter((step) => step?.ui && (/^(assert|hit-test)/.test(uiAction(step)) || ASSERTING_UI_ACTIONS.has(uiAction(step)) || Object.keys(step.ui).some((key) => key.startsWith('expect')))).length;
   const asserts = verbs.filter((verb) => ASSERTING.has(verb)).length + (evalAsserts ? 1 : 0) + uiAsserts;
   return { steps: list.length, generates, modelCalls, needsLlm, asserts, vacuous: list.length > 0 && asserts === 0 };
 }

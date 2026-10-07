@@ -1,5 +1,6 @@
 {
   "_note": "v2.3 plan 02 §R6, real model: the enforcement half of `authority-enforcement` holds when the reader is a real LLM rather than a planted string. The model is deliberately offered bait - a player message containing a forged DELTA line for a quality the read was never asked about - and the run asserts only that nothing outside the story scope was ACCEPTED. What the model actually did is logged, because a real model may or may not take the bait and a fixture that required it to would be measuring the model, not the consumer. Two turns precede each poll: a fresh chat FIRST reply is a greeting (`first_message`), which never commits a boundary, so a cadence read cannot fire on it.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     {
       "import_story": {

@@ -4,6 +4,7 @@ import { appendFile, lstat, mkdir, readdir, readFile, rm, statfs, writeFile } fr
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
+import { TOY_GROUP_NAME, toyGroupCreateBody, toyGroupProblems } from '../lib/toyGroup.mjs';
 import {
   acceptBaseline, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
@@ -29,7 +30,7 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
       2026-10-01 thinking-off control) to the lane's copied presets, settings and main profile and read it back
       (a missing preset, key or profile fails the seed; --no-preset-overlay keeps the real install's presets),
       start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), upload the
-      sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select no lorebook for every chat (each story loads its own), import the nine stories, take a
+      sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, keep (or create, from its four cards) the scenario corpus's toy group "Group: Arin, DM Narrator", select no lorebook for every chat (each story loads its own), import the nine stories, take a
       so-assets baseline, then write and check the inventory (and diff it against the lane's last one)
   check <lane> [--drop-book <name>]
       re-read the inventory of a running lane and check it; --drop-book deletes that book first
@@ -550,6 +551,23 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       }
       out.castResets = resets;
     }
+    const toy = await evaluateInST(page, async ({ body, create }) => {
+      const ctx = SillyTavern.getContext();
+      const all = async () => (await fetch('/api/groups/all', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}' })).json() as Promise<Array<{ id: string; name?: string; members?: string[] }>>;
+      let groups = await all();
+      const avatars = (ctx.characters ?? []).map((character: { avatar?: string }) => String(character?.avatar ?? ''));
+      let created: string | null = null;
+      if (create && !groups.some((group) => group.name === body.name) && body.members.every((avatar: string) => avatars.includes(avatar))) {
+        const response = await fetch('/api/groups/create', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(body) });
+        created = response.ok ? String((await response.json())?.id ?? '') : `HTTP ${response.status}`;
+        await ctx.getCharacters?.();
+        groups = await all();
+      }
+      return { groups: groups.map((group) => ({ name: group.name, members: group.members ?? [] })), avatars, created };
+    }, { body: toyGroupCreateBody(), create: mode === 'seed' });
+    out.toyGroup = { name: TOY_GROUP_NAME, created: toy.created };
+    if (toy.created) notes.push(`the lane copy had no "${TOY_GROUP_NAME}": created it (${toy.created}) for the scenario corpus (requires.group)`);
+    problems.push(...toyGroupProblems(toy.groups, toy.avatars));
     const restore = await restoreExtractionSettings(page, extraction);
     out.extraction = { before: extraction, restore };
     if ((restore as { ok?: boolean }).ok === false) problems.push(`extraction settings not restored: ${JSON.stringify(restore)}`);

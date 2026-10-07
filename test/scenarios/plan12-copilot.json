@@ -1,4 +1,5 @@
 {
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     { "import_story": { "format": 2, "title": "Copilot Scenario", "description": "Plan 12 copilot mocked scenario.", "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault.", "type": "anchor", "start": true }, { "id": "vault", "name": "Vault", "objective": "Open the vault.", "type": "anchor" }], "transitions": [{ "from": "start", "to": "vault", "priority": 0, "gate": { "q": "has_key", "op": "==", "v": true }, "effects": { "progress": { "anchor": "vault", "amount": 1 } } }], "roster": [] } },
     { "select_story": "Copilot Scenario" },

@@ -1,5 +1,6 @@
 {
   "_note": "V20e, plan 01 §A journal contract, deterministic and model-free. Two planted read results over the same window and the same quality (supersession is per key since v2.6 plan 14 T0, 2306f8d3: a newer read only discards the older read's deltas for the keys it rewrites), handed to applyExtractionAudit (the entry point a shared read uses after its model call; the `extract` verb commits its own boundary, so it cannot hold two writes in the queue): the older is superseded and discarded at the boundary, the newer applied. The journal must link each read to its fate by audit id (not by equal delta strings), name the discarded write with its reason, show the queued write before the boundary, and journal a boundary that applied nothing. What it does NOT prove: a real model's read (the planted response stands in for it).",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "import_story": {

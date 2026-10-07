@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 01 T6, RED on the pre-T6 tree (no backend; so-scenario --sandbox --group <id>). A loud group generation opens, Arin is drafted and his private block staged, then a NESTED quiet run with force_chid (Stepped Thinking's thought, host-facts 01-H8 and the third-party rows) starts and ENDs inside it. Pre-T6 every ENDED cleared the private block and the warden note, and the note was spent at STARTED. The drafted member's block and the note must both still be in place when the nested run ends, and the note must still be unspent (X6: only the outermost's own render spends it). The warden switch and the planted note live in memory only and are put back in the last step's finally, which also closes the generation with an ST-shaped STOPPED.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

@@ -1,10 +1,6 @@
 {
   "_note": "v2.5 plan 08 G-L5 X3/X4/X6 (+ the X5 refusal), LIVE on a lane in SCAN mode with judge, loreSelect and loreExclusive ON. X3: the judge route is cut for one turn, so no complete selection exists and the handler refuses (no-selection), leaving the keyword scan. X4: a checkpoint-gated entry the judge did not pick still fires. X6: a sticky entry that fired stays active for its span. X5 is the vectors leg: with Vectors > World Info enabled (extension_settings.vectors.enabled_world_info), 10 exclusive turns must show refusal 'vectors-wi' and 0 insert/delete calls caused by suppression (arm the /api/vector/ fetch recorder, rerun this file with vectors WI on). Predeclared, x2 in plan 10. so-scenario run test/scenarios/live-v25-08-l5-fallback.json --sandbox --group <group>.",
-  "requires": {
-    "lane": "model",
-    "vectorsWorldInfo": false,
-    "why": "X3/X4/X6 expect the keyword fallback; with Vectors > World Info on, loreExclusive refuses 'vectors-wi' (loreExclusive.ts:43) and the vectors extension keeps its own copy of the flag (vectors/index.js:1738), so an ext_setting write cannot switch it off cleanly"
-  },
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","vectorsWorldInfo":false,"why":"X3/X4/X6 expect the keyword fallback; with Vectors > World Info on, loreExclusive refuses 'vectors-wi' (loreExclusive.ts:43) and the vectors extension keeps its own copy of the flag (vectors/index.js:1738), so an ext_setting write cannot switch it off cleanly"},
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"

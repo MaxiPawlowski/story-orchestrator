@@ -1,6 +1,6 @@
 {
   "_note": "Held opener (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): the llm onEnter reply's counter. Held while the last reply addresses the player (an Arin question makes that deterministic), still held after the player line alone, counted exactly once when the next rendered reply follows the player's answer, and not again on a later answer. The counter is recorded before the /trigger, so this runs with or without a model (whether the generated reply lands is live-v24-npc-switch / live-v25-02-c7-note-order's job).",
-  "requires": { "group": "1759606632088", "members": ["DM Narrator"], "why": "the llm reply is a /trigger of DM Narrator, a member of the toy group" },
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["DM Narrator"],"why":"the llm reply is a /trigger of DM Narrator, a member of the toy group"},
   "steps": [
     {
       "import_story": {

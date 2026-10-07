@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 06 T17 curator hardening, LIVE, J8-style (real curator over the memory profile, review mode; so-scenario run <file> --sandbox --group <id>, twice consecutively). A real turn overtakes the SO-V2406 Lore entry 'The rope bridge', and the author advances to far-side (whose objective states the collapse), because the curator reads the checkpoint and canon, never the chat; the real curator proposes. Asserted: every proposed op carries the entry uid; a patch or rewrite card shows the word diff ([data-so=curator-diff]); the author declines the first op; the next pass tells the curator what was declined, and a re-proposal of that op never reaches a card (it is dropped as 'was declined earlier'). Whatever op kind the model chooses is accepted (never hard-code a kind). A long entry is shown in part and marked patch-only, so a rewrite of it would be refused. The curator settings are captured first and put back by the last eval; so-assets removes the marker book.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     {
       "import_story": {

@@ -1,5 +1,6 @@
 {
   "_note": "v2.5 plan 08 G-L4 P1, LIVE on a lane with worldInfo.scanMemory ON: every WORLDINFO_SCAN_DONE payload of two real group turns is captured and searched for the private epistemic block's and the ledger block's own bullet lines (never the shared transcript, gotchas J5.8). Predeclared: 0 lines in any buffer. P2 (effect recorded) is so-journey run J3 with scanMemory off, then on, same scripted turns (T12 ring activations per loud generation; budget-overflow count on <= off + 1 per 20 generations). P3 (rollback) is live-v25-08-l4-rollback.json. so-scenario run test/scenarios/live-v25-08-l4-privacy.json --sandbox --group <the J5 group>.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"

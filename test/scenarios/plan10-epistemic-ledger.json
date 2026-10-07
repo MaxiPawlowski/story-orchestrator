@@ -1,4 +1,5 @@
 {
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Arin"],"judge":"off"},
   "steps": [
     {
       "import_story": {

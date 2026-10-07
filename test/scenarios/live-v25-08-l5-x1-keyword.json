@@ -1,5 +1,6 @@
 {
   "_note": "v2.5 plan 08 G-L5 X1/X2, arm `keyword`, LIVE on a lane in SCAN mode with judge.enabled + loreSelect ON and loreExclusive OFF. 24 scripted turns (the 11 Spanish ones went with v2.6 W25) from test/fixtures/judge/lore.json (adolion rows) + lore-relevance.json, over two stories (B = windows at 'Below the mountains', A = the rest), against a marked copy of the Adolion pool (SO-V25-08 Adolion; keys = each entry's title after ' - ', authored here). Each turn posts the window's earlier lines with /sendas and generates on its last line; the activated set is WORLD_INFO_ACTIVATED for that generation (T12's source). Predeclared, never retuned: exclusive recall >= 0.85 AND >= keyword recall - 0.05 (X1); exclusive non-needed activations per turn <= 0.7 x keyword (X2). Run both arms on one bundle, same turns: so-scenario run test/scenarios/live-v25-08-l5-x1-keyword.json --sandbox --group <group> then -x1-exclusive.json. The judge host and model are recorded by so-run-header. A miss in either run = L5 recorded not built and the flag removed before plan 10.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"]},
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"

@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 05 T12 / T20 WI shape (no backend; so-scenario run <file> --sandbox --group <id>, twice). RED before T12: there is no evidence ring (storyOrchestratorLoreEvidence is undefined). Drives ST-shaped generation events and WORLD_INFO_ACTIVATED payloads (05-H1) through the real listeners: (1) a loud generation whose reply runs a NESTED quiet generation (Stepped Thinking's shape, 01-H8) records ONE slot holding TWO scans, the quiet one tagged, never merged; the gated entry is marked gated; (2) a generation whose scans activate nothing records an EMPTY slot, never the previous turn's list (the case PTMT gets wrong); (3) a quiet OUTERMOST generation opens no slot at all. Closes each generation with an ST-shaped STOPPED so no boundary is committed.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "import_story": {
