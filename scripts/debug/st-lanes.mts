@@ -2,12 +2,14 @@ import { execFile, spawn } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { freemem } from 'node:os';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
+import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
@@ -58,7 +60,9 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                server.log (the lane server log written during the row), and on a pod lane
                                tunnel.json + pod.json (so-pod.mts up's tunnel events and pod samples for the row
                                window); evidence.json says what is missing. A row with missing evidence is
-                               INCOMPLETE and never counts as green.`;
+                               INCOMPLETE and never counts as green. With SO_MIN_FREE_RAM_GIB=<g> each row first
+                               waits (polling every 60 s, each pause logged and kept in the row's result) until
+                               free physical RAM is at least g GiB`;
 
 const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
@@ -223,7 +227,7 @@ async function status() {
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
+type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
 
 export type RowStatus = 'GREEN' | 'RED' | 'INCOMPLETE' | 'NOT-RUNNABLE';
 
@@ -297,6 +301,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const rowDir = resolve(dir, rowDirName(item, run));
         await mkdir(rowDir, { recursive: true });
         const log = resolve(rowDir, ROW_FILES.runner);
+        const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
         const began = Date.now();
         const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
@@ -305,7 +310,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const paths = recordPathsIn(output);
         const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: ended, serverOffset, recordPath: paths.record, failurePath: paths.failure, notRunnable, expect: { record: true, page: true } });
         const result: BatchResult = {
-          item, lane: n, run, code, log, ms: ended - began,
+          item, lane: n, run, code, log, ms: ended - began, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}),
           status: rowStatus(code, evidence.complete, notRunnable),
           evidence: { dir: rowDir, complete: evidence.complete, problems: evidence.problems, warnings: evidence.warnings, attention: evidence.attention },
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
