@@ -1,5 +1,7 @@
 # Implementation Overview — Story Orchestrator v2.8
 
+**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Proposed cuts (not decided): 12, 14, 15 (fold into v2.7 38 D13d), 21 (→ v2.9). Details: §Build order.
+
 **Status: PLANNED (opened 2026-10-03 from the v2.7 split).** v2.8 = the rest of the defined plans: everything the user
 decided on 2026-10-03 that is not an urgent fix or a quick win with deterministic gates (those are v2.7), and not
 deferred (those are v2.9). Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied here:
@@ -59,10 +61,10 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 
 | # | Plan | Was (v2.7) | What gets built | Implementation | Acceptance |
 |---|---|---|---|---|---|
-| 01 | `01-v27-carry-over.md` | 02, 06, 08, 10, 23, 29 parts | owed real-model rows of built v2.7 work; 02 C3/C4/C12; model-driven C11; SP2 v2 option A; funded thinking A/B; story/checkpoint thinking level (R4); Q-M5/P3; frozen v2.6 measurements; Claude's over-steer card + session | D (option A code, R4 lift) | RP, CL, LI |
-| 02 | `02-adolion-campaign.md` | 05 A4, A5 + new | lab data, playtest fix round, `player` blocks, `render_sprites` paths off `C:`, `--anim` frames, trigger narrowing | D (campaign repo) | LI (renders), RP (lab runs) |
-| 03 | `03-player-persona-and-start-setup.md` | 30 | story `player` profile, "Who are you in this story" step, persona lock, mid-story switch finding | D (S30-1 on a lane, scripted opener) | RP (final suite: injected block) |
-| 04 | `04-story-presence-panels.md` | 04 §C (C4, C5, C7, C9 a) | Journal panel, "What could I do?" suggestions, stat sheet, public roll chips; in v2.7 06's panel frame and toggles (C1–C3, C6, C9 b moved to v2.7 06, user 2026-10-03) | D | D; CL for C5 suggestions |
+| 01 (**§C → v2.7 33 W1; owed rows → v2.7 39**) | `01-v27-carry-over.md` | 02, 06, 08, 10, 23, 29 parts | owed real-model rows of built v2.7 work; 02 C3/C4/C12; model-driven C11; SP2 v2 option A; funded thinking A/B; story/checkpoint thinking level (R4); Q-M5/P3; frozen v2.6 measurements; Claude's over-steer card + session | D (option A code, R4 lift) | RP, CL, LI |
+| 02 (**moved → v2.7 38**) | `02-adolion-campaign.md` | 05 A4, A5 + new | lab data, playtest fix round, `player` blocks, `render_sprites` paths off `C:`, `--anim` frames, trigger narrowing | D (campaign repo) | LI (renders), RP (lab runs) |
+| 03 (**moved → v2.7 34**) | `03-player-persona-and-start-setup.md` | 30 | story `player` profile, "Who are you in this story" step, persona lock, mid-story switch finding | D (S30-1 on a lane, scripted opener) | RP (final suite: injected block) |
+| 04 (**C4/C7/C9a → v2.7 36; C5 → v2.7 33**) | `04-story-presence-panels.md` | 04 §C (C4, C5, C7, C9 a) | Journal panel, "What could I do?" suggestions, stat sheet, public roll chips; in v2.7 06's panel frame and toggles (C1–C3, C6, C9 b moved to v2.7 06, user 2026-10-03) | D | D; CL for C5 suggestions |
 | ~~05~~ | _moved_ | 26 | → v2.7 17 self-contained images (2026-10-04) | — | v2.8 01 / final suite |
 | ~~06~~ | _moved_ | 26b | → v2.7 18 sprite generation (2026-10-04) | — | v2.8 01 / final suite |
 | ~~07~~ | _moved_ | 28 | → v2.7 19 talking sprites (2026-10-04) | — | v2.8 01 / final suite |
@@ -70,19 +72,25 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; decided 2026-10-03) | D | CL (DeepSeek CC profile) |
 | 10 | `10-briefing-drafting.md` | 03 decision 1 | wizard drafts a briefing (auto on the fly, Premise step) | D | CL |
 | 11 | `11-curator-create-op.md` | 12 | curator `create` op, contract B, Lore-creation role | D | CL (frozen fixtures) |
-| 12 | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
-| 13 | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
-| 14 | `14-open-source-jev.md` | 15 | local judge provider (systemone, then NLI), our own evals | D | LT; RP for the play-load check |
-| 15 | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
+| 12 (proposed cut (only feeds J7.6)) | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
+| 13 (**N1/N6/J7.2 → v2.7 33; N3/N5 → v2.7 35; N7 replaced by v2.7 37 L6**; proposed cut J7.3–J7.6, N4) | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
+| 14 (proposed cut/defer (TypeSafe works)) | `14-open-source-jev.md` | 15 | local judge provider (systemone, then NLI), our own evals | D | LT; RP for the play-load check |
+| 15 (proposed: fold into v2.7 38 D13d) | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
 | 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | D (C1–C5 dry-run plumbing, no model call); real-reply acceptance = v2.8 01 O13, RP (decided 2026-10-03) |
-| 17 | `17-sp6-complication-pool.md` | 16b | SP6 measurement | — | RP |
-| 18 | `18-quests-and-game-layer.md` | 19 | quests, visible qualities, checks, milestones, Journal; production complications (Q6) | D | CL (M1/M2 reads) + RP |
-| 19 | `19-open-stretches.md` | 17 | open stub mode, pressure, encounter pool | D (engine half) | RP (A/B) |
-| 20 | `20-character-life.md` | 18 | relationships, mood, agendas, schedules | D | CL (M1) + RP |
-| 21 | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
+| 17 (**merged → v2.7 35**) | `17-sp6-complication-pool.md` | 16b | SP6 measurement | — | RP |
+| 18 (**merged → v2.7 36** (Q6 → v2.7 35)) | `18-quests-and-game-layer.md` | 19 | quests, visible qualities, checks, milestones, Journal; production complications (Q6) | D | CL (M1/M2 reads) + RP |
+| 19 (**merged → v2.7 35**) | `19-open-stretches.md` | 17 | open stub mode, pressure, encounter pool | D (engine half) | RP (A/B) |
+| 20 (**moved → v2.7 37**) | `20-character-life.md` | 18 | relationships, mood, agendas, schedules | D | CL (M1) + RP |
+| 21 (proposed → v2.9) | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
 | 22 | `22-living-story-director.md` | 24 | M1 spike; then M1–M3 with UI | D | RP + CL |
-| 23 | `23-story-widgets.md` | new (user topic 2026-10-03) | story-declared widgets (board, meters, clock, clues, map) rendered by our components over a player-safe projection; sandboxed author HTML only as a seed | D | D |
+| 23 (**option A merged → v2.7 36**; rest stays) | `23-story-widgets.md` | new (user topic 2026-10-03) | story-declared widgets (board, meters, clock, clues, map) rendered by our components over a player-safe projection; sandboxed author HTML only as a seed | D | D |
 | 24 | `24-test-plan.md` | v2.6 10 / 14 as the model | the v2.8 test plan: per-plan acceptance by tier, the one final real-LLM suite (absorbs v2.7's owed rows from 01 §A), sessions, blind rating packs, budget, freeze and attestation | — | all tiers; last |
+| 25 | `25-tunnelvision-pattern-harvest.md` | user idea 2026-10-07 | TunnelVision re-harvest (upstream back online, ~25 new modules) | D (docs) | — |
+| 26 | `26-test-and-gate-speed.md` | user idea 2026-10-07 | faster gates (443 s now; replay 289 s), gates:quick, test cleanup; recommended: pull into v2.7 before 39 | D | — |
+| 27 | `27-gamification-prior-art-deep-dive.md` | user idea 2026-10-07 | Obsidian/VTT gamification harvest (24 candidates, tiers) feeding v2.7 35–37 | D (docs) | — |
+| 28 | `28-gpu-broker-in-st-plugin.md` | user idea 2026-10-07 | the GPU broker/arbiter inside the ST server plugin, opt-in, fail-open | D | LI + LT |
+| 29 | `29-st-image-workflows-in-stories.md` | user idea 2026-10-07 | a story maps ST ComfyUI workflows per picture type (reading to confirm) | D | LI |
+| 30 | `30-model-downloads-civitai-hf.md` | user idea 2026-10-07 | Civitai / Hugging Face keys in ST secrets; confirmed, verified model downloads | D | LI |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -171,6 +179,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 22 | written (exploration); decided (M1 first); not run |
 | 23 | written 2026-10-03 (story widgets); not decided |
 | 24 | written 2026-10-03 (test plan); runs last |
+| 25–30 | SEEDED 2026-10-07 from the user's idea list; need the user's answers to each plan's §Decisions |
 
 ## Review 2026-10-03
 
@@ -197,10 +206,4 @@ Round 3 (Sol): R3-15, R3-20 applied; both decided by the user 2026-10-03 (as rec
 
 
 
-user additional ideas: 
-update and explore tunnelvision extension for pattern harvest. We do have a folder where we clone ST plugin repos to review them.
-cleanup and optimize tests and gates. They take too long.
-I recently saw that there's a big community arount building gamification over tools like obsidian. What are the most populars or trending ones? shall we plan a big deep dive cloning a bunch of repos and reviewing if there's any pattern we could harvest for out plugin?
-integrate gpu brooker into ST plugin
-Integrate ST workflows into stories
-add civitai api key or hugging face api key to download models
+User ideas 2026-10-07 → plans 25–30 (§Build order).

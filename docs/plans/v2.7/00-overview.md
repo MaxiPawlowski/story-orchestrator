@@ -1,10 +1,11 @@
 # Implementation Overview — Story Orchestrator v2.7
 
-**Status: IN BUILD; SCOPE UNDER REVIEW (user, 2026-10-07): v2.7 is being re-scoped with new items, then every test re-runs from zero.** Earlier: re-scoped 2026-10-03 at the version split. v2.7 = **urgent fixes + quick wins whose gates are
-deterministic** (`npm run gates`, no-LLM scenarios, seeded metadata, dry-run payloads, Storybook). Everything else the
-user decided on 2026-10-03 is v2.8 (`docs/plans/v2.8/00-overview.md`); everything deferred is v2.9
-(`docs/plans/v2.9/00-overview.md`). Old → new numbers: `RENUMBER.md`. Review findings: `review-2026-10-03.md` (old
-numbers there). Test plan: `16-test-plan.md`.
+**Status: IN BUILD, RE-SCOPED 2026-10-07 (user) for player experience.** v2.7 now = the built 01–28 (history, every
+gate re-run), Phase A clean-up (29–31), Phase B player experience (32–37: images and living characters, player-loop
+fixes, persona, world pressure and open stretches, quests and story panels, character life), the Adolion campaign
+(38) and Phase C, every test from zero (39). Real-model acceptance runs inside v2.7 (RunPod for volume). v2.8 keeps
+the rest (`docs/plans/v2.8/00-overview.md`); renumbering in `RENUMBER.md` §2026-10-07.
+Earlier scope (2026-10-03): urgent fixes + quick wins with deterministic gates; that text is kept below as history.
 
 **Built and merged on master** (gate records in each plan):
 
@@ -37,18 +38,14 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
 3. **A seed is a candidate, not a commitment**: a plan names its problem, conditions, floor and gate before it is
    approved. Floors are predeclared and never retuned.
 4. **Findings cite their source** (session dir, `v2.6/14-findings.md` row, review ledger id, or the user's report).
-5. **v2.7 gates are deterministic (tier D).** A v2.7 item is built and accepted at tier D. Any row that needs CL, LT,
-   LI or RP is owned by v2.8 01 (or the v2.8 plan named in the row), never closed by `npm run gates`.
-6. **v2.7 never changes what reaches the model** unless the change carries a real-model acceptance row owned by v2.8 01
-   (or the named v2.8 plan). Each plan says which of its changes touch model input. Plans that touch injection,
-   extraction input or image/curator prompts carry a **payload-invariance check** (dry-run capture on a scripted group
-   chat, byte-identical except the declared diff) in `16-test-plan.md`.
+5. **Gates: D first, real model allowed** (user 2026-10-07; was "deterministic only"). Every item builds and passes
+   at tier D first; acceptance may use CL, RP (RunPod for volume), LI. Phase C (v2.7 39) runs all of it from zero.
+6. **A change to what reaches the model declares it** and carries a payload-invariance check (dry-run capture,
+   byte-identical except the declared diff) plus its real-model acceptance row in v2.7 39.
 7. **Group chats only** (v2.7 03). No plan adds solo behaviour. A solo chat appears in a gate only as a control (the
    runtime stays inactive, a story refuses, cleanup runs).
-8. **Every server in the tray; models off `C:`** (v2.8 rule 5). v2.7 adds no server; a script that starts one uses
-   `C:\dev\tray\items\story-orchestrator.json`, and no new model, weight or cache path lands on `C:`.
-   **Image-track exception (user, 2026-10-04):** existing image models stay on `C:` for autoload; plans 17–20 and the
-   Belle pilot reuse those paths and copy, move or download no weights (overview rule 5 exception).
+8. **Every server in the tray; models off `C:`** (v2.8 rule 5), except the existing image models, which stay on `C:`
+   (user 2026-10-04). **FLUX is out of scope** (user 2026-10-07, v2.7 31).
 9. **Feature-producing plans register** in the v2.7 01 feature registry and Help, with the registry test as their gate
    (review B10). Closures and docs-only plans need no entry.
 10. **Player-visible surfaces need a session or an explicit user decision** (v2.8 rule 4). The 2026-10-03 decisions
@@ -58,12 +55,12 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
     copy is reviewed by a second model (review B4).
 12. **References are version-qualified** ("v2.7 03", "v2.8 01", "v2.6 plan 11"), never a bare number (review B12,
     F36). Every plan closes with `npm run gates`.
-13. **The image track (plans 17–21) moved from v2.8 on 2026-10-04** (user decision). Completion and live acceptance
-    are owned by v2.7 24: local Artemis replies (LT), local ComfyUI images (LI), existing DeepSeek/Jev roles permitted
-    (CL); no pod. This is an explicit exception to rule 5. `npm run gates` never closes S28, S32-1, S32-2 or route A.
-    v2.8 01 O3–O6 stay with v2.8 01. The pilot record states its historical evidence; plan 24 carries later updates.
-14. **Local residency (plans 22–23) is separately owned by another agent**, including its LT/LI rows. Plan 24 consumes
-    its broker interface and reports integration findings; it does not implement residency or FreeToken work.
+13. **The image track (17–21, 24, 26) completes as v2.7 32.** S28's blind preference test is closed by the user
+    (2026-10-07: "it already won"); that is a user decision, not a measured pass. One-character evidence never
+    closes a multi-character floor.
+14. **Local residency (22, 23, 25) is not v2.7 product.** FLUX spikes (25) close with v2.7 31; the GPU broker moves
+    into the ST plugin as v2.8 28; until then it is optional and fail-open. 27 and 21 are records; 28's Saga assets
+    are campaign work (v2.7 38).
 
 ## Gate taxonomy (same codes as v2.8)
 
@@ -75,7 +72,29 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
 | Local image model | **LI** | local ComfyUI through the GPU broker | owed to v2.8 01 |
 | RunPod | **RP** | the main reply model on the pod | owed to v2.8 01 |
 
-## Build order
+## Build order (2026-10-07)
+
+Plans 01–28 below are history: built or recorded, every gate re-run in Phase C. New work, in order:
+
+| # | Plan | What | Depends on | Tier | State |
+|---|---|---|---|---|---|
+| 29 | `29-settings-by-area.md` | settings laid out like the README features table; v2.7 01 triage applied | 30 page ids | D | seeded |
+| 30 | `30-in-plugin-guide.md` | the guide inside the plugin: sidebar, search, deep links from every "?" | — | D | seeded |
+| 31 | `31-flux-out-and-tooling-split.md` | FLUX removed; product vs local tooling; machine values out of shipped code; parallel gates decision | — | D | seeded |
+| 32 | `32-images-and-living-characters.md` | completes 17–21/24/26 + 28's product pieces: route A default, talking sprites, living cards, changed looks | 31 | D, LI, CL | seeded |
+| 33 | `33-player-loop-fixes.md` | edit re-read, agency notes reach players, responsiveness + repetition, "What could I do?" | — | D, CL, RP | seeded |
+| 34 | `34-player-persona-and-start-setup.md` | who you are in this story (was v2.8 03) | 05 | D, RP | decided (v2.8) |
+| 35 | `35-world-pressure-and-open-stretches.md` | SP6 measurement, open stretches, the one complication component, stall/adversity signals | 33 W2 | D, RP | seeded |
+| 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | seeded |
+| 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | decided (v2.8) |
+| 38 | `38-adolion-campaign.md` | campaign upkeep + Saga assets/outfits + lab copies for 35–37 (was v2.8 02; 07 A3/A6 live, 28 assets) | 32, 35–37 | D, LI, RP | decided (v2.8) |
+| 39 | `39-test-from-zero.md` | Phase C: freeze, every row ×2 from zero, real-model and image acceptance, close-out | all | all | seeded |
+
+Phase A (29–31) first; 32 and 33 in parallel; 34 → 35 (measure first) → 36 → 37; 38 alongside 35–37 (lab copies) and
+after 32 (assets); 39 last. Each plan's own §Decisions must be answered before it is built (rule 3).
+
+## Build order (2026-10-03, history)
+
 
 Step 0 runs first. Then file order, except where a row says "together".
 
@@ -127,6 +146,21 @@ re-read each against the current tree, then fix.
 | K1 | **Privacy leak in the shipped 02 C2.** `SECRET_LEAK_CHECK` (`src/runtime/checks.ts:45`) is audience `player`, but `secretLeaks()` is empty unless a secret is held, so the player alert appearing reveals that a hidden `[hiding]`/`[unaware]` row exists | the player copy shows whenever a copier is on in a group story; `secretsHeld` gates only the author detail | identical player-visible output (HUD chip, drawer, settings, Help) with and without held secrets; jest + live seeded lane, ×2 | v2.7 02 C2-K1, v2.7 04 |
 | K2 | `architecture.md`'s held-secret invariant says "author-only Repair row"; as built it is a player alert plus a HUD chip | rewrite the invariant together with K1 | docs | v2.7 02 C2-K1 |
 | K3 | the shipped guide says solo chats work (`docs/guide/player/troubleshooting.md:44`); the registry's `stories` feature does not need `group-chat` (`src/features/registry.ts:98-103`) | fix both with 03 | registry test + guide drift | v2.7 03 |
+
+## Decisions (user, 2026-10-07)
+
+| Topic | Decided |
+|---|---|
+| Scope | v2.7 re-scoped for player experience; adds Phase A/B, quests, world pressure, the rest of character life, the Adolion campaign; Phase C in v2.7 |
+| Testing | every test from zero (v2.7 39); RunPod allowed when there are many tests |
+| Settings | lay them out like the README; apply the triage (v2.7 29); an in-plugin guide (v2.7 30) |
+| FLUX | out of scope (v2.7 31) |
+| Quests | in v2.7 (36) |
+| Parallel gates | keep if they hold ("parallel if it's nice"; v2.7 31 §C) |
+| S28 blind preference | not needed: "it already won" |
+| Sprite visuals (26, 28) | approved ("looks good") |
+| Raw evidence | to the private `so-sessions` repo (done: `test/sessions/evidence/`, pushed 2026-10-07) |
+| New v2.8 ideas | TunnelVision harvest, test/gate speed, gamification prior art, GPU broker in the ST plugin, ST workflows in stories, Civitai/HF model downloads → v2.8 25–30 |
 
 ## Decisions (user, 2026-10-03)
 
@@ -199,6 +233,9 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 26 | IMPLEMENTED CANDIDATE (2026-10-06); D and image/read/reply regression green; **user visual approval given 2026-10-07** (neutral/happy and the eight-character playback pack) |
 | 27 | COMPLETE (2026-10-06): plugin + nine stories on the main install, regular expression sprites |
 | 28 | IN BUILD: eight base packs generated and verified (238/238, 58 speaking composites recomposed), user approved 2026-10-07. Open: 31 authored outfits, living-card prompt repair + S32-1 rerun, text→image recovery gate (red: RAM admission), Saga integration ×2 |
+| 29–33, 35, 36, 39 | SEEDED 2026-10-07; each needs the user's answers to its §Decisions before build |
+| 34, 37, 38 | moved from v2.8 03, 20, 02 (decided there); re-homed headers 2026-10-07; not built |
+| 01–28 | history: every gate re-runs in Phase C (39); no earlier green counts |
 ## Review 2026-10-03
 
 Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),

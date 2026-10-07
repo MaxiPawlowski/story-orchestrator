@@ -1,5 +1,7 @@
 # Plan 03 — Who the player is: a story player profile and a start-setup step
 
+> **Moved 2026-10-07: now v2.7 34** (was v2.8 03; user re-scope). Decisions recorded below stand. Its acceptance rows run in v2.7 39 (Phase C). References to "v2.8 0x" inside are the old numbers; see `v2.7/RENUMBER.md` §2026-10-07.
+
 **Status (2026-10-03): v2.8 plan 03 (was v2.7 plan 30). Decided (see Decisions and Review of the answers); not built;
 spike S30-1 not run.** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (S30-1 on a lane with the scripted opener); acceptance RP

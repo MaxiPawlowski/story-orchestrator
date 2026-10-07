@@ -57,3 +57,11 @@ notes/
 /test/sessions/T*/T*-*/
 /test/sessions/rating-pack/
 /test/sessions/media-check/
+# v2.7 re-scope 2026-10-07: raw image-track/T7 evidence lives in private so-sessions
+/test/sessions/evidence/
+/test/sessions/T7/integration/
+/test/sessions/T7/integration-aborted/
+/test/sessions/T7/rerun/
+/test/sessions/T7/suite/
+/test/sessions/T7/RERUN.md
+/test/sessions/T7/SUITE.md

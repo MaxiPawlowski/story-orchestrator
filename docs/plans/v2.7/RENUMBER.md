@@ -74,3 +74,22 @@ v2.7 rule 14 records that plans 22–23 keep their own LT/LI live rows.
 ## Review 2026-10-03
 
 Round 3 (Sol): R3-19 applied.
+
+## 2026-10-07 re-scope (user)
+
+v2.7 re-scoped for player experience; every test re-runs from zero (v2.7 39).
+
+| old | new |
+|---|---|
+| — | v2.7 29 settings by area (new) |
+| — | v2.7 30 in-plugin guide (new) |
+| — (v2.7 22/23/25 FLUX + tooling clean-up) | v2.7 31 FLUX out, product vs local tooling |
+| v2.7 17–21, 24, 26, 28 (product pieces) | v2.7 32 images and living characters |
+| v2.8 01 §C, v2.9 04 option D, v2.8 13 N1/N6/J7.2, v2.8 04 C5 | v2.7 33 player loop fixes |
+| v2.8 03 | v2.7 34 (file moved) |
+| v2.8 17, 18 Q6, 19, 13 N3/N5 | v2.7 35 world pressure and open stretches |
+| v2.8 18 Q1–Q5, 04 C4/C7/C9a, 23 option A | v2.7 36 quests and story panels |
+| v2.8 20 | v2.7 37 (file moved) |
+| v2.8 02 (+ v2.7 07 live rows, v2.7 28 Saga assets) | v2.7 38 (file moved) |
+| v2.7 16 close-out, v2.8 01 §A owed rows, v2.8 24 rows for v2.7 plans | v2.7 39 Phase C |
+| user ideas 2026-10-07 | v2.8 25–30 |

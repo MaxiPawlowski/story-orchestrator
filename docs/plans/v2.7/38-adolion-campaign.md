@@ -1,5 +1,7 @@
 # Plan 02 — Adolion campaign: lab data, playtest fixes and the v2.8 campaign rows
 
+> **Moved 2026-10-07: now v2.7 38** (was v2.8 02; user: the Adolion campaign in v2.7). Also owns: v2.7 07 A3/A6 live rows; the Saga main-cast assets and 31 authored outfits from v2.7 28; the stub lab copy for v2.7 35 M2 (v2.8 19:205 hand-off); the campaign scripts and lane-pinned scenarios split out by v2.7 31 §B. D13b (weights off `C:`) is superseded by the image-model exception (v2.7 rule 8). Integration ×2 is v2.7 39 C7.
+
 **Status (2026-10-03): v2.8 plan 02 (A4, A5 from v2.7 07, was v2.7 plan 05; new rows from review D13). Decided ("do all if
 you can"); nothing here started.** Overview: `00-overview.md`. Campaign repo: `C:\dev\adolion-campaign` (HEAD `8012a61`
 on 2026-10-03, after v2.7 07 A1).

@@ -1,5 +1,7 @@
 # Plan 20 — Character life: relationships, mood, agendas, whereabouts
 
+> **Moved 2026-10-07: now v2.7 37** (was v2.8 20; user: "the rest of character life" in v2.7). Depends on v2.7 33 W2 (agency notes reach players), v2.7 35 (one complication component), v2.7 36 (`revertOriginSince`, scope sources). L6 voice warden replaces v2.8 13 N7. Acceptance in v2.7 39. Old numbers inside: `v2.7/RENUMBER.md` §2026-10-07.
+
 **Status (2026-10-03): v2.8 plan 20 (was v2.7 plan 18). Exploration topic from the user; decided (relationships toward
 the player and between NPCs, meters author-visible and private for players, agendas authored plus curator-proposed,
 schedules drop members from speaker candidates only); not built, M1/M2 not run.** Overview: `00-overview.md`.
