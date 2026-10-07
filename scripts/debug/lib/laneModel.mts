@@ -28,6 +28,7 @@ export const judgeEnabledIn = (settings: unknown): boolean | null => {
 
 export const OFFLINE_PORT = 18079;
 export const OFFLINE_ENV = 'SO_LANE_OFFLINE';
+export const OFFLINE_PERSONA = 'user-default.png';
 const LOOPBACK_URL = /\bhttps?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::(\d+))?/gi;
 
 const rewire = (value: unknown, lanePort: number, seen: Set<string>): unknown => {
@@ -51,6 +52,8 @@ export function offlineSettings(settings: unknown, lanePort: number): { next: Re
   ours.sprites = { ...(isRecord(ours.sprites) ? ours.sprites : {}), enabled: false };
   const disabled = Array.isArray(extensions.disabledExtensions) ? extensions.disabledExtensions : [];
   extensions.disabledExtensions = [...disabled.filter((name: unknown) => name !== 'stable-diffusion'), 'stable-diffusion'];
+  if (isRecord(wired.power_user)) wired.power_user = { ...wired.power_user, default_persona: null };
+  wired.user_avatar = OFFLINE_PERSONA;
   return { next: wired, rewired: [...seen].sort() };
 }
 
@@ -66,5 +69,6 @@ export function offlineProblems(settings: unknown, lanePort: number): string[] {
     ...(ours?.sprites?.enabled === false ? [] : ['sprites.enabled is not false']),
     ...(Array.isArray(disabled) && disabled.includes('stable-diffusion') ? [] : ['stable-diffusion is not disabled']),
     ...(judgeEnabledIn(settings) === false ? [] : ['judge.enabled is not false']),
+    ...(isRecord(settings) && (settings.power_user as Record<string, unknown> | undefined)?.default_persona == null && settings.user_avatar === OFFLINE_PERSONA ? [] : [`the persona is not the install's first (${OFFLINE_PERSONA}, no default persona)`]),
   ];
 }

@@ -10,6 +10,8 @@ const install = () => ({
     sd: { comfy_url: 'http://127.0.0.1:8188' },
     'story-orchestrator': { settings: { judge: { enabled: true }, image: { enabled: true, comfyUrl: 'http://127.0.0.1:8188' }, sprites: { enabled: true } } },
   },
+  power_user: { default_persona: 'owner.png', persona_auto_lock: false },
+  user_avatar: 'owner.png',
   self: 'http://127.0.0.1:8101/',
   note: 'see https://example.com:8188/ and http://192.168.50.130:8000',
 });
@@ -29,11 +31,17 @@ test('an offline lane names no loopback server but its own, and switches judge, 
   assert.equal(ours.image.enabled, false);
   assert.equal(ours.sprites.enabled, false);
   assert.deepEqual((next as any).extension_settings.disabledExtensions, ['tts', 'stable-diffusion']);
+  assert.equal((next as any).power_user.default_persona, null, 'no default persona, so ST keeps the first persona in every new chat');
+  assert.equal((next as any).power_user.persona_auto_lock, false);
+  assert.equal((next as any).user_avatar, 'user-default.png');
   assert.deepEqual(offlineProblems(next, 8101), []);
 });
 
 test('offlineProblems names every way a lane copy stops being offline (planted controls)', () => {
-  assert.equal(offlineProblems(install(), 8101).length, 8);
+  assert.equal(offlineProblems(install(), 8101).length, 9);
+  const persona = JSON.parse(JSON.stringify(offlineSettings(install(), 8101).next));
+  persona.power_user.default_persona = 'owner.png';
+  assert.match(offlineProblems(persona, 8101).join(), /no default persona/);
   const { next } = offlineSettings(install(), 8101);
   const back = JSON.parse(JSON.stringify(next));
   back.extension_settings.connectionManager.profiles[0]['api-url'] = 'http://127.0.0.1:18888';

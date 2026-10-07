@@ -22,7 +22,7 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails); with
                                SO_LANE_OFFLINE=1 the copy is made offline: every loopback URL in settings.json
                                but the lane's own (local model servers, a GPU controller, ComfyUI) points at the
-                               closed port 18079, model keys are removed as no-model does, judge, images, sprites
+                               closed port 18079, model keys are removed as no-model does, no default persona (the first persona, user-default.png), judge, images, sprites
                                and ST's Image Generation extension off; start refuses it if that no longer holds and
                                starts its server without server plugins (the GPU plugin forwards to a controller
                                named in the shared plugin config, the media plugin to ComfyUI)
