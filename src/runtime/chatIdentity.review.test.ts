@@ -1,3 +1,4 @@
+import { settleTurns } from "../../test/support/settle";
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
 import { classifyChatChange, loadAtStartup, type ChatChangeInput } from "./chatIdentity";
@@ -81,7 +82,7 @@ const story = {
 };
 
 const line = (index: number, text = `line ${index}`): Row => ({ name: index % 2 ? "Arin" : "Player", is_user: index % 2 === 0, mes: text, send_date: `t${index}` });
-const settle = async () => { for (let index = 0; index < 20; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const settle = () => settleTurns(20);
 const emit = async (name: string, ...args: unknown[]) => { await mockHandlers.get(name)?.(...args); await settle(); };
 type Outcome = { result: string; fromMessage: number | null } | null | undefined;
 const lastOutcome = (manager: RuntimeManager): Outcome => (manager as unknown as { notices: { lastOutcome?: Outcome } }).notices.lastOutcome;

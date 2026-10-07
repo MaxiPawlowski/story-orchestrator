@@ -1,3 +1,4 @@
+import { settleTurns } from "../../test/support/settle";
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
 
@@ -89,7 +90,7 @@ const story = {
 };
 
 const line = (index: number): Row => ({ name: index % 2 ? "Arin" : "Player", is_user: index % 2 === 0, mes: `line ${index}`, send_date: `t${index}` });
-const settle = async () => { for (let index = 0; index < 20; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const settle = () => settleTurns(20);
 const emit = async (name: string, ...args: unknown[]) => { await mockHandlers.get(name)?.(...args); await settle(); };
 type JournalRow = { boundary: number; messageId: number; kind: string; summary: string };
 const records = (manager: RuntimeManager): JournalRow[] => (manager as unknown as { extras: { journal: JournalRow[] } }).extras.journal;

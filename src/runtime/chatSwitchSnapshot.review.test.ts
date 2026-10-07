@@ -1,3 +1,4 @@
+import { settleTurns } from "../../test/support/settle";
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
 import type { RuntimeSnapshot } from "./types";
@@ -74,7 +75,7 @@ const story = {
   roster: [],
 };
 
-const settle = async () => { for (let index = 0; index < 30; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const settle = () => settleTurns(30);
 const open = (id: string) => {
   chats[id] = chats[id] ?? { chat: [{ name: "Narrator", is_user: false, mes: "greeting", send_date: "t0" }], metadata: { integrity: `i-${id}` } };
   mockContext.chatId = id;

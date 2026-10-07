@@ -1,3 +1,4 @@
+import { settleTurns } from "../../test/support/settle";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeResponse, type JudgeSettings, type JudgeTransport } from "@judge/index";
 import type { ReconciliationPlan, SharedReadWindow } from "@extraction/index";
 import { JudgeRuntime } from "./judge";
@@ -65,7 +66,7 @@ const story = {
   roster: [{ id: "mara", name: "Mara" }],
 };
 
-const flush = async () => { for (let index = 0; index < 5; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const flush = () => settleTurns(5);
 
 const setup = async (uses: Partial<JudgeSettings["uses"]>, answer: (request: JudgeRequest) => JudgeResponse) => {
   mockContext.chat = [{ mes: "Welcome to the hall.", name: "Mara" }, { mes: "The key is under the mat.", name: "Mara" }, { mes: "I pick up the brass key.", name: "Max", is_user: true }];

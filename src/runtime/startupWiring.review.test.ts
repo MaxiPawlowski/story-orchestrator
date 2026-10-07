@@ -78,6 +78,7 @@ jest.mock("@services/STAPI", () => ({
   sendConnectionProfileRequest: async () => ({ ok: true, text: "NO_DELTA", finish: "stop" }),
 }));
 
+import { settleTurns } from "../../test/support/settle";
 import { runtimeManager } from "./runtimeManager";
 import { BLOB_VERSION, setSelectedStoryId } from "./persistence";
 import { saveWizardSession } from "./wizardSessions";
@@ -86,7 +87,7 @@ import { TurnBridge } from "./turnBridge";
 import { callExtractionReply } from "@extraction/client";
 import { profileRoute } from "@extraction/modelRoute";
 
-const settle = async () => { for (let index = 0; index < 30; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const settle = () => settleTurns(30);
 
 beforeEach(() => {
   mockHost.context.chatId = "branch-1";

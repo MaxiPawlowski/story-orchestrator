@@ -1,3 +1,4 @@
+import { settleTurns } from "../../test/support/settle";
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
 import { blobMismatch } from "./persistence";
@@ -87,7 +88,7 @@ const lastOutcome = (manager: RuntimeManager): Outcome => (manager as unknown as
 const blob = () => mockContext.chatMetadata.story_orchestrator as StoryOrchestratorMetadataBlob;
 const journalSummaries = (manager: RuntimeManager) => (manager as unknown as { extras: { journal: Array<{ summary: string }> } }).extras.journal.map((record) => record.summary);
 
-const settle = async () => { for (let index = 0; index < 20; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+const settle = () => settleTurns(20);
 
 async function playedToNext() {
   const manager = new RuntimeManager();
