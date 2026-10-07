@@ -44,7 +44,8 @@ export const JsonField: React.FC<{ label: string; value: unknown; onChange: (val
   return (
     <label className="flex flex-col gap-1 text-sm">
       <span className="text-xs st-muted">{label}{hint ? ` — ${hint}` : ""}</span>
-      <textarea className="text_pole st-input font-mono text-xs" aria-label={label} rows={4} value={text} onChange={(event) => setText(event.target.value)} onBlur={(event) => commit(event.currentTarget.value)} />
+      <textarea className="text_pole st-input font-mono text-xs" aria-label={label} rows={4} value={text}
+        onChange={(event) => setText(event.target.value)} onBlur={(event) => commit(event.currentTarget.value)} />
       {problem && <span data-so="json-problem" className="text-xs st-text-error">{problem}</span>}
     </label>
   );
