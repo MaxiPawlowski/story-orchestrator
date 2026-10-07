@@ -85,4 +85,11 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-help-toggle", "Help → Open the guide"),
     settings: [], doc: "player/README.md", status: "shipped", since: "2.7.0",
   },
+  {
+    id: "open-stretches", name: "Open stretches", area: "authoring", audience: "author",
+    oneLine: "Free play between two turning points, with no task.",
+    what: "An open bridge scene has no goal line. After a few turns the world points toward the next place; the player leaves by their own move.",
+    where: { selector: "#so-studio-modal", label: "Studio › Checkpoints", surface: "studio" },
+    settings: [], guideTopic: "open-stretches", doc: "author/topics/open-stretches.md", status: "experimental", since: "2.7.0", needs: ["story"],
+  },
 ];

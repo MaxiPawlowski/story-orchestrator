@@ -13,4 +13,4 @@ Field: `checkpoints[].tension_target` (`calm`, `stirring`, `tense`, `critical`, 
 
 ---
 
-[Author's guide](../README.md) · previous: [Objectives and player agency](objective-agency.md) · next: [Narrator guidance](guidance.md)
+[Author's guide](../README.md) · previous: [Open stretches](open-stretches.md) · next: [Narrator guidance](guidance.md)

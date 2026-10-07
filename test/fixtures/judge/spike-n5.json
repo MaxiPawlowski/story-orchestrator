@@ -1,0 +1,26 @@
+{
+  "$comment": "v2.7 35 Phase 5 N5 nothing-happens spike fixture (v2.8 13 shape): 20 English rows, authored and labelled before any judge answer was read; synthetic, not mined from sessions, not second-model checked. change = how much this reply moves the situation (0 nothing new, 4 the situation is transformed); tension = how tense the scene is (0 calm, 4 peak). The idle rule (change < 2.5 and tension < 1.5 on 3 of 4) is the consumer's, scored later. The judge tension column is also scored against the extractor's tension on the same rows (judge-off column). Floors: change within +-1 on >= 0.9; tension within +-1 on >= 0.9 and no worse than the extractor; a shipped N5 hint must beat the deterministic quiet column on the same rows. Calibration on TypeSafe is owed (v2.7 39 Phase C).",
+  "revision": 1,
+  "rows": [
+    { "id": "idle-weather", "reply": "The afternoon is warm. Birds sing. The party rests in the shade and nobody says much.", "change": 0, "tension": 0 },
+    { "id": "idle-meal", "reply": "Arin stirs the stew and tastes it. 'Needs salt,' she says, and stirs it again.", "change": 0, "tension": 0 },
+    { "id": "idle-road", "reply": "The road goes on through the fields, the same as it has all morning.", "change": 0, "tension": 0 },
+    { "id": "idle-chat", "reply": "They talk about the harvest and the price of wool. The fire burns low.", "change": 0, "tension": 0 },
+    { "id": "small-news", "reply": "A traveller mentions the bridge at Hollin is closed for repairs. He tips his hat and walks on.", "change": 1, "tension": 0 },
+    { "id": "small-mood", "reply": "Arin seems distracted tonight, glancing north more than once, though she says nothing about it.", "change": 1, "tension": 1 },
+    { "id": "small-track", "reply": "Fresh hoofprints cross the road ahead, heading toward the old mill.", "change": 1, "tension": 1 },
+    { "id": "small-offer", "reply": "The innkeeper offers them a room at half price if they help unload a wagon tomorrow.", "change": 1, "tension": 0 },
+    { "id": "mid-stranger", "reply": "A cloaked woman sits at their table uninvited and says she knows who sent the letter.", "change": 2, "tension": 2 },
+    { "id": "mid-closed", "reply": "The city gate is barred at noon. A herald reads out that no one may leave until the thief is found.", "change": 3, "tension": 2 },
+    { "id": "mid-quarrel", "reply": "Arin and the merchant start shouting over the price; hands drift toward belts.", "change": 2, "tension": 3 },
+    { "id": "mid-letter", "reply": "The letter is in Bren's hand, dated yesterday, though Bren has been dead a month.", "change": 3, "tension": 2 },
+    { "id": "tense-still", "reply": "The two sides stare at each other across the courtyard. No one moves. Rain drips from the eaves.", "change": 0, "tension": 3 },
+    { "id": "tense-wait", "reply": "They wait in the dark crypt, listening. The scratching beyond the door stops, then starts again.", "change": 1, "tension": 3 },
+    { "id": "tense-hide", "reply": "Boots pass inches from the hay where they hide. A lantern swings, slows, moves on.", "change": 1, "tension": 4 },
+    { "id": "tense-standoff", "reply": "The duke holds the knife to the boy's throat and waits for an answer.", "change": 1, "tension": 4 },
+    { "id": "big-fire", "reply": "The barn goes up in flames all at once; the horses break loose and the village wakes screaming.", "change": 4, "tension": 4 },
+    { "id": "big-reveal", "reply": "The masked rider pulls off her hood: it is Arin's sister, the one they buried.", "change": 4, "tension": 3 },
+    { "id": "big-arrival", "reply": "The king's army crests the hill, banners high, and the siege is broken in an hour.", "change": 4, "tension": 2 },
+    { "id": "big-collapse", "reply": "The bridge gives way under the cart. Half the caravan is in the river and the rest is cut off on the far bank.", "change": 4, "tension": 4 }
+  ]
+}

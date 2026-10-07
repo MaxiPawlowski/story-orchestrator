@@ -1,4 +1,5 @@
 import type { AgencyPolicy, Checkpoint, NormalizedStoryV2, ObjectiveKind, StoryV2 } from "./schema";
+import { isOpenStretch } from "./stretch";
 
 // The policy is the defaults, not "absent = today's phrasing": every story that
 // does not declare `agency` gets these, which is a deliberate behaviour change (spec addendum
@@ -61,6 +62,6 @@ export const authorsOwnNote = (checkpoint: Checkpoint | null | undefined): boole
 };
 
 export const objectiveLineApplies = (story: Pick<StoryV2, "objective_block"> | null | undefined, checkpoint: Checkpoint | null | undefined): boolean =>
-  Boolean(story && checkpoint) && story?.objective_block !== "off" && Boolean(checkpoint?.objective?.trim()) && !authorsOwnNote(checkpoint);
+  Boolean(story && checkpoint) && story?.objective_block !== "off" && Boolean(checkpoint?.objective?.trim()) && !authorsOwnNote(checkpoint) && !isOpenStretch(checkpoint);
 
 export const objectiveLine = (checkpoint: Checkpoint, policy: AgencyPolicy): string => `${OBJECTIVE_LINE_HEADER} ${checkpoint.objective.trim()} ${objectiveClause(policy.objective_kind)}`;

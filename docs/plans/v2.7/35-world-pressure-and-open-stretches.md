@@ -204,3 +204,115 @@ Source: `v2.8/27-gamification-report.md` §Candidate rows and the TunnelVision r
 - Phase 3 adds a meter that fires then resets, weighted pool lines, and a focus pick from open arcs or present members.
 - Odds- or chaos-scaled triggers only after K1–K5 pass.
 - Pressure clocks are author-only; pressure never fills from the player refusing a route.
+
+## Gate record (2026-10-07)
+
+Tier D only, branch `v2.7-35-world-pressure` (from `v2.7-image-track-wip` @ `bd54786d`). **No live or model run**
+(no lane, no pod, no judge in this worktree); every RP/CL row below is owed to v2.7 39 Phase C and is NOT green.
+Recommended answers taken for every decision (user, 2026-10-07).
+
+### What was built
+
+**Phase 1 (SP6), preparation only.** No run. K1 re-run in jest: `spikes/sp6Complications.test.ts` green (rollback +
+replay 4 seeds × 100 cuts, the 200-boundary window cases, K2 machinery). The K3/K4/K5 lab data exists in the campaign
+(`lab/complications/`: `sp6-adolion.journey.json`, `sp6-k4-lines.json`, `sp6-k5-stalled.json`) and the K2 scenario in
+`test/scenarios/live-v25-09-sp6-k2.json`. Decision 3 is written into the scorer before any run:
+`scripts/debug/lib/sp6Score.mts` K5 now **pools the ×2 runs of each arm** (`k5MinPooled: 20` measured releases per arm,
+pooled rates against 0.6 / 0.3) and reports the per-run rows without gating on them; tests in `sp6Score.test.mts`
+(pooled fail, pooled pass over a run under 60 %, 2 × 9 measured = INCOMPLETE, 2 × 13 = 26 measured pools to a verdict).
+Final floor table (restated, committed before any run):
+
+| # | Measured on | Pass | Arms |
+|---|---|---|---|
+| K2 | `test/scenarios/live-v25-09-sp6-k2.json`, ×2 consecutive, group chat | the block rides exactly the next loud request, never quiet/impersonate | flag on |
+| K3 | `lab/complications/sp6-adolion.journey.json` (98 turns) | ≥ 20 releases per run; `agencyCheck` flags ≤ control mean + 1; judge-off column recorded | release/control × judge on/off, ×2 each |
+| K4 | the same replies, the 44 lines of `sp6-k4-lines.json` | 0 verbatim restatements | release arms |
+| K5 | `lab/complications/sp6-k5-stalled.json` | pooled over the ×2 runs per arm, ≥ 20 measured releases pooled: release ≥ 60 % reach the band within 6 boundaries, control ≤ 30 %; per-run rates reported | release vs control |
+
+Phase 3 and 4 are **not built** (Phase 3 only on Phase 1 PASS; Phase 4 after Phase 3). Until then the validator refuses
+`stretch.pressure`, `stretch.trigger` and `stretch.offer`.
+
+**Phase 2 (open stretches, engine half), built.**
+- Format: `checkpoints[].stretch {mode: "open", pace, pull_after, max_turns?, arrive_when}` (`engine/schema.ts`
+  `CheckpointStretch`). `pace` brief / unhurried / long → `pull_after` 3 / 6 / 10 player turns (default unhurried;
+  explicit `pull_after` wins); placeholder values, `PACE_PULL_AFTER` in `engine/stretch.ts`.
+- Validator (`engine/validate/stretch.ts`): intermediates only; `arrive_when` required and must equal the gate of one of
+  the stretch's exits; progress exits (a `progress` effect or a `progress_toward_*` leaf) refused; `player_text` refused
+  (the player sees the scene name, never a task); `max_turns` must exceed `pull_after`; unknown keys get a did-you-mean;
+  a declared `player_turns_in_checkpoint` must be `int`/`code`.
+- `player_turns_in_checkpoint`: `DerivedQualityView` gained `checkpointStartedMessageId` and `lastMessageId`; the runtime
+  derive seam (`runtime/stretchTurns.ts` `deriveQualities`, composed with the chance seam in the manager) writes it when a
+  story declares it, from `playerTurnIds` (`is_user && !is_system`) in `(checkpointStartedMessageId, lastMessageId]`.
+  Engine stays pure. Tests (`runtime/stretchTurns.test.ts`): a 3-reply group round = 1; 2 sends × 2 replies = 2; `/sendas`
+  and system rows do not count; a swipe keeps the count; deleting a player message lowers it and rolls the transition
+  back (equal to replay); reopen ≡ continuous; **property rollback ≡ replay: 0 mismatches over 4 seeds × 100 cuts**
+  (sends with 1–3 replies, swipes, `/sendas`, deletes; > 100 deletes exercised); control: a counter ignoring the
+  checkpoint start disagrees.
+- Objective line skipped in an open stretch (`objectiveLineApplies`); story-level `objective_block` unchanged elsewhere.
+- Never expanded into a beat chain (`isStubCheckpoint` false), so `canGenerate` is false there; `planReconciliation`
+  (the stall re-read and its `stallCheck` judge pre-check) and `agencyRecovery` return null in an open stretch.
+- Steering (`pacing/steering.ts`): `OPEN_STRETCH_LINE` (no task, follow what the player starts, the player decides when
+  to move on) and the pull register `pullLine(stage)`: gentle from `pull_after`, steady 3 turns later
+  (`PULL_STEADY_AFTER`), strong at `max_turns`; every pull line ends "Never move the party there or narrate the decision
+  to go." Carried in the checkpoint guidance block (`composeGuidanceBlock` gained a `stretch` argument; no new injection
+  key, no new depth). The pacing coordinator counts the turns from the chat host.
+- Payload invariance: a story without `stretch` gets a byte-identical guidance block (`openStretch.review.test.ts`, plus
+  the existing `groupPayloadInvariance.recorded` and guidance suites unchanged and green).
+- Manager stays at its 700-line budget: the chance context read moved to `chance.ts` `chanceContext`, so the derive
+  composition costs the manager no lines.
+- Registry + Help: feature `open-stretches` (authoring, author, experimental; in `features/presenceFeatures.ts`, since
+  `registry.ts` sits at the 600-line file budget); author's guide topic `open-stretches`
+  (`docs/authoring/story-guide.md` + compact twin in `copilot/guideTopics.ts`, Studio checkpoints tab), `npm run
+  docs:guide` run.
+- No-LLM group scenario prepared, **NOT RUN**: `test/scenarios/v27-35-open-stretch-curve.json` (+ story
+  `v27-35-open-stretch.story.json`): multi-speaker rounds via `/sendas`, a swipe to an existing alternative, a player
+  line deleted, asserting the count, no objective line, no hook before `pull_after`, gentle then strong. Validated against
+  the closed vocabulary and every eval syntax-checked; owed ×2 on a no-model lane in Phase C.
+
+**Phase 5 (N3/N5), fixtures only.** `test/fixtures/judge/spike-n3.json` (20 rows, 4 per level 0–4) and
+`spike-n5.json` (20 rows, change/tension 0–4, idle and still-tense rows), synthetic, authored and labelled before any
+answer, not second-model checked; shape test `judge/worldPressureSpikes.test.ts`. Questions on the warden call, the
+`spikes.judgeN3`/`judgeN5` flags, the trend rules and the consumers are **not built**: v2.8 13's `--replay` tooling (P5)
+does not exist, and the N5 judge-off column needs Phase 4's `quiet`.
+
+### Deviations
+
+- **Encounter pool not built** (`offer` refused, `EXPANSION_CONTRACT` stays 2, no generation golden or contract-drop
+  test). Read as v2.8 19 decision 3's "behind the M2 floors": encounters wait until M2 shows the open mode itself works.
+- `max_turns` is accepted now and only makes the pull plain (strong register); with pressure not built it cannot raise
+  pressure. Never moves the party.
+- `player_text` refused on an open stretch (rather than filtered at each player surface), so the spoiler row "no
+  objective line at L1/L2" holds by construction.
+- Open stretches are refused on anchors (decision 5: anchors' open opening waits for the stub measurement).
+- Pull counts lag one turn by design: the count is read at the last committed boundary, so pull starts on the reply
+  after the `pull_after`-th player turn.
+- No new install-wide setting, model call site, judge use or write-after-await site (baseline settings, CALL_SITE_ROLES,
+  JUDGE_USES and the ownership census unchanged).
+
+### Gates
+
+- `npx tsc --noEmit`, `npx tsc -p tsconfig.test.json --noEmit`, `npm run lint`, `npm run debug:typecheck`: green.
+- `npm run docs:guide` (57 pages), `node --test scripts/debug/sp6Score.test.mts` (7/7),
+  `scripts/debug/scenarioSchema.test.mts` + `scenarioRequires.test.mts` (29/29).
+- `npm run gates -- --no-storybook`: **all green in 82.5 s** (typecheck, build, build:dev, test: 555 suites,
+  6,559 passed, 1 skipped; test:debug 1,090 pass; test:replay 32 of 32 defects killed; lint; typecheck:test;
+  test:plugin 109 pass; debug:typecheck; test:release 114 pass). **Storybook skipped** (it finds no stories from a
+  worktree; no UI was added). An earlier run on this branch was red on the manager line budget (703 > 700), the
+  `registry.ts` file budget and a dead export; all three fixed before the green run.
+- Bundle: prod `dist/index.js` **1,249,280 B** against the 1,250,000 B budget (720 B headroom; the first build of this
+  branch measured 1,250,244 B and failed the webpack size limit, so validator and copy strings were shortened). The
+  validator and the pull lines have to be in the main entry (parse and the guidance block run there).
+
+### Owed to v2.7 39 Phase C (NOT green)
+
+- Phase 1: lab check `python scripts/check_lab.py` at the campaign pin; K2 ×2, K3 (8 runs), K4, K5 ×2 with run header
+  capture/diff, `--strict`, `--media off`, group chats; records to `so-sessions`; verdict written back here; on FAIL or
+  INCOMPLETE ×2 the drop path (`DROPPED_SPIKES`).
+- Phase 2: `v27-35-open-stretch-curve.json` ×2 on a no-model lane; M1 baseline from v2.6 sessions; M2 A/B on the stub
+  lab copy (v2.7 38 owns it: 2–3 downtime/road stubs converted to `open`), blind "felt free" rating by a second model;
+  `so-ui assert-player-clean` in an open stretch.
+- Phase 5: TypeSafe calibration ×2 of N3/N5 after the `--replay` tooling exists; the warden combined-arm re-measure.
+
+### Placeholder values (measure, never retune silently)
+
+`PACE_PULL_AFTER` brief 3 / unhurried 6 / long 10; `PULL_STEADY_AFTER` 3.

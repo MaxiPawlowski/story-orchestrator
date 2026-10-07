@@ -1,5 +1,5 @@
 import { getGenerationBias, getTensionTrajectory } from "@pacing/index";
-import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import { isOpenStretch, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { computeStateDelta } from "./delta";
 import { gatePins } from "./paths";
 import type { PlannedExpansionInput, StubExpansionCandidate } from "./types";
@@ -9,7 +9,8 @@ const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tens
 export function isStubCheckpoint(story: NormalizedStoryV2, checkpointId: string): boolean {
   const checkpoint = story.checkpointById[checkpointId];
   return Boolean(
-    checkpoint && checkpoint.type === "intermediate" && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects && story.reachableByCheckpoint[checkpointId]?.some(
+    checkpoint && checkpoint.type === "intermediate" && !isOpenStretch(checkpoint) && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects
+    && story.reachableByCheckpoint[checkpointId]?.some(
       (id) => story.checkpointById[id]?.type === "anchor",
     ),
   );

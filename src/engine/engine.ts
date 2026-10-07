@@ -10,6 +10,8 @@ export interface DerivedQualityView {
   boundary: number;
   activeCheckpointId: string;
   checkpointStartedBoundary: number;
+  checkpointStartedMessageId: number;
+  lastMessageId: number;
 }
 
 export interface EngineHost {
@@ -461,7 +463,10 @@ export class StoryEngine {
     if (story.qualityByKey.elapsed?.source === "code") {
       blackboard.applyDelta({ q: "elapsed", v: Math.max(0, Math.floor((this.host.now() - this.checkpointStartedAt) / 1000)), source: "code" });
     }
-    const view = { boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary };
+    const view = {
+      boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary,
+      checkpointStartedMessageId: this.checkpointStartedMessageId, lastMessageId: this.lastMessageId,
+    };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 

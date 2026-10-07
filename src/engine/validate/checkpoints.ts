@@ -7,6 +7,7 @@ import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
+import { readStretch } from "./stretch";
 
 type Member = StoryV2["roster"][number];
 
@@ -303,6 +304,10 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   }
   const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
   if (motives) checkpoint.motives = motives;
+  if (value.stretch !== undefined) {
+    const stretch = readStretch(value.stretch, `${path}.stretch`, errors);
+    if (stretch) checkpoint.stretch = stretch;
+  }
   readCheckpointChapter(value, checkpoint, path, errors);
   return checkpoint;
 };

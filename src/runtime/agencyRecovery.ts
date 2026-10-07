@@ -1,4 +1,4 @@
-import { agencyForCheckpoint, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { agencyForCheckpoint, isOpenStretch, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/types";
 import { findStubExpansionCandidate } from "@generation/planner";
 
@@ -74,7 +74,7 @@ export const agencyRecovery = (
   const activeId = state.activeCheckpointId;
   const exits = story.outgoingByCheckpoint[activeId] ?? [];
   // Nothing was expected of the player here, so nothing can be refused.
-  if (!exits.length) return null;
+  if (!exits.length || isOpenStretch(story.checkpointById[activeId])) return null;
   const quiet = (entry: BoundaryLogEntry) => entry.source === "gate" && entry.fired === null && entry.before.activeCheckpointId === activeId;
   let start = log.length;
   while (start > 0 && quiet(log[start - 1])) start -= 1;

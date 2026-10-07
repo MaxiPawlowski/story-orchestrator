@@ -11,6 +11,7 @@ import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./v
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 import { indexCardFields, validateCardEffects } from "./cardFields";
+import { checkStretches } from "./validate/stretch";
 
 export { readChapters };
 
@@ -127,6 +128,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const normalizedTransitions = transitions.map((transition, declarationIndex) => ({ ...transition, declarationIndex }));
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
+  checkStretches(checkpoints, transitions, qualityByKey, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 

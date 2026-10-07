@@ -48,9 +48,23 @@ test('SP6 K4: a reply that copies six words of the block fails, and a framing to
   assert.equal(scoreSp6(full({ releaseOn: [framed, run('release', 'on', 0.7, 1)] })).k4.verdict, 'FAIL');
 });
 
-test('SP6 K5: a release run under 60 % or a control run over 30 % fails', () => {
-  assert.equal(scoreSp6(full({ releaseOff: [run('release', 'off', 0.55), run('release', 'off', 0.7)] })).k5.verdict, 'FAIL');
-  assert.equal(scoreSp6(full({ controlOff: [run('control', 'off', 0.35), run('control', 'off', 0.1)] })).k5.verdict, 'FAIL');
+test('SP6 K5: the two runs of an arm are pooled (v2.7 35 decision 3), under 60 % or over 30 % pooled fails', () => {
+  assert.equal(scoreSp6(full({ releaseOff: [run('release', 'off', 0.55), run('release', 'off', 0.6)] })).k5.verdict, 'FAIL');
+  assert.equal(scoreSp6(full({ controlOff: [run('control', 'off', 0.35), run('control', 'off', 0.3)] })).k5.verdict, 'FAIL');
+  const pooled = scoreSp6(full({ releaseOff: [run('release', 'off', 0.55), run('release', 'off', 0.7)] })).k5;
+  assert.equal(pooled.verdict, 'PASS');
+  assert.equal(pooled.pooled.release.measured, 40);
+  assert.deepEqual(pooled.release.map((row) => row.rate), [0.55, 0.7]);
+});
+
+test('SP6 K5: fewer than 20 measured releases pooled per arm is INCOMPLETE (13 per run pools to 26)', () => {
+  const measuredOnly = (source: Sp6Run, measured: number): Sp6Run => ({ ...source, releases: source.releases.map((entry, index) => (index < measured ? entry : { ...entry, reached: null })) });
+  const thin = full({ releaseOff: [measuredOnly(run('release', 'off', 0.7), 9), measuredOnly(run('release', 'off', 0.7), 9)] });
+  assert.equal(scoreSp6(thin).k5.verdict, 'INCOMPLETE');
+  const lab = full({ releaseOff: [measuredOnly(run('release', 'off', 0.7), 13), measuredOnly(run('release', 'off', 0.7), 13)],
+    controlOff: [measuredOnly(run('control', 'off', 0.1), 13), measuredOnly(run('control', 'off', 0.1), 13)] });
+  assert.equal(scoreSp6(lab).k5.pooled.release.measured, 26);
+  assert.equal(scoreSp6(lab).k5.verdict, 'PASS');
 });
 
 test('SP6: fewer than two runs in a cell, or fewer than 20 releases in a run, is INCOMPLETE, never PASS', () => {

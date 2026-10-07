@@ -1,4 +1,4 @@
-import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, NO_SKIP_CLAUSE, PLAYER_REF, type AgencyPolicy, type TensionLevel } from "@engine/index";
+import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, NO_SKIP_CLAUSE, PLAYER_REF, type AgencyPolicy, type PullStage, type TensionLevel } from "@engine/index";
 import { DEFAULT_PACING_DRIFT_THRESHOLD } from "@constants/defaults";
 import { numericToLevel } from "./tension";
 
@@ -59,6 +59,18 @@ export const getSteeringHint = (
   const direction: SteeringDirection = drift > threshold ? "escalate" : drift < -threshold ? "ease" : "hold";
   return { direction, text: hintText(direction, Math.abs(drift) > STRONG_DRIFT_THRESHOLD, numericToLevel(expected), policy) };
 };
+
+export const OPEN_STRETCH_LINE = `Open stretch: there is no task here. Follow what ${PLAYER_REF} starts (a detour, a talk, a rest) `
+  + `and let the world answer it; ${PLAYER_REF} alone decides when to move on.`;
+
+const PULL_LINES: Record<PullStage, string> = {
+  gentle: "Now and then let the next place make itself felt (a mention, a turn in the weather), as a hook, never a push.",
+  steady: "Let most replies carry one hook toward the next place.",
+  strong: "Let the world press toward the next place plainly in this reply, as a deadline or someone urging.",
+};
+
+export const pullLine = (stage: PullStage | null): string =>
+  (stage ? `${OPEN_STRETCH_LINE} ${PULL_LINES[stage]} Never move the party there or narrate the decision to go.` : OPEN_STRETCH_LINE);
 
 export const getGenerationBias = (smoothed: number | null, expected: number | null): GenerationBias | null => {
   if (smoothed === null || expected === null) return null;

@@ -1,0 +1,26 @@
+{
+  "$comment": "v2.7 35 Phase 5 N3 adversity spike fixture (v2.8 13 shape): 20 English rows, authored and labelled before any judge answer was read; synthetic, not mined from sessions, not second-model checked. level = what this reply costs or threatens the player's side: 0 nothing, 1 a minor snag, 2 a real setback, 3 a serious loss or danger, 4 a heavy blow. 4 rows per level. Floor: level within +-1 on >= 0.9; levels 0-1 vs 3-4 never confused. The N-of-M trend rule is tested on synthetic sequences when the consumer is built. Calibration on TypeSafe is owed (v2.7 39 Phase C).",
+  "revision": 1,
+  "rows": [
+    { "id": "l0-tavern", "playerName": "Max", "reply": "The innkeeper sets down two mugs of cider and asks how the road was. A fire crackles in the hearth.", "level": 0 },
+    { "id": "l0-market", "playerName": "Max", "reply": "The market is busy and cheerful. A baker offers Max a free roll to try, smiling.", "level": 0 },
+    { "id": "l0-friend", "playerName": "Max", "reply": "Arin laughs at the joke and hands Max the map. 'You lead, then,' she says.", "level": 0 },
+    { "id": "l0-view", "playerName": "Max", "reply": "From the ridge the valley spreads out green and quiet under a clear sky.", "level": 0 },
+    { "id": "l1-rain", "playerName": "Max", "reply": "A light rain starts. Max's cloak is damp by the time they reach the bridge, nothing worse.", "level": 1 },
+    { "id": "l1-price", "playerName": "Max", "reply": "The ferryman wants a silver more than last week. 'Prices went up,' he shrugs.", "level": 1 },
+    { "id": "l1-strap", "playerName": "Max", "reply": "A strap on Max's pack snaps; it takes a few minutes to knot it back together.", "level": 1 },
+    { "id": "l1-rude", "playerName": "Max", "reply": "The clerk is curt with Max and makes him wait at the back of the line.", "level": 1 },
+    { "id": "l2-lost", "playerName": "Max", "reply": "The trail they followed ends at a washed-out gully. They will lose half a day going around.", "level": 2 },
+    { "id": "l2-thief", "playerName": "Max", "reply": "When Max reaches for his purse it is gone; a boy is already disappearing into the crowd.", "level": 2 },
+    { "id": "l2-refused", "playerName": "Max", "reply": "The captain refuses Max passage outright. 'No papers, no ship.' The door shuts.", "level": 2 },
+    { "id": "l2-sprain", "playerName": "Max", "reply": "Max lands badly jumping the ditch and his ankle swells; walking will be slow for days.", "level": 2 },
+    { "id": "l3-ambush", "playerName": "Max", "reply": "Arrows hiss out of the trees. One takes Max's horse in the neck and it goes down screaming.", "level": 3 },
+    { "id": "l3-burned", "playerName": "Max", "reply": "They return to find the safehouse burning. Every supply and letter they left there is ash.", "level": 3 },
+    { "id": "l3-captured", "playerName": "Max", "reply": "Guards close in from both ends of the alley. Arin is seized and dragged away before Max can reach her.", "level": 3 },
+    { "id": "l3-wound", "playerName": "Max", "reply": "The blade opens Max's side. Blood soaks his shirt and the world tilts as he staggers.", "level": 3 },
+    { "id": "l4-death", "playerName": "Max", "reply": "Old Bren falls and does not get up. The man who raised Max is dead on the cobbles.", "level": 4 },
+    { "id": "l4-betrayal", "playerName": "Max", "reply": "The council hears the forged letters and brands Max a traitor. His name, lands and rank are stripped before nightfall.", "level": 4 },
+    { "id": "l4-city", "playerName": "Max", "reply": "The gates break. Smoke rises over the whole city Max swore to defend, and the defenders run.", "level": 4 },
+    { "id": "l4-curse", "playerName": "Max", "reply": "The ritual completes. Max feels the curse settle into his bones; the healer says it cannot be lifted.", "level": 4 }
+  ]
+}

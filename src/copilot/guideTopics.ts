@@ -101,6 +101,13 @@ export const GUIDE_TOPICS = {
       + "Defaults protect the player: narration never writes the player accepting, refusing or acting. alternate names a beat to recover to when the player refuses the route "
       + "(never the beat itself). player_attempts_only makes the world decide whether the player's attempt works. objective_block: off stops the objective line being injected.",
   },
+  "open-stretches": {
+    title: "Open stretches",
+    fields: "checkpoints[].stretch, player_turns_in_checkpoint",
+    text: "stretch: {mode: open, pace, pull_after, max_turns, arrive_when} on an intermediate is free play: no objective line, no beat chain, no stall re-read. pace brief, "
+      + "unhurried or long = pull_after 3, 6 or 10 player turns; after that the world offers hooks toward the next place, max_turns makes them plain, never a move. "
+      + "arrive_when must be the gate of one of its exits; progress exits and player_text are refused. pressure, offer and trigger are not built yet.",
+  },
   tension: {
     title: "Tension targets",
     fields: "checkpoints[].tension_target",
