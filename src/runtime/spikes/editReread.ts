@@ -70,6 +70,8 @@ interface Pending {
   messageId: number;
   entered: boolean;
   handle: unknown;
+  runs: number;
+  rewritten: boolean;
   done: Promise<void>;
   resolve: () => void;
 }
@@ -181,24 +183,31 @@ export class EditReread {
     if (current && current.chatId === chatId && current.messageId === messageId) {
       this.timers().clear(current.handle);
       current.entered = current.entered || entered;
+      current.rewritten = current.rewritten || current.runs > 0;
       current.handle = this.timers().set(() => this.fire(current), this.deps.settleMs ?? EDIT_SETTLE_MS);
       return current;
     }
     let resolve = () => {};
     const done = new Promise<void>((settled) => { resolve = settled; });
-    const pending: Pending = { chatId, messageId, entered, handle: null, done, resolve };
+    const pending: Pending = { chatId, messageId, entered, handle: null, runs: 0, rewritten: false, done, resolve };
     pending.handle = this.timers().set(() => this.fire(pending), this.deps.settleMs ?? EDIT_SETTLE_MS);
-    if (current) this.fire(current);
+    if (current && current.handle !== null) this.fire(current);
     this.pending = pending;
     return pending;
   }
 
   private fire(pending: Pending) {
     this.timers().clear(pending.handle);
+    pending.handle = null;
+    pending.runs += 1;
+    const rewritten = pending.rewritten;
+    pending.rewritten = false;
     const run = beginRun(this.deps.host.getOwnership());
-    const cycle = this.chain.then(() => this.cycle(pending, run));
+    const cycle = this.chain.then(() => this.cycle(pending, run, rewritten));
     this.chain = cycle.catch((error: unknown) => log.warn("edit re-read: the cycle failed", error));
     void this.chain.finally(() => {
+      pending.runs -= 1;
+      if (pending.runs > 0 || pending.handle !== null) return;
       if (this.pending === pending) this.pending = null;
       pending.resolve();
     });
@@ -212,7 +221,7 @@ export class EditReread {
     this.committed = { chatId: chat.id, messageId, hash: fingerprintOf(chat.rows[messageId]), kept: [...previous, ...kept] };
   }
 
-  private async cycle(pending: Pending, run: RunGuard) {
+  private async cycle(pending: Pending, run: RunGuard, rewritten: boolean) {
     if (!run.stillOwns()) return;
     const chat = this.deps.chat();
     if (chat.id !== pending.chatId) return;
@@ -220,7 +229,7 @@ export class EditReread {
     const own = (record: Committed | null) => (record?.chatId === chat.id && record.messageId === messageId ? record : null);
     const committed = pending.entered ? own(this.rolledBack) : own(this.committed);
     const last = () => this.deps.host.getEngineState()?.lastMessageId ?? -1;
-    if (!pending.entered && committed && last() >= messageId && committed.hash === fingerprintOf(chat.rows[messageId])) {
+    if (!pending.entered && !rewritten && committed && last() >= messageId && committed.hash === fingerprintOf(chat.rows[messageId])) {
       this.stats.skipped += 1;
       return;
     }

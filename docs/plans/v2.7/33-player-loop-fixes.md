@@ -42,9 +42,12 @@ cap, journal on timeout; (3) the cycle takes a `RunOwnership`; (4) re-stage what
 (5) C12: re-fire the transition only when the edited text still satisfies the gate. Ships behind a dev flag until
 V0–V8 pass twice (v2.8 rule 9), then default on; the switch stays one release. While held, the pipeline keeps showing
 v2.7 10's `catching-up`.
-**Open:** step 0 — which post-processor the user runs, and whether its rewrite lands before or after our boundary
-commit (v2.7 10 §Current state "Open"); the settle-window length (proposed 750 ms, measured in step 0); v2.6's 180 s
-"no audit" case (`test/measurements/v2.6-03/sp2/`).
+**Step 0 (resolved 2026-10-07, §Gate record "W1 step 0 (V0)"):** the owner runs no post-processor; the reference one
+(`SO-V3 typographic quotes`, a stock Regex script plus a Recast-shaped post-render placement of the same transform) is
+in `test/fixtures/postprocessor/`. A Regex script rewrites before the reply exists (no event); in a group any rewrite
+made during the round lands before our commit; only a rewrite after the round reaches the re-read. The "no audit" case
+is explained, and three defects of that shape are fixed. Still open: the settle-window length (750 ms, not measured;
+after the fix a rewrite past the window costs one more cycle and read, not correctness).
 
 **Reuse.** `TurnBridge.setMutationSeam` (`src/runtime/turnBridge.ts:96`), `onMutation` (`:228`), MESSAGE_EDITED /
 MESSAGE_UPDATED (`:81`, `:83`); `RuntimeManager.writes.requeue` (`runtimeManager.ts:471-472`); `rollbackOnEnter`
@@ -66,7 +69,7 @@ batch. Folds in v2.8 01 O10 (option C's real re-read leg).
 
 | # | Condition | Floor |
 |---|---|---|
-| V0 | step 0 | the "no audit" case explained; the user's post-processor's event order traced |
+| V0 | step 0 | the "no audit" case explained; the user's post-processor's event order traced — **met 2026-10-07** (D; the owner runs none, the reference post-processor stands in; §Gate record "W1 step 0 (V0)") |
 | V1 | re-commit ≡ replay | 800/800 over 4 seeds × 200 cuts; both negative controls unequal |
 | V2 | one cycle per settled burst | R3 (a)–(f) + a burst of 2–5 rewrites = 1 cycle on the last text |
 | V3 | post-processor leg live (measured first) | the next request carries the settled text in every burst case, ×2 |
@@ -251,7 +254,7 @@ cue + scene read changes R5′).
 
 ## Decided (user, 2026-10-07)
 
-"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Post-processor (W1 step 0, decision 1): not named by the user; Recast-shaped scripted fixtures cover it until named.
+"Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Post-processor (W1 step 0, decision 1): not named by the user; Recast-shaped scripted fixtures cover it until named. Later on 2026-10-07: the user runs no reply post-processor and asked for a proposal; the reference post-processor is in §Gate record "W1 step 0 (V0)".
 
 ## Gate record (2026-10-07)
 
@@ -316,7 +319,110 @@ loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak,
 - Not done here: **V0** (step 0: the "no audit" case and the user's post-processor order; code reading suggests the
   v2.6 spike's read lapsed when the second rewrite's rollback invalidated its window, a hypothesis only), V3/V4/V8
   (live), the fault-matrix row for the new mutation shape (the package list is generated; owed when the module leaves
-  the spike folder), the default-on switch (after V0–V8 ×2).
+  the spike folder), the default-on switch (after V0–V8 ×2). V0 was then done on `v2.7-33-v0` (next section), which
+  refutes that hypothesis.
+
+### W1 step 0 (V0) — branch `v2.7-33-v0` (from `v2.7-image-track-wip` @ `d321a2b8`), 2026-10-07
+
+Tier D. No live run (V3 is prepared, not run). ST source `C:\dev\SillyTavern-MainBranch` @ `7c3994196`; Recast is
+the research clone `C:\dev\st-extensions-research\recast-st-post-processing-for-better-prose\source`.
+
+**The owner's post-processor:** none ("runs no reply post-processor", 2026-10-07, asked for a proposal).
+
+**Proposal: reference post-processor `SO-V3 typographic quotes`.** One transform (straight `"…"` to `“…”`, a small
+visible prose polish), in the two placements a post-processor can take:
+
+- *Regex (stock ST):* `test/fixtures/postprocessor/so-v3-typographic-quotes.regex.json`, a global script, placement
+  AI output (2), neither markdown-only nor prompt-only (it alters the chat), not run on edit. Install
+  `node scripts/debug/so-postprocessor.mts install`, remove `… remove` (marker-named, so
+  `so-assets.mts remove --marker SO-V3` removes it too).
+- *Post-render (Recast-shaped):* `test/fixtures/postprocessor/so-v3-postprocessor.js` (an `inject_script` page
+  script). On `CHARACTER_MESSAGE_RENDERED` it waits until the round is over and the story has committed the reply,
+  then rewrites `chat[id].mes` with the same regex plus an optional appended sentence, calls `updateMessageBlock`,
+  emits `MESSAGE_EDITED` without awaiting it, and saves, as Recast's `safeUpdateMessageText` does. Bursts: `single`;
+  `double` (the same text twice back to back, Recast's two `safeUpdateMessageText` calls on its hide-until-last path,
+  index.js:1044 then :1091); `late` (a first text, then the final one `--late` ms later, past the settle window).
+  `… install --post-render --burst late --append "…" [--append-first "…"]`.
+
+Two placements because the trace shows a Regex script cannot rewrite after the reply renders, so on its own it never
+reaches the edit re-read. V3's post-processor leg needs the post-render placement.
+
+**Traced order.**
+
+| Path | Order | Save |
+|---|---|---|
+| Regex, non-streamed | `Generate` → `cleanUpMessage` (script.js:5516) → `getRegexedString(…, AI_OUTPUT)` (script.js:6481; engine.js:354 applies a script that is neither markdown- nor prompt-only on this raw pass only) → `saveReply` pushes the rewritten row, emits `MESSAGE_RECEIVED` (script.js:6781), `addOneMessage`, `CHARACTER_MESSAGE_RENDERED` (:6783) | `saveChatConditional` after `saveReply` returns (script.js:5573) |
+| Regex, streamed | `onProgressStreaming` runs `cleanUpMessage` on every chunk (script.js:3659) and writes `chat[id].mes` → `finalizeIntermediaryMessage` → `MESSAGE_RECEIVED`, `CHARACTER_MESSAGE_RENDERED` (:3799-3800) | `saveChatConditional` (:3815) |
+| Regex, display | `messageFormatting` passes `isMarkdown` (script.js:1860), so an alter-chat script is not applied a second time | — |
+| Manual edit | `messageEditDone` (script.js:8397) → `updateMessage` (:8139; only `runOnEdit` scripts, :8159; writes `mes` and the swipe) → `MESSAGE_EDITED` (:8405) → re-render → `MESSAGE_UPDATED` (:8431) | `saveChatConditional` (:8433) |
+| Recast | its `MESSAGE_RECEIVED` listener (index.js:1538) awaits the LLM passes → `msg.mes = …` → `updateMessageBlock` + `MESSAGE_EDITED` emitted without await (index.js:334-389) | `saveChat` (index.js:1092); no `MESSAGE_UPDATED` |
+| Ours | every handler is `void` (turnBridge.ts:76-83), so ST's awaited emit (lib/eventemitter.js:146) never waits on us; a reply's boundary is enqueued on `MESSAGE_RECEIVED` and flushed only once `isGenerating()` (script.js:604, `is_send_press \|\| is_group_generating`) is false (turnBridge.ts:159, 300 ms poll); `is_group_generating` is true for the whole round (group-chats.js:982 to :1078) | our persist rides the boundary commit |
+
+Consequences: (1) a Regex script is pre-render: no event and no re-read; the boundary reads the rewritten text.
+(2) Stories run in groups only, so any rewrite made during the round (Recast's included, which ST awaits inside
+`MESSAGE_RECEIVED`) lands before our commit: no cycle, the boundary reads the rewritten text. Cost: the
+`MESSAGE_EDITED` clears the reply's turn key, so `CHARACTER_MESSAGE_RENDERED` enqueues a second boundary at the
+same id and one more cadence read (pinned in the test; a V5 cost, not fixed here). (3) Only a rewrite after the round
+reaches the re-read: a deferred post-processor, Recast's diff modal accepted later, a manual Recast run, the
+player's own edit.
+
+**The v2.6 "no audit" case.** The hypothesis above ("the read lapsed when the second rewrite's rollback invalidated
+its window") against the record (`test/measurements/v2.6-03/sp2/series2/2026-10-01T12-14-38-926Z-diag-r4-night-pact-run1.log`
+steps 37-41: `cycles +1, reads +1, skipped +1`; the audits after the edit are `cue:…` and `cadence` only, no
+`recommit:14` in 180 s): **refuted as stated.** Both rewrites reached the seam with a valid record, so the bridge never
+rolled back, and the second cycle (chained after the first, `recommitEdit.ts` at `582e30d4`) skipped, so no second
+rollback ran during the read. The mechanism that produces exactly that record: the second rewrite lands after
+cycle 1's re-commit captured the first rewrite's fingerprint, while its read is still in flight. The seam took the
+edit without forgetting the fingerprint, so the read's own `commitBoundary` reconciles an eventless change
+(runtimeManager.ts:252 → chatSave.ts:170); the rollback's quarantine erases the audit the read had just stored
+(rollback.ts:102) and discards its deltas (:109); the commit after the reconcile notes the settled text, so cycle 2
+skips; the scheduler's rollback re-read and the boundary's cue and cadence reads then read the settled text, with
+nothing holding the next request. Reproduced deterministically (V0 control below). Not recorded, so not explained:
+why the v2.6 emitter's second assignment came that late. It awaited ST's emit per rewrite, and no stock
+`MESSAGE_EDITED` listener stalls it (vectors, logprobs and PromptManager are debounced; qvink's summarize is not
+awaited); the lane's console and extension list were not captured.
+
+**Defects found and fixed** (the same shape in the v2.7 module, a post-render rewrite that lands after the settle window
+fired):
+
+- D1, the hold let the reply go early: the late rewrite re-armed the same pending, but the first cycle's `finally`
+  resolved it, so the hold released after cycle 1 while cycle 2 had not run. Now a pending resolves only when no cycle
+  of it runs and no timer is outstanding (`editReread.ts:202-210`).
+- D2, the late text was never read: the drift commit noted the settled text, so cycle 2 skipped on the hash and the
+  state kept only the first text's read. A pending re-armed while its cycle ran now never skips (`rewritten`,
+  :186, :232).
+- D3, an eventless rollback raced the cycle: an edit the seam takes now forgets its message's fingerprint, as the
+  rollback it replaces would (`turnBridge.ts:250`). Before, any read landing between an edit and its cycle stepped
+  back as an "eventless change", erased its own audit and queued an unowned re-read. Flag off: the seam returns null
+  for edits, so nothing changes (payload invariance holds).
+
+**Tests** (`src/runtime/spikes/editReread.review.test.ts`, "V0: the traced post-processor orders", real manager over
+the spike harness, which gained a `generating` flag in `test/support/spikeHost.ts`): a Regex rewrite is in the reply at
+`MESSAGE_RECEIVED`, 0 edits, 0 cycles, the state equals playing the rewritten text; a Recast-shaped rewrite in the round
+lands before the commit, 0 cycles, both boundaries at the id carry the rewritten text, 4 cadence reads instead of 3;
+the late burst holds the reply until the last text is read: 2 cycles, 2 reads, 0 skipped, 0 journal rows, no
+"eventless change", equal to a replay of the edited chat; control (the v2.6 shape): with the fingerprint kept, the
+first read's audit is gone and the journal says "eventless change at message 3"; control: a rewrite after the cycle
+finished is a fresh cycle and does not hold a released hold again. Mutants: removing D1, D2 or D3 alone each fails the
+late-burst test. V1 800/800 and V2, V5, V6, V7 unchanged and green. Harness: `scripts/debug/so-postprocessor.test.mts`
+(8: the script's shape, the bursts, the arguments, install/remove idempotence that spares a foreign script, the
+rewriter's event order against a fake host, the V3 fixture's closed vocabulary, `requires`, and its inline script
+equal to the fixture). Census: `TurnBridge.onMutation` note extended; no new async writer.
+
+**V3 prepared, not run:** `test/scenarios/v27-33-v3-postprocessor.json` (+ `v27-33-v3-postprocessor.story.json`, four
+checkpoints with marker Author's Notes). `requires`: lane `model`, group "Group: Arin, DM Narrator" by name, members
+Arin and DM Narrator. It switches `spikes.editReread` on and restores it. Regex leg: every reply made while the script is
+installed has no straight-quoted span and the re-read saw no edit. Then the post-render bursts single, double and late,
+each appending the sentence that satisfies the next gate. Per case: the rewrite landed after the commit with the story
+still at the previous checkpoint (otherwise the case is void), the next request carries only the next checkpoint's
+marker and the settled text, and the hold did not time out. Deviation from the Gate line above: the toy group, not an
+adolion-fresh lane (39 row 33-W1-V3 updated).
+
+**Gates:** `npm run gates -- --no-storybook`: all green in 311.3 s (typecheck, typecheck:test, build, build:dev, test
+6921 passed / 1 skipped, debug:typecheck, lint, test:debug 1102/1102, test:release, test:plugin, test:replay 32 of 32
+killed); Storybook skipped (it cannot run from a worktree). Prod main entry 1,178,378 B (budget 1,250,000).
+`node --test scripts/release/phaseCManifest.test.mjs` 6/6. No live run: V3 is owed to v2.7 39 Phase C (rows
+33-W1-V0 now D, 33-W1-V3 on the toy group).
 
 ### W3 — responsiveness and repetition
 
@@ -375,7 +481,8 @@ loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak,
 
 ### Phase C rows owed (v2.7 39)
 
-- W1: V0 step 0 trace; V3 post-processor leg live ×2; V4 editor leg 4/4 ×2; V5 R5′ and hold p95 live; V8 J6 ×2 with
+- W1: V0 step 0 trace (done D 2026-10-07, above); V3 post-processor leg live ×2 (fixture
+  `test/scenarios/v27-33-v3-postprocessor.json`, not run); V4 editor leg 4/4 ×2; V5 R5′ and hold p95 live; V8 J6 ×2 with
   `spikes.editReread` on; run-header diff around the batch; fault-matrix row; then default on.
 - W2: T22 floor on Claude's over-steer session (v2.8 01 §G, ≥ 40 turns, second-model rater);
   `so-journey J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto` ×2; `assert-player-clean`.

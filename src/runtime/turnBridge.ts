@@ -247,6 +247,7 @@ export class TurnBridge {
     const run = beginRun(this.manager.getOwnership());
     if (!(await this.manager.rollbackOnEnter(kind, from))) {
       const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
+      if (replaced && edited) this.save?.fingerprints.forgetFrom(messageId);
       if (replaced) return replaced();
       await this.manager.rollbackFromMessage(from, journal ?? undefined, kind === "update" ? "edit" : kind, ...(decoded ? [decoded.count] : []));
     } else if (edited && run.stillOwns()) {
