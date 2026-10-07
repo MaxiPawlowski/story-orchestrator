@@ -21,7 +21,7 @@ export const AllOnByDefault: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const boxes = [...canvasElement.querySelectorAll<HTMLInputElement>('[data-so="story-display-toggle"]')];
-    await expect(boxes.map((box) => box.checked)).toEqual([true, true, true, true, true, true]);
+    await expect(boxes.map((box) => box.checked)).toEqual([true, true, true, true, true, true, true, true, true]);
     await userEvent.click(canvas.getByLabelText("Chapter title cards"));
     await expect(useDraftStore.getState().draft.display).toEqual({ chapter_card: false });
     await userEvent.click(canvas.getByLabelText("Chapter title cards"));

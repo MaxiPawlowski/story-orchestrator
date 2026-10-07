@@ -1,3 +1,7 @@
+import type { Milestone, QualityDisplay, Quest, StoryCheck, StoryWidget } from "./gameSchema";
+
+export * from "./gameSchema";
+
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
 export const EVIDENCE_FROM = ["any", "world", "party"] as const;
@@ -82,6 +86,7 @@ export interface Quality {
    */
   commit_evidence?: string;
   roll?: QualityRoll;
+  display?: QualityDisplay;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -216,6 +221,7 @@ export interface Checkpoint {
   chapter?: string;
   illustrate?: false;
   stretch?: CheckpointStretch;
+  checks?: StoryCheck[];
 }
 
 export const STRETCH_MODES = ["open"] as const;
@@ -283,6 +289,7 @@ export interface Transition {
   effects?: TransitionEffects;
   extractor_trigger?: string;
   extraction_hint?: string;
+  check?: StoryCheck;
 }
 
 export const ROSTER_VIEWS = ["own", "omniscient"] as const;
@@ -467,12 +474,15 @@ export interface StoryV2 {
   chapters?: Chapter[];
   memory?: StoryMemoryOptions;
   kind?: StoryKind;
+  quests?: Quest[];
+  milestones?: Milestone[];
+  widgets?: StoryWidget[];
 }
 
 export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];
 
-export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions"] as const;
+export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
 
 export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {

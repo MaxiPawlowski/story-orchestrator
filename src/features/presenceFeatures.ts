@@ -46,12 +46,12 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.presence.wand,
   },
   {
-    id: "roll-chips", name: "Roll chips", area: "play", audience: "author",
-    oneLine: "Author view shows every dice roll and background draw under its message.",
-    what: "Rolled qualities, chance replies and speaker picks each show the die, the face drawn and, for a pass or fail roll, the result. "
-      + "They are rebuilt from the chat, so a swipe or a reopened chat shows the same rolls.",
-    where: settingsAt("#so-presence-roll-chips", "Playing › Roll chips in Author view"),
-    settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story", "author-view"],
+    id: "roll-chips", name: "Dice chips", area: "play", audience: "player",
+    oneLine: "A check the story makes public shows its roll under the message it decided.",
+    what: "\"Climb: 15 + 4 vs 12, success\" sits under the reply the check decided. The roll is drawn from the chat itself, so a swipe or a reopened chat shows the same roll. "
+      + "A check the author keeps hidden shows only in the story's telling. Author view also shows every other roll and background draw.",
+    where: settingsAt("#so-presence-roll-chips", "Playing › Dice chips under messages"),
+    settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story"],
     isOn: (settings) => settings.display.presence.rollChips,
   },
   {

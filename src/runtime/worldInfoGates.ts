@@ -1,4 +1,4 @@
-import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 
@@ -17,10 +17,13 @@ export const isMemoryMirrorBook = (lorebook: string): boolean => bookKey(loreboo
 
 const lorePlans = (plans: WorldInfoBookPlan[]): WorldInfoBookPlan[] => plans.filter((plan) => !isMemoryMirrorBook(plan.lorebook));
 
-export function worldInfoPlan(story: NormalizedStoryV2, path: string[]): WorldInfoBookPlan[] {
+export function worldInfoPlan(story: NormalizedStoryV2, path: string[], rewarded: readonly string[] = []): WorldInfoBookPlan[] {
   const enabled: GatedWorldInfo = new Map();
-  for (const id of path) {
-    const { enable, disable } = checkpointWorldInfo(story.checkpointById[id]);
+  const switches = [
+    ...path.map((id) => checkpointWorldInfo(story.checkpointById[id])),
+    ...(story.quests ?? []).filter((quest) => rewarded.includes(quest.id)).map((quest) => readWorldInfoEffect(quest.reward?.effects?.world_info)),
+  ];
+  for (const { enable, disable } of switches) {
     enable.forEach((ref) => ref.comments.forEach((comment) => addGatedEntry(enabled, ref.lorebook, comment)));
     disable.forEach((ref) => ref.comments.forEach((comment) => enabled.get(ref.lorebook)?.delete(comment)));
   }

@@ -24,7 +24,7 @@ export const RollChips = ({ messageId, rolls }: RollChipsProps) => {
           data-source={roll.source}
           data-outcome={roll.outcome ?? "draw"}
           className="so-inline-chip so-roll-chip"
-          title={rollText(roll)}
+          title={roll.detail ? `${rollText(roll)} (${roll.detail})` : rollText(roll)}
         >
           <i className={ICON[roll.source]} aria-hidden="true" />
           <span>{rollText(roll)}</span>

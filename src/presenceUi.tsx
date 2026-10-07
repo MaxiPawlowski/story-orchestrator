@@ -14,6 +14,7 @@ import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
+import { GAME_TEXT } from "@features/gameCopy";
 import { BRIEFING_COPY, GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
 import type { SuggestionAsk } from "@runtime/suggestionsHost";
@@ -27,8 +28,11 @@ const ActivityPanel = lazyRetry(() => import("./components/panels/ActivityPanel"
 const GuideHost = lazyRetry(() => import("./guide/GuideHost"));
 const SuggestionsPanel = lazyRetry(() => import("./components/panels/SuggestionsPanel"));
 const suggestionsHost = () => import("@runtime/suggestionsHost");
+const JournalPanel = lazyRetry(() => import("./components/panels/JournalPanel"));
+const StatSheetPanel = lazyRetry(() => import("./components/panels/StatSheetPanel"));
+const WidgetPanel = lazyRetry(() => import("./components/panels/WidgetPanel"));
 
-export type PanelId = "help" | "activity" | "guide" | "suggestions";
+export type PanelId = "help" | "activity" | "guide" | "suggestions" | "journal" | "stat-sheet" | `widget-${string}`;
 
 const panelListeners = new Set<() => void>();
 let openPanels: readonly PanelId[] = [];
@@ -62,6 +66,37 @@ const activityChecks = (snapshot: RuntimeSnapshot) => {
 
 const viewport = () => ({ width: window.innerWidth, height: window.innerHeight });
 
+export const gamePanels = (snapshot: RuntimeSnapshot) => {
+  const game = snapshot.ready ? snapshot.game ?? null : null;
+  const shown = snapshot.presence?.shown;
+  return {
+    game, journal: Boolean(game && shown?.journal && (game.journal.length || game.milestones.length)), statSheet: Boolean(game?.statSheet && shown?.statSheet),
+    widgets: game && shown?.widgets ? game.widgets : [],
+  };
+};
+
+const Opener = ({ id, icon, label, panel, open }: { id: string; icon: string; label: string; panel: PanelId; open: readonly PanelId[] }) => (
+  <button id={id} type="button" data-so={id.slice(3)} className={`menu_button fa-solid ${icon}`} aria-expanded={open.includes(panel)} aria-label={label} title={label}
+    onClick={() => togglePanel(panel)} />
+);
+
+export const GameOpeners = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const open = useOpenPanels();
+  const game = gamePanels(snapshot);
+  const widgets = game.widgets;
+  const widgetsOpen = widgets.some((widget) => open.includes(`widget-${widget.id}`));
+  return (
+    <>
+      {game.journal && <Opener id="so-open-journal" icon="fa-book" label={GAME_TEXT.journalOpen} panel="journal" open={open} />}
+      {game.statSheet && <Opener id="so-open-stat-sheet" icon="fa-list-check" label={GAME_TEXT.statSheetOpen} panel="stat-sheet" open={open} />}
+      {widgets.length > 0 && (
+        <button id="so-open-widgets" type="button" data-so="open-widgets" className="menu_button fa-solid fa-table-columns" aria-expanded={widgetsOpen}
+          aria-label={GAME_TEXT.widgetsOpen} title={GAME_TEXT.widgetsOpen} onClick={() => widgets.forEach((widget) => setPanel(`widget-${widget.id}`, !widgetsOpen))} />
+      )}
+    </>
+  );
+};
+
 const Panel = ({ id, title, children }: { id: PanelId; title: string; children: ReactNode }) => (
   <PanelFrame id={id} title={title} geometry={panelGeometry(readPanels(), id, viewport())} onChange={(geometry) => savePanel(id, geometry)} onClose={() => setPanel(id, false)}>
     {children}
@@ -85,6 +120,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
     const snapshot = useSnapshot();
     const activity = panels.includes("activity") && snapshot.ready && snapshot.ui.authorView;
     const suggestions = panels.includes("suggestions") && snapshot.ready && snapshot.presence?.shown.suggestions === true;
+    const game = gamePanels(snapshot);
     return (
       <>
         {panels.includes("help") && (
@@ -107,6 +143,21 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
             <Lazy fallback={null}><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy>
           </Panel>
         )}
+        {game.game && game.journal && panels.includes("journal") && (
+          <Panel id="journal" title={GAME_TEXT.journalTitle}>
+            <Lazy fallback={null}><JournalPanel game={game.game} author={snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null} /></Lazy>
+          </Panel>
+        )}
+        {game.statSheet && panels.includes("stat-sheet") && (
+          <Panel id="stat-sheet" title={GAME_TEXT.statSheetTitle}>
+            <Lazy fallback={null}><StatSheetPanel sheet={game.game?.statSheet ?? null} /></Lazy>
+          </Panel>
+        )}
+        {game.widgets.filter((widget) => panels.includes(`widget-${widget.id}`)).map((widget) => (
+          <Panel key={widget.id} id={`widget-${widget.id}`} title={widget.title}>
+            <Lazy fallback={null}><WidgetPanel widget={widget} /></Lazy>
+          </Panel>
+        ))}
       </>
     );
   };
@@ -145,6 +196,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         id: "so-wand-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen, run: () => setPanel("suggestions", true),
         shown: () => manager.getCachedSnapshot().presence?.shown.suggestions === true,
       },
+      { id: "so-wand-journal", icon: "fa-book", label: GAME_TEXT.wandJournal, run: () => setPanel("journal", true), shown: () => gamePanels(manager.getCachedSnapshot()).journal },
+      { id: "so-wand-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.wandStatSheet, run: () => setPanel("stat-sheet", true), shown: () => gamePanels(manager.getCachedSnapshot()).statSheet },
       { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: openDrawer },
     ]);
     ui.add(() => wand.dispose());

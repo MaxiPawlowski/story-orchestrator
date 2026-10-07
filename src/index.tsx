@@ -8,7 +8,7 @@ import {
 } from "@services/STAPI";
 import { inlinePresence } from "@runtime/presence";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { createPresenceUi, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
+import { createPresenceUi, GameOpeners, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
@@ -311,6 +311,7 @@ const DrawerPanel = () => {
             <button id="so-open-suggestions" type="button" data-so="open-suggestions" className="menu_button fa-solid fa-lightbulb" aria-expanded={panels.includes("suggestions")}
               aria-label={PRESENCE_TEXT.suggestionsOpen} title={PRESENCE_TEXT.suggestionsOpen} onClick={() => togglePanel("suggestions")} />
           )}
+          <GameOpeners snapshot={snapshot} />
           {snapshot.ready && snapshot.ui.authorView && (
             <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
               aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />

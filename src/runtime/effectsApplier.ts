@@ -1,7 +1,6 @@
-import { type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
+import { rewardedQuestIds, type Checkpoint, type Quest, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
-  applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, lorebookExists,
-  readSamplerPreset, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
+  applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
   getContext, guardHostStream, watchHostChatMove, isHostGenerating, stopHostGeneration,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
@@ -9,17 +8,16 @@ import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
 import { couldNot, wrote } from "@utils/writeResult";
 import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
-import { renderBlackboardMemo } from "./blackboardMemo";
 import { transitionNoteText } from "./narrative";
 import { appendRow, castFlag, pendingRow, restorePlan, rollbackCastMirror, rowsAfter, runRestoreSteps, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
-import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
-import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
+import type { EffectLedgerRow, EffectOrigin, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
+import { releasePlan, worldInfoPlan } from "./worldInfoGates";
+import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, readNpcReplies, resolvePreset } from "./effectSteps";
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
 import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, type ActiveTrigger } from "./npcReplyRewind";
-import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
@@ -42,73 +40,6 @@ const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 const JUMP_RELEASED = new Set<EffectTarget["kind"]>(["an", "background", "extension"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
-
-const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => (Array.isArray(effects?.npc_replies) ? effects.npc_replies : []);
-
-// What the authored note resolves to, so the ledger can record it before the host is touched.
-const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {
-  if (value === null) return "";
-  if (typeof value === "string") return value;
-  if (!isRecord(value)) return null;
-  const text = typeof value.text === "string" ? value.text : "";
-  const includeBlackboard = value.inject_blackboard === true || value.include_blackboard === true;
-  return includeBlackboard ? `${text}\n\n${renderBlackboardMemo(snapshot)}`.trim() : text;
-};
-
-const applyAuthorNote = async (value: unknown, rendered: string): Promise<WriteResult<{ text: string }>> => {
-  if (!rendered) return clearCharacterAN();
-  if (!isRecord(value)) return applyCharacterAN(rendered);
-  return applyCharacterAN(rendered, {
-    position: value.position === "after" || value.position === "before" || value.position === "chat" ? value.position : undefined,
-    depth: typeof value.depth === "number" ? value.depth : undefined,
-    interval: typeof value.interval === "number" ? value.interval : undefined,
-    role: value.role === "system" || value.role === "user" || value.role === "assistant" ? value.role : undefined,
-  });
-};
-
-// The authored preset effect, resolved at activation to the sampler stack it overlays. A string names
-// an installed preset of the connection's own API, matched exactly (never `/preset`'s fuzzy match); an
-// object may carry the stack inline.
-export function resolvePreset(value: unknown, story: NormalizedStoryV2, api: SamplerApi | null): { name: string; settings: Record<string, unknown> | null } {
-  if (typeof value === "string") return { name: value, settings: api ? readSamplerPreset(value, api) : null };
-  if (!isRecord(value)) return { name: "", settings: null };
-  const name = typeof value.name === "string" ? value.name : `Story:${story.title}`;
-  const inline = isRecord(value.settings) ? value.settings : isRecord(value.preset) ? value.preset : null;
-  return { name, settings: inline ?? (api && typeof value.name === "string" ? readSamplerPreset(value.name, api) : null) };
-}
-
-// Each book is two host writes and the plan spans several books, so the world is asked before
-// every one of them, not once around the loop.
-// Each toggle answers what the host did, and a refusal is returned so the caller can journal
-// it; before, both answers were discarded and a lost write read as an applied checkpoint.
-const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promise<string[]> => {
-  const refused: string[] = [];
-  for (const plan of plans) {
-    if (!lorebookExists(plan.lorebook)) continue;
-    if (run && !run.stillOwns()) return refused;
-    const off = plan.disable.length ? await disableWIEntry(plan.lorebook, plan.disable) : null;
-    if (off && !off.ok) refused.push(off.reason);
-    if (run && !run.stillOwns()) return refused;
-    const on = plan.enable.length ? await enableWIEntry(plan.lorebook, plan.enable) : null;
-    if (on && !on.ok) refused.push(on.reason);
-  }
-  return refused;
-};
-
-// C: leaving scan mode applies the open chat's state through the file path at once. It enables
-// from rest-off. `path` is null when the story's requirements do not hold, which leaves its own entries
-// alone, as the file path does.
-export const replayWorldInfoFiles = async (library: unknown[], story: NormalizedStoryV2 | null, path: string[] | null, run?: RunGuard): Promise<string[]> => {
-  const released = await applyWorldInfo(releasePlan(story ? [...library, story] : library, story), run);
-  if (!story || !path) return released;
-  return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];
-};
-
-const fireReply = async (reply: NpcReplyEffect) => {
-  const text = reply.text ?? reply.instruction ?? "";
-  if (reply.kind !== "scripted") await executeSlashCommands(`/trigger await=true ${quoteSlashArg(reply.member)}`, { silent: false });
-  else if (text.trim()) await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false });
-};
 
 const hostChat = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
@@ -149,7 +80,7 @@ export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own 
 
 export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 
-type EffectScope = { checkpointId: string | null; boundary: number; messageId: number };
+type EffectScope = { checkpointId: string | null; boundary: number; messageId: number; origin?: EffectOrigin };
 
 export const NO_OPEN_GROUP = "the effect was not applied: stories play in group chats, and this chat is not one";
 
@@ -260,7 +191,7 @@ export class EffectsApplier {
     if (ready && identitySettled(extras.playerSetup)) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
+    const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard)), run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
@@ -395,6 +326,23 @@ export class EffectsApplier {
       flags.map(({ member, disabled }) => ({ ...scope, effect: "cast", target: { kind: "cast" as const, group: groupId, member }, before: castFlag(group, member), after: { disabled } })),
       async () => setGroupMemberFlags(groupId, flags),
     );
+  }
+
+  async applyQuestRewards(story: NormalizedStoryV2, quests: readonly Quest[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
+    if (!openChatId() || !openGroupId() || !extras.requirements.ready || !run.stillOwns()) return;
+    if (quests.some((quest) => quest.reward?.effects?.world_info) && !worldInfoFilesHeld()) {
+      const refused = await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, values)), run);
+      if (refused.length) this.deps.journal?.("a quest reward's world_info could not be applied", refused.join("; "));
+    }
+    for (const quest of quests) {
+      const effects = quest.reward?.effects;
+      if (!run.stillOwns() || !effects) return;
+      const scope = { ...at, origin: { kind: "quest" as const, id: quest.id, boundary: at.boundary, messageId: at.messageId } };
+      if (effects.cast_changes !== undefined) await this.castWrites.track(this.applyCastChanges(effects.cast_changes, story.roster ?? [], extras, scope, run, null));
+      if (!run.stillOwns()) return;
+      const replies = { id: `quest:${quest.id}`, name: quest.title, objective: "", type: "intermediate" as const, effects: { npc_replies: effects.npc_replies } };
+      if (effects.npc_replies?.length) await this.fireNpcReplies(replies, extras, "onEnter");
+    }
   }
 
   async restoreFor(extras: RuntimeExtras, scope: RestoreScope): Promise<{ reverted: number; refused: number }> {

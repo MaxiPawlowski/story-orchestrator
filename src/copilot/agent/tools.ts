@@ -5,11 +5,13 @@ import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
 import type * as CoreMutations from "../../studio/mutations";
 import type * as InnerVoiceMutations from "../../studio/innerVoiceMutations";
+import type * as GameMutations from "../../studio/gameMutations";
+import { GAME_AGENT_KINDS, readGameCall } from "./gameOps";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
 
-type Mutations = typeof CoreMutations & typeof InnerVoiceMutations;
+type Mutations = typeof CoreMutations & typeof InnerVoiceMutations & typeof GameMutations;
 
 export type AgentArgType = "string" | "number" | "boolean" | "object" | "array" | "value";
 
@@ -38,6 +40,8 @@ const REF = req("object", "{from, to, priority?, index?} naming one transition; 
 const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], source: \"extractor\", rubric, latching?: boolean}";
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
+const QUEST = "[{id, title, visible_when?, offered_when?, done_when?, failed_when?, steps: [{text, done_when}], requires?, progress?, labels?, giver?, reward?}]";
+const CHECK = "{id, label?, quality, roll: {sides, target, dice?}, modifiers?: [{q, v, add, label?}], narrate: public|hidden, outcome?, twist?}";
 const CHAPTER = "[{id, title, player_title?, kind?: chapter|interlude, final?: boolean, seal?: {open_threads?: carry|close|decide, keep_tail?, fold_messages?, record_style?: prose|chronicle}}]";
 
 type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
@@ -112,6 +116,39 @@ export const EDIT_TOOLS = {
     doc: "Set what one cast member wants at one beat, told only to that member. Empty text clears it. Never for the player.",
     args: { id: ID, member: req("string", "member id"), motive: req("string", "one line: what they want right now") },
   },
+  setQuests: {
+    backedBy: "setQuests",
+    composes: ["addQuest", "updateQuest", "removeQuest"],
+    doc: "Replace the side quests (the full list). Status is computed from qualities, never stored; titles and steps are player copy (no later beat). Read the quests guide first.",
+    args: { quests: req("array", QUEST) },
+  },
+  setMilestones: {
+    backedBy: "setMilestones",
+    composes: ["addMilestone", "updateMilestone", "removeMilestone"],
+    doc: "Replace the milestones (the full list): earned when the gate holds; a secret one shows ??? until then.",
+    args: { milestones: req("array", `[{id, title, when: ${GATE}, secret?}]`) },
+  },
+  setWidgets: {
+    backedBy: "setWidgets",
+    composes: ["addWidget", "updateWidget", "removeWidget"],
+    doc: "Replace the story panels (the full list). A player panel binds only public qualities.",
+    args: { widgets: req("array", "[{id, kind: meters|track|log|clock|board, title, bind?, audience?: player|author, options?, visible_when?}]") },
+  },
+  setQualityDisplay: {
+    backedBy: "setQualityDisplay",
+    doc: "Show a quality on the player's Stat sheet, or null to keep it hidden. Never a relationship.",
+    args: { key: req("string", "quality key"), display: req("value", "{public: true, label, as: item|count|meter|boxes|word, group?, min?, max?, bands?} or null") },
+  },
+  setCheckpointChecks: {
+    backedBy: "setCheckpointChecks",
+    doc: "Replace a beat's checks: seeded rolls once per visit, written to code bool qualities.",
+    args: { id: ID, checks: req("array", CHECK) },
+  },
+  setTransitionCheck: {
+    backedBy: "setTransitionCheck",
+    doc: "Put a check on a transition (attempted when the rest of its gate holds), or null to remove it.",
+    args: { index: req("number", "the transition's number in readGraph"), check: req("value", `${CHECK} or null`) },
+  },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 
 export const PROVISION_TOOLS = {
@@ -183,6 +220,9 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   setStoryId: "the story's identity is the author's, set in the Story tab",
   setBriefing: "player copy the author writes in the Story tab; drafting it is a later model-backed step",
   setMemberCard: "card-field bindings are authored in the Roster tab and the checkpoint Card changes section; an agent tool for them is a later step",
+  newQuest: "constructor; setQuests takes the full list",
+  newMilestone: "constructor; setMilestones takes the full list",
+  newWidget: "constructor; setWidgets takes the full list",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;
@@ -267,6 +307,10 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   }
   if (call.tool === "setChapters") return readChaptersCall(spec, call.args);
   if (call.tool === "setPlayer") return readPlayerCall(spec, call.args);
+  if (GAME_AGENT_KINDS.has(call.tool)) {
+    const game = readGameCall(call.tool, call.args);
+    return game.ok ? { ok: true, spec, op: game.op } : game;
+  }
   const text = (key: string) => String(call.args[key]).trim();
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
   if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };

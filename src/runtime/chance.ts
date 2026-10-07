@@ -1,5 +1,6 @@
 import { chanceSeed, rollOutcome, seededStream, unitDraw } from "@engine/chance";
-import type { DerivedQualityView, PrimitiveValue, Quality } from "@engine/index";
+import type { DerivedQualityView, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import { checkGateValues } from "./storyCheckDraws";
 import type { LoadedStory } from "./types";
 
 export interface ChanceIds {
@@ -10,11 +11,12 @@ export interface ChanceIds {
 export interface ChanceContext extends ChanceIds {
   boundary: number;
   qualities: readonly Quality[];
+  story?: NormalizedStoryV2;
 }
 
 export const chanceContext = (loaded: Pick<LoadedStory, "story" | "record"> | null, chatId: string | null, boundary: number): ChanceContext | null => {
   const storyId = loaded?.story.id ?? loaded?.record.id;
-  return loaded && storyId && chatId ? { chatId, storyId, boundary, qualities: loaded.story.qualities } : null;
+  return loaded && storyId && chatId ? { chatId, storyId, boundary, qualities: loaded.story.qualities, story: loaded.story } : null;
 };
 
 export type ChanceDrawKind = "npc" | "talk";
@@ -58,7 +60,7 @@ const announce = (draw: ChanceDraw) => drawListeners.forEach((listener) => liste
 export const createChanceSeams = (read: () => ChanceContext | null, record: (draw: ChanceDraw) => void = announce): ChanceSeams => ({
   derive: (view) => {
     const context = read();
-    return context ? chanceGateValues(context.qualities, context, view) : [];
+    return context ? [...chanceGateValues(context.qualities, context, view), ...checkGateValues(context.story, context, view)] : [];
   },
   npcRoll: (key) => {
     const context = read();

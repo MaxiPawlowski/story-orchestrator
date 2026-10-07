@@ -121,7 +121,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   protected readonly co = wireCoordinators({
     view: this.view, lifecycle: this.lifecycle, engine: this.engine, loaded: () => this.loaded, extras: () => this.extras, judge: () => this.judge,
     setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
-    firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
+    firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story), effects: () => this.effects,
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
     fireSceneBreakReplies: async (breakAt) => { await this.effects.fireActiveReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", this.engine.pendingTransition()?.to ?? null, breakAt); },
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,

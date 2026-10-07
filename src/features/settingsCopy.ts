@@ -95,8 +95,21 @@ export const SETTING_COPY = {
     "Story recap, the story briefing (when the story has one), flag this moment and the story drawer, from the extensions wand beside where you type.",
   ),
   "display.presence.rollChips": copy(
-    "Roll chips in Author view",
-    "Author view only: each dice roll and background draw under the message it belongs to, and in the Activity panel. Players never see them.",
+    "Dice chips under messages",
+    "A check a story makes public shows its roll under the message it decided (\"Climb: 15 + 4 vs 12, success\"). "
+      + "Author view also shows every other roll and background draw, here and in the Activity panel.",
+  ),
+  "display.presence.journal": copy(
+    "Journal",
+    "A movable panel with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found.",
+  ),
+  "display.presence.statSheet": copy(
+    "Stat sheet",
+    "A movable panel with what the story keeps count of in the open: what you carry and the meters the author made public.",
+  ),
+  "display.presence.widgets": copy(
+    "Story panels",
+    "Extra panels a story adds, such as a clock that fills or a board of quests. Only what the author made public shows.",
   ),
   "display.presence.suggestions": copy(
     "What could I do?",

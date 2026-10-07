@@ -1,4 +1,7 @@
-import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
+import {
+  agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
+  type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
+} from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
@@ -39,6 +42,8 @@ import { personaRead } from "./playerSetupPort";
 import { isRecord } from "@utils/guards";
 import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
+import { checkRolls } from "./storyCheckDraws";
+import { gameSlices } from "./gameSnapshot";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
 import { imageHealth } from "./imageHealth";
@@ -254,12 +259,20 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   }),
 });
 
-const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+const resolvedThreads = (memory: RuntimeExtras["memory"]) =>
+  withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "resolved" && !arc.foldedInto).map((arc) => arc.text);
+
+const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null, game: { castNames: Record<string, string>; openThreads: string[] }) => {
   const storyId = sources.loaded?.record.id;
   const ids = storyId && sources.chatId ? { chatId: sources.chatId, storyId } : null;
   const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
+  const { extras } = sources;
   return {
-    rolls: composeRolls(quality, sources.extras.chance ?? createChance()),
+    ...gameSlices({
+      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView,
+      threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory) : [] },
+    }),
+    rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
@@ -330,6 +343,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind,
+    quests: story ? visibleQuestTitles(story.quests, valueReader(blackboard)) : [],
+    milestones: chapters.epilogue ? (story?.milestones ?? []).filter((milestone) => milestoneEarned(milestone, valueReader(blackboard))).map((milestone) => milestone.title) : [],
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
@@ -413,7 +428,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline, castNames, ...presenceSlices(sources, story, state),
+    inline, castNames, ...presenceSlices(sources, story, state, { castNames, openThreads }),
     ...modelCallSlices(extras),
   };
 }

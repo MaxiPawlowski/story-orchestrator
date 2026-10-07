@@ -8,6 +8,7 @@ import { readChanceRoll } from "../chance";
 import { isRecord } from "@utils/guards";
 import { log } from "@utils/log";
 import { addError, asString, isOneOf } from "./common";
+import { readDisplay } from "./display";
 
 const readCriterion = (value: unknown): string | QualityCriterion | null => {
   if (typeof value === "string") return value.trim() || null;
@@ -179,13 +180,15 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     ? { entity: value.ledger_binding.entity, field: value.ledger_binding.field }
     : undefined;
 
+  const labels = readPlayerLabels(value, type === "enum" ? values : undefined, path, errors);
   return {
     key,
     type,
     source,
     rubric,
     ...(values ? { values } : {}),
-    ...readPlayerLabels(value, type === "enum" ? values : undefined, path, errors),
+    ...labels,
+    ...readDisplay(value.display, { type, values, player_labels: labels.player_labels }, `${path}.display`, errors),
     ...(typeof value.latching === "boolean" ? { latching: value.latching } : {}),
     ...(typeof value.monotonic === "boolean" ? { monotonic: value.monotonic } : {}),
     ...(isRecord(value.scope_hint) ? { scope_hint: value.scope_hint as Quality["scope_hint"] } : {}),

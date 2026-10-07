@@ -47,7 +47,10 @@
         "chapterCard": true,
         "wand": true,
         "rollChips": true,
-        "suggestions": true
+        "suggestions": true,
+        "journal": true,
+        "statSheet": true,
+        "widgets": true
       }
     },
     "copilot": {

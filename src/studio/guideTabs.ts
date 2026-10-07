@@ -10,4 +10,5 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   ],
   transitions: ["gates", "transitions", "convergence"],
   roster: ["roster", "drives-motives", "opening-scene"],
+  game: ["quests", "checks", "widgets"],
 };

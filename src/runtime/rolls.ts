@@ -31,6 +31,8 @@ export interface RollRecord {
   modifiers?: number;
   total?: number;
   outcome?: "success" | "failure";
+  degree?: "miss" | "weak" | "strong";
+  detail?: string;
   narrate: boolean;
 }
 
@@ -92,10 +94,14 @@ export const drawRecords = (state: ChanceRuntimeState): RollRecord[] => state.dr
   source: draw.kind, key: draw.key, messageId: draw.messageId, boundary: draw.boundary, sides: DRAW_SIDES, draw: dieFace(DRAW_SIDES, draw.unit), narrate: false,
 }));
 
-export const composeRolls = (quality: RollRecord[], chance: ChanceRuntimeState): RollRecord[] =>
-  [...quality, ...drawRecords(chance)].sort((left, right) => left.messageId - right.messageId || left.boundary - right.boundary);
+export const composeRolls = (quality: RollRecord[], chance: ChanceRuntimeState, checks: RollRecord[] = []): RollRecord[] =>
+  [...quality, ...drawRecords(chance), ...checks].sort((left, right) => left.messageId - right.messageId || left.boundary - right.boundary);
 
 export const rollText = (roll: RollRecord): string => {
+  if (roll.source === "check") {
+    const bonus = roll.modifiers ? ` ${roll.modifiers > 0 ? "+" : "-"} ${Math.abs(roll.modifiers)}` : "";
+    return `${roll.key}: ${roll.draw}${bonus} vs ${roll.target}, ${roll.degree ?? roll.outcome}`;
+  }
   const die = `d${roll.sides}`;
   const versus = roll.target !== undefined ? ` vs ${roll.target}` : "";
   const outcome = roll.outcome ? `, ${roll.outcome}` : "";

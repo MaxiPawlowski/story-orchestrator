@@ -41,7 +41,9 @@ export async function chapterSlash(manager: RuntimeManager, command: string, arg
     return dump(text || "Usage: /story chapter <n> — /story chapters lists them");
   }
   const story = manager.getStory();
-  const text = chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView, number: (record) => chapterNumber(story, record.chapterId) });
+  const earned = (snapshot.game?.milestones ?? []).filter((milestone) => milestone.earned).map((milestone) => `- ${milestone.title}`);
+  const chronicle = chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView, number: (record) => chapterNumber(story, record.chapterId) });
+  const text = earned.length ? `${chronicle}\n\n## Milestones\n\n${earned.join("\n")}` : chronicle;
   const copied = { ok: "The chronicle is on your clipboard", fallback: "Could not reach the clipboard; the chronicle is in the console" };
   await exportState({ writeClipboard: (value) => navigator.clipboard.writeText(value), toast: window.toastr ?? {}, log: (value) => log.info(value) }, text, copied);
   return text;

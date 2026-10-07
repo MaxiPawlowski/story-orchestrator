@@ -11,6 +11,7 @@ import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { createLore, sanitizeLore } from "./loreFired";
 import { createChance, sanitizeChance } from "./rolls";
+import { sanitizeChecks } from "./storyCheckDraws";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
@@ -417,6 +418,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.lore = sanitizeLore(extras.lore);
   extras.chance = sanitizeChance(extras.chance);
+  if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;

@@ -8,6 +8,7 @@ import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 import { readStretch } from "./stretch";
+import { readChecks } from "./checks";
 
 type Member = StoryV2["roster"][number];
 
@@ -69,7 +70,7 @@ const readBackground = (value: unknown, path: string, errors: ValidationError[])
   return { name: name.trim() };
 };
 
-const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
+export const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
   if (!isRecord(value)) return null;
   const effects: CheckpointEffects = { ...value };
   if (value.background !== undefined) {
@@ -309,5 +310,6 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
     if (stretch) checkpoint.stretch = stretch;
   }
   readCheckpointChapter(value, checkpoint, path, errors);
-  return checkpoint;
+  const checks = readChecks(value.checks, `${path}.checks`, errors);
+  return checks.length ? { ...checkpoint, checks } : checkpoint;
 };

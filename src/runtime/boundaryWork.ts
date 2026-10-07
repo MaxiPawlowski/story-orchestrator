@@ -34,6 +34,12 @@ export interface BoundaryWorkItem {
 
 const WORK_ITEMS: BoundaryWorkItem[] = [
   {
+    id: "game",
+    order: 5,
+    afterEnd: true,
+    run: ({ result, manager }) => manager.game.onBoundary(result, manager.getLoadedChatId()),
+  },
+  {
     id: "scheduler-tick",
     order: 10,
     run: ({ result, scheduler }) => {
