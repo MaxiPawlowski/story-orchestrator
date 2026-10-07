@@ -5,7 +5,7 @@ import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
-import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
@@ -17,7 +17,13 @@ install) and its own browser, so install-wide state (extension settings, story l
 selection, judge settings) never crosses lanes and journeys can run side by side. The model backend
 is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest.
 
-  seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails)
+  seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails); with
+                               SO_LANE_OFFLINE=1 the copy is made offline: every loopback URL in settings.json
+                               but the lane's own (local model servers, a GPU controller, ComfyUI) points at the
+                               closed port 18079, model keys are removed as no-model does, judge, images, sprites
+                               and ST's Image Generation extension off; start refuses it if that no longer holds and
+                               starts its server without server plugins (the GPU plugin forwards to a controller
+                               named in the shared plugin config, the media plugin to ComfyUI)
   start <n...> [--headed] [--judge-lanes <k>]
                                start lane n's server (port ${'8100+n'}) and browser (CDP ${'9300+n'}); --judge-lanes
                                gives its judge plugin 1/k of the TypeSafe account (every lane's plugin limits
@@ -131,10 +137,38 @@ async function seed(n: number, fresh: boolean) {
   const target = resolve(lane.data, 'default-user');
   if (existsSync(target) && !fresh) return { lane: n, seeded: false, reason: 'already seeded (pass --fresh to re-copy)' };
   if (fresh) await rm(lane.data, { recursive: true, force: true });
+  await rm(resolve(lane.root, OFFLINE_MARKER), { force: true });
   const source = resolve(ST_ROOT, 'data', 'default-user');
   await mkdir(lane.data, { recursive: true });
   await cp(source, target, { recursive: true, filter: (path) => !SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source });
-  return { lane: n, seeded: true, from: source, to: target };
+  const offline = offlineRequested() ? await makeOffline(n) : null;
+  return { lane: n, seeded: true, from: source, to: target, ...(offline ? { offline } : {}) };
+}
+
+const offlineRequested = () => process.env[OFFLINE_ENV] === '1';
+const OFFLINE_MARKER = 'offline-lane.json';
+const OFFLINE_SERVER_ENV = { SILLYTAVERN_ENABLESERVERPLUGINS: 'false' };
+
+async function makeOffline(n: number) {
+  const lane = lanePaths(n);
+  const user = resolve(lane.data, 'default-user');
+  const settingsPath = resolve(user, 'settings.json');
+  const secretsPath = resolve(user, 'secrets.json');
+  const { next, rewired } = offlineSettings(JSON.parse(await readFile(settingsPath, 'utf-8')), lane.port);
+  await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+  let removedKeys = 0;
+  if (existsSync(secretsPath) && !existsSync(resolve(user, NO_MODEL_BACKUP))) {
+    const raw = await readFile(secretsPath, 'utf-8');
+    const stripped = stripModelSecrets(JSON.parse(raw));
+    await writeFile(resolve(user, NO_MODEL_BACKUP), raw, 'utf-8');
+    await writeFile(secretsPath, JSON.stringify(stripped.next, null, 4), 'utf-8');
+    removedKeys = stripped.removed.length;
+  }
+  const problems = offlineProblems(JSON.parse(await readFile(settingsPath, 'utf-8')), lane.port);
+  if (problems.length) throw new Error(`lane ${n}: the offline rewrite did not hold: ${problems.join('; ')}`);
+  const record = { at: new Date().toISOString(), rewired, removedKeys };
+  await writeFile(resolve(lane.root, OFFLINE_MARKER), JSON.stringify(record, null, 2), 'utf-8');
+  return record;
 }
 
 async function start(n: number, headed: boolean, judgeLanes: number | null = null) {
@@ -142,10 +176,14 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
   const wasUp = await isUp(lane.port);
+  if (!wasUp && existsSync(resolve(lane.root, OFFLINE_MARKER))) {
+    const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port);
+    if (problems.length) throw new Error(`lane ${n} is an offline lane but its settings.json no longer is (${problems.join('; ')}); re-seed it with ${OFFLINE_ENV}=1`);
+  }
   if (!wasUp) {
     const log = await open(lane.log, 'a');
     const server = spawn(process.execPath, ['server.js', '--port', String(lane.port), '--dataRoot', lane.data, '--browserLaunchEnabled', 'false', '--listen', 'false'], {
-      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}) },
+      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...(existsSync(resolve(lane.root, OFFLINE_MARKER)) ? OFFLINE_SERVER_ENV : {}) },
     });
     server.unref();
     await writeFile(lane.pid, String(server.pid ?? ''), 'utf-8');
