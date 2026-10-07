@@ -90,5 +90,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     ...(labeller ? [] : ['needs --labeller <profile> (a second model labels in-goal; never the user)']),
   ];
   if (problems.length) { refuse(problems); process.exit(2); }
-  runCli((page) => measure(page, { profile, labeller, run }));
+  runCli((page) => measure(page, { profile, labeller, run }), { pageCapture: 'b1' });
 }

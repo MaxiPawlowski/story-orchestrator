@@ -7,6 +7,8 @@ import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
+import { ROW_DIR_ENV } from './lib/pageCapture.mts';
+import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -23,8 +25,11 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   stop <n...>                  stop lane n's browser and server
   status                       list lanes and whether each is up
   env <n>                      print the environment that points a debug script at lane n
-  run <n> [--allow-load] -- <node script args> run one debug script against lane n (an integration play or a
-                               B1 measurement run, so-b1-*.mts, is refused under the same lane-load rule as batch)
+  run <n> [--allow-load] [--evidence] -- <node script args> run one debug script against lane n (an integration play or a
+                               B1 measurement run, so-b1-*.mts, is refused under the same lane-load rule as batch).
+                               Its output, page capture, server log slice and (pod lanes) tunnel + pod windows land in
+                               <lane>/debug/runs/<stamp>-<script>/; for a B1 model run, an integration play or with
+                               --evidence a missing piece exits 3 (INCOMPLETE)
   no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
                                copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
   restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
@@ -41,7 +46,13 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                SO_MAX_LLM_LANES (default 2) lanes with a model are up on one pod: on 2026-10-03 five
                                LLM lanes on one pod made a 4-token completion take 56 s and turned
                                backend latency into red runs (T7 SUITE.md finding 4). No-model lanes do
-                               not count; --allow-load overrides.`;
+                               not count; --allow-load overrides. Each row gets <lane>/debug/batch/<stamp>/<item>-run<k>/:
+                               runner.log, record.json (the runner's result, safe from debug-dir rotation),
+                               page.jsonl + page-summary.json (console errors, page errors, failed /api requests),
+                               server.log (the lane server log written during the row), and on a pod lane
+                               tunnel.json + pod.json (so-pod.mts up's tunnel events and pod samples for the row
+                               window); evidence.json says what is missing. A row with missing evidence is
+                               INCOMPLETE and never counts as green.`;
 
 const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
@@ -174,7 +185,17 @@ async function status() {
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number };
+type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
+
+export type RowStatus = 'GREEN' | 'RED' | 'INCOMPLETE' | 'NOT-RUNNABLE';
+
+export const rowStatus = (code: number, complete: boolean, notRunnable: string | null): RowStatus => (notRunnable ? 'NOT-RUNNABLE' : !complete ? 'INCOMPLETE' : code === 0 ? 'GREEN' : 'RED');
+
+export function rowLane(n: number): RowLane {
+  const lane = lanePaths(n);
+  const pod = readLanePod(lane.root);
+  return { n, root: lane.root, serverLog: lane.log, lanesRoot: LANES_ROOT, pod: pod ? pod.pod : undefined, noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)) };
+}
 
 async function setModelAccess(n: number, on: boolean) {
   const lane = lanePaths(n);
@@ -231,29 +252,46 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   await Promise.all(lanes.map(async (n) => {
-    const dir = resolve(lanePaths(n).debug, 'batch');
+    const dir = resolve(lanePaths(n).debug, 'batch', stamp);
     await mkdir(dir, { recursive: true });
     for (let item = queue.shift(); item; item = queue.shift()) {
       for (let run = 1; run <= repeat; run += 1) {
-        const log = resolve(dir, `${stamp}-${basename(item).replace(/\.json$/, '')}-run${run}.log`);
+        const rowDir = resolve(dir, rowDirName(item, run));
+        await mkdir(rowDir, { recursive: true });
+        const log = resolve(rowDir, ROW_FILES.runner);
+        const serverOffset = fileSize(lanePaths(n).log);
         const began = Date.now();
-        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), laneEnv(n), { logPath: log });
-        const result = {
-          item, lane: n, run, code, log, ms: Date.now() - began,
+        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
+        const ended = Date.now();
+        const notRunnable = output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null;
+        const paths = recordPathsIn(output);
+        const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: ended, serverOffset, recordPath: paths.record, failurePath: paths.failure, notRunnable, expect: { record: true, page: true } });
+        const result: BatchResult = {
+          item, lane: n, run, code, log, ms: ended - began,
+          status: rowStatus(code, evidence.complete, notRunnable),
+          evidence: { dir: rowDir, complete: evidence.complete, problems: evidence.problems, warnings: evidence.warnings, attention: evidence.attention },
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
           cleanup: output.match(/^cleanup: .*$/m)?.[0] ?? null,
-          record: output.match(/Wrote JSON: (.*journey-J\d+\.json)/)?.[1]?.trim() ?? null,
-          notRunnable: output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null,
+          record: evidence.copied.record ? resolve(rowDir, ROW_FILES.record) : paths.record,
+          notRunnable,
           failures: [...output.matchAll(/^(FAIL|BLOCKED)\s+(\S+)/gm)].map((match) => `${match[1]} ${match[2]}`).concat(/^J/i.test(item) ? [] : [...output.matchAll(/^\S+ \d+\/\d+ \S+ FAIL (.{0,160})/gm)].map((match) => match[1])),
         };
         results.push(result);
-        console.log(`lane ${n} ${item} run ${run}: code ${code}${result.automated ? ` · ${result.automated}` : ''}${result.notRunnable ? ` · NOT RUNNABLE: ${result.notRunnable}` : ''} (${Math.round(result.ms / 1000)} s)`);
+        console.log(`lane ${n} ${item} run ${run}: ${result.status} code ${code}${result.automated ? ` · ${result.automated}` : ''}${result.notRunnable ? ` · NOT RUNNABLE: ${result.notRunnable}` : ''} (${Math.round(result.ms / 1000)} s)`);
+        for (const problem of evidence.problems) console.log(`  INCOMPLETE: ${problem}`);
+        for (const note of evidence.attention) console.log(`  ATTENTION: ${note}`);
       }
     }
   }));
   const summary = resolve(LANES_ROOT, `batch-${stamp}.json`);
-  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, results }, null, 2), 'utf-8');
-  return { summary, green: results.filter((result) => result.code === 0).length, runs: results.length };
+  const incomplete = results.filter((result) => result.status === 'INCOMPLETE').map((result) => `${result.item} run ${result.run} (lane ${result.lane})`);
+  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, incomplete, results }, null, 2), 'utf-8');
+  for (const n of lanes) await writeFile(resolve(lanePaths(n).debug, 'batch', stamp, 'batch.json'), JSON.stringify({ lanes, items, repeat, strict, incomplete, results: results.filter((result) => result.lane === n) }, null, 2), 'utf-8').catch(() => undefined);
+  return { summary, green: results.filter((result) => result.status === 'GREEN').length, runs: results.length, incomplete };
+}
+
+export function runEvidenceRequired(script: string[], flags: string[]): boolean {
+  return flags.includes('--evidence') || isIntegrationPlay(script) || isB1ModelRun(script);
 }
 
 export const SERVED_EXTENSION_DIR = resolve(ST_ROOT, 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator');
@@ -309,8 +347,17 @@ async function main() {
     const script = rest.slice(at + 1);
     const load = (isIntegrationPlay(script) || isB1ModelRun(script)) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
     if (load) throw new Error(`run refused: ${load}`);
-    const { code } = await runNode(script, laneEnv(n), { echo: true });
-    process.exitCode = code;
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const rowDir = resolve(lanePaths(n).debug, 'runs', `${stamp}-${basename(script[0] ?? 'script').replace(/\.m?[tj]s$/, '')}${script[1] && !script[1].startsWith('-') ? `-${script[1]}` : ''}`);
+    await mkdir(rowDir, { recursive: true });
+    const serverOffset = fileSize(lanePaths(n).log);
+    const began = Date.now();
+    const { code, output } = await runNode(script, { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { echo: true, logPath: resolve(rowDir, ROW_FILES.runner) });
+    const required = runEvidenceRequired(script, rest.slice(0, at));
+    const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: Date.now(), serverOffset, recordPath: null, notRunnable: output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null, expect: { record: false, page: required } });
+    console.log(`evidence: ${rowDir}${evidence.complete ? '' : ` (${required ? 'INCOMPLETE' : 'gaps'}: ${evidence.problems.join('; ')})`}`);
+    for (const note of evidence.attention) console.log(`ATTENTION: ${note}`);
+    process.exitCode = code !== 0 ? code : required && !evidence.complete ? 3 : 0;
     return;
   } else if (command === 'batch') {
     const lanes = String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean);

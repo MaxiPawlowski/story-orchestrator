@@ -264,6 +264,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (command === 'diff') {
     diff(args).then((result) => process.exit(result.ok ? 0 : 1), (error) => { console.error('Error:', error instanceof Error ? error.message : String(error)); process.exit(1); });
   } else {
-    runCli((page) => capture(page, args));
+    runCli((page) => capture(page, args), { pageCapture: 'payload-golden' });
   }
 }

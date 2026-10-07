@@ -110,5 +110,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     ...(profile ? [] : ['needs --profile <read profile> (the row runs on the DeepSeek read profile, named in the record)']),
   ];
   if (problems.length) { refuse(problems); process.exit(2); }
-  runCli((page) => measure(page, mode, { lab, profile, run, row }));
+  runCli((page) => measure(page, mode, { lab, profile, run, row }), { pageCapture: 'b1' });
 }

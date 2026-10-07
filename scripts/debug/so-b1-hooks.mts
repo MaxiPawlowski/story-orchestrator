@@ -106,5 +106,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     ...(labeller ? [] : ['needs --labeller <Connection Manager profile> (a second model, never the user)']),
   ];
   if (problems.length) { refuse(problems); process.exit(2); }
-  runCli((page) => label(page, { runsPath: resolve(runsPath), labeller, run, row }));
+  runCli((page) => label(page, { runsPath: resolve(runsPath), labeller, run, row }), { pageCapture: 'b1' });
 }

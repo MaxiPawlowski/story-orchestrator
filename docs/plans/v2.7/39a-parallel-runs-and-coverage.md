@@ -141,10 +141,86 @@ Specified, not built:
 | # | Piece |
 |---|---|
 | T1 | `st-lanes.mts swap <n> --from <m>`: stopped lanes; rename m's `data/`, `adolion-fresh/` and the asset baseline into n, re-apply n's `pod.json` retarget, run `adolion-fresh check n`; refuse a spare that was ever started after seeding (server log) or whose inventory differs. Plus `adolion-fresh seed <m> --spare-for <n>` |
-| T2 | Per-pod tunnel script: `get-pod` → `ssh.direct` → `ssh -N -L 1808k:127.0.0.1:8080 -p <port> root@<ip>`, retried after a pod restart (the port moves); then `/profile Artemis RunPod RP` on each of the pod's lanes (reselect clears a dead-backend page) |
+| T2 | Per-pod tunnel script: `get-pod` → `ssh.direct` → `ssh -N -L 1808k:127.0.0.1:8080 -p <port> root@<ip>`, retried after a pod restart (the port moves); then `/profile Artemis RunPod RP` on each of the pod's lanes (reselect clears a dead-backend page). **Partly built**: `so-pod.mts target` + `up` keep the tunnel up and log its health (§Run evidence); the `get-pod` lookup and the reselect stay manual |
 | T3 | Run header records llama-server `/props` (model, `n_ctx`, slots) per lane, so two pods with different args diff red |
 | T4 | `st-lanes.mts queue <file>`: runs a planner queue (journeys/scenarios via `batch`, `so-session` cards, scripts) per lane with run-header pairs, writing evidence paths for the manifest |
 | T5 | `adolion-fresh` shares one read-only sprite worktree per pin across lanes (junction), private copy only on the comfy lane |
+
+## Run evidence (2026-10-07, branch `v2.7-39a-logging`, built, not run)
+
+Owner request: every piece of debug-relevant data captured per row, surviving pod and lane teardown. Nothing here
+ran against a pod, a lane or ST; every capture is unit-tested with fakes (`npm run test:debug`).
+
+### Inventory: what each source lands as
+
+Before = on `26025017`; after = this branch. Paths: `<lane>` = `<so-lanes>/<n>`, `<pod>` = `<so-lanes>/pods/<k>`,
+`<row>` = `<lane>/debug/batch/<stamp>/<item>-run<k>/` (batch) or `<lane>/debug/runs/<stamp>-<script>/` (`st-lanes run`).
+
+| Source | Captured by (before) | Lands (before) | Retention (before) | After |
+|---|---|---|---|---|
+| Runner stdout/stderr | `st-lanes batch` (per item, line-stamped) | `<lane>/debug/batch/<stamp>-<item>-run<k>.log` | kept, never archived | `<row>/runner.log`; `st-lanes run` tees too |
+| Scenario result | `so-scenario` (`writeJSON`) | `<lane>/debug/<ts>_so-scenario-result.json`, failure dump `_so-scenario-failure.json` | **rotated**: deleted once 40 newer artifacts exist (`output.mts`), so a long batch lost its early rows; batch recorded no path for scenarios | copied into `<row>/record.json` / `failure.json` right after the row; result carries `page` |
+| Journey record | `so-journey` | `<lane>/debug/<ts>_journey-<id>.json` + `journey-<id>.md` (rotation-protected) | kept; archived only by hand (`so-journey archive`) | also `<row>/record.json`; record carries `page` |
+| Engine history, asset baseline, config snapshot | `so-journey` cleanup | `<lane>/debug/engine-history-*`, `so-journey-*.json` | kept | archived by `so-evidence archive` |
+| Run header | `so-run-header capture` | `<lane>/debug/run-header-*.json` | kept | archived |
+| Browser console errors/warnings, `pageerror` | **`so-session` only** (console tail) | `test/sessions/<tier>/<id>/console.jsonl` | private repo | every `runCli` runner that opts in (scenario, journey, payload golden, every `so-b1-*`) and **every** runner inside a batch row / `st-lanes run` (`SO_ROW_DIR`): `<row>/page.jsonl` + `page-summary.json`, or `<lane>/debug/page-<label>-<ts>.jsonl` outside a row; printed as `page-capture:`, `PAGE-ERROR`, `REQUEST-FAILED` lines |
+| Failed requests, 4xx/5xx on `/api/*` | none (so-session saw only ComfyUI requests) | — | — | same files: `requestfailed` (aborts flagged, not shouted) and `http-error` rows, URL path only (no query string) |
+| Lane ST server log | server start (`st-lanes start`) | `<lane>/server.log`, one file forever | until the lane dir goes; `so-session` greps it for ComfyUI only | the bytes written during the row: `<row>/server.log` (last 4 MB if larger; rotation detected) |
+| Journal / payload tails | `so-session` | `test/sessions/.../journal.jsonl`, `payloads.jsonl` | private repo | unchanged |
+| Session evidence (full chats, transcripts, wizard drafts, required artifacts) | `so-session stop` | `test/sessions/<tier>/<id>-<n>/` | private repo (`sessions:archive`) | unchanged |
+| Payload goldens | `so-payload-golden capture` | `--out <dir>` | wherever `--out` points | page capture per case (`result.page`) |
+| B1 summaries / raw | `so-b1-*` (`b1Runs.mts`) | `test/phase-c/records/<row>/run-<n>.json` (public) / `<lane>/debug/b1/<row>/run-<n>.raw.json` | raw: **the record says "archive with sessions:archive", which never covered it** | raw archived by `so-evidence archive`; page capture per run |
+| llama-server log, per-request timings | **none**: `start.sh` sends it to `/dev/null` unless `LLM_DEBUG_LOG=1`, then `/tmp/llama-server.log`, erased on stop | — | lost | `so-pod up`: incremental byte copy `<pod>/llama-server.<segment>.log`, parsed into `requests.jsonl` (slot, task, prompt tokens = `tokens_evaluated`, prompt/eval ms and tok/s, total ms, truncated, context shift/full) and `log-events.jsonl` (errors, context full, truncation, http ≥ 400, restarts, missing log) |
+| `/metrics`, `/health`, `/props` | the pod's idle watchdog only (on the pod) | — | — | `<pod>/samples.jsonl` every 15 s (numbers only), `props.jsonl` once per server start (model, slots, `n_ctx`, build) |
+| `/slots` | none | — | — | sampled; `--no-slots` (start.sh, by design: the endpoint exposes live prompts) reads `disabled`; if enabled, only numbers and booleans are kept |
+| `nvidia-smi` | none | — | — | `<pod>/gpu.jsonl` every 15 s (util, mem util, VRAM used/total, temp, power) |
+| SSH tunnel health | none (`start-local.ps1` is a foreground ssh, no log; T2 not built) | — | — | `so-pod up` supervises `ssh -N -L 1808k:127.0.0.1:8080` (reconnects, backoff): `<pod>/tunnel.jsonl` spawn/up/down/exit/heartbeat/health; `<row>/tunnel.json` = state at row start + drops |
+| Pod window per row | none | — | — | `<row>/pod.json`: requests finished in the window (tok/s p50/min/p95, prompt tokens p50/p95, slots, truncation), notable llama events, GPU peaks. Pod-wide: lanes on one pod share it |
+| Evidence verdict per row | none (exit code only) | batch summary `<so-lanes>/batch-<stamp>.json` | kept | `<row>/evidence.json` (complete, problems, warnings, attention); `batch.json` per lane; row status `GREEN / RED / INCOMPLETE / NOT-RUNNABLE` |
+| `npm run sessions:archive` | — | commits **only** the `so-sessions` work tree (`core.worktree` = main checkout `test/sessions`) | private | unchanged; `so-evidence archive` first copies lane/pod evidence into `test/sessions/evidence/phase-c/<label>/` (public-ignored) |
+
+### Completeness rule (mirrors `so-session`'s required-artifacts check)
+
+A row is **INCOMPLETE** (never GREEN, `batchExitCode` 1) when any of these is missing or empty: `runner.log`;
+`record.json` (unless the row printed `not-runnable:`); `page.jsonl` + `page-summary.json`; `server.log` (the slice
+file; an empty slice is a warning); and on a pod lane (`pod.json` with a pod number, not a no-model lane):
+tunnel events near the row start and end (the supervisor ran), a `/health` sample and an `nvidia-smi` sample in the
+window, and a pulled llama-server log when the pod reported none (`LLM_DEBUG_LOG` unset). A page error, a failed
+`/api` request, a tunnel drop or a llama event (context full/shift, truncation, error) is **attention**: printed under
+the row and stored in `evidence.json`, not a failure by itself (third-party extensions throw page errors on this
+install). `st-lanes run` enforces the same rule (exit 3) for B1 model runs, integration plays and `--evidence`.
+`so-evidence check` re-checks every finished batch row and every pod's teardown state.
+
+### B1 runbook additions
+
+1. Pod env: **`LLM_DEBUG_LOG=1`** (start.sh: llama-server output otherwise goes to `/dev/null`); `--metrics` is
+   already on in start.sh. Recommended `LLM_EXTRA_ARGS` addition: `--log-timestamps --log-prefix` (the parser
+   accepts both forms; rows are stamped with the pull time either way, ≤ 15 s late). `/slots` stays off (`--no-slots`,
+   privacy design); per-slot data comes from the log's `id N | task T` lines and `/metrics`.
+2. Per pod k, after `get-pod` → `ssh.direct`: `node scripts/debug/so-pod.mts target <k> --host <ip> --ssh-port <port>
+   --pod-id <id>`, then `node scripts/debug/so-pod.mts up <k>` in its own terminal (or background) **before** any lane
+   of pod k plays. It replaces `start-local.ps1` for that pod (the same key, pinned host key `runpod-llm` from
+   `C:\dev\comfy-pod\local\known_hosts`). After a pod restart (port moves) re-run `target`; `up` picks it up at the
+   next reconnect.
+3. Before every llama-server restart (each B1-PAR arm, any `update-pod`): `so-pod.mts pull <k>` (exit 0 = the whole
+   log copied and sha256-matched). The restart starts a new segment.
+4. Teardown: stop the pod's lanes, then `so-pod.mts release <k>`; **stop the pod only after it exits 0**
+   (`teardown-check <k>` re-asks). Then `node scripts/debug/so-evidence.mts archive --label <block> --lanes <…>
+   --pods <…>` (refused while a row is INCOMPLETE or a pod is unreleased, unless `--allow-incomplete`, which records the
+   verdict in `ARCHIVE.json`), then `npm run sessions:archive` from the main checkout.
+
+### Not capturable, and why
+
+| What | Why |
+|---|---|
+| Which lane a llama-server request came from | llama-server has no client identity (all lanes share one tunnel port per pod, same user agent); per-row pod numbers are the pod's window. A per-lane split needs a per-lane tunnel port or a request id ST does not send |
+| Live per-slot prompt state (`/slots`) | off by design (`--no-slots`, privacy); enabling it would put live prompt text behind the tunnel |
+| Exact server-side timestamps without `--log-timestamps` | default llama-server lines carry none; rows use the pull time (≤ one interval late) |
+| Log lines written after the last pull and before a restart that wipes `/tmp` | only a `pull` before the restart saves them; `log-reset` marks the gap when one happens |
+| Request/response bodies (prompts, replies) | deliberately not captured here: they are chat text; the payload tail (`so-session`, `st-payload --persist`) remains the place, private |
+| Console output from pages other than the attached ST tab | Playwright listeners are per page; a runner that opens another tab is not covered |
+| `keepOpen` tails (journal/console/follow) summaries | they never reach `finally`; their rows are in the jsonl, but no `page-summary.json` |
+| Pod container stdout (RunPod logs) | not retrievable over ssh; start.sh keeps it to startup lines on purpose |
 
 ## Part 2 — coverage audit (v2.7 29–38 + 2026-10-07 fixes)
 

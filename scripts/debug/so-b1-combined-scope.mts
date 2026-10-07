@@ -92,5 +92,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   ];
   if (problems.length) { refuse(problems); process.exit(2); }
   const values = valuesPath ? await readJsonFile(resolve(valuesPath)) : {};
-  runCli((page) => measure(page, { lab, profile, run, row, values }));
+  runCli((page) => measure(page, { lab, profile, run, row, values }), { pageCapture: 'b1' });
 }

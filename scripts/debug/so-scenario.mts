@@ -24,6 +24,7 @@ import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } fro
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
+import { currentPageCapture } from './lib/pageCapture.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
 import { establishChatRequires, establishGroupRequires, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
@@ -1209,6 +1210,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   const importedHashes = [];
   let guard = null;
   let result: Record<string, unknown> = { file, steps: [], ok: true, cleanup: null };
+  const pageMark = currentPageCapture()?.mark() ?? null;
 
   let libraryBefore: LibraryCapture | null = null;
   let extractionBefore = null;
@@ -1326,6 +1328,8 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     }
   }
 
+  const capture = currentPageCapture();
+  if (capture && pageMark !== null) result.page = capture.summary(pageMark);
   await writeJSON(result, 'so-scenario-result');
   console.log(JSON.stringify({ ok: result.ok, steps: (result.steps as unknown[]).length, cleanup: result.cleanup }, null, 2));
   return result;
@@ -1338,5 +1342,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
-  runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep'), group: readArgValue('--group') }));
+  runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep'), group: readArgValue('--group') }), { pageCapture: 'scenario' });
 }

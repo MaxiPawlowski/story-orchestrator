@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { batchExitCode, createLineStamper, itemArgs, lanePreflight } from './st-lanes.mts';
+import { batchExitCode, createLineStamper, itemArgs, lanePreflight, rowStatus, runEvidenceRequired } from './st-lanes.mts';
 
 test('A29: each child line is stamped when it arrives, a split line once it completes', () => {
   const lines: string[] = [];
@@ -63,4 +63,21 @@ test('a lane batch refuses a missing dist/ before any lane runs; the one build p
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('a row is GREEN only with exit 0 AND complete evidence; missing evidence is INCOMPLETE even when the run passed', () => {
+  assert.equal(rowStatus(0, true, null), 'GREEN');
+  assert.equal(rowStatus(0, false, null), 'INCOMPLETE');
+  assert.equal(rowStatus(1, false, null), 'INCOMPLETE');
+  assert.equal(rowStatus(1, true, null), 'RED');
+  assert.equal(rowStatus(2, true, 'no pod'), 'NOT-RUNNABLE');
+  assert.equal(batchExitCode({ green: 1, runs: 2 }), 1, 'an INCOMPLETE row is not counted green');
+});
+
+test('st-lanes run enforces evidence for B1 model runs, integration plays and --evidence, not for a plain script', () => {
+  assert.equal(runEvidenceRequired(['scripts/debug/so-b1-hooks.mts', 'label'], []), true);
+  assert.equal(runEvidenceRequired(['scripts/debug/so-b1-hooks.mts', 'score'], []), false);
+  assert.equal(runEvidenceRequired(['scripts/debug/so-integration.mts', 'play'], []), true);
+  assert.equal(runEvidenceRequired(['scripts/debug/st-session.mts', 'reload'], []), false);
+  assert.equal(runEvidenceRequired(['scripts/debug/st-session.mts', 'reload'], ['--evidence']), true);
 });
