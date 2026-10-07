@@ -11,6 +11,7 @@
         "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
       }
     },
+    {"slash": "/member-enable Luke"},
     {
       "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 'Group: Arin, DM Narrator' (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
       "log": true
