@@ -9,6 +9,7 @@ export const SITE_OUT = join(root, ".guide-site");
 const SOURCES = ["types.ts", "links.ts", "markdown.ts", "GuideMarkdown.tsx", "pages.generated.ts"];
 const AUDIENCE_LABELS = { player: "Playing", setup: "Setup", author: "Writing stories" };
 const AUDIENCE_ORDER = ["player", "setup", "author"];
+const SITE_TITLE = "Story Orchestrator guide";
 
 const compileRenderer = () => {
   const build = mkdtempSync(join(root, ".guide-site-build-"));
@@ -77,7 +78,7 @@ box.addEventListener("input",run);})();
 
 const pageHtml = ({ title, nav, content, base, home }) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escapeHtml(title)} · Story Orchestrator guide</title><style>${STYLE}</style></head>
+<title>${title === SITE_TITLE ? SITE_TITLE : `${escapeHtml(title)} · ${SITE_TITLE}`}</title><style>${STYLE}</style></head>
 <body data-base="${base}"><header><strong><a href="${base}index.html">Story Orchestrator guide</a></strong>
 <input id="q" type="search" placeholder="Search the guide" aria-label="Search the guide"><a href="${escapeHtml(home)}">GitHub</a></header>
 <div class="layout"><nav aria-label="Pages">${nav}</nav><main>${content}<footer>Generated from <code>docs/guide</code>. The same pages ship inside the extension: Help → Open the guide.</footer></main></div>
