@@ -1,5 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
-import { acceptEveryCard } from "../../../test/support/curatorAccept";
+import { authorAcceptsPending } from "../../../test/support/curatorAccept";
 // Promoted from the 2026-09-18 external review (scripts/review/reviewRegression.test.ts).
 // Each finding() states the contract the fix must satisfy; test/findings/ledger.json says whether
 // it is still open and, while open, the reason it must fail with. See v2.3 plan 01 §A.
@@ -99,7 +99,6 @@ function harness(options: { uidKnown?: boolean } = {}) {
     warden: { check: async (input: WardenCheckInput) => { const note = await wardenGate.check!(input.reply, input.facts); return note ? [{ family: "continuity" as const, ...note }] : null; }, facts: () => wardenFacts.current.map((text) => ({ id: text, text })), nudgeActive: () => false },
     ownership: { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) },
   } as never);
-  acceptEveryCard(coordinator, () => state, (next) => { state = next; });
   return {
     coordinator,
     get state() { return state; },
@@ -125,6 +124,7 @@ control("a normal same-session curator write applies", async () => {
   const h = harness();
   (callExtractionModel as jest.Mock).mockResolvedValue("[rewrite] Bridge || First");
   await h.coordinator.runCuratorPass();
+  await authorAcceptsPending(h.coordinator);
   await h.coordinator.applyAccepted();
   expect(h.content).toBe("First");
 });
@@ -147,6 +147,7 @@ finding("R2", async () => {
   for (const text of ["First", "Second"]) {
     (callExtractionModel as jest.Mock).mockResolvedValue(`[rewrite] Bridge || ${text}`);
     await h.coordinator.runCuratorPass();
+    await authorAcceptsPending(h.coordinator);
     await h.coordinator.applyAccepted();
     h.next();
   }
@@ -160,6 +161,7 @@ finding("R3", async () => {
   (updateWIEntryByUid as jest.Mock).mockResolvedValue({ ok: false, reason: "refused" });
   (callExtractionModel as jest.Mock).mockResolvedValue("[disable] Bridge");
   await h.coordinator.runCuratorPass();
+  await authorAcceptsPending(h.coordinator);
   const applied = await h.coordinator.applyAccepted();
   must(applied === 0 && h.state.proposals[0].ops[0].status === "failed", `a host write that returned false was counted as applied (applied=${applied}, status=${h.state.proposals[0].ops[0].status})`);
 });
@@ -173,6 +175,7 @@ control("R3, the OTHER host path: a failed upsert is not counted as applied eith
   (updateWIEntryByUid as jest.Mock).mockResolvedValue({ ok: false, reason: "entry 1 is no longer in \"Review Lore\"" });
   (callExtractionModel as jest.Mock).mockResolvedValue("[rewrite] Bridge || The bridge is out.");
   await h.coordinator.runCuratorPass();
+  await authorAcceptsPending(h.coordinator);
   const applied = await h.coordinator.applyAccepted();
   expect(applied).toBe(0);
   expect(h.state.proposals[0].ops[0].status).toBe("failed");
@@ -328,6 +331,7 @@ describe("V10: a revert addresses the entry by its recorded uid", () => {
   const writeOnce = async (h: ReturnType<typeof harness>) => {
     (callExtractionModel as jest.Mock).mockResolvedValue("[rewrite] Bridge || First");
     await h.coordinator.runCuratorPass();
+    await authorAcceptsPending(h.coordinator);
     await h.coordinator.applyAccepted();
     expect(h.content).toBe("First");
   };

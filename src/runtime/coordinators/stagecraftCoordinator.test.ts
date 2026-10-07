@@ -1,5 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
-import { acceptEveryCard } from "../../../test/support/curatorAccept";
+import { authorAcceptsPending } from "../../../test/support/curatorAccept";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { CURATOR_OP_REVERTED, DECLINE_MEMORY_BOUNDARIES } from "@stagecraft/index";
@@ -72,7 +72,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   visitedAnchors: ["cp1"],
 } as unknown as EngineState);
 
-const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean; authorAccepts?: boolean } = {}) => {
+const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } as StagecraftRuntimeState["settings"] };
   const journal: string[] = [];
   let writes = 0;
@@ -104,7 +104,6 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     notify: () => undefined,
     ...(ownership ? { ownership } : {}),
   } as StagecraftCoordinatorDeps);
-  if (options.authorAccepts ?? options.settings?.acceptMode === "auto") acceptEveryCard(coordinator, () => state, (next) => { state = next; });
   return {
     coordinator,
     journal,
@@ -229,7 +228,7 @@ describe("StagecraftCoordinator", () => {
 
   it("v2.7 02 C13: auto mode accepts an op on an auto-tier entry on the spot so the next boundary writes it", async () => {
     book.current = lorebook("{{// so:auto}}The bridge stands, its ropes new and taut.");
-    const { coordinator } = harness({ settings: { acceptMode: "auto" }, authorAccepts: false });
+    const { coordinator } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("accepted");
@@ -238,7 +237,7 @@ describe("StagecraftCoordinator", () => {
   });
 
   it("v2.7 02 C13 control: in auto mode an op on an unmarked entry waits for the author and is not written", async () => {
-    const { coordinator } = harness({ settings: { acceptMode: "auto" }, authorAccepts: false });
+    const { coordinator } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("pending");
@@ -246,10 +245,25 @@ describe("StagecraftCoordinator", () => {
     expect(updateWIEntryByUid).not.toHaveBeenCalled();
   });
 
+  it("harness control: auto mode leaves every op on unmarked entries pending, writes nothing until the author accepts, then writes them", async () => {
+    const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
+    respond("[rewrite] The bridge || The bridge is gone.\n[enable] The ferryman");
+    await coordinator.runCuratorPass();
+    expect(read().proposals[0].ops.map((entry) => entry.status)).toEqual(["pending", "pending"]);
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+    expect(book.current.entries[1]).toMatchObject({ content: "The bridge stands, its ropes new and taut.", disable: false });
+    await authorAcceptsPending(coordinator);
+    expect(await coordinator.applyAccepted()).toBe(2);
+    expect(book.current.entries[1].content).toBe("The bridge is gone.");
+    expect(book.current.entries[2].disable).toBe(false);
+  });
+
   it("fails a switch whose entry or book is gone by the time the boundary writes it", async () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     (updateWIEntryByUid as jest.Mock).mockResolvedValueOnce({ ok: false, reason: 'entry 1 is no longer in "Story Lore"' });
     expect(await coordinator.applyAccepted()).toBe(0);
     expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: 'entry 1 is no longer in "Story Lore"' });
@@ -259,6 +273,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] #1 || The bridge is gone.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     delete (book.current.entries as Record<number, unknown>)[1];
     expect(await coordinator.applyAccepted()).toBe(0);
     expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: '"The bridge" is no longer in Story Lore' });
@@ -270,6 +285,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read } = harness({ story: gatedStory(), settings: { acceptMode: "auto" } });
     respond("[rewrite] The bridge || The bridge is gone.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     book.current.entries[1].comment = "The ferryman";
     expect(await coordinator.applyAccepted()).toBe(0);
     expect(read().proposals[0].ops[0].message).toBe('"The bridge" is now "The ferryman", which the curator may not write');
@@ -280,6 +296,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The bridge || The bridge is gone.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     book.current.entries[1].comment = "The old bridge";
     expect(await coordinator.applyAccepted()).toBe(1);
     expect(book.current.entries[1].content).toBe("The bridge is gone.");
@@ -470,6 +487,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The bridge || The bridge is rubble.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     (upsertWIEntry as jest.Mock).mockImplementationOnce(async () => {
       const op = read().proposals[0].ops[0];
       expect(op.writeAhead?.status).toBe("pending");
@@ -486,6 +504,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The ferryman || The ferryman is back.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     await coordinator.applyAccepted();
     expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true });
     expect(book.current.entries[2]).toMatchObject({ content: "The ferryman is back.", disable: true });
@@ -498,6 +517,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The ferryman || The ferryman is back.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     (updateWIEntryByUid as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the host refused" });
     await coordinator.applyAccepted();
     expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: "the host refused" });
@@ -554,6 +574,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read, journal } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The bridge || The bridge is gone.");
     await coordinator.runCuratorPass();
+    await authorAcceptsPending(coordinator);
     await coordinator.applyAccepted();
     (upsertWIEntry as jest.Mock).mockClear();
     expect(await coordinator.revertAppliedSince(15)).toBe(1);
@@ -595,6 +616,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The ropes are new.");
       await coordinator.runCuratorPass();
+      await authorAcceptsPending(coordinator);
       expect(await coordinator.applyAccepted()).toBe(1);
       expect(read().proposals[0].ops[0].status).toBe("applied");
     });
@@ -603,6 +625,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const { coordinator } = harness({ settings: { acceptMode: "auto" } });
       respond("[disable] The bridge");
       await coordinator.runCuratorPass();
+      await authorAcceptsPending(coordinator);
       await coordinator.applyAccepted();
       expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }));
     });
@@ -611,6 +634,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const { coordinator, read, switchChat } = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || First\n[enable] The ferryman");
       await coordinator.runCuratorPass();
+      await authorAcceptsPending(coordinator);
       // The chat moves AFTER the first write lands: the second op belongs to a world that is gone.
       (updateWIEntryByUid as jest.Mock).mockImplementation(async ({ uid }: { uid: number }, patch: { content?: string }) => {
         const entry = (book.current.entries as Record<number, FakeBook["entries"][1]>)[uid];
@@ -629,6 +653,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const { coordinator, switchChat } = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The ropes are new.");
       await coordinator.runCuratorPass();
+      await authorAcceptsPending(coordinator);
       await coordinator.applyAccepted();
       expect(entryOf("The bridge")?.content).toBe("The ropes are new.");
       expect(await coordinator.revertAppliedSince(0)).toBe(1);
@@ -640,6 +665,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const { coordinator, switchChat } = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The ropes are new.\n[rewrite] The ferryman || The ferryman is back.");
       await coordinator.runCuratorPass();
+      await authorAcceptsPending(coordinator);
       expect(await coordinator.applyAccepted()).toBe(2);
       // The chat moves after the FIRST inverse lands: the record behind it belongs to a world that
       // is gone, so its before-image must not be written back into the new one.
@@ -661,6 +687,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass();
+      await authorAcceptsPending(env.coordinator);
       return env;
     };
     const frozen = (env: ReturnType<typeof harness>) => ({ state: JSON.stringify(env.read()), counts: env.counts() });
@@ -789,6 +816,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass();
+      await authorAcceptsPending(env.coordinator);
       const write = gate();
       holdNextWrite(write.opened);
       const first = env.coordinator.applyAccepted();
@@ -804,12 +832,14 @@ describe("ownership: a curator batch belongs to one chat", () => {
     });
 
     it("CR-P22: a curator completion re-delivered as a second auto-accepted record lands the entry as one delivery would", async () => {
+      book.current = lorebook("{{// so:auto}}The bridge stands, its ropes new and taut.");
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass("first");
       Object.assign(env.read(), { lastRunBoundary: -1 });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass("re-delivered");
+      expect(env.read().proposals.map((record) => record.ops.map((entry) => entry.status))).toEqual([["accepted"], ["accepted"]]);
       expect(await env.coordinator.applyAccepted()).toBe(1);
       expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
       expect(entryOf("The bridge")?.content).toBe("The bridge is gone.");
@@ -820,6 +850,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass();
+      await authorAcceptsPending(env.coordinator);
       expect(await env.coordinator.applyAccepted()).toBe(1);
       expect(await env.coordinator.applyAccepted()).toBe(0);
       expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
@@ -830,6 +861,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
       await env.coordinator.runCuratorPass();
+      await authorAcceptsPending(env.coordinator);
       const write = gate();
       holdNextWrite(write.opened);
       const first = env.coordinator.applyAccepted();
@@ -837,6 +869,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       Object.assign(env.read(), { lastRunBoundary: -1 });
       respond("[enable] The ferryman");
       await env.coordinator.runCuratorPass();
+      await authorAcceptsPending(env.coordinator);
       const second = env.coordinator.applyAccepted();
       write.release();
       expect(await first).toBe(1);
