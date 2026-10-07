@@ -94,13 +94,13 @@ test('an image larger than the shed ceiling swaps without trying to shed', async
 
 test('a shed profile returns to full speed after the idle window', async () => {
     let n = 0;
-    const { scheduler, backend } = setup({ snapshot: async () => (n++ === 0 ? free(3000) : free(11048)), config: { idleRestoreMs: 5 } });
+    const { scheduler, backend } = setup({ snapshot: async () => (n++ === 0 ? free(3000) : free(11048)), config: { idleRestoreMs: 500 } });
     const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 });
     await scheduler.release(lease.lease);
     assert.equal(backend.fitTarget, 9000 + 2048);
     await scheduler.restoreIfIdle();
     assert.equal(backend.fitTarget, 9000 + 2048);
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     await scheduler.restoreIfIdle();
     assert.equal(backend.fitTarget, null);
 });
