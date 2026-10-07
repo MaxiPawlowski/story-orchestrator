@@ -1,7 +1,7 @@
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
 
-export type StartDisplayKey = 'briefing' | 'playerSetup';
+export type StartDisplayKey = 'briefing' | 'playerSetup' | 'announceTransitions';
 
 export async function readDisplaySetting(page, key: StartDisplayKey): Promise<boolean | null> {
   return evaluateInST(page, (name) => {
@@ -37,6 +37,9 @@ export const suppressBriefing = (page) => suppressDisplay(page, 'briefing');
 export const restoreBriefing = (page, before: boolean | null) => restoreDisplay(page, 'briefing', before);
 export const suppressPlayerSetup = (page) => suppressDisplay(page, 'playerSetup');
 export const restorePlayerSetup = (page, before: boolean | null) => restoreDisplay(page, 'playerSetup', before);
+export const fixtureDrivesTransitionNote = (fixtureText: string): boolean => /announceTransitions/.test(fixtureText);
+export const suppressTransitionNote = (page) => suppressDisplay(page, 'announceTransitions');
+export const restoreTransitionNote = (page, before: boolean | null) => restoreDisplay(page, 'announceTransitions', before);
 
 export interface BriefingModalState {
   open: boolean;
@@ -47,6 +50,7 @@ export interface BriefingModalState {
   optOut: boolean;
   startLabel: string | null;
   pending: boolean | null;
+  identity?: boolean;
 }
 
 export async function readBriefingModal(page): Promise<BriefingModalState> {
@@ -62,8 +66,23 @@ export async function readBriefingModal(page): Promise<BriefingModalState> {
       optOut: Boolean(dialog?.querySelector('#so-briefing-optout')),
       startLabel: dialog?.querySelector('#so-briefing-start')?.textContent?.trim() ?? null,
       pending: globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.briefing?.pending ?? null,
+      identity: Boolean(dialog?.querySelector('#so-player-setup')),
     };
   });
+}
+
+export const isBlocksOnlyPane = (state: BriefingModalState): boolean =>
+  state.open && state.blocks.length > 0 && !state.sections.length && !state.onboarding && !state.identity;
+
+export const fixtureDrivesBriefing = (fixtureText: string): boolean => /"action": ?"(briefing|player-setup)|so-briefing|so-player-setup|playerSetup/.test(fixtureText);
+
+export const isBriefingIntercept = (message: string): boolean => /dialog#so-briefing|id="so-briefing"/.test(message);
+
+export async function dismissBlocksPane(page): Promise<BriefingModalState | null> {
+  const state = await readBriefingModal(page);
+  if (!isBlocksOnlyPane(state)) return null;
+  await dismissBriefing(page);
+  return state;
 }
 
 export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000 } = {}) {

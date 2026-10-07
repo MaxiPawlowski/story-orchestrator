@@ -1,5 +1,9 @@
 {
-  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
   "steps": [
     {
       "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugGenerationResponse = \"{\\\"beats\\\":[{\\\"objective\\\":\\\"Secure the key route\\\",\\\"guidance\\\":\\\"Let the player confirm the key matters and keep pressure rising.\\\",\\\"tension_target\\\":\\\"tense\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"key secured\\\",\\\"gate\\\":{\\\"q\\\":\\\"approach\\\",\\\"op\\\":\\\"!=\\\",\\\"v\\\":\\\"unknown\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"key_found\\\",\\\"v\\\":true}],\\\"progress\\\":{\\\"anchor\\\":\\\"finish\\\",\\\"amount\\\":1}}]},{\\\"objective\\\":\\\"Choose the safe approach\\\",\\\"guidance\\\":\\\"Frame a clear safe route toward the vault without resolving the anchor early.\\\",\\\"tension_target\\\":\\\"critical\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"safe route\\\",\\\"gate\\\":{\\\"q\\\":\\\"approach\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":\\\"safe\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"approach\\\",\\\"v\\\":\\\"safe\\\"}]}]}]}\"; return { extraction: 'SCENE_NONE', generation: 'planted' };"
@@ -13,9 +17,8 @@
       "slash": "/cp set approach unknown"
     },
     {
-      "expand": {
-        "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"approach\",\"op\":\"!=\",\"v\":\"unknown\"},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}"
-      }
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const key = 'start->bridge_stub->finish'; const entry = rt.getSnapshot().expansion?.entries?.[key]; if (entry && ['validated', 'inserted'].includes(entry.status)) return { generated: 'background', status: entry.status }; const ok = await rt.runExpansionNow(globalThis.storyOrchestratorDebugGenerationResponse); if (!ok) throw new Error('runExpansionNow refused and no background generation produced the chain: ' + JSON.stringify(rt.getSnapshot().expansion?.entries?.[key]?.status ?? null)); return { generated: 'now' };",
+      "log": true
     },
     {
       "expect": {
@@ -54,7 +57,7 @@
     },
     {
       "expand": {
-        "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"approach\",\"op\":\"!=\",\"v\":\"unknown\"},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}"
+        "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"approach\",\"op\":\"!=\",\"v\":\"blocked\"},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}"
       }
     },
     {

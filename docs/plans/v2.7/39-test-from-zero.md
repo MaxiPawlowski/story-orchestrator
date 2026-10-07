@@ -743,3 +743,96 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | C8b-stranger | C8b | CL | v2.7 39 §Sequence C8b |
 | Z-docs | Z | D | v2.7 39 §Sequence Z |
 | Z-attestation | Z | D | v2.7 39 §Sequence Z; rule 2 |
+
+## B0-live record (2026-10-07/08, branch `v2.7-39-b0-live-fixes`, local no-model shakedown)
+
+Pre-freeze shakedown, not Phase C evidence (rule 1): the evidence slots this record wrote into the manifest are
+labelled `so-sessions:evidence/phase-c/b0-live-2026-10-07/…` and must be replaced on the frozen candidate.
+
+**Setup.** Served build = the staged slot, bundle `09556eb3d579…` (`dist/manifest.json` source = `2fa2e13c`, no `src/`
+change to master `f3466549`); not restaged. Harness ran from the side-branch worktree. Two lanes (1, 2), both
+**offline** (`SO_LANE_OFFLINE=1 st-lanes seed --fresh`, `83848762` + `15882d96`): every loopback URL in the lane copy
+(local model servers incl. the 3090 controller, ComfyUI, textgen `server_urls`) points at the closed port 18079, model
+keys removed, judge / images / sprites / ST Image Generation off, no default persona (`user-default.png`), and the lane
+server starts without server plugins (the GPU plugin's shared config forwards to the controller, the media plugin to
+ComfyUI). Verified in each lane's server log: no request to 18888, 18080 or 8188 after the switch; lane 0 and :8000
+untouched. RAM gate `SO_MIN_FREE_RAM_GIB=8` (`c57211e3`): one pause, 60 s (lane 1, `e2-failed-pass-player-clean` run 1,
+6.82 GiB free). Run headers: one per lane before the first batch, one per item before each re-seeded pair
+(`<lane>/debug/run-header-*.json`, archived).
+
+**Runs.** C2-corpus = 88 no-model scenarios + J0, `st-lanes batch --lanes 1,2 --repeat 2 --strict` (batch
+`2026-10-07T20-42-09-161Z`), then every non-green item again ×2 on a freshly re-seeded lane (three passes; the batch
+shares one install across rows, rule 11's per-row reset is not in `st-lanes batch`). Final pair per item:
+`so-sessions:evidence/phase-c/b0-live-2026-10-07/local/b0-live-final.json`.
+
+| Result ×2 | Items |
+|---|---|
+| green ×2 | 70 of 89 (J0 and 69 scenarios, among them every v27 row fixture below marked green) |
+| red ×2 | 17: `effects-story-scenario`, `plan02-runtime`, `plan06-convergence`, `v27-03-no-group-solo-blob`, `v27-34-lock-refused`, `v27-34-persona-switch`, `v27-34-player-setup`, `v27-35-open-stretch-curve`, `v27-36-quest-rewards`, `v27-36-quests`, `v27-37-agenda-effect`, `v27-37-character-life`, `v27-d-01-in-app-walk`, `v27-d-02-c13-curator-tiers`, `v27-d-02-c2-k1`, `v27-d-10-edit-catch-up`, `v27-s12d-held-secret-chapters` |
+| green then red | 1: `plan07-memory` (run 2: scheduler never drains, queue 2 + heavy 1) |
+| not runnable | 1: `v27-card-rollback` (needs group "SOIMG Test cast", not on this install) |
+| deferred to B1 (needs a model) | 14: `plan03a-llm-npc-reply`, `plan08-hygiene`, `v24-acc-A-reload-blocks(-control)`, `v24-acc-I3`, `v24-pf-AE04-lore-cancel`, `v24-pf-AE04-scene-refused`, `v24-pf-curator-same-chat`, `v24-pf-curator-switch`, `v27-33-v3-postprocessor`, `v27-c6-test-cast`, `v27-card-art-base`, `v27-existing-expression-reference`, `v27-local-card-reply` |
+
+Payload goldens (B0-base item): `so-payload-golden capture` ×2 against the **candidate** (served `09556eb3…`), all four
+cases (`group-opening`, `group-memory`, `group-away-notice`, `group-relationships`), no `capture-failed.json`; diff
+run 1 → run 2: identical. Raw captures private (`lane-1/debug/payload/b0-live-cand-r1|r2`).
+
+**Manifest rows with `tier: ["D"]` (81).**
+
+| Manifest row | Runner | Run 1 / run 2 |
+|---|---|---|
+| J0, 16-02-C11-F1a, 16-02-C14, 16-04-health-center, 16-05-briefing, 16-06-presence, 16-08-thinking, 16-09-commitment, 32-W4-scenario, 34-L-fixed, 34-L-solo, S-05, S-09, S-16, 37-D2, 37-Q1 | scenario / journey | green / green (16-04 with ST's Summarize extension enabled on the lane, its prerequisite; 16-02-C14 ran with no server plugins, so no harness route was listed) |
+| 37-Q2, 33-W1-V0, 38-G-campaign | jest; campaign `check_all.sh --fast` at the pin (ignored inputs copied from the campaign checkout) | green / green |
+| C2-corpus | batch above | red (17 red ×2, 1 red on run 2) |
+| 16-01-in-app-walk, 16-02-C1, 16-02-C2-K1, 16-02-C13, 16-03-group-only, 16-10-catch-up, 34-L-flow, 34-L-F11, 34-L-brief-off, 34-L-switch, 34-L-reopen, 34-L-restart, S-04, 35-P2-curve, 36-Q5-scn, 37-D1, 37-D3 | scenario | red / red (findings below) |
+| S-15 | jest half (`agendaEffects`, `questRewards`, `effectRestore` review tests, green ×2) + scenario half `v27-37-agenda-effect` | red / red |
+| 16-07-A3A8 | `adolion-fresh seed 2` | red (run 1 failed at the sprite upload; run 2 not attempted) |
+| B0-base | needs the predecessor staged, which this task forbids (`npm run stage` writes the slot every lane and the owner's ST serve) | not run as defined; candidate capture ×2 identical as above |
+| C1b-ratchet | `codeHealth.json` vs the predecessor's | ratchet holds (every list ⊆, no budget up); the B3 cost part has no B3 yet: incomplete |
+| 37-B3 | the staged `dist/` | main entry 1,190,252 B ≤ 1,250,000 B; the meanwhile proposal prompt only in lazy chunks; one measurement: incomplete |
+| C1-gates, C1-release | `npm run gates -- --no-storybook` on the side branch (below) | not the frozen candidate, Storybook skipped: incomplete |
+| 16-07-A6 | needs the A3A8 lane | not runnable |
+| C2-rendered-targets, 16-K1, O2, O8, 29-D1, 29-D2, 30-D1, 30-D2, 30-D3, 31-G3, 33-D-clean, 34-L-harness, 34-L-multiuser, 35-P2-clean, 36-P-live, 36-spoiler-sweep, 37-spoiler | none: no fixture or script drives the assertion (34-L-harness's scenario half is in `v27-34-player-setup`) | not runnable (missing runner) |
+| 35-M1, O12 | offline evidence walk / gate-record walk, no script | not run |
+| 35-ENC, 35-DROP | branch rows (B2 not decided) | not runnable |
+| C0-freeze, C0-goldens, C1-clean-host, C3-preservation, C3-repeatability, PC-role-line, PC-open-stretch, PC-check-outcomes, PC-agency-notes, PC-quest-scope, PC-relationship-scope, PC-privacy, PC-off-path, Z-docs, Z-attestation | frozen candidate / B0-base goldens | not runnable before the freeze |
+
+**Findings** (39a §Findings during a run; Adolion rows report counts only).
+
+| # | Finding | Bucket | Status |
+|---|---|---|---|
+| F1 | A plain no-model lane copy still reached the owner's local servers: profiles and textgen `server_urls` name the 3090 controller (the memory-model profile included), and the shared GPU plugin forwards `/status` to it. Earlier "no-model" lane results on this install may have used the owner's model | harness | fixed `83848762` (offline seed) |
+| F2 | On a no-model lane the memory-model check blocks, so every fresh story start opens the blocks-only "Before you start" dialog and its modal swallowed the next click (red on run 2 only) | harness | fixed `fa5fdf0a` (closed for fixtures that do not drive the briefing, recorded) |
+| F3 | A cold lane's first page lists 0 characters / 0 groups; every row after it was NOT RUNNABLE | harness | fixed `b46b5e1d` (start waits, reloads; one reload measured) |
+| F4 | The install's stored `announceTransitions=true` (default off since W11) posted a note as the newest message under fixtures that read the last reply | harness | fixed `869d260e` |
+| F5 | The install's default persona is auto-selected (and locked by the auto-skip) in each sandbox chat: persona requirements unmet, identity fixtures locked before any choice | harness | fixed `15882d96` |
+| F6 | Stale fixtures against shipped behaviour: transition note text is `player_text` since T0; a generated beat gated on a value already held is refused since T1-6; sun-ruins cp1 disables Luke; story versions removed 2026-10-07; a context read once never sees a new group | fixture | fixed `1d3d83a7`, `e347600c` (supersedes `a2c90d92`), `8aac7b60`, `86a3ae7f`, `41a96bfd`; each re-run green ×2 except `41a96bfd` (see F10) |
+| F7 | An empty "Before you start" dialog stays open after its blocks clear (no blocks, briefing or identity step, only Close) and holds every pointer action: red cause of `v27-d-02-c2-k1` and `v27-36-quests` | product, small | fixed `3be94ddd` + jest `briefingHost.test.ts`; **not live-tested: needs a restage** |
+| F8 | The start dialog's Close button renders one letter per line (both screenshots) | product, cosmetic | open |
+| F9 | 16-02-C1 asserts that removing the story restores the pre-story scenario; `removeStory` only deletes the library record, a playing chat keeps its pinned copy (by design, the delete popup says so) and there is no chat-level exit path at all | product / plan | open: owner decision (an exit path, or the row's trigger) |
+| F10 | `v27-03` fixture cleanup deletes the adopted made-group while the page is on it; the sandbox guard then reads an escape. All 11 steps pass. A return-to-sandbox attempt did not land within 20 s and was reverted | harness | open |
+| F11 | Batch rows share one install: `plan07-memory`, `v24-02-hide-consumed`, T10 rows and others were red in the batch and green after a re-seed; `plan07-memory` still fails on the second consecutive run (scheduler queue never drains) | harness / product, undetermined | open |
+| F12 | Identity step: clicking Keep records `choice: skip` (`v27-34-player-setup`, `v27-34-persona-switch`, both ×2); `v27-34-lock-refused` ends with the record still pending after "continue unlocked" | undetermined (possibly player-facing) | open: needs triage before B1 |
+| F13 | Undetermined reds ×2: `plan02-runtime` opener neither held nor posted on a fresh lane (green ×3 on a reused one); `plan06-convergence` lands on the generated beat, not the anchor; `v27-35-open-stretch-curve` swipe does not move to the existing alternative; `v27-36-quest-rewards` no quest-origin world_info ledger row; `v27-37-agenda-effect` no agenda world_info row; `v27-37-character-life` an OOC boundary still advances the agenda wait; `v27-d-01` Repair Show me never lands on `#so-extraction-profile`; `v27-d-02-c13` the swipe does not roll the story back; `v27-d-10` HUD reads "stepped back", not catching-up; `v27-s12d` a seal-path model call has no mock (ModelCallError on a no-model lane) | fixture or product, undetermined | open |
+| F14 | `adolion-fresh seed` cannot seed from the install as it is now: the install holds the campaign's cards under other avatars (main-install rollout), the strip keeps them, and the sprite upload refuses the name clash | harness | open (blocks 16-07-A3A8, 16-07-A6) |
+| F15 | 17 D rows have no runner (table above) and cannot produce evidence | plan | open (39 owner) |
+| F16 | 23 batch row folders are INCOMPLETE (no `record.json`): the 20-row tail of the first batch on lane 1 after a page wedge (a `/api/chats/save` 400 during `v27-34-solo` run 2), two rows from an interrupted re-run loop, one `v27-03` run 2. Every affected item was re-run on a re-seeded lane | — | `so-evidence check` exit 1 (352 rows checked); archived with `--allow-incomplete` (verdict in `ARCHIVE.json`) |
+
+**Evidence.** `node scripts/debug/so-evidence.mts archive --label b0-live-2026-10-07 --lanes 1,2 --since
+2026-10-07T20:20:00Z --allow-incomplete` (main checkout): 4,233 files, 970.7 MB into the private work tree
+`test/sessions/evidence/phase-c/b0-live-2026-10-07/` (ignored by the public repo), `verify` ok; local logs (jest, campaign
+check, Adolion seed, batch and loop logs) added under `local/`. `npm run sessions:archive` not run.
+
+**Fixes** (side branch, not merged, not pushed): harness `83848762`, `c57211e3`, `fa5fdf0a`, `869d260e`, `15882d96`,
+`b46b5e1d`; fixtures `1d3d83a7`, `a2c90d92` → `e347600c`, `8aac7b60`, `d50bd353`, `41a96bfd`, `86a3ae7f`; product
+`3be94ddd` (needs a restage to test live).
+
+**Blocks B1.** F12 (identity Keep → skip) and F13 need triage on a restaged build before model rows rely on those
+surfaces; F7 needs a restage to verify; F14 blocks every Adolion lane seed from the current install; F1 means past
+no-model lane results on this install are suspect (they could reach the owner's model).
+
+**Gates** (side-branch worktree, `node_modules` junctioned, Storybook skipped: the runner finds no stories from a
+worktree). `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook`: all green in 162.1 s (typecheck,
+typecheck:test, debug:typecheck, lint, build, test 600 suites / 6,966 passed / 1 skipped, test:debug 1,202 / 1,202,
+test:release 128 / 114 pass / 14 skipped, test:plugin 114 / 111 pass / 3 skipped, test:replay 32 of 32 killed);
+test-storybook:ci SKIPPED. Lanes 1 and 2 stopped at the end.

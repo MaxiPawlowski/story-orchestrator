@@ -25,3 +25,50 @@ export const judgeEnabledIn = (settings: unknown): boolean | null => {
     : null;
   return isRecord(value) && isRecord(value.judge) && typeof value.judge.enabled === 'boolean' ? value.judge.enabled : null;
 };
+
+export const OFFLINE_PORT = 18079;
+export const OFFLINE_ENV = 'SO_LANE_OFFLINE';
+export const OFFLINE_PERSONA = 'user-default.png';
+const LOOPBACK_URL = /\bhttps?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::(\d+))?/gi;
+
+const rewire = (value: unknown, lanePort: number, seen: Set<string>): unknown => {
+  if (typeof value === 'string') return value.replace(LOOPBACK_URL, (url, port: string | undefined) => {
+    if (Number(port) === lanePort || Number(port) === OFFLINE_PORT) return url;
+    seen.add(url);
+    return `http://127.0.0.1:${OFFLINE_PORT}`;
+  });
+  if (Array.isArray(value)) return value.map((item) => rewire(item, lanePort, seen));
+  if (isRecord(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, rewire(item, lanePort, seen)]));
+  return value;
+};
+
+export function offlineSettings(settings: unknown, lanePort: number): { next: Record<string, unknown>; rewired: string[] } {
+  if (!isRecord(settings)) throw new Error('settings.json is not an object');
+  const seen = new Set<string>();
+  const wired = rewire(withJudgeEnabled(settings, false), lanePort, seen) as Record<string, any>;
+  const extensions = wired.extension_settings;
+  const ours = extensions['story-orchestrator'].settings;
+  ours.image = { ...(isRecord(ours.image) ? ours.image : {}), enabled: false };
+  ours.sprites = { ...(isRecord(ours.sprites) ? ours.sprites : {}), enabled: false };
+  const disabled = Array.isArray(extensions.disabledExtensions) ? extensions.disabledExtensions : [];
+  extensions.disabledExtensions = [...disabled.filter((name: unknown) => name !== 'stable-diffusion'), 'stable-diffusion'];
+  if (isRecord(wired.power_user)) wired.power_user = { ...wired.power_user, default_persona: null };
+  wired.user_avatar = OFFLINE_PERSONA;
+  return { next: wired, rewired: [...seen].sort() };
+}
+
+export function offlineProblems(settings: unknown, lanePort: number): string[] {
+  const seen = new Set<string>();
+  rewire(settings, lanePort, seen);
+  const ours = isRecord(settings) && isRecord(settings.extension_settings) && isRecord(settings.extension_settings['story-orchestrator'])
+    ? (settings.extension_settings['story-orchestrator'] as Record<string, any>).settings : null;
+  const disabled = isRecord(settings) && isRecord(settings.extension_settings) ? settings.extension_settings.disabledExtensions : null;
+  return [
+    ...[...seen].map((url) => `settings.json still names ${url}`),
+    ...(ours?.image?.enabled === false ? [] : ['image.enabled is not false']),
+    ...(ours?.sprites?.enabled === false ? [] : ['sprites.enabled is not false']),
+    ...(Array.isArray(disabled) && disabled.includes('stable-diffusion') ? [] : ['stable-diffusion is not disabled']),
+    ...(judgeEnabledIn(settings) === false ? [] : ['judge.enabled is not false']),
+    ...(isRecord(settings) && (settings.power_user as Record<string, unknown> | undefined)?.default_persona == null && settings.user_avatar === OFFLINE_PERSONA ? [] : [`the persona is not the install's first (${OFFLINE_PERSONA}, no default persona)`]),
+  ];
+}

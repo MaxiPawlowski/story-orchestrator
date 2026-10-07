@@ -2,12 +2,14 @@ import { execFile, spawn } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { freemem } from 'node:os';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
-import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
+import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
@@ -17,7 +19,13 @@ install) and its own browser, so install-wide state (extension settings, story l
 selection, judge settings) never crosses lanes and journeys can run side by side. The model backend
 is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest.
 
-  seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails)
+  seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails); with
+                               SO_LANE_OFFLINE=1 the copy is made offline: every loopback URL in settings.json
+                               but the lane's own (local model servers, a GPU controller, ComfyUI) points at the
+                               closed port 18079, model keys are removed as no-model does, no default persona (the first persona, user-default.png), judge, images, sprites
+                               and ST's Image Generation extension off; start refuses it if that no longer holds and
+                               starts its server without server plugins (the GPU plugin forwards to a controller
+                               named in the shared plugin config, the media plugin to ComfyUI)
   start <n...> [--headed] [--judge-lanes <k>]
                                start lane n's server (port ${'8100+n'}) and browser (CDP ${'9300+n'}); --judge-lanes
                                gives its judge plugin 1/k of the TypeSafe account (every lane's plugin limits
@@ -52,7 +60,9 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                server.log (the lane server log written during the row), and on a pod lane
                                tunnel.json + pod.json (so-pod.mts up's tunnel events and pod samples for the row
                                window); evidence.json says what is missing. A row with missing evidence is
-                               INCOMPLETE and never counts as green.`;
+                               INCOMPLETE and never counts as green. With SO_MIN_FREE_RAM_GIB=<g> each row first
+                               waits (polling every 60 s, each pause logged and kept in the row's result) until
+                               free physical RAM is at least g GiB`;
 
 const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
@@ -131,10 +141,38 @@ async function seed(n: number, fresh: boolean) {
   const target = resolve(lane.data, 'default-user');
   if (existsSync(target) && !fresh) return { lane: n, seeded: false, reason: 'already seeded (pass --fresh to re-copy)' };
   if (fresh) await rm(lane.data, { recursive: true, force: true });
+  await rm(resolve(lane.root, OFFLINE_MARKER), { force: true });
   const source = resolve(ST_ROOT, 'data', 'default-user');
   await mkdir(lane.data, { recursive: true });
   await cp(source, target, { recursive: true, filter: (path) => !SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source });
-  return { lane: n, seeded: true, from: source, to: target };
+  const offline = offlineRequested() ? await makeOffline(n) : null;
+  return { lane: n, seeded: true, from: source, to: target, ...(offline ? { offline } : {}) };
+}
+
+const offlineRequested = () => process.env[OFFLINE_ENV] === '1';
+const OFFLINE_MARKER = 'offline-lane.json';
+const OFFLINE_SERVER_ENV = { SILLYTAVERN_ENABLESERVERPLUGINS: 'false' };
+
+async function makeOffline(n: number) {
+  const lane = lanePaths(n);
+  const user = resolve(lane.data, 'default-user');
+  const settingsPath = resolve(user, 'settings.json');
+  const secretsPath = resolve(user, 'secrets.json');
+  const { next, rewired } = offlineSettings(JSON.parse(await readFile(settingsPath, 'utf-8')), lane.port);
+  await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+  let removedKeys = 0;
+  if (existsSync(secretsPath) && !existsSync(resolve(user, NO_MODEL_BACKUP))) {
+    const raw = await readFile(secretsPath, 'utf-8');
+    const stripped = stripModelSecrets(JSON.parse(raw));
+    await writeFile(resolve(user, NO_MODEL_BACKUP), raw, 'utf-8');
+    await writeFile(secretsPath, JSON.stringify(stripped.next, null, 4), 'utf-8');
+    removedKeys = stripped.removed.length;
+  }
+  const problems = offlineProblems(JSON.parse(await readFile(settingsPath, 'utf-8')), lane.port);
+  if (problems.length) throw new Error(`lane ${n}: the offline rewrite did not hold: ${problems.join('; ')}`);
+  const record = { at: new Date().toISOString(), rewired, removedKeys };
+  await writeFile(resolve(lane.root, OFFLINE_MARKER), JSON.stringify(record, null, 2), 'utf-8');
+  return record;
 }
 
 async function start(n: number, headed: boolean, judgeLanes: number | null = null) {
@@ -142,10 +180,14 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
   const wasUp = await isUp(lane.port);
+  if (!wasUp && existsSync(resolve(lane.root, OFFLINE_MARKER))) {
+    const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port);
+    if (problems.length) throw new Error(`lane ${n} is an offline lane but its settings.json no longer is (${problems.join('; ')}); re-seed it with ${OFFLINE_ENV}=1`);
+  }
   if (!wasUp) {
     const log = await open(lane.log, 'a');
     const server = spawn(process.execPath, ['server.js', '--port', String(lane.port), '--dataRoot', lane.data, '--browserLaunchEnabled', 'false', '--listen', 'false'], {
-      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}) },
+      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...(existsSync(resolve(lane.root, OFFLINE_MARKER)) ? OFFLINE_SERVER_ENV : {}) },
     });
     server.unref();
     await writeFile(lane.pid, String(server.pid ?? ''), 'utf-8');
@@ -158,8 +200,24 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   }
   const session = await runNode(['scripts/debug/st-session.mts', 'start', ...(headed ? ['--headed'] : [])], laneEnv(n));
   if (session.code !== 0) throw new Error(`lane ${n}'s browser did not start: ${session.output.slice(-600)}`);
+  const loaded = await pageLoadedCast(n);
+
   const judgeShare = judgeLanes ? (wasUp ? `not applied: the server was already up (stop lane ${n} first)` : judgeShareEnv(judgeLanes)) : null;
-  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug, judgeShare };
+  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug, judgeShare, loaded };
+}
+
+async function pageLoadedCast(n: number) {
+  const lane = lanePaths(n);
+  const onDisk = existsSync(resolve(lane.data, 'default-user', 'characters')) ? (await readdir(resolve(lane.data, 'default-user', 'characters'))).filter((name) => name.endsWith('.png')).length : 0;
+  if (!onDisk) return { characters: 0, reloads: 0 };
+  for (let reloads = 0; reloads <= 3; reloads += 1) {
+    const probe = await runNode(['scripts/debug/st-eval.mts', 'SillyTavern.getContext().characters.length'], laneEnv(n));
+    const characters = Number(probe.output.match(/"value": (\d+)/)?.[1] ?? 0);
+    if (characters > 0) return { characters, reloads };
+    await sleep(5000);
+    await runNode(['scripts/debug/st-session.mts', 'reload'], laneEnv(n));
+  }
+  throw new Error(`lane ${n}'s page lists no characters after 3 reloads while its data holds ${onDisk} card(s): the first page load ran before the server finished loading`);
 }
 
 async function killTree(pid: number) {
@@ -185,7 +243,7 @@ async function status() {
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
+type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
 
 export type RowStatus = 'GREEN' | 'RED' | 'INCOMPLETE' | 'NOT-RUNNABLE';
 
@@ -259,6 +317,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const rowDir = resolve(dir, rowDirName(item, run));
         await mkdir(rowDir, { recursive: true });
         const log = resolve(rowDir, ROW_FILES.runner);
+        const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
         const began = Date.now();
         const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
@@ -267,7 +326,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const paths = recordPathsIn(output);
         const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: ended, serverOffset, recordPath: paths.record, failurePath: paths.failure, notRunnable, expect: { record: true, page: true } });
         const result: BatchResult = {
-          item, lane: n, run, code, log, ms: ended - began,
+          item, lane: n, run, code, log, ms: ended - began, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}),
           status: rowStatus(code, evidence.complete, notRunnable),
           evidence: { dir: rowDir, complete: evidence.complete, problems: evidence.problems, warnings: evidence.warnings, attention: evidence.attention },
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
