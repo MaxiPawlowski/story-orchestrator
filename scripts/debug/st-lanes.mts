@@ -6,6 +6,7 @@ import { freemem } from 'node:os';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
+import { swipesOn } from './lib/adolionFresh.mts';
 import { judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
@@ -145,8 +146,17 @@ async function seed(n: number, fresh: boolean) {
   const source = resolve(ST_ROOT, 'data', 'default-user');
   await mkdir(lane.data, { recursive: true });
   await cp(source, target, { recursive: true, filter: (path) => !SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source });
+  const swipes = await swipesOnInLane(target);
   const offline = offlineRequested() ? await makeOffline(n) : null;
-  return { lane: n, seeded: true, from: source, to: target, ...(offline ? { offline } : {}) };
+  return { lane: n, seeded: true, from: source, to: target, swipes, ...(offline ? { offline } : {}) };
+}
+
+async function swipesOnInLane(user: string) {
+  const path = resolve(user, 'settings.json');
+  const settings = JSON.parse(await readFile(path, 'utf-8'));
+  const swipes = swipesOn(settings);
+  await writeFile(path, JSON.stringify(settings, null, 4), 'utf-8');
+  return swipes;
 }
 
 const offlineRequested = () => process.env[OFFLINE_ENV] === '1';
