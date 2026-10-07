@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { within, userEvent, expect } from "@storybook/test";
+import { fn, within, userEvent, expect } from "@storybook/test";
+import { authorGuideDoc } from "@features/guideLinks";
+import { GUIDE_COPY } from "@features/helpCopy";
 import { GUIDE_TOPICS } from "@copilot/guideTopics";
 import GuideDisclosure from "./GuideDisclosure";
 import { STUDIO_TAB_GUIDE } from "../guideTabs";
@@ -39,5 +41,16 @@ export const CheckpointTopics: Story = {
     await userEvent.click(canvas.getByText("How to write this"));
     await userEvent.click(canvas.getByText(GUIDE_TOPICS["opening-scene"].title));
     await expect(canvas.getByText(GUIDE_TOPICS["opening-scene"].text)).toBeVisible();
+  },
+};
+
+export const OpensTheTopicInTheGuide: Story = {
+  args: { onOpenGuide: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("How to write this"));
+    await userEvent.click(canvas.getByText(GUIDE_TOPICS.latching.title));
+    await userEvent.click(canvas.getByRole("button", { name: `${GUIDE_COPY.openInGuide}: ${GUIDE_TOPICS.latching.title}` }));
+    await expect(args.onOpenGuide).toHaveBeenCalledWith(authorGuideDoc("latching"));
   },
 };

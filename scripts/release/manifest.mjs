@@ -76,6 +76,13 @@ function capabilityIds() {
   return ids;
 }
 
+function guideAssets() {
+  const dir = join(root, "docs", "guide", "assets");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).sort().filter((name) => statSync(join(dir, name)).isFile())
+    .map((name) => ({ path: `docs/guide/assets/${name}`, sha256: sha256(readFileSync(join(dir, name))), bytes: statSync(join(dir, name)).size }));
+}
+
 const git = (cwd, ...args) => {
   try {
     return execFileSync("git", args, { cwd, stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
@@ -118,6 +125,7 @@ const manifest = {
     files: hostFiles(),
   },
   capabilities: capabilityIds(),
+  guideAssets: guideAssets(),
   environment: { node: process.version, typescript: pkg.devDependencies?.typescript ?? null },
 };
 

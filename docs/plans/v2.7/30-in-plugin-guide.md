@@ -89,3 +89,30 @@ Source: v2.7 39 §Review 2026-10-07 (Sol). Both tasks below are owned by this pl
 |---|---|---|
 | 20 | **Studio deep link:** `src/studio/components/GuideDisclosure.tsx` renders the embedded topic text only. It gains an "Open in the guide" control that opens the installed reader at the topic's page and heading (`studio/guideTabs.ts` ids). The reader is a `PanelFrame`, and the Studio is a top-layer `<dialog>`, so a panel opened behind the modal is unreachable. The link must show the reader above the modal (rendered inside the dialog, or as its own top-layer surface). Test: Storybook + live, open the reader from each Studio tab while `#so-studio-modal` is open, then reach and close it by pointer and keyboard (`ui: {action: "hit-test"}`) | Design 4; §Gate record (deviation `PanelFrame`) |
 | 20 | **Screenshot assets owner:** decision 3 ("a few, compressed, setup pages only") is still undone because the renderer refuses images. This plan adds an asset path: images only from `docs/guide/assets/`, bundled into the guide chunk, compressed, alt text required, sizes recorded in the build manifest. The renderer test keeps refusing every other source | Decision 3; §Gate record |
+
+### Finding 20 built (2026-10-07, branch `v2.7-finding-20`)
+
+- **Studio deep link:** each topic in "How to write this" carries "Open in the guide"
+  (`[data-so="guide-topic-open"]`, `authorGuideDoc(topic)`). The Studio opens the installed reader in its own nested
+  `<dialog id="so-studio-guide-reader">` rendered inside `#so-studio-modal` and opened with `showModal()`, so it is the
+  topmost top-layer element and the Studio behind it is inert; closing it returns to the Studio. It stops `keydown`,
+  `cancel` and `close` from reaching the Studio's handlers (React propagates them through the tree), so Escape closes
+  only the reader. `GuideHost` stays a lazy import (Studio chunk → guide chunk); Author view pages are shown (the
+  Studio is the author surface). Guide styles are scoped to `:is(#so-panels-root, #so-studio-modal)`. Storybook:
+  `Studio/StudioModal` `GuideOpensAboveTheStudioFromEveryTab` (Story, Qualities, Checkpoints, Transitions, Roster,
+  Game: reader open, page `data-doc` visible, focus inside, close button and search topmost at their centres, closed
+  by Escape and by pointer alternately, Studio still open on the same tab) and `Studio/GuideDisclosure`
+  `OpensTheTopicInTheGuide`. Not run: Storybook cannot run from a worktree.
+- **Screenshot assets:** `docs/guide/assets/` (png/jpg/webp, ≤ 150,000 B, alt text required, every asset used).
+  `![alt](../assets/x.png)` parses as an image; `resolveAsset` accepts only a relative path that normalises into
+  `assets/`; everything else (http(s), `//`, `data:`, `/…`, traversal, query, missing alt) renders the alt text as
+  plain text, never an `<img>`. `guide-bundle.mjs` emits `GUIDE_ASSETS` (data URIs) into the lazy
+  `pages.generated.ts`; `guide-site.mjs` copies the files to `.guide-site/assets/` and links them relatively; the build
+  manifest lists them (`guideAssets`, path/sha256/bytes). Leak guard unchanged (alt text is page body). One placeholder
+  sketch, `assets/settings-sections.png` (533 B), on `setup/README.md`. Tests: jest `guide.test.ts` (only bundled
+  data-URI images, refusals), `markdown.test.ts`; node `guide-bundle.test.mjs` (asset rules + planted control),
+  `guide-site.test.mjs` (img → copied asset), `manifest.test.mjs`.
+- Gates (2026-10-07): `npm run gates -- --no-storybook`: all green in 117.8s (typecheck, build 1,178,573 B main
+  under the 1,250,000 B budget, build:dev, test 592 suites / 6929 tests, lint, typecheck:test, debug:typecheck,
+  test:replay 32/32 killed, test:debug, test:plugin, test:release). Storybook skipped (`--no-storybook`): it cannot run
+  from a worktree, so the new stories are written, not run. Live C2 rows not run.

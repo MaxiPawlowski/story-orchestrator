@@ -37,6 +37,15 @@ export const resolveLink = (fromDoc: string, href: string, homePage: string): Gu
   return { kind: "page", target: anchor ? { id: docToId(joined), anchor } : { id: docToId(joined) } };
 };
 
+const ASSET_FILE = /^assets\/[A-Za-z0-9][A-Za-z0-9_-]*\.(?:png|jpe?g|webp)$/;
+
+export const resolveAsset = (fromDoc: string, src: string): string | null => {
+  const trimmed = src.trim();
+  if (!trimmed || ANY_SCHEME.test(trimmed) || /^[/\\]/.test(trimmed) || /[?#\\]/.test(trimmed)) return null;
+  const joined = normalizePath(`${dirOf(fromDoc)}/${trimmed}`);
+  return ASSET_FILE.test(joined) ? joined : null;
+};
+
 export const slugify = (text: string): string => text
   .toLowerCase()
   .replace(/[`*_~]/g, "")

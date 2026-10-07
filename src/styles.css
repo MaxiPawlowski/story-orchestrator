@@ -305,6 +305,32 @@ dialog#so-studio-modal[open] {
   justify-content: center;
 }
 
+dialog#so-studio-guide-reader {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 1rem;
+  border: none;
+  outline: none;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  color: inherit;
+  background: var(--black50a, rgba(0, 0, 0, 0.5));
+}
+
+dialog#so-studio-guide-reader[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+dialog#so-studio-guide-reader::backdrop {
+  background: transparent;
+}
+
+
 dialog#so-studio-modal::backdrop {
   background: transparent;
 }
@@ -745,35 +771,35 @@ dialog#so-briefing::backdrop {
   opacity: 0.75;
 }
 
-#so-panels-root .so-guide-body :is(h2, h3, h4, h5, h6) {
+:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h2, h3, h4, h5, h6) {
   margin: 0.6rem 0 0.1rem;
   line-height: 1.25;
 }
 
-#so-panels-root .so-guide-body h2 {
+:is(#so-panels-root, #so-studio-modal) .so-guide-body h2 {
   font-size: 1.25rem;
 }
 
-#so-panels-root .so-guide-body h3 {
+:is(#so-panels-root, #so-studio-modal) .so-guide-body h3 {
   font-size: 1.05rem;
 }
 
-#so-panels-root .so-guide-body :is(h4, h5, h6) {
+:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h4, h5, h6) {
   font-size: 0.95rem;
 }
 
-#so-panels-root .so-guide-body p {
+:is(#so-panels-root, #so-studio-modal) .so-guide-body p {
   margin: 0;
 }
 
-#so-panels-root .so-guide-code {
+:is(#so-panels-root, #so-studio-modal) .so-guide-code {
   padding: 0 0.25rem;
   border-radius: 0.25rem;
   background: color-mix(in srgb, var(--st-border) 25%, transparent);
   font-size: 0.85em;
 }
 
-#so-panels-root .so-guide-pre {
+:is(#so-panels-root, #so-studio-modal) .so-guide-pre {
   margin: 0;
   padding: 0.5rem;
   overflow-x: auto;
@@ -783,30 +809,30 @@ dialog#so-briefing::backdrop {
   white-space: pre;
 }
 
-#so-panels-root .so-guide-quote {
+:is(#so-panels-root, #so-studio-modal) .so-guide-quote {
   margin: 0;
   padding-left: 0.6rem;
   border-left: 3px solid var(--st-border);
   opacity: 0.9;
 }
 
-#so-panels-root .so-guide-table-wrap {
+:is(#so-panels-root, #so-studio-modal) .so-guide-table-wrap {
   overflow-x: auto;
 }
 
-#so-panels-root .so-guide-table {
+:is(#so-panels-root, #so-studio-modal) .so-guide-table {
   border-collapse: collapse;
   font-size: 0.8rem;
 }
 
-#so-panels-root .so-guide-table :is(th, td) {
+:is(#so-panels-root, #so-studio-modal) .so-guide-table :is(th, td) {
   padding: 0.25rem 0.4rem;
   border: 1px solid color-mix(in srgb, var(--st-border) 50%, transparent);
   text-align: left;
   vertical-align: top;
 }
 
-#so-panels-root :is(.so-guide-nav-item, .so-guide-result) {
+:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result) {
   padding: 0.1rem 0.25rem;
   border: 0;
   border-radius: 0.25rem;
@@ -817,6 +843,13 @@ dialog#so-briefing::backdrop {
   cursor: pointer;
 }
 
-#so-panels-root :is(.so-guide-nav-item, .so-guide-result):hover {
+:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result):hover {
   background: color-mix(in srgb, var(--st-border) 20%, transparent);
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
 }

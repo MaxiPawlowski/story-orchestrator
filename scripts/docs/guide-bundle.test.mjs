@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { brokenLinks, buildGuide, GUIDE_OUT, headingsOf, leaksIn, render, slugify } from "./guide-bundle.mjs";
+import { ASSET_MAX_BYTES, assetPath, brokenLinks, buildAssets, buildGuide, GUIDE_OUT, headingsOf, imageProblems, leaksIn, render, slugify } from "./guide-bundle.mjs";
 
 test("the bundled guide is current: run `npm run docs:guide` after editing docs/guide", () => {
   assert.equal(readFileSync(GUIDE_OUT, "utf8").replace(/\r\n/g, "\n"), render(buildGuide()));
@@ -33,6 +33,26 @@ test("heading slugs follow GitHub: code marks and punctuation dropped, repeats n
 
 test("the shipped guide names no machine path, internal plan or private evidence", () => {
   assert.deepEqual(leaksIn(buildGuide()), []);
+});
+
+test("every guide image comes from docs/guide/assets, has alt text, is used and is small", () => {
+  const assets = buildAssets();
+  assert.ok(assets.length >= 1, "no guide images");
+  assert.deepEqual(imageProblems(buildGuide(), assets), []);
+  assert.match(render(buildGuide(), assets), /"assets\/[^"]+\.png": "data:image\/png;base64,/);
+});
+
+test("a remote, traversing, alt-less, missing, unused or oversized image is reported", () => {
+  const pages = [{ doc: "setup/a.md", body: "![x](https://example.com/a.png) ![](../assets/ok.png) ![y](../../etc/a.png) ![z](../assets/gone.png) ![w](data:image/png;base64,AA)" }];
+  const assets = [{ path: "assets/ok.png", bytes: 10, mime: "image/png" }, { path: "assets/big.png", bytes: ASSET_MAX_BYTES + 1, mime: "image/png" }, { path: "assets/x.svg", bytes: 10, mime: null }];
+  const problems = imageProblems(pages, assets);
+  assert.equal(problems.filter((line) => line.includes("not in docs/guide/assets")).length, 3);
+  assert.ok(problems.some((line) => line.includes("no alt text")));
+  assert.ok(problems.some((line) => line.includes("gone.png does not exist")));
+  assert.ok(problems.some((line) => line.includes("big.png") && line.includes("limit")));
+  assert.ok(problems.some((line) => line.includes("x.svg: not a png")));
+  assert.equal(assetPath("setup/a.md", "../assets/ok.png"), "assets/ok.png");
+  assert.equal(assetPath("setup/a.md", "../assets/ok.png?x=1"), null);
 });
 
 test("a planted machine path or internal plan link is caught", () => {

@@ -10,13 +10,14 @@ export interface GuideReaderProps {
   homePage: string;
   target: GuideTarget | null;
   onTargetSeen?: () => void;
+  assetSrc?: (asset: string) => string | undefined;
 }
 
 export const HOME_ID = "README";
 
 const sameTarget = (a: GuideTarget | undefined, b: GuideTarget) => a?.id === b.id && a?.anchor === b.anchor;
 
-export function GuideReader({ pages, authorView, homePage, target, onTargetSeen }: GuideReaderProps) {
+export function GuideReader({ pages, authorView, homePage, target, onTargetSeen, assetSrc }: GuideReaderProps) {
   const shown = useMemo(() => visiblePages(pages, authorView), [pages, authorView]);
   const index = useMemo(() => indexPages(shown), [shown]);
   const groups = useMemo(() => groupPages(shown), [shown]);
@@ -103,7 +104,7 @@ export function GuideReader({ pages, authorView, homePage, target, onTargetSeen 
               </ul>
             ) : <div data-so="guide-no-match" className="text-xs opacity-80">{GUIDE_COPY.noMatch}</div>
           ) : page ? (
-            <GuideMarkdown doc={page.doc} body={page.body} homePage={homePage} onNavigate={go} />
+            <GuideMarkdown doc={page.doc} body={page.body} homePage={homePage} onNavigate={go} assetSrc={assetSrc} />
           ) : (
             <div data-so="guide-missing" className="text-xs opacity-80">{GUIDE_COPY.missing}</div>
           )}

@@ -5,6 +5,9 @@ import StudioModal from "./StudioModal";
 import { seedDraft, seedEmptyDraft, sampleStory } from "./stories/fixtures";
 import { required } from "@utils/guards";
 import { emptyEnvironment } from "@wizard/index";
+import { GUIDE_COPY } from "@features/helpCopy";
+import { authorGuideDoc } from "@features/guideLinks";
+import { STUDIO_TAB_GUIDE } from "./guideTabs";
 
 const meta: Meta<typeof StudioModal> = {
   title: "Studio/StudioModal",
@@ -250,5 +253,50 @@ export const WizardKeepsItsModeAcrossTabs: Story = {
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await expect(await canvas.findByRole("button", { name: "Agent" })).toHaveAttribute("aria-pressed", "true");
     await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
+  },
+};
+
+const GUIDE_TABS: Array<[label: string, tab: keyof typeof STUDIO_TAB_GUIDE]> = [
+  ["Story", "story"], ["Qualities", "qualities"], ["Checkpoints", "checkpoints"], ["Transitions", "transitions"], ["Roster", "roster"], ["Game", "game"],
+];
+
+const topmostAt = (element: Element) => {
+  const box = element.getBoundingClientRect();
+  return element.ownerDocument.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+};
+
+export const GuideOpensAboveTheStudioFromEveryTab: Story = {
+  play: async ({ canvasElement, step }) => {
+    const doc = canvasElement.ownerDocument;
+    const body = within(doc.body);
+    const studio = await body.findByRole("dialog", { name: "Checkpoint Studio" });
+    for (const [index, [label, tab]] of GUIDE_TABS.entries()) {
+      const topic = required(STUDIO_TAB_GUIDE[tab]?.[0], `${tab} guide topic`);
+      const byPointer = index % 2 === 1;
+      await step(`${label}: open ${topic} in the guide above the Studio, close it by ${byPointer ? "pointer" : "keyboard"}`, async () => {
+        await userEvent.click(await body.findByRole("tab", { name: label }));
+        const disclosure = required(doc.querySelector<HTMLDetailsElement>("#so-studio-guide"), "guide disclosure");
+        disclosure.open = true;
+        const entry = required(disclosure.querySelector<HTMLDetailsElement>(`[data-so="guide-topic"][data-topic="${topic}"]`), "guide topic");
+        entry.open = true;
+        await userEvent.click(required(entry.querySelector<HTMLButtonElement>('[data-so="guide-topic-open"]'), "open in the guide"));
+        const reader = await body.findByRole("dialog", { name: GUIDE_COPY.title });
+        await expect(reader).toHaveAttribute("open");
+        await waitFor(() => expect(reader.querySelector(`[data-so="guide-page"][data-doc="${authorGuideDoc(topic)}"]`)).toBeVisible(), { timeout: 5000 });
+        await waitFor(() => expect(reader.contains(doc.activeElement)).toBe(true));
+        const close = within(reader).getByRole("button", { name: GUIDE_COPY.close });
+        const search = within(reader).getByRole("searchbox", { name: GUIDE_COPY.search });
+        await expect(topmostAt(close)).toBe(close);
+        await expect(topmostAt(search)).toBe(search);
+        if (byPointer) await userEvent.click(close);
+        else {
+          search.focus();
+          await userEvent.keyboard("{Escape}");
+        }
+        await waitFor(() => expect(body.queryByRole("dialog", { name: GUIDE_COPY.title })).toBeNull());
+        await expect(studio).toHaveAttribute("open");
+        await expect(body.getByRole("tab", { name: label })).toHaveAttribute("aria-selected", "true");
+      });
+    }
   },
 };

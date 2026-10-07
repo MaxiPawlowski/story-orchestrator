@@ -3,7 +3,8 @@ export type Inline =
   | { kind: "code"; text: string }
   | { kind: "strong"; children: Inline[] }
   | { kind: "em"; children: Inline[] }
-  | { kind: "link"; href: string; children: Inline[] };
+  | { kind: "link"; href: string; children: Inline[] }
+  | { kind: "image"; src: string; alt: string };
 
 export interface ListItem {
   children: Inline[];
@@ -85,6 +86,17 @@ export const parseInline = (source: string): Inline[] => {
         continue;
       }
     }
+    if (char === "!" && source[index + 1] === "[") {
+      const close = findClose(source, index + 2, "]");
+      if (close > 0 && source[close + 1] === "(") {
+        const end = source.indexOf(")", close + 2);
+        if (end > close) {
+          out.push({ kind: "image", src: source.slice(close + 2, end).trim(), alt: inlineText(parseInline(source.slice(index + 2, close))) });
+          index = end + 1;
+          continue;
+        }
+      }
+    }
     if (char === "[") {
       const close = findClose(source, index + 1, "]");
       if (close > 0 && source[close + 1] === "(") {
@@ -111,7 +123,11 @@ export const parseInline = (source: string): Inline[] => {
   return out;
 };
 
-export const inlineText = (nodes: Inline[]): string => nodes.map((node) => (node.kind === "text" || node.kind === "code" ? node.text : inlineText(node.children))).join("");
+export const inlineText = (nodes: Inline[]): string => nodes.map((node) => {
+  if (node.kind === "text" || node.kind === "code") return node.text;
+  if (node.kind === "image") return node.alt;
+  return inlineText(node.children);
+}).join("");
 
 const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const HEADING = /^(#{1,6})\s+(.*?)\s*#*\s*$/;

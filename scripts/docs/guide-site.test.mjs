@@ -37,8 +37,25 @@ test("the only script on a page is the search script, and page content carries n
   for (const file of pageFiles) {
     const html = readFileSync(join(out, file), "utf8");
     assert.equal((html.match(/<script/g) ?? []).length, 1, file);
-    assert.doesNotMatch(html.split("<main>")[1].split("<script>")[0], /<(script|iframe|img|object)\b|on[a-z]+=/i, file);
+    assert.doesNotMatch(html.split("<main>")[1].split("<script>")[0], /<(script|iframe|object)\b|on[a-z]+=/i, file);
   }
+});
+
+test("guide images are copied into the site and each img points at a copied asset", () => {
+  let images = 0;
+  for (const file of pageFiles) {
+    const main = readFileSync(join(out, file), "utf8").split("<main>")[1].split("<script>")[0];
+    for (const [tag] of main.matchAll(/<img\b[^>]*>/g)) {
+      images += 1;
+      const src = /src="([^"]+)"/.exec(tag)?.[1] ?? "";
+      assert.doesNotMatch(src, /^(?:[a-z]+:|\/)/i, `${file}: ${src}`);
+      const target = posix.normalize(posix.join(posix.dirname(file), src));
+      assert.match(target, /^assets\//, `${file}: ${src}`);
+      assert.ok(existsSync(join(out, target)), `${file}: ${src}`);
+      assert.match(tag, /alt="[^"]+"/, `${file}: ${tag}`);
+    }
+  }
+  assert.ok(images >= 1, "no page carries an image");
 });
 
 test("README pages map to index.html and relative links climb directories", () => {
