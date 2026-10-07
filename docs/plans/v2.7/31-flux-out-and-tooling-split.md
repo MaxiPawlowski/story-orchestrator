@@ -55,3 +55,10 @@ image jest without FLUX; a seeded install with `flux-dev` stored shows the fallb
 
 `25-flux-memory-and-backend-spikes.md`, `32-images-and-living-characters.md`, `v2.8/28-gpu-broker-in-st-plugin.md`,
 `v2.8/26-test-and-gate-speed.md`.
+
+## Gate record
+
+**§C parallel gates, 2026-10-07, branch `v2.7-image-track-wip` (`445ac5b4`):** `npm run gates` twice in a row, both
+green, identical counts: jest 6,414 passed / 1 skipped; test:plugin 104 / 3 skipped; defect replay 32 of 32 killed;
+Storybook green. Wall 443.4 s and 401.4 s (test:replay 288.6 / 263.6 s, Storybook 169.3 / 119.0 s). Verdict: **parallel
+kept** (user: "parallel if it's nice"). §A/§B not built.
