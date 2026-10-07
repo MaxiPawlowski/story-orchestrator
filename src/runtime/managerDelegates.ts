@@ -88,7 +88,7 @@ export abstract class CoordinatorDelegates {
   shouldCompactShortTerm(messageId: number): boolean { return this.co.extraction.shouldCompactShortTerm(messageId); }
   async runShortTermCompaction() { await this.co.extraction.runShortTermCompaction(); }
   async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> { return this.co.extraction.runEpistemicLedgerPass(audit); }
-  async runExtractionNow(debugResponse?: string, reason = "manual") { return this.co.extraction.runNow(debugResponse, reason); }
+  async runExtractionNow(debugResponse?: string, reason = "manual", window?: { from: number; to: number }) { return this.co.extraction.runNow(debugResponse, reason, window); }
   runMemorizeBacklog(windowSize?: number) { return this.co.extraction.backlog.runMemorizeBacklog(windowSize); }
   memorizeChat() { return this.co.extraction.backlog.runMemorizeBacklog(undefined, confirmPreflight); }
   cancelMemorizeBacklog(): boolean { return this.co.extraction.backlog.cancelMemorizeBacklog(); }

@@ -30,10 +30,10 @@ export class LoudGenerationGate {
 }
 
 export const gatedInterceptor = (
-  gate: LoudGenerationGate, isGroup: () => boolean, inner: GenerationInterceptor, onRefused?: () => void, hold?: () => Promise<unknown>,
+  gate: LoudGenerationGate, isGroup: () => boolean, inner: GenerationInterceptor, onRefused?: () => void, hold?: (type: string) => Promise<unknown>,
 ): GenerationInterceptor =>
   async (chat, contextSize, abort, type) => {
-    await hold?.();
+    await hold?.(type);
     if (!isGroup()) return;
     const entry = gate.enter(type);
     if (entry === "refused") {

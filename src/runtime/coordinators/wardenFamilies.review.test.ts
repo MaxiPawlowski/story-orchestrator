@@ -124,16 +124,16 @@ describe("T22/T23: the warden pass asks every family that is on", () => {
     expect(nothing.inputs).toEqual([]);
   });
 
-  it("records one op per family on one record, and review leaves them all pending", async () => {
+  it("records one op per family on one record; review leaves continuity and rules pending while agency goes in on its own (v2.7 33 W2)", async () => {
     const env = harness({ continuity: true, agency: true, houseRules: RULES, mode: "review", findings: [continuityFinding, agencyFinding, ruleFinding] });
     await env.coordinator.runWardenPass(1);
     const record = env.read().proposals.at(-1)!;
     expect(record.reason).toBe("continuity+agency+house-rule");
     expect(record.summary).toBe("Guard's reply contradicts an established fact; writes the player's own part; breaks a house rule");
-    expect(record.ops.map((entry) => [entry.status, (entry.op as WardenNoteOp).family ?? "continuity"])).toEqual([["pending", "continuity"], ["pending", "agency"], ["pending", "house-rule"]]);
+    expect(record.ops.map((entry) => [entry.status, (entry.op as WardenNoteOp).family ?? "continuity"])).toEqual([["pending", "continuity"], ["accepted", "agency"], ["pending", "house-rule"]]);
     expect((record.ops[0].op as WardenNoteOp).sources?.map((source) => source.id)).toEqual(["f"]);
     env.coordinator.onGenerationStarted("normal", false);
-    expect(setStoryExtensionPrompt).not.toHaveBeenCalled();
+    expect(setStoryExtensionPrompt).toHaveBeenCalledWith(KEY, agencyFinding.text, 0);
   });
 });
 

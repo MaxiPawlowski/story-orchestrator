@@ -1,0 +1,266 @@
+{
+  "$comment": "v2.7 33 W3 N6 fixture: 20 windows of 6 replies (oldest first, the last is the latest reply), English, authored, labelled before the miner was run. 10 loops, 10 fresh. A loops window repeats a phrase, an opener or a stock construction in its latest reply that also appears in at least two earlier replies; a fresh window does not, though fresh traps repeat names, places and a quoted player line. hot lists the phrases a reader would name.",
+  "revision": 1,
+  "rows": [
+    {
+      "id": "loops-shiver",
+      "label": "loops",
+      "hot": ["a shiver ran down her spine"],
+      "replies": [
+        "Mara pushes the door open. A shiver ran down her spine as the cold air of the crypt met her face.",
+        "The torches gutter. Somewhere below, water drips in a slow, patient rhythm.",
+        "Mara kneels by the sarcophagus and traces the carved name. A shiver ran down her spine at the touch of the stone.",
+        "Brother Ivo hums a hymn under his breath, too loud for the quiet.",
+        "The lid shifts a finger's width. A shiver ran down her spine and she pulls her hand back.",
+        "Dust sighs out of the gap. Mara steadies herself, and a shiver ran down her spine as something inside rattles."
+      ]
+    },
+    {
+      "id": "loops-eyes-glinting",
+      "label": "loops",
+      "hot": ["eyes glinting with mischief"],
+      "replies": [
+        "Pip grins, eyes glinting with mischief, and tosses you the stolen apple.",
+        "The market is loud with gulls and hawkers selling eels by the pound.",
+        "\"You owe me one,\" Pip says, eyes glinting with mischief as the guard turns the corner.",
+        "A cart rumbles past, scattering pigeons across the square.",
+        "Pip leans on the fountain, eyes glinting with mischief, counting coins that are not hers.",
+        "She winks at you, eyes glinting with mischief, and vanishes into the crowd before the baker can shout."
+      ]
+    },
+    {
+      "id": "loops-opener",
+      "label": "loops",
+      "hot": ["the wind howls through"],
+      "replies": [
+        "The wind howls through the pass as the column halts at the ridge.",
+        "Captain Orrel studies the map, tapping a gloved finger on the river ford.",
+        "The wind howls through the tents, tugging at every rope in the camp.",
+        "A scout rides in, breathless, with news of riders to the east.",
+        "The wind howls through the gorge while the horses stamp and blow.",
+        "The wind howls through the broken watchtower as you climb the last stair."
+      ]
+    },
+    {
+      "id": "loops-not-but",
+      "label": "loops",
+      "hot": ["not anger, but something softer"],
+      "replies": [
+        "Lysa looks at the letter for a long time. Her face shows not anger, but something softer.",
+        "The rain has stopped. Water still runs off the eaves in thin silver threads.",
+        "When you mention her brother, she pauses. There is not anger, but something softer, in the way she sets down her cup.",
+        "The innkeeper brings bread and a bowl of thin soup.",
+        "Lysa folds the letter into quarters. Not anger, but something softer, crosses her face.",
+        "She meets your eyes, and what you see there is not anger, but something softer, almost like relief."
+      ]
+    },
+    {
+      "id": "loops-mix-of",
+      "label": "loops",
+      "hot": ["a mix of fear and determination"],
+      "replies": [
+        "Tomas grips the rope, a mix of fear and determination on his young face.",
+        "The cliff falls away into white spray far below.",
+        "He looks up at you, a mix of fear and determination in his voice as he asks how far.",
+        "Gulls wheel overhead, shrieking at the intruders on their ledge.",
+        "Tomas steps onto the ledge with a mix of fear and determination.",
+        "With a mix of fear and determination, Tomas lets go of the rope and reaches for the next hold."
+      ]
+    },
+    {
+      "id": "loops-breath-held",
+      "label": "loops",
+      "hot": ["she didn't know she was holding"],
+      "replies": [
+        "Elin lets out a breath she didn't know she was holding when the guard walks past.",
+        "The archive smells of mould and old wax. Shelves vanish into the dark.",
+        "When the lock clicks open, Elin releases a breath she didn't know she was holding.",
+        "A rat scurries between the stacks and is gone.",
+        "She finds the ledger. Elin exhales a breath she didn't know she was holding and opens it to the last page.",
+        "The page is blank. Elin lets out a breath she didn't know she was holding, then laughs at herself."
+      ]
+    },
+    {
+      "id": "loops-smirk",
+      "label": "loops",
+      "hot": ["a smirk tugging at the corner of his lips"],
+      "replies": [
+        "Kael folds his arms, a smirk tugging at the corner of his lips.",
+        "The duelling yard is empty but for the two of you and a rack of blunted blades.",
+        "\"Again?\" Kael asks, a smirk tugging at the corner of his lips.",
+        "Sparrows bicker on the wall above the yard.",
+        "He tosses you a practice sword, a smirk tugging at the corner of his lips as you fumble the catch.",
+        "Kael circles you slowly, a smirk tugging at the corner of his lips, and waits for your first move."
+      ]
+    },
+    {
+      "id": "loops-somewhere",
+      "label": "loops",
+      "hot": ["somewhere in the distance, a dog barks"],
+      "replies": [
+        "The village sleeps. Somewhere in the distance, a dog barks.",
+        "You knock twice on the miller's door. No light shows behind the shutters.",
+        "Footsteps cross the yard and stop. Somewhere in the distance, a dog barks.",
+        "The door opens a crack and a lantern swings into your face.",
+        "The miller shakes his head and shuts the door. Somewhere in the distance, a dog barks.",
+        "You stand alone in the lane again. Somewhere in the distance, a dog barks, then falls silent."
+      ]
+    },
+    {
+      "id": "loops-weight",
+      "label": "loops",
+      "hot": ["the weight of his words hangs in the air"],
+      "replies": [
+        "The old king falls silent. The weight of his words hangs in the air.",
+        "Courtiers shuffle their feet and avoid each other's eyes.",
+        "\"Then it is war,\" says the marshal. The weight of his words hangs in the air.",
+        "A servant drops a goblet; nobody turns to look.",
+        "The prince says nothing at first. When he speaks, the weight of his words hangs in the air.",
+        "\"I will ride at dawn,\" the prince says, and the weight of his words hangs in the air long after."
+      ]
+    },
+    {
+      "id": "loops-grin-opener",
+      "label": "loops",
+      "hot": ["dax flashes a crooked grin"],
+      "replies": [
+        "Dax flashes a crooked grin and slides the cards across the table.",
+        "The smoke in the gambling den is thick enough to chew.",
+        "Dax flashes a crooked grin when the dealer turns the last card.",
+        "A drunk at the next table starts a song nobody else knows.",
+        "Dax flashes a crooked grin at the bouncer, who does not grin back.",
+        "Dax flashes a crooked grin, pockets the winnings and nods toward the back door."
+      ]
+    },
+    {
+      "id": "fresh-names",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "Mara and Brother Ivo reach the Silver Stag just before the gates close.",
+        "The common room of the Silver Stag is half empty; a fire burns low in the hearth.",
+        "Brother Ivo orders two bowls of stew and asks the landlord about the road north.",
+        "The landlord of the Silver Stag says the bridge washed out three days ago.",
+        "Mara spreads the map on the table and marks the ford upstream.",
+        "Brother Ivo yawns, and Mara sends him to bed while she studies the route to the Silver Stag's sister inn at Harrow."
+      ]
+    },
+    {
+      "id": "fresh-quoted-player",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "\"I will find the bell,\" you said, and Sela nods as if she has heard it before.",
+        "She leads you down to the harbour where the fishing boats are drawn up on the shingle.",
+        "An old net-mender points at the drowned tower beyond the breakwater.",
+        "Sela borrows a skiff and rows while you watch the water for rocks.",
+        "The tower's door is under a foot of water. Sela ties the boat to a rusted ring.",
+        "Inside, weed hangs from the beams, and far above a bronze shape catches the light."
+      ]
+    },
+    {
+      "id": "fresh-common-words",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "The morning is grey and the road is wet from the night's rain.",
+        "By noon the clouds break and a farmer offers you a ride on his cart.",
+        "His daughter asks where you are going and laughs at the answer.",
+        "The cart leaves you at a crossroads marked by a leaning stone.",
+        "You choose the left road, which climbs through birch woods toward the hills.",
+        "At dusk you see smoke rising from a hut at the edge of a frozen lake."
+      ]
+    },
+    {
+      "id": "fresh-combat",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "The bandit lunges; you turn the blade aside and feel the jolt up your arm.",
+        "A second one circles behind the overturned wagon, looking for an opening.",
+        "Ruk throws a pot of lamp oil, and the wagon catches with a dull roar.",
+        "The first bandit drops his sword and runs for the trees.",
+        "The other surrenders, kneeling in the mud with his hands on his head.",
+        "Ruk binds his wrists with harness leather and asks who sent them."
+      ]
+    },
+    {
+      "id": "fresh-dialogue",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "\"You came back,\" Hesper says, without looking up from her loom.",
+        "\"The guild will not wait forever. They want an answer by the new moon.\"",
+        "She cuts the thread and holds the cloth up to the window.",
+        "\"My mother wove this pattern for the old duke. Nobody remembers it now.\"",
+        "\"Tell them I accept, but only if the apprentices are paid.\"",
+        "Hesper folds the cloth and presses it into your arms for the guild master."
+      ]
+    },
+    {
+      "id": "fresh-short-replies",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "He nods.",
+        "The candle flickers out.",
+        "Silence.",
+        "A knock at the door.",
+        "Nobody answers it.",
+        "The knocking stops and footsteps walk away down the hall."
+      ]
+    },
+    {
+      "id": "fresh-same-place-new-action",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "In the Hall of Echoes the choir rehearses a dirge for the dead queen.",
+        "You slip past the choir and into the Hall of Echoes' vestry.",
+        "The vestry holds robes, candles and a locked chest bound in iron.",
+        "Brother Anselm catches you at the chest and demands to know your business.",
+        "You claim the dean sent you for fresh candles; he does not believe you.",
+        "He calls for the wardens, and their boots ring on the stone of the Hall of Echoes."
+      ]
+    },
+    {
+      "id": "fresh-two-voices",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "Ilse sharpens her knife on a whetstone and says nothing about last night.",
+        "Bram counts the arrows twice and frowns at the total.",
+        "Ilse finally asks whether you saw the lights over the marsh.",
+        "Bram says the lights are marsh gas, and that only fools follow them.",
+        "Ilse says her grandmother followed them once and came back with silver.",
+        "Bram tells her to pack for the marsh, grumbling the whole time."
+      ]
+    },
+    {
+      "id": "fresh-one-repeat-only",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "The ferryman spits into the river and holds out his hand for the fare.",
+        "Halfway across, a fog comes down and swallows both banks.",
+        "The ferryman spits into the river again and mutters about bad luck.",
+        "Something bumps the hull from below, gently, like a curious dog.",
+        "The fog lifts as suddenly as it came, and the far bank is close.",
+        "You step onto the jetty while the ferryman pushes off without a word."
+      ]
+    },
+    {
+      "id": "fresh-list-of-goods",
+      "label": "fresh",
+      "hot": [],
+      "replies": [
+        "The quartermaster lists what is left: twelve sacks of flour, four barrels of salt pork.",
+        "He adds two crates of arrows and a cask of lamp oil to the tally.",
+        "The cook complains that the flour is damp and half of it is weevils.",
+        "Captain Orrel orders the salt pork rationed to one strip a day.",
+        "A soldier asks whether the lamp oil could be used to fire the enemy's palisade.",
+        "The captain likes the idea and sends for the engineer."
+      ]
+    }
+  ]
+}

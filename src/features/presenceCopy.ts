@@ -20,4 +20,10 @@ export const PRESENCE_TEXT = {
   activitySetup: "Setup",
   rollsLabel: "Rolls and draws",
   helpTitle: "Help",
+  suggestionsTitle: "What could I do?",
+  suggestionsOpen: "What could I do?",
+  suggestionsLoading: "Thinking of a few things you could try…",
+  suggestionsHint: "Pick one to put it in the box where you type. Nothing is sent until you send it.",
+  suggestionsFilled: "It is in the box where you type. Change it or send it.",
+  suggestionsAgain: "Other ideas",
 };

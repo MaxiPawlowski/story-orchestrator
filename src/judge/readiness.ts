@@ -115,7 +115,8 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: 241,
     live: "J8.10, J8.11",
     measuredOn: MEASURED_ON,
-    recommendation: "Review mode recommended, as for the warden. Rides the warden's call off the reply path; stands down where a checkpoint allows narrating the player.",
+    recommendation: "Its notes go in on their own by default, so a player who never opens the drawer still gets them; the other warden notes still wait for review. " +
+      "Rides the warden's call off the reply path; stands down where a checkpoint allows narrating the player.",
   },
   houseRules: {
     calibration: 0.965,
@@ -157,6 +158,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     live: null,
     measuredOn: null,
     recommendation: "Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.",
+  },
+  attentionCheck: {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Not measured yet, so off by default. Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
   },
 };
 

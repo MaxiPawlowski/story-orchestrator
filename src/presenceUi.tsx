@@ -16,6 +16,8 @@ import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { BRIEFING_COPY, GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
+import type { SuggestionAsk } from "@runtime/suggestionsHost";
+import type { WriteResult } from "@utils/writeResult";
 import { PanelFrame } from "./components/panels/PanelFrame";
 import { onGuideRequest, requestGuide } from "@guide/request";
 import type { GuideTarget } from "@guide/types";
@@ -23,8 +25,10 @@ import type { GuideTarget } from "@guide/types";
 const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
 const ActivityPanel = lazyRetry(() => import("./components/panels/ActivityPanel"));
 const GuideHost = lazyRetry(() => import("./guide/GuideHost"));
+const SuggestionsPanel = lazyRetry(() => import("./components/panels/SuggestionsPanel"));
+const suggestionsHost = () => import("@runtime/suggestionsHost");
 
-export type PanelId = "help" | "activity" | "guide";
+export type PanelId = "help" | "activity" | "guide" | "suggestions";
 
 const panelListeners = new Set<() => void>();
 let openPanels: readonly PanelId[] = [];
@@ -70,10 +74,17 @@ export const openPlay = async (row: ContinueRow) => {
 };
 
 export function createPresenceUi({ manager, useSnapshot, showFeature, jump, openDrawer }: PresenceUiDeps) {
+  const requestSuggestions = async () => (await suggestionsHost()).askSuggestions(manager);
+  let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
+  void suggestionsHost().then((loaded) => { host = loaded; });
+  const fillSuggestion = (ask: SuggestionAsk, text: string): WriteResult =>
+    host ? host.fillSuggestion(ask, text) : { ok: false as const, reason: PRESENCE_TEXT.suggestionsLoading };
+
   const PanelsHost = () => {
     const panels = useOpenPanels();
     const snapshot = useSnapshot();
     const activity = panels.includes("activity") && snapshot.ready && snapshot.ui.authorView;
+    const suggestions = panels.includes("suggestions") && snapshot.ready && snapshot.presence?.shown.suggestions === true;
     return (
       <>
         {panels.includes("help") && (
@@ -89,6 +100,11 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         {activity && (
           <Panel id="activity" title={PRESENCE_TEXT.activityTitle}>
             <Lazy fallback={null}><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])} onJump={jump} checks={activityChecks(snapshot)} /></Lazy>
+          </Panel>
+        )}
+        {suggestions && (
+          <Panel id="suggestions" title={PRESENCE_TEXT.suggestionsTitle}>
+            <Lazy fallback={null}><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy>
           </Panel>
         )}
       </>
@@ -125,6 +141,10 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       { id: "so-wand-recap", icon: "fa-book-open", label: PRESENCE_TEXT.wandRecap, run: showRecap },
       { id: "so-wand-briefing", icon: "fa-scroll", label: BRIEFING_COPY.reopen, run: () => void requestBriefing(), shown: () => Boolean(manager.getCachedSnapshot().briefing?.view) },
       { id: "so-wand-flag", icon: "fa-flag", label: PRESENCE_TEXT.wandFlag, run: () => void flag() },
+      {
+        id: "so-wand-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen, run: () => setPanel("suggestions", true),
+        shown: () => manager.getCachedSnapshot().presence?.shown.suggestions === true,
+      },
       { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: openDrawer },
     ]);
     ui.add(() => wand.dispose());

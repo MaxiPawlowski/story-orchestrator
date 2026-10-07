@@ -3,6 +3,7 @@ import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacte
 import { log } from "@utils/log";
 import { gatedInterceptor } from "../loudGenerationGate";
 import { CHAT_SETTLE_TIMEOUT_MS, chatSettle } from "../chatSettle";
+import { spikeSeams } from "../spikeSeams";
 import { quoteSlashArg } from "@utils/string";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
@@ -40,7 +41,12 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   ownership: runtimeManager.getOwnership(),
 });
 
-const holdForChat = async () => {
+const holdForChat = async (type: string) => {
+  await holdForLoad();
+  await spikeSeams.hold?.(type);
+};
+
+const holdForLoad = async () => {
   if (await chatSettle.until() !== "timed-out") return;
   log.warn("a reply started while this chat's story was still loading; it went ahead after the wait");
   const waited = `${CHAT_SETTLE_TIMEOUT_MS / 1000} s`;

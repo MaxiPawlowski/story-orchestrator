@@ -8,3 +8,4 @@ export * from "./fuzzy";
 export * from "./writeAhead";
 export * from "./declines";
 export * from "./curatorTiers";
+export * from "./repetition";

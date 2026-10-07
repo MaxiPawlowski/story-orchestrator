@@ -58,6 +58,10 @@ export const AuthorView: Story = {
     const values = [...(warden as HTMLSelectElement).options].map((option) => option.value);
     await expect(values).toEqual(["review", "auto"]);
     await expect(values).not.toContain("off");
+    const agency = canvas.getByLabelText("Notes about the player's part");
+    await expect(agency).toHaveValue("auto");
+    await userEvent.selectOptions(agency, "review");
+    await expect(args.manager.setStagecraftSettings).toHaveBeenCalledWith({ agencyAcceptMode: "review" });
     await userEvent.click(curator);
     await expect(args.manager.setStagecraftSettings).toHaveBeenCalledWith({ curatorEnabled: false });
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();

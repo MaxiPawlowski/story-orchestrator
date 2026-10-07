@@ -8,7 +8,7 @@ import {
   isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
   forgetDecline, mergeDeclined, refuseProtected, rememberDecline, routeByTier, standingDeclines,
-  anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
+  anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts,
 } from "@stagecraft/index";
@@ -332,7 +332,11 @@ export class StagecraftCoordinator {
   private activeFamilies(): WardenFamiliesActive {
     const extra = this.deps.warden?.families?.() ?? { agency: false, houseRules: [] };
     const continuity = this.state.settings.wardenEnabled;
-    return { continuity, agency: extra.agency, houseRules: extra.houseRules, lore: continuity && extra.lore === true };
+    const facing = (family: "agency" | "attention") => wardenFamilyMode(this.state.settings, family) !== "off";
+    return {
+      continuity, agency: extra.agency && facing("agency"), houseRules: extra.houseRules, lore: continuity && extra.lore === true,
+      ...(extra.attention ? { attention: facing("attention") } : {}),
+    };
   }
 
   // A story swap that drops a rule withdraws the unapplied notes that named it.
@@ -362,10 +366,11 @@ export class StagecraftCoordinator {
     this.wardenHold = hold;
     try {
       const established = families.continuity ? warden.facts() : [];
-      const playerLine = families.agency ? readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId) : null;
+      const playerLine = families.agency || families.attention ? readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId) : null;
+      const said = playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(), message: playerLine } : null;
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text),
-          agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(),
-          message: playerLine } : null, houseRules: families.houseRules };
+          agency: families.agency ? said : null, houseRules: families.houseRules };
+      if (families.attention && said) input.attention = said;
       const rules = families.houseRules.length > 0;
       const fired = families.lore || rules ? warden.lore?.(replyMessageId) ?? [] : [];
       const lore = families.lore ? fired : [];
@@ -374,14 +379,15 @@ export class StagecraftCoordinator {
         const line = readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId);
         input.houseRuleContext = { scene: { player: this.deps.hosts.player.getPlayerName(), ...(line ? { playerMessage: line } : {}), ...warden.scene(reply.speaker) }, worldBook: fired };
       }
-      const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0 || lore.length > 0;
+      const asks = input.facts.length > 0 || input.agency !== null || Boolean(input.attention) || input.houseRules.length > 0 || lore.length > 0;
       const findings = asks ? await warden.check(input).catch((error: unknown) => {
         log.warn("continuity warden: the check failed", error);
         return null;
       }) : null;
       const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) return false;
-      if (!findings?.length || readReply(this.deps.hosts.chat.chatRows(), replyMessageId)?.text !== reply.text) {
+      const kept = (findings ?? []).filter((finding) => wardenFamilyMode(settings, finding.family) !== "off");
+      if (!kept.length || readReply(this.deps.hosts.chat.chatRows(), replyMessageId)?.text !== reply.text) {
         if (lapsed) await this.save();
         return false;
       }
@@ -392,17 +398,17 @@ export class StagecraftCoordinator {
         boundary: state.boundary,
         messageId: replyMessageId,
         checkpointId: state.activeCheckpointId,
-        reason: wardenReason(findings),
-        summary: wardenSummary(reply.speaker, findings),
+        reason: wardenReason(kept),
+        summary: wardenSummary(reply.speaker, kept),
         mode: settings.wardenAcceptMode,
-        ops: wardenNoteOps(findings, established, replyMessageId, settings.wardenAcceptMode),
+        ops: wardenNoteOps(kept, established, replyMessageId, (family) => wardenFamilyMode(settings, family)),
         dropped: [],
         provenance: { source: "curator", messageId: replyMessageId, boundary: state.boundary,
             pass: "continuity-warden", inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }],
             validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
-      this.deps.journal(...wardenFlagJournal(reply.speaker, findings));
+      this.deps.journal(...wardenFlagJournal(reply.speaker, kept));
       await this.save();
       return true;
     } finally {

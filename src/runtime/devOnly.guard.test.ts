@@ -11,6 +11,8 @@ const DEV_ONLY = [
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
+  "src/runtime/spikes/editReread.ts",
+  "src/runtime/spikes/editRereadHost.ts",
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/install.ts",
   "src/runtime/spikes/sp6Complications.ts",

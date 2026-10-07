@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { CURATOR_OP_REVERTED, decidedOp, isNoteOp, previewCuratorOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import {
+  CURATOR_OP_REVERTED, decidedOp, isNoteOp, previewCuratorOp, repetitionText, wardenFamilyMode, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord,
+} from "@stagecraft/index";
 import { wordDiff } from "@utils/wordDiff";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
@@ -46,10 +48,12 @@ const withText = (op: CuratorOp, text: string): CuratorOp => {
   return op;
 };
 
+const AGENCY_STATUS = { auto: "go in on their own", review: "wait for you", off: "not checking" } as const;
+
 const describe = (op: CuratorOp): string => {
   if (op.kind === "note") {
     const family = wardenFamilyOf(op);
-    if (family === "agency") return `agency note${op.score !== undefined ? ` (score ${op.score.toFixed(2)})` : ""}`;
+    if (family === "agency" || family === "attention") return `${family} note${op.score !== undefined ? ` (score ${op.score.toFixed(2)})` : ""}`;
     if (family === "lore") return "lore note";
     return family === "house-rule" ? "house-rule note" : "continuity note";
   }
@@ -173,6 +177,14 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
         <div data-so="warden-status" className="opacity-70">
           Continuity warden on · {settings.wardenAcceptMode === "auto" ? "notes go in on their own" : settings.wardenAcceptMode === "off" ? "not checking" : "notes wait for you"}
         </div>
+      )}
+      {settings.wardenAcceptMode !== "off" && (
+        <div data-so="agency-status" className="opacity-70">
+          Notes about the player&apos;s part · {AGENCY_STATUS[wardenFamilyMode(settings, "agency")]}
+        </div>
+      )}
+      {snapshot.repetition?.loops && (
+        <div data-so="repetition" className="opacity-70">{repetitionText(snapshot.repetition)}</div>
       )}
       {lastError && <div className="so-error-text">{lastError}</div>}
       {lastPass && (

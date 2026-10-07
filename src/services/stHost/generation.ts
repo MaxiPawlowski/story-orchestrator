@@ -46,6 +46,23 @@ export function watchHostChatMove(chatId: string, onMoved: () => void): () => vo
 
 export const hostSystemUserName: string = scriptModule.systemUserName;
 
+const inputBox = (): HTMLTextAreaElement | null => {
+  const box = document.getElementById("send_textarea");
+  return box instanceof HTMLTextAreaElement ? box : null;
+};
+
+export const readChatInput = (): string | null => inputBox()?.value ?? null;
+
+export function fillChatInput(text: string, expected: string): WriteResult {
+  const box = inputBox();
+  if (!box) return couldNot("The box where you type is not on the page.");
+  if (box.value.trim() && box.value !== expected) return couldNot("You started typing, so the suggestion was not put in.");
+  box.value = text;
+  box.dispatchEvent(new Event("input", { bubbles: true }));
+  box.focus();
+  return wrote();
+}
+
 const NO_ATTACH_TYPES = ["regenerate", "swipe", "impersonate", "quiet", "continue"];
 const NO_TEXTAREA_TYPES = ["regenerate", "swipe", "quiet", "impersonate"];
 

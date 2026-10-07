@@ -349,3 +349,26 @@ export const WardenNoteMessageOpensInTheChat: Story = {
     await expect(jumpFromCard).toHaveBeenCalledWith(4);
   },
 };
+
+const withAgencyAuto = (): RuntimeSnapshot => {
+  const base = snapshot({ wardenEnabled: true });
+  const settings = { curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" };
+  return { ...base, stagecraft: { ...base.stagecraft, settings } } as RuntimeSnapshot;
+};
+
+export const AgencyNotesGoInOnTheirOwn: Story = {
+  args: { snapshot: withAgencyAuto() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Continuity warden on · notes wait for you/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Notes about the player's part · go in on their own/)).toBeInTheDocument();
+  },
+};
+
+export const RepetitionReadout: Story = {
+  args: { snapshot: { ...snapshot(), repetition: { replies: 6, hot: ["a shiver ran down her spine"], constructions: ["\"not X, but Y\""], loops: true } } as RuntimeSnapshot },
+  play: async ({ canvasElement }) => {
+    const line = canvasElement.querySelector('[data-so="repetition"]');
+    await expect(line?.textContent).toBe("Repeating across the last 6 replies: \"a shiver ran down her spine\", \"not X, but Y\"");
+  },
+};

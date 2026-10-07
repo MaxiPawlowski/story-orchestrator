@@ -11,7 +11,6 @@ import { BRIEFING_COPY } from "@features/helpCopy";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
-import { MemoryTab } from "./tabs/MemoryTab";
 import { isArcTemplateName } from "@pacing/index";
 import type { InlineActions } from "../inline/InlineDetail";
 import { CheckRow, FieldLabel } from "../settings/Field";
@@ -21,6 +20,7 @@ const MessageInspector = lazyRetry(() => import("./MessageInspector"));
 const BlackboardTab = lazyRetry(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
 const SchedulerTab = lazyRetry(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
 const PayloadTab = lazyRetry(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
+const MemoryTab = lazyRetry(() => import("./tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 
 const AuthorTab = ({ id, children }: { id: DrawerTabId; children: ReactNode }) => (
   <Lazy key={id} fallback={null}>
@@ -227,7 +227,7 @@ export const DrawerTabs = ({
         {imagePanel}
         </div>}
         {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} /></AuthorTab>}
-        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
+        {activeTab === "memory" && <Lazy fallback={null}><MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} /></Lazy>}
         {activeTab === "scheduler" && <AuthorTab id="scheduler"><SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} /></AuthorTab>}
         {activeTab === "payload" && (
           <AuthorTab id="payload">

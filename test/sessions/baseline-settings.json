@@ -100,7 +100,8 @@
       "curatorEnabled": true,
       "acceptMode": "review",
       "wardenEnabled": true,
-      "wardenAcceptMode": "review"
+      "wardenAcceptMode": "review",
+      "agencyAcceptMode": "auto"
     },
     "judge": {
       "enabled": true,
@@ -191,7 +192,8 @@
     "spikes": {
       "swipeBackCache": false,
       "sp6Complications": false,
-      "reasoningEffect": false
+      "reasoningEffect": false,
+      "editReread": false
     }
   }
 }

@@ -13,7 +13,7 @@ import type { BriefingRecord, BriefingState } from "./briefing";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
-import type { CuratorDecline, CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
+import type { CuratorDecline, CuratorPassAudit, CuratorProposalRecord, RepetitionReport, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
 import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -117,6 +117,7 @@ export interface StagecraftSettings {
   acceptMode: StagecraftAcceptMode;
   wardenEnabled: boolean;
   wardenAcceptMode: StagecraftAcceptMode;
+  agencyAcceptMode?: StagecraftAcceptMode;
 }
 
 export interface StagecraftRuntimeState {
@@ -570,6 +571,8 @@ export interface RuntimeSnapshot {
   /** One roll store: quality rolls reconstructed from the seed, NPC and talk draws from the ring. Author-only surfaces. */
   rolls?: RollRecord[];
   presence?: PresenceView;
+  /** The repetition miner over the latest reply and five earlier ones; Author view only, null otherwise. */
+  repetition?: RepetitionReport | null;
 }
 
 export interface LoadedStory {

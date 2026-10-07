@@ -22,6 +22,7 @@ export const JUDGE_USE_KEYS = [
   "wardenLore",
   "loreExclusive",
   "expressions",
+  "attentionCheck",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -67,7 +68,7 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules"];
+export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "attentionCheck"];
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, !JUDGE_USES_OFF_BY_DEFAULT.includes(key)])) as JudgeUses;
 
@@ -259,6 +260,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
       "Otherwise the sprite model, then the local classifier, decide.",
     sends: "each reply's passages, the on-stage character names and the expression labels with their descriptions",
   },
+  attentionCheck: {
+    label: "Answers the player (warden)",
+    description: "After a character reply, asks whether it answered what you just said or did; a reply that passed over it gets a one-line reminder in the next reply's prompt. " +
+      "A refusal or an in-character dodge counts as an answer. Not measured yet, so off by default.",
+    sends: "nothing beyond the warden's call: the character reply, your latest message and your persona name",
+  },
 };
 
 export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
@@ -279,7 +286,8 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "wardenLore",
   "loreExclusive",
   "expressions",
+  "attentionCheck",
 ];
 
 // Steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck"];

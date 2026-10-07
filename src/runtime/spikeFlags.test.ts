@@ -4,6 +4,7 @@ const ALL_OFF = {
   swipeBackCache: false,
   sp6Complications: false,
   reasoningEffect: false,
+  editReread: false,
 };
 
 describe("v2.5 plan 09 rule 2: every spike flag is install-wide and off by default", () => {

@@ -1,7 +1,8 @@
 # Plan 33 — Player loop fixes
 
-**Status: SEEDED 2026-10-07; moved from v2.8 01 §C (W1), v2.9 04 option D (W2), v2.8 13 N1 + N6 (+ J7.2) (W3) and
-v2.8 04 C5 (W4); needs user approval; not built.** Overview: `00-overview.md` (scope under review 2026-10-07).
+**Status: APPROVED 2026-10-07 (every Recommended answer); tier D built 2026-10-07 on `v2.7-33-player-loop` (see §Gate
+record); CL/RP acceptance owed to v2.7 39 Phase C; J7.2 not built.** Moved from v2.8 01 §C (W1), v2.9 04 option D (W2),
+v2.8 13 N1 + N6 (+ J7.2) (W3) and v2.8 04 C5 (W4). Overview: `00-overview.md`.
 **Gate tiers:** implementation D; acceptance CL and RP per workstream. Real-model rows are allowed in v2.7 by the
 2026-10-07 re-scope (an exception to v2.7 rules 5 and 6, as rule 13 is for the image track); RunPod may carry test
 volume. Every test, these included, re-runs from zero in v2.7 39 (Phase C).
@@ -236,3 +237,138 @@ cue + scene read changes R5′).
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Post-processor (W1 step 0, decision 1): not named by the user; Recast-shaped scripted fixtures cover it until named.
+
+## Gate record (2026-10-07)
+
+Tier D only, branch `v2.7-33-player-loop` (from `v2.7-image-track-wip` @ `8a9e06e3`). **Live gate not run** (no ST
+lane, no model in this worktree); every real-model row is owed to v2.7 39 Phase C (below). **Full gates deferred to the
+integrated run** (testing policy 2026-10-07: the main session runs `npm run gates` once after merging all branches;
+`npm run build && npm run test:release` not run here either, for the same reason).
+
+**Commands run (all green):** `npx tsc --noEmit`; `npx tsc -p tsconfig.test.json --noEmit`; `npm run lint`;
+`npm run debug:typecheck`; `npm run docs:guide` then `node --test scripts/docs/guide-bundle.test.mjs` (5/5);
+`node --test scripts/debug/lib/presetOverlay.test.mts`; jest over every touched area plus the guards (codeHealth.guard,
+ownership.guard, architecture, devOnly.guard, errorCopy.guard, faultMatrix.guard, features/registry, guide,
+guideTopics, spikes, coordinators, stagecraft, judge, extraction, engine, components, studio, turnBridge,
+loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak, playerProjection, suggestions*):
+**222 suites, 3199 passed, 1 skipped (pre-existing), 0 failed.** No CPU-contention timeouts this run.
+
+### W2 — agency notes `auto` (built first)
+
+- New install-wide key `stagecraft.agencyAcceptMode` (`review | auto | off`, default **`auto`**; absent in a stored
+  install reads `auto`, the shared `wardenAcceptMode` keeps its stored value). `wardenFamilyMode()`
+  (`src/stagecraft/warden.ts`): shared mode `off` stops every family; `agency` and the new `attention` family follow the
+  agency key; continuity, house rules and lore follow the shared key (`review` by default). `wardenNoteOps` sets each
+  op's status from its own family's mode, so one record holds an accepted agency op beside a pending continuity op;
+  `newestCarriedNote` already carried accepted indices only. A family at `off` is not asked and its finding never
+  becomes an op.
+- UI: "Notes about the player's part" select (`#so-agency-accept-mode`) inside the existing warden controls
+  (`PlayGroups.tsx` WardenControls, Author view, Background helpers group; no layout change); drawer status line
+  `[data-so="agency-status"]` (`StagecraftPanel.tsx`). Registry: the key is owned by the continuity-warden feature;
+  setting copy added; readiness recommendation for agencyCheck reworded. Run header records `agencyAcceptMode`;
+  session baseline settings carry it (`auto`).
+- If the T22 floor misses in Phase C, the default returns to `review` (one constant in `defaultStagecraftSettings`).
+- Tests: `coordinators/agencyAutoMode.review.test.ts` (migration, family map, same-record accepted+pending, payload
+  invariance: continuity alone and agency-check-off inject nothing, shared off makes no call), the updated
+  `wardenFamilies.review.test.ts` case, Storybook `PlayGroups` AuthorView and `StagecraftPanel`
+  AgencyNotesGoInOnTheirOwn.
+
+### W1 — edit re-read (option A), behind dev flag `spikes.editReread` (default off)
+
+- `src/runtime/spikes/editReread.ts` (dev-only import, listed in `devOnly.guard`): per message id **settle window
+  750 ms (placeholder, `EDIT_SETTLE_MS`; step 0 not measured)**, one cycle per settled burst on the last text; the
+  cycle mints a `RunOwnership` run when the window fires and checks it before every write: roll back from the edited
+  message (owning the re-read so the scheduler queues no second one, `spikeSeams.ownsReread`), re-enqueue the writes
+  read before the reply and commit at its id (step 2), read the edited window once (`runExtractionNow` with window
+  `[id-7, id]`, reason `rollback:<id>:edit`, which commits), done. The hold rides the interceptor's hold slot
+  (`spikeSeams.hold` after `holdForChat`): loud generations only (quiet/impersonate never), free when nothing is
+  pending, **cap 15 s** (`EDIT_HOLD_CAP_MS`), journal "the edit was not read in time" on timeout, then re-stage what
+  `GENERATION_STARTED` set (continuity note cleared and re-carried, drafted member's private block re-applied).
+  C12: after `rollbackOnEnter` claimed an edit, the bridge asks the seam once more (`entered`) and the cycle uses the
+  record the C12 rollback took away, so the transition re-fires only if the edited text still satisfies the gate.
+- Deterministic floors (`spikes/editReread.review.test.ts`, real manager over the spike harness):
+  **V1 800/800** equal to a replay of the edited chat over 4 seeds × 200 cuts (240 cuts fired at the edited reply, 240
+  re-committed, 800 cycles, 800 reads), both negative controls unequal (flag off: seed 1 cut 0; no re-enqueue:
+  seed 1 cut 9). **V2**: (a)–(f) as declared plus bursts of 2, 3, 4, 5 `MESSAGE_EDITED`-only rewrites = 1 cycle, 1
+  read, every boundary at the edited id on the last text. **V5′ (deterministic half)**: one read per settled edit by
+  construction, the rollback's own re-read is owned (not queued); hold time recorded per hold (`holdMs`, p95 helper);
+  live p95 owed. **V6**: a hung read releases at the cap, the reply goes out, one journal row. **V7 (approximation)**:
+  an edit the C12 path already stepped back ends like a replay of the edited chat for a text that keeps the gate and
+  one that breaks it (ends `gate` / `road`); the real onEnter post and its `/cut` are not modelled in the harness.
+- Ownership census: new row `EditReread.cycle` (checked); `TurnBridge.onMutation` note extended. Pipeline: the edit's
+  own read is not a scheduler job, so `catching-up` shows only for the ordinary rollback re-read (deviation from "while
+  held, the pipeline keeps showing catching-up").
+- Not done here: **V0** (step 0: the "no audit" case and the user's post-processor order; code reading suggests the
+  v2.6 spike's read lapsed when the second rewrite's rollback invalidated its window, a hypothesis only), V3/V4/V8
+  (live), the fault-matrix row for the new mutation shape (the package list is generated; owed when the module leaves
+  the spike folder), the default-on switch (after V0–V8 ×2).
+
+### W3 — responsiveness and repetition
+
+- **N6 miner** (`src/stagecraft/repetition.ts`, pure, no model): latest reply + 5 earlier; a 3–8 word phrase in the
+  latest reply and in ≥ 2 earlier replies, with ≥ 2 content words that are not all capitalised (names and places do
+  not count), maximal phrases only, up to 4; plus four stock constructions ("not X, but Y", "somewhere in the
+  distance", "a mix of X and Y", the held breath). Shown in Author view only: `snapshot.repetition`, line
+  `[data-so="repetition"]` in the Scheduler tab's stagecraft panel. Fixture `test/fixtures/repetition/n6-windows.json`
+  (20 windows, 10 loops / 10 fresh, authored and labelled before the miner ran; synthetic, not second-model checked,
+  not mined from sessions): **loops recall 1.0, fresh specificity 1.0** (floors 0.8 / 0.95). Because the fixture and
+  the miner share an author, this is a weak pass; the **nudge (warden note, cooldown 6) is not built** until a
+  session-mined, second-model-checked fixture passes.
+- **N1 attention** (`judge.uses.attentionCheck`, in `JUDGE_USES_OFF_BY_DEFAULT`, author-only, readiness row
+  unmeasured): one Score question (0 ignores / 1 partial / 2 responds; refusals, in-character dodges and unaddressed
+  group members count as responses) added to the warden's own request, sharing its `player`/`player_message` state;
+  flagged below **0.75 (placeholder `ATTENTION_SCORE`, uncalibrated)**; note family `attention` through the warden path,
+  following the agency accept mode (`auto`). Left out of the request when the warden is routed to a provider with no
+  cleared row for it (`JudgeRuntime.ridesWarden`), so it never refuses the warden's call. One call, one fate.
+  Invariance: use off → warden request unchanged (no `attention` key). Spike fixture
+  `test/fixtures/judge/spike-attention.json` (20 rows: 7 ignores, 5 partial, 8 responds, 4 unaddressed group rows,
+  3 refusals/evasions), shape-checked in jest; not calibrated. Tests: `coordinators/attentionCheck.review.test.ts`.
+  Deviation: ships as an off-by-default `judge.uses` key directly rather than `spikes.judgeAttention` first; it is
+  inert until calibrated and switched on.
+- **J7.2 canon verification: not built.** The plan says "against live facts" while the reusable `buildVerifyRequest`
+  checks against the transcript; the evidence set is undecided and its ≥ 20-sentence fixture does not exist.
+
+### W4 — "What could I do?"
+
+- `src/runtime/playerProjection.ts` (pure, main entry): `playedProjection` (title, intro, player, reached scene player
+  names from `visitedPath` + active, current scene player copy, narrative sections now/about/recently/threads/
+  chapters/story/end, cast names, last 12 visible messages clipped to 600 characters), `startProjection(story)` for
+  v2.8 10, `projectionText`. Never: unreached scenes, gates, transitions, quality keys, internal names, memory rows,
+  epistemic/ledger/held-secret rows, lore text, machine status.
+- `src/runtime/suggestions.ts` (prompt: 4 lines in the player's voice, suggest-never-decide, no outcomes, only what
+  is written, engage the goal or a thread, never the player's last line; parser keeps 3–4, drops preambles,
+  duplicates and the player's own last line) and lazy `suggestionsHost.ts` (memory profile `read` role, pass
+  `suggestions`, on demand only, `RunOwnership` minted at the ask; fill refuses when the chat changed or the box is no
+  longer empty-or-unchanged). New `stHost/generation.ts` `readChatInput` / `fillChatInput` (typed `WriteResult`, fills,
+  never sends). Panel `components/panels/SuggestionsPanel.tsx` in a `PanelFrame` (`#so-suggestions`), opened by the
+  drawer header lightbulb `#so-open-suggestions` and the wand entry `so-wand-suggestions`. Display toggle
+  `suggestions` (install `display.presence.suggestions` + story `display.suggestions`, `shown = story AND install`,
+  default on). Registry: `suggestions` (player) and `repetition-readout` (author) in `presenceFeatures.ts`. Guide:
+  `player/playing.md` "Stuck? What could I do?", `player/drawer-and-hud.md`, author guide `presentation` topic.
+- Tests: `playerProjection.test.ts` (spoiler property on a gated story: no unreached name/objective, no quality key,
+  no internal name, no machine status in the projection or the request; control once reached),
+  `suggestionsHost.test.ts` (**K1**: projection and request byte-identical with and without a held secret in the
+  snapshot; one `read`/`suggestions` call; stale answer refused; fill-in refusals), `suggestions.test.ts` (prompt,
+  parser, fill truth table, toggle truth table), Storybook `Panels/SuggestionsPanel` (fills never sends, refusal,
+  retry, framed at 390/768/1440). Storybook not run here (it finds no stories from a worktree).
+- Open answers taken: 4 suggestions asked, 3–4 accepted; no "you decide" line.
+
+### Placeholder values (to be measured, never silently retuned)
+
+`EDIT_SETTLE_MS` 750; `EDIT_HOLD_CAP_MS` 15 000 (decided); `EDIT_READ_WINDOW` 8; `ATTENTION_SCORE` 0.75;
+`REPETITION_MIN_EARLIER` 2 over a window of 6; `SUGGESTION_COUNT` 4, `SUGGESTION_MAX_TOKENS` 400.
+
+### Phase C rows owed (v2.7 39)
+
+- W1: V0 step 0 trace; V3 post-processor leg live ×2; V4 editor leg 4/4 ×2; V5 R5′ and hold p95 live; V8 J6 ×2 with
+  `spikes.editReread` on; run-header diff around the batch; fault-matrix row; then default on.
+- W2: T22 floor on Claude's over-steer session (v2.8 01 §G, ≥ 40 turns, second-model rater);
+  `so-journey J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto` ×2; `assert-player-clean`.
+- W3: N1 calibration ×2 on TypeSafe (`so-judge calibrate --use attentionCheck --record`, page reloaded) plus the
+  combined-request re-measure (warden p95 and timeout/refusal rate with and without N1; continuity, agency and
+  house-rules rates unchanged; C3 floor 1 in 50); live real-judge checks ×2 in a group chat; N6 session-mined fixture
+  with second-model check, then the nudge; J7.2 design decision and fixture.
+- W4: live CL ×2 on the memory profile; the frozen usefulness floor (20 clicks on 2 group stories, second-model rater,
+  ≥ 75 % fits, ≥ 90 % of sets engage the objective or a thread, 0 outcomes stated, 0 duplicates of the last line,
+  p95 click-to-fill ≤ 10 s); "no unreached checkpoint name in 10 runs" string check; `assert-player-clean` with the
+  panel open; Storybook interaction + a11y at 390/768/1440.
