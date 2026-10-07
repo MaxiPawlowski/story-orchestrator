@@ -909,7 +909,7 @@
       "tier": [
         "D"
       ],
-      "assertion": "payload capture shows the authored scenario block and nothing else; leaving writes nothing; removing the story restores the pre-story value",
+      "assertion": "payload capture shows the authored scenario block and nothing else; leaving writes nothing; removing the story from the library leaves the running chat on its pinned copy (each chat pins a full copy; library deletion never reaches a running chat)",
       "floor": {
         "text": "pass/fail: the assertion holds in both runs",
         "citation": "v2.7 16 §Per plan"

@@ -1,6 +1,10 @@
 {
-  "_note": "v2.7 02 C1 (SP5.b): the story-owned scenario on the shipped path, no flag, no model. Deterministic (tier D): every request is ST's own dry-run assembly (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY), and the story moves only by /cp activate in Author view (the slash verb). Group chats only: `node scripts/debug/so-scenario.mts run test/scenarios/effects-story-scenario.json --sandbox --group <id>`, run x2, with a run header diffed around it. Checks: the import sets the start checkpoint's scenario; a jump swaps it (hall); a jump to a checkpoint that authors none plays with the chat's pre-story value (v2.6 04 C4 (c)); removing the story puts the pre-story value back; and each request carries the held scenario once and no other checkpoint's text. The C1-C5 x2 acceptance on Adolion is v2.8 16; the scenario in real replies is v2.7 02 O13, run in v2.7 39 C5 (real-model rows). The probe globals are cleared in the cleanup block, which also removes the story when a failed run left it playing.",
-  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
+  "_note": "v2.7 02 C1 (SP5.b): the story-owned scenario on the shipped path, no flag, no model. Deterministic (tier D): every request is ST's own dry-run assembly (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY), and the story moves only by /cp activate in Author view (the slash verb). Group chats only: `node scripts/debug/so-scenario.mts run test/scenarios/effects-story-scenario.json --sandbox --group <id>`, run x2, with a run header diffed around it. Checks: the import sets the start checkpoint's scenario; a jump swaps it (hall); a jump to a checkpoint that authors none plays with the chat's pre-story value (v2.6 04 C4 (c)); removing the story from the library leaves this chat playing its pinned copy (architecture invariant: story identity is the authored id, each chat pins a full copy, so library edits and deletion never reach a running chat; owner decision 2026-10-07, B0-live F9): the scenario stays, a further jump still swaps it; and each request carries the held scenario once and no other checkpoint's text. The C1-C5 x2 acceptance on Adolion is v2.8 16; the scenario in real replies is v2.7 02 O13, run in v2.7 39 C5 (real-model rows). The probe globals are cleared in the cleanup block, which also removes the story when a failed run left it playing.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
   "steps": [
     {
       "eval": "const ONE = \"SO-SP5 scenario one: the party waits at the city gate.\"; const THREE = \"SO-SP5 scenario three: the party stands in the guild hall.\"; globalThis.__soScenarioProbe = async (want, label) => { const c = SillyTavern.getContext(); if (!c.groupId) throw new Error(`${label}: needs a sandbox GROUP chat`); for (let index = 0; index < 120 && String(c.chatMetadata?.scenario ?? '') !== want; index += 1) await new Promise((resolve) => setTimeout(resolve, 250)); let prompt = null; const tc = (data) => { if (data?.dryRun && typeof data.prompt === 'string') prompt = data.prompt; }; const cc = (data) => { if (data?.dryRun && Array.isArray(data.chat)) prompt = data.chat.map((message) => (typeof message?.content === 'string' ? message.content : JSON.stringify(message?.content ?? ''))).join('\\n'); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, tc); c.eventSource.on(c.eventTypes.CHAT_COMPLETION_PROMPT_READY, cc); try { await c.generate('normal', {}, true); } finally { c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, tc); c.eventSource.removeListener(c.eventTypes.CHAT_COMPLETION_PROMPT_READY, cc); } if (typeof prompt !== 'string') throw new Error(`${label}: the dry-run request was not captured`); const held = String(c.chatMetadata?.scenario ?? ''); const hits = (text) => prompt.split(text).length - 1; const fail = []; if (held !== want) fail.push(`chat_metadata.scenario holds ${JSON.stringify(held.slice(0, 60))}`); for (const text of [ONE, THREE]) { const count = hits(text); if (text === want ? count !== 1 : count !== 0) fail.push(`${JSON.stringify(text.slice(0, 30))} is in the request ${count} time(s)`); } if (fail.length) throw new Error(`${label}: ${fail.join('; ')}`); return { label, held: held.slice(0, 60), rows: globalThis.storyOrchestratorRuntime.getSnapshot().effects.ledger.filter((row) => row.target?.kind === 'extension' && row.target?.name === 'scenario').map((row) => row.status) }; }; globalThis.__soScenarioText = { ONE, THREE }; globalThis.__soScenarioBefore = String(SillyTavern.getContext().chatMetadata?.scenario ?? ''); if ([ONE, THREE].includes(globalThis.__soScenarioBefore)) throw new Error('the sandbox chat already holds a story scenario'); return { before: globalThis.__soScenarioBefore.slice(0, 60) };",
@@ -55,7 +59,20 @@
       "log": true
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!(await rt.removeStory('so-v25-sp5'))) throw new Error('the story was not removed'); const after = await globalThis.__soScenarioProbe(globalThis.__soScenarioBefore, 'story removed'); if (rt.getSnapshot().storyId) throw new Error('the chat still plays a story'); return after;",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!(await rt.removeStory('so-v25-sp5'))) throw new Error('the story was not removed from the library'); const library = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []).map((entry) => entry?.id); if (library.includes('so-v25-sp5')) throw new Error('the library still holds so-v25-sp5'); const snap = rt.getSnapshot(); if (snap.storyId !== 'so-v25-sp5') throw new Error(`removing the library record stopped the running chat: storyId ${snap.storyId}`); if (!snap.storyIdentity?.pinned) throw new Error(`the running chat holds no pinned copy: ${JSON.stringify(snap.storyIdentity)}`); const after = await globalThis.__soScenarioProbe(globalThis.__soScenarioText.ONE, 'library record removed, pinned copy plays on'); return { ...after, pinned: snap.storyIdentity.pinned };",
+      "log": true
+    },
+    {
+      "slash": "/cp activate hall"
+    },
+    {
+      "wait": {
+        "checkpoint": "hall",
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soScenarioProbe(globalThis.__soScenarioText.THREE, 'jump to hall on the pinned copy');",
       "log": true
     }
   ],
