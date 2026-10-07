@@ -89,8 +89,8 @@ Plans 01–28 below are history: built or recorded, every gate re-run in Phase C
 | 33 | `33-player-loop-fixes.md` | edit re-read, agency notes reach players, responsiveness + repetition, "What could I do?" | — | D, CL, RP | built, on master 2026-10-07 (gates green; live rows in 39) |
 | 34 | `34-player-persona-and-start-setup.md` | who you are in this story (was v2.8 03) | 05 | D, RP | built, on master 2026-10-07 (S30-1 + RP rows in 39) |
 | 35 | `35-world-pressure-and-open-stretches.md` | SP6 measurement, open stretches, the one complication component, stall/adversity signals | 33 W2 | D, RP | phase 2 built, on master 2026-10-07; SP6 + M2 run in 39 B1, phases 3–4 + encounters (or the drop path) built in 39 B3 before freeze; Phase 5 deferred to v2.8 13 |
-| 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | built on `v2.7-36-quests` 2026-10-07, deterministic gates green (no Storybook); live D, M1/M2, Q3 owed to 39 (Gate record) |
-| 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | decided (v2.8) |
+| 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | built, on master 2026-10-07 (Storybook fixed after merge; live rows, M1/M2 and the combined scope budget in 39) |
+| 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | building 2026-10-07 |
 | 38 | `38-adolion-campaign.md` | campaign upkeep + Saga assets/outfits + lab copies for 35–37 (was v2.8 02; 07 A3/A6 live, 28 assets) | 32, 35–37 | D, LI, RP | decided (v2.8) |
 | 39 | `39-test-from-zero.md` | stage B (measure → decide → implement), then Phase C: freeze, every manifest row ×2 from zero, real-model and image acceptance, close-out with verdict ACCEPTED / PARTIAL / INCOMPLETE | all | all | seeded; amended by review 2026-10-07 |
 
