@@ -5,14 +5,15 @@ import {
 import { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { setImageHealth, type ImageHealthView } from "@runtime/imageHealth";
 import type { RuntimeManager } from "@runtime/runtimeManager";
-import { imageSize, type Aspect } from "./catalog";
+import { imageSize, resolutionProblem, resolveCheckpointFile, resolveUpscaler, type Aspect } from "./catalog";
+import { imageServiceReady } from "./service";
 import { buildGraph } from "./graph";
 import { renderFacts, renderKey } from "./renderFacts";
 import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
-import { pickImageCheckpoint, resolveImageRoute, type ImageArgs, type Route } from "./routing";
+import { pickImageCheckpoint, resolveImageRoute, withCheckpointFile, type ImageArgs, type Route } from "./routing";
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
@@ -69,7 +70,10 @@ export class StoryImageDirector {
     if (!status) return { ...base, service: "absent", detail: "The optional media plugin is not installed.", source: null, missingModels: [], broker };
     try {
       const discovery = await comfyDiscover();
-      const missing = [...new Set(Object.values(settings.purposes).map((route) => route.checkpoint))].filter((file) => !discovery.checkpoints.includes(file));
+      const missing = Object.entries(settings.purposes).flatMap(([purpose, route]) => {
+        const resolved = resolveCheckpointFile(route.checkpoint, route.family, discovery.checkpoints);
+        return resolved.ok ? [] : [resolutionProblem(purpose, resolved)];
+      });
       return { ...base, service: "ready", detail: `ComfyUI at ${status.comfyUrl}.`, source: "comfy", missingModels: missing, broker };
     } catch (error) {
       return { ...base, service: "absent", detail: error instanceof Error ? error.message : "ComfyUI did not answer.", source: null, missingModels: [], broker };
@@ -80,6 +84,9 @@ export class StoryImageDirector {
     try { setImageHealth(await this.computeHealth()); } catch { setImageHealth(null); }
     this.manager.touch?.();
     this.notify();
+  }
+  private serviceReady(settings: ImageSettings): Promise<boolean> {
+    return imageServiceReady(settings.backend, { st: stImageReadiness, media: mediaStatus });
   }
   override(): ImageOverride { return current().override; }
   async setOverride(override: ImageOverride): Promise<void> {
@@ -104,7 +111,7 @@ export class StoryImageDirector {
       || !beatIllustrated(story, kind === "checkpoint" ? name : snapshot.activeCheckpointId)) return;
     const key = `${chat.id}:${snapshot.storyId}:${snapshot.storyIdentity.playedVersion}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
-    if (settings.backend === "st" && !(await stImageReadiness()).ready) return;
+    if (!(await this.serviceReady(settings))) return;
     if (messageAlreadyDrawn(chat, at)) return;
     const target = at === null ? null : `${chat.id}:${at}`;
     if (target && this.pendingTargets.has(target)) return;
@@ -156,7 +163,7 @@ export class StoryImageDirector {
     const saved = await imageWriteChatSettings({ ...state, automationCount: count }, chat.id);
     if (!saved.ok) { this.lastError = saved.reason; this.notify(); return; }
     if (count % settings.automation.everyN !== 0) return;
-    if (messageAlreadyDrawn(chat, messageId)) return;
+    if (messageAlreadyDrawn(chat, messageId) || !(await this.serviceReady(settings))) return;
     const target = `${chat.id}:${messageId}`;
     if (this.pendingTargets.has(target)) return;
     this.pendingTargets.add(target);
@@ -190,7 +197,12 @@ export class StoryImageDirector {
     const focus = chat.characters.find((character) => character.key === scene.focus);
     const binding = focus ? settings.characters[focus.key] ?? null : null;
     let route = resolveImageRoute(settings, request.purpose, args, this.override(), binding);
-    if (settings.backend === "comfy") route = { ...route, allowed: [route.checkpoint.file] };
+    if (settings.backend === "comfy") {
+      const resolved = resolveCheckpointFile(route.checkpoint.file, route.family.id, (await comfyDiscover()).checkpoints);
+      if (!resolved.ok) throw new Error(`No image was drawn. ${resolutionProblem(request.purpose, resolved)} under Picture types.`);
+      route = withCheckpointFile(route, resolved.file);
+      route = { ...route, allowed: [resolved.file] };
+    }
     let reply: ImageReply | null = null;
     if (!request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId)) {
       const messages = imageMessages(request, scene, route);
@@ -257,8 +269,8 @@ export class StoryImageDirector {
     const discovery = await comfyDiscover(signal);
     if (!discovery.checkpoints.includes(plan.route.checkpoint.file)) throw new Error("Choose an installed model for this picture type before rendering.");
     if (plan.route.loras.some((lora) => !discovery.loras.includes(lora.entry.file))) throw new Error("A selected LoRA is not installed on this ComfyUI.");
-    const upscaler = this.settings().upscalers[plan.route.family.id] || plan.route.family.upscaler;
-    if (plan.route.quality === "hires" && !discovery.upscalers.includes(upscaler)) throw new Error("Choose an installed upscaler before using hires.");
+    const upscaler = plan.route.quality === "hires" ? resolveUpscaler(this.settings().upscalers[plan.route.family.id] ?? "", plan.route.family, discovery.upscalers) : "";
+    if (upscaler === null) throw new Error("Choose an installed upscaler before using hires.");
     const cleanEmbeddings = (text: string) => text.replace(/embedding:([\w-]+)/g, (tag, name: string) => discovery.embeddings.includes(name) ? tag : "");
     const image = await comfyRenderOwned(buildGraph({
       checkpoint: plan.route.checkpoint, family: plan.route.family, loras: plan.route.loras.map((lora) => ({ file: lora.entry.file, weight: lora.weight })),

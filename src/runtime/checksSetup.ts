@@ -194,8 +194,8 @@ export const IMAGE_CHECKS: readonly Check[] = [
     detect: (snapshot) => {
       const missing = snapshot.imageHealth?.missingModels ?? [];
       return missing.length ? {
-        consequence: "A picture type names a model this ComfyUI does not have, so those pictures fail.",
-        detail: `Not installed on ComfyUI: ${missing.join(", ")}`,
+        consequence: "A picture type has no model on this ComfyUI that it can use, so those pictures are not drawn.",
+        detail: `${missing.join("; ")}. Choose the model under Picture types; a type picks a model by itself only when exactly one installed model fits its recipe family.`,
         target: { kind: "setting", id: IMAGE_TARGET_ID },
       } : null;
     },

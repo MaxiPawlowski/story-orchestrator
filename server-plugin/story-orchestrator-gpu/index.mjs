@@ -3,7 +3,7 @@ import { GpuGate } from './gate.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { brokerAddress, mountManagedRoutes } from './managed.mjs';
+import { brokerAddress, managedControllerUrl, mountManagedRoutes } from './managed.mjs';
 
 export const info = {
     id: 'story-orchestrator-gpu',
@@ -20,10 +20,14 @@ export async function init(router) {
         if (error.code !== 'ENOENT') throw error;
         return { adapter: 'none' };
     });
+    await start(router, config);
+}
+
+export async function start(router, config) {
     if (!['none', 'unsloth', 'managed'].includes(config.adapter)) throw new Error('GPU adapter must be none, unsloth or managed.');
     const address = brokerAddress(config);
     if (config.adapter === 'managed') {
-        mountManagedRoutes(router, address.controllerUrl);
+        mountManagedRoutes(router, managedControllerUrl(config));
         console.log('[story-orchestrator-gpu] managed adapter; the external controller owns the text port');
         return;
     }

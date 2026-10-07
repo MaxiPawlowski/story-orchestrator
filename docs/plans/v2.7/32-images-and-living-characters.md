@@ -1,7 +1,7 @@
 # Plan 32 — Images and living characters
 
 **Status: SEEDED 2026-10-07; merges the open, player-facing parts of v2.7 17, 18, 19, 20, 21, 24, 26 and the product
-pieces of 28; needs user approval; nothing new built.** Overview: `00-overview.md`. Every row here re-runs from zero
+pieces of 28; approved 2026-10-07; tier D built 2026-10-07 (W2, W4, W6 defaults, W7, W9; §Gate record), LI/CL/RP rows owed to Phase C.** Overview: `00-overview.md`. Every row here re-runs from zero
 in Phase C (v2.7 39): no earlier "green" in 17–28 carries over, it is only evidence that the code path exists.
 Real-model rows (CL/LT/LI/RP) are allowed inside v2.7 (user, 2026-10-07; this overrides the "owed to v2.8 01" column of
 `00-overview.md` §Gate taxonomy for this plan). RunPod may carry real-model test volume.
@@ -217,3 +217,122 @@ image-completion,sprite-quality,saga-main-cast}/`.
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Gate record
+
+**2026-10-07, branch `v2.7-32-images` from `v2.7-image-track-wip` (`8a9e06e3`), agent worktree. Tier D only. Full
+gates deferred to the integrated run** (coordinator policy change mid-task: no `npm run gates` in worktrees, no
+`build`/`test:release` here; the main session runs the full gates once after merging). **Live gate not run.**
+
+### Built, per workstream
+
+- **W2 (R1), built.** `catalog.ts` holds no model file: `WAI`/`JANKU`/`CHECKPOINTS` are gone. Each family carries
+  its recipe (sampler, steps, cfg, hires, quality/negative blocks, safe negative, notes) as data, a `recognise`
+  pattern (NoobAI tested before Illustrious) and an `upscalerHint`. `checkpointFor(file, family)` builds a checkpoint
+  from a family recipe; `resolveCheckpointFile(mapped, family, discovered)` answers mapped (only if installed) /
+  the one discovered file of the family / refused `none` / `several` / `missing`; `resolutionProblem` words the
+  Repair detail. `defaultImageSettings` rows carry `checkpoint: ""` plus a family. Route B resolves in `plan()` from
+  `comfyDiscover` before anything is queued or leased: a refusal throws a named reason and sends nothing.
+  `computeHealth` reports every unresolvable picture type, and `image-model-missing` now reads "has no model on this
+  ComfyUI that it can use" with the per-type detail (Repair row). Upscaler: mapped, else the only one installed,
+  else the only `anime` one, else hires refused. UI: the model picker shows only on the ComfyUI route, with
+  "Pick the one installed <family> model" as the empty choice and each discovered file tagged with its recognised
+  family; the chat override lists the install's mapped files. Setup-doc suggestions: WAI v17 and JANKU v7.77.
+- **W4 (R3/R4/R7), built.** GPU plugin: `brokerAddress` no longer invents a controller (`controllerUrl: null`);
+  `managedControllerUrl` refuses `managed` without one; `init` delegates to an exported `start(router, config)`.
+  Media plugin: new `comfyTarget.mjs`: config `comfyUrl` > the user's ST `extension_settings.sd.comfy_url` (read from
+  `<user root>/settings.json` per request, users.js:716) > ComfyUI's documented `127.0.0.1:8188`; one `ComfyJobs` per
+  address; `/status` reports `comfyUrlFrom`. Added to the artifact allowlist, `pluginInstall.mjs` and
+  `scripts/local/backup.mjs`. Clean host: `src/image/service.ts` `imageServiceReady` gates story cues **and** every-N
+  replies on both routes (found while building: the every-N path had no readiness check and route B cues had none, so
+  both attempted a render or a plugin call on a host without a service). Bundle guard D4 in
+  `scripts/release/debugSurface.test.mjs`: neither bundle compares a MiB value against a fixed reserve (control green;
+  the bundle half skips here because no build ran). The plan-31 dev-only lease (`devOnly.guard`, D3) is unchanged.
+- **W1/W3, verified at D, nothing new.** Route A and the template already existed; the director arm is covered by the
+  W2 payload-invariance check below; the template spoiler property is unchanged.
+- **W5, nothing new at D** beyond the preset below; the existing builder/QA/ledger/cancellation tests are green.
+- **W6 (R2), built.** Mouth default `simple` (two-frame) kept and recorded as the user's decision, not a measured S28
+  pass (copy updated). Render presets as data, `RENDER_PRESETS` standard 1024/25 (default) and fast 512/20 (opt-in),
+  install setting `sprites.renderPreset` (copy, session baseline). Studio: `SpriteRenderControls` (+ stories) sets
+  steps and resolution together and remembers the choice; Studio expression saves, the base builder and reference-pack
+  adoption store the builder's `resolution` (optional, validated 256–2048 in steps of 32), and changed looks render at it.
+- **W7, built as production code.** `lookFrames.ts`: `lookStillRequest`, `lookFrameRequest` (frames reference the new
+  look's still, never the base pack; seeds +1/+2) and `lookKeyInput` (the old cache key byte for byte for a standard
+  builder; a non-1024 builder gets its own key). `sprites/lookApply.ts` `applyLookResult` is the actor frame-map
+  refresh the stage calls; `onDemand.ts` and `stage.ts` use them.
+- **W8, not built** (RP/LI/LT only). **W9, built:** `docs/guide/setup/images.md` rewritten to the shipped UI (route A
+  first, ComfyUI optional, families and the automatic pick, model files as suggestions, no FLUX, broker advanced and
+  optional with `controllerUrl` required for `managed`, privacy per backend); `sprites.md` (render preset, two-frame
+  mouth, changed-look frames); README illustrations paragraph and feature row; `npm run docs:guide` regenerated
+  `src/guide/pages.generated.ts` (it also rewrote the author pages' line endings only; those were reverted).
+
+### Model input (rule 6)
+
+The image director prompt changes only in its declared model lines. Golden captured from the pre-change code:
+`test/goldens/image/director-prompt-before-v27-32.json`. `src/image/discovery.test.ts`: on the default install every
+purpose's messages are byte-identical except the `The checkpoint must be one of:` line and the `AVAILABLE IMAGE
+MODELS` block, which now name the row's family id (`sdxl-illustrious`) when no model is mapped; with the old two
+models mapped, the system message is byte-identical to the golden for scene, portrait and background; the menu label
+is the file stem instead of the old display name (declared). Real-model acceptance row: Phase C (CL director).
+
+### Tests added
+
+- `src/image/discovery.test.ts`: family recognition; 0 / 1 / 3 SDXL checkpoints refuse / pick / ask; mapping;
+  upscaler; defaults carry no file; FLUX row falls back; guard: no `.safetensors|.ckpt|.gguf|.pth` literal in
+  `src/image/**` outside tests, with a planted control; payload invariance.
+- `src/image/cleanHost.test.ts`: `StoryImageDirector` over mocked hosts. No ST service: a cue draws nothing, no broker
+  call, no error, health absent. Route B without the media plugin: no discover/render on a cue or an every-N reply.
+  Control: a ready service draws once, an absent broker passes through. Route B with 0/1/3 checkpoints end to end,
+  nothing leased or rendered on a refusal, a mapping answers "several".
+- `src/sprites/builder/lookFramesBuild.test.ts`: W7 requests, cache key, frame-map refresh; W6 defaults.
+- `server-plugin/story-orchestrator-gpu/managed.test.mjs` (+2): `managed` refused without `controllerUrl` and mounts
+  no route; `none` passes through on the configured port.
+- `server-plugin/story-orchestrator-media/comfyTarget.test.mjs` (added to `test:plugin`): address precedence, one
+  pool per address, unreadable settings fall back to the default.
+- No-LLM scenario `test/scenarios/v27-32-images-clean-host.json` (`requires.lane: no-model`): hides ST's
+  `#sd_source`, 404s the media plugin, fires a scripted transition, asserts no `/api/sd/`, media job or `/prompt`
+  request, no `lastError` and health `absent` on both routes, then restores. Validated by `scenarioSchema.test`;
+  **not run** (no ST).
+
+### Commands (all green)
+
+- `npx tsc --noEmit`, `npx tsc -p tsconfig.test.json`, `npm run lint`, `npm run debug:typecheck`: exit 0.
+- `npx jest --findRelatedTests` over the 10 changed shared src files: 86 suites, 1,032 passed.
+- `npx jest src/guide src/features src/runtime/{checksRegistry,architecture,ownership.guard,codeHealth.guard}.test.ts
+  src/image src/sprites src/studio`: 409 tests, 408 passed, 1 skipped. Run 1 of the guard set was red on `codeHealth`
+  S4 (`SpriteBuilder` over 150 lines); fixed by extracting `SpriteRenderControls`.
+- `npx jest src/runtime/sessionBaseline.test.ts`: 3 passed (after adding `renderPreset` to the baseline).
+- `npm run test:plugin`: 112 tests, 109 passed, 3 skipped. `node --test scripts/docs/guide-bundle.test.mjs`: 5 passed.
+- `node --test scripts/release/debugSurface.test.mjs`: 2 passed, 4 skipped (no builds). `scripts/release/artifact.test.mjs`
+  + `scripts/lib/*.test.mjs`: 37 passed, 1 skipped. `scripts/debug/{scenarioSchema,legacyFree,st-lanes}.test.mts`: 29
+  passed; `scripts/lib/suiteDecisions.test.mjs`: 8; `scripts/debug/lib/presetOverlay.test.mts`: 18;
+  `scripts/docs/split-guide.test.mjs` + `scripts/release/{manifest,licences}.test.mjs`: 7.
+- Not run here: `npm run gates`, `npm run build`, `npm run build:dev`, `npm run test:release`, Storybook (deferred to
+  the integrated run; Storybook also finds no stories from a worktree path).
+
+### Deviations
+
+- All six default rows use **SDXL · Illustrious**; portrait used to be NoobAI. With the automatic pick, a NoobAI
+  portrait default would refuse on every install that has only an Illustrious model; a NoobAI user sets the family.
+- Media plugin precedence is **config `comfyUrl` first, then ST's `comfy_url`**, not ST first: ST stores a default
+  `comfy_url` as soon as its Image Generation extension loads, so "ST first" would make the plugin's own setting dead.
+- The director's override menu lists the install's mapped files (it used to list the hardcoded catalog); route B
+  still pins the resolved file (unchanged), and route A ignores the checkpoint.
+- `Route.source` lost `"lora"`: every family shares the Illustrious LoRA base, so the LoRA-driven checkpoint swap was
+  unreachable once the catalog went.
+- Unresolved question 2 (a user's explicit FLUX mapping on an SDXL row) was already answered by plan 31's
+  `image.retired` fallback and `image-model-retired` row; unchanged.
+- No feature registry entry added: the preset belongs to `sprites`/`sprite-builder`, which already own `sprites.*`.
+
+### Phase C rows owed (v2.7 39 C6)
+
+W1 LI ×2 (ST `comfy` source, 10 cues, 10 of 10 render or refuse with a reason) + CL (DeepSeek director) + the template
+arm; W2 LI ×2 (10 route B renders with discovered models only); W3 LI + CL per arm; W4 LI ×2 with
+`story-orchestrator-gpu` uninstalled (route B render, Studio sprite build, on-demand look) + `clean-host.sh` (0 render
+attempts, 0 errors) + the no-LLM scenario above + D4's bundle half on a prod and a dev build; W5 LI on ≥ 3
+marker-scoped test characters (second-model ≥ 90 % same character and label visible; cancel leaves no file; cleanup
+sha256 inventory diff; base ×2); W6 LI frame build on ≥ 3 characters + RP/LT streamed reply with 3 actors at 1920×1080
+and 390×844 (QA ≥ 90 % first seed; perf floors; seam/pop ≤ 5 % second-model rated, decision 2); W7 LI + LT/RP
+appearance change + expression switch (a reply waits at most one edit; W6 QA floor on look frames); W8 S32-1 ×2 on
+RunPod (unchanged fixture, N = 30 per arm, baseline must be worse, `cardOverlay` stays off otherwise) and S32-2 full
+matrix + lifecycle; the director payload acceptance row (rule 6).

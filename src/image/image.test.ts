@@ -1,13 +1,15 @@
-import { CHECKPOINTS, FAMILIES, JANKU, WAI } from "./catalog";
+import { checkpointFor, FAMILIES } from "./catalog";
 import { buildGraph } from "./graph";
 import { assembleImagePrompt, imageMessages, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
 import { firedLoreKeys, visualLore } from "./lore";
 
-const graph = (file: string, hires = false) => {
-  const checkpoint = CHECKPOINTS.find((entry) => entry.file === file)!;
-  return buildGraph({ checkpoint, family: FAMILIES[checkpoint.family], loras: [], positive: "a forest path", negative: "blurry", size: { width: 832, height: 1216 }, seed: 3, hires, upscaler: FAMILIES[checkpoint.family].upscaler });
+const WAI = "waiIllustriousSDXL_v170.safetensors";
+const JANKU = "JANKUTrainedChenkinNoobai_v777.safetensors";
+const graph = (file: string, family: string, hires = false) => {
+  const checkpoint = checkpointFor(file, family);
+  return buildGraph({ checkpoint, family: FAMILIES[checkpoint.family], loras: [], positive: "a forest path", negative: "blurry", size: { width: 832, height: 1216 }, seed: 3, hires, upscaler: "4x_anime.pth" });
 };
 
 describe("Image Director automatic triggers (plan 16/18 repair)", () => {
@@ -25,11 +27,11 @@ describe("Image Director automatic triggers (plan 16/18 repair)", () => {
 
 describe("Image Director merge", () => {
   it("builds the SDXL graph with its negative prompt and the hi-res pass", () => {
-    const sdxl = Object.values(graph(WAI));
+    const sdxl = Object.values(graph(WAI, "sdxl-illustrious"));
     expect(sdxl.some((node) => node.class_type === "CLIPTextEncode" && node.inputs.text === "blurry")).toBe(true);
     expect(sdxl.some((node) => node.class_type === "EmptyLatentImage")).toBe(true);
-    expect(Object.values(graph(JANKU, true)).filter((node) => node.class_type === "KSampler")).toHaveLength(2);
-    expect(Object.values(graph(WAI)).at(-1)?.class_type).toBe("PreviewImage");
+    expect(Object.values(graph(JANKU, "sdxl-noobai", true)).filter((node) => node.class_type === "KSampler")).toHaveLength(2);
+    expect(Object.values(graph(WAI, "sdxl-illustrious")).at(-1)?.class_type).toBe("PreviewImage");
   });
 
   it("keeps a pinned chat checkpoint and drops a LoRA the install does not list", () => {
@@ -41,7 +43,7 @@ describe("Image Director merge", () => {
 
   it("draws backgrounds with the SDXL wide row: default checkpoint, no people, tag prompt", () => {
     const settings = defaultImageSettings();
-    expect(settings.purposes.background).toMatchObject({ checkpoint: WAI, family: "sdxl-illustrious", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" });
+    expect(settings.purposes.background).toMatchObject({ checkpoint: "", family: "sdxl-illustrious", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" });
     expect(settings.backend).toBe("st");
     const route = resolveImageRoute(settings, "background", {}, sanitizeImageOverride(null), null);
     expect(route.family.id).toBe("sdxl-illustrious");
@@ -50,7 +52,7 @@ describe("Image Director merge", () => {
     expect(positive.split(", ").length).toBeGreaterThan(3);
     expect(negative).toContain("worst quality");
     expect(Object.values(FAMILIES).map((family) => family.id)).toEqual(["sdxl-illustrious", "sdxl-noobai"]);
-    expect(CHECKPOINTS.map((entry) => entry.family).every((family) => family in FAMILIES)).toBe(true);
+    expect(Object.values(settings.purposes).every((row) => row.checkpoint === "" && row.family in FAMILIES)).toBe(true);
   });
 
   it("falls a stored FLUX choice back to the default and records it for the Repair row", () => {

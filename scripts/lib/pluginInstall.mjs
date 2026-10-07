@@ -5,7 +5,7 @@ export const SERVER_PLUGINS = Object.freeze({
     'story-orchestrator-judge': ['package.json', 'index.mjs'],
     'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs', 'managed.mjs'],
     'story-orchestrator-harness': ['package.json', 'index.mjs', 'agentBridge.mjs', 'mcpShim.mjs'],
-    'story-orchestrator-media': ['package.json', 'index.mjs', 'jobs.mjs', 'files.mjs'],
+    'story-orchestrator-media': ['package.json', 'index.mjs', 'jobs.mjs', 'files.mjs', 'comfyTarget.mjs'],
 });
 
 export function selectedPlugins(withPlugins = []) {

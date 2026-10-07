@@ -36,6 +36,18 @@ test("D4 (v2.7 29): the prod bundle carries no dev-only settings control; the de
   assert.deepEqual(markers.filter((marker) => !dev.includes(marker)), [], "control: the dev bundle lost a dev-only control, so the grep proves nothing");
 });
 
+const FIXED_RESERVE = /MiB[^,;]{0,16}>=\s*\d{3,}/;
+
+test("D5 (v2.7 32 W4): neither bundle compares GPU or RAM headroom against a fixed reserve", { skip: noBuilds }, () => {
+  assert.equal(FIXED_RESERVE.test(scripts("dist")), false);
+  assert.equal(FIXED_RESERVE.test(scripts("dist-dev")), false);
+});
+
+test("D5 control: a planted fixed reserve is caught", () => {
+  assert.ok(FIXED_RESERVE.test("return(s.gpuFreeMiB??0)>=2048&&(s.ramAvailableMiB??0)>=4096"));
+  assert.equal(FIXED_RESERVE.test("return(s.gpuFreeMiB??0)>=s.reserveGpuMiB"), false);
+});
+
 test("D2 control: a planted global name is caught", () => {
   assert.deepEqual(surfaceNames("x.storyOrchestratorRuntime=m;y[\"storyOrchestratorStop\"]=s;story-orchestrator"), ["storyOrchestratorRuntime", "storyOrchestratorStop"]);
 });

@@ -1,0 +1,18 @@
+{
+  "name": "v2.7 32 W4: a host with no image service and no media plugin draws nothing and posts no render",
+  "requires": {"lane": "no-model"},
+  "steps": [
+    {"eval": "const img=globalThis.storyOrchestratorImage; globalThis.__so32={settings:JSON.parse(JSON.stringify(img.settings())), calls:[], fetch:globalThis.fetch}; const s=globalThis.__so32; const el=document.getElementById('sd_source'); if(el){el.id='sd_source__so32'; s.hidden=true;} globalThis.fetch=async (input, init)=>{ const url=String(input?.url??input); if(/\\/api\\/sd\\/|story-orchestrator-media\\/(jobs|discover)|\\/prompt\\b/.test(url)) s.calls.push(url); if(/story-orchestrator-media\\//.test(url)) return new Response('{}',{status:404}); return s.fetch(input, init); }; globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:false}); img.updateSettings({enabled:true, backend:'st', automation:{mode:'story', everyN:5}}); return {armed:true, hiddenSdPanel:Boolean(s.hidden)};"},
+    {"import_story": {
+      "format": 2, "id": "so-32-clean-host", "title": "SO 32 clean host", "description": "Synthetic illustrated story on a host with no image service.",
+      "illustrations": {"checkpoints": true, "scenes": true},
+      "qualities": [{"key":"done","type":"bool","source":"code","rubric":"Scripted gate."}],
+      "checkpoints": [{"id":"start","name":"Start","player_name":"The gate","type":"anchor","start":true,"objective":"Begin."},{"id":"next","name":"Next","player_name":"The road","type":"anchor","objective":"Go on."}],
+      "transitions": [{"from":"start","to":"next","priority":1,"gate":{"q":"done","op":"==","v":true}}]
+    }},
+    {"send": "We set out."},
+    {"eval": "const rt=globalThis.storyOrchestratorRuntime; await rt.setQuality('done','true'); await new Promise((r)=>setTimeout(r,1500)); const img=globalThis.storyOrchestratorImage; await img.refreshHealth(); const s=globalThis.__so32; const snap=rt.getSnapshot(); if(snap.activeCheckpointId!=='next') throw Error('the scripted transition did not fire, so the cue was never offered'); if(s.calls.length) throw Error('route A posted a render on a host with no image service: '+s.calls.join(', ')); if(img.status().lastError) throw Error('a silent failure was recorded: '+img.status().lastError); if(snap.imageHealth?.service!=='absent') throw Error('health should read absent, got '+snap.imageHealth?.service); return {routeA:'quiet', health:snap.imageHealth.service};"},
+    {"eval": "const img=globalThis.storyOrchestratorImage; const rt=globalThis.storyOrchestratorRuntime; img.updateSettings({backend:'comfy', automation:{mode:'everyN', everyN:1}}); await new Promise((r)=>setTimeout(r,500)); await img.refreshHealth(); const s=globalThis.__so32; const snap=rt.getSnapshot(); if(s.calls.length) throw Error('route B reached ComfyUI without the media plugin: '+s.calls.join(', ')); if(img.status().lastError) throw Error('a silent failure was recorded: '+img.status().lastError); if(snap.imageHealth?.service!=='absent') throw Error('health should read absent, got '+snap.imageHealth?.service); return {routeB:'quiet', detail:snap.imageHealth.detail};"},
+    {"eval": "const s=globalThis.__so32; globalThis.fetch=s.fetch; if(s.hidden){const el=document.getElementById('sd_source__so32'); if(el) el.id='sd_source';} globalThis.storyOrchestratorImage.updateSettings(s.settings); delete globalThis.__so32; return {restored:true};"}
+  ]
+}

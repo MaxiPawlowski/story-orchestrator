@@ -1,4 +1,4 @@
-import { CHECKPOINTS, FAMILIES, type Aspect, type Checkpoint, type Family, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
+import { checkpointFor, FAMILIES, familyOf, modelId, type Aspect, type Checkpoint, type Family, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 import { type ImageBinding, type ImageOverride, type ImageSettings } from "./settings";
 
 export interface ImageArgs {
@@ -14,7 +14,7 @@ export interface Route {
   purpose: Purpose;
   checkpoint: Checkpoint;
   family: Family;
-  source: "request" | "chat" | "character" | "purpose" | "lora" | "director";
+  source: "request" | "chat" | "character" | "purpose" | "director";
   quality: Quality;
   aspect: Aspect | "auto";
   shot: Shot;
@@ -36,33 +36,21 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
     [args.checkpoint, "request"], [chat.checkpoint, "chat"], [binding?.checkpoint, "character"], [row.checkpoint, "purpose"],
   ] as const;
   const warnings: string[] = [];
-  let checkpoint = CHECKPOINTS[0];
-  let source: Route["source"] = "purpose";
-  for (const [file, origin] of candidates) {
-    if (!file) continue;
-    const known = CHECKPOINTS.find((item) => item.file === file);
-    const template = CHECKPOINTS.find((item) => item.family === row.family) ?? CHECKPOINTS[0];
-    const found = known ?? (settings.backend === "comfy" ? { ...template, file, label: file, qualityBlock: "", negativeBlock: "" } : undefined);
-    if (!found) { warnings.push(`Unknown image checkpoint ${file} (${origin}).`); continue; }
-    checkpoint = found;
-    source = origin;
-    break;
-  }
+  const chosen = candidates.find(([file]) => Boolean(file));
+  const source: Route["source"] = chosen?.[1] ?? "purpose";
+  const file = chosen?.[0] ?? "";
+  const checkpoint = checkpointFor(file, source === "purpose" ? row.family : familyOf(file) ?? row.family);
+  const family = FAMILIES[checkpoint.family];
   const loras = [...chat.loras, ...(binding?.loras ?? [])].flatMap((use) => {
     const entry = settings.loras.find((item) => item.file === use.file);
     if (!entry) { warnings.push(`Missing LoRA ${use.file}.`); return []; }
     return [{ entry, weight: Math.min(entry.weight.max, Math.max(entry.weight.min, use.weight)) }];
   }).filter((use, index, all) => all.findIndex((item) => item.entry.file === use.entry.file) === index);
-  const firstMismatch = loras.find((use) => use.entry.base !== FAMILIES[checkpoint.family].loraBase);
-  if (firstMismatch && source === "purpose") {
-    const alternative = CHECKPOINTS.find((item) => FAMILIES[item.family].loraBase === firstMismatch.entry.base);
-    if (alternative) { checkpoint = alternative; source = "lora"; }
-  }
-  const family = FAMILIES[checkpoint.family];
   const fitting = loras.filter((use) => use.entry.base === family.loraBase);
   if (fitting.length !== loras.length) warnings.push("An image LoRA did not fit the selected checkpoint and was dropped.");
   const unlocked = source === "purpose" && row.directorMayOverride;
-  const allowed = unlocked ? CHECKPOINTS.filter((item) => !fitting.length || FAMILIES[item.family].loraBase === family.loraBase).map((item) => item.file) : [checkpoint.file];
+  const mapped = Object.values(settings.purposes).map((entry) => entry.checkpoint).filter(Boolean);
+  const allowed = unlocked ? [...new Set([modelId(checkpoint), ...mapped])] : [modelId(checkpoint)];
   const safe = row.safeMode === "on" || (row.safeMode === "inherit" && settings.safeMode);
   return {
     purpose, checkpoint, family, source,
@@ -79,7 +67,12 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
 };
 
 export const pickImageCheckpoint = (route: Route, file: string): Route => {
-  if (!route.allowed.includes(file) || file === route.checkpoint.file) return route;
-  const checkpoint = CHECKPOINTS.find((entry) => entry.file === file);
-  return checkpoint ? { ...route, checkpoint, family: FAMILIES[checkpoint.family], source: "director" } : route;
+  if (!route.allowed.includes(file) || file === modelId(route.checkpoint) || file in FAMILIES) return route;
+  const checkpoint = checkpointFor(file, familyOf(file) ?? route.family.id);
+  return { ...route, checkpoint, family: FAMILIES[checkpoint.family], source: "director" };
 };
+
+export const withCheckpointFile = (route: Route, file: string): Route => ({
+  ...route, checkpoint: { ...route.checkpoint, file, label: checkpointFor(file, route.family.id).label },
+  allowed: route.allowed.map((id) => id === modelId(route.checkpoint) ? file : id),
+});

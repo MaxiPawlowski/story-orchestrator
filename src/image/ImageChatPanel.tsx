@@ -5,7 +5,6 @@ import HelpTooltip from "@components/studio/HelpTooltip";
 import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
-import { CHECKPOINTS } from "./catalog";
 import { log } from "@utils/log";
 
 export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
@@ -15,6 +14,7 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
   const settings = image.settings();
   const state = image.status();
   const override = image.override();
+  const models = [...new Set([override.checkpoint, ...Object.values(settings.purposes).map((route) => route.checkpoint)])].filter(Boolean);
   const update = (patch: Partial<ImageOverride>) => {
     void image.setOverride({ ...override, ...patch }).catch((error: unknown) => {
       log.warn("image preference not saved", error);
@@ -36,9 +36,10 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
     </div>
     <details className="text-xs"><summary className="cursor-pointer">Chat image preferences</summary>
       <div className="flex flex-col gap-2 pt-2">
-        <label className="flex flex-col gap-1">Image model <select className="text_pole" value={override.checkpoint} onChange={(event) => update({ checkpoint: event.target.value })}>
-          <option value="">Use the install route</option>{CHECKPOINTS.map((checkpoint) => <option key={checkpoint.file} value={checkpoint.file}>{checkpoint.label}</option>)}
-        </select></label>
+        {settings.backend === "comfy" && <label className="flex flex-col gap-1">Image model
+          <select className="text_pole" value={override.checkpoint} onChange={(event) => update({ checkpoint: event.target.value })}>
+          <option value="">Use the install route</option>{models.map((file) => <option key={file} value={file}>{file}</option>)}
+        </select></label>}
         <label className="flex flex-col gap-1">Quality <select className="text_pole" value={override.quality} onChange={(event) => update({ quality: event.target.value as ImageOverride["quality"] })}>
           <option value="">Use the route default</option><option value="base">Standard</option><option value="hires">High resolution</option>
         </select></label>

@@ -185,6 +185,7 @@
       "mouth": "simple",
       "cardOverlay": false,
       "onDemand": false,
+      "renderPreset": "standard",
       "builders": {}
     },
     "spikes": {

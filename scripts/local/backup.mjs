@@ -6,7 +6,7 @@ const target = `C:/dev/backups/story-orchestrator/local-residency-${Date.now()}`
 await fs.mkdir(target, { recursive: true });
 const files = [
     ['C:/dev/tray/items/story-orchestrator.json', 'tray-story-orchestrator.json'],
-    ...['gpu', 'media'].flatMap((kind) => ['package.json', 'index.mjs', 'gate.mjs', 'managed.mjs', 'files.mjs', 'jobs.mjs', 'config.json'].map((name) => [`${root}/plugins/story-orchestrator-${kind}/${name}`, `${kind}/${name}`])),
+    ...['gpu', 'media'].flatMap((kind) => ['package.json', 'index.mjs', 'gate.mjs', 'managed.mjs', 'files.mjs', 'jobs.mjs', 'comfyTarget.mjs', 'config.json'].map((name) => [`${root}/plugins/story-orchestrator-${kind}/${name}`, `${kind}/${name}`])),
 ];
 const copied = [];
 for (const [source, name] of files) {

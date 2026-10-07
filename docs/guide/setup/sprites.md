@@ -50,12 +50,16 @@ distinguished from a blending artifact. Adjusting only the mouth region reuses a
 builder; the image model is not called again. Closing the tab clears that cache. Model, reference, prompt, seed,
 step count and resolution changes make a new render key.
 
-**Edit resolution** offers 512, 768 and 1024. Smaller edits may be faster, but review the face before keeping them.
-The saved frame retains the original canvas size. Preview timing includes cleanup, with rendering reported separately.
+**Render preset** sets the steps and edit resolution together. **Standard** (1024 px, 25 steps) is the default and
+what reviewed packs use. **Fast preview** (512 px, 20 steps) is quicker but softer; review the face before keeping a
+fast render. The builder remembers your choice, and you can still change **Steps** and **Edit resolution** (512, 768
+or 1024) by hand. The setup you keep is what changed looks later render with. The saved frame retains the original
+canvas size. Preview timing includes cleanup, with rendering reported separately.
 
-The eyes and mouth use separate transparent patches, so blinking can overlap speech. Mouth movement offers Off,
-Simple and Smooth; Smooth falls back to Simple if a half-open frame is missing. No frames means a static face.
-Both the browser's and ST's reduced-motion setting disable facial animation.
+The eyes and mouth use separate transparent patches, so blinking can overlap speech. **Mouth movement** defaults to
+Simple: two frames, closed and open, switched while the reply streams. Smooth adds the half-open frame and falls
+back to Simple if it is missing; Off keeps the mouth still. No frames means a static face that still breathes and
+cross-fades. Both the browser's and ST's reduced-motion setting disable facial animation.
 
 ## Public changes inside one story
 
@@ -75,8 +79,12 @@ Private knowledge belongs in the knowledge system, never in a public card field.
 The local Artemis comparison kept this switch off by default: both tested placements agreed with every changed colour,
 but the memory-only baseline was equally good in one of the two runs, so the repeatable-benefit condition was not met.
 
-**Generate changed looks when needed** is off by default. It requires a saved or reused reference pack, ComfyUI and the
-media plugin. It renders the current expression first and keeps the old sprite visible while working. A rollback
-restores the old set; cached generated files stay available.
+**Generate changed looks when needed** is off by default; turn it on per install when your stories change how people
+look. It requires a saved or reused reference pack, ComfyUI and the media plugin, and it renders on your GPU without
+asking. It renders the current expression first and keeps the old sprite visible while working, then builds that
+look's blink and mouth frames from the new image, one at a time, letting a waiting reply go first between frames.
+When they are done the stage animates the new look; a look built earlier is reused from its cache. A result that
+arrives after the look changed again, or after you left the chat, is discarded. A rollback restores the old set;
+cached generated files stay available. A new chat starts from the card as it was.
 
 [Illustrations](images.md) · [Setup](README.md)

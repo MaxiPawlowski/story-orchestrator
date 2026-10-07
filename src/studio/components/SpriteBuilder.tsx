@@ -7,6 +7,8 @@ import { EDIT_RECIPE, EXPRESSIONS, recipeProblems, type EditKind, type EditModel
 import type { HeadBox } from "../../sprites/builder/pixels";
 import type { SpriteBuilder as Builder, SpriteCandidate } from "../../sprites/builder/builder";
 import { draftOwnership } from "../agentHost";
+import { builderRender } from "../../sprites/settings";
+import SpriteRenderControls, { useRenderControls } from "./SpriteRenderControls";
 import { useDraftStore } from "../draft";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import GeneratedSpriteSets from "./GeneratedSpriteSets";
@@ -49,8 +51,8 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
   const [label, setLabel] = useState("neutral");
   const [value, setValue] = useState("");
   const [seed, setSeed] = useState(1);
-  const [steps, setSteps] = useState(25);
-  const [resolution, setResolution] = useState(1024);
+  const render = useRenderControls();
+  const { steps, resolution } = render;
   const [regions, setRegions] = useState<Record<string, FrameRegion | undefined>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +122,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
         const settings = getGlobalSettings().sprites;
         const input = preview.request;
         setGlobalSettings({ sprites: { builders: { ...settings.builders, [input.character]: { baseSet: input.set, box: input.box,
-          models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, steps: input.steps } } } });
+          models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, ...builderRender(input) } } } });
       }
       if (live.current) setSaved(result.path);
       const references = await services.list(preview.request.character);
@@ -153,9 +155,9 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
           <option key={name}>{name}</option>)}</select></label>)}
     </fieldset>}
     {discovery && <ReferencePackPicker key={`reference:${character}`} character={character} discovery={discovery} models={models}
-      box={box} steps={steps} busy={busy} setBusy={setBusy} services={services} />}
+      box={box} steps={steps} resolution={resolution} busy={busy} setBusy={setBusy} services={services} />}
     {discovery && <BaseSpriteBuilder key={`base:${character}`} character={character} image={members.find((member) => member.folder === character)?.image}
-      set={set} models={models} discovery={discovery} steps={steps} seed={seed} busy={busy} setBusy={setBusy} builder={builder} services={services} />}
+      set={set} models={models} discovery={discovery} steps={steps} resolution={resolution} seed={seed} busy={busy} setBusy={setBusy} builder={builder} services={services} />}
     <label>Edit<select aria-label="Edit" className="text_pole" disabled={busy} value={kind} onChange={(event) => setKind(event.target.value as EditKind)}>
       <option value="expression">Expression</option><option value="rest">Closed-mouth neutral rest</option>
       <option value="blink">Blink frame</option><option value="talk">Mouth open frame</option>
@@ -164,9 +166,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     <datalist id="so-sprite-labels">{EXPRESSIONS.map((name) => <option key={name} value={name} />)}</datalist>
     {kind === "look" && <label>Visible change<input className="text_pole" value={value} disabled={busy} onChange={(event) => setValue(event.target.value)} placeholder="hair dyed red" /></label>}
     <label>Seed<input type="number" min={0} max={4294967295} className="text_pole" disabled={busy} value={seed} onChange={(event) => setSeed(Number(event.target.value))} /></label>
-    <label>Steps<input type="number" min={1} max={100} className="text_pole" disabled={busy} value={steps} onChange={(event) => setSteps(Number(event.target.value))} /></label>
-    <label>Edit resolution<select id="so-sprite-edit-resolution" aria-label="Edit resolution" className="text_pole" disabled={busy} value={resolution}
-      onChange={(event) => setResolution(Number(event.target.value))}>{[512, 768, 1024].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+    <SpriteRenderControls controls={render} busy={busy} />
     <div className="flex flex-wrap gap-2"><button type="button" className="st-button primary"
       disabled={busy || !discovery || !reference || !character || !/^[a-z0-9_]+$/.test(set) || !/^[a-z0-9_]+$/.test(label)}
       onClick={() => void generate()}>Generate preview</button>
