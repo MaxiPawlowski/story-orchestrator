@@ -1,0 +1,13 @@
+{
+  "note": "v2.7 plan 37 L6-C voice warden calibration (CL). Frozen 2026-10-07 before the first run, never retuned. The 20 replies (10 in character, 10 out of character) come from the 7-member act lab copy (v2.7 38) with labels from session evidence checked by a second model, never the user; NOT YET COLLECTED: rows owed to v2.7 39 B1.",
+  "use": "wardenVoice",
+  "floors": {
+    "oocRecallMin": 0.8,
+    "falseNoteRateMax": 0.1,
+    "rewriteOrPlayerNarrationNotes": 0,
+    "fallbackMax": 1,
+    "of": 20,
+    "runs": 2
+  },
+  "rows": []
+}

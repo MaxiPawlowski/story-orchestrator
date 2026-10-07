@@ -7,12 +7,20 @@ export interface WardenCheckInput {
   facts: string[];
   agency: { player: string; message: string } | null;
   attention?: { player: string; message: string };
+  voice?: VoiceProfile;
   houseRules: string[];
   lore?: Array<{ comment: string; text: string }>;
   houseRuleContext?: {
     scene: { player: string; playerMessage?: string; speakerRole?: string; groupMembers: string[] };
     worldBook: Array<{ comment: string; text: string; constant?: boolean }>;
   };
+}
+
+export interface VoiceProfile {
+  speaker: string;
+  role?: string;
+  drive?: string;
+  feelings: string[];
 }
 
 export interface WardenCheckFinding {
@@ -46,15 +54,17 @@ export interface WardenFamiliesActive {
   houseRules: string[];
   lore?: boolean;
   attention?: boolean;
+  voice?: boolean;
 }
 
-export const anyWardenFamily = (active: WardenFamiliesActive): boolean => active.continuity || active.agency || active.attention === true || active.houseRules.length > 0;
+export const anyWardenFamily = (active: WardenFamiliesActive): boolean => active.continuity || active.agency || active.attention === true || active.voice === true || active.houseRules.length > 0;
 
 export const wardenFamilyActive = (op: WardenNoteOp, active: WardenFamiliesActive): boolean => {
   const family = wardenFamilyOf(op);
   if (family === "continuity") return active.continuity;
   if (family === "agency") return active.agency;
   if (family === "attention") return active.attention === true;
+  if (family === "voice") return active.voice === true;
   if (family === "lore") return active.lore === true;
   return (op.rules ?? []).some((rule) => active.houseRules.includes(rule));
 };
@@ -77,6 +87,7 @@ const findingPhrase = (finding: WardenFindingView): string => {
   if (finding.family === "continuity") return `contradicts ${finding.facts.length === 1 ? "an established fact" : `${finding.facts.length} established facts`}`;
   if (finding.family === "agency") return "writes the player's own part";
   if (finding.family === "attention") return "does not answer what the player said";
+  if (finding.family === "voice") return "does not sound like the character";
   if (finding.family === "lore") return `contradicts ${finding.lore?.length === 1 ? "a lore entry" : `${finding.lore?.length ?? 0} lore entries`}`;
   const count = finding.rules?.length ?? 0;
   return `breaks ${count === 1 ? "a house rule" : `${count} house rules`}`;

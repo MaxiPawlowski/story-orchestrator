@@ -401,13 +401,21 @@
       "status": "checked",
       "note": "v2.3 plan 03: the widest write edge in the extension -- World Info flags in shared lorebook FILES, Authors Note and preset as install state, and cast_changes mutating the GROUP disabled_members, which outlives the chat. Checked before EVERY host-facing write rather than once per group of them (2026-09-22: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits with no check between, so the background was the one write that could land in another chat; it now checks per member inside the loop, before the preset, and before the background). It stops rather than completing, because whatever moved the world runs its own applyCheckpoint."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.applyQuestRewards": {
+    "src/runtime/coordinators/agendaProposalCoordinator.ts#AgendaProposalCoordinator.propose": {
       "status": "checked",
-      "note": "v2.7 plan 36: a quest reward's host effects (world_info path replay including rewarded entries, cast_changes ledgered with origin quest, npc_replies). It takes the dispatcher's RunGuard, checks it before starting, before each quest, before the cast and before the replies; applyWorldInfo and applyCastChanges check per write. Cases: questRewards.review.test.ts."
+      "note": "v2.7 plan 37 L3 (dev-only): mints a RunGuard over the read window before the curator call and returns before any write when it lapsed; the proposal ring is written only after that check, and notify is re-checked after the persist. Case: agendaProposals.test.ts \"writes nothing when the chat moves during the call\"."
+    },
+    "src/runtime/coordinators/agendaProposalCoordinator.ts#AgendaProposalCoordinator.decide": {
+      "status": "checked",
+      "note": "v2.7 plan 37 L3 (dev-only): the author decision is written before any await; only notify follows the persist, and it is re-checked against the run."
+    },
+    "src/runtime/effectsApplier.ts#EffectsApplier.applyEarnedEffects": {
+      "status": "checked",
+      "note": "v2.7 plan 36, generalised in v2.7 plan 37 to every earned effect (a quest reward or a landed agenda step, origin quest or agenda): world_info path replay including rewarded entries, cast_changes ledgered with origin quest, npc_replies. It takes the dispatcher's RunGuard, checks it before starting, before each quest, before the cast and before the replies; applyWorldInfo and applyCastChanges check per write. Cases: questRewards.review.test.ts."
     },
     "src/runtime/gamePort.ts#createGamePort.dispatch": {
       "status": "checked",
-      "note": "v2.7 plan 36: mints a RunGuard per boundary dispatch, hands it to EffectsApplier.applyQuestRewards, and re-checks it before persist and before notify, so a reward that lands after a chat switch writes nothing to the new chat."
+      "note": "v2.7 plan 36: mints a RunGuard per boundary dispatch, hands it to EffectsApplier.applyEarnedEffects (quest rewards and, since v2.7 plan 37, landed agenda steps), and re-checks it before persist and before notify, so a reward that lands after a chat switch writes nothing to the new chat."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyExtension": {
       "status": "checked",

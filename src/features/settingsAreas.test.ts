@@ -100,7 +100,7 @@ describe("v2.7 plan 29 dev-only settings", () => {
     expect(prod.memory).not.toHaveProperty("harvestReasoning");
     expect(DEV_ONLY_CHAPTER_KEYS.filter((key) => prod.memory.chapters && key in prod.memory.chapters)).toEqual([]);
     expect(prod.memory.chapters?.recap).toBe(false);
-    expect(DEV_ONLY_JUDGE_USES.map((use) => prod.judge.uses[use])).toEqual([false, false]);
+    expect(DEV_ONLY_JUDGE_USES.map((use) => prod.judge.uses[use])).toEqual([false, false, false]);
     expect(prod.judge.uses.director).toBe(true);
   });
 

@@ -232,7 +232,7 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
 
 export const DEV_ONLY_CHAPTER_KEYS = ["seal", "storySoFar", "fold", "chronicleTokens"] as const;
 
-export const DEV_ONLY_JUDGE_USES = ["loreExclusive", "expressions"] as const;
+export const DEV_ONLY_JUDGE_USES = ["loreExclusive", "expressions", "wardenVoice"] as const;
 
 const isDevBuild = () => typeof __SO_DEV__ !== "undefined" && __SO_DEV__;
 

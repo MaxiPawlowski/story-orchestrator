@@ -188,6 +188,10 @@ test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay
   }
 });
 
+test('v2.7 plan 37: the player-clean sweep forbids the character-life panel and every life row', () => {
+  for (const selector of ['#so-character-life', '[data-so^="life-"]']) assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+});
+
 test('v2.7 plan 06: the player-clean sweep forbids the Activity panel and roll chips, and reads the presence surfaces', () => {
   for (const selector of ['#so-open-activity', '#so-panel-activity', '[data-so="activity"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="journal-author"]']) {
     assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);

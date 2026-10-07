@@ -69,6 +69,7 @@ declare global {
     reasoningEffect?: import("./src/runtime/replyEffortHost").EffortDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorTalk: { chainPending: () => boolean } | undefined;
+  var storyOrchestratorAgendaProposals: import("./src/runtime/coordinators/agendaProposalCoordinator").AgendaProposalCoordinator | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;
   var storyOrchestratorInline: { attachTimes: () => number[] } | undefined;

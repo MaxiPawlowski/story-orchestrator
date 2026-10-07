@@ -14,6 +14,7 @@ import type { MemoryMirrorSummary } from "./memoryMirror";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
+import type { AgendaProposalsState } from "./agendaProposals";
 import type { JournalRecordKind } from "./journal";
 import { withDismissal } from "./checks";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
@@ -66,6 +67,13 @@ export abstract class CoordinatorDelegates {
     const extras = this.co.rollbackDeps.extras();
     extras.chance = recordChanceDraw(extras.chance ?? createChance(), draw, messageId);
     this.notify();
+  }
+  agendaProposalSlice() {
+    const deps = this.co.rollbackDeps;
+    return {
+      get: () => deps.extras().agendaProposals, set: (next: AgendaProposalsState) => { deps.extras().agendaProposals = next; },
+      ownership: deps.ownership, persist: deps.persist, notify: deps.notify, updateInjection: () => deps.memory.updateInjection(),
+    };
   }
   clearCopilotNudge() { this.co.copilot.clearNudge(); }
   reapplyCopilotNudge() { this.co.copilot.reapplyNudge(); }

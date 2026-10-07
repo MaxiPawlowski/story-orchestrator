@@ -7,7 +7,8 @@ import type { WardenCheckFinding } from "@stagecraft/index";
 import { isLive, type ConflictPair, type LedgerView, type MemoryEntry } from "@memory/index";
 import type { Provenance } from "@memory/provenance";
 import type { JudgeRuntime } from "./judge";
-import { rosterMemberName } from "./roster";
+import { rosterIdForName, rosterMemberName } from "./roster";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 /**
  * What the warden is allowed to hold a reply to, WITH the ids it came from. The card
@@ -86,13 +87,23 @@ export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStor
   const story = view.getStory();
   const agency = Boolean(runtime?.active("agencyCheck")) && agencyForCheckpoint(story, view.getState()?.activeCheckpointId).never_narrate_player_action;
   const attention = Boolean(runtime?.ridesWarden("attentionCheck"));
-  return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")), ...(attention ? { attention } : {}) };
+  const voice = Boolean(story?.life && runtime?.ridesWarden("wardenVoice"));
+  return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")),
+    ...(attention ? { attention } : {}), ...(voice ? { voice } : {}) };
 };
 
 export const houseRuleScene = (story: NormalizedStoryV2 | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {
   const name = speaker.trim().toLowerCase();
   const role = story?.roster.find((member) => rosterMemberName(member).trim().toLowerCase() === name)?.role?.trim();
   return { ...(role ? { speakerRole: role } : {}), groupMembers };
+};
+
+export const voiceProfile = (story: NormalizedStoryV2 | null, state: EngineState | null, speaker: string): WardenInput["voice"] | null => {
+  const id = rosterIdForName(story, speaker);
+  const member = story?.roster.find((entry) => entry.id === id);
+  if (!story || !member) return null;
+  const feelings = gameLayer()?.life.relationshipFeelings(story, state?.blackboard.values ?? {}, member.id) ?? [];
+  return { speaker: rosterMemberName(member), ...(member.role ? { role: member.role } : {}), ...(member.drive ? { drive: member.drive } : {}), feelings };
 };
 
 export const createWarden = (
@@ -104,6 +115,7 @@ export const createWarden = (
   return {
     check: createWardenCheck(judge),
     families: wardenFamilies(judge, view),
+    voice: (speaker: string) => voiceProfile(view.getStory(), view.getState(), speaker),
     ...rest,
     ...(group ? { scene: (speaker: string) => houseRuleScene(view.getStory(), speaker, group()) } : {}),
   };

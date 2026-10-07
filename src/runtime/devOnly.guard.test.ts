@@ -8,6 +8,9 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
+  "src/runtime/agendaProposalsDev.ts",
+  "src/runtime/coordinators/agendaProposalCoordinator.ts",
+  "src/runtime/meanwhilePrompt.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [

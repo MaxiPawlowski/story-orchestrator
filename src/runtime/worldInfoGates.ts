@@ -1,6 +1,7 @@
 import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export interface WorldInfoBookPlan {
   lorebook: string;
@@ -17,11 +18,12 @@ export const isMemoryMirrorBook = (lorebook: string): boolean => bookKey(loreboo
 
 const lorePlans = (plans: WorldInfoBookPlan[]): WorldInfoBookPlan[] => plans.filter((plan) => !isMemoryMirrorBook(plan.lorebook));
 
-export function worldInfoPlan(story: NormalizedStoryV2, path: string[], rewarded: readonly string[] = []): WorldInfoBookPlan[] {
+export function worldInfoPlan(story: NormalizedStoryV2, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = []): WorldInfoBookPlan[] {
   const enabled: GatedWorldInfo = new Map();
   const switches = [
     ...path.map((id) => checkpointWorldInfo(story.checkpointById[id])),
     ...(story.quests ?? []).filter((quest) => rewarded.includes(quest.id)).map((quest) => readWorldInfoEffect(quest.reward?.effects?.world_info)),
+    ...earned.map(readWorldInfoEffect),
   ];
   for (const { enable, disable } of switches) {
     enable.forEach((ref) => ref.comments.forEach((comment) => addGatedEntry(enabled, ref.lorebook, comment)));
@@ -44,6 +46,9 @@ export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoB
     .map(([lorebook, comments]) => ({ lorebook, enable: [], disable: [...comments].filter((comment) => !kept.get(bookKey(lorebook))?.has(comment)) }))
     .filter((plan) => plan.disable.length > 0));
 }
+
+export const earnedWorldInfo = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>): unknown[] =>
+  (story.life ? gameLayer()?.life.agendaWorldInfo(story, values) ?? [] : []);
 
 export function stagedPath(path: string[], stagedFrom: number | undefined): string[] {
   const from = validStagedFrom(stagedFrom, path.length);

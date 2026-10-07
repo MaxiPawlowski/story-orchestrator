@@ -281,6 +281,14 @@ export const GUIDE_TOPICS = {
       + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
       + "no markup. A player widget shows public qualities only; empty sections never render.",
   },
+  "character-life": {
+    title: "Character life",
+    fields: "roster[].relationships, roster[].mood, roster[].agenda, roster[].schedule, clock",
+    text: "relationships [{toward: id|player, axes, range, step, start, label}] compile to rel_<holder>_<toward>_<axis> ratings, read while both are present, moved at most step "
+      + "a turn, shown only to the holder and Author view. mood {baseline, values, lasts} is re-read after a scene change and falls back to baseline. agenda [{id, goal, "
+      + "steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_chapter|per_n_boundaries, every}] advances in code, never on an OOC line. schedule "
+      + "[{when, at}] drops a member from speakers while away. clock {times, start_day}: time_of_day one step a turn, story_day counts wraps.",
+  },
 } as const satisfies Record<string, GuideTopic>;
 
 export type GuideTopicId = keyof typeof GUIDE_TOPICS;

@@ -11,13 +11,14 @@ import { runtimeManager } from "../runtimeManager";
 import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../talkControl";
 import { promptCost } from "../promptCost";
 import type { LiveParts, WindowAccess } from "./types";
+import { presentRosterIds } from "../whereabouts";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
   getChatId: () => getContext().chatId ?? null,
   getActiveTalkControl: () => runtimeManager.getActiveTalkControl(),
   getRoster: () => runtimeManager.getStory()?.roster ?? [],
-  getEnabledRosterIds: () => runtimeManager.getEnabledCharacterIds(),
+  getEnabledRosterIds: () => presentRosterIds(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, runtimeManager.getEnabledCharacterIds()),
   getLastSpeakerRosterId: () => runtimeManager.getActiveSpeakerId(),
   getDraftedRosterId: () => {
     const name = getCharacterNameById(getActiveCharacterId());

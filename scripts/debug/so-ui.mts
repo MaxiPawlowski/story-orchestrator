@@ -975,6 +975,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   // every other roll and draw stays author-only (also swept under #chat), and so do the Journal's author half and hidden quests.
   '#so-open-activity', '#so-panel-activity', '#so-activity', '[data-so="activity"]', '[data-so="activity-row"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="roll-chip"][data-source="npc"]', '[data-so="roll-chip"][data-source="talk"]',
   '[data-so="journal-author"]', '[data-so="journal-hidden"]', '[data-so="journal-overflow"]',
+  // v2.7 plan 37: feelings, moods, agendas, whereabouts and meanwhile proposals are Author view only.
+  '#so-character-life', '[data-so^="life-"]',
 ];
 
 const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];

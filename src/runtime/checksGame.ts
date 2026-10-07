@@ -1,4 +1,4 @@
-import { QUEST_SCOPE_CAP } from "@extraction/scopeSources";
+import { QUEST_SCOPE_CAP, REL_AXES_PER_READ } from "@extraction/scopeSources";
 import type { Check } from "./checks";
 
 export const QUEST_SCOPE_CHECK: Check = {
@@ -18,4 +18,21 @@ export const QUEST_SCOPE_CHECK: Check = {
   },
 };
 
-export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK];
+export const RELATIONSHIP_SCOPE_CHECK: Check = {
+  id: "relationship-scope-overflow",
+  area: "characters",
+  scope: "story",
+  audience: "author",
+  severity: "degrades",
+  feature: "character-life",
+  detect: (snapshot) => {
+    const dropped = snapshot.lifeAuthor?.scopeOverflow ?? [];
+    return dropped.length ? {
+      consequence: "Some feelings or moods are not read this turn, so a character can keep an old feeling a little longer.",
+      detail: `A read carries at most ${REL_AXES_PER_READ} feelings and moods, the speaker's first. Left out now: ${dropped.join(", ")}. `
+        + "Give fewer axes to characters who share a scene, or keep side characters' feelings toward the player only.",
+    } : null;
+  },
+};
+
+export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK];

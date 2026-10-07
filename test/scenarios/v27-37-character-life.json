@@ -1,0 +1,22 @@
+{
+  "_note": "v2.7 plan 37 (NOT YET RUN; batched into plan 39): an agenda step lands after two in-fiction boundaries, an OOC line neither moves it nor counts, a night schedule drops Arin, the drafted member's private block carries her own feelings and the narrator's carries only the public step, and none of it reaches a player surface. No model call: every write is a /cp set boundary.",
+  "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
+  "steps": [
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
+    { "import_story": { "file": "v27-37-character-life.story.json" } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return true;" },
+    { "slash": "/sendas name=Arin Morning at the market." },
+    { "slash": "/cp set location market" },
+    { "slash": "/cp set confessed false" },
+    { "eval": "const values = globalThis.storyOrchestratorRuntime.getEngineState().blackboard.values; if (values.agenda_arin_debt_step !== 1) throw new Error('agenda step after two boundaries: ' + JSON.stringify(values)); return { step: values.agenda_arin_debt_step, day: values.story_day };" },
+    { "send": "((brb, coffee))" },
+    { "slash": "/cp set confessed false" },
+    { "eval": "const values = globalThis.storyOrchestratorRuntime.getEngineState().blackboard.values; if (values.life_turn_ooc !== true || values.agenda_arin_debt_wait !== 0 || values.agenda_arin_debt_step !== 1) throw new Error('OOC boundary moved the agenda: ' + JSON.stringify(values)); return true;" },
+    { "slash": "/cp set time_of_day night" },
+    { "eval": "const rows = globalThis.storyOrchestratorRuntime.getSnapshot().lifeAuthor?.rows ?? []; const arin = rows.find((row) => row.id === 'arin'); if (arin?.away !== 'docks') throw new Error('schedule did not put Arin away: ' + JSON.stringify(rows)); return arin;" },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const at = (name) => ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(at('Arin')); const own = rt.getAppliedEpistemicBlock(); rt.onMemberDrafted(at('DM Narrator')); const other = rt.getAppliedEpistemicBlock(); rt.clearPrivateInjection(); if (!own.includes('Your trust toward') || !own.includes('SO-AGENDA-STEP-ONE')) throw new Error('Arin block: ' + own); if (other.includes('Your trust') || other.includes('SO-AGENDA-STEP-ONE')) throw new Error('narrator block leaks Arin: ' + other); return { own: own.length, other: other.length };" },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await new Promise((resolve) => setTimeout(resolve, 500)); for (const leak of ['SO-AGENDA-STEP-ONE', 'SO-AGENDA-STEP-TWO', 'Your trust toward', 'Character life']) if (document.body.textContent.includes(leak)) throw new Error('leak in player mode: ' + leak); return true;" },
+    { "ui": { "action": "open-drawer" } },
+    { "ui": { "action": "assert-player-clean" }, "log": 1500 }
+  ]
+}

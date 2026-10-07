@@ -150,7 +150,7 @@ const windowAccess = (): WindowAccess => settledWindowAccess(
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
   "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore",
-  "storyOrchestratorSpikes", "storyOrchestratorTalk",
+  "storyOrchestratorSpikes", "storyOrchestratorTalk", "storyOrchestratorAgendaProposals",
 ] as const;
 
 export function startRuntime() {
@@ -179,6 +179,7 @@ export function startRuntime() {
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
   if (__SO_DEV__) globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
+  if (__SO_DEV__) void import("./agendaProposalsDev").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
   attachGenerationObservers(live, runtimeDisposers, generation);
   privateInjectionUnsub = subscribeGenerationEvents(live, generation, lore, access.chatLastId, () => void startupLoad());
   // Versioned settings (loaded synchronously from a cache) are already in place,

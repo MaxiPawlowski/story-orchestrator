@@ -44,6 +44,7 @@ import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
+import { lifeAuthorSlice } from "./lifeSnapshot";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
 import { imageHealth } from "./imageHealth";
@@ -278,6 +279,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView,
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory) : [] },
     }),
+    lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
     presence: buildPresence({

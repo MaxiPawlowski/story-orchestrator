@@ -1,12 +1,16 @@
 import { cardReadKeys } from "@engine/cardFields";
 import { questScopeKeys, valueReader, type BlackboardSnapshot, type NormalizedStoryV2 } from "@engine/index";
+import { gameLayer } from "@engine/validate/gameLayer";
 import type { ScopePull } from "./types";
 
 export const QUEST_SCOPE_CAP = 5;
+export const REL_AXES_PER_READ = 8;
 
 export interface ScopeSourceContext {
   owners?: string[];
   cursor?: number;
+  present?: string[];
+  drafted?: string | null;
 }
 
 export interface ScopeSourceRead {
@@ -38,7 +42,16 @@ export const QUEST_SOURCE: ScopeSource = {
   keys: (story, blackboard) => questScopeKeys(story.quests, valueReader(blackboard.values)).filter(readable(story, blackboard)),
 };
 
-export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE];
+export const RELATIONSHIP_SOURCE: ScopeSource = {
+  kind: "relationship",
+  detail: "a present character's feelings or mood",
+  cap: REL_AXES_PER_READ,
+  keys: (story, blackboard, context) => (story.life
+    ? gameLayer()?.life.lifeScopeKeys(story, blackboard.values, { present: context.present, drafted: context.drafted }).filter(readable(story, blackboard)) ?? []
+    : []),
+};
+
+export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE];
 
 export const readScopeSource = (source: ScopeSource, story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext): ScopeSourceRead => {
   const keys = source.keys(story, blackboard, context);

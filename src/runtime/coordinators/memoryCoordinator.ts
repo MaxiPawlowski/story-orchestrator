@@ -58,6 +58,7 @@ export interface MemoryCoordinatorDeps {
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
   beatFor?: (rosterId: string) => string;
+  meanwhile?: (rosterId: string) => string[];
   journal?: (summary: string, note: string) => void;
   chapterHost?: { closeScene: (to: number) => Promise<void>; announce: (text: string) => Promise<void>; journal: (summary: string, detail?: string) => void; playerName: () => string };
 }
@@ -86,6 +87,7 @@ export class MemoryCoordinator {
     beatFor: (rosterId) => this.deps.beatFor?.(rosterId) ?? "",
     chapters: () => this.chapters,
     ledgerFocus: () => this.ledgerFocus(),
+    meanwhile: (rosterId) => this.deps.meanwhile?.(rosterId) ?? [],
   });
   readonly canon = new CanonSynthesis({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,

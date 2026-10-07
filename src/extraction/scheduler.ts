@@ -1,6 +1,7 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
+import type { ScopeSourceContext } from "./scopeSources";
 import { getChatWindow } from "./chatWindow";
 import { isCueReason, mergeCueReasons } from "./cues";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs } from "./breaker";
@@ -62,7 +63,7 @@ export interface SchedulerHost {
   getFacts(): ParsedFact[];
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
-  cardScope?(): { owners: string[]; cursor: number };
+  cardScope?(): ScopeSourceContext;
   getOpenArcs(): string[];
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];

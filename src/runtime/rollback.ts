@@ -14,6 +14,7 @@ import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackChanceDraws } from "./rolls";
 import { rollbackChecks } from "./storyCheckDraws";
+import { rollbackAgendaProposals } from "./agendaProposals";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
 
@@ -102,6 +103,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     extras.lore = rollbackLoreFired(extras.lore, messageId);
     if (extras.chance) extras.chance = rollbackChanceDraws(extras.chance, messageId);
     if (extras.checks) extras.checks = rollbackChecks(extras.checks, messageId);
+    if (extras.agendaProposals) extras.agendaProposals = rollbackAgendaProposals(extras.agendaProposals, messageId);
     extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };
     engine.clampToChat(deps.context().chatLength);
     engine.discardPendingFrom(messageId);

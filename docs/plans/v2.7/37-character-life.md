@@ -326,3 +326,110 @@ Source: v2.7 39 §Review 2026-10-07 (Sol).
 | 18 | M3 gets a behavioural threshold (20 blind pairs, ≥ 12 preferred, ≤ 2 worse on consistency, 0 leaks) and a required-exercise rule | §Measurement before building |
 | 19 | story clock producer (authored effects + extractor read, clamped, boundary-only) and what moves it (rounds, Continue, swipe, OOC, reopen); agendas ignore OOC lines; 39 S-19 | §Adopted harvest, §L3 |
 | 21 | main-entry cost per production path recorded in 39 B3; lazy-chunk default | §Gates |
+
+## Gate record
+
+### 2026-10-07: build on `v2.7-37-character-life` (from `v2.7-image-track-wip` @ `fd6529b1`), deterministic tiers only
+
+Every open decision took its Recommended answer (user, 2026-10-07). No live run, no LLM run, no Storybook run; the
+measured numbers are placeholders until v2.7 39 B1/B2 (rows `37-*` in 39 §Rows owed by v2.7 37).
+
+**What was built**
+
+- Format (`engine/lifeSchema.ts`, types on `RosterMember` / `StoryV2`): `roster[].relationships [{toward: id|player,
+  axes, range (default -5..5), step (1), start (0), label}]`, `roster[].mood {baseline, values (calm, tense, angry,
+  afraid, elated), lasts {boundaries: n} | {until: "scene_break"}}`, `roster[].agenda [{id, goal, steps [{text, when,
+  effect {world_info, npc_replies}, public, repeat}], pace per_chapter | per_n_boundaries, every (3)}]`,
+  `roster[].schedule [{when, at}]`, story `clock {times, start_day}`. Normalized as `story.life`.
+- Validator in the lazy game-layer chunk (`engine/validate/life.ts`, wired through `GAME_LAYER.life`; `usesGameLayer`
+  detects the fields, so a story using them waits for the chunk like v2.7 36's quests): compiled qualities
+  `rel_<holder>_<toward>_<axis>` (extractor int, `read_as: rating`, criteria levels, `step_rule {step, min, max,
+  start}`), `mood_<id>` + `life_mood_<id>_age|was|scene`, `agenda_<id>_<agenda>_step|wait|chapter|repeats`,
+  `time_of_day` (extractor enum, `read_as: choice`, `step_rule {cycle}`), `story_day`, `life_time_seen`,
+  `life_turn_ooc`. Refused: a relationship toward itself or an unknown id, duplicate axes or `toward`, a start outside
+  the range, an agenda step with `cast_changes`, a repeat that is not the last step, a non-`onEnter` step reply, an
+  authored quality taking a compiled key, a schedule or agenda gate on an undeclared quality, a clock with fewer than
+  two times; `display.public` on `rel_*` stays refused (v2.7 36).
+- L1 read path: the judge-first / extractor-fallback split already existed (`sharedRead.ts` removes only answered
+  keys), so `rel_*` ratings use it unchanged. The step clamp is `ratingGuard.applyStepRule` (both sources pass
+  `applyRatingGrounding` in `enqueueExtractorDeltas`); a stepped quality skips the "evidence names the level" rule.
+  Scope source `RELATIONSHIP_SOURCE` (kind `relationship`, cap `REL_AXES_PER_READ = 8`, placeholder): axes whose holder
+  is present (enabled in the group and not away) and whose `toward` is present or the player, the speaking member's
+  axes and mood first; overflow named by the `relationship-scope-overflow` check (author, degrades). The read prompt
+  shows criteria, never the current value.
+- L2 mood: re-read when never read, expired, or after the scene marker (`location` | `time_of_day`) moved; it decays
+  at render (`effectiveMood`) to `baseline` after `lasts`.
+- L3 agendas: advanced in the derive seam (`runtime/stretchTurns.ts` -> `deriveLife`, code writes only, so the step
+  rolls back with the blackboard); an OOC boundary (latest player line wrapped `((…))` or starting `OOC:` / `(OOC`,
+  `engine/life/ooc.ts`) neither advances nor counts toward pace. A landed step's `world_info` rides the path replay
+  (`worldInfoPlan(…, earnedWorldInfo)`; `gatedWorldInfo` now lists agenda entries), its `npc_replies` go through
+  `EffectsApplier.applyEarnedEffects` (v2.7 36's `applyQuestRewards`, generalised) with `origin {kind: "agenda"}`; a
+  boundary that landed a step counts for `shouldRollbackFromMessage`. Meanwhile facts: the member's last three landed
+  steps in its own private block, `public` steps in every other member's block.
+- L3 curator proposals (dark ship): `MeanwhileProposal` contract (`runtime/agendaProposals.ts`, `extras.agendaProposals`,
+  sanitized, rolled back by message), `AgendaProposalCoordinator` (own slice, constructor-injected deps, RunGuard over
+  the read window, role `curator`) and a strict parser that refuses an unknown member or agenda, a second event per
+  member and a line naming the player; accepted proposals reach only the holder's block, rejections are journaled.
+  Dev-only: loaded only behind `__SO_DEV__` as `globalThis.storyOrchestratorAgendaProposals`. Gate fixture
+  `test/fixtures/meanwhile-proposals.cases.json` (20 cases, floors frozen).
+- L4 schedules: `runtime/whereabouts.ts` filters the talk host's enabled ids; no host write.
+- L6 voice warden (dark ship): judge use `wardenVoice` (off by default, in `DEV_ONLY_JUDGE_USES`), warden family
+  `voice` riding the warden call (`VOICE_QUESTION`, 3-level score, a note below `VOICE_SCORE = 0.75`, never a rewrite),
+  sending the speaker's role, drive and own feelings. L6-C floors frozen in `test/fixtures/judge/spike-voice.json`;
+  its rows are not collected.
+- Author view: `CharacterLifePanel` (`#so-character-life`, in the lazy Blackboard tab) over `snapshot.lifeAuthor`
+  (rows, overflow, proposals), with `CharacterLifePanel.stories.tsx`.
+- Privacy: the lines are composed by `MemoryInjector.lifeLines` and filtered with `withoutSecretLines` for that member;
+  never in the resting prompt (planted-secret test with a control: `lifeSecrets.review.test.ts`).
+- Docs and lists: guide topic `character-life` (`story-guide.md` + `guideTopics.ts`, Studio Roster tab, `npm run
+  docs:guide`), feature `character-life` (`features/lifeFeatures.ts`), architecture invariant, spoiler row in
+  `v2.1/test-plan.md`, `baseline-settings.json` and `sessionCharters.mts` JUDGE_USES (`wardenVoice`),
+  `CALL_SITE_ROLES`, `ownership-sites.json` (propose, decide, applyEarnedEffects), `so-ui.mts` player-clean selectors
+  (+ test), the `DEV_ONLY` guard list, `RUNTIME_GLOBALS`, check-registry fixture counts.
+- Tests: `validate/life.test.ts`, `engine/life/life.test.ts` (agenda pace and gates, OOC, repeat, mood, clock,
+  schedule, scope presence, private lines, rollback ≡ replay and reopen ≡ continuous over 4 seeds with OOC lines),
+  `stepRule.test.ts`, `relationshipScope.test.ts`, `lifeSecrets.review.test.ts`, `agendaEffects.review.test.ts`
+  (mixed-origin undo, WI replay, dispatch once), `whereabouts.test.ts`, `agendaProposals.test.ts`,
+  `wardenVoice.review.test.ts`.
+
+**Deviations**
+
+- Presence for scope is "enabled and not away", not "a speaker in the read window": scope is derived before the window
+  is fitted.
+- Mood is read by the shared read (scope source) after a scene change, not by the epistemic/ledger pass; decay is at
+  render, because code may not write an extractor quality.
+- An unread relationship is unset on the blackboard (code cannot seed an extractor value): a gate on it holds only after
+  the first read; the lines and the clamp use `start`.
+- Story clock: no authored checkpoint `set` effect exists, so producer (1) is not built; the clock moves by the read
+  (one step a turn) and the code day count.
+- Agenda dispatch rides boundary work `game` (v2.7 36's entry), not a separate `agenda-steps` entry. v2.7 36 removed
+  `revertOriginSince`, so agendas only tag `origin` and share the one chronological undo.
+- Recurring steps keep a count (`agenda_…_repeats`), not a list of occurrences.
+- Public meanwhile facts reach every other member's private block, not the shared facts tier (no shared write and no
+  resting-prompt exposure).
+- Cross-source overflow priority and the fairness rotation are not built (39 B2 decides); each source is capped alone.
+- The meanwhile review in the panel is read-only; accept and reject go through the dev handle (the coordinator is
+  dev-only).
+- No Studio editor for the life fields (authored as JSON). No OOC rule for v2.7 33's extraction or v2.7 35's turn
+  counter (their plans own them); the shared predicate is `engine/life/ooc.ts`.
+- The voice warden sends role, drive and feelings, not the card text.
+
+**Commands (worktree, 2026-10-07)**
+
+- `npx tsc --noEmit`, `npm run typecheck:test`, `npm run lint`: clean.
+- `npm run gates -- --no-storybook`: **all green in 89.4 s** (build, typecheck, build:dev, test:debug 1094 pass, test
+  6796 pass / 1 skipped, typecheck:test, lint, debug:typecheck, test:plugin, test:release, test:replay 32 of 32
+  killed). `test-storybook:ci` **SKIPPED** (Storybook cannot run from a worktree).
+- Prod `dist/index.js`: **1,171,979 B** (budget 1,250,000; `fd6529b1` 1,163,500 B, +8,479 B).
+
+**Not run (owed to v2.7 39)**
+
+- Storybook for `CharacterLifePanel.stories.tsx`.
+- No-model scenario `test/scenarios/v27-37-character-life.json` (+ `.story.json`): evals syntax-checked, never run.
+- Rows 37-D1..D3, M1, M2, S17, L3, L6-C, S19, M3, B3 (39 §Rows owed by v2.7 37).
+
+**Open questions**
+
+- Should an unread relationship read as `start` in gates (seeded), which needs a code/extractor dual-writer rule?
+- Should `per_chapter` be refused in a story without chapters (today it moves once)?
+- Should an away member addressed by name get an explicit narrator line ("X is not here"), or is dropping enough?

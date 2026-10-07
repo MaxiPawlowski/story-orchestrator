@@ -23,6 +23,7 @@ export const JUDGE_USE_KEYS = [
   "loreExclusive",
   "expressions",
   "attentionCheck",
+  "wardenVoice",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -68,7 +69,7 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "attentionCheck"];
+export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "attentionCheck", "wardenVoice"];
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, !JUDGE_USES_OFF_BY_DEFAULT.includes(key)])) as JudgeUses;
 
@@ -266,6 +267,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
       "A refusal or an in-character dodge counts as an answer. Not measured yet, so off by default.",
     sends: "nothing beyond the warden's call: the character reply, your latest message and your persona name",
   },
+  wardenVoice: {
+    label: "In character (warden)",
+    description: "After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note "
+      + "in the next reply's prompt, never a rewrite. Not measured yet, so off and dev-only.",
+    sends: "the character reply, the speaker's name, roster role and drive, and their feelings toward the others in the scene",
+  },
 };
 
 export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
@@ -287,7 +294,8 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "loreExclusive",
   "expressions",
   "attentionCheck",
+  "wardenVoice",
 ];
 
 // Steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice"];

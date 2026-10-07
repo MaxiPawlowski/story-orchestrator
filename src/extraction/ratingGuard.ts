@@ -1,4 +1,4 @@
-import type { PrimitiveValue, Quality, QualityRatingLevel } from "@engine/index";
+import type { PrimitiveValue, Quality, QualityRatingLevel, QualityStepRule } from "@engine/index";
 import { evidenceCut, type EvidenceCut } from "./evidenceCut";
 import type { ParsedDelta } from "./types";
 
@@ -46,6 +46,24 @@ const refusal = (rule: RatingRule, value: PrimitiveValue, current: PrimitiveValu
   return next !== undefined && value > next ? `skips from ${current} past the next level` : null;
 };
 
+const stepped = (rule: QualityStepRule, quality: Quality, value: PrimitiveValue, current: PrimitiveValue | undefined): PrimitiveValue => {
+  if (rule.cycle) {
+    const values = quality.values ?? [];
+    const at = typeof current === "string" ? values.indexOf(current) : -1;
+    return at < 0 || value === current || !values.includes(String(value)) ? value : values[(at + 1) % values.length];
+  }
+  if (typeof value !== "number") return value;
+  const from = typeof current === "number" ? current : rule.start ?? value;
+  const moved = Math.max(from - rule.step, Math.min(from + rule.step, value));
+  return Math.max(rule.min ?? moved, Math.min(rule.max ?? moved, moved));
+};
+
+export const applyStepRule = (quality: Quality | undefined, delta: ParsedDelta, current: PrimitiveValue | undefined): ParsedDelta => {
+  if (!quality?.step_rule) return delta;
+  const value = stepped(quality.step_rule, quality, delta.delta.v, current);
+  return value === delta.delta.v ? delta : { ...delta, delta: { ...delta.delta, v: value } };
+};
+
 export const applyRatingGrounding = (
   qualityByKey: Record<string, Quality>,
   values: Record<string, PrimitiveValue>,
@@ -53,8 +71,10 @@ export const applyRatingGrounding = (
 ): RatingGuardResult => {
   const accepted: ParsedDelta[] = [];
   const held: HeldRatingDelta[] = [];
-  for (const delta of deltas) {
-    const rule = ratingRule(qualityByKey[delta.delta.q]);
+  for (const raw of deltas) {
+    const quality = qualityByKey[raw.delta.q];
+    const delta = applyStepRule(quality, raw, values[raw.delta.q]);
+    const rule = quality?.step_rule ? null : ratingRule(quality);
     const reason = rule ? refusal(rule, delta.delta.v, values[delta.delta.q], delta.evidence ?? "") : null;
     if (reason) held.push({ key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", reason, ...evidenceCut(delta) });
     else accepted.push(delta);

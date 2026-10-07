@@ -6,6 +6,7 @@ import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, t
 import { selectFiring } from "./transitions";
 import { applyCardEntry } from "./cardFields";
 import { applyQuestRewards, questLatchesMoved } from "./quests";
+import { gameLayer } from "./validate/gameLayer";
 
 export interface DerivedQualityView {
   boundary: number;
@@ -14,6 +15,7 @@ export interface DerivedQualityView {
   checkpointStartedMessageId: number;
   lastMessageId: number;
   values: Readonly<Record<string, PrimitiveValue>>;
+  versions?: Readonly<Record<string, number>>;
 }
 
 export interface EngineHost {
@@ -374,6 +376,7 @@ export class StoryEngine {
       if (entry.context.lastMessageId < normalized) return false;
       if (entry.fired) return true;
       if (questLatchesMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
+      if (this.story?.life && gameLayer()?.life.lifeMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
       return entry.queue.applied.some((applied) => applied.turnRange && applied.turnRange.to >= normalized);
     });
   }
@@ -469,6 +472,7 @@ export class StoryEngine {
     const view = {
       boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedMessageId: this.checkpointStartedMessageId, lastMessageId: this.lastMessageId, values: blackboard.entries(),
+      versions: blackboard.snapshot().versions,
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
     applyQuestRewards(story, blackboard);

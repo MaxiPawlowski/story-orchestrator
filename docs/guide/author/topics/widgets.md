@@ -13,4 +13,4 @@ Fields: `qualities[].display` (`public`, `label`, `as`, `group`, `min`, `max`, `
 
 ---
 
-[Author's guide](../README.md) · previous: [Checks](checks.md) · next: [Good practices and traps](../good-practices.md)
+[Author's guide](../README.md) · previous: [Checks](checks.md) · next: [Character life](character-life.md)

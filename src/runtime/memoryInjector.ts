@@ -9,6 +9,7 @@ import {
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
@@ -29,6 +30,7 @@ export interface MemoryInjectorDeps {
   beatFor: (rosterId: string) => string;
   chapters?: () => Pick<ChapterPort, "inject">;
   ledgerFocus?: () => string[];
+  meanwhile?: (rosterId: string) => string[];
 }
 
 export interface StagedPrivateBlock {
@@ -116,7 +118,15 @@ export class MemoryInjector {
     const known = this.deps.capable() ? knowledge : [];
     const privateBlock = known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "";
     const render = innerRender();
-    return render ? render.memberAimsBlock(this.voices(story), id, beat, known, privateBlock) : privateBlock;
+    const block = render ? render.memberAimsBlock(this.voices(story), id, beat, known, privateBlock) : privateBlock;
+    return [block, this.lifeLines(story, id)].filter(Boolean).join("\n\n");
+  }
+
+  private lifeLines(story: NormalizedStoryV2, id: string): string {
+    const layer = story.life ? gameLayer() : null;
+    if (!layer) return "";
+    const lines = layer.life.privateLifeLines(story, this.deps.getState()?.blackboard.values ?? {}, id, this.deps.meanwhile?.(id) ?? []);
+    return withoutSecretLines(lines, this.secrets(story), namesForRosterId(story, id));
   }
 
   memberPrivateBlock(rosterId: string): string {
@@ -158,7 +168,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced) {
+    if (capable || voiced || story.life) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
