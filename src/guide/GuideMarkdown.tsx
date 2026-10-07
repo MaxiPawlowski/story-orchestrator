@@ -7,14 +7,15 @@ export interface GuideMarkdownProps {
   doc: string;
   body: string;
   homePage: string;
-  onNavigate: (target: GuideTarget) => void;
+  onNavigate?: (target: GuideTarget) => void;
+  hrefFor?: (target: GuideTarget) => string;
 }
 
 export const headingDomId = (slug: string) => `so-guide-h-${slug}`;
 
 const HEADING_TAGS = ["h2", "h3", "h4", "h5", "h6", "h6"] as const;
 
-export function GuideMarkdown({ doc, body, homePage, onNavigate }: GuideMarkdownProps) {
+export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor }: GuideMarkdownProps) {
   const slug = slugger();
 
   const inline = (nodes: Inline[], key = "i"): ReactNode[] => nodes.map((node, index) => {
@@ -30,8 +31,8 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate }: GuideMarkdown
         if (link.kind === "page") {
           const { target } = link;
           return (
-            <a key={id} href="#" data-so="guide-link" data-target={target.id} className="underline"
-              onClick={(event) => { event.preventDefault(); onNavigate(target); }}>
+            <a key={id} href={hrefFor ? hrefFor(target) : "#"} data-so="guide-link" data-target={target.id} className="underline"
+              onClick={onNavigate ? (event) => { event.preventDefault(); onNavigate(target); } : undefined}>
               {inline(node.children, id)}
             </a>
           );
