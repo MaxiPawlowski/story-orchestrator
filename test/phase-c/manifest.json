@@ -562,6 +562,35 @@
       ]
     },
     {
+      "id": "B1-PAR",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 39a",
+        "section": "§Hardware (B1 pod); 39 §B1 rows from v2.8 01"
+      },
+      "labels": [
+        "B1-PAR LLM_PARALLEL sizing on the B1 pod"
+      ],
+      "prerequisites": [
+        "one RunPod RTX PRO 6000 Blackwell (96 GB, Secure) with the Artemis GGUF, llama-server restarted per arm with LLM_PARALLEL 2, 4 and 6 (same args otherwise)",
+        "real Phase C load: as many adolion-fresh model lanes as the arm's LLM_PARALLEL, each playing its first B1 row",
+        "llama-server /slots or per-request timings readable (tokens_evaluated, predicted_per_second); run header records LLM_PARALLEL"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm (LLM_PARALLEL 2 / 4 / 6, ~5 min each in the first ~15 min of B1): per-stream tok/s (p50, min), prompt tokens per request (tokens_evaluated p50, p95) and turns/hour across the lanes; the chosen count is the arm with the most turns/hour whose per-stream rate stays at or above 25 tok/s, and B1 runs with that many model lanes",
+      "floor": {
+        "text": "chosen LLM_PARALLEL keeps per-stream ≥ 25 tok/s (p50 over the arm) and has the most turns/hour of the qualifying arms; no arm qualifies → fallback 2–3 × RTX PRO 4500",
+        "citation": "v2.7 39a §Hardware (B1 pod), owner decision 2026-10-07"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
       "id": "C0-freeze",
       "stage": "C0",
       "source": {

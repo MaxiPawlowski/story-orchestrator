@@ -60,7 +60,7 @@ candidate (finding 1).
 | Step | What | Tier | Where |
 |---|---|---|---|
 | B0 | release version `2.7.0` in `package.json` + `manifest.json` (finding 3); `attestation.test.mjs` made to FAIL, not log, on current-vs-attested bundle drift (`scripts/release/attestation.test.mjs:55-64`), and to fail, not skip, when `docs/release/<version>/attestation.json` is missing in acceptance mode (`SO_ACCEPTANCE=1`, §B0 record); row manifest (rule 10); pinned predecessor named and its goldens captured (§Payload contracts). Deterministic part done 2026-10-07 (§B0 record); the goldens capture is row B0-base (B0-live, needs a lane) | D | local, lane 1 |
-| B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget; v2.8 01 rows B1-C3, B1-C12, B1-C13b, B1-R4 (§B1 rows from v2.8 01) | RP + CL | pod, ≤ 2 model lanes |
+| B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget; v2.8 01 rows B1-C3, B1-C12, B1-C13b, B1-R4 (§B1 rows from v2.8 01); first, B1-PAR sizes the pod (`LLM_PARALLEL` 2/4/6 on real load, 39a §Hardware) | RP + CL | pod (one RTX PRO 6000, 39a §Hardware), model lanes = the `LLM_PARALLEL` B1-PAR picks |
 | B2 | decision record appended here: SP6 verdict, M2 verdict, `QUEST_SCOPE_CAP`, `REL_AXES_PER_READ`, combined overflow priority, 37 default read path, each experiment flag's fate (default on / off / removed); the branch each verdict takes (§Stage B branches) | — | — |
 | B3 | build the B2 branch: 35 Phases 3–4 + encounter pool, or the drop path; 36 `clock` or its removal; 37 caps; promotions final; main-entry bundle and ratchet budgets checked (C1b) | D | worktrees, `npm run gates` |
 | C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate: `node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0` (cases `test/scenarios/payload/*.json`, no model call), plus the feature contracts and off-path captures (§Payload contracts) | D | lane 1 |
@@ -131,7 +131,7 @@ The owner runs no reply post-processor; the reference one is `SO-V3 typographic 
 | Row | Setup | Assertion | Tier |
 |---|---|---|---|
 | 33 W1 V0 traced | jest `src/runtime/spikes/editReread.review.test.ts` "V0: the traced post-processor orders" (event-order replay over the real manager) plus the trace table it cites | the Regex placement and an in-round rewrite reach no cycle; a late post-render burst holds the reply until the last text is read and ends like a replay; the v2.6 "no audit" control reproduces (audit erased, "eventless change") | D |
-| 33 W1 V3 post-processor | `node scripts/debug/so-scenario.mts run test/scenarios/v27-33-v3-postprocessor.json --sandbox` on a model lane with the dev build; `requires` pins "Group: Arin, DM Narrator" by name; the fixture switches `spikes.editReread` on and restores it | regex leg: no straight-quoted span in any reply and no edit seen; post-render single, double and late: the rewrite lands after the commit, and the next request carries only the next checkpoint's marker and the settled text, with no hold timeout | CL + RP |
+| 33 W1 V3 post-processor | `node scripts/debug/so-scenario.mts run test/scenarios/v27-33-v3-postprocessor.json --sandbox` on a model lane; `requires` pins "Group: Arin, DM Narrator" by name; the fixture switches `spikes.editReread` on and restores it | regex leg: no straight-quoted span in any reply and no edit seen; post-render single, double and late: the rewrite lands after the commit, and the next request carries only the next checkpoint's marker and the settled text, with no hold timeout | CL + RP |
 
 ### Rows owed by v2.7 37 (built 2026-10-07 on `v2.7-37-character-life`, none run)
 
@@ -172,6 +172,7 @@ raw requests and replies in private `so-sessions` (rule 6). Campaign rows report
 | B1-C12 lore-select requests per turn | v2.8 01 §B C12 | same runs as B1-C3 (`lore_select` stories, `judge.uses.loreSelect` on) | count only, no floor: lore-select judge requests per loud turn (p50, p95, max) from `extras.judge.calls`; the "before" number for v2.8 01's batching | CL |
 | B1-C13b SP8 digest arm | v2.8 01 §B C13-b | the SP8 digest arm as measured in v2.6 03 (lab path, no product prompt change; the shipped curator prompt stays byte-identical per v2.7 02 C13); curator profile; the lane's campaign world book as padding. Enters the manifest only if the arm runs on the B0 build without code; otherwise B0 records its absence and the row stays in v2.8 01 | `v2.6/03-sp8-restated.md` W4 (b), verbatim: "every role-calibration floor met (validity ≥ 0.9, opShape ≥ 0.85, decision ≥ 0.7) in **both** runs"; ratio ≤ 0.40 (W4 (a)) recorded beside. A PASS lets v2.8 01 build the digest; 2.7 ships none | CL (curator) |
 | B1-R4 checkpoint thinking level pairs | v2.8 01 §E (data only) | llama.cpp thinking setup on the pod; `spikes.reasoningEffect` on; 20 climax turns across 2 stories (4 pairs exist, `test/sessions/rating-pack/R4/`) | 16 more blind pairs, arm checkpoint `high` vs control install `medium`; rated blind by Astra (delegated; v2.7 08 decision 6, never the user); recorded: preference share (floor ≥ 60 %) and p95 latency vs control (floor ≤ 2×), `v2.8/01` §E R4 unchanged. The gate lift and Studio control stay in v2.8 01 | RP |
+| B1-PAR LLM_PARALLEL sizing on the B1 pod | v2.7 39a §Hardware (owner decision 2026-10-07) | one RunPod RTX PRO 6000 Blackwell (96 GB, Secure, ~$2.09/h; stock in EU-CZ-1 / EUR-IS-2 / US, not EU-RO-1 where the network volume is, so the 19 GB Artemis GGUF downloads fresh); llama-server restarted per arm with `LLM_PARALLEL` 2, 4, 6; that many adolion-fresh model lanes each playing its first B1 row | runs first, the first ~15 min of B1: per arm, per-stream tok/s, prompt tokens per request (`tokens_evaluated`), turns/hour; picked: the most turns/hour with per-stream ≥ 25 tok/s; lanes = that count. No arm qualifies → fallback 2–3 × RTX PRO 4500 (existing tooling) | RP |
 
 C4's live checks (v2.8 01 §B C4: the separate warden-lore arm, built in v2.6, no code owed) run in C5 as acceptance:
 **C4-R6** over-steer after a lore note (v2.5 08 R6 rubric) and **C4-J8** G-L7 J8 on/off, ×2 each, CL + RP.
@@ -423,18 +424,10 @@ resolved it and what is still owed:
 
 | Blocker | Rows | Owner |
 |---|---|---|
-<<<<<<< HEAD
-| C14-b has no predeclared floor | C14-b | v2.7 02 |
-| S28 floors not copied into the manifest | 16-19-S28 | v2.7 32 |
-| ~~33 W1 V0 needs the user's post-processor named~~ resolved 2026-10-07: the user runs none; the reference post-processor stands in (v2.7 33 §Gate record "W1 step 0 (V0)") | 33-W1-V0 | — |
-| lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
-=======
-| no prod-build drive path: `so-scenario`, `so-journey` and every `storyOrchestratorRuntime` read refuse a prod page, so a `prod` row can only be driven through DOM-level `so-ui` verbs and ST's own controls; that path is not built for most of the 99 `prod` rows | every `prod` row in C2–C8b | v2.7 39 (debug tooling) before C2 |
 | C14-b has no predeclared floor: still open. Searched v2.7 02, v2.7 14 and v2.8 01 on `v2.7-39-runners`; none states one (v2.8 01 only moves the row here), so there is no text to quote. **Needs an owner decision** | C14-b | v2.7 02 (owner decision) |
 | S28 floors not copied into the manifest → **resolved** on `v2.7-39-runners`: the manifest floor is v2.7 24 §Acceptance floors' four S28 rows, verbatim, cited with v2.7 19 §6 | 16-19-S28 | v2.7 32 |
-| 33 W1 V0 needs the user's post-processor named | 33-W1-V0 | user |
+| ~~33 W1 V0 needs the user's post-processor named~~ resolved 2026-10-07: the user runs none; the reference post-processor stands in (v2.7 33 §Gate record "W1 step 0 (V0)") | 33-W1-V0 | — |
 | lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) → present on campaign branch `v2.7-38` (`lab/life`, `lab/quests`, `lab/stretches`); every label there still needs its second-model check (each lab README), and 36-Q1-M1's cases carry no facts / rejected expectations | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
->>>>>>> v2.7-39-runners
 | B0-base not run (needs a lane and ST) | B0-base, C3-preservation, PC-* | v2.7 39 B0-live |
 
 Resolved 2026-10-07: the "no prod-build drive path" blocker (every `prod` row in C2–C8b could only be driven through
@@ -568,6 +561,7 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | B1-C3 | B1 | CL + RP | v2.8 01 §B C3; 39 §B1 rows from v2.8 01 |
 | B1-C12 | B1 | CL | v2.8 01 §B C12; 39 §B1 rows from v2.8 01 |
 | B1-R4 | B1 | RP | v2.8 01 §E (data only); 39 §B1 rows from v2.8 01 |
+| B1-PAR | B1 | RP | v2.7 39a §Hardware (B1 pod); 39 §B1 rows from v2.8 01 |
 | C0-freeze | C0 | D | v2.7 39 §Sequence C0; rule 2 |
 | C0-goldens | C0 | D | v2.7 39 §Sequence C0 |
 | C1-gates | C1 | D | v2.7 39 §Sequence C1; v2.7 31 §C |

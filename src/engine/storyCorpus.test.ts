@@ -36,13 +36,31 @@ const corpus = ["examples", "test/fixtures", "test/scenarios", "test/journeys"].
     return storiesIn(parsed).map((story, index) => ({ where: `${relative(ROOT, path).replace(/\\/g, "/")}#${index}`, story }));
   });
 
+const REFUSED_ON_PURPOSE: Record<string, string> = {
+  "test/scenarios/v27-35-side-exit-always.story.json#0": "transitions.1 an open stretch ends only through arrive_when",
+  "test/scenarios/v27-35-side-exit-turns.story.json#0": "transitions.1 an open stretch ends only through arrive_when",
+};
+
+const problemsOf = (story: unknown): string[] => {
+  const parsed = parseStoryV2(story);
+  return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path} ${error.message}`) : [];
+};
+
 describe("v2.5 plan 11: the repo's story corpus parses under one vocabulary", () => {
   it("finds the corpus", () => {
     expect(corpus.length).toBeGreaterThanOrEqual(57);
   });
 
+  it("every story a fixture imports to see it refused is refused, for the reason it names", () => {
+    for (const [where, reason] of Object.entries(REFUSED_ON_PURPOSE)) {
+      const entry = corpus.find((candidate) => candidate.where === where);
+      expect(entry).toBeDefined();
+      expect(problemsOf(entry!.story).join("; ")).toContain(reason);
+    }
+  });
+
   it("every format-2 story parses with no validation error", () => {
-    const failing = corpus.flatMap(({ where, story }) => {
+    const failing = corpus.filter(({ where }) => !(where in REFUSED_ON_PURPOSE)).flatMap(({ where, story }) => {
       const parsed = parseStoryV2(story);
       return isValidationErrorList(parsed) ? [`${where}: ${parsed.map((error) => `${error.path} ${error.message}`).join("; ")}`] : [];
     });

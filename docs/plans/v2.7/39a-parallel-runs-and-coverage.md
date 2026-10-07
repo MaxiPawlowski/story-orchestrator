@@ -7,6 +7,18 @@ needed), cut wall-clock without losing quality, and check that every new v2.7 fe
 
 ## Part 1 — parallel RunPod plan
 
+### Hardware (B1 pod) — owner decision 2026-10-07
+
+Supersedes the pod count in §Recommendation for B1; the schedule tables below stay as the fallback's plan.
+
+| | |
+|---|---|
+| Pod | **one RunPod RTX PRO 6000 Blackwell** (96 GB, Secure cloud, ~$2.09/h). Stock in EU-CZ-1, EUR-IS-2 and US, not in EU-RO-1 where the network volume is, so the 19 GB Artemis GGUF downloads fresh on the pod (no volume); budget its download into the first start |
+| Sizing, first ~15 min of B1 | row **B1-PAR** (manifest, 39 §B1 rows): llama-server restarted per arm with `LLM_PARALLEL` 2, 4, 6 (all other args unchanged), each arm ~5 min of real Phase C load, i.e. that many adolion-fresh model lanes each playing its first B1 row. Measured per arm: per-stream tok/s (llama-server `predicted_per_second`, p50 and min), prompt tokens per request (`tokens_evaluated`, p50 and p95), turns/hour summed over the lanes |
+| Pick | the `LLM_PARALLEL` with the most turns/hour whose per-stream rate stays ≥ 25 tok/s; **lanes = that count** for the rest of B1 (`SO_MAX_LLM_LANES` per pod set to it, `st-lanes.mts start --judge-lanes` re-split to match). The arms' rows run again in full after the pick; the sizing runs are evidence for B1-PAR only, never for the rows they played |
+| Fallback | no arm qualifies, or no RTX PRO 6000 in stock: **2–3 × RTX PRO 4500** with `LLM_PARALLEL=2`, two lanes per pod, the existing tooling and §Recommendation's plan |
+| Why the 25 tok/s floor | the RTX PRO 4500 measured ~33 tok/s per stream (debug-scripts gotcha 2026-09-20); below 25 the harness's fixed timeouts and the latency rows (B1-R4 p95, B1-C3) start measuring the queue, the T7 failure (5 lanes, 56 s for 4 tokens) |
+
 ### What needs the pod
 
 | Class | Rows | Where | Pod time |
@@ -89,10 +101,10 @@ Rejected (would lose quality):
 
 | Idea | Why not |
 |---|---|
-| More than 2 model lanes per pod, or raising `LLM_PARALLEL` | T7: 5 lanes on one pod → 56 s for 4 tokens; latency floors (B1-R4 p95, R4-live, B1-C3) and timeouts would measure the queue |
+| More than 2 model lanes per pod, or raising `LLM_PARALLEL`, **without measuring it** | T7: 5 lanes on one pod → 56 s for 4 tokens; latency floors (B1-R4 p95, R4-live, B1-C3) and timeouts would measure the queue. On the RTX PRO 6000 the count is measured first (B1-PAR, §Hardware), with the 25 tok/s per-stream floor guarding exactly this |
 | Run 1 and run 2 of a row on different lanes or pods, or interleaved with another row on the same lane | "twice on one install, consecutively" is what found the J5 stale-cache and J8 parser defects |
 | Split a latency-floor row's arms (B1-R4, B1-C3, 36-Q1-M1, 37-M2) or any A/B pair across lanes | the arm and its control must share lane, pod and time window |
-| Reuse C4 J8 (dev-diagnostic) as an arm of C4-J8 (prod) | rule 9: a dev run never closes a prod row |
+| Reuse C4 J8 as an arm of C4-J8 | C4 J8 is a journey run, C4-J8 an on/off A/B with its own floor; one run cannot be both a row and the other row's arm (was "a dev run never closes a prod row"; one build since 2026-10-07) |
 | Fewer turns / pairs / stories (38-C7 N = 12, 37-M3 20 pairs, 34-RP 10 starts, journeys' checks) | each is the floor's denominator |
 | Drop B1 because C5 re-runs 35 on the candidate | B1 decides what B3 builds; C5 is acceptance on the frozen build |
 | Skip a reset, or seed lanes without the sprite packs | rule 11; a sprite-less install is not the tested install |
@@ -103,7 +115,7 @@ Rejected (would lose quality):
 
 | | |
 |---|---|
-| Pods | **3 × RTX PRO 4500**, same template, GGUF and llama-server args (`LLM_PARALLEL=2`), same data center as the network volume; `MAX_UPTIME_HOURS` ≥ 10 (C session ~8 h per pod) |
+| Pods | B1: one RTX PRO 6000 sized by B1-PAR (§Hardware). Fallback, and the plan the tables above schedule: **3 × RTX PRO 4500**, same template, GGUF and llama-server args (`LLM_PARALLEL=2`), same data center as the network volume; `MAX_UPTIME_HOURS` ≥ 10 (C session ~8 h per pod) |
 | Lanes | 6 pod lanes (pod k ↔ lanes 2k+1, 2k+2, tunnel `127.0.0.1:1808k`); 2–3 cloud lanes (CL rows); no-model lanes 7–10 (D rows, J4, J14); the comfy lane (C6); spares 11+ for the snapshot pool |
 | Order | B0-live → B1 tooling dry-run → **B1 pod session** (3 pods, ~3 h) with B1 CL rows on cloud lanes → B2 → B3 → C0 freeze → C1/C1b/C3 + C2 on no-model lanes (~4 h, no pod) → **C pod session** (3 pods, ~8 h; queues from `pod-schedule.mjs --shares --queues 3`) with C5 CL, C6 LI, C8, C8b in parallel off the pod → Z |
 | Estimate | pod wall ≈ **11 h** (3 + 8), pod-hours ≈ **28–32**, **≈ $20–23** (SP6 FAIL / SP6 PASS branch). Freeze → playtest ≈ 12 h, vs ≈ 27 h on one pod |
@@ -173,16 +185,35 @@ manifest and the test tree; every cited test file exists.
 | 2 | Persona flow rows cannot run (no scenario) | `test/scenarios/v27-34-player-setup.json` (keep / pick / create / skip, server-side `chat_metadata.persona`, one opener) and `v27-34-lock-refused.json` (S-04: refusing wrapper, reload, Try again / continue); S-05 delay scenario · D |
 | 3 | Sol 20 not built → C2-rendered-targets, Z-docs fail | build `devOnly` in the registry (planted dev-only feature never listed), `docs:settings` generator + drift test, Studio "Open in the guide" + hit-test with `#so-studio-modal` open · D |
 | 4 | 36-Q5-scn vacuous on rewards; dice step vacuous | `test/scenarios/v27-36-quest-rewards.json` (row **36-Q5-scn-b**: WI + cast reward, swipe the completing reply, reopen; host state = replay, ledger `reverted`); `if (!chips.length) throw` in `v27-36-quests.json`; `v27-36-quest-lifecycle.json` for S-16 · D |
-| 5 | Stylesheet chunk unchecked | row **C1-styles**: prod build on a lane, the chunk's style present and a scoped utility computed on `#so-hud-root`; negative control blocks the chunk request; node check that `dist/` imports the CSS chunk before `startRuntime` · D |
+| 5 | Stylesheet chunk unchecked | row **C1-styles**: the build on a lane, the chunk's style present and a scoped utility computed on `#so-hud-root`; negative control blocks the chunk request; node check that `dist/` imports the CSS chunk before `startRuntime` · D |
 | 6 | Narrowed campaign triggers could stall a story | row **38-D13d-live**: replay the v2.6 exit turns on the pinned build; every gating transition fires within its N; cue reads before/after recorded · CL + RP (C7) |
 | 7 | Missing scenario / payload files for owed rows | `v27-37-whereabouts.json` (37-D2), `v27-37-agenda-effect.json` (37-D3), `v27-37-start-seed.json` (37-Q1), `v27-35-side-exit.json` (S-09), `v27-ooc-read.json` (S-19-OOC D half); payload cases `group-away-notice.json` (37-Q3) and `group-relationships.json` (PC-relationship-scope, absent-member negative control) · D |
 | 8 | Held-secret player surfaces only on CL rows | rows **S-11-D**, **S-12-D**: no-model, mocked canon/seal replies with a paraphrase; Overview, `/story recap`, `/story chapters`, "Previously…", inline L2 chips and dry-run `{{story_canon}}` pass the `heldSecrets` word rule · D |
 | 9 | Player-mode leak check blind to agency/attention controls | add `#so-agency-accept-mode`, `#so-judge-use-attentionCheck` to `PLAYER_FORBIDDEN_SELECTORS` (`scripts/debug/so-ui.mts`) with a planted control · D |
 | 10 | 37-L6-C cannot run | copy the 20 lab voice rows into `test/fixtures/judge/spike-voice.json`; jest guard `rows.length === 20` · D (prereq) |
 | 11 | Floors that cannot fail or contradict the build | 33-W3-live floor (note on ≥ 4/5 ignored, ≤ 1/5 answered, 0 on unaddressed); 33-W1-V0 → jest replay requiring exactly one audit + fault-matrix row; 32-W6-stream re-floored to the cast-sized cap (24 MB × animated actors, 64–256 MB) · manifest (39 owner) |
-| 12 | Release-build judge uses never observed | row **29-D4-release-judge**: prod build, 3 group turns, `extras.judge.calls` has no `loreExclusive`/`expressions`, dev control has them · RP (moot if the one-build change removes the split) |
+| 12 | Release-build judge uses never observed | row **29-D4-release-judge**: moot since the one-build decision (2026-10-07): there is no release-only build whose judge uses could differ · — |
 | 13 | Real-model expression call with thinking off | row **C6-expr-reasoning**: Artemis, 10 replies, request carries reasoning off, ≥ 9/10 labels parse without thought text · CL |
 | 14 | Smaller untested surfaces | jest: `/story guide`, `/story quests`, `opener-uses-player-name`, `player-spoiler-risk`, widget validators (clock 2–12, public-only binds); `adolionPinnedBuild.test.ts` fails under `CI=1` without the checkout; rows **32-W2-refuse**, **32-W4-comfyurl** (LI) |
+
+## Findings during a run
+
+**One red row never stops the batch.** Rows are independent: every row starts from its own reset (lane reset per row,
+rule 11), so a failure is recorded with its evidence (run header pair, logs, the row's record) and the batch goes on
+to the next row.
+
+Triage, decided when the row is red:
+
+| # | Finding | What happens |
+|---|---|---|
+| 1 | **harness bug** (the tool, not the product) | fix at once if it is small and does not change what the row proves; re-run **that row only** (×2) |
+| 2 | **small, contained product bug** | its own commit on a side branch, with a test; re-run the touched row and its neighbours ×2 once it lands, never in the middle of another row's run |
+| 3 | **large or cross-cutting product bug** | log the row FAIL and the finding, finish the batch, fix after; then re-run every row the fix can reach |
+
+**Inside the frozen Phase C (C0–C9) nothing is fixed.** Any product fix there is a new freeze, and every row must be
+green ×2 again on the new build. The fix-as-we-go loop above lives in stage B and in the pre-freeze shakedown only.
+
+**Verdict:** ACCEPTED only if every row is green ×2 on one build; otherwise PARTIAL, naming the failed rows.
 
 ## Unresolved questions
 
