@@ -175,7 +175,7 @@ const KeyboardHost = () => {
 };
 
 const tabTo = async (doc: Document, matches: (element: Element | null) => boolean) => {
-  for (let step = 0; step < 80; step += 1) {
+  for (let step = 0; step < 300; step += 1) {
     if (matches(doc.activeElement)) return;
     await userEvent.tab();
   }

@@ -50,7 +50,7 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
 };
 
 const WidgetsEditor: React.FC = () => {
-  const widgets = useDraftStore((state) => state.draft.widgets ?? []);
+  const widgets = useDraftStore((state) => state.draft.widgets) ?? [];
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div data-so="widgets-editor" className="st-subpanel flex flex-col gap-2 p-3">

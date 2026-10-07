@@ -30,7 +30,7 @@ const MilestoneRow = ({ milestone }: { milestone: Milestone }) => {
 };
 
 const MilestonesEditor: React.FC = () => {
-  const milestones = useDraftStore((state) => state.draft.milestones ?? []);
+  const milestones = useDraftStore((state) => state.draft.milestones) ?? [];
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div data-so="milestones-editor" className="st-subpanel flex flex-col gap-2 p-3">

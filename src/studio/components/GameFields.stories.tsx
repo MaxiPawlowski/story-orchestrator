@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fireEvent, fn, userEvent, waitFor, within } from "@storybook/test";
 import { JsonField, OptionalGate, TextField } from "./GameFields";
 import { sampleStory } from "../stories/fixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
@@ -15,12 +15,19 @@ export default meta;
 
 type Story = StoryObj<typeof JsonField>;
 
+const rewardChange = fn();
+const reward = { label: "Free passage" };
+
 export const JsonCommitsOnBlur: Story = {
-  play: async ({ canvasElement, args }) => {
-    const field = within(canvasElement).getByLabelText("Reward");
-    await userEvent.clear(field);
-    await userEvent.tab();
-    await expect(args.onChange).toHaveBeenCalledWith(undefined);
+  render: () => <JsonField label="Reward" value={reward} onChange={rewardChange} />,
+  play: async ({ canvasElement }) => {
+    await waitFor(async () => {
+      const field = within(canvasElement).getByLabelText("Reward");
+      fireEvent.change(field, { target: { value: "" } });
+      fireEvent.focusOut(field);
+      await expect(rewardChange).toHaveBeenLastCalledWith(undefined);
+    });
+    await expect(canvasElement.querySelector('[data-so="json-problem"]')).toBeNull();
   },
 };
 

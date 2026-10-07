@@ -28,14 +28,14 @@ export const JsonField: React.FC<{ label: string; value: unknown; onChange: (val
   const [text, setText] = useState(shown);
   const [problem, setProblem] = useState<string | null>(null);
   useEffect(() => setText(shown), [shown]);
-  const commit = () => {
-    if (!text.trim()) {
+  const commit = (current: string) => {
+    if (!current.trim()) {
       setProblem(null);
       onChange(undefined);
       return;
     }
     try {
-      onChange(JSON.parse(text));
+      onChange(JSON.parse(current));
       setProblem(null);
     } catch {
       setProblem("This is not valid JSON yet; the field keeps its last good value.");
@@ -44,7 +44,7 @@ export const JsonField: React.FC<{ label: string; value: unknown; onChange: (val
   return (
     <label className="flex flex-col gap-1 text-sm">
       <span className="text-xs st-muted">{label}{hint ? ` — ${hint}` : ""}</span>
-      <textarea className="text_pole st-input font-mono text-xs" aria-label={label} rows={4} value={text} onChange={(event) => setText(event.target.value)} onBlur={commit} />
+      <textarea className="text_pole st-input font-mono text-xs" aria-label={label} rows={4} value={text} onChange={(event) => setText(event.target.value)} onBlur={(event) => commit(event.currentTarget.value)} />
       {problem && <span data-so="json-problem" className="text-xs st-text-error">{problem}</span>}
     </label>
   );

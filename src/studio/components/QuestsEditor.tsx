@@ -56,7 +56,7 @@ const QuestRow = ({ quest }: { quest: Quest }) => {
 };
 
 const QuestsEditor: React.FC = () => {
-  const quests = useDraftStore((state) => state.draft.quests ?? []);
+  const quests = useDraftStore((state) => state.draft.quests) ?? [];
   const mutate = useDraftStore((state) => state.mutate);
   const [id, setId] = useState("");
   return (

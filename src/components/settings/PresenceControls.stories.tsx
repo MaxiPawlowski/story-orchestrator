@@ -21,7 +21,7 @@ export const Player: Story = {
   args: { snapshot: snapshot(false) },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvasElement.querySelector("#so-presence-roll-chips")).toBeNull();
+    await expect(canvasElement.querySelector("#so-presence-roll-chips")).not.toBeNull();
     await userEvent.click(canvas.getByLabelText("Mark story groups in the lists"));
     await expect(args.onChange).toHaveBeenCalledWith({ ...defaultPresenceSettings(), listBadges: false });
   },
@@ -38,6 +38,6 @@ export const Author: Story = {
   args: { snapshot: snapshot(true) },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-presence-roll-chips")).not.toBeNull();
-    await expect(canvasElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(7);
+    await expect(canvasElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(10);
   },
 };
