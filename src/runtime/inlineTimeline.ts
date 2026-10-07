@@ -71,6 +71,7 @@ export interface InlineSources {
   castNames?: Record<string, string>;
   firstLines?: Record<string, number>;
   authorMoves?: JournalRecord[];
+  resting?: (text: string) => string;
 }
 
 const RAW_LIMIT = 4000;
@@ -150,10 +151,13 @@ const isPlayerFact = (entry: MemoryEntry) => entry.tier === "facts" && !entry.su
 
 const DERIVED_COPY: Partial<Record<DerivedRecord["kind"], string>> = DERIVED_PLAYER_COPY;
 
+const restingOf = (sources: InlineSources) => sources.resting ?? ((text: string) => text);
+
 function memoryItems(sources: InlineSources): Draft[] {
-  const facts = sources.memory.entries.filter(isPlayerFact).map((entry): Draft => ({
+  const resting = restingOf(sources);
+  const facts = sources.memory.entries.filter((entry) => isPlayerFact(entry) && resting(entry.text)).map((entry): Draft => ({
     id: `memory:fact:${entry.id}`, messageId: entry.provenance?.messageId ?? entry.messageId ?? -1, category: "memory", level: 1, state: "applied",
-    text: rememberedText(entry.text),
+    text: rememberedText(resting(entry.text)),
     detail: [entry.evidence ? `"${entry.evidence}"` : null, `${entry.provenance?.pass ?? "unknown pass"} · importance ${entry.importance} · ${entry.expiration}`].filter(Boolean).join("\n"),
     actions: [
       { kind: "pin-fact", id: entry.id, pinned: !entry.pinned },
@@ -209,12 +213,15 @@ function memoryItems(sources: InlineSources): Draft[] {
 }
 
 function threadItems(sources: InlineSources): Draft[] {
+  const resting = restingOf(sources);
   return sources.memory.arcs.flatMap((arc): Draft[] => {
+    const text = resting(arc.text);
+    if (!text) return [];
     const detail = `${arc.id}${arc.pinned ? " · pinned" : ""}${arc.bridgeApplied ? " · bridge applied" : ""}${arc.summary ? `\n${arc.summary}` : ""}`;
     const thread = (kind: string, messageId: number, text: string): Draft => ({ id: `threads:${kind}:${arc.id}`, messageId, category: "threads", level: 1, state: "applied", text, detail });
     return [
-      ...(typeof arc.openedMessageId === "number" ? [thread("open", arc.openedMessageId, threadOpenedText(arc.text))] : []),
-      ...(arc.status === "resolved" && typeof arc.resolvedMessageId === "number" ? [thread("resolved", arc.resolvedMessageId, threadResolvedText(arc.text))] : []),
+      ...(typeof arc.openedMessageId === "number" ? [thread("open", arc.openedMessageId, threadOpenedText(text))] : []),
+      ...(arc.status === "resolved" && typeof arc.resolvedMessageId === "number" ? [thread("resolved", arc.resolvedMessageId, threadResolvedText(text))] : []),
     ];
   });
 }

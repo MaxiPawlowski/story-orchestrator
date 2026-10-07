@@ -123,7 +123,7 @@ const harness = (replies: Reply[]) => {
     record: (input) => { memory = { ...memory, derived: [...memory.derived, { ...input, id: `d${memory.derived.length}`, boundary: 0, messageId: input.messageId ?? 0 } as DerivedRecord] }; },
     model: () => async (_prompt: string, ask: ModelAsk) => { asks.push(ask.maxTokens ?? 0); return queue.shift() ?? { text: complete, finish: "stop" }; },
     ownership: () => ownership, closeScene: async () => {}, sceneStart: (to) => to + 1, summarizeArcs: async () => true, updateInjection: () => {}, save: async () => {},
-    roster: () => [{ id: "kael", name: "Kael" }], playerName: () => "Mara", journal, announce: async () => {},
+    roster: () => [{ id: "kael", name: "Kael" }], playerName: () => "Mara", journal, announce: async () => {}, resting: () => (text) => text,
   };
   const at: SealAt = { boundary: 3, messageId: 9, pathLength: 3, path: ["gate", "market", "fire"], activeCheckpointId: "fire", blackboard: {} };
   return { seal: () => new ChapterSeal(deps).seal({ chapter: arrival, part: 1, final: false }, at), memory: () => memory, asks, journal };

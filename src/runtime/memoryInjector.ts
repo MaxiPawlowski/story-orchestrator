@@ -164,7 +164,7 @@ export class MemoryInjector {
         const names = namesForRosterId(story, id);
         const view = sharedTierView(this.state.entries, secrets, names);
         const memory = capable ? buildMemoryInjectionBlocks(view.entries, id, { ...options, withheld: view.withheld }) : null;
-        if (memory) memory.facts = [memory.facts, returning.get(id) ?? ""].filter(Boolean).join("\n");
+        if (memory) memory.facts = [memory.facts, withoutSecretLines(returning.get(id) ?? "", secrets, names)].filter(Boolean).join("\n");
         const shared = memory ? { memory, ledger: ledgerFor(names) } : null;
         this.stagedPrivate.set(id, { shared, epistemic: this.memberBlock(story, id, knowledge) });
       }
@@ -278,6 +278,12 @@ export class MemoryInjector {
   restingLines(text: string): string {
     const story = this.deps.getStory();
     return withoutSecretLines(text, story ? this.secrets(story) : [], null);
+  }
+
+  restingFilter(): (text: string) => string {
+    const story = this.deps.getStory();
+    const secrets = story ? this.secrets(story) : [];
+    return (text) => withoutSecretLines(text, secrets, null);
   }
 
   blocks(): Record<MemoryTier, string> {

@@ -5,7 +5,7 @@ import { askReply, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { buildVerifyRequest, readVerify, verifyVerdict, VERIFY_TIMEOUT_MS } from "@judge/index";
 import { estimateTokens } from "@memory/budget";
-import { assembleChapterInput, type ChapterInput } from "@memory/chapterInput";
+import { assembleChapterInput, restingChapterInput, restingRecords, type ChapterInput, type Resting } from "@memory/chapterInput";
 import { foldChapter, foldEpistemic, leavingCast } from "@memory/chapterFold";
 import {
   buildChapterRecordPrompt, buildSagaPrompt, degradedChapterRecord, parseChapterRecord, verifyChapterRecord, verifySaga, type ParsedChapterRecord,
@@ -64,6 +64,7 @@ export interface ChapterSealDeps {
   journal: (summary: string, detail?: string) => void;
   announce: (text: string) => Promise<void>;
   judge?: () => SealJudge | null;
+  resting: () => Resting;
 }
 
 export const sealDeps = (host: ChapterHost): ChapterSealDeps => {
@@ -76,6 +77,7 @@ export const sealDeps = (host: ChapterHost): ChapterSealDeps => {
     roster: () => (deps.getStory()?.roster ?? []).map((member) => ({ id: member.id, name: rosterMemberName(member) })),
     playerName: () => deps.chapterHost?.playerName() ?? "", journal: (summary, detail) => deps.chapterHost?.journal(summary, detail),
     announce: (text) => deps.chapterHost?.announce(text) ?? Promise.resolve(), judge: () => deps.judge?.() ?? null,
+    resting: () => coordinator.injector.restingFilter(),
   };
 };
 
@@ -134,12 +136,12 @@ export class ChapterSeal {
     const visited = at.path.slice(previous?.sealedAt.pathLength ? previous.sealedAt.pathLength - 1 : 0, target.final ? pathLength : Math.max(0, pathLength - 1));
     const blackboardAt = Object.fromEntries(Object.entries(at.blackboard).filter(([key]) => !QUIET_KEYS.has(key)));
     const memory = this.deps.memory();
-    const raw = assembleChapterInput({
+    const raw = restingChapterInput(assembleChapterInput({
       range, entries: memory.entries, arcs: memory.arcs, ledger: memory.ledger,
       blackboardBefore: previous?.blackboardAt ?? story.checkpointById[story.startCheckpointId]?.state_snapshot ?? {}, blackboardAfter: blackboardAt,
       places: [...new Set(visited.map((id) => story.checkpointById[id]?.player_name).filter((name): name is string => Boolean(name)))],
       roster: this.deps.roster(), previous,
-    });
+    }), this.deps.resting());
     const style = target.chapter.seal?.record_style ?? "prose";
     const prepared = await this.prepare(story, target, raw, style, run);
     if (!prepared) return null;
@@ -301,8 +303,9 @@ export class ChapterSeal {
     this.deps.record({ kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved, ...knowledge.folded], outputId: record.id, messageId: record.sealedAt.messageId, ...range });
   }
 
-  private async saga(story: NormalizedStoryV2, records: ChapterRecord[], outcome: Record<string, unknown>, run: SealRun): Promise<string | null> {
+  private async saga(story: NormalizedStoryV2, sealed: ChapterRecord[], outcome: Record<string, unknown>, run: SealRun): Promise<string | null> {
     const cast = [...this.deps.roster().map((member) => member.name), this.deps.playerName(), story.title];
+    const records = restingRecords(sealed, this.deps.resting());
     let text = "";
     for (let attempt = 0; attempt < 2 && !text; attempt += 1) {
       const prompt = buildSagaPrompt(story.title, records, outcome);
@@ -322,9 +325,10 @@ export class ChapterSeal {
       if (renderChronicle(records, eras, settings.chronicleTokens).fits) return;
       const merge = eraCandidates(records, eras);
       if (merge.length < 2) return;
-      const reply = await this.ask(buildEraMergePrompt(merge), run, ERA_MAX_TOKENS, ERA_MAX_TOKENS * 2);
+      const shown = restingRecords(merge, this.deps.resting());
+      const reply = await this.ask(buildEraMergePrompt(shown), run, ERA_MAX_TOKENS, ERA_MAX_TOKENS * 2);
       if (!run.guard.stillOwns()) return;
-      const text = parseEraLine(stripChannelNoise(reply)) ?? fallbackEraText(merge);
+      const text = parseEraLine(stripChannelNoise(reply)) ?? fallbackEraText(shown);
       const era = { id: generateMemoryId(), recordIds: merge.map((record) => record.id), text, messageId: eraMessageId(records) };
       const current = this.deps.memory();
       this.deps.patch({ chronicle: { eras: [...(current.chronicle?.eras ?? []), era] } });

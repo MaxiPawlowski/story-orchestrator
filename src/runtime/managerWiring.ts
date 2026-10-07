@@ -22,12 +22,14 @@ import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type { InnerBeatHost } from "./innerBeatHost";
-import { loadInnerRender } from "@memory/index";
+import { loadInnerRender, shownRows } from "@memory/index";
 import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
 import type { EffectsApplier } from "./effectsApplier";
+
+export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -91,7 +93,7 @@ export function wireCoordinators(port: ManagerPort) {
     getStoryRaw: () => port.loaded()?.record.raw,
     getExpansion: () => port.extras().expansion,
     getCanon: () => memory.canon.getCanon(),
-    getFactTexts: () => memory.getFacts().map((fact) => fact.text),
+    getFactTexts: () => restingTexts(memory, memory.getFacts()).map((fact) => fact.text),
     replaceStory: (story) => port.replaceStory(story),
     judge: () => port.judge(),
     getSceneRead: () => port.extras().judge.scene,
@@ -135,10 +137,10 @@ export function wireCoordinators(port: ManagerPort) {
     getStagecraft: () => port.extras().stagecraft,
     setStagecraft: (next) => { port.extras().stagecraft = next; },
     getCanon: () => memory.canon.getCanon(),
-    getOpenArcs: () => memory.getOpenArcs(),
+    getOpenArcs: () => restingTexts(memory, memory.getOpenArcs().map((text) => ({ text }))).map((arc) => arc.text),
     filterEntries: createCuratorFilter(() => port.judge()),
     warden: createWarden(() => port.judge(), view, {
-      facts: () => establishedFacts(port.extras().memory.entries, memory.getLedger(), memory.boundProvenance(), port.extras().memory.conflicts),
+      facts: () => restingTexts(memory, establishedFacts(port.extras().memory.entries, memory.getLedger(), memory.boundProvenance(), port.extras().memory.conflicts)),
       nudgeActive: () => copilot.getActiveNudge() !== null,
       lore: (replyMessageId) => loreEvidence.firedLore(replyMessageId),
       group: () => {

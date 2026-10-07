@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { gatedWorldInfo, parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
-import { provenance, type MemoryEntry } from "@memory/index";
+import { heldSecrets, provenance, withoutSecretLines, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
 import { inspectMessage } from "./messageInspector";
 import type { EffectLedgerRow, EffectLedgerStatus } from "./types";
@@ -300,5 +300,45 @@ describe("T3-4/T3-6: recorded cast ledgers tell the player only what they have s
       id: `rec-${index}`, effect: "cast", target: { kind: "cast", group: "g", member: row.member }, before: null, after: { disabled: row.disabled }, checkpointId: null, boundary: 0, messageId: row.messageId, at: "x", status: row.status,
     })), chatLength: data.chat.length, settings: { ...defaultInlineSettings(), level: 4, window: 200 } });
     expect(Object.values(author.byMessage).flat().filter((item) => item.id.startsWith("cast:member")).length).toBe(data.rows.length);
+  });
+});
+
+describe("inline timeline player copy and held secrets: facts and threads go through the resting view", () => {
+  const knowledge = [
+    { id: "h", subject: "Kel", tag: "hiding", hiddenFrom: "Bram", content: "that he carries a silver key to the old vault", messageId: 1, createdAt: 1 },
+    { id: "k", subject: "Aria", tag: "knows", content: "Kel carries a silver key to the old vault", messageId: 1, createdAt: 1 },
+  ] as unknown as EpistemicEntry[];
+  const secret = /silver key|vault/i;
+  const planted = (resting?: (text: string) => string) => sources(SUN, {
+    resting,
+    memory: {
+      entries: [
+        fact("s1", "Kel carries a silver key to the old vault.", 2), fact("s2", "Kel keeps a silver key for the old vault on his belt.", 2),
+        fact("s3", "Kel trusts Aria with his life. Kel carries a silver key to the old vault.", 2), fact("s4", "The old map shows a road to the east.", 2),
+      ],
+      arcs: [
+        { id: "arc-key", text: "Kel carries a silver key to the old vault", status: "open", entities: [], openedAt: 1, openedMessageId: 1 },
+        { id: "arc-ford", text: "Who will hold the ford?", status: "resolved", entities: [], openedAt: 1, openedMessageId: 1, resolvedAt: 2, resolvedMessageId: 5 },
+      ],
+      derived: [], conflicts: [], verifyDrops: [],
+    },
+  });
+  const held = heldSecrets(knowledge, ["Aria", "Bram"]);
+
+  it("a fact or thread that tells the secret leaves the player copy, a mixed fact keeps the rest", () => {
+    const shown = texts(composeInlineTimeline(planted((text) => withoutSecretLines(text, held, null))), 2);
+    expect(shown.join("\n")).not.toMatch(secret);
+    expect(shown.some((text) => text.includes("Kel trusts Aria with his life."))).toBe(true);
+    expect(shown.some((text) => text.includes("Who will hold the ford?"))).toBe(true);
+  });
+
+  it("negative control: with an identity filter (or none) the secret is in the player copy", () => {
+    expect(texts(composeInlineTimeline(planted((text) => text)), 2).join("\n")).toMatch(secret);
+    expect(texts(composeInlineTimeline(planted()), 2).join("\n")).toMatch(secret);
+  });
+
+  it("control: with no held secret the view is identical to the unfiltered one", () => {
+    const none = heldSecrets([knowledge[1]], ["Aria", "Bram"]);
+    expect(composeInlineTimeline(planted((text) => withoutSecretLines(text, none, null)))).toEqual(composeInlineTimeline(planted()));
   });
 });
