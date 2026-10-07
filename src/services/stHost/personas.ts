@@ -17,6 +17,7 @@ export interface HostPersonaRead {
   avatarId: string | null;
   name: string;
   description: string;
+  descriptionSent: boolean;
   lockedAvatarId: string | null;
   personas: HostPersona[];
   canCreate: boolean;
@@ -32,6 +33,10 @@ export const loadPersonasModule = (): Promise<PersonasHostModule | null> => {
 
 const settings = () => getContext().powerUserSettings ?? {};
 
+const ALWAYS_SENT_POSITIONS: ReadonlySet<number> = new Set([0, 1, 4]);
+
+export const personaDescriptionSent = (position: unknown): boolean => position === undefined || (typeof position === "number" && ALWAYS_SENT_POSITIONS.has(position));
+
 export const personaCrudAvailable = (): boolean => listSlashCommands().some((command) => command.name === "persona-create");
 
 export function readPersonas(): HostPersonaRead {
@@ -42,6 +47,7 @@ export function readPersonas(): HostPersonaRead {
     avatarId: typeof personasModule?.user_avatar === "string" && personasModule.user_avatar ? personasModule.user_avatar : null,
     name: typeof context.name1 === "string" ? context.name1 : "",
     description: settings().persona_description ?? "",
+    descriptionSent: personaDescriptionSent(settings().persona_description_position),
     lockedAvatarId: typeof locked === "string" && locked ? locked : null,
     personas: Object.entries(all).filter(([, name]) => typeof name === "string").map(([avatarId, name]) => ({ avatarId, name })),
     canCreate: personaCrudAvailable(),

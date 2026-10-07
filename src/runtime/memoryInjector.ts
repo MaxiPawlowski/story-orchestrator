@@ -5,7 +5,7 @@ import {
   renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry, type MemoryEntry,
-  heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, writeMemoryBlocks, type HeldSecret,
+  heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, withoutSecrets, writeMemoryBlocks, type HeldSecret,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
@@ -268,6 +268,11 @@ export class MemoryInjector {
     const story = this.deps.getStory();
     const view = sharedTierView(entries, story ? this.secrets(story) : [], null);
     return view.entries.filter((entry) => !view.withheld.has(entry.id));
+  }
+
+  restingText(text: string): string {
+    const story = this.deps.getStory();
+    return withoutSecrets(text, story ? this.secrets(story) : [], null);
   }
 
   blocks(): Record<MemoryTier, string> {

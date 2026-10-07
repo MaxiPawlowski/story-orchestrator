@@ -16,6 +16,7 @@ export function startPlayerRole(manager: RuntimeManager): () => void {
   const events = subscribeToHostEvents([
     { eventName: "PERSONA_CHANGED", handler: changed },
     { eventName: "PERSONA_UPDATED", handler: changed },
+    { eventName: "SETTINGS_UPDATED", handler: changed },
   ]);
   update();
   return () => {

@@ -67,7 +67,7 @@ const writes: string[] = [];
 
 const host: PersonaHost = {
   read: (): PersonaRead => ({
-    avatarId: mockPersonas.avatarId, name: mockContext.name1, description: mockPersonas.description, lockedAvatarId: mockPersonas.locked,
+    avatarId: mockPersonas.avatarId, name: mockContext.name1, description: mockPersonas.description, descriptionSent: true, lockedAvatarId: mockPersonas.locked,
     personas: mockPersonas.personas, canCreate: true,
   }),
   select: async (avatarId) => {
@@ -257,6 +257,99 @@ describe("v2.7 34 activation: readiness, identity, briefing, opener", () => {
     expect(solo.getSnapshot().playerSetup ?? null).toBeNull();
     expect(writes).toEqual([]);
     expect(mockPersonas.locked).toBeNull();
+  });
+
+  const refusing = (reason = "the chat did not take the persona lock"): PersonaHost => ({ ...host, lock: async () => { writes.push("lock refused"); return { ok: false, reason }; } });
+  const useHost = (next: PersonaHost | null) => {
+    release();
+    release = next ? installPersonaHost(next) : () => undefined;
+  };
+
+  it("Sol finding 4: a refused lock keeps identity pending, holds the opener, says why, and survives a reload", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    useHost(refusing());
+    const outcome = await manager.playerSetup.choose({ choice: "pick", avatarId: "mara.png" });
+    expect(outcome).toEqual({ ok: false, reason: "the chat did not take the persona lock" });
+    expect(sendas()).toBe(0);
+    expect(manager.getSnapshot().playerSetup).toMatchObject({ pending: true, record: { pending: true, choice: "pick", avatarId: "mara.png", locked: false, lockFailed: "the chat did not take the persona lock" } });
+    expect(blob().stories.road.extras?.playerSetup).toMatchObject({ pending: true, lockFailed: "the chat did not take the persona lock" });
+    const reopened = new RuntimeManager();
+    await reopened.loadSelectedFromChat();
+    expect(reopened.getSnapshot().playerSetup).toMatchObject({ pending: true, record: { lockFailed: "the chat did not take the persona lock" } });
+    expect(sendas()).toBe(0);
+  });
+
+  it("Sol finding 4: Try again re-selects the chosen persona, locks it, and only then posts the opener", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    useHost(refusing());
+    await manager.playerSetup.choose({ choice: "pick", avatarId: "mara.png" });
+    mockPersonas.avatarId = "max.png";
+    useHost(host);
+    writes.length = 0;
+    const retried = await manager.playerSetup.choose({ choice: "retry" });
+    expect(retried).toMatchObject({ ok: true, choice: "pick", avatarId: "mara.png", locked: true });
+    expect(writes).toEqual(["select mara.png", "lock mara.png"]);
+    expect(manager.getSnapshot().playerSetup?.record).not.toHaveProperty("lockFailed");
+    expect(sendas()).toBe(1);
+  });
+
+  it("Sol finding 4: the player may start without the lock, but only after being told, and it is recorded as unlocked", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    expect((await manager.playerSetup.choose({ choice: "unlocked" })).ok).toBe(false);
+    useHost(refusing());
+    await manager.playerSetup.choose({ choice: "keep" });
+    expect(sendas()).toBe(0);
+    const started = await manager.playerSetup.choose({ choice: "unlocked" });
+    expect(started).toMatchObject({ ok: true, pending: false, locked: false, choice: "keep" });
+    expect(started.ok && "lockFailed" in started).toBe(false);
+    expect(sendas()).toBe(1);
+  });
+
+  it("Sol finding 4: with no persona host a pane-less story stays pending instead of starting unlocked, and a reload with the host retries", async () => {
+    useHost(null);
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson());
+    expect(manager.getSnapshot().playerSetup).toMatchObject({ pending: true, needsPane: false, record: { lockFailed: "SillyTavern's personas are not reachable from here" } });
+    expect(sendas()).toBe(0);
+    useHost(host);
+    const reopened = new RuntimeManager();
+    await reopened.loadSelectedFromChat();
+    expect(writes).toEqual(["lock max.png"]);
+    expect(reopened.getSnapshot().playerSetup).toMatchObject({ pending: false, record: { locked: true } });
+    expect(sendas()).toBe(1);
+  });
+
+  it("Sol finding 5: a chat switch during the persona switch never locks, and the other chat's metadata is untouched", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    const other: Record<string, unknown> = { untouched: true };
+    const stHostLike: PersonaHost = {
+      ...host,
+      select: async (avatarId, owns) => {
+        mockContext.chatId = "elsewhere";
+        mockContext.chatMetadata = other;
+        await manager.loadSelectedFromChat();
+        if (!owns()) return { ok: false, reason: "lapsed" };
+        mockPersonas.avatarId = avatarId;
+        return { ok: true, avatarId };
+      },
+      lock: async (owns) => {
+        if (!owns()) return { ok: false, reason: "lapsed" };
+        mockContext.chatMetadata.persona = mockPersonas.avatarId;
+        writes.push(`lock ${mockPersonas.avatarId}`);
+        return { ok: true, avatarId: mockPersonas.avatarId ?? "" };
+      },
+    };
+    useHost(stHostLike);
+    const outcome = await manager.playerSetup.choose({ choice: "pick", avatarId: "mara.png" });
+    expect(outcome.ok).toBe(false);
+    expect(other).not.toHaveProperty("persona");
+    expect(other).toMatchObject({ untouched: true, story_orchestrator: { chatId: "elsewhere", stories: {} } });
+    expect(writes.filter((entry) => entry.startsWith("lock"))).toEqual([]);
+    expect(mockPersonas.avatarId).toBe("max.png");
   });
 
   it("control: a choice whose chat changed before it was saved records nothing", async () => {

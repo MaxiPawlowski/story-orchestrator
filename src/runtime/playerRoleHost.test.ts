@@ -5,14 +5,14 @@ import { installPersonaHost } from "./playerSetupPort";
 import type { RuntimeManager } from "./runtimeManager";
 
 const mockPrompts: Record<string, { text: string; depth: number }> = {};
-const mockPersona = { description: "", name: "Max" };
+const mockPersona = { description: "", name: "Max", sent: true };
 const mockEvents: Record<string, () => void> = {};
 
 jest.mock("@services/STAPI", () => ({
   setStoryExtensionPrompt: (key: string, text: string, depth: number) => { mockPrompts[key] = { text, depth }; return { ok: true }; },
   clearStoryExtensionPrompt: (key: string) => { delete mockPrompts[key]; return { ok: true }; },
   loadPersonasModule: async () => null,
-  readPersonas: () => ({ avatarId: "max.png", name: mockPersona.name, description: mockPersona.description, lockedAvatarId: null, personas: [], canCreate: true }),
+  readPersonas: () => ({ avatarId: "max.png", name: mockPersona.name, description: mockPersona.description, descriptionSent: mockPersona.sent, lockedAvatarId: null, personas: [], canCreate: true }),
   selectPersona: async () => ({ ok: true, avatarId: "max.png" }),
   lockPersonaToChat: async () => ({ ok: true, avatarId: "max.png" }),
   createPersona: async () => ({ ok: true, avatarId: "new.png" }),
@@ -42,7 +42,7 @@ const fakeManager = (story: NormalizedStoryV2 | null, chat: string | null = "cha
 const KEY = INJECTION_REGISTRY.playerRole.key;
 const failed = async () => ({ ok: false as const, reason: "not in this test" });
 installPersonaHost({
-  read: () => ({ avatarId: "max.png", name: mockPersona.name, description: mockPersona.description, lockedAvatarId: null, personas: [], canCreate: true }),
+  read: () => ({ avatarId: "max.png", name: mockPersona.name, description: mockPersona.description, descriptionSent: mockPersona.sent, lockedAvatarId: null, personas: [], canCreate: true }),
   select: failed, lock: failed, create: failed,
 });
 
@@ -50,6 +50,7 @@ describe("v2.7 34 the player-role block reaches the prompt (declared payload cha
   beforeEach(() => {
     Object.keys(mockPrompts).forEach((key) => { delete mockPrompts[key]; });
     mockPersona.description = "";
+    mockPersona.sent = true;
   });
 
   it("invariance: a story without a player block adds nothing to the prompt", () => {
@@ -71,6 +72,26 @@ describe("v2.7 34 the player-role block reaches the prompt (declared payload cha
     expect(Object.keys(mockPrompts)).toEqual([KEY]);
     stop();
     expect(mockPrompts).toEqual({});
+  });
+
+  it("placement None: ST sends no persona description, so a description carrying the line still gets the block; moving it back in-prompt turns it off", () => {
+    const line = "In this story, {{user}} is a courier: You carry a letter.";
+    const { manager } = fakeManager(storyWith({ role: "a courier", summary: "You carry a letter." }));
+    mockPersona.description = `Old soldier. ${line}`;
+    mockPersona.sent = false;
+    const stop = startPlayerRole(manager);
+    expect(mockPrompts[KEY]?.text).toBe(line);
+    mockPersona.sent = true;
+    mockEvents.PERSONA_UPDATED?.();
+    expect(mockPrompts).toEqual({});
+    mockPersona.description = "Old soldier.";
+    mockEvents.PERSONA_UPDATED?.();
+    expect(mockPrompts[KEY]?.text).toBe(line);
+    mockPersona.description = `Old soldier. ${line}`;
+    mockPersona.sent = false;
+    mockEvents.SETTINGS_UPDATED?.();
+    expect(mockPrompts[KEY]?.text).toBe(line);
+    stop();
   });
 
   it("nothing is added while no chat owns a story", () => {

@@ -18,6 +18,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { heldSecrets, withoutSecrets, type EpistemicEntry } from "@memory/index";
 import type { ExtractionReply, ModelAsk } from "@extraction/index";
 import { buildNarrativeStatus } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
@@ -48,7 +49,11 @@ const snapshotWith = (held: boolean): RuntimeSnapshot => ({
   privateBlocks: held ? [{ key: "private", value: SECRET }] : [],
 }) as unknown as RuntimeSnapshot;
 
-const manager = (held: boolean, reply: (prompt: string, ask: ModelAsk) => string, prompts: string[] = []): SuggestionManager => ({
+const KEPT = { id: "h-guard", subject: "Guard", tag: "hiding", hiddenFrom: "Max", content: "that the cellar key is hidden under the doormat", createdAt: 1, messageId: 1 } as unknown as EpistemicEntry;
+
+const restingWith = (epistemic: EpistemicEntry[]) => (text: string) => withoutSecrets(text, heldSecrets(epistemic, ["Guard", "Max"]), null);
+
+const manager = (held: boolean, reply: (prompt: string, ask: ModelAsk) => string, prompts: string[] = [], over: Partial<SuggestionManager> = {}): SuggestionManager => ({
   model: async (prompt: string, ask: ModelAsk): Promise<ExtractionReply> => {
     prompts.push(prompt);
     return { text: reply(prompt, ask) } as ExtractionReply;
@@ -58,6 +63,8 @@ const manager = (held: boolean, reply: (prompt: string, ask: ModelAsk) => string
   getEngineState: () => ({ visitedPath: ["a"], activeCheckpointId: "a" }) as unknown as EngineState,
   getEnabledCharacterIds: () => ["guard"],
   getOwnership: () => testOwnership(),
+  memoryActions: { restingText: (text: string) => text },
+  ...over,
 }) as unknown as SuggestionManager;
 
 const FOUR = "- I ask the guard about the door.\n- I look around the hall.\n- \"Who else came here tonight?\"\n- I wait and listen.";
@@ -78,6 +85,24 @@ describe("v2.7 33 W4: the suggestion request", () => {
     expect(prompts[0]).toBe(prompts[1]);
     expect(prompts[0]).not.toContain("key is under the mat");
     expect(prompts[0]).not.toContain("secret_known");
+  });
+
+  it("Sol finding 8: a held secret paraphrased in the story-so-far prose never reaches the request; the rest of the prose does", async () => {
+    const canon = "The guard tucked the cellar key beneath the doormat before anyone arrived. Max reached the hall at dusk.";
+    const withCanon = { ...narrative, sections: [...narrative.sections, { id: "story", label: "The story so far", lines: [canon] }] };
+    const snapshot = () => ({ ...snapshotWith(true), narrative: withCanon }) as unknown as RuntimeSnapshot;
+    const prompts: string[] = [];
+    await askSuggestions(manager(true, () => FOUR, prompts, { getSnapshot: snapshot, memoryActions: { restingText: restingWith([KEPT]) } }));
+    expect(prompts[0]).not.toMatch(/doormat|cellar key/);
+    expect(prompts[0]).toContain("Max reached the hall at dusk.");
+    await askSuggestions(manager(true, () => FOUR, prompts, { getSnapshot: snapshot, memoryActions: { restingText: restingWith([]) } }));
+    expect(prompts[1]).toContain("cellar key beneath the doormat");
+  });
+
+  it("Sol finding 8: a line that is nothing but the secret is dropped, not sent empty", () => {
+    const only = { ...narrative, sections: [...narrative.sections, { id: "threads", label: "Open threads", lines: ["Under the doormat lies the cellar key."] }] };
+    const projection = projectionFor(manager(true, () => FOUR, [], { getSnapshot: () => ({ ...snapshotWith(true), narrative: only }) as unknown as RuntimeSnapshot, memoryActions: { restingText: restingWith([KEPT]) } }));
+    expect(projection.sections.find((section) => section.id === "threads")).toBeUndefined();
   });
 
   it("asks the memory model's read role once, off the reply path, and drops the player's own last line", async () => {

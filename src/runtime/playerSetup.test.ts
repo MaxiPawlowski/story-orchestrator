@@ -13,8 +13,8 @@ const storyWith = (player?: Record<string, unknown>, roster: Array<{ id: string;
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], ...(player ? { player } : {}),
 });
 
-const persona = (description: string, name = "Max"): PersonaRead => ({
-  avatarId: "max.png", name, description, lockedAvatarId: null, personas: [{ avatarId: "max.png", name }, { avatarId: "mara.png", name: "Mara" }], canCreate: true,
+const persona = (description: string, name = "Max", descriptionSent = true): PersonaRead => ({
+  avatarId: "max.png", name, description, descriptionSent, lockedAvatarId: null, personas: [{ avatarId: "max.png", name }, { avatarId: "mara.png", name: "Mara" }], canCreate: true,
 });
 
 const LINE = renderPlayerRoleLine(PLAYER.role, PLAYER.summary) ?? "";
@@ -43,6 +43,12 @@ describe("v2.7 34 the player-role block (Sol r3 R3-03: off only for the verified
 
   it("(e) a kept persona whose description happens to hold the line is equivalent by content", () => {
     expect(playerRoleBlock(storyWith(PLAYER), persona(`Old soldier. In this story, Max is a hired courier: You carry a sealed letter.`))).toBeNull();
+  });
+
+  it("(f) equivalence needs the description to reach the prompt: placement None keeps the block", () => {
+    const description = `Old soldier. ${LINE}`;
+    expect(playerRoleBlock(storyWith(PLAYER), persona(description, "Max", false))).toBe(LINE);
+    expect(playerRoleBlock(storyWith(PLAYER), persona(description, "Max", true))).toBeNull();
   });
 
   it("controls: no player block, inject false, and a profile with no role or summary inject nothing", () => {

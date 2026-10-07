@@ -2,7 +2,7 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { buildNarrativeStatus, type NarrativeInput } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
 import { playedProjection, projectionText, startProjection, transcriptWindow, type ProjectionInput } from "./playerProjection";
-import { buildSuggestionPrompt } from "./suggestions";
+import { buildSuggestionPrompt, parseSuggestions } from "./suggestions";
 
 const story = parseStoryV2OrThrow({
   format: 2, id: "gated", title: "The Ferry", description: "A crossing at night.", player_intro: "You need to cross the river before dawn.",
@@ -83,6 +83,32 @@ describe("v2.7 33 W4: the player projection", () => {
 
   it("control: a change in what the player sees does change it", () => {
     expect(playedProjection(input({ narrative: narrativeAt({ openThreads: ["A new thread."] }) }))).not.toEqual(playedProjection(input()));
+  });
+
+  it("a checkpoint without player_name, authored or generated, never shows its internal name: the scene list skips it and the current scene reads \"Current scene\"", () => {
+    const unnamed = parseStoryV2OrThrow({
+      format: 2, id: "unnamed", title: "The Ferry", description: "A crossing at night.",
+      qualities: [{ key: "ferry_paid", type: "bool", source: "extractor", rubric: "Paid?" }],
+      checkpoints: [
+        { id: "dock", name: "dock-internal", objective: "Pay the ferryman.", type: "anchor", start: true },
+        { id: "gen_dock_1", name: "gen-beat-bribe-the-watch", objective: "Bribe the watch.", type: "intermediate" },
+        { id: "far", name: "far-internal", player_name: "The Far Bank", objective: "Land.", type: "anchor" },
+      ],
+      transitions: [
+        { from: "dock", to: "gen_dock_1", priority: 0, gate: { q: "ferry_paid", op: "==", v: true } },
+        { from: "gen_dock_1", to: "far", priority: 0, gate: { q: "ferry_paid", op: "==", v: false } },
+      ],
+      roster: [],
+    });
+    const internal = ["dock-internal", "gen-beat-bribe-the-watch", "far-internal", "gen_dock_1"];
+    const projection = playedProjection(input({ story: unnamed, visitedPath: ["dock"], activeCheckpointId: "gen_dock_1" }));
+    expect(projection.visited).toEqual([]);
+    expect(projection.current).toEqual({ name: "Current scene", text: null });
+    const prompt = buildSuggestionPrompt(projection);
+    const echoed = parseSuggestions(prompt.split("\n").map((line) => `- ${line}`).join("\n"), projection);
+    expect(internal.filter((needle) => `${JSON.stringify(projection)}\n${prompt}\n${echoed.join("\n")}`.includes(needle))).toEqual([]);
+    expect(startProjection(unnamed, "Max", []).start).toEqual({ name: "Current scene", text: null });
+    expect(playedProjection(input({ story: unnamed, visitedPath: ["dock", "gen_dock_1"], activeCheckpointId: "far" })).visited).toEqual(["The Far Bank"]);
   });
 
   it("the start projection holds the title, intro, start scene and cast, nothing else", () => {

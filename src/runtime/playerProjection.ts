@@ -1,5 +1,5 @@
 import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
-import type { NarrativeSectionId, NarrativeStatus } from "./narrative";
+import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./narrative";
 
 export const PROJECTION_TRANSCRIPT_MESSAGES = 12;
 export const PROJECTION_MESSAGE_CHARS = 600;
@@ -47,7 +47,9 @@ export interface ProjectionInput {
   messages?: number;
 }
 
-export const playerCheckpointName = (checkpoint: Pick<Checkpoint, "name" | "player_name">): string => (checkpoint.player_name ?? checkpoint.name).trim();
+export const playerCheckpointName = (checkpoint: Pick<Checkpoint, "player_name">): string | null => checkpoint.player_name?.trim() || null;
+
+const shownCheckpointName = (checkpoint: Pick<Checkpoint, "player_name">): string => playerCheckpointName(checkpoint) ?? PLAYER_COPY.currentScene;
 
 const clip = (text: string) => (text.length > PROJECTION_MESSAGE_CHARS ? `${text.slice(0, PROJECTION_MESSAGE_CHARS).trimEnd()}…` : text);
 
@@ -65,7 +67,8 @@ const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly str
   const ids = [...visitedPath, ...(activeCheckpointId ? [activeCheckpointId] : [])];
   const names = ids.flatMap((id) => {
     const checkpoint = story.checkpointById[id];
-    return checkpoint ? [playerCheckpointName(checkpoint)] : [];
+    const name = checkpoint ? playerCheckpointName(checkpoint) : null;
+    return name ? [name] : [];
   });
   return [...new Set(names)];
 };
@@ -78,7 +81,7 @@ export function playedProjection(input: ProjectionInput): PlayedProjection {
     intro: intro(story),
     player: input.playerName.trim(),
     visited: reachedNames(story, input.visitedPath, input.activeCheckpointId),
-    current: active ? { name: playerCheckpointName(active), text: active.player_text?.trim() || null } : null,
+    current: active ? { name: shownCheckpointName(active), text: active.player_text?.trim() || null } : null,
     sections: input.narrative.sections
       .filter((section) => PLAYER_SECTIONS.includes(section.id) && section.lines.length)
       .map((section) => ({ id: section.id, label: section.label, lines: [...section.lines] })),
@@ -93,7 +96,7 @@ export function startProjection(story: NormalizedStoryV2, playerName: string, ca
     title: story.title,
     intro: intro(story),
     player: playerName.trim(),
-    start: start ? { name: playerCheckpointName(start), text: start.player_text?.trim() || null } : null,
+    start: start ? { name: shownCheckpointName(start), text: start.player_text?.trim() || null } : null,
     cast: [...new Set(cast.map((name) => name.trim()).filter(Boolean))],
   };
 }

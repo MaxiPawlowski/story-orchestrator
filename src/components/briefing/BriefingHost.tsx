@@ -22,7 +22,7 @@ type Opened =
 
 export const blockingLines = (snapshot: RuntimeSnapshot): string[] => beforeYouStart(snapshot).map((step) => step.consequence);
 
-export const identityDue = (snapshot: RuntimeSnapshot): boolean => Boolean(snapshot.playerSetup?.pending && snapshot.playerSetup.needsPane);
+export const identityDue = (snapshot: RuntimeSnapshot): boolean => Boolean(snapshot.playerSetup?.pending && (snapshot.playerSetup.needsPane || snapshot.playerSetup.record?.lockFailed));
 
 export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen, chooseIdentity }: BriefingHostProps) => {
   const [opened, setOpened] = useState<Opened | null>(null);
@@ -59,13 +59,14 @@ export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSe
   const close = ({ dontShow }: { dontShow: boolean }) => {
     dismissed.current = opened.storyId;
     if (opened.onboarding) markOnboardingSeen();
-    if (latest.current.playerSetup?.pending && chooseIdentity) void chooseIdentity({ choice: "skip" });
+    const pending = latest.current.playerSetup;
+    if (pending?.pending && chooseIdentity) void chooseIdentity({ choice: pending.record?.lockFailed ? "retry" : "skip" });
     if (opened.kind !== "identity" && state?.pending) setUi({ briefingSeen: true, ...(dontShow ? { briefing: false } : {}) });
     else if (dontShow) setUi({ briefing: false });
     setOpened(null);
   };
   const showBriefing = opened.kind === "story" || (opened.kind === "due" && Boolean(state?.enabled));
-  const showIdentity = Boolean(setup && chooseIdentity && (opened.kind === "identity" || (opened.kind === "due" && setup.needsPane && setup.record)));
+  const showIdentity = Boolean(setup && chooseIdentity && (opened.kind === "identity" || (opened.kind === "due" && (setup.needsPane || Boolean(setup.record?.lockFailed)) && setup.record)));
   return (
     <BriefingModal
       briefing={showBriefing ? state?.view ?? null : null}

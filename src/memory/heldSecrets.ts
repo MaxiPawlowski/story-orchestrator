@@ -54,6 +54,9 @@ const redacted = (text: string, secrets: readonly HeldSecret[], member: readonly
   return shown.length && shown.length < sentences.length && !keptFrom(joined, secrets, member) ? joined : null;
 };
 
+export const withoutSecrets = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): string =>
+  (secrets.length && keptFrom(text, secrets, member) ? redacted(text, secrets, member) ?? "" : text);
+
 export interface SharedTierView {
   entries: MemoryEntry[];
   withheld: Set<string>;

@@ -4,11 +4,13 @@ import type { RequirementsHost } from "./requirementsWatch";
 import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
+export type StillOwns = () => boolean;
+
 export interface PersonaHost {
   read: () => PersonaRead;
-  select: (avatarId: string) => Promise<WriteResult<{ avatarId: string }>>;
-  lock: () => Promise<WriteResult<{ avatarId: string }>>;
-  create: (input: { name: string; description: string; title: string }) => Promise<WriteResult<{ avatarId: string }>>;
+  select: (avatarId: string, owns: StillOwns) => Promise<WriteResult<{ avatarId: string }>>;
+  lock: (owns: StillOwns) => Promise<WriteResult<{ avatarId: string }>>;
+  create: (input: { name: string; description: string; title: string }, owns: StillOwns) => Promise<WriteResult<{ avatarId: string }>>;
 }
 
 let host: PersonaHost | null = null;
@@ -29,7 +31,7 @@ export const personaRead = (): PersonaRead | null => {
 };
 
 export type PlayerSetupRequest =
-  | { choice: "keep" | "skip" }
+  | { choice: "keep" | "skip" | "retry" | "unlocked" }
   | { choice: "pick"; avatarId: string }
   | { choice: "create"; name: string; description: string };
 

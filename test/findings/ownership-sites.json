@@ -759,7 +759,7 @@
     },
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.choose": {
       "status": "checked",
-      "note": "v2.7 34: the start page's choice. One RunGuard for the whole choice; re-checked after settle (the persona writes) and after persist, before the requirements re-read and the hydrate that may post the opener. Tests: runtime/playerSetup.test.ts."
+      "note": "v2.7 34: the start page's choice. One RunGuard for the whole choice; re-checked after settle (the persona writes) and after persist, before the requirements re-read and the hydrate that may post the opener. Sol review 2026-10-07: a refused lock is recorded (pending, lockFailed) and persisted under the same guard; the opener runs only on success or an explicit continue. Tests: runtime/playerSetupActivation.test.ts (Sol finding 4/5 cases)."
     },
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.autoResolve": {
       "status": "delegate",
@@ -767,15 +767,15 @@
     },
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.avatarFor": {
       "status": "checked",
-      "note": "v2.7 34: create then select; the token is re-checked after each host write, so a persona created for one chat is never selected after the chat changed. Tests: runtime/playerSetup.test.ts."
+      "note": "v2.7 34: create then select; the token is re-checked after each host write, so a persona created for one chat is never selected after the chat changed. Sol review 2026-10-07: the guard itself is handed to host.create/host.select, so the lazy writer (runtime/personaHostLive.ts) and stHost/personaWrites.ts re-check it after the chunk import and after loading personas.js, immediately before each ST mutation. Tests: runtime/personaHostLive.test.ts, services/stHost/personaWrites.test.ts, runtime/playerSetupActivation.test.ts."
     },
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.settle": {
       "status": "checked",
-      "note": "v2.7 34: the chat lock is the last host write; the token is re-checked after it, before extras.playerSetup is written, so a lapsed choice records nothing. Tests: runtime/playerSetup.test.ts (lapsed control)."
+      "note": "v2.7 34: the chat lock is the last host write; the token is re-checked after it, before extras.playerSetup is written, so a lapsed choice records nothing. Sol review 2026-10-07: also checked before the lock call, and host.lock receives the guard so the host re-checks it before setPersonaLockState; the other chat's metadata is asserted untouched. Tests: runtime/playerSetupActivation.test.ts (lapsed control, Sol finding 5)."
     },
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.switchBack": {
       "status": "checked",
-      "note": "v2.7 34: the persona-switch finding's Switch back. Re-checked after the select and after the lock; it writes only the journal line and a notify."
+      "note": "v2.7 34: the persona-switch finding's Switch back. Re-checked after the select and after the lock, and both host calls receive the guard; it writes only the journal line and a notify."
     }
   }
 }

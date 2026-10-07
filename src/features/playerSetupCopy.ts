@@ -15,4 +15,8 @@ export const PLAYER_SETUP_COPY = {
   oldName: "Earlier messages in this chat keep the old name.",
   yourCharacter: "Your character in this story",
   lockedHint: "Chosen when the story started. To play someone else, start the story again.",
+  lockFailed: "SillyTavern did not keep this persona for this chat, so the story waits to start.",
+  retryLock: "Try again",
+  continueUnlocked: "Start without keeping it",
+  unlockedHint: "Without it, SillyTavern may switch your persona when this chat reopens.",
 } as const;

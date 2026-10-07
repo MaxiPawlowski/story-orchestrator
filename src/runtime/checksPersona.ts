@@ -15,6 +15,15 @@ export const PERSONA_FIT_CHECK = persona("persona-fit", "blocks", (snapshot) => 
   } : null;
 });
 
+export const PERSONA_LOCK_CHECK = persona("persona-lock", "blocks", (snapshot) => {
+  const failed = setupOf(snapshot)?.record?.lockFailed;
+  return failed ? {
+    consequence: "The story waits to start: SillyTavern did not keep your persona for this chat.",
+    detail: `SillyTavern answered: ${failed}. Try again on the start page, or start without keeping it.`,
+    action: { kind: "open-player-setup", label: "Open the start page" },
+  } : null;
+});
+
 export const PERSONA_CAST_CHECK = persona("persona-fit-cast", "degrades", (snapshot) => {
   const clash = setupOf(snapshot)?.castClash;
   return clash ? {
@@ -42,6 +51,6 @@ export const PERSONA_SWITCH_CHECK = persona("persona-switch", "degrades", (snaps
   };
 });
 
-export const PERSONA_BLOCK_CHECKS: readonly Check[] = [PERSONA_FIT_CHECK];
+export const PERSONA_BLOCK_CHECKS: readonly Check[] = [PERSONA_FIT_CHECK, PERSONA_LOCK_CHECK];
 export const PERSONA_DEGRADE_CHECKS: readonly Check[] = [PERSONA_SWITCH_CHECK, PERSONA_CAST_CHECK];
 export const PERSONA_INFO_CHECKS: readonly Check[] = [PERSONA_EMPTY_CHECK];

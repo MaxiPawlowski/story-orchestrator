@@ -15,6 +15,7 @@ export interface MemoryActionDeps {
   rereadConflictWindow: (key: string) => Promise<boolean>;
   discardQuarantined: (id: string) => Promise<boolean>;
   lastRefusal: () => DecisionRefusal | null;
+  restingText: (text: string) => string;
 }
 
 /** The manager's side of the conversation: every action is the coordinator's, one to one. */
@@ -28,6 +29,7 @@ export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
     rereadConflictWindow: (key) => memory.queue.rereadConflictWindow(key),
     discardQuarantined: (id) => memory.queue.excludeMemoryEntry(id),
     lastRefusal: () => memory.queue.lastDecisionRefusal(),
+    restingText: (text) => memory.injector.restingText(text),
   };
 }
 
@@ -44,6 +46,7 @@ export function memoryActions(deps: MemoryActionDeps) {
     /** Through the same write-or-put-back as every other decision in this panel. */
     discardQuarantined: (id: string) => deps.discardQuarantined(id),
     lastRefusal: () => deps.lastRefusal(),
+    restingText: (text: string) => deps.restingText(text),
   };
 }
 

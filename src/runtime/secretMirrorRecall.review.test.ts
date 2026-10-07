@@ -93,6 +93,23 @@ function coordinatorHarness(epistemic: EpistemicEntry[], entries: MemoryEntry[] 
   return { coordinator, mirror, learn, ownership, switchChat };
 }
 
+describe("Sol finding 8: player-facing prose handed to the suggestion request goes through the same resting view", () => {
+  const prose = "Kel keeps a silver key for the old vault on his belt. Kel and Bram crossed the ford at dawn.";
+
+  it("a paraphrase of the held secret is cut from the prose, the rest is kept", () => {
+    const { coordinator } = coordinatorHarness(SECRET_KNOWLEDGE);
+    const shown = coordinator.injector.restingText(prose);
+    expect(shown).not.toMatch(SECRET);
+    expect(shown).toBe("Kel and Bram crossed the ford at dawn.");
+    expect(coordinator.injector.restingText("Kel carries a silver key to the old vault.")).toBe("");
+  });
+
+  it("control: with no held secret the prose is returned verbatim", () => {
+    const { coordinator } = coordinatorHarness([ARIA_KNOWS]);
+    expect(coordinator.injector.restingText(prose)).toBe(prose);
+  });
+});
+
 describe("T7-1 review: the World Info mirror is the resting view, because ST scans the mirror book for every member", () => {
   it("a row that tells the secret is not mirrored, a row that tells it in one sentence mirrors the rest, a plain row mirrors whole", async () => {
     const { coordinator, mirror } = coordinatorHarness(SECRET_KNOWLEDGE);

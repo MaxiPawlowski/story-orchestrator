@@ -45,9 +45,12 @@ export const checkStretches = (checkpoints: Checkpoint[], transitions: Transitio
     let arrives = false;
     transitions.forEach((transition, at) => {
       if (transition.from !== checkpoint.id) return;
-      arrives ||= JSON.stringify(transition.gate) === arrive;
+      const arrival = JSON.stringify(transition.gate) === arrive;
+      arrives ||= arrival;
       if (transition.effects?.progress || gateKeys(transition.gate).some((key) => key.startsWith("progress_toward_"))) {
         addError(errors, `transitions.${at}`, "an open stretch ends by the player's move, never a progress counter");
+      } else if (!arrival) {
+        addError(errors, `transitions.${at}`, "an open stretch ends only through arrive_when: every exit from it uses that gate");
       }
     });
     if (!arrives) addError(errors, `${path}.stretch.arrive_when`, "arrive_when must be the gate of one of the stretch's exits");

@@ -5,7 +5,7 @@ import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index"
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { currentThreads, latestScene } from "./recapCurrent";
-import { buildNarrativeStatus, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
+import { buildNarrativeStatus, PLAYER_COPY, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import { firstLines } from "./castInPlay";
@@ -311,7 +311,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const nextTurnCost = buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget);
   const narrative = buildNarrativeStatus({
     storyTitle: story?.title ?? null,
-    checkpointName: active?.player_name ?? (active ? "Current scene" : null),
+    checkpointName: active ? active.player_name?.trim() || PLAYER_COPY.currentScene : null,
     objective: active?.player_text ?? null,
     publicIntro: publishedIntro(story),
     lastTransition: playerTransition(story, sources.boundaryLog), latestScene: scene,

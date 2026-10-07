@@ -15,6 +15,7 @@ export interface PlayerSetupRecord {
   name?: string;
   locked?: boolean;
   createdHash?: string;
+  lockFailed?: string;
 }
 
 export interface PersonaEntry {
@@ -26,6 +27,7 @@ export interface PersonaRead {
   avatarId: string | null;
   name: string;
   description: string;
+  descriptionSent: boolean;
   lockedAvatarId: string | null;
   personas: PersonaEntry[];
   canCreate: boolean;
@@ -33,7 +35,7 @@ export interface PersonaRead {
 
 export const freshPlayerSetup = (): PlayerSetupRecord => ({ pending: true });
 
-const RECORD_TYPES: Record<string, string> = { storyId: "string", version: "number", name: "string", locked: "boolean", createdHash: "string" };
+const RECORD_TYPES: Record<string, string> = { storyId: "string", version: "number", name: "string", locked: "boolean", createdHash: "string", lockFailed: "string" };
 
 export const sanitizePlayerSetup = (value: unknown): PlayerSetupRecord | undefined => {
   if (!isRecord(value) || typeof value.pending !== "boolean") return undefined;
@@ -80,11 +82,11 @@ export interface PlayerSetupSources {
 
 const same = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
 
-export const playerRoleBlock = (story: NormalizedStoryV2 | null, persona: Pick<PersonaRead, "description" | "name"> | null): string | null => {
+export const playerRoleBlock = (story: NormalizedStoryV2 | null, persona: Pick<PersonaRead, "description" | "descriptionSent" | "name"> | null): string | null => {
   const player = story?.player;
   if (!playerInjects(player)) return null;
   const line = playerRoleLine(player);
-  return persona && carriesPlayerRoleLine(persona.description, line, persona.name) ? null : line;
+  return persona?.descriptionSent && carriesPlayerRoleLine(persona.description, line, persona.name) ? null : line;
 };
 
 export const personaSwitched = (record: PlayerSetupRecord | undefined, persona: PersonaRead | null): boolean =>

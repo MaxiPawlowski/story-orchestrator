@@ -56,6 +56,7 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose }: PlayerSetu
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const settled = view.record && !view.record.pending && !rechoose;
+  const lockFailed = view.record?.pending ? view.record.lockFailed ?? null : null;
   const keepAllowed = Boolean(view.current) && (!view.fixedName || same(view.current?.name ?? "", view.fixedName));
   const run = (request: PlayerSetupRequest) => {
     setBusy(true);
@@ -70,6 +71,16 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose }: PlayerSetu
       <h3 id="so-player-setup-heading" className="so-briefing-heading">{COPY.heading}</h3>
       <Profile view={view} />
       {view.current && <p data-so="player-setup-current" className="text-sm">{COPY.current} {view.current.name}</p>}
+      {lockFailed && (
+        <div data-so="player-setup-lock-failed" className="flex flex-col gap-2">
+          <p role="alert" className="so-briefing-paragraph">{COPY.lockFailed}</p>
+          <p className="text-sm opacity-80">{COPY.unlockedHint}</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" data-so="player-setup-retry" className="menu_button" disabled={busy} onClick={() => run({ choice: "retry" })}>{COPY.retryLock}</button>
+            <button type="button" data-so="player-setup-unlocked" className="menu_button" disabled={busy} onClick={() => run({ choice: "unlocked" })}>{COPY.continueUnlocked}</button>
+          </div>
+        </div>
+      )}
       {settled ? (
         <p data-so="player-setup-done" role="status" className="so-briefing-paragraph">{COPY.playingAs(view.lockedName ?? view.current?.name ?? "")}</p>
       ) : (

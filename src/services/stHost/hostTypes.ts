@@ -87,7 +87,12 @@ export interface SillyTavernContext {
   worldInfo?: Record<string, HostWorldInfoEntry>;
   // persona_description_lorebook: the persona's own book (world-info.js:4566); reasoning: the reasoning template, prefix/suffix (power-user.js:274-281);
   // persona_description: the selected persona's description, copied in on selection (power-user.js:290, personas.js:897-945).
-  powerUserSettings?: { personas?: Record<string, string>; persona_description?: string; persona_description_lorebook?: unknown; reasoning?: unknown; tokenizer?: number };
+  // persona_description_position: where ST puts it (personas.js:88-97, default IN_PROMPT power-user.js:291);
+  // NONE and an unmet AN placement send nothing (script.js:3207-3224, 4706, 5367).
+  powerUserSettings?: {
+    personas?: Record<string, string>; persona_description?: string; persona_description_position?: number;
+    persona_description_lorebook?: unknown; reasoning?: unknown; tokenizer?: number;
+  };
   // `online_status` (st-context.js:133): the connected model's name, or "no_connection"; with power_user.tokenizer it picks the tokenizer getTokenCountAsync uses (tokenizers.js:285-335).
   onlineStatus?: string;
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };

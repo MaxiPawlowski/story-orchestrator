@@ -8,7 +8,9 @@ import { beginRun, type RunGuard } from "./runToken";
 import type { RuntimeManager } from "./runtimeManager";
 import { buildSuggestionPrompt, fillRefusal, parseSuggestions, SUGGESTION_MAX_TOKENS, suggestionsUsable } from "./suggestions";
 
-export type SuggestionManager = Pick<RuntimeManager, "model" | "getSnapshot" | "getStory" | "getEngineState" | "getEnabledCharacterIds" | "getOwnership">;
+export type SuggestionManager = Pick<RuntimeManager, "model" | "getSnapshot" | "getStory" | "getEngineState" | "getEnabledCharacterIds" | "getOwnership"> & {
+  memoryActions: Pick<RuntimeManager["memoryActions"], "restingText">;
+};
 
 export interface SuggestionAsk {
   chatId: string;
@@ -31,9 +33,11 @@ export const projectionFor = (manager: SuggestionManager) => {
   const state = manager.getEngineState();
   const snapshot = manager.getSnapshot();
   const chat = getContext().chat;
+  const resting = (text: string) => manager.memoryActions.restingText(text);
+  const sections = snapshot.narrative.sections.map((section) => ({ ...section, lines: section.lines.map(resting).filter((line) => line.trim()) }));
   return playedProjection({
     story,
-    narrative: snapshot.narrative,
+    narrative: { ...snapshot.narrative, sections },
     visitedPath: state?.visitedPath ?? [],
     activeCheckpointId: state?.activeCheckpointId ?? null,
     cast: manager.getEnabledCharacterIds().map((id) => nameForRosterId(story, id)),

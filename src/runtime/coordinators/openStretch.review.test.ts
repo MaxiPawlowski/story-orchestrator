@@ -112,6 +112,24 @@ describe("v2.7 35 Phase 2: the open stretch format", () => {
     expect(errorsOf(raw({ ...OPEN, mode: "closed" }))).toContain("checkpoints.1.stretch.mode: mode must be open");
   });
 
+  it("refuses every exit but arrive_when: a turn-count exit, an always-true exit and a second arrival read", () => {
+    const extra = (gate: unknown) => errorsOf(raw(OPEN, { transitions: [
+      { from: "road", to: "walls", priority: 1, gate: ARRIVE },
+      { from: "road", to: "camp", priority: 2, gate },
+    ] }));
+    const message = "transitions.2: an open stretch ends only through arrive_when: every exit from it uses that gate";
+    expect(extra({ q: PLAYER_TURNS_KEY, op: ">=", v: 8 })).toContain(message);
+    expect(extra({ q: "left_camp", op: "==", v: true })).toContain(message);
+    expect(extra({ any: [ARRIVE, { q: "left_camp", op: "==", v: true }] })).toContain(message);
+    expect(extra({ all: [] })).toContain(message);
+    const twoArrivals = errorsOf(raw(OPEN, { transitions: [
+      { from: "road", to: "walls", priority: 2, gate: ARRIVE },
+      { from: "road", to: "camp", priority: 1, gate: ARRIVE },
+    ] }));
+    expect(twoArrivals.filter((error) => error.includes("arrive_when"))).toEqual([]);
+    expect(errorsOf(raw(OPEN))).toEqual([]);
+  });
+
   it("refuses a declared player_turns_in_checkpoint that the runtime cannot write", () => {
     const value = raw(OPEN);
     expect(errorsOf({ ...value, qualities: [...value.qualities, { key: PLAYER_TURNS_KEY, type: "int", source: "extractor", rubric: "x" }] }))

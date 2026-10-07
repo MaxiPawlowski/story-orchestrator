@@ -3,6 +3,8 @@ import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@ju
 import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
 import { LoreSelector } from "./loreSelect";
+import { settledWindowAccess } from "./settledWindow";
+import { windowOf } from "@extraction/chatRows";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import { testOwnership } from "../../test/findings/testOwnership";
 
@@ -28,7 +30,7 @@ const entry = (world: string, uid: number, patch: Partial<HostScannableEntry> = 
 const scannable = [entry("Story Lore", 1), entry("Story Lore", 2), entry("Story Lore", 3, { disable: true }), entry("Story Lore", 4, { constant: true }), entry("Other Lore", 5), entry("story lore", 6)];
 const P: Record<string, number> = { "Story Lore 1": 0.9, "Story Lore 2": 0.4, "Story Lore 3": 0.99, "story lore 6": 0.8 };
 
-const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Record<string, unknown>; fail?: boolean; forceFails?: boolean } = {}) => {
+const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Record<string, unknown>; fail?: boolean; forceFails?: boolean; window?: () => Array<{ speaker: string; text: string }> } = {}) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, loreSelect: true, ...options.uses } };
   let lastMessageId = 4;
   const requests: JudgeRequest[] = [];
@@ -54,7 +56,7 @@ const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Re
     judge: () => judge,
     getStory: () => ({ ...story("loreSelect" in options ? options.loreSelect : { lorebooks: ["Story Lore"] }), id: storyId }),
     getState: () => ({ activeCheckpointId: "guild" }) as unknown as EngineState,
-    getWindow: () => [{ speaker: "Max", text: `Who runs this place? (${lastMessageId})` }],
+    getWindow: options.window ?? (() => [{ speaker: "Max", text: `Who runs this place? (${lastMessageId})` }]),
     getChatId: () => "chat-1",
     getLastMessageId: () => lastMessageId,
     getEntries: async () => scannable,
@@ -169,5 +171,27 @@ describe("L5: the complete selection exclusive mode may act on", () => {
     env.setStoryId("elsewhere");
     await env.selector.select("GENERATION_STARTED");
     expect(env.selector.completeSelection()).toMatchObject({ storyKey: "elsewhere@1", messageId: 6 });
+  });
+});
+
+describe("Sol finding 10: a discarded swipe cannot steer lore selection", () => {
+  const discarded = "The innkeeper hands over the cellar key and points at the trapdoor.";
+  const before = [{ name: "Mara", is_user: false, mes: "Welcome to the inn." }, { name: "Max", is_user: true, mes: "Where is the cellar?" }];
+  const swiping = [...before, { name: "Mara", is_user: false, mes: discarded, swipes: [discarded], swipe_id: 1 }];
+  const windowOver = (chat: unknown[]) => settledWindowAccess(() => chat, (from, to) => windowOf(chat, from, to), 8).recentWindow;
+
+  it("asks the judge exactly what it asks for the same chat with that reply removed", async () => {
+    const during = setup({ window: windowOver(swiping) });
+    const equivalent = setup({ window: windowOver(before) });
+    await during.selector.select("GENERATION_STARTED");
+    await equivalent.selector.select("GENERATION_STARTED");
+    expect(during.requests).toEqual(equivalent.requests);
+    expect(JSON.stringify(during.requests)).not.toContain("cellar key");
+  });
+
+  it("control: the raw chat would have carried it", async () => {
+    const raw = setup({ window: () => swiping.map((row) => ({ speaker: row.name, text: row.mes })) });
+    await raw.selector.select("GENERATION_STARTED");
+    expect(JSON.stringify(raw.requests)).toContain("cellar key");
   });
 });
