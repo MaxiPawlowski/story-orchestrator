@@ -56,7 +56,7 @@ const harness = (chronicleTokens = 700) => {
     roster: () => [],
     playerName: () => "You",
     journal: () => {},
-    announce: async (text) => { announced.push(text); },
+    announce: async (text) => { announced.push(text); }, resting: () => (text) => text,
   };
   return { seal: new ChapterSeal(deps), memory: () => memory, set: (next: Partial<MemoryRuntimeState>) => { memory = { ...memory, ...next }; }, announced, onModel, context };
 };
@@ -178,7 +178,7 @@ describe("AS-6: a re-seal owns unseal -> seal with one token, and never seals in
       roster: () => [],
       playerName: () => "You",
       journal: () => { effects.push(`journal:${context.chatId}`); },
-      announce: async () => { effects.push(`announce:${context.chatId}`); },
+      announce: async () => { effects.push(`announce:${context.chatId}`); }, resting: () => (text) => text,
     };
     return { seal: new ChapterSeal(deps), stores, context, onModel, effects };
   };

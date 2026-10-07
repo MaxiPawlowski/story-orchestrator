@@ -79,7 +79,7 @@ const sealHarness = () => {
     record: (input) => { memory = { ...memory, derived: [...memory.derived, { id: `d${memory.derived.length}`, boundary: 0, messageId: input.messageId ?? 0, ...input } as DerivedRecord] }; },
     model: () => model, ownership: () => ownership, closeScene: async () => undefined, sceneStart: (to) => to + 1, summarizeArcs: async () => true,
     updateInjection: jest.fn(), save: jest.fn(async () => undefined), roster: () => [{ id: "kael", name: "Kael" }], playerName: () => "Mara",
-    journal: jest.fn(), announce: jest.fn(async () => undefined),
+    journal: jest.fn(), announce: jest.fn(async () => undefined), resting: () => (text) => text,
   };
   const seal = async (target: SealTarget, messageId: number, step: number, path: string[]) => {
     Object.assign(state, { activeCheckpointId: path[path.length - 1], visitedPath: path, boundary: step, lastMessageId: messageId });
@@ -154,6 +154,7 @@ const kitPort = (memoryPatch: Partial<MemoryRuntimeState>, storyRef: NormalizedS
     memory: () => memory,
     patch: (next: Partial<MemoryRuntimeState>) => { memory = { ...memory, ...next }; },
     save: jest.fn(async () => undefined),
+    coordinator: { injector: { restingFilter: () => (text: string) => text } },
   } as unknown as ChapterHost;
   const port = { host, carried: null } as unknown as ChapterPort;
   return { port, host, prompt, blocks, memory: () => memory };

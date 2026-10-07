@@ -102,7 +102,7 @@ const harness = (options: HarnessOptions = {}) => {
     roster: () => ROSTER,
     playerName: () => "You",
     journal: (summary, note) => { journaled.push(`${summary} | ${note ?? ""}`); },
-    announce: async (text) => { announced.push(text); },
+    announce: async (text) => { announced.push(text); }, resting: () => (text) => text,
     judge: () => options.judge ?? null,
   };
   return { seal: new ChapterSeal(deps), memory: () => memory, prompts, announced, journaled, context };

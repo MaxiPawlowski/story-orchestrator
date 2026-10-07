@@ -100,6 +100,7 @@ export interface SnapshotSources {
   scenarioFrame?: ScenarioFrame | null;
   chatId?: string | null;
   plays?: PlaysIndex;
+  resting?: (text: string) => string;
 }
 
 export interface SnapshotPort {
@@ -131,6 +132,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   boundaryLog: port.loaded ? port.engine.stateLog : [],
   expectedTension: port.loaded ? port.pacing.expectedTension() : null,
   openThreads: port.memory.getOpenArcs(),
+  resting: port.memory.injector.restingFilter(),
   canon: port.memory.canon.getCanonProse(),
   ...port.notices,
   ...port.memory.injector.readModels(),
@@ -213,24 +215,29 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     curatorPass: extras.stagecraft.lastPass, effects: extras.effects.ledger, tensionHistory: extras.tension.history,
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
-    firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras),
+    firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
   });
 };
 
-const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+export const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
   const { memory } = sources.extras;
-  const records = memory.chapters ?? [];
-  const chapters = chapterKit()?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
+  const resting = sources.resting ?? ((text: string) => text);
+  const kit = chapterKit();
+  const records = kit ? kit.restingRecords(memory.chapters ?? [], resting) : memory.chapters ?? [];
+  const chapters = kit?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
   const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
   const playerThreads = sources.openThreads.length ? currentThreads(withoutExcludedThreads(memory.arcs, memory.derived), state?.checkpointStartedBoundary ?? 0, state?.boundary ?? 0) : [];
-  const openThreads = playerThreads.map((text) => {
+  const openThreads = playerThreads.flatMap((text) => {
     const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
-    return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;
+    const shown = resting(text);
+    return !shown ? [] : [origin && origins.has(origin) ? `${shown} (since ${origins.get(origin)})` : shown];
   });
   const now = chapters.current && !chapters.ended ? [`Now: ${chapters.current.playerTitle}`] : [];
   const chapterLines = chapters.records.length ? [...chapters.records.map((record) => `${record.playerTitle} — ${record.short}`), ...now] : [];
-  const fold = chapterKit()?.foldPreview(memory, story, sources.promptBlocks.own, sources.chat.length) ?? 0;
-  const scene = state ? latestScene(memory.entries, state.lastMessageId, state.checkpointStartedBoundary) : null;
+  const fold = kit?.foldPreview(memory, story, sources.promptBlocks.own, sources.chat.length) ?? 0;
+  const latest = state ? latestScene(memory.entries, state.lastMessageId, state.checkpointStartedBoundary) : null;
+  const shownScene = latest ? resting(latest.text) : "";
+  const scene = latest && shownScene !== latest.text ? (shownScene ? { ...latest, text: shownScene } : null) : latest;
   return { chapters, openThreads, chapterLines, fold, scene };
 };
 
@@ -265,8 +272,8 @@ const questNarrative = (story: NormalizedStoryV2 | null, values: Record<string, 
   return { quests: visibleQuestTitles(story?.quests, reader), milestones: earned.map((milestone) => milestone.title) };
 };
 
-const resolvedThreads = (memory: RuntimeExtras["memory"]) =>
-  withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "resolved" && !arc.foldedInto).map((arc) => arc.text);
+export const resolvedThreads = (memory: RuntimeExtras["memory"], resting: (text: string) => string = (text) => text) =>
+  withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "resolved" && !arc.foldedInto).map((arc) => resting(arc.text)).filter(Boolean);
 
 const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null, game: { castNames: Record<string, string>; openThreads: string[] }) => {
   const storyId = sources.loaded?.record.id;
@@ -276,7 +283,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
   return {
     ...gameSlices({
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView,
-      threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory) : [] },
+      threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,

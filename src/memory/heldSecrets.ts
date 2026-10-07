@@ -66,6 +66,11 @@ export const withoutSecretLines = (text: string, secrets: readonly HeldSecret[],
   }).join("\n");
 };
 
+export const shownRows = <T extends { text: string }>(rows: readonly T[], resting: (text: string) => string): T[] => rows.flatMap((row) => {
+  const text = resting(row.text);
+  return text ? [text === row.text ? row : { ...row, text }] : [];
+});
+
 export interface SharedTierView {
   entries: MemoryEntry[];
   withheld: Set<string>;

@@ -1,5 +1,6 @@
 import type { ArcEntry, ChapterRecord, LedgerEntry, MemoryEntry } from "./types";
 import { isLive } from "./provenance";
+import { shownRows } from "./heldSecrets";
 
 export interface ChapterInputItem {
   id: string;
@@ -62,6 +63,28 @@ export function assembleChapterInput(sources: ChapterInputSources): ChapterInput
     previous: sources.previous,
   };
 }
+
+export type Resting = (text: string) => string;
+
+export const restingRecord = (record: ChapterRecord, resting: Resting): ChapterRecord => ({
+  ...record,
+  summary: resting(record.summary),
+  short: resting(record.short),
+  consequences: shownRows(record.consequences, resting),
+  people: shownRows(record.people, resting),
+  open: shownRows(record.open, resting),
+  ...(record.epilogue === undefined ? {} : { epilogue: resting(record.epilogue) }),
+  ...(record.bridge ? { bridge: { ...record.bridge, text: resting(record.bridge.text) } } : {}),
+});
+
+export const restingRecords = (records: readonly ChapterRecord[], resting: Resting): ChapterRecord[] => records.map((record) => restingRecord(record, resting));
+
+export const restingChapterInput = (input: ChapterInput, resting: Resting): ChapterInput => ({
+  ...input,
+  items: shownRows(input.items, resting),
+  openArcs: shownRows(input.openArcs, resting),
+  previous: input.previous ? restingRecord(input.previous, resting) : null,
+});
 
 export const inputText = (input: ChapterInput): string => [
   ...input.items.map((item) => item.text),

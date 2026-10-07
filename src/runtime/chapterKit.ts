@@ -10,6 +10,7 @@ import { withholds } from "./generationLifecycle";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost, VectorHost } from "./hostPorts";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "@memory/chapterUnfold";
+import { restingRecord, restingRecords, type Resting } from "@memory/chapterInput";
 
 import { chronicleMarkdown } from "@memory/chronicle";
 import { getContext, registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
@@ -23,9 +24,11 @@ import type { MemoryRuntimeState } from "./types";
 export { chronicleMarkdown };
 export { buildChapterView };
 
+export { restingRecords };
+
 export async function chapterSlash(manager: RuntimeManager, command: string, arg: string | undefined, dump: (text: string) => string, show: (text: string) => string): Promise<string> {
   const snapshot = manager.getSnapshot();
-  const records = snapshot.memory.chapters ?? [];
+  const records = restingRecords(snapshot.memory.chapters ?? [], manager.chapters.host.coordinator.injector.restingFilter());
   if (command === "cp-chapters") {
     return dump(records.map((record) => `${record.id} [${record.status}] ${record.title} · messages ${record.range.from}-${record.range.to}`).join("\n") || "No chapter sealed yet.");
   }
@@ -49,13 +52,18 @@ export async function chapterSlash(manager: RuntimeManager, command: string, arg
   return text;
 }
 
+export const previouslySummary = (port: ChapterPort): string => {
+  const record = port.records().at(-1);
+  return record ? restingRecord(record, port.host.coordinator.injector.restingFilter()).summary : "";
+};
+
 export function showPreviously(port: ChapterPort): boolean {
   const memory = port.host.memory();
   const record = (memory.chapters ?? []).at(-1);
   if (!record || !chapterSettings(memory.settings.chapters).recap || record.recapSeenAt !== undefined) return false;
   port.host.patch({ chapters: markRecapSeen(memory.chapters ?? [], record.id, chatLastMessageId()) });
   void port.host.save();
-  showTextPopup(previouslyText(record.playerTitle, record.summary), { okButton: "Continue" });
+  showTextPopup(previouslyText(record.playerTitle, previouslySummary(port)), { okButton: "Continue" });
   return true;
 }
 
@@ -64,7 +72,7 @@ export function registerChapterMacros(manager: RuntimeManager): () => void {
     ["story_chapter", () => manager.getCachedSnapshot().chapters?.current?.playerTitle ?? "(none)", "current chapter"],
     ["story_chapter_number", () => String(manager.getCachedSnapshot().chapters?.current?.number || "(none)"), "current chapter number"],
     ["story_so_far", () => manager.chapters.storySoFar() || "(none)", "chronicle + this chapter + open threads"],
-    ["story_previously", () => manager.getCachedSnapshot().chapters?.records.at(-1)?.summary ?? "(none)", "the last ended chapter's summary"],
+    ["story_previously", () => previouslySummary(manager.chapters) || "(none)", "the last ended chapter's summary"],
   ];
   macros.forEach(([key, read, what]) => registerHostMacro(key, read, `Story Orchestrator: ${what}`));
   return () => macros.forEach(([key]) => unregisterHostMacro(key));
@@ -183,8 +191,9 @@ export function storySoFar(host: ChapterHost): string {
   const memory = host.memory();
   const story = host.deps.getStory();
   const chapter = chapterOf(story, host.deps.getState()?.activeCheckpointId);
-  const canon = memory.canon && !memory.canon.stale ? host.coordinator.injector.restingLines(memory.canon.text) : "";
-  return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon,
+  const resting = host.coordinator.injector.restingFilter();
+  const canon = memory.canon && !memory.canon.stale ? resting(memory.canon.text) : "";
+  return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon, resting,
     chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
 }
 
@@ -200,7 +209,8 @@ export function carryBridge(port: ChapterPort, type: unknown) {
   const memory = port.host.memory();
   const bridge = !withholds(type) && memory.settings.enabled ? pendingBridge(memory.chapters ?? []) : null;
   port.carried = bridge?.recordId ?? null;
-  if (bridge) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, bridge.text, INJECTION_REGISTRY.chapterBridge.depth);
+  const text = bridge ? port.host.coordinator.injector.restingFilter()(bridge.text) : "";
+  if (text) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, text, INJECTION_REGISTRY.chapterBridge.depth);
 }
 
 export function commitBridge(port: ChapterPort, rendered: boolean) {
@@ -258,20 +268,25 @@ export interface StorySoFarInput {
   chapterTitle: string | null;
   threads: readonly ArcEntry[];
   settings: ChapterSettings;
+  resting?: Resting;
 }
 
 export function storySoFarText(input: StorySoFarInput): string {
   const { settings } = input;
+  const resting = input.resting ?? ((text: string) => text);
   const parts: string[] = [];
-  if (input.records.length) parts.push(`[The story so far]\n${renderChronicle(input.records, input.eras, settings.chronicleTokens).text}`);
+  const chronicle = input.records.length ? resting(renderChronicle(input.records, input.eras, settings.chronicleTokens).text) : "";
+  if (chronicle) parts.push(`[The story so far]\n${chronicle}`);
   const chapter = clip(chapterCanonText(input.canon), settings.chapterTokens);
   if (chapter) parts.push(`[This chapter${input.chapterTitle ? `: ${input.chapterTitle}` : ""}]\n${chapter}`);
   const titles = new Map(input.records.map((record) => [record.id, record.playerTitle]));
   const lines: string[] = [];
   let used = 0;
   for (const arc of [...input.threads.filter((thread) => thread.pinned), ...input.threads.filter((thread) => !thread.pinned).reverse()].slice(0, 8)) {
+    const text = resting(arc.text);
+    if (!text) continue;
     const origin = arc.originChapter ? titles.get(arc.originChapter) : undefined;
-    const line = `- ${arc.text}${origin ? ` (since ${origin})` : ""}`;
+    const line = `- ${text}${origin ? ` (since ${origin})` : ""}`;
     if (used + estimateTokens(line) > settings.threadTokens) break;
     lines.push(line);
     used += estimateTokens(line);
