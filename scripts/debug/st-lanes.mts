@@ -200,8 +200,24 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   }
   const session = await runNode(['scripts/debug/st-session.mts', 'start', ...(headed ? ['--headed'] : [])], laneEnv(n));
   if (session.code !== 0) throw new Error(`lane ${n}'s browser did not start: ${session.output.slice(-600)}`);
+  const loaded = await pageLoadedCast(n);
+
   const judgeShare = judgeLanes ? (wasUp ? `not applied: the server was already up (stop lane ${n} first)` : judgeShareEnv(judgeLanes)) : null;
-  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug, judgeShare };
+  return { lane: n, url: laneEnv(n).ST_URL, cdp: lane.cdp, debug: lane.debug, judgeShare, loaded };
+}
+
+async function pageLoadedCast(n: number) {
+  const lane = lanePaths(n);
+  const onDisk = existsSync(resolve(lane.data, 'default-user', 'characters')) ? (await readdir(resolve(lane.data, 'default-user', 'characters'))).filter((name) => name.endsWith('.png')).length : 0;
+  if (!onDisk) return { characters: 0, reloads: 0 };
+  for (let reloads = 0; reloads <= 3; reloads += 1) {
+    const probe = await runNode(['scripts/debug/st-eval.mts', 'SillyTavern.getContext().characters.length'], laneEnv(n));
+    const characters = Number(probe.output.match(/"value": (\d+)/)?.[1] ?? 0);
+    if (characters > 0) return { characters, reloads };
+    await sleep(5000);
+    await runNode(['scripts/debug/st-session.mts', 'reload'], laneEnv(n));
+  }
+  throw new Error(`lane ${n}'s page lists no characters after 3 reloads while its data holds ${onDisk} card(s): the first page load ran before the server finished loading`);
 }
 
 async function killTree(pid: number) {
