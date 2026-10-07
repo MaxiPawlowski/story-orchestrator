@@ -72,3 +72,17 @@ test('only a blocks-only "Before you start" pane is closed for a fixture that do
   assert.equal(isBriefingIntercept('locator.click: Timeout 15000ms exceeded. | layout {"topmost":"dialog#so-briefing."}'), true);
   assert.equal(isBriefingIntercept('locator.click: Timeout 15000ms exceeded. | layout {"topmost":"div#chat"}'), false);
 });
+
+test('the transition note is pinned off for a run unless the fixture drives announceTransitions itself', async () => {
+  const { fixtureDrivesTransitionNote, suppressTransitionNote, restoreTransitionNote } = await import('./briefingHarness.mts');
+  assert.equal(fixtureDrivesTransitionNote(JSON.stringify({ steps: [{ eval: "rt.setUiSettings({ announceTransitions: true })" }] })), true);
+  assert.equal(fixtureDrivesTransitionNote(JSON.stringify({ steps: [{ import_story: 'x.story.json' }] })), false);
+  const settings = { display: { announceTransitions: true } as Record<string, boolean> };
+  (globalThis as Record<string, unknown>).storyOrchestratorRuntime = { getGlobalSettings: () => settings, setUiSettings: (patch: Record<string, boolean>) => Object.assign(settings.display, patch) };
+  const page = { evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => (String(fn).includes('/script.js') ? true : fn(arg)), waitForResponse: async () => ({ ok: () => true, status: () => 200 }) };
+  const suppressed = await suppressTransitionNote(page);
+  assert.equal(suppressed.before, true);
+  assert.equal(settings.display.announceTransitions, false);
+  assert.equal((await restoreTransitionNote(page, suppressed.before) as { ok?: boolean }).ok, true);
+  assert.equal(settings.display.announceTransitions, true);
+});

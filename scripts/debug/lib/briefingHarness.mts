@@ -1,7 +1,7 @@
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
 
-export type StartDisplayKey = 'briefing' | 'playerSetup';
+export type StartDisplayKey = 'briefing' | 'playerSetup' | 'announceTransitions';
 
 export async function readDisplaySetting(page, key: StartDisplayKey): Promise<boolean | null> {
   return evaluateInST(page, (name) => {
@@ -37,6 +37,9 @@ export const suppressBriefing = (page) => suppressDisplay(page, 'briefing');
 export const restoreBriefing = (page, before: boolean | null) => restoreDisplay(page, 'briefing', before);
 export const suppressPlayerSetup = (page) => suppressDisplay(page, 'playerSetup');
 export const restorePlayerSetup = (page, before: boolean | null) => restoreDisplay(page, 'playerSetup', before);
+export const fixtureDrivesTransitionNote = (fixtureText: string): boolean => /announceTransitions/.test(fixtureText);
+export const suppressTransitionNote = (page) => suppressDisplay(page, 'announceTransitions');
+export const restoreTransitionNote = (page, before: boolean | null) => restoreDisplay(page, 'announceTransitions', before);
 
 export interface BriefingModalState {
   open: boolean;

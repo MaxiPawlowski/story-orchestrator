@@ -12,7 +12,7 @@ import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
 import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
-import { dismissBlocksPane, dismissBriefing, fixtureDrivesBriefing, isBriefingIntercept, readBriefingModal, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
+import { dismissBlocksPane, dismissBriefing, fixtureDrivesBriefing, isBriefingIntercept, readBriefingModal, restoreBriefing, restorePlayerSetup, restoreTransitionNote, suppressBriefing, suppressPlayerSetup, suppressTransitionNote, fixtureDrivesTransitionNote } from './lib/briefingHarness.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptForeignChat, adoptNewSandboxChat, assertInSandbox, cleanupForeignChats, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
@@ -1231,6 +1231,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let judgeBefore = null;
   let briefingBefore: boolean | null = null;
   let playerSetupBefore: boolean | null = null;
+  let transitionNoteBefore: boolean | null = null;
   const requires = requiresOf(scenario);
   const pinned = requiredGroup(requires, group);
   let reenabled: string[] = [];
@@ -1260,6 +1261,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     judgeBefore = await readJudgeConfig(page);
     briefingBefore = (await suppressBriefing(page)).before;
     playerSetupBefore = (await suppressPlayerSetup(page)).before;
+    if (!fixtureDrivesTransitionNote(JSON.stringify(scenario))) transitionNoteBefore = (await suppressTransitionNote(page)).before;
   }
 
   try {
@@ -1290,6 +1292,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       cleanup.judge = await restoreJudgeConfig(page, judgeBefore).catch((error) => ({ error: error.message }));
       cleanup.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
       cleanup.playerSetup = await restorePlayerSetup(page, playerSetupBefore).catch((error) => ({ error: error.message }));
+      cleanup.transitionNote = await restoreTransitionNote(page, transitionNoteBefore).catch((error) => ({ error: error.message }));
       const residue = await sweepResidue(page, residueBefore).catch((error) => ({ swept: false, clean: false, error: error.message }));
       cleanup.residue = residue;
       if ('plan' in residue && residue.plan && residueCount(residue.plan)) console.log(`residue swept (this fixture left it behind): ${JSON.stringify(residue.plan)}`);
