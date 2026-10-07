@@ -10,7 +10,6 @@ import type { WriteResult } from "@utils/writeResult";
 import { guideUrl } from "@features/guideLinks";
 import { settingHelp } from "@features/settingsCopy";
 import { log } from "@utils/log";
-import { DEV_ONLY_JUDGE_USES } from "@runtime/settingsModel";
 import { Advanced, CheckRow, FieldLabel } from "./Field";
 
 export interface JudgeSettingsPatch {
@@ -37,8 +36,8 @@ export interface JudgeSettingsGroupProps {
   onRunSelfTest(): void;
 }
 
-export const offeredJudgeUses = (uses: readonly JudgeUseKey[], authorView: boolean, dev: boolean = __SO_DEV__): JudgeUseKey[] =>
-  uses.filter((use) => (authorView || !AUTHOR_JUDGE_USES.includes(use)) && (dev || !(DEV_ONLY_JUDGE_USES as readonly string[]).includes(use)));
+export const offeredJudgeUses = (uses: readonly JudgeUseKey[], authorView: boolean): JudgeUseKey[] =>
+  uses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use));
 
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 

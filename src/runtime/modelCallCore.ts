@@ -27,7 +27,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   suggestions: () => globalThis.storyOrchestratorDebugSuggestionsResponse,
 };
 
-export const debugResponseFor = (pass: ModelPass): string | null => (__SO_DEV__ ? DEBUG_RESPONSES[pass]() ?? null : null);
+export const debugResponseFor = (pass: ModelPass): string | null => DEBUG_RESPONSES[pass]() ?? null;
 
 export interface ModelCallDeps {
   settings: () => RouteSettings;

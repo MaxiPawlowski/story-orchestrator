@@ -29,6 +29,6 @@
     "server-plugin/story-orchestrator-harness/README.md"
   ],
   "dirs": ["examples"],
-  "never": ["docs/", "test/", "scripts/", "src/", ".claude/", ".debug/", "dist-dev/", "vendor/", "stories/", "node_modules/", "release/", ".github/", ".storybook/", ".build/"],
+  "never": ["docs/", "test/", "scripts/", "src/", ".claude/", ".debug/", "vendor/", "stories/", "node_modules/", "release/", ".github/", ".storybook/", ".build/"],
   "neverPatterns": ["\\.map$", "\\.test\\.", "^opencode\\.json$", "^\\.mcp\\.json$"]
 }

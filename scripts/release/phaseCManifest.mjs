@@ -28,7 +28,6 @@ export const rowProblems = (manifest) => {
   const problems = [];
   const stages = new Set(manifest.stages ?? []);
   const tiers = new Set(manifest.tiers ?? []);
-  const builds = new Set(manifest.builds ?? []);
   const resets = new Set(Object.keys(manifest.resets ?? {}));
   const seen = new Set();
   const absent = new Set((manifest.absent ?? []).map((entry) => entry.id));
@@ -44,7 +43,7 @@ export const rowProblems = (manifest) => {
     if (!Array.isArray(row.prerequisites) || !row.prerequisites.length || !row.prerequisites.every((item) => isText(item))) problems.push(`${id}: no prerequisites`);
     if (!resets.has(row.reset)) problems.push(`${id}: unknown reset ${JSON.stringify(row.reset)}`);
     if (!Array.isArray(row.tier) || !row.tier.length || !row.tier.every((tier) => tiers.has(tier))) problems.push(`${id}: tier ${JSON.stringify(row.tier)} is not a non-empty list of ${[...tiers].join("/")}`);
-    if (!builds.has(row.build)) problems.push(`${id}: build ${JSON.stringify(row.build)} is not prod or dev-diagnostic`);
+    if ("build" in row) problems.push(`${id}: carries a build field, but there is one build (2026-10-07)`);
     if (!isText(row.assertion, 10)) problems.push(`${id}: no assertion`);
     if (!Array.isArray(row.evidence) || row.evidence.length !== 2 || !row.evidence.every((slot) => slot === null || isText(slot))) problems.push(`${id}: evidence must be two slots (null or a record path)`);
     problems.push(...floorProblems(row, manifest));

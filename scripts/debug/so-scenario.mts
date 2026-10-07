@@ -23,7 +23,7 @@ import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts
 import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
-import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
 import { establishChatRequires, establishGroupRequires, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
@@ -1214,7 +1214,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   const scenario = await loadFixture(scenarioPath);
   const steps = Array.isArray(scenario) ? scenario : scenario.steps;
   if (!Array.isArray(steps)) throw new Error('Scenario must be an array or { steps: [] }.');
-  await assertDevBundle(page);
+  await assertRuntimeOnPage(page);
   const importedHashes = [];
   let guard = null;
   let result: Record<string, unknown> = { file, steps: [], ok: true, cleanup: null };

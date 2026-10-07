@@ -1,7 +1,7 @@
 import { join } from "path";
 import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/support/codeHealth";
 
-const DEV_ONLY = [
+const HARNESS = [
   "src/runtime/liveSuite.ts",
   "src/runtime/judgeHarness.ts",
   "src/runtime/roleCalibration.ts",
@@ -12,7 +12,7 @@ const DEV_ONLY = [
   "src/runtime/coordinators/agendaProposalCoordinator.ts",
   "src/runtime/meanwhilePrompt.ts",
 ];
-const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
+const CALIBRATION_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
   "src/runtime/spikes/editReread.ts",
   "src/runtime/spikes/editRereadHost.ts",
@@ -33,17 +33,17 @@ const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost
 
 const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
 
-const isDevOnly =(path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
+const isHarness = (path: string) => HARNESS.includes(path) || CALIBRATION_PATTERN.test(path) || SPIKE_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
 
 const staticReach = (files: string[], read?: (path: string) => string) =>
   [...reachableFrom(buildGraph(files, { includeDynamic: false }, read), ENTRY, read)].map(rel);
 
-describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", () => {
+describe("harness, calibration and spike modules ship as lazy chunks, never in the main entry (v2.5 plan 12 D3, one build 2026-10-07)", () => {
   const files = prodFiles();
 
-  it("no dev-only module is statically reachable from src/index.tsx", () => {
-    expect(staticReach(files).filter(isDevOnly)).toEqual([]);
+  it("no harness module is statically reachable from src/index.tsx", () => {
+    expect(staticReach(files).filter(isHarness)).toEqual([]);
   });
 
   it("the self-tests the settings panel runs load lazily, not with the entry", () => {
@@ -54,7 +54,7 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const present = new Set(files.map(rel));
     expect(LAZY_SHIPPED.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_SHIPPED.includes(path))).toEqual([]);
-    expect(LAZY_SHIPPED.filter(isDevOnly)).toEqual([]);
+    expect(LAZY_SHIPPED.filter(isHarness)).toEqual([]);
   });
 
   it("control: a planted static import of the reply effort host from the entry is reached", () => {
@@ -70,13 +70,13 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
     const store = join(SRC, "stagecraft", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "../runtime/spikes/swipeBack";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/spikes/swipeBack.ts");
+    expect(staticReach(files, read).filter(isHarness)).toContain("src/runtime/spikes/swipeBack.ts");
   });
 
-  it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {
+  it("every listed harness module exists, so the list cannot rot into a vacuous pass", () => {
     const present = new Set(files.map(rel));
-    expect(DEV_ONLY.filter((path) => !present.has(path))).toEqual([]);
-    expect(files.map(rel).filter((path) => DEV_ONLY_PATTERN.test(path)).length).toBeGreaterThanOrEqual(6);
+    expect(HARNESS.filter((path) => !present.has(path))).toEqual([]);
+    expect(files.map(rel).filter((path) => CALIBRATION_PATTERN.test(path)).length).toBeGreaterThanOrEqual(6);
     expect(SPIKES.filter((path) => !present.has(path))).toEqual([]);
     expect(files.map(rel).filter((path) => SPIKE_PATTERN.test(path)).sort()).toEqual([...SPIKES].sort());
   });
@@ -85,27 +85,27 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nimport { SwipeBack } from "./runtime/spikes/swipeBack";\nvoid SwipeBack;\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
+    expect(staticReach(files, read).filter(isHarness)).toEqual(expect.arrayContaining(["src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {
     const planted = join(SRC, "index.tsx");
     const read = (path: string) => (path === planted ? 'import { registerLiveSuite } from "./runtime/liveSuite";\nregisterLiveSuite();\n' : require("fs").readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/liveSuite.ts");
+    expect(staticReach(files, read).filter(isHarness)).toContain("src/runtime/liveSuite.ts");
   });
 
   it("control: a planted static import of a plan 09 spike module from the runtime fails", () => {
     const runtime = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === runtime ? `import { installSpikes } from "./spikes";\nvoid installSpikes;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
+    expect(staticReach(files, read).filter(isHarness)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
   it("control: re-exporting the calibrations from the judge barrel again fails", () => {
     const barrel = join(SRC, "judge", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === barrel ? `${fs.readFileSync(path, "utf8")}\nexport * from "./sceneCalibration";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/judge/sceneCalibration.ts");
+    expect(staticReach(files, read).filter(isHarness)).toContain("src/judge/sceneCalibration.ts");
   });
 
   it("v2.6 plan 03: a dropped spike's modules are gone from the source tree", () => {
@@ -135,7 +135,7 @@ import "./runtime/spikes/toolTurnSummary";
     const planted = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === planted ? `import { installSpikes } from "./spikes/install";\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp6Complications.ts"]));
+    expect(staticReach(files, read).filter(isHarness)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp6Complications.ts"]));
   });
 
   it("SP5.b (v2.7 02 C1): the story scenario ships in the prod entry graph, and its spike modules are gone", () => {
@@ -143,9 +143,9 @@ import "./runtime/spikes/toolTurnSummary";
     expect(files.map(rel).filter((path) => /spikes\/sp5/.test(path))).toEqual([]);
   });
 
-  it("SP8.b (v2.7 02 C13): the curator tiers ship in the prod entry graph, through the stagecraft barrel, and are not dev-only", () => {
+  it("SP8.b (v2.7 02 C13): the curator tiers ship in the prod entry graph, through the stagecraft barrel, and are not a lazy harness module", () => {
     expect(staticReach(files)).toContain("src/stagecraft/curatorTiers.ts");
-    expect(isDevOnly("src/stagecraft/curatorTiers.ts")).toBe(false);
+    expect(isHarness("src/stagecraft/curatorTiers.ts")).toBe(false);
   });
 
   it("v2.7 31 §B: the warm-batch lease is reached only through a dynamic import, never statically from the sprites chunk", () => {

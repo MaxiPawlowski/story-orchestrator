@@ -1,7 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
 import path from "path";
 import { existsSync, readFileSync } from "fs";
-import { DefinePlugin } from "webpack";
 
 const stRootFile = path.resolve(__dirname, "..", ".st-root");
 const stPublic = process.env.ST_PUBLIC ?? (process.env.ST_ROOT ? path.join(process.env.ST_ROOT, "public") : existsSync(stRootFile) ? path.join(readFileSync(stRootFile, "utf8").trim(), "public") : "");
@@ -108,8 +107,6 @@ const config: StorybookConfig = {
       ],
       use: ["style-loader", "css-loader", "postcss-loader"],
     });
-
-    cfg.plugins = [...(cfg.plugins || []), new DefinePlugin({ __SO_DEV__: JSON.stringify(false) })];
 
     return cfg;
   },

@@ -45,7 +45,7 @@ jest.mock("@services/STAPI", () => ({
 jest.mock("@services/stHost/context", () => ({ getContext: () => ({ chatId: "chat-a" }) }));
 jest.mock("@services/stHost/events", () => ({ subscribeToHostEvent: () => () => undefined }));
 
-import { startRuntime, stopRuntime } from "./index";
+import { RUNTIME_GLOBALS, startRuntime, stopRuntime } from "./index";
 import { runtimeManager } from "./runtimeManager";
 import { debugResponseFor } from "./modelCallCore";
 import { callTimeoutMs } from "@extraction/callBudget";
@@ -53,61 +53,52 @@ import { callTimeoutMs } from "@extraction/callBudget";
 const soGlobals = () => Object.keys(globalThis).filter((name) => name.startsWith("storyOrchestrator") && Reflect.get(globalThis, name) !== undefined).sort();
 const flush = async () => { for (let i = 0; i < 10; i += 1) await Promise.resolve(); };
 
-describe("the prod flavour exposes no debug surface (v2.5 plan 12 D1/D2)", () => {
+describe("the one build ships the harness surface (owner decision 2026-10-07, was v2.5 plan 12 D1/D2)", () => {
   afterEach(() => {
     stopRuntime();
-    globalThis.__SO_DEV__ = true;
     globalThis.storyOrchestratorDebugExtractionResponse = undefined;
     globalThis.storyOrchestratorDebugCallBudgetScale = undefined;
   });
 
-  it("prod: a started runtime holds no storyOrchestrator global, only the interceptor", async () => {
-    globalThis.__SO_DEV__ = false;
-    startRuntime();
-    await flush();
-    expect(soGlobals()).toEqual([]);
-    expect(typeof globalThis.talkControlInterceptor).toBe("function");
-  });
-
-  it("control: the dev flavour exposes the harness handles", async () => {
-    globalThis.__SO_DEV__ = true;
+  it("a started runtime exposes the harness handles beside the interceptor", async () => {
     startRuntime();
     await flush();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(soGlobals()).toEqual(expect.arrayContaining(["storyOrchestratorJudge", "storyOrchestratorLiveSuite", "storyOrchestratorLore", "storyOrchestratorScheduler"]));
+    expect(typeof globalThis.talkControlInterceptor).toBe("function");
   });
 
-  it("prod: a planted debug response and budget scale are ignored", () => {
+  it("stopping the runtime takes its handles with it", async () => {
+    startRuntime();
+    await flush();
+    expect(globalThis.storyOrchestratorScheduler).toBeDefined();
+    stopRuntime();
+    expect(soGlobals().filter((name) => (RUNTIME_GLOBALS as readonly string[]).includes(name))).toEqual([]);
+  });
+
+  it("a planted debug response and budget scale are read", () => {
+    expect(debugResponseFor("read")).toBeNull();
+    const unscaled = callTimeoutMs(512);
     globalThis.storyOrchestratorDebugExtractionResponse = "DELTA planted";
     globalThis.storyOrchestratorDebugCallBudgetScale = 0.01;
-    globalThis.__SO_DEV__ = false;
-    expect(debugResponseFor("read")).toBeNull();
-    expect(callTimeoutMs(512)).toBe(callTimeoutMs(512, 0));
-    const prod = callTimeoutMs(512);
-    globalThis.__SO_DEV__ = true;
     expect(debugResponseFor("read")).toBe("DELTA planted");
-    expect(callTimeoutMs(512)).toBeLessThan(prod);
+    expect(callTimeoutMs(512)).toBeLessThan(unscaled);
   });
 
-  it("the settings panel reaches the judge through the manager, not a global", async () => {
-    globalThis.__SO_DEV__ = false;
+  it("control: with nothing planted the model call runs for real and the budget is unscaled", () => {
+    expect(debugResponseFor("read")).toBeNull();
+    expect(callTimeoutMs(512)).toBe(callTimeoutMs(512, 0));
+  });
+
+  it("the settings panel still reaches the judge through the manager", async () => {
     startRuntime();
     await flush();
     expect(runtimeManager.getJudge()).not.toBeNull();
-    expect(globalThis.storyOrchestratorJudge).toBeUndefined();
   });
 
-  it("prod: the save watcher does not publish its refusal ring", () => {
+  it("the save watcher publishes its refusal ring while it runs, and removes it on stop", () => {
     jest.isolateModules(() => {
-      globalThis.__SO_DEV__ = false;
       Reflect.deleteProperty(globalThis, "storyOrchestratorSaveRefusals");
-      const { startSaveWatcherSurface } = jest.requireActual("@services/stHost/persistence");
-      startSaveWatcherSurface()();
-      startSaveWatcherSurface();
-      expect(Reflect.has(globalThis, "storyOrchestratorSaveRefusals")).toBe(false);
-    });
-    jest.isolateModules(() => {
-      globalThis.__SO_DEV__ = true;
       const { startSaveWatcherSurface } = jest.requireActual("@services/stHost/persistence");
       const stop = startSaveWatcherSurface();
       expect(Reflect.has(globalThis, "storyOrchestratorSaveRefusals")).toBe(true);

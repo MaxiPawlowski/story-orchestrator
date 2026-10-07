@@ -28,7 +28,7 @@ import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib
 import { BLOCKING_DIALOGS, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
-import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { dumpEngineHistory } from './lib/engineHistoryDump.mts';
 
@@ -536,7 +536,7 @@ function renderChecklist(results) {
 
 export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
-  await assertDevBundle(page);
+  await assertRuntimeOnPage(page);
   // A human check is scored in a file, not by the runner. Without --require-human-record the
   // count is still printed, so an acceptance run cannot read as complete with rubric rows open.
   const scoredHumanIds = humanRecordFile

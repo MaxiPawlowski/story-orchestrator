@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { ChapterControls } from "./ChapterControls";
@@ -31,12 +31,13 @@ export const PreviouslyIsOnByDefault: Story = {
   },
 };
 
-export const ReleaseBuildHasNoChapterRecordsEvenInAuthorView: Story = {
+export const AuthorViewShowsChapterRecordsOffByDefault: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-chapter-recap")).not.toBeNull();
-    await expect(canvasElement.querySelector("#so-chapter-advanced")).toBeNull();
-    for (const id of RECORD_IDS) await expect(canvasElement.querySelector(`#${id}`)).toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-chapter-advanced")).not.toBeNull());
+    for (const id of RECORD_IDS) await expect(canvasElement.querySelector(`#${id}`)).not.toBeNull();
+    for (const id of RECORD_IDS.filter((id) => id !== "so-chapter-budget")) await expect(canvasElement.querySelector<HTMLInputElement>(`#${id}`)?.checked).toBe(false);
   },
 };
 

@@ -3,44 +3,36 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { PROD_GLOBAL_ALLOWLIST, surfaceNames } from "./buildChecks.mjs";
+import { surfaceNames } from "./buildChecks.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const scripts = (dir) => readdirSync(join(root, dir)).filter((name) => name.endsWith(".js")).map((name) => readFileSync(join(root, dir, name), "utf8")).join("\n");
-const noBuilds = !(existsSync(join(root, "dist", "index.js")) && existsSync(join(root, "dist-dev", "index.js"))) && "needs npm run build and npm run build:dev";
+const noBuild = !existsSync(join(root, "dist", "index.js")) && "needs npm run build";
 
-test("D1: the prod bundle reads no debug response global; the dev bundle does", { skip: noBuilds }, () => {
-  assert.equal((scripts("dist").match(/storyOrchestratorDebug/g) ?? []).length, 0);
-  assert.ok((scripts("dist-dev").match(/storyOrchestratorDebug\w+/g) ?? []).length >= 13, "control: the dev bundle lost its debug responses, so the grep proves nothing");
+test("D1 (one build, 2026-10-07): the shipped bundle reads the debug response globals", { skip: noBuild }, () => {
+  assert.ok((scripts("dist").match(/storyOrchestratorDebug\w+/g) ?? []).length >= 13, "the bundle lost its debug responses");
 });
 
-test("D2: the prod bundle names no storyOrchestrator global outside the allowlist; talkControlInterceptor stays", { skip: noBuilds }, () => {
-  const prod = scripts("dist");
-  assert.deepEqual(surfaceNames(prod).filter((name) => !PROD_GLOBAL_ALLOWLIST.includes(name)), []);
-  assert.ok(prod.includes("talkControlInterceptor"), "the generate interceptor ST calls (manifest.json generate_interceptor) is gone");
-  const dev = surfaceNames(scripts("dist-dev"));
-  assert.ok(["storyOrchestratorRuntime", "storyOrchestratorJudge", "storyOrchestratorLiveSuite"].every((name) => dev.includes(name)), "control: the dev bundle lost its handles");
+test("D2: the shipped bundle carries the harness handles and the generate interceptor", { skip: noBuild }, () => {
+  const bundle = scripts("dist");
+  const names = surfaceNames(bundle);
+  assert.deepEqual(["storyOrchestratorRuntime", "storyOrchestratorJudge", "storyOrchestratorLiveSuite", "storyOrchestratorStop"].filter((name) => !names.includes(name)), []);
+  assert.ok(bundle.includes("talkControlInterceptor"), "the generate interceptor ST calls (manifest.json generate_interceptor) is gone");
 });
 
-test("D3 (v2.7 31 §B): the prod bundle carries no warm-batch lease; the dev bundle does", { skip: noBuilds }, () => {
-  const marker = "A sprite-build batch is already open.";
-  assert.equal(scripts("dist").includes(marker), false);
-  assert.ok(scripts("dist-dev").includes(marker), "control: the dev bundle lost the warm-batch lease, so the grep proves nothing");
+test("D3: the shipped bundle carries the warm-batch lease", { skip: noBuild }, () => {
+  assert.ok(scripts("dist").includes("A sprite-build batch is already open."));
 });
 
-test("D4 (v2.7 29): the prod bundle carries no dev-only settings control; the dev bundle does", { skip: noBuilds }, () => {
-  const markers = ["so-inner-fanout", "so-chapter-fold", "so-chapter-story-so-far"];
-  const prod = scripts("dist");
-  assert.deepEqual(markers.filter((marker) => prod.includes(marker)), []);
-  const dev = scripts("dist-dev");
-  assert.deepEqual(markers.filter((marker) => !dev.includes(marker)), [], "control: the dev bundle lost a dev-only control, so the grep proves nothing");
+test("D4: the shipped bundle carries every settings control the prod build used to strip", { skip: noBuild }, () => {
+  const bundle = scripts("dist");
+  assert.deepEqual(["so-inner-fanout", "so-chapter-fold", "so-chapter-story-so-far"].filter((marker) => !bundle.includes(marker)), []);
 });
 
 const FIXED_RESERVE = /MiB[^,;]{0,16}>=\s*\d{3,}/;
 
-test("D5 (v2.7 32 W4): neither bundle compares GPU or RAM headroom against a fixed reserve", { skip: noBuilds }, () => {
+test("D5 (v2.7 32 W4): the bundle compares no GPU or RAM headroom against a fixed reserve", { skip: noBuild }, () => {
   assert.equal(FIXED_RESERVE.test(scripts("dist")), false);
-  assert.equal(FIXED_RESERVE.test(scripts("dist-dev")), false);
 });
 
 test("D5 control: a planted fixed reserve is caught", () => {

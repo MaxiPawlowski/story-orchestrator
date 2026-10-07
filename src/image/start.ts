@@ -9,7 +9,7 @@ let dispose: (() => void) | null = null;
 export function startImage(manager: RuntimeManager): StoryImageDirector {
   if (image) return image;
   image = new StoryImageDirector(manager);
-  if (__SO_DEV__) globalThis.storyOrchestratorImage = image;
+  globalThis.storyOrchestratorImage = image;
   const stop = image.start();
   const unmount = registerImageSurface(image);
   dispose = () => { unmount(); stop(); };
@@ -21,5 +21,5 @@ export function stopImage(): void {
   dispose?.();
   dispose = null;
   image = null;
-  if (__SO_DEV__) Reflect.deleteProperty(globalThis, "storyOrchestratorImage");
+  Reflect.deleteProperty(globalThis, "storyOrchestratorImage");
 }

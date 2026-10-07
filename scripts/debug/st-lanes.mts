@@ -3,7 +3,7 @@ import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promi
 import { createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
-import { diskFlavourIssue } from './lib/bundleFlavour.mts';
+import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { judgeEnabledIn, NO_MODEL_BACKUP, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 
@@ -235,9 +235,9 @@ export const SERVED_EXTENSION_DIR = resolve(ST_ROOT, 'public', 'scripts', 'exten
 export const lanePreflight = (extensionDir: string = SERVED_EXTENSION_DIR): string | null => {
   const path = resolve(extensionDir, 'dist', 'manifest.json');
   try {
-    return diskFlavourIssue(existsSync(path) ? JSON.parse(readFileSync(path, 'utf-8')) : null);
+    return diskBuildIssue(existsSync(path) ? JSON.parse(readFileSync(path, 'utf-8')) : null);
   } catch {
-    return diskFlavourIssue(null);
+    return diskBuildIssue(null);
   }
 };
 

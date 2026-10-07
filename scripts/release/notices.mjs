@@ -25,7 +25,7 @@ export function renderNotices({ packages, licenceText, examples }) {
     "# Third-party notices",
     "",
     "Story Orchestrator is AGPL-3.0 (`LICENSE`). The shipped bundle (`dist/`) contains the packages below, read from the production",
-    "webpack module list (`npm run build` writes `.build/packages-prod.json`; `npm run notices` regenerates this file from it).",
+    "webpack module list (`npm run build` writes `.build/packages.json`; `npm run notices` regenerates this file from it).",
     "",
     "## Bundled packages",
     "",
@@ -70,8 +70,8 @@ const licenceText = (name) => {
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const statsPath = join(root, ".build", "packages-prod.json");
-  if (!existsSync(statsPath)) throw new Error(".build/packages-prod.json is missing: run npm run build first");
+  const statsPath = join(root, ".build", "packages.json");
+  if (!existsSync(statsPath)) throw new Error(".build/packages.json is missing: run npm run build first");
   const packages = JSON.parse(readFileSync(statsPath, "utf8"));
   writeFileSync(join(root, "THIRD-PARTY-NOTICES.md"), renderNotices({ packages, licenceText, examples: exampleFiles() }).replace(/\n/g, "\r\n"));
   console.log(`THIRD-PARTY-NOTICES.md: ${packages.length} bundled packages, ${exampleFiles().length} example files`);

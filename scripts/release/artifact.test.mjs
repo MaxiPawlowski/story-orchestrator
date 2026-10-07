@@ -24,9 +24,8 @@ function fixture() {
   put("dist/146.index.js", "a");
   put("dist/285.index.js", "b");
   put("dist/index.js.map", "{}");
-  put("dist-dev/index.js", "dev");
   const files = ["146.index.js", "285.index.js", "index.js"].map((path) => ({ path, sha256: sha(readFileSync(join(dir, "dist", path))), bytes: 1 }));
-  put("dist/manifest.json", JSON.stringify({ kind: "build-manifest", flavor: "prod", files, bundle: { sha256: files[2].sha256 } }));
+  put("dist/manifest.json", JSON.stringify({ kind: "build-manifest", files, bundle: { sha256: files[2].sha256 } }));
   return dir;
 }
 
@@ -35,7 +34,7 @@ test("R3: the stage list is exactly the allowlist plus the build's own files, ne
   try {
     const list = stageList(dir, allowlist, JSON.parse(readFileSync(join(dir, "dist", "manifest.json"), "utf8")));
     assert.ok(list.includes("dist/285.index.js") && list.includes("dist/index.js") && list.includes("examples/sun-ruins/Arin.png"));
-    assert.ok(!list.some((path) => path.endsWith(".map") || path.startsWith("docs/") || path.startsWith("src/") || path.startsWith("dist-dev/")));
+    assert.ok(!list.some((path) => path.endsWith(".map") || path.startsWith("docs/") || path.startsWith("src/")));
     assert.deepEqual(neverIssues(list, allowlist), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });

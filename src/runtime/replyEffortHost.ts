@@ -121,7 +121,7 @@ export function startReplyEffort(deps: ReplyEffortWiring): () => void {
     deps.journal(LEAK_REPAIRED, `message ${messageId}: ${fixed.reasoning.length - (reply?.reasoning.length ?? 0)} characters moved from the reply into its thought`);
   };
   const unobserve = deps.replies?.observe(repair) ?? (() => undefined);
-  const publish = deps.publish ?? (__SO_DEV__ ? (debug: EffortDebug) => publishSpikeDebug({ reasoningEffect: debug }) : null);
+  const publish = deps.publish ?? ((debug: EffortDebug) => publishSpikeDebug({ reasoningEffect: debug }));
   const unpublish = publish?.({ view: sync, shots: () => shots.map((shot) => ({ ...shot, set: [...shot.set] })) }) ?? (() => undefined);
   return () => {
     stop();

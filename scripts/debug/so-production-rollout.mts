@@ -31,10 +31,10 @@ try {
             const handles = ['storyOrchestratorRuntime', 'storyOrchestratorImage', 'storyOrchestratorSprites'].filter((key) => Boolean((globalThis as any)[key]));
             const ctx = (globalThis as any).SillyTavern.getContext();
             await ctx.getCharacters();
-            return { flavor: manifest.flavor, expected: manifest.bundle.sha256, data, handles };
+            return { expected: manifest.bundle.sha256, data, handles };
         });
-        report.build = { flavor: build.flavor, sha256: createHash('sha256').update(Buffer.from(build.data)).digest('hex'), debugHandles: build.handles };
-        if (report.build.flavor !== 'prod' || report.build.sha256 !== build.expected || build.handles.length) throw new Error('Served production build identity failed.');
+        report.build = { sha256: createHash('sha256').update(Buffer.from(build.data)).digest('hex'), handles: build.handles };
+        if (report.build.sha256 !== build.expected || !build.handles.includes('storyOrchestratorRuntime')) throw new Error('Served build identity failed.');
         if (process.argv[2] === 'probe') {
             await openGroup(page, group);
             await startNewChat(page);

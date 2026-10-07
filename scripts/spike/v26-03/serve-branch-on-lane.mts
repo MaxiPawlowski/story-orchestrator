@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const cdp = process.argv[2] ?? 'http://127.0.0.1:9302';
-const dir = resolve(process.argv[3] ?? 'dist-dev');
+const dir = resolve(process.argv[3] ?? 'dist');
 const prefix = '/scripts/extensions/third-party/story-orchestrator/dist/';
 const types: Record<string, string> = { '.js': 'text/javascript', '.json': 'application/json', '.map': 'application/json', '.css': 'text/css' };
 

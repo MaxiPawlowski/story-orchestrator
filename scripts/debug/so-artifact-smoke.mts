@@ -5,16 +5,14 @@ import type { Page } from 'playwright';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { DEBUG_DIR } from './lib/connection.mts';
 import { closeCheckpointStudio, openCheckpointStudio } from './so-ui.mts';
-import { PROD_GLOBAL_ALLOWLIST } from '../release/buildChecks.mjs';
 import { EXTENSION_BASE, bundleIssues, chunkRequestIssues, consoleIssues, globalIssues } from '../release/smokeChecks.mjs';
 
 const USAGE = `Usage: node scripts/debug/so-artifact-smoke.mts probe [--release-manifest <release-manifest.json>] [--out <file.json>]
 
-v2.5 plan 12 SM steps 3b, 5 and 6 on an ARTIFACT install (a prod bundle): black-box, through the page and
-the network only. It never reads a storyOrchestrator* handle, so it runs on the prod build the live
-harness refuses. Reloads with the HTTP cache off, opens the Studio from the settings panel, and checks:
-every lazy chunk answers 200, no chunk-load error in the console, no storyOrchestrator* global outside
-the prod allowlist, talkControlInterceptor present, the served dist/index.js is dist/manifest.json's
+v2.5 plan 12 SM steps 3b, 5 and 6 on an ARTIFACT install: black-box, through the page and the network
+only. It never drives a storyOrchestrator* handle. Reloads with the HTTP cache off, opens the Studio from the settings panel, and checks:
+every lazy chunk answers 200, no chunk-load error in the console, storyOrchestratorRuntime and
+talkControlInterceptor present, the served dist/index.js is dist/manifest.json's
 bundle (and release-manifest.json's when given). Steps 1-4 (install by the U6 route, first run,
 provisioning sun-ruins through ST's UI, one real turn, restart) are not automated here yet.`;
 
@@ -41,7 +39,7 @@ export async function probeArtifact(page: Page, { releaseManifest = null as stri
   const built = await page.evaluate(async (base: string) => (await (await fetch(`${base}/dist/manifest.json`, { cache: 'no-store' })).json())?.bundle?.sha256 ?? null, EXTENSION_BASE);
   const served = await sha256(page, `${EXTENSION_BASE}/dist/index.js`);
   const released = releaseManifest ? JSON.parse(await readFile(resolve(releaseManifest), 'utf-8')).bundle?.sha256 : undefined;
-  const issues = [...globalIssues(keys, PROD_GLOBAL_ALLOWLIST), ...chunkRequestIssues(responses), ...consoleIssues(messages), ...bundleIssues({ served, built, released })];
+  const issues = [...globalIssues(keys), ...chunkRequestIssues(responses), ...consoleIssues(messages), ...bundleIssues({ served, built, released })];
   return { ok: issues.length === 0, issues, served, built, released: released ?? null, globals: keys, chunks: responses.filter((response) => /\/dist\/\d+\.index\.js/.test(response.url)) };
 }
 

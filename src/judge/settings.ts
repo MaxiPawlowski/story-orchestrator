@@ -69,7 +69,7 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "attentionCheck", "wardenVoice"];
+export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"];
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, !JUDGE_USES_OFF_BY_DEFAULT.includes(key)])) as JudgeUses;
 
@@ -252,13 +252,13 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   loreExclusive: {
     label: "Exclusive lore selection",
     description: "For a story marked exclusive, switches off, for that one reply, the entries of its lore-select books the judge did not pick. Only with per-chat gating; " +
-      "a timeout, a refused pick or a timed entry keeps the keyword scan as it is.",
+      "a timeout, a refused pick or a timed entry keeps the keyword scan as it is. Off by default.",
     sends: "nothing beyond Lore selection: it acts on the same request",
   },
   expressions: {
     label: "Sprite expressions",
     description: "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. " +
-      "Otherwise the sprite model, then the local classifier, decide.",
+      "Otherwise the sprite model, then the local classifier, decide. Off by default.",
     sends: "each reply's passages, the on-stage character names and the expression labels with their descriptions",
   },
   attentionCheck: {
@@ -270,7 +270,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   wardenVoice: {
     label: "In character (warden)",
     description: "After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note "
-      + "in the next reply's prompt, never a rewrite. Not measured yet, so off and dev-only.",
+      + "in the next reply's prompt, never a rewrite. Not measured yet, so off by default.",
     sends: "the character reply, the speaker's name, roster role and drive, and their feelings toward the others in the scene",
   },
 };

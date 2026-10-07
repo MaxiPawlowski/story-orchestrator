@@ -12,15 +12,12 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FLAVOURS } from "./buildChecks.mjs";
 import { requireStRoot } from "../lib/stRoot.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
 const argValue = (name) => { const index = process.argv.indexOf(name); return index > 0 ? process.argv[index + 1] : undefined; };
-const flavor = argValue("--flavor") ?? "prod";
-if (!(flavor in FLAVOURS)) throw new Error(`unknown --flavor ${flavor}: expected one of ${Object.keys(FLAVOURS).join(", ")}`);
-const dist = join(root, argValue("--out") ?? FLAVOURS[flavor]);
+const dist = join(root, argValue("--out") ?? "dist");
 const OUT = join(dist, "manifest.json");
 
 const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
@@ -97,7 +94,7 @@ const bundle = join(dist, "index.js");
 if (!existsSync(bundle)) throw new Error(`${relative(root, bundle)} is missing — run this after webpack, not instead of it`);
 const budget = Number(/const BUNDLE_BUDGET_BYTES = (\d+);/.exec(readFileSync(join(root, "webpack.config.js"), "utf8"))?.[1]);
 if (!Number.isFinite(budget)) throw new Error("webpack.config.js declares no BUNDLE_BUDGET_BYTES");
-if (flavor === "prod" && statSync(bundle).size > budget) {
+if (statSync(bundle).size > budget) {
   throw new Error(`${relative(root, bundle)} is ${statSync(bundle).size} B, over the ${budget} B budget`);
 }
 
@@ -106,7 +103,6 @@ const emitted = readdirSync(dist).filter((name) => name !== "manifest.json" && s
 
 const manifest = {
   kind: "build-manifest",
-  flavor,
   extension: { name: pkg.name, version: pkg.version, revision: revision(root) },
   builtAt: new Date().toISOString(),
   bundle: { path: "dist/index.js", sha256: sha256(readFileSync(bundle)), bytes: statSync(bundle).size },

@@ -5,7 +5,7 @@ import type { Page } from 'playwright';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
 import { DEBUG_DIR } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
-import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { captureLibrary } from './lib/librarySnapshot.mts';
 import { soloChat } from './lib/soloSandbox.mts';
 import { beginSandboxSession, openGroup } from './st-navigation.mts';
@@ -138,7 +138,7 @@ async function seedSandbox(page: Page, groupId: string, character: string) {
 }
 
 export async function runC2(page: Page, { groupId, character = 'Ponticius', attempts = 2, keep = false }: { groupId: string; character?: string; attempts?: number; keep?: boolean }) {
-  await assertDevBundle(page);
+  await assertRuntimeOnPage(page);
   const libraryBefore = await captureLibrary(page);
   let seeded: Awaited<ReturnType<typeof seedSandbox>> | null = null;
   const results: C2AttemptResult[] = [];

@@ -49,16 +49,16 @@ test('v2.5 plan 01: --wi-gating reaches a journey and never a scenario', () => {
   assert.deepEqual(itemArgs('test/scenarios/x.json', true, 'g1', 'scan'), ['scripts/debug/so-scenario.mts', 'run', 'test/scenarios/x.json', '--sandbox', '--group', 'g1']);
 });
 
-test('v2.5 plan 12: a lane batch refuses a prod or missing dist/ before any lane runs', () => {
+test('a lane batch refuses a missing dist/ before any lane runs; the one build passes', () => {
   const root = mkdtempSync(join(tmpdir(), 'so-lane-preflight-'));
   try {
     assert.match(String(lanePreflight(root)), /no dist\/manifest\.json/);
     mkdirSync(join(root, 'dist'));
-    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'build-manifest', flavor: 'prod' }));
-    assert.match(String(lanePreflight(root)), /flavor "prod".*npm run build:dev && npm run serve:dev/);
+    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'not-a-build' }));
+    assert.match(String(lanePreflight(root)), /no dist\/manifest\.json.*npm run build && npm run stage/);
     writeFileSync(join(root, 'dist', 'manifest.json'), '{not json');
     assert.match(String(lanePreflight(root)), /no dist\/manifest\.json/);
-    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'build-manifest', flavor: 'dev' }));
+    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'build-manifest' }));
     assert.equal(lanePreflight(root), null);
   } finally {
     rmSync(root, { recursive: true, force: true });

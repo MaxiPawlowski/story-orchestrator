@@ -128,8 +128,8 @@
         "agencyCheck": true,
         "houseRules": false,
         "wardenLore": true,
-        "loreExclusive": true,
-        "expressions": true,
+        "loreExclusive": false,
+        "expressions": false,
         "attentionCheck": false,
         "wardenVoice": false
       },

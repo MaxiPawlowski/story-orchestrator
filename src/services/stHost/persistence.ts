@@ -207,9 +207,9 @@ export function installSaveWatcher() {
 }
 
 export function startSaveWatcherSurface(): () => void {
-  if (__SO_DEV__) (globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
+  (globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
   return () => {
-    if (__SO_DEV__) Reflect.deleteProperty(globalThis, "storyOrchestratorSaveRefusals");
+    Reflect.deleteProperty(globalThis, "storyOrchestratorSaveRefusals");
     if (ours && wrapped && globalThis.fetch === ours) globalThis.fetch = wrapped;
     ours = null;
     wrapped = null;

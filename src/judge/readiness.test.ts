@@ -55,10 +55,10 @@ describe("judge readiness (v2.3 plan 09)", () => {
     });
   });
 
-  it("reports shipped uses enabled by default, except house rules (below floor on Adolion, 2026-10-01) and the unmeasured attention check (v2.7 33)", () => {
+  it("reports shipped uses enabled by default, except house rules (below floor on Adolion, 2026-10-01) and the unmeasured uses (v2.7 33, one build 2026-10-07)", () => {
     const rows = judgeReadiness(defaultJudgeSettings());
     expect(rows).toHaveLength(JUDGE_USE_KEYS.length);
-    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules", "attentionCheck", "wardenVoice"]);
+    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"]);
   });
 
   // v2.4 plan 07 (X22): sceneOoc and memoryRerank are removed, so every declared use is built,
@@ -83,7 +83,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
   });
 
   it("L5: exclusive lore selection is author-only, off, blocked without lore selection and unproven with it until X1/X2 run", () => {
-    expect(AUTHOR_JUDGE_USES.includes("loreExclusive") && defaultJudgeSettings().uses.loreExclusive === true).toBe(true);
+    expect(AUTHOR_JUDGE_USES.includes("loreExclusive") && defaultJudgeSettings().uses.loreExclusive === false).toBe(true);
     expect(judgeReadiness(settings({ loreExclusive: true, loreSelect: false }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")).toMatchObject({ verdict: "blocked", blockedBy: "loreSelect" });
     expect(judgeReadiness(settings({ loreExclusive: true, loreSelect: true }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")?.verdict).toBe("unproven");
   });
@@ -95,7 +95,9 @@ describe("judge readiness (v2.3 plan 09)", () => {
 
     const both = remeasured(settings({ expansionLookahead: true, lookahead: true }), JUDGE_USE_DEPENDENCIES);
     expect(both.find((row) => row.key === "expansionLookahead")?.verdict).toBe("measured");
-    expect(judgeReadinessConcerns(both).map((row) => row.key)).toEqual(["loreExclusive", "expressions"]);
+    expect(judgeReadinessConcerns(both).map((row) => row.key)).toEqual([]);
+    const unmeasuredOn = remeasured(settings({ expansionLookahead: true, lookahead: true, loreExclusive: true, expressions: true }), JUDGE_USE_DEPENDENCIES);
+    expect(judgeReadinessConcerns(unmeasuredOn).map((row) => row.key)).toEqual(["loreExclusive", "expressions"]);
   });
 
   it("AS-16: every measured use names the fixture revision it was measured on, and the current revision is the fixture file's", () => {

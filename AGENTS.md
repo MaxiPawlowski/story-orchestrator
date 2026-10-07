@@ -46,16 +46,15 @@ Check: `curl -s http://127.0.0.1:18080/health` → `{"status":"ok"}`.
 
 **3. ST.** Start with `node server.js` from `C:\dev\SillyTavern-MainBranch` (or the user's launcher, minus
 its git pull). The judge plugin (`plugins/story-orchestrator-judge`) must log "Initializing plugin".
-After changing the extension: `npm run build` (prod) and a hard reload of the page.
+After changing the extension: `npm run build && npm run stage` and `node scripts/debug/st-session.mts reload`.
 If `#send_but` stays hidden after the tunnel comes back, re-select the profile: `/profile Artemis RunPod RP`.
 
-**4. Build flavour.** Playtests run the **prod** build (`npm run build`; `dist/manifest.json` flavor `prod`).
-The debug harness needs dev (`npm run build:dev && npm run serve:dev`); put prod back afterwards.
+**4. One build.** There is one build (`npm run build`, owner decision 2026-10-07): playtests and the debug
+harness run the same bundle, debug handles included.
 
 **5. Assisting the playtest.** Start a FRESH chat per story (chats from before v2.5 plan 11 open read-only and
-only Restart replaces them). The player flags moments with ⚑ in the drawer. On the prod build the debug
-scripts cannot read the page (`so-journal`/`so-state` need the dev handle and the CDP browser from
-`st-session.mts start`), so read the chat file instead: `C:\dev\SillyTavern-MainBranch\data\default-user\chats\`
+only Restart replaces them). The player flags moments with ⚑ in the drawer. Without the CDP browser from
+`st-session.mts start` the debug scripts cannot read the page (`so-journal`/`so-state`), so read the chat file instead: `C:\dev\SillyTavern-MainBranch\data\default-user\chats\`
 (solo) or `group chats\` — line 1's `chat_metadata.story_orchestrator` holds the engine state, the rings and
 the journal (`extras.journal`, flags included). Read-only: never edit a chat file ST has open. Triage each
 flag against the gotchas before calling it a product defect. Record findings in `docs/plans/v2.5/` as a

@@ -5,13 +5,13 @@
   host that failed to typecheck is a Windows host, so this is the one that has to exist.
 
   Usage:
-    pwsh scripts\release\clean-host.ps1 [-Ref <commit|branch|tag>] [-Keep] [-Gates typecheck,typecheck-test,lint,test,build,build-dev,release,debug,plugin,storybook]
+    pwsh scripts\release\clean-host.ps1 [-Ref <commit|branch|tag>] [-Keep] [-Gates typecheck,typecheck-test,lint,test,build,release,debug,plugin,storybook]
 #>
 [CmdletBinding()]
 param(
   [string]$Ref = $env:ST_REF,
   [string]$Repo = $(if ($env:ST_REPO) { $env:ST_REPO } else { "https://github.com/SillyTavern/SillyTavern.git" }),
-  [string]$Gates = "typecheck,typecheck-test,lint,test,build,build-dev,release,debug,plugin,storybook",
+  [string]$Gates = "typecheck,typecheck-test,lint,test,build,release,debug,plugin,storybook",
   [string]$Store,
   [switch]$Keep
 )
@@ -39,7 +39,7 @@ $commit = (git -C $clone rev-parse HEAD).Trim()
 Say "SillyTavern $commit"
 
 New-Item -ItemType Directory -Force -Path $target | Out-Null
-Get-ChildItem -Path $extDir -Force | Where-Object { $_.Name -notin @("node_modules", "dist", "dist-dev", ".debug", ".sb-static", ".git") } |
+Get-ChildItem -Path $extDir -Force | Where-Object { $_.Name -notin @("node_modules", "dist", ".debug", ".sb-static", ".git") } |
   Copy-Item -Destination $target -Recurse -Force
 Say "copied the extension without node_modules/dist"
 
@@ -59,7 +59,6 @@ if ($selected -contains "typecheck-test") { Invoke-Gate "typecheck:test" "npm" @
 if ($selected -contains "lint") { Invoke-Gate "lint" "npm" @("run", "lint") }
 if ($selected -contains "test") { Invoke-Gate "test" "npm" @("test") }
 if ($selected -contains "build") { Invoke-Gate "build" "npm" @("run", "build") }
-if ($selected -contains "build-dev") { Invoke-Gate "build:dev" "npm" @("run", "build:dev") }
 if ($selected -contains "release") { Invoke-Gate "test:release" "npm" @("run", "test:release") }
 if ($selected -contains "debug") { Invoke-Gate "test:debug" "npm" @("run", "test:debug") }
 if ($selected -contains "plugin") { Invoke-Gate "test:plugin" "npm" @("run", "test:plugin") }

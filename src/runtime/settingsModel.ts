@@ -230,27 +230,9 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain) };
 };
 
-export const DEV_ONLY_CHAPTER_KEYS = ["seal", "storySoFar", "fold", "chronicleTokens"] as const;
-
-export const DEV_ONLY_JUDGE_USES = ["loreExclusive", "expressions", "wardenVoice"] as const;
-
-const isDevBuild = () => typeof __SO_DEV__ !== "undefined" && __SO_DEV__;
-
-export const withoutDevOnlySettings = (settings: GlobalSettings, dev: boolean = isDevBuild()): GlobalSettings => {
-  if (dev) return settings;
-  const { innerBeat: _beat, innerFanOut: _fanOut, harvestReasoning: _harvest, ...memory } = settings.memory;
-  const chapters = memory.chapters ? Object.fromEntries(Object.entries(memory.chapters)
-    .filter(([key]) => !(DEV_ONLY_CHAPTER_KEYS as readonly string[]).includes(key))) as MemoryRuntimeSettings["chapters"] : undefined;
-  return {
-    ...settings,
-    memory: { ...memory, ...(chapters ? { chapters } : {}) },
-    judge: { ...settings.judge, uses: { ...settings.judge.uses, ...Object.fromEntries(DEV_ONLY_JUDGE_USES.map((use) => [use, false])) } },
-  };
-};
-
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
-  if (!isRecord(value)) return withoutDevOnlySettings(defaults);
+  if (!isRecord(value)) return defaults;
   const {
     profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, reconciliationMultiplier: _fixedReconciliation, ...extraction
   }: Record<string, unknown> =
@@ -262,7 +244,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const pacing = isRecord(value.pacing) ? value.pacing : {};
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
-  return withoutDevOnlySettings({
+  return {
     extraction: {
       ...defaults.extraction,
       ...extraction,
@@ -307,5 +289,5 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
     help: sanitizeHelpSettings(value.help),
-  });
+  };
 };

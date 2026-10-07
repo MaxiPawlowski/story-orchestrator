@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { requiredGroup, requiresOf, membersToEnable } from './lib/scenarioRequires.mts';
 import { enableGroupMembers, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
 import { bundleWarning, captureHeader } from './so-run-header.mts';
@@ -130,7 +130,7 @@ async function readServedManifest(page) {
       const response = await fetch('/scripts/extensions/third-party/story-orchestrator/dist/manifest.json', { cache: 'no-store' });
       if (!response.ok) return { http: response.status };
       const manifest = await response.json();
-      return { http: response.status, bundleSha256: manifest?.bundle?.sha256 ?? null, version: manifest?.extension?.version ?? null, flavor: manifest?.flavor ?? null, commit: manifest?.source?.commit ?? null, sourceSha256: manifest?.source?.sha256 ?? null, builtAt: manifest?.builtAt ?? null };
+      return { http: response.status, bundleSha256: manifest?.bundle?.sha256 ?? null, version: manifest?.extension?.version ?? null, commit: manifest?.source?.commit ?? null, sourceSha256: manifest?.source?.sha256 ?? null, builtAt: manifest?.builtAt ?? null };
     } catch (error) {
       return { http: 0, error: String(error) };
     }
@@ -151,7 +151,7 @@ async function capture(page, args: string[]) {
   if (!label || !outArg) throw new Error('capture needs --label <name> and --out <dir>');
   const out = resolve(PROJECT_ROOT, outArg);
   if (existsSync(resolve(out, 'index.json')) && !args.includes('--force')) throw new Error(`${rel(out)} already holds index.json: goldens are not overwritten without --force`);
-  await assertDevBundle(page);
+  await assertRuntimeOnPage(page);
   await mkdir(out, { recursive: true });
   const files = await caseFiles(argValue(args, '--cases'));
   const cliGroup = argValue(args, '--group');

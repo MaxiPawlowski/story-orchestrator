@@ -23,14 +23,14 @@ export function startStoryLore(deps: StoryLoreWiring): { reassert: () => void; d
   setStoryLoreScanned(handle.ordered);
   const stopReading = readGlobalStoryBooksWith(() => globalStoryBooks(listGlobalLorebooks(), listStoryRecords().map((record) => record.raw), getGlobalSettings().worldInfo.keptGlobal));
   const debug: StoryLoreDebug = { last: lore.last, books: globalStoryLore };
-  if (__SO_DEV__) globalThis.storyOrchestratorStoryLore = debug;
+  globalThis.storyOrchestratorStoryLore = debug;
   return {
     reassert: handle.reassert,
     dispose: () => {
       handle.dispose();
       setStoryLoreScanned(false);
       stopReading();
-      if (__SO_DEV__) globalThis.storyOrchestratorStoryLore = undefined;
+      globalThis.storyOrchestratorStoryLore = undefined;
     },
   };
 }

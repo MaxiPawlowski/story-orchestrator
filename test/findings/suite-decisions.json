@@ -254,7 +254,7 @@
           "minutes": 30,
           "capMinutes": 30,
           "command": "node scripts/debug/so-r4-spike.mts check; per climax turn of test/measurements/v2.6-05/r4-turns.json: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-r4-spike.mts run --run-id phaseF-r4-r<k> --only <turnId>",
-          "when": "only if the R4 measurement (test/measurements/v2.6-05/r4-spike.json) recorded include; on a miss the row is the removal control: npx jest src/runtime/devOnly.guard.test.ts with the spike files gone",
+          "when": "only if the R4 measurement (test/measurements/v2.6-05/r4-spike.json) recorded include; on a miss the row is the removal control: npx jest src/runtime/lazyHarness.guard.test.ts with the spike files gone",
           "config": "dev bundle, a Chat Completion profile, spikes.reasoningEffect on, frozen r4-turns.json",
           "artifacts": [
             "<debug>/r4/<run-id>/run.json + records.jsonl (payload proof the key landed per pair)",

@@ -44,9 +44,6 @@ jobs:
       - name: build
         working-directory: ${{ env.EXT }}
         run: npm run build
-      - name: build:dev
-        working-directory: ${{ env.EXT }}
-        run: npm run build:dev
       - name: test:release
         working-directory: ${{ env.EXT }}
         run: npm run test:release

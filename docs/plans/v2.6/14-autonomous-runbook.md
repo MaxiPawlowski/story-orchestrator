@@ -13,7 +13,7 @@ node scripts/debug/so-session.mts plan --write
 node scripts/debug/so-session.mts budget
 ```
 
-- The served bundle must be the dev flavour (`dist/manifest.json` `flavor: "dev"`); staging it is the lead's step, not the runbook's.
+- The served bundle is the one build (`npm run build && npm run stage`); staging it is the lead's step, not the runbook's.
 - `start` fails closed (exit 2, `start-failed.json`, no session) on any blocking discrepancy: a card whose pinned story lacks the data it exercises, a lane seeded from another build (except a card continuing the chat its lane's lease holds and names it a dependent of: it runs at the lane's own pin when the lane inventory matches that pin's seed record, recorded as `continuedAtPin` in `session.json` and the findings), a setting the runtime does not read back as the baseline plus the card's overrides (`test/sessions/baseline-settings.json`), a failed routing pin (`page-pin.json`), a page problem, a recap that did not fire, a failed run header, or a tail that never acknowledged it is capturing.
 - `stop` exports every visited or created chat, asks each tail to drain and waits for it before stopping it, and exits 1 on an invalid session (failed header diff, missing capture, lost drain, missing required artifact, a ComfyUI call). A repo rebuild or merge mid-run is not a failed diff while the served bundle is unchanged (`--served-identity`): it is a warning in `session.json`. An invalid session is re-run, never scored.
 - Never touch ComfyUI at 127.0.0.1:8188: every card runs with `--media off` (the default), the recorded no-media variant; image and sprite rubric rows are unexercised, and no card here needs `--allow-comfy`.

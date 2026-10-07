@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { DisplayGroup, InnerVoiceGroup, PacingGroup, StagecraftGroup, TalkGroup, TransitionNoteRow, WardenGroup } from "./PlayGroups";
@@ -65,7 +65,7 @@ export const AuthorView: Story = {
     await userEvent.click(curator);
     await expect(args.manager.setStagecraftSettings).toHaveBeenCalledWith({ curatorEnabled: false });
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
-    await expect(canvasElement.querySelector("#so-inner-voice-settings")).toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-inner-voice-settings")).not.toBeNull());
     await expect(canvasElement.querySelector("#so-pacing-alpha")).toBeNull();
     await expect(canvasElement.querySelector("#so-chain-hold-extraction")).toBeNull();
   },

@@ -300,8 +300,7 @@ export const RoutedToARefusedLocalProvider: Story = {
   },
 };
 
-// v2.6 plan 04 B17: exclusive lore selection is author-only. It is on by default and unmeasured, so its readiness
-// concern named it in the player's panel although the switch itself was hidden there.
+// v2.6 plan 04 B17: exclusive lore selection is author-only, so its readiness concern stays out of the player's panel.
 export const ExclusiveLoreIsAuthorOnly: Story = {
   args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready },
   play: async ({ canvasElement }) => {
@@ -331,11 +330,11 @@ export const AuthorSeesWardenLoreRow: Story = {
   },
 };
 
-export const ExclusiveLoreIsDevOnlyButItsReadinessShowsInAuthorView: Story = {
-  args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready, authorView: true },
+export const ExclusiveLoreAndExpressionsAreSwitchesInAuthorView: Story = {
+  args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true, expressions: false }), status: ready, authorView: true },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).toBeNull();
-    await expect(canvasElement.querySelector("#so-judge-use-expressions")).toBeNull();
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-lore-exclusive")?.checked).toBe(true);
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-expressions")?.checked).toBe(false);
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("Exclusive lore selection");
   },
 };

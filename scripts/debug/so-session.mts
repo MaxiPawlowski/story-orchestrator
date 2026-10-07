@@ -205,7 +205,7 @@ function servedBuild() {
   const path = stRoot ? resolve(stRoot, 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator', 'dist', 'manifest.json') : null;
   const manifest = path && existsSync(path) ? JSON.parse(readFileSync(path, 'utf-8')) : null;
   return {
-    flavor: manifest?.flavor ?? null, bundleSha256: manifest?.bundle?.sha256 ?? null, version: manifest?.extension?.version ?? null,
+    bundleSha256: manifest?.bundle?.sha256 ?? null, version: manifest?.extension?.version ?? null,
     builtAt: manifest?.builtAt ?? null, sourceSha256: manifest?.source?.sha256 ?? null,
   };
 }

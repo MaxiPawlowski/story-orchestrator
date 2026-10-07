@@ -19,7 +19,6 @@ const row = (over = {}) => ({
   prerequisites: ["a lane"],
   reset: "lane",
   tier: ["D"],
-  build: "prod",
   assertion: "the thing holds on the lane",
   floor: { text: BINARY, citation: "39 §Rows" },
   evidence: [null, null],
@@ -58,7 +57,7 @@ test("the predecessor is a full commit and the absent rows give a reason", () =>
   for (const entry of manifest.absent) assert.ok(plan.includes(entry.id), `${entry.id} is absent and plan 39 never names it`);
 });
 
-test("planted controls: a missing field, a duplicate, an unknown tier or build, a bad evidence slot are each named", () => {
+test("planted controls: a missing field, a duplicate, an unknown tier, a build field, a bad evidence slot are each named", () => {
   assert.deepEqual(rowProblems(synthetic([row()])), []);
   const named = (rows) => rowProblems(synthetic(rows)).join("\n");
   assert.match(named([row(), row()]), /X-1: duplicate id/);
@@ -66,7 +65,8 @@ test("planted controls: a missing field, a duplicate, an unknown tier or build, 
   assert.match(named([row({ reset: "none" })]), /unknown reset/);
   assert.match(named([row({ tier: ["GPU"] })]), /tier/);
   assert.match(named([row({ tier: [] })]), /tier/);
-  assert.match(named([row({ build: "dev" })]), /not prod or dev-diagnostic/);
+  assert.match(named([row({ build: "dev-diagnostic" })]), /X-1: carries a build field, but there is one build/);
+  assert.match(named([row({ build: "prod" })]), /one build/);
   assert.match(named([row({ assertion: "" })]), /no assertion/);
   assert.match(named([row({ source: { plan: "v2.7 39" } })]), /source needs plan and section/);
   assert.match(named([row({ evidence: [null] })]), /two slots/);

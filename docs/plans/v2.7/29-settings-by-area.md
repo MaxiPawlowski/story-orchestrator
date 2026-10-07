@@ -131,7 +131,11 @@ New rows (features since 2026-10-03):
 | Card fields: current character state in replies (`sprites.cardOverlay`), on-demand looks | setup | advanced | optional, off by default; stays in the sprite Advanced fold (deviation 3) |
 | In-plugin guide | player | keep | the "?" on every section opens it; `/story guide` unchanged |
 
-### Release-build dev-only defaults
+### Release-build dev-only defaults (superseded 2026-10-07: one build)
+
+Superseded by the one-build decision (00-overview §Decisions 2026-10-07): `withoutDevOnlySettings` and the
+`__SO_DEV__` gates are gone; each row below is an ordinary install setting, off by default. Kept as history:
+
 
 `withoutDevOnlySettings` (in `sanitizeGlobalSettings`, release build only): drops `memory.innerBeat/innerFanOut/
 harvestReasoning` and `memory.chapters.{seal,storySoFar,fold,chronicleTokens}`, forces `judge.uses.loreExclusive`
@@ -196,5 +200,5 @@ Source: v2.7 39 §Review 2026-10-07 (Sol). Both tasks below are owned by this pl
 
 | Finding | Change | Where |
 |---|---|---|
-| 20 | **Help availability filtering:** registry features gain an availability flag (`devOnly`, or a predicate over the build and capabilities). A release-build Help lists only features whose control can mount. "Show me" renders only when its target exists in the current build and persona, and otherwise points to the guide page. Test: a release-build fixture where every listed "Show me" target resolves, plus a planted dev-only feature that must not appear | §Open items (the dev-only Help entries) |
+| 20 | **Superseded 2026-10-07 (one build, 00-overview §Decisions):** every feature ships, so Help lists every feature and one whose setting is off says so; no availability flag. Was: **Help availability filtering:** registry features gain an availability flag (`devOnly`, or a predicate over the build and capabilities). A release-build Help lists only features whose control can mount. "Show me" renders only when its target exists in the current build and persona, and otherwise points to the guide page. Test: a release-build fixture where every listed "Show me" target resolves, plus a planted dev-only feature that must not appear | §Open items (the dev-only Help entries) |
 | 20 | **Settings reference owner:** a `docs:settings` script generates `docs/guide/setup/settings-reference.md` and the README Features table from the registry and settings areas; a drift test fails on a hand edit. Deviation 5 is closed here, before 39 Z, instead of "stays with v2.7 01 step Z" | §Deviations 5 |

@@ -21,7 +21,7 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
   if (stage) return stage;
   const current = new SpriteStage(manager);
   stage = current;
-  if (__SO_DEV__) globalThis.storyOrchestratorSprites = Object.assign(current, {
+  globalThis.storyOrchestratorSprites = Object.assign(current, {
     beginBuildBatch: async () => (await import("./builder/batchHost")).beginSpriteBatch(manager.getOwnership()),
     endBuildBatch: async () => (await import("./builder/batchHost")).endSpriteBatch(),
   });
@@ -32,7 +32,7 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
   const root = createRoot(host, ROOT_OPTIONS);
   root.render(<StageMount stage={current} />);
   dispose = () => {
-    if (__SO_DEV__) void import("./builder/batchHost").then(({ endSpriteBatch }) => endSpriteBatch()).catch((error) => log.warn("The sprite build batch could not close", error));
+    void import("./builder/batchHost").then(({ endSpriteBatch }) => endSpriteBatch()).catch((error) => log.warn("The sprite build batch could not close", error));
     stop();
     root.unmount();
     host.remove();
@@ -45,5 +45,5 @@ export function stopSprites(): void {
   dispose?.();
   dispose = null;
   stage = null;
-  if (__SO_DEV__) Reflect.deleteProperty(globalThis, "storyOrchestratorSprites");
+  Reflect.deleteProperty(globalThis, "storyOrchestratorSprites");
 }

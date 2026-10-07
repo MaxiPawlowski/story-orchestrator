@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { allowlistIssues, chunkIssues, loadAllowlist, neverIssues, sha256, stageList, stageTree, walk, writeZip } from "./artifact.mjs";
-import { fileListIssues, flavourIssues } from "./buildChecks.mjs";
+import { fileListIssues } from "./buildChecks.mjs";
 import { pluginVersions } from "../lib/pluginInstall.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -18,7 +18,7 @@ if (!args.includes("--no-build")) {
   if (build.status !== 0) fail("npm run build failed");
 }
 const distManifest = readJson("dist/manifest.json");
-const buildIssues = [...flavourIssues(distManifest, "prod"), ...fileListIssues(readdirSync(join(root, "dist")).filter((name) => name !== "manifest.json"), distManifest)];
+const buildIssues = [...fileListIssues(readdirSync(join(root, "dist")).filter((name) => name !== "manifest.json"), distManifest)];
 if (buildIssues.length) fail(buildIssues.join("; "));
 
 const allowlist = loadAllowlist(root);

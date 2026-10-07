@@ -94,12 +94,12 @@ const registerHostSurfaces = () => {
   } catch (error) {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
-  if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
+  void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   runtimeDisposers.push(startStoryScenario());
   void import("./checkOutcomeHost").then(({ startCheckOutcome }) => { if (started) runtimeDisposers.push(startCheckOutcome(runtimeManager)); })
     .catch((error: unknown) => featureFailed("Check outcomes", error));
   startPersonaHost();
-  if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
+  void import("./spikes/install").then(({ installSpikes }) => {
     if (!started) return;
     let unpublish = () => {};
     runtimeDisposers.push(installSpikes(spikePort(), (debug) => {
@@ -114,7 +114,7 @@ const registerHostSurfaces = () => {
 const startWatches = () => {
   bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
-  if (__SO_DEV__) void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
+  void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited]);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
@@ -169,17 +169,17 @@ export function startRuntime() {
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();
-  if (__SO_DEV__) globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(access.chatLastId()) ?? null };
+  globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(access.chatLastId()) ?? null };
   const judgeRuntime = startJudge(live, access);
-  if (__SO_DEV__) void import("./judgeHarness").then(({ createJudgeHarness }) => {
+  void import("./judgeHarness").then(({ createJudgeHarness }) => {
     if (started && runtimeManager.getJudge() === judgeRuntime) globalThis.storyOrchestratorJudge = createJudgeHarness(judgeRuntime);
   });
   startScene(live, runtimeDisposers, judgeRuntime, access);
   const generation = new GenerationLifecycle(isTurnMessageType);
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
-  if (__SO_DEV__) globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
-  if (__SO_DEV__) void import("./agendaProposalsDev").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
+  globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
+  void import("./agendaProposalsDev").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
   attachGenerationObservers(live, runtimeDisposers, generation);
   privateInjectionUnsub = subscribeGenerationEvents(live, generation, lore, access.chatLastId, () => void startupLoad());
   // Versioned settings (loaded synchronously from a cache) are already in place,

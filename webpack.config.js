@@ -1,28 +1,25 @@
 const path = require("path");
-const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const LiveReloadPlugin = require("webpack-livereload-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { BundledPackagesPlugin } = require("./scripts/release/bundledPackages.cjs");
 
-const OUTPUT_DIRS = { prod: "dist", dev: "dist-dev" };
 const BUNDLE_BUDGET_BYTES = 1250000;
 const HOST_BROWSER_FLOOR = { chrome: "89", edge: "89", firefox: "90", safari: "15", ios: "15", opera: "75", samsung: "15" };
 
-module.exports = (env = {}, argv = {}) => {
+module.exports = (_env = {}, argv = {}) => {
   const mode = argv.mode || process.env.NODE_ENV || "production";
-  const flavor = env.flavor === "dev" || mode === "development" ? "dev" : "prod";
   return {
     entry: path.join(__dirname, "src/index.tsx"),
     output: {
-      path: path.join(__dirname, OUTPUT_DIRS[flavor]),
+      path: path.join(__dirname, "dist"),
       filename: `index.js`,
       clean: true,
     },
     target: "web",
     mode,
-    cache: { type: "filesystem", name: flavor, cacheDirectory: path.join(__dirname, ".build", "webpack-cache"), buildDependencies: { config: [__filename] } },
-    devtool: flavor === "dev" ? "source-map" : false,
+    cache: { type: "filesystem", name: mode, cacheDirectory: path.join(__dirname, ".build", "webpack-cache"), buildDependencies: { config: [__filename] } },
+    devtool: mode === "development" ? "source-map" : false,
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
       alias: {
@@ -74,7 +71,7 @@ module.exports = (env = {}, argv = {}) => {
         },
       ],
     },
-    performance: flavor === "prod" ? { hints: "error", maxEntrypointSize: BUNDLE_BUDGET_BYTES, maxAssetSize: BUNDLE_BUDGET_BYTES } : false,
+    performance: { hints: "error", maxEntrypointSize: BUNDLE_BUDGET_BYTES, maxAssetSize: BUNDLE_BUDGET_BYTES },
     optimization: {
       minimize: true,
       minimizer: [
@@ -84,10 +81,9 @@ module.exports = (env = {}, argv = {}) => {
       ],
     },
     plugins: [
-      new webpack.DefinePlugin({ __SO_DEV__: JSON.stringify(flavor === "dev") }),
       ...(argv.watch ? [new LiveReloadPlugin({ appendScriptTag: true })] : []),
       ...(process.env.SO_BUILD_TYPECHECK === "0" ? [] : [new ForkTsCheckerWebpackPlugin()]),
-      new BundledPackagesPlugin({ out: path.join(__dirname, ".build", `packages-${flavor}.json`), webpackDir: path.dirname(require.resolve("webpack/package.json")) }),
+      new BundledPackagesPlugin({ out: path.join(__dirname, ".build", "packages.json"), webpackDir: path.dirname(require.resolve("webpack/package.json")) }),
     ],
   };
 };
