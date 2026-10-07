@@ -19,8 +19,9 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
 }
 
 export class NativeBackend {
-    constructor(config) {
+    constructor(config, { snapshot = memorySnapshot } = {}) {
         this.config = config;
+        this.snapshot = snapshot;
         this.url = `http://127.0.0.1:${config.backendPort}`;
         this.child = null;
         this.profile = null;
@@ -55,7 +56,7 @@ export class NativeBackend {
         let occupied = false;
         try { await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
         if (occupied) throw new Error('The backend port is owned by another server; it will not be stopped.');
-        const snapshot = await memorySnapshot();
+        const snapshot = await this.snapshot();
         const gpu = snapshot.gpus[0];
         const gpuBudget = gpu.freeMiB - Math.max(this.config.reserves.gpuMiB, fitTarget ?? 0);
         const spillMiB = Math.max(0, (profile.estimatedGpuMiB ?? 21500) - gpuBudget);
@@ -78,7 +79,7 @@ export class NativeBackend {
             if (child.exitCode !== null) throw new Error(`Native backend exited with ${child.exitCode}; read its local log.`);
             try {
                 if ((await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
-                    const after = await memorySnapshot();
+                    const after = await this.snapshot();
                     if (withinReserve(after, this.config.reserves)) {
                         this.profile = name;
                         this.fitTarget = fitTarget;

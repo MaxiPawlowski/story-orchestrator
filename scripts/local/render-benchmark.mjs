@@ -24,17 +24,20 @@ const moduleFrom = async (file) => {
     return import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 };
 const { buildGraph } = await moduleFrom('src/image/graph.ts');
-const { CHECKPOINTS, FAMILIES, WAI, JANKU } = await moduleFrom('src/image/catalog.ts');
-const checkpoint = CHECKPOINTS.find((row) => row.file === (familyName === 'portrait' ? JANKU : WAI));
+const { FAMILIES, checkpointFor, familyOf } = await moduleFrom('src/image/catalog.ts');
+const checkpointFile = familyName === 'portrait' ? config.benchmarkPortraitCheckpoint ?? 'JANKUTrainedChenkinNoobai_v777.safetensors'
+    : config.benchmarkCheckpoint ?? 'waiIllustriousSDXL_v170.safetensors';
+const checkpoint = checkpointFor(checkpointFile, familyOf(checkpointFile) ?? 'sdxl-illustrious');
 const family = FAMILIES[checkpoint.family];
 const size = family.sizes.wide;
+const upscaler = config.benchmarkUpscaler ?? 'RealESRGAN_x4plus_anime_6B.safetensors';
 const loras = familyName === 'lora' ? [{ file: config.benchmarkLora, weight: 0.6 }] : [];
 if (familyName === 'lora' && !config.benchmarkLora) throw new Error('Choose an installed SDXL benchmarkLora in the config before measuring LoRA.');
 let graph = buildGraph({ checkpoint, family, loras, positive: familyName === 'background' ? `${positive}, no humans, scenery` : positive,
-    negative: 'text, watermark, low quality', size, seed, hires: familyName === 'hires', upscaler: family.upscaler });
+    negative: 'text, watermark, low quality', size, seed, hires: familyName === 'hires', upscaler });
 const checkpointPath = `${config.checkpointDir ?? 'C:/dev/models/checkpoints'}/${checkpoint.file}`;
 let modelFiles = [{ kind: 'checkpoints', name: checkpoint.file }, ...loras.map((lora) => ({ kind: 'loras', name: lora.file }))];
-if (familyName === 'hires') modelFiles.push({ kind: 'upscale_models', name: family.upscaler });
+if (familyName === 'hires') modelFiles.push({ kind: 'upscale_models', name: upscaler });
 if (['edit', 'sprite'].includes(familyName)) {
     if (!config.benchmarkEdit?.reference) throw new Error('Set benchmarkEdit models and a ComfyUI reference image before measuring edit/sprite.');
     const { editGraph, editInstruction } = await moduleFrom('src/sprites/builder/recipes.ts');
@@ -110,7 +113,8 @@ try {
     result.totalCycleMs = Date.now() - cycleBegan;
     result.controllerAfter = await (await fetch(`${url}/status`)).json();
     if (!result.measurement?.highCadence || !result.measurement.seenJob) throw new Error('The render did not produce sufficient real-job memory telemetry.');
-    if (result.measurement.lowRamMiB < config.reserves.ramMiB || result.measurement.lowGpuMiB < config.reserves.gpuMiB
+    result.gpuReserveCrossed = result.measurement.lowGpuMiB < config.reserves.gpuMiB;
+    if (result.measurement.lowRamMiB < config.reserves.ramMiB || (result.gpuReserveCrossed && result.lease?.decision !== 'stream-image')
         || result.measurement.lowCommitMiB < config.reserves.ramMiB) throw new Error('The render crossed a predeclared memory reserve.');
     result.ok = true;
 } catch (error) {

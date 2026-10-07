@@ -2,6 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { footprintKey, FOOTPRINT_REVISION } from './footprints.mjs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -290,4 +293,85 @@ test('periodic lease sampling uses the fresh high-cadence seam instead of the ca
     assert.equal(scheduler.lease.seenJob, true);
     assert.equal(scheduler.lastError, null);
     await scheduler.release(lease.lease);
+});
+
+test('a failed text load is retried automatically with backoff instead of waiting for a manual load', async () => {
+    const { scheduler, backend, calls } = setup();
+    backend.profile = null;
+    let fail = true;
+    backend.load = async (name) => { calls.push('load'); if (fail) throw new Error('Command failed: powershell Get-CimInstance'); backend.profile = name; };
+    await scheduler.keepResident(1000);
+    assert.match(scheduler.status().lastError, /Get-CimInstance/);
+    assert.equal(backend.profile, null);
+    await scheduler.keepResident(Date.now() + 1000);
+    assert.equal(calls.filter((call) => call === 'load').length, 1);
+    fail = false;
+    await scheduler.keepResident(Date.now() + 6000);
+    assert.equal(backend.profile, 'fast');
+    assert.equal(scheduler.status().lastError, null);
+    await scheduler.keepResident(Date.now() + 60000);
+    assert.equal(calls.filter((call) => call === 'load').length, 2);
+});
+
+test('text reloads after a swapped image once the grace window passes, never during a lease or a manual hold', async () => {
+    let n = 0;
+    const { scheduler, backend } = setup({ snapshot: async () => free(n++ === 0 ? 3000 : 22000), config: { textReloadGraceMs: 1000 } });
+    const lease = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
+    await scheduler.keepResident();
+    assert.equal(backend.profile, null);
+    await scheduler.release(lease.lease);
+    await scheduler.keepResident();
+    assert.equal(backend.profile, null);
+    await scheduler.keepResident(Date.now() + 1500);
+    assert.equal(backend.profile, 'fast');
+    await scheduler.unload();
+    await scheduler.keepResident(Date.now() + 5000);
+    assert.equal(backend.profile, null);
+});
+
+test('a physical-RAM refusal while releasing an image frees the lease so text is not wedged behind it', async () => {
+    let release = false;
+    const { scheduler } = setup({ freeImages: async () => { if (release) throw new Error('Image memory admission refused after GPU release. Insufficient physical RAM headroom.'); } });
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 });
+    release = true;
+    assert.equal(await scheduler.release(lease.lease), true);
+    assert.equal(scheduler.status().imageLease, false);
+    assert.match(scheduler.status().lastError, /admission refused/);
+});
+
+const fakeCheckpoint = async (mib) => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-stream-'));
+    const header = Buffer.from(JSON.stringify({ w: { dtype: 'F16', shape: [1], data_offsets: [0, mib * 1048576] } }));
+    const prefix = Buffer.alloc(8); prefix.writeBigUInt64LE(BigInt(header.length));
+    await fs.writeFile(path.join(dir, 'sdxl.safetensors'), Buffer.concat([prefix, header]));
+    return { checkpoints: [dir] };
+};
+const streamingRuntime = async () => ({ id: 'r', streaming: true });
+const sdxl = { workflowKey: 'scene', modelFiles: [{ kind: 'checkpoints', name: 'sdxl.safetensors' }], width: 1344, height: 768 };
+
+test('a measured streaming runtime keeps full text resident for an SDXL render instead of swapping it', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const { scheduler, calls } = setup({ runtime: streamingRuntime, snapshot: async () => free(2700),
+        config: { modelDirs, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 } } });
+    const lease = await scheduler.reserve(sdxl);
+    assert.equal(lease.decision, 'stream-image');
+    assert.deepEqual(calls, []);
+});
+
+test('streaming is off unless enabled, needs a streaming runtime, a small checkpoint, GPU room and the RAM reserve', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const decide = async (config, options = {}) => {
+        let n = 0;
+        const { scheduler } = setup({ runtime: options.runtime ?? streamingRuntime, snapshot: options.snapshot ?? (async () => (n++ === 0 ? free(2700) : free(22000))),
+            config: { modelDirs, ...config } });
+        return (await scheduler.reserve(sdxl)).decision;
+    };
+    const policy = { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 };
+    assert.notEqual(await decide({}), 'stream-image');
+    assert.notEqual(await decide({ streamImages: policy }, { runtime: async () => ({ id: 'r', streaming: false }) }), 'stream-image');
+    assert.notEqual(await decide({ streamImages: { ...policy, maxWeightMiB: 4000 } }), 'stream-image');
+    assert.notEqual(await decide({ streamImages: { ...policy, minFreeGpuMiB: 3000 } }), 'stream-image');
+    const lowRam = { highCadence: true, gpus: [{ usedMiB: 21876, freeMiB: 2700 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
+    let n = 0;
+    assert.notEqual(await decide({ streamImages: policy }, { snapshot: async () => (n++ === 0 ? lowRam : free(22000)) }), 'stream-image');
 });

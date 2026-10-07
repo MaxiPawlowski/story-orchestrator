@@ -246,3 +246,10 @@ twice, clean isolated-lane restoration. Citations: plan 24 §User comparison and
 `test/measurements/v2.7/image-completion/runtime/` records. Qwen look matrices on this controller pass 20/20 identity
 and visible-change ratings twice. This closes the missing story-level Qwen recovery proof, not the entire family,
 idle, speed-comparison or sprite-visual acceptance matrix.
+
+### Review follow-up — 2026-10-07
+
+Review, harvest and B/C/D arms in `22b-residency-harvest-2026-10-07.md`. Fixed: no automatic text reload after a swap
+or a failed load (the stuck `lastError` state), CIM-probe admission, release wedge under RAM pressure, broken
+`render-benchmark`. Measured: text fully resident + ComfyUI DynamicVRAM streaming SDXL gives image→reply 23–30 s warm vs
+53–144 s swap; built as `stream-image`, off until the owner accepts the lower GPU headroom.
