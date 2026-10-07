@@ -76,3 +76,12 @@ RunPod billing check 2026-10-02 04:30Z: this work's pods total USD 15.28 (5mmoei
 | 2026-10-02 | 56mm8ipo8octok llm-pod-4500-so26-c (created this work with the user's OK, started 13:53:43Z; replaces m4dmlnzn70qgj2) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | runs 13:53-~17:10Z, 17:15-18:15Z, 19:17-~20:00Z (Oct 2), then 20:11Z Oct 2 - 14:05Z Oct 3 (17.9 h: R3 Artemis + Phase B, T6-1/T6-2, T7 session + final suite), stopped by Claude 2026-10-03 14:05Z for the T7 fix waves | ~$5.2 + ~$12.9 | same env, IDLE_MINUTES 60; for T5-1 re-run, T6, T7 |
 | 2026-10-03 | v9epuuenkqqock llm-pod-4500-so26-d (created this work 15:36:14Z for the freeze-2 re-run; replaces 56mm8ipo8octok, whose host had no free GPU; 56mm8ipo8octok deleted 15:37Z; stopped 19:48Z, user out of quota) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | 4.20 h | ~3.02 | same env, IDLE_MINUTES 60, volume x9gi6f1rig |
 | 2026-10-03 | ll3lglh2kyz4h2 llm-pod-4500-so26-e (created this work 17:35:11Z, second pod for the freeze-2 integration plays, user approved 2026-10-03; stopped 19:48Z, user out of quota) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | 2.21 h | ~1.59 | same env as so26-d, volume x9gi6f1rig |
+
+## v2.7 Phase C (approved 2026-10-07)
+
+User approved RunPod for Phase C (`docs/plans/v2.7/39-test-from-zero.md` §RunPod budget): about 30–32 lane-hours, about
+16–18 pod-hours on an RTX PRO 4500 (about $12–13), within the approved $20 with a stop at 150% ($30). Stop the pod at
+every pause; one row per pod below.
+
+| Date | Pod | GPU | $/h | Hours | Cost | Note |
+|---|---|---|---|---|---|---|

@@ -30,11 +30,11 @@ the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the dete
 | C1 | `npm run gates` (full, Storybook, main checkout) ×2; `npm run test:release` on prod | D | local |
 | C2 | mocked scenario corpus ×2; every plan's live (D) row ×2 (v2.7 16 §Per plan + rows of 29–38) | D | no-model lanes 1–4 in parallel |
 | C3 | payload invariance: every plan that touches model input, captured vs C0 goldens, declared diffs only | D | no-model lane |
-| C4 | journeys J0–J12 `--strict` ×2 | D + RP | model lanes ≤ 2 |
-| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O14), 08–10 (O9–O11), 33 W1–W4, 34, 35 (SP6 M1 first), 36, 37, 38 | RP + CL | pod |
+| C4 | journeys J0–J14 `--strict` ×2; J6 again with plan 33 W1 on (V8) | D + RP | model lanes ≤ 2 |
+| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O14), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card), 34, 35 (Phase 1 K2–K5 first, then M2), 36, 37, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
 | C6 | image rows: 32's route A/B, S32-2, multi-character sprite rows; 38's asset checks | LI + CL | local ComfyUI, isolated lane |
 | C7 | Adolion integration ×2 on `adolion-fresh` (38): every story starts, plays N turns, reopen, rollback, chapter | RP | pod |
-| C8 | live smoke on a clean install (v2.7 16 §Live smoke, all features on as shipped) | RP | fresh lane |
+| C8 | live smoke on a clean install: v2.7 16 §Live smoke procedure (5 turns, DeepSeek CC, no pod; plumbing only, not acceptance), all features on as shipped | CL | fresh lane |
 | C9 | user sessions (optional): play from the guide only; flags filed | human | user's choice |
 | Z | close-out: settings reference + README table regenerated from the registry, guide vs UI, What's new 2.7, every gate record final, v2.8 carry-over rewritten | D | — |
 
@@ -46,10 +46,10 @@ rows and 36's complication use; 34 persona before 36/37 rows that read it.
 | Block | Lane-hours (est.) |
 |---|---|
 | C4 journeys ×2 | ~6 |
-| C5 rows (35 SP6 ≈3, 36/37 floors, 33, 34, 02/08–10 O-rows) | ~14 |
+| C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 02/08–10 O-rows) | ~18–20 |
 | C7 Adolion ×2 | ~6 |
-| C8 smoke | ~1 |
-| **Total** | **~27 pod-hours** (RTX PRO 4500 ≈ $0.72/h → ≈ $20; two lanes share one pod) |
+| C8 smoke | 0 (DeepSeek) |
+| **Total** | **~30–32 lane-hours ≈ 16–18 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $12–13; the approved ≈ $20 with a 150% stop covers it) |
 
 Pod rules: `v2.6 gotchas` (direct SSH tunnel, `MAX_UPTIME_HOURS`, restart renews the window, record ports); stop the
 pod at every pause; `test/sessions/BUDGET.md` updated per block.
@@ -73,3 +73,10 @@ pod at every pause; `test/sessions/BUDGET.md` updated per block.
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. RunPod budget **approved** (about 27 pod-hours, stop at 150%).
+
+## Prerequisites before the freeze (test review 2026-10-07, `40-test-case-review.md`)
+
+The payload-golden tool (C0/C3), `requires` on every scenario (C2), the de-pinned image harness with a ≥ 3-character
+test cast (C6), the missing plan 01–10 D scenarios (C2), the guards the review lists (FLUX nodes, `.safetensors`
+literals, port/reserve literals, media allowlist, controller status, fail-open without the GPU plugin), and the floors
+written in 34, 37 and 38. Built in the 2026-10-07 fix wave; any still missing at freeze is a red C-row, not a skip.

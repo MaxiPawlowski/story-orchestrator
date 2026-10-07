@@ -1,4 +1,4 @@
-# Plan 20 — Character life: relationships, mood, agendas, whereabouts
+# Plan 37 — Character life: relationships, mood, agendas, whereabouts
 
 > **Moved 2026-10-07: now v2.7 37** (was v2.8 20; user: "the rest of character life" in v2.7). Depends on v2.7 33 W2 (agency notes reach players), v2.7 35 (one complication component), v2.7 36 (`revertOriginSince`, scope sources). L6 voice warden replaces v2.8 13 N7. Acceptance in v2.7 39. Old numbers inside: `v2.7/RENUMBER.md` §2026-10-07.
 
@@ -269,3 +269,9 @@ Source: `v2.8/27-gamification-report.md` (decision 3 and §Candidate rows).
 - **L2 mood duration**: `lasts {boundaries: n} | {until: "scene_break"}`.
 - **L3 recurring agenda steps** keep a list of done occurrences.
 - **L1** relationship numbers stay author-only, as written.
+
+## Floors (proposed 2026-10-07, test review; frozen before the first run)
+
+- **M2 token ceiling** (was "written here before the run"): the relationship + mood + agenda blocks together add
+  ≤ 350 prompt tokens per drafted member at p95 and ≤ 600 at max over the 20 lab windows; extraction prompt growth
+  ≤ +12 % tokens with p50 latency ≤ +15 %.

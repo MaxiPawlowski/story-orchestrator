@@ -1,4 +1,4 @@
-# Plan 02 — Adolion campaign: lab data, playtest fixes and the v2.8 campaign rows
+# Plan 38 — Adolion campaign: lab data, playtest fixes and the campaign rows
 
 > **Moved 2026-10-07: now v2.7 38** (was v2.8 02; user: the Adolion campaign in v2.7). Also owns: v2.7 07 A3/A6 live rows; the Saga main-cast assets and 31 authored outfits from v2.7 28; the stub lab copy for v2.7 35 M2 (v2.8 19:205 hand-off); the campaign scripts and lane-pinned scenarios split out by v2.7 31 §B. D13b (weights off `C:`) is superseded by the image-model exception (v2.7 rule 8). Integration ×2 is v2.7 39 C7.
 
@@ -68,3 +68,16 @@ v2.7 07 (A1–A3, A6–A8), v2.8 03 (player profile), v2.7 17/18/19/20 (images a
 
 Applied: D13 (rows D13a–D13d), C7 (D13d with a coverage gate), D15 (D13e dated inventory), B4 (second-model labels in
 A4/D13a), F36 (the old "22 open stretches" pilot row is v2.8 19). A6 badge validation moved to v2.7 (Sol split item 7).
+
+## C7 integration criteria (proposed 2026-10-07, test review; frozen before the first run)
+
+v2.7 39 C7, each of the nine stories on `adolion-fresh`, ×2: **N = 12 player turns** (the Saga: 20, crossing one
+chapter seal if seals are on). Pass per story: every reply rendered; one boundary committed per reply; no `error` or
+stalled pipeline state for > 2 consecutive turns; at least one checkpoint transition by turn N (stories whose first
+exit needs more turns declare their own N in the campaign story index); reopen after turn 6 restores the same
+checkpoint, memory counts and talk state; one swipe + one edit roll back and replay to the same state; save health ok;
+`assert-player-clean` green; no ComfyUI call unless the story enables images. Reports carry pass/fail and counts only
+(no campaign content; v2.7 rule 11).
+
+Owned here from v2.7 31 §B: the Saga/campaign scripts (`so-saga-*`, `saga-*.py`, `so-adolion-rollout`,
+`so-production-rollout`) and lane-pinned scenarios, de-pinned to `requires.group` by name.

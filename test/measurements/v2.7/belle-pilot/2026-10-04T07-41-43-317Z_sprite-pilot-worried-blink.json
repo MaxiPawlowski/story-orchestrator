@@ -1,8 +1,0 @@
-{
-  "character": "Belle",
-  "set": "so_belle_pilot",
-  "label": "worried",
-  "kind": "blink",
-  "evidence": "Build character sprites\n\nEdit an existing transparent sprite. Choose the reference and check the head box before generating. Saving uses a separate set; the character card stays unchanged.\n\nCharacter\nChoose a character\nBelle\nOutput set\nReference sprite\nChoose a reference\nafraid\nangry\ndetermined\nembarrassed\nflirty\nhappy\nlaughing\nneutral\npained\nproud\nrage\nsad\nsmirk\nsurprised\nthinking\nworried\nso_belle_pilot/angry\nso_belle_pilot/happy\nso_belle_pilot/neutral\nso_belle_pilot/worried\nOr use a reference PNG\nHead box, in reference pixels\nx\ny\nwidth\nheight\nDiscover image-edit setup\nInstalled models — qwen21-face-edit\ndiffusion\nChoose a model\nqwen_image_2.1_int8_convrot.safetensors\nqwen_image_2512_fp8_e4m3fn.safetensors\nencoder\nChoose a model\nqwen3vl_8b_int8_convrot.safetensors\nqwen_2.5_vl_7b_fp8_scaled.safetensors\nvae\nChoose a model\nqwen_image_2.1_vae_bf16.safetensors\nqwen_image_vae.safetensors\nsdxl_vae_fp16_fix.safetensors\npixel_space\nEdit\nExpression\nBlink frame\nMouth open frame\nMouth half-open frame\nChanged look\nExpression label\nSeed\nSteps\nGenerate preview\nCancel render\n\n58.6 seconds. Pixel checks passed. Review identity and expression before saving.\n\nKeep this sprite\nGenerated sets for this character",
-  "preview": true
-}

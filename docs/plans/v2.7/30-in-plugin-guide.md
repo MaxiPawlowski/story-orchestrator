@@ -1,6 +1,6 @@
 # Plan 30 — In-plugin guide
 
-**Status (2026-10-07): SEEDED from the user (2026-10-07: "having a proper wiki inside the plugin with a proper
+**Status (2026-10-07): BUILT (`01b9f8f2`, fixes `7f3bf89d`); was SEEDED from the user (2026-10-07: "having a proper wiki inside the plugin with a proper
 documentation"); needs user approval; not built.** Overview: `00-overview.md`. Gate tier: D.
 
 ## Problem
@@ -60,3 +60,22 @@ plans; the close-out (step Z) checks pages against the shipped UI.
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Gate record
+
+**Built 2026-10-07** on `v2.7-image-track-wip` (`01b9f8f2`, fixes `7f3bf89d`).
+
+- Bundle: `scripts/docs/guide-bundle.mjs` → `src/guide/pages.generated.ts` (56 pages), chained after `npm run
+  docs:guide`; node:test drift, unique ids, link/heading resolution with a planted broken-link control, and a leak guard
+  (machine paths, `docs/plans/`, lanes, `.debug`, `test/sessions`) with a planted control.
+- Renderer `src/guide/markdown.ts` + `GuideMarkdown.tsx`: React elements only, no raw HTML, non-http(s) schemes refused,
+  links outside `docs/guide` go to GitHub; jest over every page (no raw HTML, heading slugs match the bundle).
+- Reader `GuideReader.tsx` in a third draggable panel (deviation: `PanelFrame`, not a `<dialog>` — it reuses the Help /
+  Activity panel geometry and persistence); ids `#so-guide`, `#so-guide-search`, `[data-so="guide-*"]`; lazy chunk
+  (~170 KB); `/story guide [page]`; Help Read more / author topics open it in place; registry feature `guide`.
+- Results: `npm run gates` (integrated, after the 31 merge): all steps green except Storybook 8 failing (guide/help
+  stories: axe color-contrast, scrollable-region-focusable, landmark-unique, implicit action args) — fixed; the two
+  story files 13/13 green (`test-storybook` on a local static build). Full Storybook re-runs in the integrated pass.
+- Decision 3 (a few screenshots): not done; the renderer refuses images today, so screenshots need an asset path
+  first (follow-up).
+- Live gate (open from "?" / Repair, search ×2): not run — Phase C C2.

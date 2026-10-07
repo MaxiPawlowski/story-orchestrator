@@ -6,6 +6,8 @@ fixes, persona, world pressure and open stretches, quests and story panels, char
 (38) and Phase C, every test from zero (39). Real-model acceptance runs inside v2.7 (RunPod for volume). v2.8 keeps
 the rest (`docs/plans/v2.8/00-overview.md`); renumbering in `RENUMBER.md` §2026-10-07.
 Earlier scope (2026-10-03): urgent fixes + quick wins with deterministic gates; that text is kept below as history.
+Evidence: every v2.7 `test/measurements/v2.7/<ws>/` path cited by plans 21–28 now lives in the private `so-sessions`
+repo at `test/sessions/evidence/measurements-v2.7/<ws>/` (moved 2026-10-07; it holds art, model replies and machine paths).
 
 **Built and merged on master** (gate records in each plan):
 
@@ -67,10 +69,10 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
 | Tier | Code | What runs | In v2.7 |
 |---|---|---|---|
 | Deterministic | **D** | `npm run gates`, jest/property tests, no-LLM scenarios, Storybook, scripted messages, `seed_metadata`, dry-run payloads, live lane checks that make no model call | implementation and acceptance |
-| Cloud LLM | **CL** | DeepSeek API roles, TypeSafe judge | owed to v2.8 01 |
-| Local text model | **LT** | a model served on this PC | owed to v2.8 |
-| Local image model | **LI** | local ComfyUI through the GPU broker | owed to v2.8 01 |
-| RunPod | **RP** | the main reply model on the pod | owed to v2.8 01 |
+| Cloud LLM | **CL** | DeepSeek API roles, TypeSafe judge | v2.7 39 (Phase C) |
+| Local text model | **LT** | a model served on this PC | v2.7 39, only where a plan needs the local route |
+| Local image model | **LI** | local ComfyUI (GPU broker optional) | v2.7 39 C6 |
+| RunPod | **RP** | the main reply model on the pod | v2.7 39 (Phase C) |
 
 ## Build order (2026-10-07)
 

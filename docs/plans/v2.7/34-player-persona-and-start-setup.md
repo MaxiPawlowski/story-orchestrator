@@ -1,4 +1,4 @@
-# Plan 03 — Who the player is: a story player profile and a start-setup step
+# Plan 34 — Who the player is: a story player profile and a start-setup step
 
 > **Moved 2026-10-07: now v2.7 34** (was v2.8 03; user re-scope). Decisions recorded below stand. Its acceptance rows run in v2.7 39 (Phase C). References to "v2.8 0x" inside are the old numbers; see `v2.7/RENUMBER.md` §2026-10-07.
 
@@ -359,3 +359,11 @@ Applied from `v2.7/review-2026-10-03.md`:
   and `checks.ts`. Not re-checked: `story-guide.md` lines and every ST host line (from the original draft).
 
 Round 3 (Sol): R3-03 applied.
+
+## Floors (proposed 2026-10-07, test review; frozen before the first run)
+
+RP acceptance, on the pod in v2.7 39 C5 (was "the v2.8 final real-LLM suite"): 10 fresh story starts across 3 stories ×2.
+Pass: the start-setup step is reached or auto-skipped as designed in 10/10; the chosen persona's name and the story's
+`player` role appear in the first reply's prompt (dry-run capture) in 10/10; a second-model rater judges the first
+narrator reply consistent with the player role in ≥ 9/10; 0 replies narrate the player's own action. Below floor is a
+failure, recorded, never retuned.
