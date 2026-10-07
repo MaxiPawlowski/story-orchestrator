@@ -175,8 +175,12 @@ test('the session deadline tears everything down even when the page never polls'
     const { service, spawned, calls } = setup();
     const opened = await service.agent.open(openRequest([{ hang: true }], { timeoutMs: 400 }));
     assert.equal(opened.ok, true);
+    const session = service.agent.sessions.get(opened.sessionId);
     assert.ok(await until(() => spawned.length === 1));
-    assert.ok(await until(() => service.agent.counts().sessions === 0 && calls().length === 0, 8000), 'torn down at the deadline');
+    assert.ok(await until(() => session.closing), 'the deadline started the teardown');
+    assert.equal((await session.closing).reason, 'timeout');
+    assert.equal(service.agent.counts().sessions, 0);
+    assert.deepEqual(calls(), [], 'torn down at the deadline');
     assert.ok(await until(() => !alive(spawned[0].pid)), 'the process tree is gone');
     const after = await service.agent.next(opened.sessionId, { waitMs: 10 });
     assert.deepEqual([after.event.kind, after.event.errorKind], ['ended', 'timeout']);
@@ -186,9 +190,16 @@ test('the session deadline tears everything down even when the page never polls'
 test('a parked call nobody answers tears the session down at its call deadline', async () => {
     const { service, calls } = setup();
     const opened = await service.agent.open(openRequest([{ call: 'readStory', args: {} }], { callTimeoutMs: 300 }));
+    const session = service.agent.sessions.get(opened.sessionId);
     const call = await nextEvent(service, opened.sessionId);
     assert.equal(call.kind, 'call');
-    assert.ok(await until(() => service.agent.counts().sessions === 0 && calls().length === 0, 8000));
+    const ended = await nextEvent(service, opened.sessionId);
+    assert.deepEqual([ended.kind, ended.errorKind], ['ended', 'timeout']);
+    assert.match(ended.message, /tool call waited past its deadline/, 'the call deadline ended it, not the session deadline');
+    const report = await session.closing;
+    assert.equal(report.reason, 'call-timeout');
+    assert.equal(service.agent.counts().sessions, 0);
+    assert.deepEqual(calls(), [], 'the owned home is gone once the teardown settles');
     const after = await service.agent.next(opened.sessionId, { waitMs: 10 });
     assert.equal(after.event.errorKind, 'timeout');
 });
