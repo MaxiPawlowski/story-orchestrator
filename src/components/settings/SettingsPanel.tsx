@@ -11,16 +11,12 @@ import { guideUrl, type FeatureArea, type FeatureWhere } from "@features/registr
 import { requestGuide } from "@guide/request";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";
-import { GettingStarted } from "./GettingStarted";
-import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
+import type { CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
 import MakeGroupCard from "./MakeGroupCard";
 import type { MakeGroupOutcome } from "@runtime/makeGroup";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
-import { StoryGroup } from "./StoryGroup";
-import {
-  authoringSettings, ChapterGroup, DisplayGroup, InnerVoiceGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup, TransitionNoteRow, WardenGroup,
-} from "./PlayGroups";
+import { authoringSettings } from "./settingsVisibility";
 import { SettingsArea } from "./SettingsArea";
 import { CheckRow } from "./Field";
 import { log } from "@utils/log";
@@ -32,6 +28,18 @@ const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const WhatsNewHost = lazyRetry(() => import("../help/WhatsNewHost"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
+const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
+const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));
+const InnerVoiceGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.InnerVoiceGroup })));
+const LorebooksGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.LorebooksGroup })));
+const PacingGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.PacingGroup })));
+const StagecraftGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.StagecraftGroup })));
+const TalkGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TalkGroup })));
+const TransitionNoteRow = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TransitionNoteRow })));
+const WardenGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.WardenGroup })));
+const CapabilitiesGroup = lazyRetry(() => import("./CapabilitiesGroup"));
+const GettingStarted = lazyRetry(() => import("./GettingStarted"));
+const StoryGroup = lazyRetry(() => import("./StoryGroup").then((module) => ({ default: module.StoryGroup })));
 
 export interface SettingsHost {
   extensionVersion: string;
@@ -181,33 +189,33 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
             onOpenPlay={host.openPlay}
-            gettingStarted={<GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
-              onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} />}
+            gettingStarted={<Lazy fallback={null}><GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
+              onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} /></Lazy>}
           />
-          <SettingsArea {...area("play")} advanced={<TransitionNoteRow snapshot={snapshot} manager={manager} />}>
-            <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
+          <SettingsArea {...area("play")} advanced={<Lazy fallback={null}><TransitionNoteRow snapshot={snapshot} manager={manager} /></Lazy>}>
+            <Lazy fallback={null}><StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} /></Lazy>
             {snapshot.noGroup && host.makeGroup && (
               <MakeGroupCard view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={host.makeGroup}
                 onFixWithWizard={(storyId, missing) => host.fixGroupWithWizard?.(storyId, missing)} />
             )}
             <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
             <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
-            <DisplayGroup snapshot={snapshot} manager={manager} />
-            <PacingGroup snapshot={snapshot} manager={manager} />
+            <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <Lazy fallback={null}><PacingGroup snapshot={snapshot} manager={manager} /></Lazy>
           </SettingsArea>
           <SettingsArea {...area("memory")}>
             <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
             <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
-            <ChapterGroup snapshot={snapshot} manager={manager} />
-            <WardenGroup snapshot={snapshot} manager={manager} />
+            <Lazy fallback={null}><ChapterGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <Lazy fallback={null}><WardenGroup snapshot={snapshot} manager={manager} /></Lazy>
           </SettingsArea>
           <SettingsArea {...area("characters")}>
-            <TalkGroup snapshot={snapshot} manager={manager} />
-            <InnerVoiceGroup snapshot={snapshot} manager={manager} />
+            <Lazy fallback={null}><TalkGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <Lazy fallback={null}><InnerVoiceGroup snapshot={snapshot} manager={manager} /></Lazy>
           </SettingsArea>
           <SettingsArea {...area("world")}>
-            <LorebooksGroup snapshot={snapshot} manager={manager} />
-            <StagecraftGroup snapshot={snapshot} manager={manager} />
+            <Lazy fallback={null}><LorebooksGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <Lazy fallback={null}><StagecraftGroup snapshot={snapshot} manager={manager} /></Lazy>
           </SettingsArea>
           <SettingsArea {...area("images")}>
             <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
@@ -223,8 +231,8 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </SettingsArea>
           )}
           <SettingsArea {...area("setup")}>
-            <CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
-              memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} />
+            <Lazy fallback={null}><CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
+              memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} /></Lazy>
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
           </SettingsArea>
         </div>

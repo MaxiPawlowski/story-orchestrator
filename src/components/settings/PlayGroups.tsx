@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { authoringSettings } from "./settingsVisibility";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { TALK_CHAIN_MAX_CAP } from "@engine/index";
@@ -23,7 +24,7 @@ interface GroupProps {
   manager: RuntimeManager;
 }
 
-export const authoringSettings = (snapshot: RuntimeSnapshot): boolean => snapshot.ui.authorView || !snapshot.storyId;
+export { authoringSettings };
 
 const isAcceptMode = (value: string): value is StagecraftAcceptMode => (STAGECRAFT_ACCEPT_MODES as readonly string[]).includes(value);
 
