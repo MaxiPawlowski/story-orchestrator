@@ -205,3 +205,34 @@ agenda origin); v2.7 39 (re-run from zero); v2.8 20, v2.8 11 (proposal contract)
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Adopted from the gamification harvest (user, 2026-10-07)
+
+Source: `v2.8/27-gamification-report.md` §What plan 36 should take (evidence per item there). These extend §Format
+additions and are part of this plan's build; each gets a validator rule and a jest case.
+
+1. Quest status `hidden → offered → active → done | failed`; `offered_when` gate; an offered quest never fails on time
+   alone (validator).
+2. `steps[].failed_when?`; `done_when` optional, defaulting to all steps done (filled by the validator).
+3. `requires?: [questId]`, expanded into `visible_when`/`offered_when`; cycles refused; no stored state.
+4. `progress?: {quality, of}` on a quest or step; absent `done_when` means `quality >= of`; Journal shows a bar or N/M.
+5. `labels?: {done?, failed?}` for player wording; derived `closed` flag in `snapshot.game.quests[]`.
+6. `giver?`, `author_note?` (author-only), `reward.label?` + `reward.visible_when?`; times are boundary + message id,
+   never wall-clock.
+7. Counts from the visible projection only; an empty section is never rendered; spoiler property: the player page is
+   byte-identical with and without hidden items.
+8. Quality `display`: `as: "word"` with `bands`, `as: "boxes"` (int, max ≤ 12), `hide_when_empty` (default true for
+   item/count), optional `trend`; no formatter strings.
+9. Checks (decision 1 b): the bool stays; optional `outcome: {quality, bands: "margin", partial_margin}` writing
+   `miss | weak | strong`; optional `twist: true`; one seeded key per die
+   (`[chat, story, cpStartBoundary, "check:" + id + ":" + i]`). Advantage and pools later.
+10. `extras.checks` record: `{checkId, boundary, messageId, visit, draws, modifiers: [{label, add}], total, target,
+    outcome, twist?}`, textless, public labels only.
+11. Widget `bind` is a reference, never a query (closed grammar in the report §11); `clock` clamps, "full" is an
+    ordinary gate, pressure-bound clocks default to author audience; `board` (decision 4) binds quests and arcs,
+    read-only lanes, never `hidden`.
+12. Journal `log` rows derived and typed (`action | world_event | check | quest | milestone`); only the player's own
+    messages yield `action` rows.
+
+Refused (traps): XP/levels/currency, streaks, wall-clock, loss for inaction, click-to-reroll, player-editable status,
+author JS/callbacks.

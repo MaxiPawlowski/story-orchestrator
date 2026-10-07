@@ -259,3 +259,13 @@ Round 3 (Sol): R3-09 applied.
 2026-10-03 (user: as recommended): M1 floors and the L3 curator-proposal floor accepted as written; agenda effects
 exclude cast changes; the origin-tagged rollback (`revertOriginSince`) is built by whichever of v2.8 18 / v2.8 20 builds
 first and reused by the other.
+
+## Adopted from the gamification harvest (user, 2026-10-07)
+
+Source: `v2.8/27-gamification-report.md` (decision 3 and §Candidate rows).
+
+- **Story clock for L4** (decision 3): a rolled-back `story_day` quality plus a `time_of_day` value; schedules gate on
+  them; a calendar is later. No wall-clock.
+- **L2 mood duration**: `lasts {boundaries: n} | {until: "scene_break"}`.
+- **L3 recurring agenda steps** keep a list of done occurrences.
+- **L1** relationship numbers stay author-only, as written.

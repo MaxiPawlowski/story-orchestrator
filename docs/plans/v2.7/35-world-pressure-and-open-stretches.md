@@ -196,3 +196,11 @@ v2.8 13 decision 1 "All", 2 "yes", 6 "yes".
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. RunPod for SP6 **approved** (within the v2.7 39 budget).
+
+## Adopted from the gamification harvest (user, 2026-10-07)
+
+Source: `v2.8/27-gamification-report.md` §Candidate rows and the TunnelVision report.
+
+- Phase 3 adds a meter that fires then resets, weighted pool lines, and a focus pick from open arcs or present members.
+- Odds- or chaos-scaled triggers only after K1–K5 pass.
+- Pressure clocks are author-only; pressure never fills from the player refusing a route.

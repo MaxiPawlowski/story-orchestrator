@@ -227,3 +227,10 @@ Avoid: T1–T10.
 ## Run record
 
 See plan 27 §Run record.
+
+## Decided (user, 2026-10-07)
+
+"Go with the recommendations": 1 (b) bool + optional `miss|weak|strong` by margin + optional twist flag; 2 `offered`
+lane in 36 Q1 now; 3 story clock absorbed into v2.7 37 L4 (`story_day` + `time_of_day`, calendar later); 4 `board`
+binds quests and arcs. The twelve 36 items and the 35/37 changes below "What plan 36 should take" are adopted; they
+are folded into v2.7 35, 36 and 37 (§Adopted from the gamification harvest in each).
