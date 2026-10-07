@@ -34,6 +34,12 @@ describe("v2.7 plan 08 C: the pipeline says it is catching up after the player's
     }
   });
 
+  it("B0-live F13: the edit's chip outranks the stepped-back chip of the rollback that edit caused, then stepped back returns", () => {
+    expect(hudChipLabel("catching-up", true)).toBe("catching up after your edit");
+    expect(hudChipLabel("idle", true)).toBe("stepped back");
+    expect(hudChipLabel("reading", true)).toBe("stepped back");
+  });
+
   it("outranks the road ahead and an ordinary read", () => {
     expect(derivePipelineStatus(extraction({ ...idle, inFlight: true, rereadReason: "rollback:3:edit" }), { generating: true }).state).toBe("catching-up");
   });

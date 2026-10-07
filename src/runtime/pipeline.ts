@@ -54,7 +54,8 @@ const HUD_CHIP_LABELS: Partial<Record<PipelineState, string>> = {
   error: "not keeping up",
 };
 
-export const hudChipLabel = (state: PipelineState, steppedBack: boolean): string | null => (steppedBack ? HUD_COPY.steppedBack : HUD_CHIP_LABELS[state] ?? null);
+export const hudChipLabel = (state: PipelineState, steppedBack: boolean): string | null =>
+  (state === "catching-up" ? HUD_CHIP_LABELS[state] ?? null : steppedBack ? HUD_COPY.steppedBack : HUD_CHIP_LABELS[state] ?? null);
 
 export const hudTensionText = (level: string): string => `tension ${level}`;
 
