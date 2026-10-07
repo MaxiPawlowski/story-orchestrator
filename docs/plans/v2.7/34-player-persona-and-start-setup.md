@@ -411,3 +411,25 @@ Deviations:
 
 Open: S30-1 result; whether a persona switch in an empty group chat re-triggers ST's greeting; multi-user installs
 (personas are per ST user, untested).
+
+### Sol review fixes 2026-10-07 (branch `v2.7-fix-sol-review`)
+
+- Finding 4: a refused or impossible lock (no persona host counts) no longer completes setup. The record stays
+  `pending` with `lockFailed: <reason>`, is persisted, and gates the opener like any pending record. The pane shows the
+  failure with "Try again" (`choice: "retry"`: re-selects the recorded avatar, then locks) and "Start without keeping
+  it" (`choice: "unlocked"`: accepted only after a recorded failure; records `locked: false`). A pane-less story with a
+  failed lock opens the pane too; closing it retries; `persona-lock` (blocks, player) keeps it in Before you start and
+  the HUD. Reload: a pane-less story retries in `autoResolve`. Jest: `playerSetupActivation.test.ts` (refused lock +
+  reload, retry, continue, absent host + reload).
+- Finding 5: `PersonaHost.select/lock/create` take the run guard; `livePersonaHost` (`runtime/personaHostLive.ts`)
+  re-checks it after the lazy writer import and `stHost/personaWrites.ts` after loading personas.js, right before each
+  ST mutation; the control also checks before the lock. Jest: `personaHostLive.test.ts`, `personaWrites.test.ts`,
+  `playerSetupActivation.test.ts` (a switch during the select: the other chat's metadata holds no `persona`). Census
+  notes updated (`ownership-sites.json`); no new site.
+- Finding 6: equivalence now needs the description to reach the prompt. `readPersonas` reads
+  `persona_description_position` (`descriptionSent`: 0/1/4 and unset yes; 9 None and the AN slots 2/3 no, since those
+  depend on the AN being inserted), and `playerRoleBlock` keeps the line otherwise. Placement changes emit
+  `PERSONA_UPDATED` (personas.js:1316-1325) and the role host also listens to `SETTINGS_UPDATED`; no
+  `GENERATION_STARTED` listener. Host facts row added (`v2/00-implementation-overview.md`). Jest: `playerSetup.test.ts`
+  (f), `playerRoleHost.test.ts` (placement None, in prompt, description edit), `stHost/personas.test.ts`.
+- `npm run gates -- --no-storybook` all green in 98.1 s (jest 6631 passed / 1 skipped; test:debug 1093; test:plugin 111; test:release 114; defect replay 32/32 killed); Storybook skipped (cannot run from a worktree). Prod main entry 1,218,450 B (+1,382 B vs 1,217,068). No live runs; the live counterparts are v2.7 39 S-04..S-10.

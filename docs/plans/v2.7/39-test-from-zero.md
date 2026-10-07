@@ -122,6 +122,22 @@ Floors tightened before any run (finding 18): 32 W1 route A minimum render count
 positive narration assertion; 37 M3 behavioural threshold; 38 C7 character-life exercise. The numbers live in those
 plans.
 
+### Rows for Sol findings 4–10 (code fixes on `v2.7-fix-sol-review`)
+
+The live and real-model counterparts of the deterministic pins that branch added (jest names cited). Each is a
+manifest row (rule 10), run ×2 with the rule 11 reset; the persona rows also restore the persona lock and the default
+persona between runs.
+
+| Row | Finding | Setup | Assertion | Tier |
+|---|---|---|---|---|
+| S-04 refused lock + reload | 4 | a `player` story bound to a fresh group chat with a scripted `new_chat_only` opener; ST's chat lock made to refuse once (in-page wrapper on `setPersonaLockState` that leaves `chat_metadata.persona` unset); pick a persona; reload the page (`st-session.mts reload`); then "Try again"; second pass: refuse again, then "Start without keeping it" | before success or the explicit continue: no opener, `[data-so="player-setup-lock-failed"]` shown, `persona-lock` (blocks) in `#so-setup` and the HUD count, the blob holds `playerSetup {pending: true, lockFailed}` and still does after the reload; Try again: `chat_metadata.persona` is the picked avatar and the opener posts exactly once; continue: opener once, record `locked: false`, journal line "continued without the chat lock" (jest: `playerSetupActivation.test.ts` "Sol finding 4") | D (no-model, `prod`) |
+| S-05 chat switch during a persona write | 5 | two bound group chats A and B; on A, delay `loadPersonasModule` and the persona switch in-page, and open B (`st-navigation.mts open-group`) inside the delay | B's `chat_metadata.persona` (read back from the server's chat file) unchanged; no opener in A or B; A's record still pending; `setPersonaLockState` never called while B is open (jest: `personaWrites.test.ts`, `personaHostLive.test.ts`, `playerSetupActivation.test.ts` "Sol finding 5") | D (no-model, `dev-diagnostic`: needs the in-page delay) |
+| S-06 persona placement None | 6 | a persona whose description carries the story's canonical role line; Persona Management placement set to None, then In prompt, then the line deleted from the description | `st-payload.mts` capture of the loud request: placement None → the `playerRole` block present exactly once; In prompt with the line → absent and the description carries it; line deleted → the block back on the next request; one real request at each step agrees with the dry run (jest: `playerRoleHost.test.ts` "placement None", `personas.test.ts`) | D (dry run) + RP (one request per step) |
+| S-07 suggestions with unnamed checkpoints | 7 | a story whose authored start and a generated beat (expansion on) have no `player_name`; play into the generated beat; ask for suggestions from the presence UI | the captured `pass: "suggestions"` request and the shown suggestions hold no checkpoint `name` or id; the request's scene list skips unnamed scenes and the current scene reads "Current scene", same as the drawer (jest: `playerProjection.test.ts` "a checkpoint without player_name") | CL (`prod`) |
+| S-08 held-secret suggestions | 8 | a group with knowledge tracking on; a member's `[hiding]` row (synthetic, planted through the transcript); canon regenerated so the story-so-far prose restates it in other words; ask for suggestions | the suggestion request restates no held secret (the `heldSecrets` word rule over the request text), the rest of the prose is present; negative control: the same chat with the `[hiding]` row retired carries the paraphrase; member requests unchanged (jest: `suggestionsHost.test.ts` "Sol finding 8", `secretMirrorRecall.review.test.ts`) | CL (`prod`) |
+| S-09 open-stretch side exit refused | 9 | import a story whose open stretch has a second exit gated on `player_turns_in_checkpoint`, and one on an always-true gate; then import every shipped story with a stretch | both side-exit stories are refused at import, naming the transition ("ends only through arrive_when"), and the Studio diagnostics name it on edit; every shipped stretch story imports clean (counts only for Adolion, rule 7) (jest: `openStretch.review.test.ts` "refuses every exit but arrive_when") | D (no-model, `prod`) |
+| S-10 swipe window | 10 | a `lore_select` story with the judge on; a reply whose text names a lore entry the chat has not otherwise mentioned; swipe it | the lore-select request and any scene read taken during the swipe equal those captured for the same chat with that reply deleted (rule 12 compare); the discarded reply's text appears in no judge or memory-model request of the swipe; the new swipe, once landed, is in the next read (jest: `settledWindow.test.ts`, `loreSelect.test.ts` "Sol finding 10") | CL + RP |
+
 ## C2 rows: tier-D scenarios for plans 01–10 (2026-10-07)
 
 Written for C2 (`16-test-plan.md` §Per plan live (D) column), **written, not run** (no ST lane in the writing
@@ -193,7 +209,7 @@ written in 34, 37 and 38. Built in the 2026-10-07 fix wave; any still missing at
 
 Source: `so-lanes/reviews/v27-plans-sol-2026-10-07.report.md` (read-only review at `1910441b`; private lane dir). The
 owner approved the recommended changes. Findings 4–10 are code defects fixed by another session (their rows land with
-those fixes). Finding 22 is void: images run on local ComfyUI by design, and RunPod is only for real-model volume, so
+those fixes: §Rows for Sol findings 4–10, S-04..S-10). Finding 22 is void: images run on local ComfyUI by design, and RunPod is only for real-model volume, so
 C6 is unchanged.
 
 | Finding | Change | Where |

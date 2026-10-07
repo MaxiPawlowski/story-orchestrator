@@ -388,6 +388,25 @@ loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak,
   p95 click-to-fill ≤ 10 s); "no unreached checkpoint name in 10 runs" string check; `assert-player-clean` with the
   panel open; Storybook interaction + a11y at 390/768/1440.
 
+### Sol review fixes 2026-10-07 (branch `v2.7-fix-sol-review`)
+
+- Finding 7 (W4 names): `playerCheckpointName` no longer falls back to the internal `name`; the projection's scene list
+  skips unnamed checkpoints and the current/start scene reads `PLAYER_COPY.currentScene`, as the drawer does
+  (`snapshotBuilder.ts`). Jest: `playerProjection.test.ts` (authored and generated checkpoints without `player_name`;
+  the prompt and parsed output hold no internal name).
+- Finding 8 (W4 privacy): verified real: canon prose is synthesized from raw memory rows and the no-canon fallback is
+  raw `scene_history`, so a held secret reached the request. The projection's section lines now pass through the
+  resting view (`MemoryInjector.restingText` -> `withoutSecrets`, member null); a line that is only the secret is
+  dropped. Jest: `suggestionsHost.test.ts` (planted `[hiding]` row + paraphrase, control without it),
+  `secretMirrorRecall.review.test.ts` (real injector). The canon itself and `getCanon` (macro) still read raw rows:
+  outside this fix, noted for v2.8.
+- Finding 10 (swipe window): verified real: during a swipe regeneration `chat[last]` keeps the discarded reply with
+  `swipe_id === swipes.length` and no `gen_*` stamps (script.js:10118-10133, 10393-10401), so the in-flight rule misses
+  it. `settledWindow.ts` drops that message from `recentWindow`/`recentTurns` (lore select, scene read, talk director);
+  `chatLastId` is unchanged. Jest: `settledWindow.test.ts`, `loreSelect.test.ts` (the judge request equals the
+  reply-removed chat's).
+- `npm run gates -- --no-storybook` all green in 98.1 s (jest 6631 passed / 1 skipped; test:debug 1093; test:plugin 111; test:release 114; defect replay 32/32 killed); Storybook skipped (cannot run from a worktree). Prod main entry 1,218,450 B (+1,382 B vs 1,217,068). No live runs; the live counterparts are v2.7 39 S-04..S-10.
+
 ## Review 2026-10-07 (Sol)
 
 Source: v2.7 39 §Review 2026-10-07 (Sol). Findings 7, 8 and 10 (suggestion names, suggestion privacy, the swipe

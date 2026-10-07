@@ -341,6 +341,16 @@ does not exist, and the N5 judge-off column needs Phase 4's `quiet`.
 
 `PACE_PULL_AFTER` brief 3 / unhurried 6 / long 10; `PULL_STEADY_AFTER` 3.
 
+### Sol review fixes 2026-10-07 (branch `v2.7-fix-sol-review`)
+
+- Finding 9: `checkStretches` refuses every exit from an open stretch whose gate is not `arrive_when` ("an open stretch
+  ends only through arrive_when: every exit from it uses that gate"). Plan 35 names no detour; the refusal recovery is
+  skipped in a stretch, so `agency.alternate` is not an exit and needs no carve-out. Several exits on the same arrival
+  gate stay allowed. Negative controls: turn-count, plain other-quality, `any` containing the arrival, and empty `all`
+  gates (`openStretch.review.test.ts`). Guide + `guideTopics.ts` say "every one of its exits"; the shipped scenario
+  story validates.
+- `npm run gates -- --no-storybook` all green in 98.1 s (jest 6631 passed / 1 skipped; test:debug 1093; test:plugin 111; test:release 114; defect replay 32/32 killed); Storybook skipped (cannot run from a worktree). Prod main entry 1,218,450 B (+1,382 B vs 1,217,068). No live runs; the live counterparts are v2.7 39 S-04..S-10.
+
 ## Review 2026-10-07 (Sol)
 
 Source: v2.7 39 §Review 2026-10-07 (Sol). Finding 9 (stretch exits) is a code defect handled by another session; the
