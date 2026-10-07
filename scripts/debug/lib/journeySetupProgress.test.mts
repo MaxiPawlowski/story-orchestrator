@@ -30,8 +30,12 @@ test('J12 runner-error path: a setup that dies on the group keeps what it captur
 });
 
 test('negative control: without a caller-owned object the capture is lost with the throw', async () => {
-  const { page } = stubbedPage();
-  let returned: unknown = 'unset';
-  await applySetup(page, { group: 'missing', extraction: { cadence: 3, stabilityLag: 0, profile: 'inherit' } }, { allowConfig: false }).then((value) => { returned = value; }, () => undefined);
-  assert.equal(returned, 'unset');
+  const { page, extraction, writes } = stubbedPage();
+  const thrown = await applySetup(page, { group: 'missing', extraction: { cadence: 3, stabilityLag: 0, profile: 'inherit' } }, { allowConfig: false }).then(() => null, (error: unknown) => error);
+  assert.ok(thrown instanceof Error);
+  assert.match(thrown.message, /no group matching "missing"/);
+  assert.deepEqual(writes, [{ cadence: 3, stabilityLag: 0 }], 'the run changed the cadence before it failed');
+  assert.equal(extraction.cadence, 3);
+  assert.deepEqual(Object.keys(thrown), [], 'the error carries no captured setup');
+  assert.equal(thrown.cause, undefined);
 });
