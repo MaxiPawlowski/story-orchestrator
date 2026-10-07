@@ -8,7 +8,7 @@ import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 import { readStretch } from "./stretch";
-import { readChecks } from "./checks";
+import { gameLayer } from "./gameLayer";
 
 type Member = StoryV2["roster"][number];
 
@@ -310,6 +310,6 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
     if (stretch) checkpoint.stretch = stretch;
   }
   readCheckpointChapter(value, checkpoint, path, errors);
-  const checks = readChecks(value.checks, `${path}.checks`, errors);
+  const checks = gameLayer()?.readChecks(value.checks, `${path}.checks`, errors) ?? [];
   return checks.length ? { ...checkpoint, checks } : checkpoint;
 };

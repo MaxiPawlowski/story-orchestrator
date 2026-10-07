@@ -11,6 +11,8 @@ Fields: `illustrations` (`checkpoints`, `scenes`, `style`, `appearances`), `chec
 - **Bad.** A secret form in `appearances`, a `Public appearance:` line, or a background prompt that shows the twist: each leaks through the image prompt (`STORY-TUTORIAL.md`).
 - **If wrong.** Public lore names spoil a story whose entry titles name the twist; leave `lore_names_public` off unless the titles are safe. A secret look in `Appearance:` still reaches the image prompt once its entry fires, so keep a form the player has not seen out of any entry that can fire before the reveal.
 
+The story's game panels have their own switches: `display.journal`, `display.stat_sheet` and `display.widgets` (see the next three topics).
+
 ---
 
-[Author's guide](../README.md) · previous: [Chapters](chapters.md) · next: [Good practices and traps](../good-practices.md)
+[Author's guide](../README.md) · previous: [Chapters](chapters.md) · next: [Quests and milestones](quests.md)

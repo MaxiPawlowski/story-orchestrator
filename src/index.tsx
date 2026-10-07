@@ -15,6 +15,7 @@ import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
+import { loadGameLayer } from "@engine/validate/gameLayer";
 import { createMountRegistry } from "@utils/mountRegistry";
 import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
@@ -42,6 +43,7 @@ import { log } from "@utils/log";
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
+await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();

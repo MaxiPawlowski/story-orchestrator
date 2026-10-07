@@ -35,7 +35,7 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
   }
   if (tool === "setWidgets") return { ok: true, op: { kind: "setWidgets", widgets: (Array.isArray(args.widgets) ? args.widgets : []) as StoryWidget[] } };
   if (tool === "setQualityDisplay") {
-    return { ok: true, op: { kind: "setQualityDisplay", key: String(args.key).trim(), display: isRecord(args.display) ? args.display as unknown as QualityDisplay : null } };
+    return { ok: true, op: { kind: "setQualityDisplay", key: String(args.key).trim(), display: isRecord(args.display) ? (args.display as Partial<QualityDisplay> as QualityDisplay) : null } };
   }
   if (tool === "setCheckpointChecks") {
     const checks = readChecks(args.checks, "checks", errors);

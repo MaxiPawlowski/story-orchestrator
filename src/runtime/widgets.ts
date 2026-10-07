@@ -12,7 +12,6 @@ import { questMoveText } from "@features/gameCopy";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
-export const SECRET_TITLE = "???";
 export const PLAYER_ACTOR = "You";
 
 export interface GameSources {
@@ -66,9 +65,9 @@ const mainLine = (story: NormalizedStoryV2, state: EngineState): MainLineView =>
   return { done, current: active?.player_name ?? null, objective: active?.player_name ? active.player_text ?? null : null };
 };
 
-const milestones = (story: NormalizedStoryV2, reader: GateReader): MilestoneView[] => (story.milestones ?? []).map((milestone) => {
+const milestones = (story: NormalizedStoryV2, reader: GateReader): MilestoneView[] => (story.milestones ?? []).flatMap((milestone) => {
   const earned = milestoneEarned(milestone, reader);
-  return { title: earned || !milestone.secret ? milestone.title : SECRET_TITLE, earned };
+  return earned || !milestone.secret ? [{ title: milestone.title, earned }] : [];
 });
 
 const statusMoves = (story: NormalizedStoryV2, entry: BoundaryLogEntry): LogRowView[] => {

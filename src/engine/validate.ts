@@ -13,10 +13,7 @@ import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapt
 import { indexCardFields, validateCardEffects } from "./cardFields";
 import { checkStretches } from "./validate/stretch";
 import { readPlayer } from "./validate/player";
-import { addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests } from "./validate/quests";
-import { checkStoryChecks } from "./validate/checkRefs";
-import { checkDisplays } from "./validate/display";
-import { readWidgets } from "./validate/widgets";
+import { GAME_LAYER_LOADING, gameLayer, usesGameLayer } from "./validate/gameLayer";
 
 export { readChapters };
 
@@ -105,13 +102,16 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
   const { storyId, storyVersion } = readHeader(json, errors);
   if (errors.length) return errors;
+  const layer = gameLayer();
+  if (!layer && usesGameLayer(json)) return [{ path: "$", message: GAME_LAYER_LOADING }];
 
   const checkpoints = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
   const baseQualities = readList(json.qualities, "qualities", readQuality, errors);
   const transitions = readList(json.transitions, "transitions", readTransition, errors);
-  const quests = readQuests(json.quests, errors);
-  const milestones = readMilestones(json.milestones, errors);
-  const qualities = addRewardQualities(addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors), quests, errors);
+  const quests = layer?.readQuests(json.quests, errors);
+  const milestones = layer?.readMilestones(json.milestones, errors);
+  const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
+  const qualities = layer ? layer.addRewardQualities(builtin, quests, errors) : builtin;
   const options = readStoryOptions(json, errors);
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   resolveGuidanceMembers(checkpoints, roster);
@@ -135,11 +135,11 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
   checkStretches(checkpoints, transitions, qualityByKey, errors);
-  checkDisplays(qualities, json.checkpoints as unknown[], errors);
-  checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
-  const game = quests ? expandRequires(quests, errors) : undefined;
-  checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
-  const widgets = readWidgets(json.widgets, qualityByKey, qualities, errors);
+  layer?.checkDisplays(qualities, json.checkpoints as unknown[], errors);
+  layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
+  const game = quests ? layer?.expandRequires(quests, errors) : undefined;
+  layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
+  const widgets = layer?.readWidgets(json.widgets, qualityByKey, qualities, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 

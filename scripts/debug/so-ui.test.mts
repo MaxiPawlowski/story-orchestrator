@@ -189,10 +189,12 @@ test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay
 });
 
 test('v2.7 plan 06: the player-clean sweep forbids the Activity panel and roll chips, and reads the presence surfaces', () => {
-  for (const selector of ['#so-open-activity', '#so-panel-activity', '[data-so="activity"]', '#so-presence-roll-chips', '[data-so="roll-chip"]']) {
+  for (const selector of ['#so-open-activity', '#so-panel-activity', '[data-so="activity"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="journal-author"]']) {
     assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
   }
-  for (const selector of ['[data-so="roll-chips"]', '[data-so="roll-chip"]']) assert.ok(INLINE_PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  for (const selector of ['[data-so="roll-chip"][data-source="quality"]', '[data-so="roll-chip"][data-source="npc"]', '[data-so="roll-chip"][data-source="talk"]']) {
+    assert.ok(INLINE_PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
   for (const surface of ['#so-panels-root', '#so-continue-list', '#chat [data-so="chapter-card"]', '#extensionsMenu [data-so="story-wand"]', '.so-story-badge', '.so-story-card']) {
     assert.ok(PLAYER_TEXT_SURFACES.includes(surface), surface);
   }
@@ -397,10 +399,11 @@ test('planted DOM: the Activity panel opened in player mode is caught by the swe
   }
 });
 
-test('planted DOM: roll chips rendered under a player message are caught by the inline sweep', async () => {
-  const findings = await sweepPlanted({ message: [{ attrs: { 'data-so': 'roll-chips', 'data-mesid': '3' }, children: [{ tag: 'button', attrs: { 'data-so': 'roll-chip' }, text: '4' }] }] });
-  assert.ok(findings.includes('[data-so="roll-chips"] reachable under a message'), findings.join(' | '));
-  assert.ok(findings.includes('[data-so="roll-chip"] reachable under a message'), findings.join(' | '));
+test('planted DOM: an author roll chip under a player message is caught by the inline sweep, a public check chip is not', async () => {
+  const chip = (source: string) => ({ tag: 'button', attrs: { 'data-so': 'roll-chip', 'data-source': source }, text: '4' });
+  const findings = await sweepPlanted({ message: [{ attrs: { 'data-so': 'roll-chips', 'data-mesid': '3' }, children: [chip('quality'), chip('check')] }] });
+  assert.ok(findings.includes('[data-so="roll-chip"][data-source="quality"] reachable under a message'), findings.join(' | '));
+  assert.deepEqual(findings.filter((finding) => finding.includes('"check"')), []);
 });
 
 test('planted DOM: an author page of the guide reader in player mode is caught by the sweep', async () => {

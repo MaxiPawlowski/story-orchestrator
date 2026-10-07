@@ -259,6 +259,12 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   }),
 });
 
+const questNarrative = (story: NormalizedStoryV2 | null, values: Record<string, unknown>, epilogue: string | null) => {
+  const reader = valueReader(values);
+  const earned = epilogue ? (story?.milestones ?? []).filter((milestone) => milestoneEarned(milestone, reader)) : [];
+  return { quests: visibleQuestTitles(story?.quests, reader), milestones: earned.map((milestone) => milestone.title) };
+};
+
 const resolvedThreads = (memory: RuntimeExtras["memory"]) =>
   withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "resolved" && !arc.foldedInto).map((arc) => arc.text);
 
@@ -342,9 +348,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     // wording, because the player is the one who would lose the story.
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
-    objectiveKind: agency.objective_kind,
-    quests: story ? visibleQuestTitles(story.quests, valueReader(blackboard)) : [],
-    milestones: chapters.epilogue ? (story?.milestones ?? []).filter((milestone) => milestoneEarned(milestone, valueReader(blackboard))).map((milestone) => milestone.title) : [],
+    objectiveKind: agency.objective_kind, ...questNarrative(story, blackboard, chapters.epilogue),
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();

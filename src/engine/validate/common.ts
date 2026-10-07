@@ -14,7 +14,7 @@ export const refuse = <T,>(errors: ValidationError[], path: string, message: str
   return value;
 };
 
-export const asString =(value: unknown): string | null => typeof value === "string" && value.trim() ? value : null;
+export const asString = (value: unknown): string | null => typeof value === "string" && value.trim() ? value : null;
 
 export const isOneOf = <T extends readonly string[]>(value: unknown, values: T): value is T[number] => {
   return typeof value === "string" && (values as readonly string[]).includes(value);

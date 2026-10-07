@@ -88,7 +88,8 @@ const OUTCOME_PROSE: Record<CheckOutcomeWord, string> = {
   success: "succeeds", failure: "fails", strong: "succeeds cleanly", weak: "succeeds, at a cost", miss: "fails",
 };
 
-export const CHECK_OUTCOME_HEADER = "The story has already decided these outcomes. Show each one happening in this reply, as it fell: never change it, never skip it, and never mention dice or numbers.";
+export const CHECK_OUTCOME_HEADER = "The story has already decided these outcomes. "
+  + "Show each one happening in this reply, as it fell: never change it, never skip it, and never mention dice or numbers.";
 
 export function checkOutcomeBlock(story: NormalizedStoryV2 | null, records: readonly CheckRecord[], lastMessageId: number): string | null {
   if (!story) return null;
