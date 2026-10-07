@@ -1,4 +1,5 @@
 // v2.6 plan 13 R3/R5: the rules that turn an inventory row into one call, and the suite list into a budget.
+import { shellArg, TOY_GROUP_NAME } from './toyGroup.mjs';
 
 const nameOf = (path) => path.split('/').pop().replace(/\.json$/, '');
 const matches = (list, name) => (list ?? []).find((entry) => new RegExp(entry.pattern).test(name));
@@ -77,7 +78,7 @@ export const GENERATED = {
   }),
 };
 
-export const TOY_GROUP = '1759606632088';
+export const TOY_GROUP = TOY_GROUP_NAME;
 
 const describeRequires = (requires = {}) => [
   requires.group ? `group ${requires.group}` : null,
@@ -95,7 +96,7 @@ export function noLlmSuiteRows(scenarios, { group = TOY_GROUP } = {}) {
   const noModel = runnable.filter((row) => row.requires?.lane === 'no-model');
   const live = runnable.filter((row) => row.requires?.lane !== 'no-model');
   const minutes = (list) => Math.round(list.reduce((sum, row) => sum + (row.est ?? 0), 0) / 60);
-  const batch = (list) => `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group ${group} ${list.map((row) => row.asset).join(' ')}`;
+  const batch = (list) => `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group ${shellArg(group)} ${list.map((row) => row.asset).join(' ')}`;
   const rows = [];
   if (noModel.length) rows.push({
     id: `no-model lane (${noModel.length})`,

@@ -1,6 +1,7 @@
 {
   "name": "live-v25-11-a7-idless-import",
   "objective": "v2.5 plan 11 L5 (A7), no model. A fresh import of an id-less format-2 story (test/fixtures/linear.story.json, title 'Linear Vault') keys by its title slug in the library and in the chat blob; re-importing the same content keeps one record at the same version; an edited re-import updates that one record to version+1 instead of forking. Run with --sandbox: cleanup removes the imported record by hash. The last step removes the linear-vault record itself: sandbox cleanup removes imports by the hash the CHAT plays, and after the edited re-import the library record carries the edited hash while the chat keeps its pinned copy, so the record would outlive the run (found live, lane 3 run 2). Step 1 proves the record did not exist before the run.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []); const ids = lib.map((r) => r.id); if (ids.includes('linear-vault')) throw new Error(`the library already holds linear-vault, so this import is not fresh: ${JSON.stringify(ids)}`); globalThis.__v2511A7 = { count: lib.length }; return { libraryBefore: ids };",

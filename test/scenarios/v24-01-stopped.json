@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 01 T6 / X6, RED on the pre-T6 tree (no backend). A loud group generation that the player stops: ST's stopGeneration hides the stop button (ENDED) and then emits STOPPED (script.js:5607-5620), with no reply of the generation's own. The note it carried must stay ACCEPTED and ride the next loud generation, not be marked applied. Pre-T6 the note was marked applied at STARTED, so a stopped turn spent it and the next generation carried nothing.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

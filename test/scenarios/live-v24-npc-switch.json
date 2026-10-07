@@ -3,7 +3,7 @@
   "objective": "v2.4 follow-up U5 (644aa05): EffectsApplier.fireNpcReplies re-checks run ownership after the awaited /trigger before writing lastSelfInjectionMessageId. Control: in an unmoved chat A the llm onEnter reply lands and A records the reply id, in memory and on disk. Switch: in chat B the same reply is fired and ST is switched to chat C (another run-owned chat, 3 extra compact lines) while the /trigger generation is in flight; B's extras object (the one the runtime held when the reply started) must keep its value, never C's last message id, activateCheckpoint must answer false, and B's persisted blob must be unchanged on reopen. The in-memory read of B's orphaned extras is the discriminating half (the pre-fix code wrote C's id into it; the persisted half is a no-regression read, since activateCheckpoint persists only while it still owns the chat). Where the in-flight reply itself lands is recorded, not asserted (v2.5 plan 02 C1 step 0). Needs a group whose roster includes DM Narrator and a real model. 2026-10-03, T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener): an onEnter opener entered while the last reply addresses the player is held until the player answers and a reply follows. The control now asserts that (held at activation, still held after the player line alone, released by the next rendered reply, fired once) before its original lsim/disk checks; chat B ends on a player line, so its opener is not held and fires at activation, which keeps the mid-/trigger switch discriminating.",
   "requires": {
     "lane": "model",
-    "group": "1759606632088",
+    "group": "Group: Arin, DM Narrator",
     "members": [
       "DM Narrator"
     ],

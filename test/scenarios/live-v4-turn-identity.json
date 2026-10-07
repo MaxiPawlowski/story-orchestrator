@@ -1,6 +1,7 @@
 {
   "name": "live-v4-turn-identity",
   "objective": "v2.3 replan V4, live against the real host event bus (NO model, NO real generation — the real-generation half is owed to L6): ST's own eventSource delivers MESSAGE_RECEIVED/CHARACTER_MESSAGE_RENDERED exactly as script.js:6716/6738 does for a continue/appendFinal on the SAME message id; each continuation commits its own boundary, its event pair commits once, a re-announced normal reply does not, and a MESSAGE_DELETED/MESSAGE_EDITED carrying no id does not rewind a story that has already moved (before V4 a null id was message 0, and a non-finite id passed `shouldRollbackFromMessage` whenever a transition had fired and rewound to boundary 0).",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

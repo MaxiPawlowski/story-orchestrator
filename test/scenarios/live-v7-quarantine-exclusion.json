@@ -1,6 +1,7 @@
 {
   "name": "live-v7-quarantine-exclusion",
   "objective": "v2.3 replan V7, live: a PINNED ledger row and a PINNED relationship memory (the tier the World Info mirror carries) are planted over a real reply, a real generation proves both reach the request ST sends, the source reply is edited, and the next real generation proves neither reaches the request while both rows are still stored (pin = retention) and the mirror entry is disabled; reconfirming the ledger row brings it back. The planting uses debug responses on purpose — what is under test is exclusion from the real request, and the sentinels V7SENTLEDGER / V7SENTREL appear nowhere in the transcript, so a whole-request absence cannot be a transcript false positive.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     { "ui": { "action": "select-profile" } },

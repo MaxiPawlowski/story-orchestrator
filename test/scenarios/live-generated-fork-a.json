@@ -1,5 +1,6 @@
 {
   "_note": "v2.3 plan 07 / L4 (R9 live, real model). The expansion of `generated-fork` is written by the REAL model (no debug response); the check requires a beat with two or more outcomes (positive activation; a `failed`/`stale` chain is regenerated the way the author's Regenerate button does, up to three real generations, every attempt reported; `needs_review` is accepted and reported, because such a chain is merged and played — there is no author accept path — so its routes must be playable too), then drives route 0 (outcome index 0 at the first forking beat, by declaration order) with author /cp-style quality writes, each a real boundary, and asserts that exactly that outcome's transition fired and the route reaches the `finish` anchor. Route selection is deterministic on purpose: the model's part is the chain; which route a player takes is the engine's, and this proves every route the model wrote is playable. Cadence 50 keeps real reads from writing the gate qualities.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     {
       "import_story": {

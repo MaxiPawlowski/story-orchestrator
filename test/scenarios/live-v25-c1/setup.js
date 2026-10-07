@@ -1,4 +1,4 @@
-const G = '1759606632088';
+const G = (ctx.groups ?? []).find((g) => g.name === 'Group: Arin, DM Narrator')?.id ?? null;
 if (ctx.groupId !== G) throw new Error('not in group ' + G + ': ' + ctx.groupId);
 const r = await ctx.executeSlashCommandsWithOptions('/newchat');
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));

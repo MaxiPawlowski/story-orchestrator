@@ -1,6 +1,6 @@
 {
   "_note": "v2.5 plan 08 G-L4 P3, LIVE on a lane with worldInfo.scanMemory ON: a fact written at the last message, then that message deleted (rollback); the next real turn's scan buffers must hold the rolled-back facts block (A1 path), i.e. not the removed fact. The seeded fact quotes nothing from the transcript, so judge memoryVerify (on by default since v2.6 rule 5) rightly drops it (p 0.01, T7 suite): the seed step switches that one use off, and the runner's judge restore puts it back. so-scenario run test/scenarios/live-v25-08-l4-rollback.json --sandbox --group <group holding Arin and DM Narrator>.",
-  "requires": {"lane": "model", "group": "1759606632088", "members": ["Arin", "DM Narrator"], "judge": "off", "why": "seeds a fact the reply does not say; judge memoryVerify (on by default since v2.6 rule 5) drops it before the facts block, so the rollback half had nothing to roll back; the subject is the scan memory after a rollback, not the judge. Also needs worldInfo.scanMemory on (step 1 checks)"},
+  "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "why": "seeds a fact the reply does not say; judge memoryVerify (on by default since v2.6 rule 5) drops it before the facts block, so the rollback half had nothing to roll back; the subject is the scan memory after a rollback, not the judge. Also needs worldInfo.scanMemory on (step 1 checks)"},
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"

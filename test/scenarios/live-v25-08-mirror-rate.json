@@ -1,5 +1,6 @@
 {
   "_note": "v2.5 plan 08 L6 (G-L6), LIVE, real LLM on a lane copy. A story that invites relationship claims, 26 real turns at extraction cadence 2, so consolidation (boundaries 10 and 20) and the hall -> vault scene break both run. Step 0 (L6): every sync reports ran/skipped/live (memoryMirror summary), recorded after boundaries 10, 20 and the last. PASS needs the mirror book to exist and hold >= 1 enabled so_ entry. PREDECLARED (never retuned): the strip rule (median rate >= 0.8) applies only when >= 5 so_ entries were each eligible in >= 20 loud generations; otherwise the verdict is UNMEASURABLE with the counts and nothing changes. The record names the gating mode and the read route; run it in scan mode (L1) for the rate that ships, and once in file mode as the U6 comparison.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"]},
   "steps": [
     {
       "reload": true

@@ -1,6 +1,7 @@
 {
   "name": "live-rollback-derived",
   "objective": "v2.3 plan 04 (M3/M4, real turn): the boundary a gate fires on, carrying a delta an earlier message supplied, rolls the engine AND the memory stores back together when that message is edited — the ledger version that turn replaced comes back and the belief a reveal retired is un-retired, with the player told. The epistemic and ledger passes run with debug responses on purpose: the store reversal is what this proves, the parser has its own live suites.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     { "ui": { "action": "select-profile" } },

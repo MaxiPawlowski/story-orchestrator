@@ -1,5 +1,6 @@
 {
-  "_note": "v2.4 plan 01 foreign emitter (I3), LIVE: the Guided Generations {source} shape around a REAL request (the extraction profile answers PONG), inside an open loud generation with Arin drafted. Every story_orchestrator_* injected block (private, nudge, note, guidance) must be byte-identical after the foreign run, and the drafted block and the unspent note still in place (the no-backend fixture's final check). Derived from v24-01-foreign-source.json; the private row is seeded through debugResponse because this row tests the lifecycle, not extraction. so-scenario --sandbox --group 1759606632088.",
+  "_note": "v2.4 plan 01 foreign emitter (I3), LIVE: the Guided Generations {source} shape around a REAL request (the extraction profile answers PONG), inside an open loud generation with Arin drafted. Every story_orchestrator_* injected block (private, nudge, note, guidance) must be byte-identical after the foreign run, and the drafted block and the unspent note still in place (the no-backend fixture's final check). Derived from v24-01-foreign-source.json; the private row is seeded through debugResponse because this row tests the lifecycle, not extraction. so-scenario --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"why":"the foreign {source} run wraps a REAL extraction-profile request (PONG)"},
   "steps": [
     {
       "import_story": {

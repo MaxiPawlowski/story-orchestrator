@@ -1,14 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { AUTHOR_VIEW_STEP, laneOf, membersToEnable, notRunnableLine, requiredGroup, requiresOf, requiresProblems, validateRequires, withAuthorView } from './lib/scenarioRequires.mts';
 import { evalSyntaxProblems, validateFixture, validateSteps } from './lib/scenarioSchema.mts';
 import { judgeEnabledIn, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { TOY_GROUP_NAME } from '../lib/toyGroup.mjs';
 
-const toy = { groupId: '1759606632088', groupName: 'Group: Arin, DM Narrator', members: [{ name: 'Luke', avatar: 'Luke.png', disabled: true }, { name: 'Arin', avatar: 'Arin.png', disabled: false }] };
+const toy = { groupId: '1000000000001', groupName: TOY_GROUP_NAME, members: [{ name: 'Luke', avatar: 'Luke.png', disabled: true }, { name: 'Arin', avatar: 'Arin.png', disabled: false }] };
 
 test('requires is part of the closed vocabulary: unknown keys, bad values and empty objects are refused', () => {
   assert.deepEqual(validateRequires(undefined), []);
-  assert.deepEqual(validateRequires({ lane: 'no-model', group: '1759606632088', members: ['Luke'], authorView: true, judge: 'off', why: 'x' }), []);
+  assert.deepEqual(validateRequires({ lane: 'no-model', group: TOY_GROUP_NAME, members: ['Luke'], authorView: true, judge: 'off', why: 'x' }), []);
   assert.match(validateRequires({}).join(), /empty requires/);
   assert.match(validateRequires({ lanes: 'model' }).join(), /unknown key "lanes"/);
   assert.match(validateRequires({ lane: 'nomodel' }).join(), /expected "no-model" or "model"/);
@@ -22,26 +25,48 @@ test('requires is part of the closed vocabulary: unknown keys, bad values and em
 });
 
 test("the scenario's own group wins over the batch --group, and says so", () => {
-  assert.deepEqual(requiredGroup({ group: "Adolion - The Adventurer's Road" }, '1759606632088'), { group: "Adolion - The Adventurer's Road", overridden: true });
-  assert.deepEqual(requiredGroup({ group: '1759606632088' }, '1759606632088'), { group: '1759606632088', overridden: false });
-  assert.deepEqual(requiredGroup({}, '1759606632088'), { group: '1759606632088', overridden: false });
+  assert.deepEqual(requiredGroup({ group: "Adolion - The Adventurer's Road" }, TOY_GROUP_NAME), { group: "Adolion - The Adventurer's Road", overridden: true });
+  assert.deepEqual(requiredGroup({ group: TOY_GROUP_NAME }, TOY_GROUP_NAME), { group: TOY_GROUP_NAME, overridden: false });
+  assert.deepEqual(requiredGroup({}, TOY_GROUP_NAME), { group: TOY_GROUP_NAME, overridden: false });
   assert.deepEqual(requiredGroup({}, null), { group: null, overridden: false });
   assert.deepEqual(requiresOf({ requires: { lane: 'model' } }), { lane: 'model' });
   assert.deepEqual(requiresOf([]), {});
 });
 
 test('a disabled required member is re-enabled; an absent one is a problem the runner cannot fix', () => {
-  assert.deepEqual(membersToEnable({ group: '1759606632088', members: ['luke'] }, toy), ['Luke.png']);
-  assert.deepEqual(membersToEnable({ group: '1759606632088', members: ['Arin'] }, toy), []);
-  assert.match(requiresProblems({ group: '1759606632088', members: ['Tobias'] }, toy).join(), /needs Tobias in the group/);
-  assert.match(requiresProblems({ group: '1759606632088', members: ['Luke'] }, toy).join(), /still disabled/);
-  assert.deepEqual(requiresProblems({ group: '1759606632088', members: ['Luke'] }, { ...toy, members: [{ ...toy.members[0], disabled: false }] }), []);
+  assert.deepEqual(membersToEnable({ group: TOY_GROUP_NAME, members: ['luke'] }, toy), ['Luke.png']);
+  assert.deepEqual(membersToEnable({ group: TOY_GROUP_NAME, members: ['Arin'] }, toy), []);
+  assert.match(requiresProblems({ group: TOY_GROUP_NAME, members: ['Tobias'] }, toy).join(), /needs Tobias in the group/);
+  assert.match(requiresProblems({ group: TOY_GROUP_NAME, members: ['Luke'] }, toy).join(), /still disabled/);
+  assert.deepEqual(requiresProblems({ group: TOY_GROUP_NAME, members: ['Luke'] }, { ...toy, members: [{ ...toy.members[0], disabled: false }] }), []);
 });
 
 test('group is matched by id or by exact name, and a wrong group is named', () => {
   assert.deepEqual(requiresProblems({ group: 'group: arin, dm narrator' }, toy), []);
   assert.match(requiresProblems({ group: "Adolion - The Adventurer's Road" }, toy).join(), /the open group is "Group: Arin, DM Narrator"/);
   assert.match(requiresProblems({ group: 'x' }, {}).join(), /the open group is none/);
+});
+
+const SCENARIOS = join(import.meta.dirname, '..', '..', 'test', 'scenarios');
+const LANE_PENDING = new Set(['v27-card-art-base.json', 'v27-card-rollback.json', 'v27-existing-expression-reference.json', 'v27-local-card-reply.json']);
+
+test('every scenario in the corpus states the install it needs: a lane, and a group by name', () => {
+  const files = readdirSync(SCENARIOS).filter((name) => name.endsWith('.json') && !name.endsWith('.story.json'));
+  const docs = files.map((name) => ({ name, doc: JSON.parse(readFileSync(join(SCENARIOS, name), 'utf-8').replace(/^﻿/, '')) })).filter((file) => Array.isArray(file.doc?.steps));
+  assert.ok(docs.length > 150, `expected the whole corpus, found ${docs.length} scenarios`);
+  const problems = docs.flatMap(({ name, doc }) => {
+    const requires = requiresOf(doc);
+    const found: string[] = [];
+    if (!requires.group) found.push(`${name}: no requires.group`);
+    else if (/^\d+$/.test(requires.group)) found.push(`${name}: requires.group ${requires.group} is an id; ids differ per install, pin the group by name`);
+    if (!requires.lane && !LANE_PENDING.has(name)) found.push(`${name}: no requires.lane`);
+    if (/\b1759606632088\b/.test(JSON.stringify(doc))) found.push(`${name}: names the toy group by its id`);
+    return found;
+  });
+  assert.deepEqual(problems, []);
+  assert.deepEqual([...LANE_PENDING].filter((name) => !files.includes(name)), [], 'a lane-pending file left the corpus: drop it from LANE_PENDING');
+  const counts = docs.reduce((tally, { doc }) => ({ ...tally, [requiresOf(doc).lane ?? 'pending']: (tally[requiresOf(doc).lane ?? 'pending'] ?? 0) + 1 }), {} as Record<string, number>);
+  assert.ok(counts['no-model'] > 50 && counts.model > 50, JSON.stringify(counts));
 });
 
 test('lane kinds: a no-model scenario refuses a lane whose model answers, and a model scenario refuses a dead one', () => {

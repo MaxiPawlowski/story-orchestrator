@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 06 seed A sampler overlay, LIVE (real model; so-scenario run <file> --sandbox --group <id>). Run it TWICE on a Text Completion main profile AND twice on a Chat Completion main profile (the first eval records which one ran as `api`; a run on any other API fails). cp-overlay carries an inline preset {temperature 0.37, top_p 0.83}. A recorder registered AFTER the runtime reads the request the overlay left: GENERATE_AFTER_DATA for Text Completion, CHAT_COMPLETION_SETTINGS_READY for Chat Completion. The loud request on cp-overlay must carry 0.37 (and 0.83 where the request carries top_p); the selected preset name and the saved settings file must read back unchanged after the turn; a real memory read taken while the overlay is armed must NOT carry 0.37 (Connection Manager fires neither hook); after /cp activate cp-bare the next loud request is back to the connection's own temperature.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     { "import_story": { "file": "live-v24-06.story.json" } },
     { "ui": { "action": "select-profile" } },

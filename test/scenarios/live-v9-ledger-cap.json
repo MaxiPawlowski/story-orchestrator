@@ -1,6 +1,7 @@
 {
   "name": "live-v9-ledger-cap",
   "objective": "v2.3 replan V9, live through the real persist/reload path: one entity's row survives seventy ledger passes that keep changing ANOTHER entity's field, and repeating an unchanged value adds no version. Before V9 the ledger kept the newest 60 rows across every key, so the noisy key evicted Mira's only row. The passes use debug responses on purpose: what is under test is the store's retention through the runtime and a reload, not the model's ledger lines.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     {

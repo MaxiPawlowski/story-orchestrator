@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 01 T6, RED on the pre-T6 tree (no backend). Inside an open loud group generation with Arin drafted, another extension emits GENERATION_STARTED/ENDED/STOPPED with one {source} argument (Guided Generations' shape, the test-only fixture test/fixtures/interop/foreign-emitter.js; D9 shape rules). ST's own shapes are STARTED(type, params, dryRun) and ENDED(chat.length) (01-H5, 01-H7), so those emits are not a host generation: the private block, the continuity note and the note's accepted status must all be untouched. Pre-T6 the foreign ENDED cleared both blocks.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

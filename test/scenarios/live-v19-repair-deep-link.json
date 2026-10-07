@@ -1,6 +1,7 @@
 {
   "name": "live-v19-repair-deep-link",
   "objective": "v2.3 replan V19 on a real SillyTavern (no model needed). Plan 09 says the HUD chip deep-links Repair and the drawer footer carries the entry points. With no memory model chosen, the HUD setup chip (`#so-hud-setup`, which replaced the needs-setup pipeline chip in v2.7 04) must open the settings panel AND reveal its Repair row (`#so-entry-repair` gains `so-revealed`), not just open the panel; the drawer footer must show `Repair: <what the story loses>` and land on the same row. Each control is hit-tested first, so a covered control fails here instead of being clicked by script. The memory model is install state: so-scenario restores the extraction settings at cleanup.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     { "import_story": {
       "format": 2,

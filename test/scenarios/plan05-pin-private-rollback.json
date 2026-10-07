@@ -1,6 +1,7 @@
 {
   "name": "plan05-pin-private-rollback",
   "objective": "v2.3 plan 05, the deterministic half of the J5.6 variant: a PINNED private `[hiding]` fact, planted from a real message, is in the drafted member's private block — and after that message is EDITED it is gone from the block (quarantined, excluded, not ranked lower), and the author's reconfirmation brings it back. The assertion is scoped to the private block itself, because a whole-prompt search passes on the shared transcript — the J5.8 false positive, measured on 2026-09-22. Extraction is mocked (the parser has its own live suites); the mechanism under test is the quarantine, the per-member staging and the injection. The real-LLM variant of this check is plan 05's live recipe, and this file must never stand in for it.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": {

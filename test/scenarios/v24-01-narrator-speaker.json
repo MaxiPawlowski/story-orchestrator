@@ -1,14 +1,7 @@
 {
   "name": "v24-01-narrator-speaker",
-  "objective": "v2.4 plan 01 T10, no backend. `/sys` posts extra.type:'narrator' named narrator_name or 'System' (host fact 01-H10, slash-commands.js:6019-6036). A narrator row whose name is not a roster member is not a character's turn: the speaker stays Luke (red on v2.3: null). A narrator row NAMED as a roster member ('DM Narrator') counts as that member (dm) - the kept case, green on both. Run: so-scenario run <this> --sandbox --group 1759606632088.",
-  "requires": {
-    "group": "1759606632088",
-    "members": [
-      "Luke",
-      "DM Narrator"
-    ],
-    "why": "T10 needs Luke and DM Narrator enabled in the toy group (sun-ruins roster little_brother, dm); an earlier cast change leaves Luke disabled"
-  },
+  "objective": "v2.4 plan 01 T10, no backend. `/sys` posts extra.type:'narrator' named narrator_name or 'System' (host fact 01-H10, slash-commands.js:6019-6036). A narrator row whose name is not a roster member is not a character's turn: the speaker stays Luke (red on v2.3: null). A narrator row NAMED as a roster member ('DM Narrator') counts as that member (dm) - the kept case, green on both. Run: so-scenario run <this> --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","DM Narrator"],"judge":"off","why":"T10 needs Luke and DM Narrator enabled in the toy group (sun-ruins roster little_brother, dm); an earlier cast change leaves Luke disabled"},
   "steps": [
     {
       "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
@@ -19,7 +12,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 'Group: Arin, DM Narrator' (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
       "log": true
     },
     {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { estimateSeconds, fixCommitsByPath, guardOf, isCitedRecord, isGenericCitation, isVacuousNeedleSpec, jestShape, jestTier, stepsShape, testTitles } from './suiteInventory.mjs';
+import { ASSERTING_UI_ACTIONS, estimateSeconds, fixCommitsByPath, guardOf, isCitedRecord, isGenericCitation, isVacuousNeedleSpec, jestShape, jestTier, MODEL_UI_ACTIONS, stepsShape, testTitles } from './suiteInventory.mjs';
 
 test('a jest file is pure only when it lives in a pure dir and does not reach the host seam', () => {
   assert.equal(jestTier('src/engine/x.test.ts', 'import { a } from "./a";'), 'pure unit');
@@ -33,6 +33,26 @@ test('a step list needs a model when it generates, or calls a pass without a moc
   assert.equal(stepsShape([{ ui: { action: 'pointer-click', selector: '#a', expectVisible: '#b' } }]).vacuous, false);
   assert.equal(stepsShape([{ ui: { action: 'open-drawer' } }]).vacuous, true);
   assert.equal(estimateSeconds(stepsShape([{ send_generate: 'a' }])), 5 + 2 + 45);
+});
+
+test('a ui action that reaches ComfyUI, DeepSeek or the local text model is a model call no debug response can mock, and it asserts', () => {
+  for (const action of ['sprite-base', 'card-reply-local', 'sprite-reference']) {
+    assert.ok(MODEL_UI_ACTIONS.has(action) && ASSERTING_UI_ACTIONS.has(action), action);
+    const shape = stepsShape([{ eval: "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE';" }, { ui: { action } }]);
+    assert.equal(shape.needsLlm, true, action);
+    assert.equal(shape.modelCalls, 1, action);
+    assert.equal(shape.vacuous, false, action);
+  }
+  assert.equal(stepsShape([{ ui: { action: 'wizard-run', stage: 'qualities' } }]).needsLlm, true);
+  assert.equal(stepsShape([{ ui: { action: 'wizard-run' } }]).vacuous, true);
+  assert.equal(stepsShape([{ ui: { action: 'open-drawer' } }]).modelCalls, 0);
+  assert.equal(stepsShape([{ ui: { action: 'model-calls' } }, { ui: { action: 'sprite-base' } }]).modelCalls, 1);
+});
+
+test('a model verb mocked by a bare-string debug response or a copilot debug answer needs no model', () => {
+  assert.equal(stepsShape([{ extract: 'MEMORY type=fact text="x"' }, { expect: { x: 1 } }]).needsLlm, false);
+  assert.equal(stepsShape([{ copilot: { action: 'suggest', debug: '{"suggestions":[]}' } }, { expect: { x: 1 } }]).needsLlm, false);
+  assert.equal(stepsShape([{ copilot: { action: 'stage', stage: 'qualities' } }]).needsLlm, true);
 });
 
 test('an empty needle is vacuous, a real one is not', () => {

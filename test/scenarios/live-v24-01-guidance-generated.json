@@ -1,5 +1,6 @@
 {
-  "_note": "v2.4 plan 01 guidance on a GENERATED checkpoint, LIVE (real expansion, real generation; so-scenario --sandbox --group 1759606632088). The fork stub is expanded by the real model (a failed/stale chain is regenerated up to three times, every attempt reported), a neutral real turn commits the boundary that merges it, then `/cp activate gen_fork_stub_1` makes the first generated checkpoint active and a real turn is sent. The request ST sends must carry that checkpoint's generated guidance (merge.ts copies beat.guidance), which is what 'source = the played, merged story' promises.",
+  "_note": "v2.4 plan 01 guidance on a GENERATED checkpoint, LIVE (real expansion, real generation; so-scenario --sandbox --group 'Group: Arin, DM Narrator'). The fork stub is expanded by the real model (a failed/stale chain is regenerated up to three times, every attempt reported), a neutral real turn commits the boundary that merges it, then `/cp activate gen_fork_stub_1` makes the first generated checkpoint active and a real turn is sent. The request ST sends must carry that checkpoint's generated guidance (merge.ts copies beat.guidance), which is what 'source = the played, merged story' promises.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     { "import_story": { "file": "../fixtures/generated-fork.story.json" } },
     { "ui": { "action": "select-profile" } },

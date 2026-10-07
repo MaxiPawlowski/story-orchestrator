@@ -1,5 +1,6 @@
 {
   "_note": "v2.4 plan 05 T12 live, the foreign-scan-filter Repair (real LLM; so-scenario run <file> --sandbox --group <the sun-ruins group>, twice). test/fixtures/interop/wi-foreign.js splices every 'Xentar Checkpoints' entry out of WORLDINFO_ENTRIES_LOADED (05-H2), which is what a scan-filtering extension does. After TWO loud generations the Repair step must read 'Another extension is hiding this story's lorebook from the model.' naming the book and no extension; after ONE it must not (the predeclared two-generation rule). The splicer is then removed, and one more generation must clear the step. Each generation is one /trigger of one member, so 'one generation' is exactly one: the first live runs used a player send, and in a group one send drafted two members, which is two loud generations (run 2 of 2026-09-25 read hidden after 'one' send, correctly). The first eval removes any earlier run's listeners, and the last step removes the splicer whatever happened.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"why":"real /trigger drafts of Arin through the T12 ring"},
   "steps": [
     {
       "import_story": {

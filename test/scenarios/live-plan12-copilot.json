@@ -1,4 +1,5 @@
 {
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator"},
   "steps": [
     { "eval": "for (const key of Object.keys(globalThis).filter((entry) => entry.startsWith('storyOrchestratorDebug'))) delete globalThis[key];" },
     { "import_story": { "format": 2, "title": "Copilot Scenario Live", "description": "Plan 12 copilot real-LLM gate.", "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault.", "type": "anchor", "start": true }, { "id": "vault", "name": "Vault", "objective": "Open the vault.", "type": "anchor" }], "transitions": [{ "from": "start", "to": "vault", "priority": 0, "gate": { "q": "has_key", "op": "==", "v": true }, "effects": { "progress": { "anchor": "vault", "amount": 1 } } }], "roster": [] } },

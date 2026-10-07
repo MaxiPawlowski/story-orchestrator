@@ -1,5 +1,6 @@
 {
-  "_note": "Control arm for v24-acc-A-reload-blocks.json (2026-09-25): identical, except the same-chat reload is replaced by a no-op. The real /trigger request must carry the checkpoint guidance; if it does, the probe attributes the missing guidance to the reload. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-A-reload-blocks-control.json --sandbox --group 1759606632088.",
+  "_note": "Control arm for v24-acc-A-reload-blocks.json (2026-09-25): identical, except the same-chat reload is replaced by a no-op. The real /trigger request must carry the checkpoint guidance; if it does, the probe attributes the missing guidance to the reload. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-A-reload-blocks-control.json --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin"],"why":"the drafted member reply is a real /trigger generation"},
   "steps": [
     {
       "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"

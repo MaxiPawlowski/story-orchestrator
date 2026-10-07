@@ -4,6 +4,7 @@
     "G1c": "After this fixture's G2 phase (or its first run, before cleanup, using --keep): disable Story Orchestrator in ST's Extensions panel, reload, open the no-story Arin chat and run node scripts/debug/st-eval.mts \"(await import('/scripts/world-info.js')).getSortedEntries().then((e) => e.filter((x) => x.disable !== true).map((x) => x.world + ': ' + x.comment))\". PASS = no entry the ledger (localStorage so-v25-01 G2first) holds is in that list. Then re-enable the extension and run the cleanup step's eval by hand.",
     "G5-disabled": "With the drifted entry of G5 left drifted (run up to the start-up check with --keep), disable the extension and reload: the drifted entry must be the ONLY ledger entry in the list above. Re-enable, re-normalise from the settings row (#so-wi-renormalize), then clean up."
   },
+  "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Arin"]},
   "steps": [
     {
       "inject_script": "../fixtures/interop/t13-spike.js"

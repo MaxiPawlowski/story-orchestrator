@@ -1,6 +1,7 @@
 {
   "name": "plan05-decision-write",
   "objective": "v2.3 plan 05: every author decision is WRITTEN, or it is put back. Deterministic (no model call): the runtime's own decision path is driven against the real manager, once with a save that lands and once with the evidence of a lost write. What this exists to catch is a guard whose signal cannot fire — the shape that shipped in the previous slice, where the put-back watched a `catch` around `saveMetadata` (which wraps its write in try/catch and never rejects, script.js:9412). jest cannot see that: the mock throws, the host does not. This scenario can, because it patches the manager's own `persist`. The real-LLM live variant is plan 05's gate recipe; this file must never stand in for it.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
       "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" }

@@ -1,6 +1,7 @@
 {
   "name": "live-v16-save-readback",
   "objective": "v2.3 replan V16, live (no model): a save the server never receives is evidence of a lost write; the save that follows is CONFIRMED against the server's own stored chat file (a real `/api/chats/group/get` round trip, counted here), not against the page's in-memory metadata that the extension itself just wrote; and a healthy save after that is trusted without a round trip.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     {

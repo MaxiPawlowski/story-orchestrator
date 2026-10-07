@@ -1,6 +1,7 @@
 {
   "name": "live-v18-import-and-ownership",
   "objective": "v2.3 replan V18 on a real SillyTavern (no model needed). (1) S1: importing `placeholder-enums.story.json` as JSON, the way campaign stories reach a chat, journals `story imported with 5 warning(s)` naming the five latching placeholder qualities and not the non-latching control, and the story still plays. (2) R8: a lorebook made OUTSIDE the wizard (standing in for one of the user's own) and a character card the wizard then creates under the same name: the wizard must not treat the card as owning the book, so an entry write into it is refused and the book is left untouched. Cleanup runs in the runner's finally (`assets remove --marker SO-V18`): it deletes the card and the book, so run 2 no longer refuses on run 1's card (T7 suite 2026-10-03). Before the card is created, a group chat that still carries a selected character (ST's this_chid, left by a solo-chat hop: openGroupById resets it only when the group changes, group-chats.js:2032-2034) has it cleared, because getCharacters() re-selects that character after a card is created (script.js:1316-1320) and leaves the group: the T7 no-model lane read that as a sandbox escape to a solo Luke chat.",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
       "import_story": {
