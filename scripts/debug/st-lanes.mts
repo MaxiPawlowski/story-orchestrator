@@ -19,8 +19,8 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   stop <n...>                  stop lane n's browser and server
   status                       list lanes and whether each is up
   env <n>                      print the environment that points a debug script at lane n
-  run <n> [--allow-load] -- <node script args> run one debug script against lane n (an integration
-                               play is refused under the same lane-load rule as batch)
+  run <n> [--allow-load] -- <node script args> run one debug script against lane n (an integration play or a
+                               B1 measurement run, so-b1-*.mts, is refused under the same lane-load rule as batch)
   no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
                                copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
   restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
@@ -247,6 +247,10 @@ export const DEFAULT_MAX_LLM_LANES = 2;
 
 export const isIntegrationPlay = (script: string[]) => /so-integration\.mts$/.test(script[0] ?? '') && script[1] === 'play';
 
+export const B1_OFFLINE_COMMANDS = new Set(['score', 'score-m1', 'score-m2', '--help']);
+
+export const isB1ModelRun = (script: string[]) => /so-b1-[a-z-]+\.mts$/.test(script[0] ?? '') && !B1_OFFLINE_COMMANDS.has(script[1] ?? '');
+
 export function laneLoadProblem(lanes: Array<{ lane: number; serverUp: boolean; noModel?: boolean }>, max: number = DEFAULT_MAX_LLM_LANES): string | null {
   const llm = lanes.filter((entry) => entry.serverUp && !entry.noModel).map((entry) => entry.lane);
   return llm.length > max ? `${llm.length} lanes with a model are up (${llm.join(', ')}), more than ${max}: one pod serves LLM_PARALLEL requests and the rest queue, so backend latency would read as red runs (T7: a 4-token completion took 56 s under 5 lanes). Stop a lane, make it a no-model lane, or pass --allow-load` : null;
@@ -269,7 +273,7 @@ async function main() {
     const [n] = laneNumbers(rest.slice(0, 1));
     const at = rest.indexOf('--');
     const script = rest.slice(at + 1);
-    const load = isIntegrationPlay(script) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
+    const load = (isIntegrationPlay(script) || isB1ModelRun(script)) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
     if (load) throw new Error(`run refused: ${load}`);
     const { code } = await runNode(script, laneEnv(n), { echo: true });
     process.exitCode = code;
