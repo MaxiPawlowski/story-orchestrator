@@ -1,0 +1,33 @@
+{
+  "format": 2,
+  "id": "so-v27-36-quest-rewards",
+  "version": 1,
+  "title": "SO-V27-36Q5 Quest Rewards",
+  "description": "v2.7 plan 39 row 36-Q5-scn-b no-model fixture: a side quest whose reward switches on a test lorebook entry and mutes a group member.",
+  "requirements": { "lorebooks": ["SO-V27-36Q5 Lore"] },
+  "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }],
+  "qualities": [
+    { "key": "accepted", "type": "bool", "source": "extractor", "rubric": "Did the party agree to ring the harbour bell?" },
+    { "key": "rang_bell", "type": "bool", "source": "extractor", "rubric": "Did the party ring the harbour bell?" },
+    { "key": "left_town", "type": "bool", "source": "extractor", "rubric": "Has the party left town?" }
+  ],
+  "checkpoints": [
+    { "id": "harbour", "name": "The harbour", "player_name": "The harbour", "objective": "Look around the harbour.", "type": "anchor", "start": true },
+    { "id": "road", "name": "The road", "player_name": "The road", "objective": "Travel on.", "type": "anchor" }
+  ],
+  "transitions": [{ "from": "harbour", "to": "road", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }],
+  "quests": [
+    {
+      "id": "bell", "title": "The harbour bell", "kind": "side", "giver": "narrator",
+      "visible_when": { "q": "accepted", "op": "==", "v": true },
+      "steps": [{ "text": "Ring the bell", "done_when": { "q": "rang_bell", "op": "==", "v": true } }],
+      "reward": {
+        "label": "The bell tolls",
+        "effects": {
+          "world_info": { "enable": [{ "lorebook": "SO-V27-36Q5 Lore", "comments": ["SO-Q5 bell rung"] }] },
+          "cast_changes": { "disable": ["Arin"] }
+        }
+      }
+    }
+  ]
+}

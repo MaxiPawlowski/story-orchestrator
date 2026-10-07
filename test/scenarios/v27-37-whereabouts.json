@@ -1,0 +1,49 @@
+{
+  "_note": "v2.7 plan 39 (NOT YET RUN; row 37-D2): a night schedule puts Arin at the docks while the party is at the market, and speaker direction never picks her while she is away. No model call: player lines are /send compact, every quality write is a /cp set boundary, and the director is mocked (storyOrchestratorDebugDirectorResponse = 'SPEAKER: Arin', the worst case: it names the away member). A no-model lane has online_status no_connection, and ST's Generate returns before runGenerationInterceptors on such a lane (script.js:4387-4390 vs :4564), so each turn drives the host's event sequence by hand: GROUP_WRAPPER_STARTED {type: normal}, the live globalThis.talkControlInterceptor with type normal, then GENERATION_STOPPED (releases the loud gate and ends the chain, so no /trigger follows). Control: the same line addressed to Arin before night picks Arin, so the night assertion can fail. disabled_members of the toy group is checked before and after through expect.groupDisabled (the run header diff is the lane runner's half). Run: node scripts/debug/so-scenario.mts run test/scenarios/v27-37-whereabouts.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
+  "steps": [
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
+    { "expect": { "groupDisabled": { "enabled": ["Arin", "DM Narrator"] } } },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27-37-whereabouts",
+        "version": 1,
+        "title": "SO-V27-37 Whereabouts",
+        "description": "v2.7 plan 37 no-model fixture: Arin keeps a night schedule at the docks; the party stays at the market.",
+        "roster": [
+          {
+            "id": "arin", "name": "Arin", "role": "a guide who works the docks at night",
+            "schedule": [{ "when": { "q": "time_of_day", "op": "==", "v": "night" }, "at": "docks" }]
+          },
+          { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+        ],
+        "clock": { "times": ["morning", "afternoon", "evening", "night"] },
+        "qualities": [
+          { "key": "location", "type": "enum", "values": ["market", "docks", "inn"], "source": "extractor", "evidence_from": "world", "rubric": "Where the party is." },
+          { "key": "done", "type": "bool", "source": "extractor", "rubric": "Did the party finish at the market?" }
+        ],
+        "checkpoints": [
+          {
+            "id": "start", "name": "The market", "type": "anchor", "start": true, "objective": "Find Arin.",
+            "talk_control": { "lead": "Arin", "speakers": [{ "member": "Arin", "weight": 3 }, { "member": "DM Narrator", "weight": 1 }], "no_repeat": false, "allow_silence": false, "director": true }
+          },
+          { "id": "end", "name": "The end", "type": "anchor", "objective": "Leave." }
+        ],
+        "transitions": [{ "from": "start", "to": "end", "priority": 1, "gate": { "q": "done", "op": "==", "v": true } }]
+      }
+    },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getTalkState().enabled) rt.setTalkDirectionEnabled(true); if (!rt.getSnapshot().requirements?.ready) throw new Error('requirements not ready: ' + JSON.stringify(rt.getSnapshot().requirements)); if (!rt.getActiveTalkControl()) throw new Error('no active talk control: speaker direction is off or the checkpoint carries none'); globalThis.storyOrchestratorDebugDirectorResponse = 'SPEAKER: Arin'; globalThis.__d2 = { night: null, turn: async () => { const ctx = SillyTavern.getContext(); const before = rt.getTalkState().decisions.length; await ctx.eventSource.emit(ctx.eventTypes.GROUP_WRAPPER_STARTED, { selected_group: ctx.groupId, type: 'normal' }); let aborted = false; try { await globalThis.talkControlInterceptor(ctx.chat, 8192, () => { aborted = true; }, 'normal'); } finally { await ctx.eventSource.emit(ctx.eventTypes.GENERATION_STOPPED); } const decisions = rt.getTalkState().decisions; if (decisions.length <= before) throw new Error('the interceptor recorded no talk decision (before ' + before + ', now ' + decisions.length + ')'); return { decision: decisions.at(-1), aborted }; } }; return { talk: rt.getTalkState().enabled };" },
+    { "slash": "/cp set location market" },
+    { "send": "Arin, what do you make of this market?" },
+    { "eval": "const { decision } = await globalThis.__d2.turn(); if (decision.chosenRosterId !== 'arin') throw new Error('control: with Arin present, a line addressed to her must pick her, got ' + JSON.stringify(decision)); return decision;", "log": true },
+    { "slash": "/cp set time_of_day night" },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const values = rt.getEngineState().blackboard.values; if (values.time_of_day !== 'night' || values.location !== 'market') throw new Error('setup: expected night at the market, got ' + JSON.stringify({ time: values.time_of_day, location: values.location })); const rows = rt.getSnapshot().lifeAuthor?.rows ?? []; const arin = rows.find((row) => row.id === 'arin'); if (arin?.away !== 'docks') throw new Error('the schedule did not put Arin away: ' + JSON.stringify(rows)); globalThis.__d2.night = rt.getTalkState().decisions.length; return arin;" },
+    { "send": "Arin, are you there? Arin, answer me." },
+    { "eval": "const { decision } = await globalThis.__d2.turn(); if (decision.chosenRosterId === 'arin' || decision.chosenName === 'Arin') throw new Error('a line addressed to the away member picked her: ' + JSON.stringify(decision)); return decision;", "log": true },
+    { "send": "I look around the market." },
+    { "eval": "const { decision } = await globalThis.__d2.turn(); if (decision.chosenRosterId === 'arin' || decision.chosenName === 'Arin') throw new Error('the director named the away member and it stood: ' + JSON.stringify(decision)); const rt = globalThis.storyOrchestratorRuntime; const since = rt.getTalkState().decisions.slice(globalThis.__d2.night); if (since.length < 2) throw new Error('expected two night decisions, got ' + since.length); const named = since.filter((entry) => entry.chosenRosterId === 'arin' || entry.chosenName === 'Arin'); if (named.length) throw new Error('night decisions name Arin: ' + JSON.stringify(named)); return since.map((entry) => ({ chosen: entry.chosenName, source: entry.source }));", "log": true },
+    { "expect": { "groupDisabled": { "enabled": ["Arin", "DM Narrator"] } } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); delete globalThis.storyOrchestratorDebugDirectorResponse; return true;" }
+  ]
+}

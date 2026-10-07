@@ -1,0 +1,72 @@
+{
+  "format": 2,
+  "id": "so-v27-37-start-seed-control",
+  "version": 1,
+  "title": "SO-V27-37Q1 Start Seed Control",
+  "description": "v2.7 plan 39 row 37-Q1 no-model fixture: Arin's trust toward the player starts at 1; the only exit needs trust 2 or more.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "role": "a guide who has not decided about the newcomer",
+      "relationships": [
+        {
+          "toward": "player",
+          "axes": [
+            "trust"
+          ],
+          "range": [
+            -3,
+            3
+          ],
+          "start": 1
+        }
+      ]
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "confessed",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Did Arin confess her debt?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "The market",
+      "type": "anchor",
+      "start": true,
+      "objective": "Meet Arin."
+    },
+    {
+      "id": "confession",
+      "name": "The confession",
+      "type": "anchor",
+      "objective": "Hear Arin out."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "confession",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "rel_arin_player_trust",
+            "op": ">=",
+            "v": 2
+          }
+        ]
+      }
+    }
+  ]
+}

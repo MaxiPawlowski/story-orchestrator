@@ -403,6 +403,13 @@ test('planted DOM: the Activity panel opened in player mode is caught by the swe
   }
 });
 
+test('v2.7 plan 33: the agency accept mode and the attention-check use are author-only, and a planted copy in player mode is caught', async () => {
+  for (const selector of ['#so-agency-accept-mode', '#so-judge-use-attention-check']) assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  const findings = await sweepPlanted({ panels: [{ tag: 'select', id: 'so-agency-accept-mode' }, { tag: 'input', id: 'so-judge-use-attention-check' }] });
+  for (const selector of ['#so-agency-accept-mode', '#so-judge-use-attention-check']) assert.ok(findings.includes(`${selector} reachable in #so-panels-root`), `${selector}: ${findings.join(' | ')}`);
+  assert.deepEqual(await sweepPlanted({ panels: [{ tag: 'select', id: 'so-warden-accept-mode-copy' }] }), []);
+});
+
 test('planted DOM: an author roll chip under a player message is caught by the inline sweep, a public check chip is not', async () => {
   const chip = (source: string) => ({ tag: 'button', attrs: { 'data-so': 'roll-chip', 'data-source': source }, text: '4' });
   const findings = await sweepPlanted({ message: [{ attrs: { 'data-so': 'roll-chips', 'data-mesid': '3' }, children: [chip('quality'), chip('check')] }] });
