@@ -122,6 +122,17 @@ Phase 5 (N3/N5) is deferred to v2.8 13 in every branch (finding 14; `00-overview
 | 33 W1 V7-live | 14 | a real `onEnter` NPC post and its `/cut` after an edited reply | ends like a replay of the edited chat, gate kept and gate broken | D (scripted) + CL |
 | 37 M3 | 18 | 7-member act pilot (37 §Measurement) | 37's M3 floor | RP + CL |
 
+### Rows refined by v2.7 33 W1 step 0 (2026-10-07, `v2.7-33-v0`; V3 not run)
+
+The owner runs no reply post-processor; the reference one is `SO-V3 typographic quotes`
+(`test/fixtures/postprocessor/`, driven by `scripts/debug/so-postprocessor.mts`). Trace and defects: v2.7 33 §Gate record
+"W1 step 0 (V0)".
+
+| Row | Setup | Assertion | Tier |
+|---|---|---|---|
+| 33 W1 V0 traced | jest `src/runtime/spikes/editReread.review.test.ts` "V0: the traced post-processor orders" (event-order replay over the real manager) plus the trace table it cites | the Regex placement and an in-round rewrite reach no cycle; a late post-render burst holds the reply until the last text is read and ends like a replay; the v2.6 "no audit" control reproduces (audit erased, "eventless change") | D |
+| 33 W1 V3 post-processor | `node scripts/debug/so-scenario.mts run test/scenarios/v27-33-v3-postprocessor.json --sandbox` on a model lane with the dev build; `requires` pins "Group: Arin, DM Narrator" by name; the fixture switches `spikes.editReread` on and restores it | regex leg: no straight-quoted span in any reply and no edit seen; post-render single, double and late: the rewrite lands after the commit, and the next request carries only the next checkpoint's marker and the settled text, with no hold timeout | CL + RP |
+
 ### Rows owed by v2.7 37 (built 2026-10-07 on `v2.7-37-character-life`, none run)
 
 Each is a manifest row, run ×2 with the rule 11 reset. The numbers marked *placeholder* are built into the code and
@@ -412,7 +423,7 @@ move the cut. Record the commit, both hashes and the run headers in `test/measur
 | no prod-build drive path: `so-scenario`, `so-journey` and every `storyOrchestratorRuntime` read refuse a prod page, so a `prod` row can only be driven through DOM-level `so-ui` verbs and ST's own controls; that path is not built for most of the 99 `prod` rows | every `prod` row in C2–C8b | v2.7 39 (debug tooling) before C2 |
 | C14-b has no predeclared floor | C14-b | v2.7 02 |
 | S28 floors not copied into the manifest | 16-19-S28 | v2.7 32 |
-| 33 W1 V0 needs the user's post-processor named | 33-W1-V0 | user |
+| ~~33 W1 V0 needs the user's post-processor named~~ resolved 2026-10-07: the user runs none; the reference post-processor stands in (v2.7 33 §Gate record "W1 step 0 (V0)") | 33-W1-V0 | — |
 | lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
 | B0-base not run (needs a lane and ST) | B0-base, C3-preservation, PC-* | v2.7 39 B0-live |
 
@@ -549,7 +560,7 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | C4-R6 | C5 | CL + RP | prod | v2.8 01 §B C4; 39 §B1 rows from v2.8 01 |
 | C4-J8 | C5 | CL + RP | prod | v2.8 01 §B C4; 39 §B1 rows from v2.8 01 |
 | R4-live | C5 | RP | prod | v2.8 01 §E Also owed; 39 §B1 rows from v2.8 01 |
-| 33-W1-V0 | C5 | D + RP | dev-diagnostic | v2.7 33 §W1 Floors V0 |
+| 33-W1-V0 | C5 | D | dev-diagnostic | v2.7 33 §W1 Floors V0 |
 | 33-W1-V3 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V3 |
 | 33-W1-V4 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V4 |
 | 33-W1-V5 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V5 |

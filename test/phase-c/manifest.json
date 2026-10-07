@@ -3318,16 +3318,15 @@
         "section": "§W1 Floors V0"
       },
       "prerequisites": [
-        "the user's post-processor named (Recast-shaped fixtures stand in)",
-        "spikes.editReread on"
+        "the reference post-processor (test/fixtures/postprocessor/; the user runs none, 2026-10-07)",
+        "jest over src/runtime/spikes/editReread.review.test.ts (spike flag spikes.editReread on in the harness)"
       ],
-      "reset": "lane",
+      "reset": "local",
       "tier": [
-        "D",
-        "RP"
+        "D"
       ],
       "build": "dev-diagnostic",
-      "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced",
+      "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced: the Regex placement and an in-round rewrite reach no cycle, a late post-render burst holds the reply until the last text is read, the v2.6 control reproduces",
       "floor": {
         "text": "the \"no audit\" case explained; the user's post-processor's event order traced",
         "citation": "v2.7 33 W1 V0"
@@ -3335,6 +3334,9 @@
       "evidence": [
         null,
         null
+      ],
+      "labels": [
+        "33 W1 V0 traced"
       ]
     },
     {
@@ -3345,16 +3347,17 @@
         "section": "§W1 Floors V3"
       },
       "prerequisites": [
-        "adolion-fresh lane, spikes.editReread on, post-processor leg",
+        "a model lane with the toy group \"Group: Arin, DM Narrator\" (Arin and DM Narrator enabled), dev build",
+        "fixture test/scenarios/v27-33-v3-postprocessor.json (reference post-processor test/fixtures/postprocessor/; it switches spikes.editReread on and restores it)",
         "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
       ],
-      "reset": "adolion",
+      "reset": "lane",
       "tier": [
         "CL",
         "RP"
       ],
       "build": "dev-diagnostic",
-      "assertion": "the next request carries the settled text in every burst case",
+      "assertion": "the next request carries the settled text in every burst case: regex leg no edit seen; post-render single, double and late each carry only the next checkpoint's marker and the settled text, no hold timeout",
       "floor": {
         "text": "the next request carries the settled text in every burst case, ×2",
         "citation": "v2.7 33 W1 V3"
@@ -3362,6 +3365,9 @@
       "evidence": [
         null,
         null
+      ],
+      "labels": [
+        "33 W1 V3 post-processor"
       ]
     },
     {

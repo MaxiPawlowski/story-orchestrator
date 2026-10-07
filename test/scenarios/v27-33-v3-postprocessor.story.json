@@ -1,0 +1,201 @@
+{
+  "format": 2,
+  "id": "so-v27-33-v3",
+  "version": 1,
+  "title": "SO-V3 The Quartermaster's Vault",
+  "description": "v2.7 33 W1 V3 live fixture. Three gates a reply post-processor's rewrite can satisfy (the key is handed over, the vault door opens, the player steps into the treasury). Each checkpoint carries a marker Author's Note, so the request ST sends names the state it was built from.",
+  "qualities": [
+    {
+      "key": "key_given",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the quartermaster put the brass vault key into the player's hand?"
+    },
+    {
+      "key": "door_open",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the vault door swung open?"
+    },
+    {
+      "key": "treasury_entered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player stepped through the vault door into the treasury?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "The quartermaster sizes up the player and keeps the vault key on his belt.",
+      "type": "anchor",
+      "start": true,
+      "effects": {
+        "author_note": {
+          "text": "[SO-V3-HALL] The quartermaster keeps the brass vault key on his belt and does not hand it over in this reply.",
+          "position": "chat",
+          "depth": 1,
+          "interval": 1,
+          "role": "system"
+        }
+      },
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "DM Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "DM Narrator",
+        "no_repeat": false,
+        "allow_silence": false
+      }
+    },
+    {
+      "id": "vault",
+      "name": "The Vault Door",
+      "objective": "The player holds the key before the shut vault door.",
+      "type": "anchor",
+      "effects": {
+        "author_note": {
+          "text": "[SO-V3-VAULT] The player holds the brass vault key. The vault door stays shut in this reply.",
+          "position": "chat",
+          "depth": 1,
+          "interval": 1,
+          "role": "system"
+        }
+      },
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "DM Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "DM Narrator",
+        "no_repeat": false,
+        "allow_silence": false
+      }
+    },
+    {
+      "id": "open",
+      "name": "The Open Door",
+      "objective": "The vault door stands open.",
+      "type": "anchor",
+      "effects": {
+        "author_note": {
+          "text": "[SO-V3-OPEN] The vault door stands open. Nobody steps inside in this reply.",
+          "position": "chat",
+          "depth": 1,
+          "interval": 1,
+          "role": "system"
+        }
+      },
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "DM Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "DM Narrator",
+        "no_repeat": false,
+        "allow_silence": false
+      }
+    },
+    {
+      "id": "treasury",
+      "name": "The Treasury",
+      "objective": "The player stands in the treasury.",
+      "type": "anchor",
+      "effects": {
+        "author_note": {
+          "text": "[SO-V3-TREASURY] The player stands inside the treasury.",
+          "position": "chat",
+          "depth": 1,
+          "interval": 1,
+          "role": "system"
+        }
+      },
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "DM Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "DM Narrator",
+        "no_repeat": false,
+        "allow_silence": false
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "vault",
+      "priority": 1,
+      "gate": {
+        "q": "key_given",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "vault",
+      "to": "open",
+      "priority": 1,
+      "gate": {
+        "q": "door_open",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "open",
+      "to": "treasury",
+      "priority": 1,
+      "gate": {
+        "q": "treasury_entered",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "companion",
+      "name": "Arin"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ]
+  }
+}
