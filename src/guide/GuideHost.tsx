@@ -1,4 +1,4 @@
-import { HOME_PAGE } from "@features/registry";
+import { HOME_PAGE } from "@features/guideLinks";
 import { GUIDE_PAGES } from "./pages.generated";
 import { GuideReader } from "./GuideReader";
 import type { GuideTarget } from "./types";

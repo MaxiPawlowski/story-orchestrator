@@ -95,6 +95,11 @@ const pkg = readJson(join(root, "package.json"));
 const stPkg = existsSync(join(stRoot, "package.json")) ? readJson(join(stRoot, "package.json")) : null;
 const bundle = join(dist, "index.js");
 if (!existsSync(bundle)) throw new Error(`${relative(root, bundle)} is missing — run this after webpack, not instead of it`);
+const budget = Number(/const BUNDLE_BUDGET_BYTES = (\d+);/.exec(readFileSync(join(root, "webpack.config.js"), "utf8"))?.[1]);
+if (!Number.isFinite(budget)) throw new Error("webpack.config.js declares no BUNDLE_BUDGET_BYTES");
+if (flavor === "prod" && statSync(bundle).size > budget) {
+  throw new Error(`${relative(root, bundle)} is ${statSync(bundle).size} B, over the ${budget} B budget`);
+}
 
 const emitted = readdirSync(dist).filter((name) => name !== "manifest.json" && statSync(join(dist, name)).isFile()).sort()
   .map((name) => ({ path: name, sha256: sha256(readFileSync(join(dist, name))), bytes: statSync(join(dist, name)).size }));

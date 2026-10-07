@@ -5,7 +5,7 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import { ASPECTS, familyOf, SHOTS, type Aspect, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 import { type ImageBinding, type ImageRoute, type ImageSettings } from "./settings";
 import { startImage } from "./start";
-import { guideUrl } from "@features/registry";
+import { guideUrl } from "@features/guideLinks";
 import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
 import { ProfileOptions } from "@components/settings/ProfileOptions";
 import { comfyDiscover } from "@services/stHost/media";

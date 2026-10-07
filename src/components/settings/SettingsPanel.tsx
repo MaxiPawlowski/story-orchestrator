@@ -7,7 +7,8 @@ import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
-import { guideUrl, type FeatureArea, type FeatureWhere } from "@features/registry";
+import { guideUrl } from "@features/guideLinks";
+import type { FeatureArea, FeatureWhere } from "@features/registry";
 import { requestGuide } from "@guide/request";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";

@@ -1,7 +1,6 @@
 import { JUDGE_USE_COPY, JUDGE_USE_KEYS, AUTHOR_JUDGE_USES, type JudgeUseKey } from "@judge/settings";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
-import * as manifestModule from "../../manifest.json";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
@@ -467,15 +466,7 @@ export const matchesQuery = (feature: Feature, query: string): boolean => {
   return words.every((word) => haystack.includes(word));
 };
 
-const manifest = ((manifestModule as { default?: unknown }).default ?? manifestModule) as { homePage?: unknown };
-
-export const HOME_PAGE: string = String(manifest.homePage ?? "").replace(/\/blob\/.*$/, "").replace(/\/+$/, "");
-
-export const GUIDE_BRANCH = "master";
-
-export const guideUrl = (doc: string, homePage: string = HOME_PAGE): string | null => (homePage ? `${homePage}/blob/${GUIDE_BRANCH}/docs/guide/${doc}` : null);
-
-export const authorGuideDoc = (topic: GuideTopicId): string => `author/topics/${topic}.md`;
+export { authorGuideDoc, GUIDE_BRANCH, guideUrl, HOME_PAGE } from "./guideLinks";
 
 const parts = (version: string) => version.split(".").map((part) => Number.parseInt(part, 10) || 0);
 

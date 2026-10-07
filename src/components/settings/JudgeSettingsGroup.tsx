@@ -7,7 +7,7 @@ import {
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
-import { guideUrl } from "@features/registry";
+import { guideUrl } from "@features/guideLinks";
 import { settingHelp } from "@features/settingsCopy";
 import { log } from "@utils/log";
 import { DEV_ONLY_JUDGE_USES } from "@runtime/settingsModel";
