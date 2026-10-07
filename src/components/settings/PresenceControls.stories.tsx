@@ -38,6 +38,6 @@ export const Author: Story = {
   args: { snapshot: snapshot(true) },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-presence-roll-chips")).not.toBeNull();
-    await expect(canvasElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(6);
+    await expect(canvasElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(7);
   },
 };

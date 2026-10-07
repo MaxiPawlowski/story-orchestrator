@@ -51,7 +51,7 @@ export const SagaAndStoryWithCard: Story = {
 
 const firstBadge = async (canvasElement: HTMLElement) => {
   await waitFor(() => expect(canvasElement.querySelectorAll('[data-so="story-badge"]')).toHaveLength(3));
-  return canvasElement.querySelector('[data-so="story-badge"]');
+  return canvasElement.querySelector('[data-so="story-badge"]')?.parentElement ?? null;
 };
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, firstBadge);

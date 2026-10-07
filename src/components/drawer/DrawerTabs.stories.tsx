@@ -7,6 +7,11 @@ import { createSaveHealth } from "@runtime/saveHealth";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { DrawerTabs } from "./DrawerTabs";
 
+const openMemoryTab = async (canvas: ReturnType<typeof within>) => {
+  await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+  await waitFor(() => expect(canvas.getByRole("tabpanel").querySelector('[data-so="memory-tab"]')).not.toBeNull());
+};
+
 const openTab = async (canvasElement: HTMLElement, name: string) => {
   await userEvent.click(within(canvasElement).getByRole("tab", { name }));
   await waitFor(() => expect(canvasElement.querySelector(`[data-so-tab="${name.toLowerCase()}"]`)).not.toBeNull());
@@ -505,7 +510,7 @@ export const CrowdedMemory: Story = {
   ),
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await step("the find controls appear with the volume that needs them", async () => {
       await expect(canvasElement.querySelector("#so-memory-search")).toBeInTheDocument();
       await expect(canvas.getByText(/Showing 63 of 63/)).toBeInTheDocument();
@@ -563,7 +568,7 @@ export const PlayerMemoryLeavesOutAHeldClaim: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getByText(/The sun-key opens the inner sanctum/)).toBeInTheDocument();
     await expect(canvas.queryByText(/The sun-key is a forgery/)).toBeNull();
   },
@@ -577,7 +582,7 @@ export const AuthorMemoryShowsAHeldClaimAsConflicted: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getAllByText(/The sun-key is a forgery/).length).toBeGreaterThan(0);
   },
 };
@@ -665,7 +670,7 @@ export const Memory: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getByText(/Facts \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/The sun-key opens the inner sanctum\./)).toBeInTheDocument();
     await expect(canvas.getByText("⤳ superseded")).toBeInTheDocument();
@@ -720,7 +725,7 @@ export const MemoryNotStored: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await userEvent.click(await canvas.findByText(/Not stored — no support in the chat \(1\)/));
     await expect(canvas.getByText("Arin killed the sphinx.")).toBeInTheDocument();
     await expect(canvas.getByText(/support 0\.04 · jev-1\.13\.0/)).toBeInTheDocument();
@@ -736,7 +741,7 @@ export const PlayerNeverSeesNotStored: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.queryByText(/Not stored/)).toBeNull();
     await expect(canvas.queryByText("Arin killed the sphinx.")).toBeNull();
   },
@@ -1035,7 +1040,7 @@ export const PlayerMemory: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getByText(/The sun-key opens the inner sanctum\./)).toBeInTheDocument();
     await expect(canvas.getAllByRole("button", { name: "Exclude" }).length).toBeGreaterThan(0);
     await expect(canvas.queryByText(/Epistemic map/)).toBeNull();
@@ -1070,7 +1075,7 @@ export const MemorizePreparing: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     const button = canvas.getByRole("button", { name: "Preparing…" });
     await expect(button).toBeDisabled();
     await expect(button).not.toHaveClass("text-red-300");
@@ -1096,7 +1101,7 @@ export const PlayerStopsMemorizing: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getByRole("button", { name: "Memorize chat" })).toBeDisabled();
     await expect(canvas.getByText("Memorizing: 1/4")).toBeInTheDocument();
     const stop = canvas.getByRole("button", { name: "Stop" });
@@ -1118,7 +1123,7 @@ export const MemorizeStopped: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvas.getByRole("button", { name: "Memorize chat" })).toBeEnabled();
     await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
     const note = canvas.getByText(/Stopped after 1 of 3 parts/);
@@ -1144,7 +1149,7 @@ export const MemorizeFailed: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     const error = canvas.getByText("Memorizing the chat stopped before the end. Try again later.");
     await expect(error).toHaveAttribute("id", "so-memorize-error");
     await expect(error).toHaveClass("so-error-text");
@@ -1552,7 +1557,7 @@ export const MemoryFates: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     const badges = [...canvasElement.querySelectorAll('[data-so="memory-fate"]')].map((node) => node.getAttribute("data-fate"));
     await expect(badges.sort()).toEqual(FATE_ROWS.map(([, fate]) => fate).sort());
     await expect(canvas.getByText("trimmed: pinned, did not fit")).toBeInTheDocument();
@@ -1568,7 +1573,7 @@ export const PlayerNeverSeesMemoryFates: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvasElement.querySelectorAll('[data-so="memory-fate"]').length).toBe(0);
   },
 };
@@ -1608,7 +1613,7 @@ export const AuthorJumpsFromACitation: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     const jump = canvas.getByRole("button", { name: "message 5 (changed since)" });
     await userEvent.click(jump);
     await expect(jumpFromDrawer).toHaveBeenCalledWith(5);
@@ -1625,7 +1630,7 @@ export const PlayerSeesNoJumpButtons: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await openMemoryTab(canvas);
     await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]').length).toBe(0);
   },
 };

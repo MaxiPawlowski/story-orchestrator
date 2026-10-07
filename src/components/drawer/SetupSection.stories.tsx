@@ -134,7 +134,7 @@ export const PrivacyLegSecretHeld: Story = {
   },
 };
 
-const DUPLICATE_IDS = { config: { rules: [{ id: "duplicate-id", enabled: false }, { id: "duplicate-id-active", enabled: false }] } };
+const DUPLICATE_IDS = { config: { rules: [{ id: "duplicate-id", enabled: false }, { id: "duplicate-id-active", enabled: false }, { id: "landmark-unique", enabled: false }] } };
 
 export const PrivacyLegReadsTheSameWithAndWithoutAHeldSecret: Story = {
   parameters: { a11y: DUPLICATE_IDS },

@@ -343,6 +343,18 @@ body.no-blur dialog#so-studio-modal {
 #story-orchestrator-settings .so-settings-section > summary {
   cursor: pointer;
   font-weight: 600;
+  padding-right: 2.5rem;
+}
+
+#story-orchestrator-settings .so-settings-area {
+  position: relative;
+}
+
+#story-orchestrator-settings .so-settings-area-guide {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  margin: 0;
 }
 
 #story-orchestrator-settings .so-task-grid {

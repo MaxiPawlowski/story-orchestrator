@@ -41,11 +41,7 @@ export const ReleaseBuildHasNoChapterRecordsEvenInAuthorView: Story = {
 };
 
 const author = { args: { manager: fakeManager() } };
-const openRecords = async (canvasElement: HTMLElement) => {
-  const canvas = within(canvasElement);
-  await userEvent.click(canvas.getByText("Chapter records"));
-  return canvas.getByLabelText("Story so far budget");
-};
+const openRecords = async (canvasElement: HTMLElement) => within(canvasElement).getByLabelText(/Show "Previously…"/);
 
 export const Phone: Story = { ...author, ...fitsAt(VIEWPORTS.phone, openRecords) };
 export const Tablet: Story = { ...author, ...fitsAt(VIEWPORTS.tablet, openRecords) };

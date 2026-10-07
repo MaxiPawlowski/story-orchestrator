@@ -126,7 +126,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   };
 
   return (
-    <div className="text-xs opacity-80">
+    <div data-so="memory-tab" className="text-xs opacity-80">
       <div className="font-medium opacity-100">{PLAYER_COPY.memoryHeading}</div>
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && (
         <div id="so-pinned-overflow" className="so-warning-text">{pinnedOverflowText(snapshot.memory.pinnedOverflow ?? 0)}</div>
