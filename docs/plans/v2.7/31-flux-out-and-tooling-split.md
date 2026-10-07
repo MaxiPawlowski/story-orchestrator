@@ -63,6 +63,50 @@ green, identical counts: jest 6,414 passed / 1 skipped; test:plugin 104 / 3 skip
 Storybook green. Wall 443.4 s and 401.4 s (test:replay 288.6 / 263.6 s, Storybook 169.3 / 119.0 s). Verdict: **parallel
 kept** (user: "parallel if it's nice"). §A/§B not built.
 
+### §A/§B build 2026-10-07
+
+Branch `v2.7-31-flux-out` from `v2.7-image-track-wip` (`8f96efce`), agent worktree.
+
+- §A: `catalog.ts` has no `flux` graph, LoRA base, `flux-dev` family or FLUX row, and `graph`/`promptStyle` are gone
+  (SDXL only). `graph.ts` has one SDXL branch. The prose style and `PROSE_SKILL` are removed from `prompt.ts`.
+  `settings.ts`: background = SDXL wide row (default checkpoint, `no humans, scenery`), backend default still `st`
+  (route A). The family pick reads `FAMILY_IDS`. A stored `flux-dev` family, a `/flux/i` checkpoint (purpose or
+  character binding) or a `base: "flux"` LoRA falls back to the default and is recorded in `image.retired`, which
+  sanitizes and persists. A chat override naming FLUX is cleared. New check `image-model-retired` (degrades, author,
+  install, feature `images`) reads `snapshot.imageRetired` and names each row. The media plugin dropped `FluxGuidance`,
+  `ConditioningZeroOut` and `EmptySD3LatentImage` (grep: no other graph uses them). Removed: `archiveFlux.mjs`,
+  `flux-components.py`, `fluxComponents.test.mjs`, `fluxSpikeGraph(.test).mjs`, `verifyFluxWeights.py`,
+  `candidateConfig.mjs`, `normalCandidate.mjs`, `customNodeCheck.mjs`, `scripts/debug/st-local-transport.mts`. Updated:
+  `render-benchmark.mjs` (background = SDXL wide), the `footprints`/`scheduler` tests (fixture key `sdxl`) and the
+  README. Plans 17/18/22/25 carry a one-line "superseded" note. `docs/guide` had no FLUX text.
+- §B: the controller `/status` now carries `reserves` (`scripts/local/controller.mjs`). `gpuBrokerStatus` reads
+  `reserveGpuMiB`/`reserveRamMiB`. `mayRetainBatch` (pure, `batchLease.ts`) retains only when the broker names both
+  reserves and free memory covers them; a broker with no reserves never retains. The warm batch: `batchSlot.ts` holds
+  the active batch (type-only import), `host.ts` reads the slot, and `start.tsx` loads `batchHost` only through
+  `import()` inside `__SO_DEV__`. Guards: `devOnly.guard.test.ts` (no prod file statically imports
+  `batchHost`/`batchLease`, plus a planted control) and `debugSurface.test.mjs` D3 (the prod `dist/` lacks the
+  batch-lease marker, the dev bundle has it). GPU plugin: `brokerAddress(config)` in `managed.mjs` gives
+  `listenHost`/`listenPort`/`controllerUrl` from `config.json`; `127.0.0.1:18888` is only the documented default,
+  listen must be loopback (tests in `managed.test.mjs`, README updated).
+- Gates: `npm run gates`, five runs. Run 1 was red on my guards (census row, session baseline `image.retired`, S4
+  line budget for `buildRuntimeSnapshot`), all fixed; the `startupWiring.review` 5000 ms timeouts were CPU contention
+  (green alone). Runs 2–4 were red on worktree setup: no `.st-root` (copied), no `node_modules` (junction to the main
+  checkout), and one `so-run-header` read of `dist/manifest.json` racing the concurrent `build` phase (green alone).
+  Run 5: every step green except `test-storybook:ci`: the build ran, but the runner found **0 stories from the
+  worktree path** (jest rootDir resolved to the main checkout). Then `npm run gates -- --no-storybook`: **all green in
+  369.3 s, Storybook skipped**: jest 6,421 passed / 1 skipped; test:plugin 105 / 3 skipped; test:debug 1,036 / 0 fail;
+  test:release 96 / 2 skipped; defect replay 32 of 32 killed.
+- Prod: `npm run build` (exit 0, flavour prod) then `npm run test:release` (96 pass, D3 ok). `dist/`: no
+  `FluxGuidance`/`EmptySD3LatentImage`/`ConditioningZeroOut`/`flux1-dev`/prose skill; batch-lease marker in 0 prod
+  files and 1 dev file. "flux" remains in `dist/index.js` only in the retired-choice recogniser (`["flux-dev"]`,
+  `/flux/i`, LoRA `base === "flux"`) and the Repair row's copy, by design.
+- Live gate not run (no ST assumed). The "seeded install with `flux-dev` stored shows the Repair row" gate is
+  proven in jest only (`image.test.ts` + `checksRegistry.test.ts`), not live. `npm run gates` ×2 for §A/§B is not done.
+- Deviations: `customNodeCheck.mjs` removed (plan-25 env check, FLUX-named). `gguf.mjs`/`gguf.test.mjs` kept
+  (`models.mjs` sizes GGUF text models with it). Plan 32 R4's "managed with no `controllerUrl` refused at init" is
+  not built; per the brief the default stays documented, and the refusal is left to plan 32 W4. The media plugin's
+  `8188` fallback is unchanged.
+
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.

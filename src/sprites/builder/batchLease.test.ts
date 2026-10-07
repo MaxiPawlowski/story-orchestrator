@@ -1,4 +1,21 @@
-import { SpriteBatchLease } from "./batchLease";
+import { mayRetainBatch, SpriteBatchLease } from "./batchLease";
+
+describe("warm batch retention reads the broker's own reserves (v2.7 31 §B)", () => {
+  const idle = { adapter: "managed", guarding: true, activeText: 0, waitingText: 0, gpuFreeMiB: 6000, ramAvailableMiB: 9000 };
+
+  it("retains only while free memory covers the reserves the broker reports", () => {
+    expect(mayRetainBatch({ ...idle, reserveGpuMiB: 2048, reserveRamMiB: 4096 })).toBe(true);
+    expect(mayRetainBatch({ ...idle, reserveGpuMiB: 7000, reserveRamMiB: 4096 })).toBe(false);
+    expect(mayRetainBatch({ ...idle, reserveGpuMiB: 2048, reserveRamMiB: 10000 })).toBe(false);
+  });
+
+  it("falls back to releasing when the broker names no reserves, is busy, or is absent", () => {
+    expect(mayRetainBatch(idle)).toBe(false);
+    expect(mayRetainBatch({ ...idle, reserveGpuMiB: 0, reserveRamMiB: 0, activeText: 1 })).toBe(false);
+    expect(mayRetainBatch({ ...idle, reserveGpuMiB: 0, reserveRamMiB: 0, adapter: "none" })).toBe(false);
+    expect(mayRetainBatch(null)).toBe(false);
+  });
+});
 
 const fixture = () => {
   const state = { owns: true, retain: true };

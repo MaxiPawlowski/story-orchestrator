@@ -3,7 +3,7 @@ import { GpuGate } from './gate.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mountManagedRoutes } from './managed.mjs';
+import { brokerAddress, mountManagedRoutes } from './managed.mjs';
 
 export const info = {
     id: 'story-orchestrator-gpu',
@@ -21,8 +21,9 @@ export async function init(router) {
         return { adapter: 'none' };
     });
     if (!['none', 'unsloth', 'managed'].includes(config.adapter)) throw new Error('GPU adapter must be none, unsloth or managed.');
+    const address = brokerAddress(config);
     if (config.adapter === 'managed') {
-        mountManagedRoutes(router, config.controllerUrl ?? 'http://127.0.0.1:18888');
+        mountManagedRoutes(router, address.controllerUrl);
         console.log('[story-orchestrator-gpu] managed adapter; the external controller owns the text port');
         return;
     }
@@ -52,10 +53,10 @@ export async function init(router) {
     });
     await new Promise((resolve, reject) => {
         server.once('error', reject);
-        server.listen(18888, '127.0.0.1', resolve);
+        server.listen(address.listenPort, address.listenHost, resolve);
     });
     recovery = setInterval(() => { void gate.recover(); }, 15_000);
-    console.log('[story-orchestrator-gpu] local text broker listening on 127.0.0.1:18888');
+    console.log(`[story-orchestrator-gpu] local text broker listening on ${address.listenHost}:${address.listenPort}`);
 }
 
 export async function exit() {

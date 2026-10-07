@@ -119,7 +119,7 @@ const server = http.createServer(async (req, res) => {
         if (origin && !/^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/.test(origin)) { answer(res, 403, { error: 'Use the local ST plugin or tray controls.' }); return; }
         const route = new URL(req.url, 'http://localhost').pathname;
         if (req.method === 'GET' && route === '/measurement') { answer(res, 200, scheduler.lastMeasurement ?? null); return; }
-        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, { ...scheduler.status(), controllerBuild, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null, imageCacheMode: config.imageCacheMode ?? 'warm', telemetry: await snapshot({ fresh: true }), adapter: 'managed', guarding: true, pid: process.pid, configFile, maxContext: 98304 }); return; }
+        if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, { ...scheduler.status(), controllerBuild, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null, imageCacheMode: config.imageCacheMode ?? 'warm', telemetry: await snapshot({ fresh: true }), adapter: 'managed', guarding: true, reserves: config.reserves, pid: process.pid, configFile, maxContext: 98304 }); return; }
         if (req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
             const body = await readBody(req);
             const data = route === '/lease' ? await scheduler.reserve(body) : route === '/renew' ? { renewed: scheduler.renew(body.lease) } : { released: await scheduler.release(body.lease) };

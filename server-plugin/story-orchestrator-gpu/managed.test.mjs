@@ -1,6 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mountManagedRoutes } from './managed.mjs';
+import { brokerAddress, mountManagedRoutes } from './managed.mjs';
+
+test('the broker address comes from config.json, with loopback 18888 only as the documented default', () => {
+    assert.deepEqual(brokerAddress({}), { listenHost: '127.0.0.1', listenPort: 18888, controllerUrl: 'http://127.0.0.1:18888' });
+    assert.deepEqual(brokerAddress({ listenHost: 'localhost', listenPort: 19000, controllerUrl: 'http://127.0.0.1:19500' }),
+        { listenHost: 'localhost', listenPort: 19000, controllerUrl: 'http://127.0.0.1:19500' });
+    assert.throws(() => brokerAddress({ listenHost: '0.0.0.0' }), /loopback/);
+    assert.throws(() => brokerAddress({ listenPort: 0 }), /port/);
+});
 
 function setup(fetchImpl) {
     const handlers = new Map();

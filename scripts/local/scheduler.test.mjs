@@ -284,7 +284,7 @@ test('periodic lease sampling uses the fresh high-cadence seam instead of the ca
         assert.equal(options?.fresh, true);
         return free(22000);
     }, queue: async () => ({ queue_running: busy ? [[1, 'owned']] : [], queue_pending: [] }) });
-    const lease = await scheduler.reserve({ workflowKey: 'flux', needGpuMiB: 18000, needRamMiB: 4096 });
+    const lease = await scheduler.reserve({ workflowKey: 'sdxl', needGpuMiB: 18000, needRamMiB: 4096 });
     busy = true; await scheduler.sampleLease(); busy = false;
     assert.equal(scheduler.lease.highCadence, true);
     assert.equal(scheduler.lease.seenJob, true);

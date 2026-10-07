@@ -1,4 +1,4 @@
-import { ASPECTS, FLUX, JANKU, WAI, type Aspect, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
+import { ASPECTS, FAMILY_IDS, JANKU, WAI, type Aspect, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 
 export interface ImageRoute {
   checkpoint: string;
@@ -40,7 +40,12 @@ export interface ImageSettings {
   upscalers: Record<string, string>;
   loras: Lora[];
   characters: Record<string, ImageBinding>;
+  retired: RetiredImageChoice[];
 }
+export interface RetiredImageChoice { where: string; was: string }
+
+const RETIRED_FAMILIES = ["flux-dev"];
+const isRetiredCheckpoint = (file: string): boolean => /flux/i.test(file);
 
 export const automationAllowsCues = (mode: ImageSettings["automation"]["mode"]): boolean => mode === "story" || mode === "everyN";
 
@@ -73,10 +78,10 @@ export const defaultImageSettings = (): ImageSettings => ({
     character: row({ shot: "cowboy" }),
     portrait: row({ checkpoint: JANKU, family: "sdxl-noobai", shot: "close" }),
     user: row({ shot: "upper" }),
-    background: row({ checkpoint: FLUX, family: "flux-dev", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
+    background: row({ aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
     free: row({ aspect: "auto", shot: "full", directorMayOverride: true }),
   },
-  upscalers: {}, loras: [], characters: {},
+  upscalers: {}, loras: [], characters: {}, retired: [],
 });
 
 const record = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -89,8 +94,9 @@ const placements: Placement[] = ["inline", "message", "background"];
 
 export const sanitizeImageOverride = (value: unknown): ImageOverride => {
   const raw = record(value);
+  const checkpoint = str(raw.checkpoint);
   return {
-    checkpoint: str(raw.checkpoint), quality: pick(["", "base", "hires"] as const, raw.quality, ""),
+    checkpoint: isRetiredCheckpoint(checkpoint) ? "" : checkpoint, quality: pick(["", "base", "hires"] as const, raw.quality, ""),
     extraPositive: str(raw.extraPositive),
     paused: raw.paused === true,
     loras: Array.isArray(raw.loras) ? raw.loras.map((use) => ({ file: str(record(use).file), weight: num(record(use).weight, 0.8, -2, 2) })).filter((use) => use.file) : [],
@@ -110,6 +116,10 @@ export const sanitizeImageChatState = (value: unknown, chatId: string, storyId?:
   };
 };
 
+const sanitizeRetired = (value: unknown): RetiredImageChoice[] => Array.isArray(value)
+  ? value.map(record).filter((entry) => str(entry.where) && str(entry.was)).map((entry) => ({ where: str(entry.where), was: str(entry.was) }))
+  : [];
+
 export const sanitizeImageSettings = (value: unknown): ImageSettings => {
   const defaults = defaultImageSettings();
   const raw = record(value);
@@ -117,12 +127,20 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
   const originalDefaults = record(raw.defaults);
   const originalAutomation = record(raw.automation);
   const originalCharacters = record(raw.characters);
+  const retired = sanitizeRetired(raw.retired);
+  const retire = (where: string, was: string) => {
+    if (!retired.some((entry) => entry.where === where && entry.was === was)) retired.push({ where, was });
+  };
   const routes = Object.fromEntries(purposes.map((purpose): [Purpose, ImageRoute] => {
     const current = record(originalPurposes[purpose]);
     const fallback = defaults.purposes[purpose];
+    if (RETIRED_FAMILIES.includes(str(current.family)) || isRetiredCheckpoint(str(current.checkpoint))) {
+      retire(purpose, str(current.checkpoint) || str(current.family));
+      return [purpose, fallback];
+    }
     return [purpose, {
       checkpoint: str(current.checkpoint, fallback.checkpoint) || fallback.checkpoint,
-      family: pick(["sdxl-illustrious", "sdxl-noobai", "flux-dev"], current.family, fallback.family),
+      family: pick(FAMILY_IDS, current.family, fallback.family),
       quality: pick(["base", "hires"] as const, current.quality, fallback.quality),
       aspect: pick([...ASPECTS, "auto"] as const, current.aspect, fallback.aspect),
       shot: pick(shots, current.shot, fallback.shot),
@@ -136,16 +154,19 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
   })) as Record<Purpose, ImageRoute>;
   const characters = Object.fromEntries(Object.entries(originalCharacters).map(([key, item]) => {
     const binding = record(item);
+    const checkpoint = str(binding.checkpoint);
+    if (isRetiredCheckpoint(checkpoint)) retire(`character ${key}`, checkpoint);
     return [key, {
       appearanceTags: str(binding.appearanceTags), appearanceProse: str(binding.appearanceProse),
-      checkpoint: str(binding.checkpoint), loras: sanitizeImageOverride(binding).loras,
+      checkpoint: isRetiredCheckpoint(checkpoint) ? "" : checkpoint, loras: sanitizeImageOverride(binding).loras,
       alwaysTags: str(binding.alwaysTags), neverTags: str(binding.neverTags),
       seed: typeof binding.seed === "number" && Number.isFinite(binding.seed) ? binding.seed : null,
     }];
   })) as Record<string, ImageBinding>;
   const loras = Array.isArray(raw.loras) ? raw.loras.filter((item): item is Lora => {
     const entry = record(item);
-    return typeof entry.file === "string" && typeof entry.label === "string" && (entry.base === "flux" || entry.base === "illustrious") && typeof entry.weight === "object" && entry.weight !== null;
+    if (entry.base === "flux" && typeof entry.file === "string") retire("LoRA", entry.file);
+    return typeof entry.file === "string" && typeof entry.label === "string" && entry.base === "illustrious" && typeof entry.weight === "object" && entry.weight !== null;
   }) : [];
   return {
     enabled: typeof raw.enabled === "boolean" ? raw.enabled : defaults.enabled,
@@ -165,6 +186,6 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
     },
     safeMode: raw.safeMode === true, purposes: routes,
     upscalers: Object.fromEntries(Object.entries(record(raw.upscalers)).filter((entry): entry is [string, string] => typeof entry[1] === "string")),
-    loras, characters,
+    loras, characters, retired: retired.slice(-20),
   };
 };

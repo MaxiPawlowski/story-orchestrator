@@ -72,7 +72,7 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
     candidates: Math.min(4, Math.max(1, Math.round(args.candidates ?? row.candidates))),
     loras: fitting, allowed,
     positive: [...tags(row.extraPositive), ...tags(chat.extraPositive), ...tags(binding?.alwaysTags ?? ""), ...fitting.flatMap((lora) => lora.entry.triggerWords)],
-    negative: [...tags(row.extraNegative), ...(safe ? tags(checkpoint.safeNegative ?? (family.graph === "sdxl" ? "nsfw" : "")) : [])],
+    negative: [...tags(row.extraNegative), ...(safe ? tags(checkpoint.safeNegative ?? "nsfw") : [])],
     seed: args.seed ?? binding?.seed ?? null,
     warnings,
   };

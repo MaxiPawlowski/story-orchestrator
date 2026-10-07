@@ -25,7 +25,9 @@ Example Unsloth configuration:
 }
 ```
 
-The Unsloth adapter exposes a text proxy on `127.0.0.1:18888`. Point the relevant Connection Manager profiles
+The Unsloth adapter exposes a text proxy on `listenHost:listenPort` (default `127.0.0.1:18888`; the host must be
+loopback). Both keys, like `controllerUrl`, live in `config.json`; the defaults are documentation, not a claim about
+your machine. Point the relevant Connection Manager profiles
 at it. While an image holds the GPU, text requests wait. Before rendering, the broker checks active generations
 and the configured model, then unloads it. After rendering, it waits for ComfyUI's queue to empty and frees its
 models. Lease recovery handles abandoned renders.

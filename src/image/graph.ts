@@ -16,7 +16,7 @@ export interface GraphInput {
 
 type Link = [string, number];
 export const buildGraph = (input: GraphInput): ComfyGraph => {
-  const { checkpoint, family, size, seed } = input;
+  const { checkpoint, size, seed } = input;
   const graph: ComfyGraph = {};
   let nextId = 1;
   const add = (node: GraphNode): string => {
@@ -34,16 +34,9 @@ export const buildGraph = (input: GraphInput): ComfyGraph => {
     clip = [id, 1];
   }
   const encoded = add({ class_type: "CLIPTextEncode", inputs: { text: input.positive, clip }, _meta: { title: "Positive" } });
-  let positive: Link = [encoded, 0];
-  let negative: Link;
-  if (family.graph === "flux") {
-    const guided = add({ class_type: "FluxGuidance", inputs: { guidance: checkpoint.defaults.guidance ?? 3.5, conditioning: positive } });
-    positive = [guided, 0];
-    negative = [add({ class_type: "ConditioningZeroOut", inputs: { conditioning: [encoded, 0] } }), 0];
-  } else {
-    negative = [add({ class_type: "CLIPTextEncode", inputs: { text: input.negative, clip }, _meta: { title: "Negative" } }), 0];
-  }
-  const latent = add({ class_type: family.graph === "flux" ? "EmptySD3LatentImage" : "EmptyLatentImage", inputs: { width: size.width, height: size.height, batch_size: 1 } });
+  const positive: Link = [encoded, 0];
+  const negative: Link = [add({ class_type: "CLIPTextEncode", inputs: { text: input.negative, clip }, _meta: { title: "Negative" } }), 0];
+  const latent = add({ class_type: "EmptyLatentImage", inputs: { width: size.width, height: size.height, batch_size: 1 } });
   const { sampler, scheduler, steps, cfg } = checkpoint.defaults;
   const first = add({
     class_type: "KSampler", inputs: { seed, steps, cfg, sampler_name: sampler, scheduler, denoise: 1, model, positive, negative, latent_image: [latent, 0] },

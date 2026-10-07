@@ -9,9 +9,7 @@ export interface Size { width: number; height: number }
 export interface Family {
   id: string;
   label: string;
-  graph: "sdxl" | "flux";
-  loraBase: "illustrious" | "flux";
-  promptStyle: "tags" | "prose";
+  loraBase: "illustrious";
   sizes: Record<Aspect, Size>;
   upscaler: string;
 }
@@ -19,7 +17,7 @@ export interface Checkpoint {
   file: string;
   label: string;
   family: string;
-  defaults: { sampler: string; scheduler: string; steps: number; cfg: number; guidance?: number };
+  defaults: { sampler: string; scheduler: string; steps: number; cfg: number };
   hires: { scale: number; steps: number; denoise: number };
   qualityBlock: string;
   negativeBlock: string;
@@ -29,7 +27,7 @@ export interface Checkpoint {
 export interface Lora {
   file: string;
   label: string;
-  base: "illustrious" | "flux";
+  base: "illustrious";
   kind: "character" | "style" | "concept" | "detailer" | "slider";
   triggerWords: string[];
   weight: { default: number; min: number; max: number };
@@ -44,21 +42,20 @@ const buckets: Record<Aspect, Size> = {
 };
 export const FAMILIES: Record<string, Family> = {
   "sdxl-illustrious": {
-    id: "sdxl-illustrious", label: "SDXL · Illustrious", graph: "sdxl", loraBase: "illustrious",
-    promptStyle: "tags", sizes: buckets, upscaler: "RealESRGAN_x4plus_anime_6B.safetensors",
+    id: "sdxl-illustrious", label: "SDXL · Illustrious", loraBase: "illustrious",
+    sizes: buckets, upscaler: "RealESRGAN_x4plus_anime_6B.safetensors",
   },
-  "sdxl-noobai": { id: "sdxl-noobai", label: "SDXL · NoobAI", graph: "sdxl", loraBase: "illustrious", promptStyle: "tags", sizes: buckets, upscaler: "RealESRGAN_x4plus_anime_6B.safetensors" },
-  "flux-dev": { id: "flux-dev", label: "FLUX.1 dev", graph: "flux", loraBase: "flux", promptStyle: "prose", sizes: buckets, upscaler: "RealESRGAN_x4plus.safetensors" },
+  "sdxl-noobai": { id: "sdxl-noobai", label: "SDXL · NoobAI", loraBase: "illustrious", sizes: buckets, upscaler: "RealESRGAN_x4plus_anime_6B.safetensors" },
 };
+export const FAMILY_IDS = Object.keys(FAMILIES);
 export const WAI = "waiIllustriousSDXL_v170.safetensors";
 export const JANKU = "JANKUTrainedChenkinNoobai_v777.safetensors";
-export const FLUX = "flux1-dev-fp8.safetensors";
 export const CHECKPOINTS: Checkpoint[] = [
   {
     file: WAI, label: "WAI-illustrious v17", family: "sdxl-illustrious",
     defaults: { sampler: "euler_ancestral", scheduler: "normal", steps: 28, cfg: 6 },
     hires: { scale: 1.5, steps: 20, denoise: 0.4 }, qualityBlock: "masterpiece, best quality, amazing quality",
-    negativeBlock: "bad quality, worst quality, worst detail, sketch, censor", notes: "Anime, characters and action.",
+    negativeBlock: "bad quality, worst quality, worst detail, sketch, censor", notes: "Anime, characters, action and scenery.",
   },
   {
     file: JANKU, label: "JANKU v7.77", family: "sdxl-noobai",
@@ -66,12 +63,6 @@ export const CHECKPOINTS: Checkpoint[] = [
     hires: { scale: 1.5, steps: 20, denoise: 0.4 }, qualityBlock: "embedding:lazypos",
     negativeBlock: "embedding:lazyneg, embedding:lazyhand", safeNegative: "nsfw, embedding:lazynsfw",
     notes: "Detailed portraits and faces.",
-  },
-  {
-    file: FLUX, label: "FLUX.1 dev fp8", family: "flux-dev",
-    defaults: { sampler: "euler", scheduler: "beta", steps: 25, cfg: 1, guidance: 3.5 },
-    hires: { scale: 1.5, steps: 12, denoise: 0.3 }, qualityBlock: "", negativeBlock: "",
-    notes: "Scenery, architecture and landscapes; prose prompt.",
   },
 ];
 

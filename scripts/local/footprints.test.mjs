@@ -4,7 +4,7 @@ import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprint
 import { estimateRamMiB } from './models.mjs';
 import { admission } from './policy.mjs';
 
-const identity = { workflowKey: 'flux', runtime: { torch: '2.12.1+cu130', id: 'comfy' }, models: [{ name: 'flux', modified: 1 }], cacheState: 'cold' };
+const identity = { workflowKey: 'sdxl', runtime: { torch: '2.12.1+cu130', id: 'comfy' }, models: [{ name: 'sdxl', modified: 1 }], cacheState: 'cold' };
 const lease = { identity, before: { gpus: [{ usedMiB: 1000 }], host: { availableMiB: 23000 } }, peakGpu: 18000, lowRam: 17000,
     lowGpu: 4000, lowCommit: 50000, highCadence: true, needRamMiB: 21000 };
 const reserves = { gpuMiB: 2048, ramMiB: 4096 };
@@ -19,7 +19,7 @@ test('RAM observation is independent of GPU demand and its prior estimate', () =
 
 test('runtime, model identity, cache state and resident text each invalidate the footprint key', () => {
     const key = footprintKey(identity);
-    for (const change of [{ runtime: { torch: '2.7.1+cu128' } }, { models: [{ name: 'flux', modified: 2 }] }, { cacheState: 'warm' }, { text: { fitTarget: 11107 } }]) {
+    for (const change of [{ runtime: { torch: '2.7.1+cu128' } }, { models: [{ name: 'sdxl', modified: 2 }] }, { cacheState: 'warm' }, { text: { fitTarget: 11107 } }]) {
         assert.notEqual(footprintKey({ ...identity, ...change }), key);
     }
 });

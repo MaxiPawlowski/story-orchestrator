@@ -468,6 +468,8 @@ export interface RuntimeSnapshot {
   imageStory?: { checkpoints: boolean; scenes: boolean } | null;
   /** What the image service can currently do, published by the image director for the Repair checks. */
   imageHealth?: ImageHealthView | null;
+  /** Install image choices that named a retired model and now use the default. */
+  imageRetired?: Array<{ where: string; was: string }>;
   spriteLookIssues?: SpriteLookIssue[];
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;

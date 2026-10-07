@@ -336,7 +336,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyDescription: story?.description ?? null,
     publicStoryIntro: publishedIntro(story),
     imageStory: story?.illustrations ? { checkpoints: story.illustrations.checkpoints === true, scenes: story.illustrations.scenes === true } : null,
-    imageHealth: imageHealth(),
+    imageHealth: imageHealth(), imageRetired: getGlobalSettings().image.retired,
     activeCheckpointId: active?.id ?? null,
     activeCheckpointName: active?.name ?? null,
     activeObjective: active?.objective ?? null,

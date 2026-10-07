@@ -22,6 +22,12 @@ test("D2: the prod bundle names no storyOrchestrator global outside the allowlis
   assert.ok(["storyOrchestratorRuntime", "storyOrchestratorJudge", "storyOrchestratorLiveSuite"].every((name) => dev.includes(name)), "control: the dev bundle lost its handles");
 });
 
+test("D3 (v2.7 31 §B): the prod bundle carries no warm-batch lease; the dev bundle does", { skip: noBuilds }, () => {
+  const marker = "A sprite-build batch is already open.";
+  assert.equal(scripts("dist").includes(marker), false);
+  assert.ok(scripts("dist-dev").includes(marker), "control: the dev bundle lost the warm-batch lease, so the grep proves nothing");
+});
+
 test("D2 control: a planted global name is caught", () => {
   assert.deepEqual(surfaceNames("x.storyOrchestratorRuntime=m;y[\"storyOrchestratorStop\"]=s;story-orchestrator"), ["storyOrchestratorRuntime", "storyOrchestratorStop"]);
 });

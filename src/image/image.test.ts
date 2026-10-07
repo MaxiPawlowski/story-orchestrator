@@ -1,6 +1,6 @@
-import { CHECKPOINTS, FAMILIES, FLUX, JANKU, WAI } from "./catalog";
+import { CHECKPOINTS, FAMILIES, JANKU, WAI } from "./catalog";
 import { buildGraph } from "./graph";
-import { imageMessages, sceneForImage } from "./prompt";
+import { assembleImagePrompt, imageMessages, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
 import { firedLoreKeys, visualLore } from "./lore";
@@ -24,23 +24,60 @@ describe("Image Director automatic triggers (plan 16/18 repair)", () => {
 });
 
 describe("Image Director merge", () => {
-  it("preserves the proven SDXL and FLUX graph routes and the hi-res pass", () => {
+  it("builds the SDXL graph with its negative prompt and the hi-res pass", () => {
     const sdxl = Object.values(graph(WAI));
     expect(sdxl.some((node) => node.class_type === "CLIPTextEncode" && node.inputs.text === "blurry")).toBe(true);
-    const flux = Object.values(graph(FLUX));
-    expect(flux.some((node) => node.class_type === "FluxGuidance")).toBe(true);
-    expect(flux.some((node) => node.class_type === "ConditioningZeroOut")).toBe(true);
+    expect(sdxl.some((node) => node.class_type === "EmptyLatentImage")).toBe(true);
     expect(Object.values(graph(JANKU, true)).filter((node) => node.class_type === "KSampler")).toHaveLength(2);
     expect(Object.values(graph(WAI)).at(-1)?.class_type).toBe("PreviewImage");
   });
 
-  it("keeps a pinned chat checkpoint and drops an incompatible LoRA rather than changing the user's choice", () => {
-    const settings = defaultImageSettings();
-    settings.loras = [{ file: "flux-style.safetensors", label: "Style", base: "flux", kind: "style", triggerWords: ["watercolor"], weight: { default: 0.8, min: 0, max: 1 } }];
-    const route = resolveImageRoute(settings, "scene", {}, { ...sanitizeImageOverride(null), checkpoint: JANKU, loras: [{ file: "flux-style.safetensors", weight: 0.8 }] }, null);
+  it("keeps a pinned chat checkpoint and drops a LoRA the install does not list", () => {
+    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, { ...sanitizeImageOverride(null), checkpoint: JANKU, loras: [{ file: "gone.safetensors", weight: 0.8 }] }, null);
     expect(route.checkpoint.file).toBe(JANKU);
     expect(route.loras).toHaveLength(0);
-    expect(route.warnings).toEqual(expect.arrayContaining([expect.stringContaining("dropped")]));
+    expect(route.warnings).toEqual(expect.arrayContaining([expect.stringContaining("Missing LoRA")]));
+  });
+
+  it("draws backgrounds with the SDXL wide row: default checkpoint, no people, tag prompt", () => {
+    const settings = defaultImageSettings();
+    expect(settings.purposes.background).toMatchObject({ checkpoint: WAI, family: "sdxl-illustrious", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" });
+    expect(settings.backend).toBe("st");
+    const route = resolveImageRoute(settings, "background", {}, sanitizeImageOverride(null), null);
+    expect(route.family.id).toBe("sdxl-illustrious");
+    const { positive, negative } = assembleImagePrompt(route, null, "a ruined temple at dusk");
+    expect(positive).toContain("no humans, scenery");
+    expect(positive.split(", ").length).toBeGreaterThan(3);
+    expect(negative).toContain("worst quality");
+    expect(Object.values(FAMILIES).map((family) => family.id)).toEqual(["sdxl-illustrious", "sdxl-noobai"]);
+    expect(CHECKPOINTS.map((entry) => entry.family).every((family) => family in FAMILIES)).toBe(true);
+  });
+
+  it("falls a stored FLUX choice back to the default and records it for the Repair row", () => {
+    const stored = {
+      ...defaultImageSettings(),
+      purposes: { ...defaultImageSettings().purposes, background: { ...defaultImageSettings().purposes.background, checkpoint: "flux1-dev-fp8.safetensors", family: "flux-dev" } },
+      characters: { "belle.png": { checkpoint: "flux1-dev-fp8.safetensors" } },
+      loras: [{ file: "flux-style.safetensors", label: "Style", base: "flux", kind: "style", triggerWords: [], weight: { default: 0.8, min: 0, max: 1 } }],
+    };
+    const settings = sanitizeImageSettings(stored);
+    expect(settings.purposes.background).toEqual(defaultImageSettings().purposes.background);
+    expect(settings.characters["belle.png"].checkpoint).toBe("");
+    expect(settings.loras).toEqual([]);
+    expect(settings.retired).toEqual([
+      { where: "background", was: "flux1-dev-fp8.safetensors" },
+      { where: "character belle.png", was: "flux1-dev-fp8.safetensors" },
+      { where: "LoRA", was: "flux-style.safetensors" },
+    ]);
+    expect(sanitizeImageSettings(settings).retired).toEqual(settings.retired);
+    expect(sanitizeImageSettings({ ...defaultImageSettings(), purposes: { background: { family: "flux-dev" } } }).retired).toEqual([{ where: "background", was: "flux-dev" }]);
+    expect(sanitizeImageOverride({ checkpoint: "flux1-dev-fp8.safetensors" }).checkpoint).toBe("");
+  });
+
+  it("control: an ordinary SDXL install records nothing retired", () => {
+    const legacy = { ...defaultImageSettings(), purposes: { ...defaultImageSettings().purposes, scene: { ...defaultImageSettings().purposes.scene, checkpoint: JANKU, family: "sdxl-noobai" } } };
+    expect(sanitizeImageSettings(legacy).retired).toEqual([]);
+    expect(sanitizeImageSettings(legacy).purposes.scene).toMatchObject({ checkpoint: JANKU, family: "sdxl-noobai" });
   });
 
   it("migrates a legacy image route while leaving automatic images off until validated", () => {

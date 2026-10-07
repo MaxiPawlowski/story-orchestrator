@@ -76,6 +76,8 @@ Deviations: live run on dev flavor (harness requirement); background/edit/sprite
 
 ## Plan — VRAM arbiter (approved 2026-10-04)
 
+> Superseded by v2.7 31 (2026-10-07) for FLUX: the FLUX background route and its swap/footprint text below are history; backgrounds render on SDXL.
+
 One RTX 3090 (24 GB). Text = Artemis 31B GGUF (full ≈ 21–22 GB VRAM). Image weights read from disk (no load): SDXL
 `wai`/`janku` 6.94 GB (measured scene peak 9058 MiB) · FLUX `flux1-dev-fp8` 17.25 GB · Qwen-Image edit ≈ 17.3 GB. Only
 **SDXL** can co-reside with text; **FLUX/Qwen always swap** (physical limit). Decisions: FLUX/Qwen keep swapping;

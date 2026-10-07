@@ -5,7 +5,7 @@ import { SpriteBuilder } from "./builder";
 import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
 import { BASE_RECIPE, EDIT_RECIPE, REST_RECIPE } from "./recipes";
 import { log } from "@utils/log";
-import { activeSpriteBatch } from "./batchHost";
+import { activeSpriteBatch } from "./batchSlot";
 
 export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
   return new SpriteBuilder({
