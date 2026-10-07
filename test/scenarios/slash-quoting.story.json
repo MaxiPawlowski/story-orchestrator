@@ -59,6 +59,7 @@
       "id": "announced",
       "name": "Quote | \"Probe\" {x}",
       "objective": "first line\nsecond | line",
+      "player_text": "first line\nsecond | line",
       "type": "intermediate"
     },
     {
