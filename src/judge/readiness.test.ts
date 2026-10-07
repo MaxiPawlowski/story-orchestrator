@@ -58,7 +58,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
   it("reports shipped uses enabled by default, except house rules (below floor on Adolion, 2026-10-01) and the unmeasured attention check (v2.7 33)", () => {
     const rows = judgeReadiness(defaultJudgeSettings());
     expect(rows).toHaveLength(JUDGE_USE_KEYS.length);
-    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules", "attentionCheck"]);
+    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules", "attentionCheck", "wardenVoice"]);
   });
 
   // v2.4 plan 07 (X22): sceneOoc and memoryRerank are removed, so every declared use is built,
@@ -67,7 +67,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
     const rows = remeasured(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
-    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive", "expressions", "attentionCheck"]);
+    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive", "expressions", "attentionCheck", "wardenVoice"]);
     expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built") && !JUDGE_USE_COPY[key].description.startsWith("Not measured"))).toBe(true);
   });
 

@@ -118,6 +118,25 @@ Phase 5 (N3/N5) is deferred to v2.8 13 in every branch (finding 14; `00-overview
 | 33 W1 V7-live | 14 | a real `onEnter` NPC post and its `/cut` after an edited reply | ends like a replay of the edited chat, gate kept and gate broken | D (scripted) + CL |
 | 37 M3 | 18 | 7-member act pilot (37 §Measurement) | 37's M3 floor | RP + CL |
 
+### Rows owed by v2.7 37 (built 2026-10-07 on `v2.7-37-character-life`, none run)
+
+Each is a manifest row, run ×2 with the rule 11 reset. The numbers marked *placeholder* are built into the code and
+are decided here, never claimed green before then.
+
+| Row | Setup | Assertion | Tier |
+|---|---|---|---|
+| 37-D1 character life, no model | `test/scenarios/v27-37-character-life.json` (+ `.story.json`), `requires {lane: "no-model", group: "Group: Arin, DM Narrator", members, judge: "off"}`; `so-scenario.mts run <file> --sandbox --group "Group: Arin, DM Narrator"` | an agenda step lands after two `/cp set` boundaries; an OOC line (`((…))`) neither moves it nor counts; a night schedule puts Arin away; Arin's drafted block carries her own feeling and step, the narrator's does not; player mode shows none of it; `assert-player-clean` with the drawer open | D (no-model) |
+| 37-D2 schedule drop live | same lane; `time_of_day` night with the party at the market, then a scripted player line addressed to Arin | the talk decision never names Arin while she is away; `disabled_members` of the toy group unchanged (run header diff) | D (no-model, director mocked) |
+| 37-D3 agenda effect + swipe | a copy of the story whose second step carries a `world_info` enable on a test book, a scripted `npc_replies` reply on the first | the entry is on after the landing boundary and off again after a swipe/delete of the reply that landed it; the NPC reply posts once and a swipe rewinds its marker (S-15 host half) | D (no-model) |
+| 37-M1 relationship read accuracy | 37 §M1: ~20 labelled lab windows, arms (a) value hidden, (b) value shown, (c) typed judge | direction accuracy ≥ 0.80, stuck rate ≤ 0.10, 0 step-clamp violations, (a) within 5 points of (b); decides the default read path (judge first only if (c) passes) | CL (B1) |
+| 37-M2 cost | N relationship axes ∈ {2, 4, 8, 16} per read | the 37 §Floors ceiling (≤ 350 tokens/drafted member p95, ≤ 600 max; extraction prompt ≤ +12 %, p50 latency ≤ +15 %); sets `REL_AXES_PER_READ` (*placeholder 8*) | CL (B1) |
+| 37-S17 combined scope budget | S-17 with relationships registered (`relationship` scope source) | as S-17; the cross-source overflow priority (gate keys, active quests, the drafted member's axes, others' axes, card pulls) and fairness are decided in B2 and built in B3: today each source is capped alone, the drafted member's axes and mood come first inside the relationship source, and there is no rotation | CL (B1) |
+| 37-L3 meanwhile proposals | `test/fixtures/meanwhile-proposals.cases.json` (20 cases, floors frozen), offline replay through `globalThis.storyOrchestratorAgendaProposals.propose()` on the CL route, labels by a second model | in-goal ≥ 0.85, 0 narrated player actions, 0 unreached references in the spoiler subset, ×2; below the floor the coordinator stays dev-only | CL (B1/C5) |
+| 37-L6-C voice warden | `test/fixtures/judge/spike-voice.json` (floors frozen, **rows not collected**: 20 lab-copy replies owed by v2.7 38) | OOC recall ≥ 0.80, false-note rate ≤ 0.10, 0 rewrite or player-narration notes, fallback ≤ 1 of 20, ×2; below the floor `wardenVoice` stays dev-only | CL (B1) |
+| 37-S19 story clock | S-19 with `clock` declared | `time_of_day` moves one step per boundary (code clamp), `story_day` only on a wrap; Continue/swipe/reopen ≡ continuous run; an OOC line ticks no agenda. Not built: an authored checkpoint `set` effect for the clock (no such effect exists) | D + RP |
+| 37-M3 player value | as row 37 M3 above | required exercise per run: ≥ 1 axis moved by a read, ≥ 1 agenda step, ≥ 1 schedule drop, ≥ 1 mood re-read | RP + CL (C5) |
+| 37-B3 bundle | `npm run build` | main entry 1,171,979 B at the 37 commit (+8,479 B over `fd6529b1`'s 1,163,500 B): validator hook, scope source, private-block lines, talk filter, rating-guard step rule, check and feature copy, warden voice family; the validator, derive, presence and line logic ride the lazy game-layer chunk; the proposal coordinator and its prompt are dev-only | D |
+
 Floors tightened before any run (finding 18): 32 W1 route A minimum render count; 35 M2 window and denominator; 36 Q3
 positive narration assertion; 37 M3 behavioural threshold; 38 C7 character-life exercise. The numbers live in those
 plans.

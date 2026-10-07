@@ -3,6 +3,7 @@ import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
+import { LIFE_FEATURES } from "./lifeFeatures";
 import { START_FEATURES } from "./startFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
@@ -67,12 +68,13 @@ const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLo
 
 const JUDGE_USE_SINCE: Partial<Record<JudgeUseKey, string>> = {
   agencyCheck: "2.3.0", typedExtraction: "2.4.0", stallCheck: "2.4.0", houseRules: "2.5.0", loreExclusive: "2.5.0", wardenLore: "2.6.0", expressions: "2.6.0", attentionCheck: "2.7.0",
+  wardenVoice: "2.7.0",
 };
 
 const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   director: "characters", expressions: "images", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
-  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters",
+  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters", wardenVoice: "characters",
 };
 
 const AUTHOR_FACING_USES: readonly JudgeUseKey[] = ["lookahead", "curatorFilter"];
@@ -442,7 +444,7 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

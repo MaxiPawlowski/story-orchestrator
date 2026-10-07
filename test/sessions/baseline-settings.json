@@ -130,7 +130,8 @@
         "wardenLore": true,
         "loreExclusive": true,
         "expressions": true,
-        "attentionCheck": false
+        "attentionCheck": false,
+        "wardenVoice": false
       },
       "expansion": {
         "variants": 1,
@@ -156,6 +157,7 @@
         "loreExclusive": "typesafe",
         "expressions": "typesafe",
         "attentionCheck": "typesafe",
+        "wardenVoice": "typesafe",
         "warden": "typesafe"
       }
     },

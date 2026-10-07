@@ -34,7 +34,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
-    scopeOverflow: scopeOverflow(story, state.blackboard).flatMap((row) => row.dropped),
+    scopeOverflow: scopeOverflow(story, state.blackboard).filter((row) => row.kind === "quest").flatMap((row) => row.dropped),
     widgets: composed?.authorWidgets ?? [],
   } : null;
   return { game: composed?.player ?? null, gameAuthor };

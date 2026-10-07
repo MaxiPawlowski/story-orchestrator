@@ -39,6 +39,7 @@ export interface StagecraftCoordinatorDeps {
     facts: () => EstablishedFact[];
     families?: () => Omit<WardenFamiliesActive, "continuity">;
     lore?: (replyMessageId: number) => NonNullable<WardenCheckInput["houseRuleContext"]>["worldBook"];
+    voice?: (speaker: string) => WardenCheckInput["voice"] | null;
     scene?: (speaker: string) => Pick<NonNullable<WardenCheckInput["houseRuleContext"]>["scene"], "speakerRole" | "groupMembers">;
     nudgeActive: () => boolean;
   };
@@ -336,6 +337,7 @@ export class StagecraftCoordinator {
     return {
       continuity, agency: extra.agency && facing("agency"), houseRules: extra.houseRules, lore: continuity && extra.lore === true,
       ...(extra.attention ? { attention: facing("attention") } : {}),
+      ...(extra.voice ? { voice: wardenFamilyMode(this.state.settings, "voice") !== "off" } : {}),
     };
   }
 
@@ -371,6 +373,8 @@ export class StagecraftCoordinator {
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text),
           agency: families.agency ? said : null, houseRules: families.houseRules };
       if (families.attention && said) input.attention = said;
+      const voice = families.voice ? warden.voice?.(reply.speaker) ?? null : null;
+      if (voice) input.voice = voice;
       const rules = families.houseRules.length > 0;
       const fired = families.lore || rules ? warden.lore?.(replyMessageId) ?? [] : [];
       const lore = families.lore ? fired : [];
@@ -379,7 +383,7 @@ export class StagecraftCoordinator {
         const line = readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId);
         input.houseRuleContext = { scene: { player: this.deps.hosts.player.getPlayerName(), ...(line ? { playerMessage: line } : {}), ...warden.scene(reply.speaker) }, worldBook: fired };
       }
-      const asks = input.facts.length > 0 || input.agency !== null || Boolean(input.attention) || input.houseRules.length > 0 || lore.length > 0;
+      const asks = input.facts.length > 0 || input.agency !== null || Boolean(input.attention) || Boolean(input.voice) || input.houseRules.length > 0 || lore.length > 0;
       const findings = asks ? await warden.check(input).catch((error: unknown) => {
         log.warn("continuity warden: the check failed", error);
         return null;

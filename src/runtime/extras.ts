@@ -12,6 +12,7 @@ import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings
 import { createLore, sanitizeLore } from "./loreFired";
 import { createChance, sanitizeChance } from "./rolls";
 import { sanitizeChecks } from "./storyCheckDraws";
+import { sanitizeAgendaProposals } from "./agendaProposals";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
@@ -419,6 +420,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.lore = sanitizeLore(extras.lore);
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
+  if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;

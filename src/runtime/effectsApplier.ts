@@ -1,4 +1,4 @@
-import { rewardedQuestIds, type Checkpoint, type Quest, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
+import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
   applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
   getContext, guardHostStream, watchHostChatMove, isHostGenerating, stopHostGeneration,
@@ -12,7 +12,7 @@ import { transitionNoteText } from "./narrative";
 import { appendRow, castFlag, pendingRow, restorePlan, rollbackCastMirror, rowsAfter, runRestoreSteps, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectOrigin, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
-import { releasePlan, worldInfoPlan } from "./worldInfoGates";
+import { earnedWorldInfo, releasePlan, worldInfoPlan } from "./worldInfoGates";
 import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, readNpcReplies, resolvePreset } from "./effectSteps";
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
@@ -79,6 +79,13 @@ export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead re
 export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own it";
 
 export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
+
+export interface EarnedEffects {
+  kind: "quest" | "agenda";
+  id: string;
+  name: string;
+  effects: { world_info?: unknown; cast_changes?: unknown; npc_replies?: NpcReplyEffect[] };
+}
 
 type EffectScope = { checkpointId: string | null; boundary: number; messageId: number; origin?: EffectOrigin };
 
@@ -191,7 +198,8 @@ export class EffectsApplier {
     if (ready && identitySettled(extras.playerSetup)) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard)), run);
+    const plan = worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard), earnedWorldInfo(story, snapshot.blackboard));
+    const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(plan, run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
@@ -328,20 +336,19 @@ export class EffectsApplier {
     );
   }
 
-  async applyQuestRewards(story: NormalizedStoryV2, quests: readonly Quest[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
+  async applyEarnedEffects(story: NormalizedStoryV2, earned: readonly EarnedEffects[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
     if (!openChatId() || !openGroupId() || !extras.requirements.ready || !run.stillOwns()) return;
-    if (quests.some((quest) => quest.reward?.effects?.world_info) && !worldInfoFilesHeld()) {
-      const refused = await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, values)), run);
-      if (refused.length) this.deps.journal?.("a quest reward's world_info could not be applied", refused.join("; "));
+    if (earned.some((item) => item.effects.world_info) && !worldInfoFilesHeld()) {
+      const refused = await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, values), earnedWorldInfo(story, values)), run);
+      if (refused.length) this.deps.journal?.("an earned world_info effect could not be applied", refused.join("; "));
     }
-    for (const quest of quests) {
-      const effects = quest.reward?.effects;
-      if (!run.stillOwns() || !effects) return;
-      const scope = { ...at, origin: { kind: "quest" as const, id: quest.id, boundary: at.boundary, messageId: at.messageId } };
-      if (effects.cast_changes !== undefined) await this.castWrites.track(this.applyCastChanges(effects.cast_changes, story.roster ?? [], extras, scope, run, null));
+    for (const item of earned) {
       if (!run.stillOwns()) return;
-      const replies = { id: `quest:${quest.id}`, name: quest.title, objective: "", type: "intermediate" as const, effects: { npc_replies: effects.npc_replies } };
-      if (effects.npc_replies?.length) await this.fireNpcReplies(replies, extras, "onEnter");
+      const scope = { ...at, origin: { kind: item.kind, id: item.id, boundary: at.boundary, messageId: at.messageId } };
+      if (item.effects.cast_changes !== undefined) await this.castWrites.track(this.applyCastChanges(item.effects.cast_changes, story.roster ?? [], extras, scope, run, null));
+      if (!run.stillOwns()) return;
+      const replies = { id: `${item.kind}:${item.id}`, name: item.name, objective: "", type: "intermediate" as const, effects: { npc_replies: item.effects.npc_replies } };
+      if (item.effects.npc_replies?.length) await this.fireNpcReplies(replies, extras, "onEnter");
     }
   }
 

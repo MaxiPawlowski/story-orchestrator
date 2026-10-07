@@ -1,0 +1,467 @@
+{
+  "note": "v2.7 plan 37 L3 meanwhile-proposal gate (dark ship). 20 synthetic cases on test/fixtures/character-life.story.json; the proposals each case yields are labelled in-goal or out-of-goal by a second model, never the user. NOT YET RUN: offline replay on the CL route is owed to v2.7 39 B1/C5. Floors frozen 2026-10-07 before the first run, never retuned.",
+  "story": "test/fixtures/character-life.story.json",
+  "floors": {
+    "inGoalRate": 0.85,
+    "narratedPlayerActions": 0,
+    "unreachedReferencesInSpoilerSubset": 0,
+    "runs": 2
+  },
+  "cases": [
+    {
+      "id": "M01",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "The market is loud today."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M02",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "I need coin, and fast."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M03",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "The smuggler wants paying by the festival."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M04",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "My mother's ring is all I have left."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": true,
+      "unreached": [
+        "the confession",
+        "The confession"
+      ]
+    },
+    {
+      "id": "M05",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "Rain drums on the harbour roofs."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M06",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "The docks are watched at night."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M07",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "A festival banner goes up over the gate."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M08",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "I could sell the ring. I hate the thought."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": true,
+      "unreached": [
+        "the confession",
+        "The confession"
+      ]
+    },
+    {
+      "id": "M09",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "A boat with black sails ties up at dusk."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M10",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "I won't speak of the debt."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M11",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "The inn fills with sailors."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M12",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "Two days to the festival."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": true,
+      "unreached": [
+        "the confession",
+        "The confession"
+      ]
+    },
+    {
+      "id": "M13",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "The pawnbroker's shutters are open."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M14",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "He said the harbour, at night."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M15",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "Guards change at the east gate."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M16",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "I counted my coins again. Not enough."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": true,
+      "unreached": [
+        "the confession",
+        "The confession"
+      ]
+    },
+    {
+      "id": "M17",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "A storm keeps the boats in."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M18",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 2,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "The smuggler sent a boy with a note."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M19",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 0,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "DM Narrator",
+          "text": "Morning bells ring over the market."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": false,
+      "unreached": []
+    },
+    {
+      "id": "M20",
+      "member": "arin",
+      "agenda": "debt",
+      "done": 1,
+      "window": [
+        {
+          "speaker": "You",
+          "text": "What is on your mind?"
+        },
+        {
+          "speaker": "Arin",
+          "text": "Let us talk of something else."
+        }
+      ],
+      "expected": {
+        "inGoalPossible": true,
+        "narratesPlayer": false
+      },
+      "spoiler": true,
+      "unreached": [
+        "the confession",
+        "The confession"
+      ]
+    }
+  ]
+}

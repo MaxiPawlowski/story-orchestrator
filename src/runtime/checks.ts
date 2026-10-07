@@ -4,7 +4,7 @@ import { DEGRADING_SETUP_CHECKS, IMAGE_CHECKS, INFO_SETUP_CHECKS, MODEL_CHECKS, 
 import { PERSONA_BLOCK_CHECKS, PERSONA_DEGRADE_CHECKS, PERSONA_INFO_CHECKS } from "./checksPersona";
 import { GAME_CHECKS } from "./checksGame";
 
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest" | "characters";
 
 export type CheckScope = "install" | "chat" | "story";
 export type CheckAudience = "player" | "author";

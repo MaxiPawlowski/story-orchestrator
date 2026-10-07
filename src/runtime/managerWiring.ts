@@ -27,6 +27,7 @@ import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
+import { acceptedMeanwhile } from "./agendaProposals";
 import type { EffectsApplier } from "./effectsApplier";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
@@ -72,6 +73,7 @@ export function wireCoordinators(port: ManagerPort) {
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
     beatFor: (rosterId) => inner.beatFor(rosterId),
+    meanwhile: (rosterId) => acceptedMeanwhile(port.extras().agendaProposals, rosterId),
     journal: (summary, note) => port.journal("story", summary, note),
     chapterHost: {
       closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),

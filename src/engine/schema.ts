@@ -1,6 +1,8 @@
 import type { Milestone, QualityDisplay, Quest, StoryCheck, StoryWidget } from "./gameSchema";
+import type { Agenda, MoodDecl, QualityStepRule, RelationshipDecl, ScheduleEntry, StoryClock, StoryLife } from "./lifeSchema";
 
 export * from "./gameSchema";
+export * from "./lifeSchema";
 
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
@@ -87,6 +89,7 @@ export interface Quality {
   commit_evidence?: string;
   roll?: QualityRoll;
   display?: QualityDisplay;
+  step_rule?: QualityStepRule;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -303,6 +306,10 @@ export interface RosterMember {
   view?: RosterView;
   aliases?: string[];
   card?: CardBinding;
+  relationships?: RelationshipDecl[];
+  mood?: MoodDecl;
+  agenda?: Agenda[];
+  schedule?: ScheduleEntry[];
 }
 
 export interface CardBinding { fields: Record<string, { quality: string; visual?: boolean }> }
@@ -477,6 +484,7 @@ export interface StoryV2 {
   quests?: Quest[];
   milestones?: Milestone[];
   widgets?: StoryWidget[];
+  clock?: StoryClock;
 }
 
 export const STORY_KINDS = ["saga", "story"] as const;
@@ -503,6 +511,7 @@ export interface NormalizedStoryV2 extends StoryV2 {
   reachableByCheckpoint: Record<string, string[]>;
   chapterById?: Record<string, Chapter>;
   chapterByCheckpoint?: Record<string, string>;
+  life?: StoryLife;
 }
 
 export interface ValidationError {

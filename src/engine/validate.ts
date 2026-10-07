@@ -111,7 +111,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
-  const qualities = layer ? layer.addRewardQualities(builtin, quests, errors) : builtin;
+  const life = layer?.life.readLife(json, errors);
+  const qualities = layer ? layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors) : builtin;
   const options = readStoryOptions(json, errors);
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   resolveGuidanceMembers(checkpoints, roster);
@@ -139,6 +140,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
+  layer?.life.checkLife(life, roster, qualityByKey, errors);
   const widgets = layer?.readWidgets(json.widgets, qualityByKey, qualities, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
@@ -173,6 +175,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(game ? { quests: game } : {}),
     ...(milestones ? { milestones } : {}),
     ...(widgets ? { widgets } : {}),
+    ...(life?.clock ? { clock: life.clock } : {}),
+    ...(life ? { life } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

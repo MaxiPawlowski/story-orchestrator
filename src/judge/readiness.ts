@@ -166,6 +166,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: null,
     recommendation: "Not measured yet, so off by default. Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
   },
+  wardenVoice: {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Not measured yet: dev-only until its fixture passes twice, then off by default. Rides the warden's call.",
+  },
 };
 
 /** The `use` string each call-ring row carries, mapped to the readiness rows it measures. */

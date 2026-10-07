@@ -7,6 +7,7 @@ import { stripChannelNoise } from "@extraction/parse";
 import { compactableEnd, readCoverageEnd } from "@extraction/readCursor";
 import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
 import { deriveScope } from "@extraction/scope";
+import type { ScopeSourceContext } from "@extraction/scopeSources";
 import { runSharedRead, sharedReadWindow } from "@extraction/sharedRead";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import type {
@@ -19,7 +20,7 @@ import {
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
-import { cardScopeOwners, enabledCharacterNames } from "../roster";
+import { activeSpeakerId, cardScopeOwners, enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
 import {
   JUDGED_READ_LIMIT, type ExtractionRuntimeState, type JudgedReadRecord,
@@ -88,12 +89,12 @@ export class ExtractionCoordinator {
     return this.deps.getExtraction();
   }
 
-  cardScope(): { owners: string[]; cursor: number } {
+  cardScope(): ScopeSourceContext {
     const story = this.deps.getStory();
     const owners = cardScopeOwners(story, this.deps.hosts.roster);
     const cursor = this.state.cardScopeCursor ?? 0;
     if (Object.keys(story?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = cursor + 4;
-    return { owners, cursor };
+    return { owners, cursor, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster) };
   }
 
   private async save() {

@@ -10,6 +10,7 @@ import { parseSharedReadResponse } from "./parse";
 import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
 import { maxTokensCap } from "./callBudget";
 import { deriveScope } from "./scope";
+import type { ScopeSourceContext } from "./scopeSources";
 import type { RequestBudget } from "./tokenMeter";
 import type {
   ChatMessageWindowEntry, ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
@@ -108,7 +109,7 @@ export interface RunSharedReadOptions {
   facts?: ParsedFact[];
   extraGateSources?: ExtraGateSource[];
   scope?: ScopedQuality[];
-  cardScope?: { owners: string[]; cursor: number };
+  cardScope?: ScopeSourceContext;
   openArcs?: string[];
   epistemicLedgerCapable?: boolean;
   entities?: string[];

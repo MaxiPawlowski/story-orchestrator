@@ -1,5 +1,6 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 import { blackboardRows } from "@runtime/blackboardView";
+import { CharacterLifePanel } from "../CharacterLifePanel";
 
 const readerLabel = (meta: RuntimeSnapshot["blackboardMeta"][string] | undefined) => {
   if (!meta?.reader) return "";
@@ -35,6 +36,7 @@ export const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         </table>
         </div>
       )}
+      {snapshot.lifeAuthor ? <CharacterLifePanel life={snapshot.lifeAuthor} /> : null}
     </div>
   );
 };
