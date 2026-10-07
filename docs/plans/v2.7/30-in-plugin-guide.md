@@ -79,3 +79,13 @@ plans; the close-out (step Z) checks pages against the shipped UI.
 - Decision 3 (a few screenshots): not done; the renderer refuses images today, so screenshots need an asset path
   first (follow-up).
 - Live gate (open from "?" / Repair, search ×2): not run — Phase C C2.
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol). Both tasks below are owned by this plan and due before the v2.7 39 freeze
+(B3). v2.7 39 C2 checks the rendered result.
+
+| Finding | Change | Where |
+|---|---|---|
+| 20 | **Studio deep link:** `src/studio/components/GuideDisclosure.tsx` renders the embedded topic text only. It gains an "Open in the guide" control that opens the installed reader at the topic's page and heading (`studio/guideTabs.ts` ids). The reader is a `PanelFrame`, and the Studio is a top-layer `<dialog>`, so a panel opened behind the modal is unreachable. The link must show the reader above the modal (rendered inside the dialog, or as its own top-layer surface). Test: Storybook + live, open the reader from each Studio tab while `#so-studio-modal` is open, then reach and close it by pointer and keyboard (`ui: {action: "hit-test"}`) | Design 4; §Gate record (deviation `PanelFrame`) |
+| 20 | **Screenshot assets owner:** decision 3 ("a few, compressed, setup pages only") is still undone because the renderer refuses images. This plan adds an asset path: images only from `docs/guide/assets/`, bundled into the guide chunk, compressed, alt text required, sizes recorded in the build manifest. The renderer test keeps refusing every other source | Decision 3; §Gate record |

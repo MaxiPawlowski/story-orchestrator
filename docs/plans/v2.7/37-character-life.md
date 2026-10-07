@@ -98,8 +98,18 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
     reply stays chat text, as today).
   - Shared with v2.8 18's quest rewards (origin `quest`). Whichever plan builds first builds the origin-tagged ledger
     and `revertOriginSince`; the other reuses it and adds its origin (decided by the user 2026-10-03, as recommended).
+  - **One chronological undo (review 2026-10-07 finding 15).** `revertOriginSince` takes the SET of origins a rollback
+    selects (quest, agenda, complication, stagecraft), not one kind per call. It reverts every selected row newest
+    write first across all of them, because the ledger's compare-and-set depends on newest-first order per target
+    (`effectLedger.ts:153-189`). Calling it once per kind is unsafe for interleaved writes to the same WI target.
+    Ledger compaction (`effectLedger.ts:51-64`) and hydrate keep each row's origin; a chain only merges within one
+    origin. Built with v2.7 36's `revertOriginSince`, whichever lands first (as decided).
+  - **OOC (finding 19):** a marked OOC user line (v2.7 35's predicate) neither satisfies a step's `when` through its own
+    extraction (v2.7 33 drops its deltas) nor counts toward `per_n_boundaries` pace.
   - Tests: host state checked with the blackboard (an advanced step's WI entry is off again after a swipe of the
-    advancing reply; reopen equals a continuous run).
+    advancing reply; reopen equals a continuous run). Mixed-origin cases (row 39 S-15): an agenda write and a quest
+    reward on the same WI target, interleaved, then swipe / edit / delete / reopen / cancellation / failed save /
+    external edit. Host state must equal the replay of captured inputs.
 - **Curator-proposed meanwhile events** (decision 3, second half; review C2, F24). Approved now, not "later":
   - **Contract** `MeanwhileProposal`: `{ id, memberId, agendaId, text, public: false, reason, sourceWindow }`. Text only:
     no effects, no blackboard writes, no new qualities, no step advance. It must stay inside the agenda's authored
@@ -171,7 +181,22 @@ and never retuned:** direction accuracy ≥ 0.80;
 - **M2 cost (CL).** Extra prompt tokens per shared read for N relationship axes, N in {2, 4, 8, 16}. Sets
   `REL_AXES_PER_READ` (the largest N under a token ceiling written here before the run).
 - **M3 player value.** Sessions on the 7-member act pilot (v2.8 02): do characters read as flat or forgetful? Evidence
-  for ranking; the user has decided the design.
+  for ranking; the user has decided the design. **Acceptance threshold (review 2026-10-07 finding 18, frozen before
+  the first run):** 20 paired excerpts (feature on vs off, same openings), blind, rated by a second model, never the
+  user. Each pair is judged on consistency (remembers earlier feelings and plans) and liveliness. Floors: on preferred
+  in **≥ 12 of 20**; on rated worse on consistency in **≤ 2 of 20**; **0** leaks of a relationship value, mood, agenda
+  step or meanwhile fact into player surfaces. Required exercise per run (else the run is INCOMPLETE): **≥ 1** axis
+  moved by a read, **≥ 1** agenda step advanced, **≥ 1** schedule drop, **≥ 1** mood re-read.
+- **When (finding 1):** M1, M2 and the combined budget S-17 run in v2.7 39 stage B1, before the freeze. B2 records
+  `REL_AXES_PER_READ`, the default read path and the overflow priority; the caps are built in B3. M3 is acceptance and
+  runs in C5 on the frozen candidate.
+- **Combined scope budget (finding 17).** Relationships share scope sources with v2.7 36 quests and the existing card
+  pulls. They are measured together (row 39 S-17: 7-member cast, ≥ 3 active quests, relationships and card pulls in
+  the same reads): 36's M1 token/latency floors and this plan's M2 ceiling must hold at once. Overflow priority across
+  sources is decided in B2 (proposed: gate keys, then active quest keys, then relationship axes of the drafted member,
+  then other present members' axes, then card pulls). Fairness: a source left out is first in the next read, so no
+  active quest or present pair waits more than 3 consecutive reads. Each cap passing alone does not accept the
+  combined feature.
 
 ## Order
 
@@ -191,7 +216,10 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
   inline level; "who is here" shows player-safe names only; `so-ui.mts assert-player-clean`.
 - Registered in the v2.7 01 feature registry + Help (registry test).
 - `npm run gates`; a no-LLM group scenario (scripted messages) for agendas, schedules and rollback; then the CL
-  measurements and the RP pilot in the final batched suite.
+  measurements (v2.7 39 B1, before freeze) and the RP pilot (39 C5).
+- Bundle (finding 21): main entry measured 1,217,068 B of 1,250,000 B at `1910441b`. Every L1–L4 production path
+  records its main-entry cost in 39 B3. The proposal coordinator, review UI and author panels go to lazy chunks; only
+  validator, scope source, private-block lines and talk filtering may sit in the main entry.
 
 ## Unresolved questions
 
@@ -266,6 +294,16 @@ Source: `v2.8/27-gamification-report.md` (decision 3 and §Candidate rows).
 
 - **Story clock for L4** (decision 3): a rolled-back `story_day` quality plus a `time_of_day` value; schedules gate on
   them; a calendar is later. No wall-clock.
+  - **Producer (review 2026-10-07 finding 19).** The clock moves only at a committed boundary, through two writers.
+    (1) Authored checkpoint effects (`set` on entry). (2) The shared read: `time_of_day` is a `source: extractor`
+    enum with `read_as` criteria, and a day rollover enqueues a code increment of `story_day`. Both are clamped:
+    forward only within a checkpoint visit, one `time_of_day` step per boundary, at most +1 day per boundary.
+  - **What moves it:** a group round of several replies counts as one boundary step. Continue rewrites the same
+    reply and adds no step. A swipe rolls back with the boundary. A marked OOC line never advances it. Reopen ≡
+    continuous run.
+  - **Gate:** schedules need an exercised clock, not seeded qualities. A no-LLM group scenario drives the clock
+    through rounds, Continue, swipe, an OOC line and reopen, and asserts a schedule drop and its return. Live row
+    v2.7 39 S-19.
 - **L2 mood duration**: `lasts {boundaries: n} | {until: "scene_break"}`.
 - **L3 recurring agenda steps** keep a list of done occurrences.
 - **L1** relationship numbers stay author-only, as written.
@@ -275,3 +313,16 @@ Source: `v2.8/27-gamification-report.md` (decision 3 and §Candidate rows).
 - **M2 token ceiling** (was "written here before the run"): the relationship + mood + agenda blocks together add
   ≤ 350 prompt tokens per drafted member at p95 and ≤ 600 at max over the 20 lab windows; extraction prompt growth
   ≤ +12 % tokens with p50 latency ≤ +15 %.
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol).
+
+| Finding | Change | Where |
+|---|---|---|
+| 1 | M1/M2 (and S-17) run in 39 stage B1 before freeze; caps decided in B2, built in B3; M3 in C5 | §Measurement before building |
+| 15 | `revertOriginSince` takes the set of selected origins: one newest-first undo across them; origins survive compaction and hydrate; mixed-origin tests (39 S-15) | §L3 Reversal |
+| 17 | relationships + quests + card pulls measured together (39 S-17); overflow priority and fairness; separate caps do not accept the feature | §Measurement before building |
+| 18 | M3 gets a behavioural threshold (20 blind pairs, ≥ 12 preferred, ≤ 2 worse on consistency, 0 leaks) and a required-exercise rule | §Measurement before building |
+| 19 | story clock producer (authored effects + extractor read, clamped, boundary-only) and what moves it (rounds, Continue, swipe, OOC, reopen); agendas ignore OOC lines; 39 S-19 | §Adopted harvest, §L3 |
+| 21 | main-entry cost per production path recorded in 39 B3; lazy-chunk default | §Gates |

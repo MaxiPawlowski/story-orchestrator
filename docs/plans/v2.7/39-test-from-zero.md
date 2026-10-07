@@ -9,9 +9,11 @@ the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the dete
 
 1. **Nothing carries over.** Every earlier "green" (v2.7 01–28 gate records, plan 24/26/28 live rows, the 2026-10-06
    rollout) is history, not evidence. Each row below runs on the frozen candidate.
-2. **One frozen candidate.** Freeze = one commit + its prod and dev bundle hashes (`dist/manifest.json`
-   `bundle.sha256`), recorded before C1. A fix during Phase C produces a new candidate; rows it can affect re-run
-   (the record says which and why).
+2. **One frozen candidate, frozen last** (review 2026-10-07 finding 1). The freeze comes after stage B (measure →
+   decide → implement, §Sequence): at freeze no cap, default path or dev → prod promotion is still open. Freeze = one
+   commit + its prod and dev bundle hashes (`dist/manifest.json` `bundle.sha256`), recorded before C1, with
+   `package.json` and `manifest.json` `version` already `2.7.0` (B0). A fix during Phase C produces a new candidate;
+   rows it can affect re-run (the record says which and why).
 3. **Tiers** as in `00-overview.md` §Gate taxonomy. Real-model rows are allowed in v2.7 now (user 2026-10-07):
    **RP** (Artemis on the RunPod pod) for reply-dependent volume, **CL** (DeepSeek roles, TypeSafe judge),
    **LI** (local ComfyUI) for images. Local text (LT) only where a plan needs the local route itself.
@@ -21,25 +23,104 @@ the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the dete
 6. **Evidence**: summaries and gate records public; anything holding chat text, campaign content or art goes to the
    private `so-sessions` repo (`npm run sessions:archive`; `test/sessions/evidence/`).
 7. **Adolion stays unspoiled for the user**: campaign rows report pass/fail and counts only (v2.7 rule 11).
+8. **Verdict** (finding 2; same rule as `v2.8/24-test-plan.md` §Freeze and attestation item 5):
+
+   | Verdict | When |
+   |---|---|
+   | **ACCEPTED** | every manifest row ran and is green ×2 on the frozen candidate; no player-facing failure recorded; every rated row rated |
+   | **PARTIAL** | every manifest row ran; at least one failed, each with finding id, owner and the user's decision. Any recorded player-facing failure lands here, never in ACCEPTED |
+   | **INCOMPLETE** | at least one manifest row has no evidence pair |
+
+   A missing fixture, an unrated pack, or an unavailable prerequisite (pod, profile, judge, lane, ComfyUI) leaves its
+   row without evidence: INCOMPLETE, never a skip, never PARTIAL's "ran".
+9. **Prod configuration** (finding 12). Rows marked `prod` run the prod build with shipped defaults
+   (`withoutDevOnlySettings` applied, v2.7 29 §Release-build dev-only defaults; shipped chapter-seal settings). Lane
+   runs on the dev build are labelled `dev-diagnostic` in the manifest. They prove plumbing and never close a `prod`
+   row.
+10. **Row manifest** (finding 13). `test/phase-c/manifest.json`, written in B0, before the freeze. Each row has: `id`,
+    source plan, prerequisites, reset procedure, tier, build (`prod` | `dev-diagnostic`), assertion, floor (verbatim,
+    with a citation), `evidence[2]` (record paths). Only manifest rows count. A row added after the freeze needs a
+    record line saying why.
+11. **Reset between run 1 and run 2** (finding 13). Re-seed the lane (`st-lanes.mts seed <n> --fresh`, or
+    `adolion-fresh seed`). Clear persona locks and restore the default persona. Restore model routing: the run-header
+    `profiles` diff is 0. Remove assets: `so-assets.mts remove --marker` with the run's baseline, `cleanup.mirrorBooks`
+    leaked 0. Restore the global config (`so-journey.mts restore-config`). Reload the page, which clears the judge
+    cache. `so-run-header diff` around each run shows declared paths only.
+12. **Replay means captured inputs** (finding 18). A rollback / reopen / swipe row compares against a replay that
+    applies the run's captured accepted inputs (audits, accepted deltas, typed reads) to the edited chat. A
+    regenerated LLM reply is not expected to reproduce identical state.
 
 ## Sequence
 
+Stage B runs on the pre-freeze build and decides what is built. Stage C runs the whole inventory on the frozen
+candidate (finding 1).
+
 | Step | What | Tier | Where |
 |---|---|---|---|
-| C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate: `node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0` (cases `test/scenarios/payload/*.json`, no model call) | D | lane 1 |
+| B0 | release version `2.7.0` in `package.json` + `manifest.json` (finding 3); `attestation.test.mjs` made to FAIL, not log, on current-vs-attested bundle drift (`scripts/release/attestation.test.mjs:55-64`), and to fail, not skip, when `docs/release/<version>/attestation.json` is missing in acceptance mode (`:17-23`); row manifest (rule 10); pinned predecessor named and its goldens captured (§Payload contracts) | D | local, lane 1 |
+| B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget | RP + CL | pod, ≤ 2 model lanes |
+| B2 | decision record appended here: SP6 verdict, M2 verdict, `QUEST_SCOPE_CAP`, `REL_AXES_PER_READ`, combined overflow priority, 37 default read path, each dev flag's fate (prod default / off / removed); the branch each verdict takes (§Stage B branches) | — | — |
+| B3 | build the B2 branch: 35 Phases 3–4 + encounter pool, or the drop path; 36 `clock` or its removal; 37 caps; promotions final; main-entry bundle and ratchet budgets checked (C1b) | D | worktrees, `npm run gates` |
+| C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate: `node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0` (cases `test/scenarios/payload/*.json`, no model call), plus the feature contracts and off-path captures (§Payload contracts) | D | lane 1 |
 | C1 | `npm run gates` (full, Storybook, main checkout) ×2; `npm run test:release` on prod | D | local |
-| C2 | mocked scenario corpus ×2; every plan's live (D) row ×2 (v2.7 16 §Per plan + rows of 29–38) | D | no-model lanes 1–4 in parallel |
-| C3 | payload invariance: every plan that touches model input, captured vs C0 goldens, declared diffs only: `so-payload-golden.mts capture --label c3 --out test/measurements/v2.7/payload/c3`, then `diff test/measurements/v2.7/payload/c0 test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/declared.json` (exit 1 on an undeclared or stale diff) | D | no-model lane |
+| C1b | ratchet + budget compare against the fixed predecessor (finding 21): each `test/findings/codeHealth.json` list ⊆ the predecessor's list, each budget ≤ the predecessor's (coordinator **560**, manager 700, file 600), the guard constants equal the file; main entry ≤ 1,250,000 B, with each 35–37 production path's main-entry cost recorded in B3 (1,217,068 B at `1910441b`, 32,932 B headroom; lazy chunk unless parse or the reply path needs it) | D | local |
+| C2 | mocked scenario corpus ×2; every plan's live (D) row ×2 (v2.7 16 §Per plan + rows of 29–38); rendered-target checks (finding 20): on the prod build every Help "Show me" target and every "?"/Repair/Studio guide link resolves to a visible control or a rendered guide heading, and the Studio guide link opens the reader while `#so-studio-modal` is open | D | no-model lanes 1–4 in parallel |
+| C3 | payload preservation vs the predecessor goldens and repeatability vs C0 (§Payload contracts): `so-payload-golden.mts capture --label c3 --out test/measurements/v2.7/payload/c3`, then `diff test/measurements/v2.7/payload/base test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/declared.json` and `diff …/c0 …/c3` (exit 1 on an undeclared or stale diff); feature contracts off/on; negative controls | D | no-model lane |
 | C4 | journeys J0–J14 `--strict` ×2; J6 again with plan 33 W1 on (V8) | D + RP | model lanes ≤ 2 |
-| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O14), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card), 34, 35 (Phase 1 K2–K5 first, then M2), 36, 37, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
+| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O13b, O14, C14-b), 03 (O16), 07 (O15), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card; W1 V7-live, below), 34, 35 (B1's measurements re-run on the candidate, then Phase 3/4 rows of the B2 branch), 36, 37 (M1, M3), S-15 – S-19, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
 | C6 | image rows: 32's route A/B, S32-2, multi-character sprite rows; 38's asset checks | LI + CL | local ComfyUI, isolated lane |
-| C7 | Adolion integration ×2 on `adolion-fresh` (38): every story starts, plays N turns, reopen, rollback, chapter | RP | pod |
+| C7 | Adolion integration ×2 on `adolion-fresh` (38): every story starts, plays N turns, reopen, rollback, chapter; character-life exercise on the 7-member act (38 §C7) | RP | pod |
 | C8 | live smoke on a clean install: v2.7 16 §Live smoke procedure (5 turns, DeepSeek CC, no pod; plumbing only, not acceptance), all features on as shipped | CL | fresh lane |
+| C8b | stranger install, guide only (finding 13): prod build, clean settings (empty extension settings, no optional GPU broker, no Adolion assets); follow the installed guide alone to the first real rendered reply in a group story; record each step the guide did not cover | CL | fresh lane, prod |
 | C9 | user sessions (optional): play from the guide only; flags filed | human | user's choice |
-| Z | close-out: settings reference + README table regenerated from the registry, guide vs UI, What's new 2.7, every gate record final, v2.8 carry-over rewritten | D | — |
+| Z | close-out: settings reference + README table regenerated from the registry (owner v2.7 29), guide vs UI, What's new 2.7, every gate record final, v2.8 carry-over rewritten; write `docs/release/2.7.0/attestation.json`, THEN `npm run build && npm run test:release` on the candidate: attestation present, its candidate commit = the frozen commit, `bundle.served.sha256` = build = attested (finding 3) | D | — |
 
-C5 order follows dependencies: 33 W2 (agency → auto) before any warden row; 35 SP6 measurement before 35's build
-rows and 36's complication use; 34 persona before 36/37 rows that read it.
+C5 order follows dependencies: 33 W2 (agency → auto) before any warden row; 34 persona before 36/37 rows that read
+it. 35's measurements already ran in B1; C5 re-runs them on the candidate as acceptance.
+
+### Stage B branches (finding 1)
+
+| B2 verdict | 35 | 36 | 37 | 39 rows |
+|---|---|---|---|---|
+| SP6 PASS, M2 PASS | Phase 3 + Phase 4 + encounter pool built | `clock` widget reads the release model | an agenda may surface pressure only through an authored pool line (35's enum) | Phase 3 K2 prod ×2; Phase 4 M2 with pressure; K3/K4 over pressure releases; encounter generation golden + contract-drop |
+| SP6 PASS, M2 FAIL | Phase 3 (escalate) built; Phase 4 and encounters not built (`quiet`/`offer` refused) | `clock` ships (escalate releases only) | as above | Phase 3 rows; M2 recorded failed (open stretches already ship as experimental), so the verdict is PARTIAL unless B2 records the user pulling open stretches from the release |
+| SP6 FAIL or INCOMPLETE ×2 | the drop path (35 Phase 1: Phase 3/4 not built, spike module, flag and seam removed, `DROPPED_SPIKES` + planted-import control, validator refuses `pressure`/`trigger`; pools inert, guide marks them unsupported); open stretches ship with pull only if M2 passed, else as the row above | `clock` not shipped: removed from the authored kinds; the validator refuses a `clock` widget with a consequence line; quest deadlines read no release model | no pressure link; agendas unchanged | drop-path guard rows (validator refusal, planted-import control, guide drift); no complication rows |
+
+Phase 5 (N3/N5) is deferred to v2.8 13 in every branch (finding 14; `00-overview.md` §Deferred to v2.8).
+
+### Payload contracts (finding 11)
+
+- **Preservation baseline:** goldens from a pinned predecessor commit, taken before 32's first model-input change
+  and named in the manifest (`--label base`). The candidate never serves as its own baseline. C0 ↔ C3 checks
+  repeatability only.
+- **Off-path requests:** suggestions (`suggestions` pass), shared read / scene / epistemic passes, warden (with the
+  attention question) and curator. Each is captured at its request seam (the prompt handed to the Connection
+  Manager / judge client) with mocked answers, tier D. The dry-run tool sees only the main generation.
+
+| Contract | Off: byte-identical to base | On: asserted present | Negative control (must fail) |
+|---|---|---|---|
+| role line (34) | no `player` profile → no role block | role block in the resting prompt and each drafted member's request | delete the block |
+| open-stretch pull (35) | no `stretch` | no objective line; no pull before `pull_after`; pull line after it | inject the objective line |
+| check outcomes (36 Q3) | no checks | one outcome steering line per attempted check, no roll numbers | drop the outcome line |
+| agency notes (33 W2) | agency family `review` | the note at `continuityNote` on the next loud request | strip the note |
+| quest scope (36 Q1) | no quests → read prompt byte-identical | scope keys per quest status, cap respected | add an out-of-status key |
+| relationship scope (37 L1) | no relationships | axes of present members only, `REL_AXES_PER_READ` respected | add an absent member's axis |
+| privacy, every capture above | — | — | a synthetic held secret planted in a private source appears in no shared/off-path request and in no other member's request |
+
+### Rows added by the 2026-10-07 review
+
+| Row | Finding | Setup | Assertion | Tier |
+|---|---|---|---|---|
+| S-15 mixed-origin rollback | 15 | quest reward, agenda step, complication (if B2 built it) and stagecraft writes interleaved on the same WI target; swipe, edit, delete, reopen, cancellation, failed save, external edit | one chronological undo, newest write first, across all selected origins; origins survive compaction and hydrate; `externally-changed` recorded, never clobbered; host state = replay (rule 12) | D (fake-host jest + no-model scenario) |
+| S-16 quest lifecycle | 16 | ignored offer; offer → active; completion gate toggling; done and failed in one boundary; changed reward; story update after a reward | the lifecycle v2.7 36 defines (acceptance transition, terminal persistence, precedence, update reconciliation), handed to 36's builder; 0 host mismatches | D |
+| S-17 combined scope budget | 17 | 7-member cast, ≥ 3 active quests, relationships and card pulls in the same reads | 36's M1 token/latency floors and 37's M2 ceiling hold together; overflow priority as B2 decides; fairness: no active quest left out of scope for more than 3 consecutive reads; caps passing separately is not enough | CL |
+| S-19 OOC and story clock | 19 | group rounds, Continue, swipe, a marked OOC message, reopen | an OOC message counts no player turn, yields no extraction delta, ticks no agenda (35, 33, 37 rules); `story_day`/`time_of_day` move only by 37's producer; Continue/swipe/reopen ≡ continuous run | D + RP |
+| 33 W1 V7-live | 14 | a real `onEnter` NPC post and its `/cut` after an edited reply | ends like a replay of the edited chat, gate kept and gate broken | D (scripted) + CL |
+| 37 M3 | 18 | 7-member act pilot (37 §Measurement) | 37's M3 floor | RP + CL |
+
+Floors tightened before any run (finding 18): 32 W1 route A minimum render count; 35 M2 window and denominator; 36 Q3
+positive narration assertion; 37 M3 behavioural threshold; 38 C7 character-life exercise. The numbers live in those
+plans.
 
 ## C2 rows: tier-D scenarios for plans 01–10 (2026-10-07)
 
@@ -51,7 +132,7 @@ name), members, judge: "off"}` and mocks every model call; run each `node script
 
 | Row | File (`test/scenarios/`) | State | Not expressed (owner) |
 |---|---|---|---|
-| 01 in-app walk | `v27-d-01-in-app-walk.json` | written, not run | only the memory model is cleared, not every setting (journey `clearGlobalConfig`) |
+| 01 in-app walk | `v27-d-01-in-app-walk.json` | written, not run | only the memory model is cleared, not every setting (journey `clearGlobalConfig`); the clean-settings walk is C8b |
 | 02 C2-K1 | `v27-d-02-c2-k1.json` | written, not run | Help panel text not compared; both copiers on together, not one at a time (jest `secretLeak.test.ts`) |
 | 02 C11-F1a | `v27-d-02-c11-f1a.json` | written, not run | the typed reading is seeded in `typedRead.ts`'s shape (no judge on a no-model lane) |
 | 02 C13 | `v27-d-02-c13-curator-tiers.json` | written, not run | payload invariance of the curator prompt (jest pin `curatorTiers.review.test.ts`) |
@@ -67,21 +148,26 @@ name), members, judge: "off"}` and mocks every model call; run each `node script
 
 | Block | Lane-hours (est.) |
 |---|---|
+| B1 measurements (35 Phase 1 + M2 ≈ 7–9, 36 M1/M2 ≈ 2; 37 M1/M2 and S-17 are CL) | ~9–11 |
 | C4 journeys ×2 | ~6 |
-| C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 02/08–10 O-rows) | ~18–20 |
+| C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 37 M3, S-19, 02/08–10 O-rows) | ~19–21 |
 | C7 Adolion ×2 | ~6 |
-| C8 smoke | 0 (DeepSeek) |
-| **Total** | **~30–32 lane-hours ≈ 16–18 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $12–13; the approved ≈ $20 with a 150% stop covers it) |
+| C8 smoke, C8b stranger install | 0 (DeepSeek) |
+| **Total** | **~40–44 lane-hours ≈ 21–24 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $15–17; inside the approved ≈ 27 pod-hours / ≈ $20 with a 150% stop) |
 
 Pod rules: `v2.6 gotchas` (direct SSH tunnel, `MAX_UPTIME_HOURS`, restart renews the window, record ports); stop the
 pod at every pause; `test/sessions/BUDGET.md` updated per block.
 
 ## Close-out checklist
 
-- [ ] C0–C8 rows green ×2, or failed and recorded with a finding id and owner.
+- [ ] B0–B3 done before C0: version 2.7.0, manifest written, B2 decision record appended, its branch built.
+- [ ] Every manifest row has two evidence records, or is listed as missing (verdict INCOMPLETE, rule 8).
+- [ ] Verdict stated as ACCEPTED, PARTIAL or INCOMPLETE (rule 8). Each failed row has a finding id, owner and user
+      decision; a recorded player-facing failure is never ACCEPTED.
 - [ ] Every v2.7 plan's gate record cites its Phase C rows.
-- [ ] Release attestation (`docs/release/2.7.0/attestation.json`) cites archived records only.
-- [ ] Overview Status table final; v2.8 overview and `v2.8/01` rewritten for what remains.
+- [ ] Release attestation (`docs/release/2.7.0/attestation.json`) cites archived records only. `npm run test:release`
+      ran AFTER it was written and verified candidate commit, build and served hashes; drift fails the check.
+- [ ] Overview Status table final; v2.8 overview and `v2.8/01` rewritten for what remains (incl. §Deferred to v2.8).
 
 ## Decisions for the user
 
@@ -102,3 +188,26 @@ The payload-golden tool (C0/C3), `requires` on every scenario (C2), the de-pinne
 test cast (C6), the missing plan 01–10 D scenarios (C2), the guards the review lists (FLUX nodes, `.safetensors`
 literals, port/reserve literals, media allowlist, controller status, fail-open without the GPU plugin), and the floors
 written in 34, 37 and 38. Built in the 2026-10-07 fix wave; any still missing at freeze is a red C-row, not a skip.
+
+## Review 2026-10-07 (Sol)
+
+Source: `so-lanes/reviews/v27-plans-sol-2026-10-07.report.md` (read-only review at `1910441b`; private lane dir). The
+owner approved the recommended changes. Findings 4–10 are code defects fixed by another session (their rows land with
+those fixes). Finding 22 is void: images run on local ComfyUI by design, and RunPod is only for real-model volume, so
+C6 is unchanged.
+
+| Finding | Change | Where |
+|---|---|---|
+| 1 (blocker) | stage B (measure → decide → implement) before the freeze; SP6/M2 branch table, including complication clocks and dependent features; freeze only once caps, default paths and promotions are final; then the whole inventory ×2 | Rule 2, §Sequence B0–B3, §Stage B branches |
+| 2 (blocker) | ACCEPTED / PARTIAL / INCOMPLETE; a player-facing failure blocks ACCEPTED; a missing fixture, unrated evidence or missing prerequisite is never a skip | Rule 8, §Close-out checklist |
+| 3 | version 2.7.0 before freeze; attestation required; the release check runs after the attestation is written and verifies commit + served/build hashes; drift fails instead of logging | Rule 2, B0, Z, §Close-out checklist |
+| 11 | pinned predecessor baseline; feature off/on contracts; off-path captures; negative controls | C0, C3, §Payload contracts |
+| 12 | `prod` vs `dev-diagnostic` rows; shipped seal settings | Rule 9 |
+| 13 | row manifest (O13b, O15, O16, C14-b included in C5); reset contract; guide-only stranger install | Rules 10–11, C5, C8b |
+| 14 | W1 V7-live restored; N6 nudge, J7.2 and N3/N5 consumers + replay tooling deferred to v2.8 13 | §Rows added, §Stage B branches, `00-overview.md` §Deferred to v2.8 |
+| 15, 16, 17 | rows S-15, S-16, S-17 | §Rows added |
+| 18 | tightened floors listed; replay against captured inputs | §Rows added, Rule 12 |
+| 19 | row S-19 (OOC + story clock) | §Rows added |
+| 20 | C2 checks rendered targets, including the Studio link with the modal open | C2 |
+| 21 | ratchet/budget compare against the fixed predecessor; coordinator 560; main-entry headroom budgeted | C1b |
+| 23 | the model-location prerequisite follows v2.7 rule 8 (existing image models stay on `C:`); 38's gate line fixed | v2.7 38 |

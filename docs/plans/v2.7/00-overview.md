@@ -41,7 +41,9 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
    approved. Floors are predeclared and never retuned.
 4. **Findings cite their source** (session dir, `v2.6/14-findings.md` row, review ledger id, or the user's report).
 5. **Gates: D first, real model allowed** (user 2026-10-07; was "deterministic only"). Every item builds and passes
-   at tier D first; acceptance may use CL, RP (RunPod for volume), LI. Phase C (v2.7 39) runs all of it from zero.
+   at tier D first; acceptance may use CL, RP (RunPod for volume), LI. Measurements that decide what ships run in
+   v2.7 39 stage B, before the freeze; Phase C then runs the whole manifest from zero, and v2.7 closes ACCEPTED only
+   when every row is green ×2 with no player-facing failure (39 rule 8; review 2026-10-07).
 6. **A change to what reaches the model declares it** and carries a payload-invariance check (dry-run capture,
    byte-identical except the declared diff) plus its real-model acceptance row in v2.7 39.
 7. **Group chats only** (v2.7 03). No plan adds solo behaviour. A solo chat appears in a gate only as a control (the
@@ -86,14 +88,29 @@ Plans 01–28 below are history: built or recorded, every gate re-run in Phase C
 | 32 | `32-images-and-living-characters.md` | completes 17–21/24/26 + 28's product pieces: route A default, talking sprites, living cards, changed looks | 31 | D, LI, CL | built, on master 2026-10-07 (gates green; live rows in 39) |
 | 33 | `33-player-loop-fixes.md` | edit re-read, agency notes reach players, responsiveness + repetition, "What could I do?" | — | D, CL, RP | built, on master 2026-10-07 (gates green; live rows in 39) |
 | 34 | `34-player-persona-and-start-setup.md` | who you are in this story (was v2.8 03) | 05 | D, RP | built, on master 2026-10-07 (S30-1 + RP rows in 39) |
-| 35 | `35-world-pressure-and-open-stretches.md` | SP6 measurement, open stretches, the one complication component, stall/adversity signals | 33 W2 | D, RP | phase 2 built, on master 2026-10-07; SP6 + N3/N5 prepared, phases 3–4 wait on M2 (39) |
+| 35 | `35-world-pressure-and-open-stretches.md` | SP6 measurement, open stretches, the one complication component, stall/adversity signals | 33 W2 | D, RP | phase 2 built, on master 2026-10-07; SP6 + M2 run in 39 B1, phases 3–4 + encounters (or the drop path) built in 39 B3 before freeze; Phase 5 deferred to v2.8 13 |
 | 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | building 2026-10-07 |
 | 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | decided (v2.8) |
 | 38 | `38-adolion-campaign.md` | campaign upkeep + Saga assets/outfits + lab copies for 35–37 (was v2.8 02; 07 A3/A6 live, 28 assets) | 32, 35–37 | D, LI, RP | decided (v2.8) |
-| 39 | `39-test-from-zero.md` | Phase C: freeze, every row ×2 from zero, real-model and image acceptance, close-out | all | all | seeded |
+| 39 | `39-test-from-zero.md` | stage B (measure → decide → implement), then Phase C: freeze, every manifest row ×2 from zero, real-model and image acceptance, close-out with verdict ACCEPTED / PARTIAL / INCOMPLETE | all | all | seeded; amended by review 2026-10-07 |
 
-Phase A (29–31) first; 32 and 33 in parallel; 34 → 35 (measure first) → 36 → 37; 38 alongside 35–37 (lab copies) and
-after 32 (assets); 39 last. Each plan's own §Decisions must be answered before it is built (rule 3).
+Phase A (29–31) first; 32 and 33 in parallel; 34 → 35 → 36 → 37; 38 alongside 35–37 (lab copies, due before 39 B1)
+and after 32 (assets); then 39 **stage B before the freeze** (review 2026-10-07 finding 1). B1 runs the measurements
+(35 SP6 + M2, 36 Q1 M1/M2, 37 M1/M2, the combined scope budget S-17). B2 records the verdicts, caps and promotions.
+B3 builds the chosen branch (35 Phases 3–4 + encounters, or the drop path; 36 `clock` or not; 37 caps). Only then
+C0 freeze and the full inventory ×2. Each plan's own §Decisions must be answered before it is built (rule 3).
+
+## Deferred to v2.8 (review 2026-10-07, finding 14)
+
+No v2.7 owner. These are explicitly out of the v2.7 freeze and are not Phase C rows.
+
+| Item | From | To | Reopen when |
+|---|---|---|---|
+| N6 repetition nudge (warden note) | v2.7 33 W3 | v2.8 13 | a session-mined, second-model-checked fixture exists |
+| J7.2 canon verification | v2.7 33 W3 | v2.8 13 | its evidence set (live facts vs transcript) is decided and its ≥ 20-sentence fixture exists |
+| N3/N5 consumers + `--replay` tooling (P5) | v2.7 35 Phase 5 | v2.8 13 | P5 tooling built; N5 also needs 35 Phase 4's `quiet` |
+
+The Author-view N6 readout and the N3/N5 fixtures stay as built.
 
 ## Build order (2026-10-03, history)
 
@@ -245,3 +262,18 @@ B12/F36 (rule 12), K1–K3 (step 0), Sol split items 2 (owed rows → v2.8 01), 
 findings are listed in each plan's own "Review 2026-10-03" section.
 
 Round 3 (Sol): R3-15 applied; its homes decided by the user 2026-10-03 (as recommended, §Decisions).
+
+## Review 2026-10-07 (Sol)
+
+An independent review of plans 29–39 at `1910441b` (report in the private lane dir
+`so-lanes/reviews/v27-plans-sol-2026-10-07.report.md`). The owner approved the recommended changes. Per-plan tables
+are in 29, 30, 32, 33, 35, 37, 38 and 39. 36 is under construction, so only its Q1 combined-budget line and its Q3
+floor were edited, each marked inline. Findings 4–10 are code defects fixed by another session. Finding 22 is void:
+images run on local ComfyUI by design, RunPod is only for real-model volume.
+
+| Finding | Change | Where |
+|---|---|---|
+| 1 | stage B (measure → decide → implement) before the freeze | rule 5, §Build order (2026-10-07) text, row 35, row 39 |
+| 2 | ACCEPTED / PARTIAL / INCOMPLETE | rule 5 → 39 rule 8 |
+| 14 | deferrals listed | §Deferred to v2.8 |
+| 23 | rule 8's existing-image-model exception is the one that applies; 38's stale gate line reconciled | rule 8 (unchanged), v2.7 38 |

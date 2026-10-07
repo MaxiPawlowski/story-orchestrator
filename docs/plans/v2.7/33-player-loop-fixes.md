@@ -209,6 +209,21 @@ the current objective or an open thread; 0 suggestions that state an outcome for
 3. W4 projection module, then the panel (independent of W1–W3).
 4. W3 fixtures and replay (D) in parallel with W2; N1 consumer after W2; N6 miner any time; J7.2 after its fixture.
 5. Acceptance (CL/RP) rows batch into v2.7 39 Phase C; W2's floor needs the v2.8 01 §G session.
+6. **Owners before the freeze (review 2026-10-07 finding 14).**
+
+   | Item | State at review | Decision |
+   |---|---|---|
+   | N6 nudge (warden note, cooldown 6) | not built; needs a session-mined, second-model-checked fixture | **deferred to v2.8 13**; the Author-view readout ships as built |
+   | J7.2 canon verification | not built; evidence set (live facts vs transcript) undecided, no fixture | **deferred to v2.8 13** with that design question |
+   | W1 V7 real `onEnter` post + `/cut` | approximated in the harness only | **v2.7 39 row "33 W1 V7-live"** (scripted post + `/cut` after an edit, gate kept and broken) |
+
+   Listed in `00-overview.md` §Deferred to v2.8.
+7. **OOC interaction (finding 19), owned here for extraction.** A user line that is wholly OOC (wrapped in `((…))`, or
+   starting `OOC:` / `(OOC`; the same predicate as v2.7 35's turn counter) stays in the transcript the model sees.
+   Its own deltas, facts and epistemic lines are dropped at apply, with the drop journaled for the author. It does not
+   start an edit re-read (W1) and is not a player turn for the warden's `player_message`. A correction meant to change
+   state goes through an edit or the author tools. Jest: an OOC line with a plantable delta stores nothing; an
+   in-fiction line still does; rollback ≡ replay with OOC lines. Live row v2.7 39 S-19.
 
 ## Decisions for the user
 
@@ -372,3 +387,13 @@ loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak,
   ≥ 75 % fits, ≥ 90 % of sets engage the objective or a thread, 0 outcomes stated, 0 duplicates of the last line,
   p95 click-to-fill ≤ 10 s); "no unreached checkpoint name in 10 runs" string check; `assert-player-clean` with the
   panel open; Storybook interaction + a11y at 390/768/1440.
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol). Findings 7, 8 and 10 (suggestion names, suggestion privacy, the swipe
+window) are code defects handled by another session; the Gate record is unchanged.
+
+| Finding | Change | Where |
+|---|---|---|
+| 14 | N6 nudge and J7.2 deferred to v2.8 13 (explicit); W1's real `onEnter` post + `/cut` case restored as 39 row "33 W1 V7-live" | §Order and dependencies 6; v2.7 39 §Rows added |
+| 19 | OOC lines: kept in the transcript, their extracted state dropped and journaled; they start no re-read and are no warden player turn; shared predicate with 35/37; 39 S-19 | §Order and dependencies 7 |

@@ -68,8 +68,10 @@ Tiers per `00-overview.md` §Gate taxonomy. "Model input" = whether the change a
 - Model input: no (director prompt unchanged).
 - Gate: D (`npm run gates`; probe/Repair fixtures) + LI (ST `comfy` source on the local ComfyUI) + CL (DeepSeek
   director). A cloud ST source only with the user's approval (v2.7 17 §Gates).
-- Floor (proposed): story-authored illustrations at 10 checkpoint/scene cues per run, 10 of 10 render or refuse with a
-  named reason, 0 silent failures, ×2; template arm with no director profile the same.
+- Floor (proposed; tightened by review 2026-10-07 finding 18 before any run): story-authored illustrations at 10
+  checkpoint/scene cues per run. **≥ 9 of 10 render** (an image delivered and shown); the rest refuse with a named
+  reason; 0 silent failures; ×2. A run of refusals fails however well named. The template arm with no director
+  profile has the same floor.
 
 ### W2. Route B: discovery-based defaults (R1)
 
@@ -336,3 +338,12 @@ and 390×844 (QA ≥ 90 % first seed; perf floors; seam/pop ≤ 5 % second-model
 appearance change + expression switch (a reply waits at most one edit; W6 QA floor on look frames); W8 S32-1 ×2 on
 RunPod (unchanged fixture, N = 30 per arm, baseline must be worse, `cardOverlay` stays off otherwise) and S32-2 full
 matrix + lifecycle; the director payload acceptance row (rule 6).
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol).
+
+| Finding | Change | Where |
+|---|---|---|
+| 18 | route A "10 of 10 render or refuse" → ≥ 9 of 10 render, the rest refuse with a named reason, 0 silent; template arm the same | §W1 Floor |
+| 22 | void (owner): images run on local ComfyUI by design, RunPod is only for real-model volume; C6 unchanged | — |

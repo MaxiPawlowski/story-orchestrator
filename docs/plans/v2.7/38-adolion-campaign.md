@@ -19,10 +19,10 @@ track (now v2.7 17–20) keeps the models where they are and copies nothing.
 
 | # | Step | Why | Depends on | Tier |
 |---|---|---|---|---|
-| A4 | **Lab data for v2.8 measurements:** about 20 labelled relationship-read windows (v2.8 20 M1); a lab copy of the academy act with quest-shaped qualities (v2.8 18 M1/M2), whose existing 0–3 clue counter is a natural first quest; stretch-length data for v2.8 19 (how long the 13 downtime/road stubs ran in the v2.6 sessions). Labels drawn from session evidence get a second-model check, never the user (review B4) | v2.8 18/19/20 gate on Adolion-lab measurements | those plans' formats | D (data), CL (second-model label check) |
+| A4 | **Lab data for the v2.7 35–37 measurements** (consumers renumbered 2026-10-07; review 2026-10-07 finding 23): about 20 labelled relationship-read windows (v2.7 37 M1); a lab copy of the academy act with quest-shaped qualities (v2.7 36 Q1 M1/M2), whose existing 0–3 counter is a natural first quest; stretch-length data for v2.7 35 M1 (how long the 13 downtime/road stubs ran in the v2.6 sessions) and the stub lab copy for 35 M2; the SP6 lab journeys (35 Phase 1). Labels drawn from session evidence get a second-model check, never the user (review B4). Needed before v2.7 39 stage B1 | v2.7 35/36/37 gate on Adolion-lab measurements before the freeze | those plans' formats | D (data), CL (second-model label check) |
 | A5 | **Playtest fix round:** campaign-side findings from the user's sessions, each citing its session (rule 3) | the user's own play | playtest | D |
 | D13a | **`player` blocks:** one story `player` profile per story (nine), from the authored player copy; checked by `scripts/check_player_copy.py` (spoiler terms) extended to `player` text; content review by an independent model, not the user | v2.8 03 decision 6 ("Adolion gets `player` blocks after the format lands") | v2.8 03 format built | D + CL (review model) |
-| D13b | **`render_sprites.py` paths off `C:`:** `COMFY_DIR` and the Python path are hard-coded (`scripts/render_sprites.py:102-103`, both on `C:`); take them from env/config, put model weights and caches on the non-`C:` drive, start ComfyUI through the tray entry instead of `subprocess.Popen` (rule 5) | models off `C:`; every server in the tray | tray ComfyUI entry (exists, 2026-10-03) | LI (one set re-rendered byte-equivalent or QA-equivalent) |
+| D13b | **`render_sprites.py` paths from config:** `COMFY_DIR` and the Python path are hard-coded (`scripts/render_sprites.py:102-103`, both on `C:`); take them from env/config, start ComfyUI through the tray entry instead of `subprocess.Popen` (rule 5). Model weights and caches stay where they are (v2.7 rule 8 exception; review 2026-10-07 finding 23) | portability; every server in the tray | tray ComfyUI entry (exists, 2026-10-03) | LI (one set re-rendered byte-equivalent or QA-equivalent) |
 | D13c | **`--anim` frames:** blink/mouth variant frames per expression for the sets v2.7 19 animates, through the same edit pipeline, after spike S28 decides the frame count (2 vs 3) | v2.7 19 | v2.7 19 S28 + v2.7 18 builder contract | LI |
 | D13d | **Narrow the campaign `extractor_trigger`s** (review C7): broad triggers made one lab turn produce 9 identical cue reads (`v2.8/15-cue-scene-read-merge.md` History). Tighten each to its transition's intent; `scripts/check_triggers.py` gains a coverage gate (every gating transition keeps a trigger that matches its labelled positive lines and none of its negatives) | v2.8 15 decision: "triggers first" | none | D (offline gate) + CL (one lab run: cue reads per turn before/after) |
 | D13e | **Dated asset inventory** (review D15): one table in `docs/FEATURE-COVERAGE.md` with the date, and each count's denominator stated (sets covered vs PNG files vs expressions per set), so v2.7 17/18/19/20 cite one source | counts in v2.7 17 and 07 disagreed because they counted different things | none | D |
@@ -56,7 +56,9 @@ Decisions 1 and 2 are carried out in v2.7 07. Decision 3 holds here.
   tutorial example; `check_player_copy.py` and `check_triggers.py` with the new coverage rule.
 - Plugin side: any campaign change that reaches an adolion-fresh lane moves the pin once and re-freezes `test:debug`
   integration runs in the same change (v2.7 07 A3 rule).
-- D13b: tray status OK for ComfyUI; no model or cache path on `C:` (asserted by the script at start).
+- D13b: tray status OK for ComfyUI; `COMFY_DIR` and the Python path come from env/config, and no hard-coded `C:`
+  script path remains (asserted by the script at start). Model and cache locations are NOT asserted: the existing
+  image models stay on `C:` (v2.7 rule 8; header and §Model-storage correction; review 2026-10-07 finding 23).
 - D13d: cue reads per turn on the lab hub checkpoint recorded before and after; no gating transition loses its trigger.
 
 ## Links
@@ -79,5 +81,22 @@ checkpoint, memory counts and talk state; one swipe + one edit roll back and rep
 `assert-player-clean` green; no ComfyUI call unless the story enables images. Reports carry pass/fail and counts only
 (no campaign content; v2.7 rule 11).
 
+**Added by review 2026-10-07 (finding 18):**
+- "Replay to the same state" means the run's captured accepted inputs (audits, accepted deltas, typed reads) applied
+  to the edited chat (v2.7 39 rule 12). It does not mean a regenerated reply.
+- The story that pilots character life (the 7-member act, decision 3) must exercise it on each run: ≥ 1 relationship
+  axis moved by a read, ≥ 1 agenda step advanced and reverted by the swipe, ≥ 1 schedule drop driven by the story
+  clock, ≥ 1 mood re-read at a scene break. Without them the run is INCOMPLETE for that story, not a pass. The quest
+  pilot (academy act) needs ≥ 1 quest activated and ≥ 1 step done. Counts only in reports.
+
 Owned here from v2.7 31 §B: the Saga/campaign scripts (`so-saga-*`, `saga-*.py`, `so-adolion-rollout`,
 `so-production-rollout`) and lane-pinned scenarios, de-pinned to `requires.group` by name.
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol). Campaign references stay abstract (rule 11).
+
+| Finding | Change | Where |
+|---|---|---|
+| 18 | C7 must exercise the new character-life (and quest-pilot) behaviour, or the run is INCOMPLETE; replay means captured accepted inputs | §C7 integration criteria |
+| 23 | D13b and its gate line now match the header: script paths from config, models stay where they are (rule 8 exception); A4's consumers renumbered to v2.7 35/36/37 and due before 39 stage B1 | §Steps A4, D13b; §Gates |

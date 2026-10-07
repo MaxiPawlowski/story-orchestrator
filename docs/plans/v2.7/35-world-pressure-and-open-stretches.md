@@ -58,7 +58,10 @@ trigger seam, one owner.
   removed (`DROPPED_SPIKES` in `devOnly.guard.test.ts` gains it, planted-import control, `install.ts` keeps the SP7 draw
   ring); the campaign's pools stay as inert data the guide marks unsupported; the validator refuses `stretch.pressure`
   and any `trigger`; Phase 4 is not built; Phase 5 consumers may only feed the steering hint and the author panel.
-  Open stretches (Phase 2) still ship, with pull and no pressure.
+  Open stretches (Phase 2) still ship, with pull and no pressure. The encounter pool also needs M2 to pass. **Dependents
+  (finding 1):** v2.7 36's `clock` widget is not shipped (removed from the authored kinds, refused by the validator with
+  a consequence line); quest deadlines read no release model; v2.7 37 agendas get no pressure link. Full table: v2.7 39
+  §Stage B branches.
 
 ### Phase 2 — Open stretches, engine half (was v2.8 19, buildable before Phase 1's verdict)
 
@@ -80,7 +83,13 @@ trigger seam, one owner.
 - Floors: **M1** (no new runs, v2.6 session evidence): stub stretch lengths, refusal/agency-recovery rate in generated
   stub beats, flags in stubs vs anchors; a baseline, not a gate. **M2** (verbatim v2.8 19): "0 narrated player
   decisions in open stretches; the player reaches the destination by their own move in at least 90% of runs; every run
-  past `pull_after` player turns shows at least one hook within the pull window." Blind "felt free" vs "felt steered"
+  past `pull_after` player turns shows at least one hook within the pull window." **Window and denominator (review
+  2026-10-07 finding 18, fixed before any run):** the pull window is the 6 player turns after `pull_after`
+  (`pull_after + 1` … `pull_after + 6`). A run ends when `arrive_when` holds, or at a hard cap of `pull_after + 12`
+  player turns (or `max_turns` when it is lower). A run that hits the cap without arriving counts as "not by own move".
+  A hook is an in-fiction event or prompt that points toward the destination, labelled by a second model. Denominators:
+  the 90 % floor is over every run of the arm (3 stubs × 2 runs = 6, so 6 of 6); the hook floor is over the runs that
+  reached `pull_after + 1`; the narrated-decision count is over every reply in every run. Blind "felt free" vs "felt steered"
   on paired excerpts, rated by a second model, never the user (v2.8 rule 11). Engine: proposed — rollback ≡ replay 0
   mismatches over 4 seeds × 100 cuts (K1's shape).
 
@@ -89,7 +98,8 @@ trigger seam, one owner.
 - Touches model input: **yes** (a registered injection on the next loud request).
 - Design as v2.8 17 §Plan Step 2 (carried): typed `checkpoints[].complications: Array<string | {id, text}>` and
   `complication_after` (default 3) in `schema.ts` + validator with consequence lines; pure release logic in
-  `src/pacing/complications.ts`; written by `pacingCoordinator` (budget 620; manager untouched at 700) following the
+  `src/pacing/complications.ts`; written by `pacingCoordinator` (coordinator budget **560**, the ratchet in
+  `test/findings/codeHealth.json`; manager untouched at 700) following the
   outermost loud generation (`runtime/generationLifecycle.ts`); registered in `INJECTION_REGISTRY` at a justified depth
   (5 is the ledger's; collision check `injectionRegistry.ts:55-70`); spent-ness derived from the log plus a per-chat
   field rolled back by boundary (replaces the in-memory map); author surfaces (inline chip, inspector, journal, driver
@@ -146,6 +156,20 @@ owned by this plan. Not three.
 ## Dependencies
 
 - Phase 1 → Phase 3 → Phase 4 (v2.8 00-overview 17 → 18 → 19). Phase 2 is independent of Phase 1's verdict.
+- **Before the v2.7 freeze** (review 2026-10-07 finding 1): Phase 1 and the M2 A/B run in v2.7 39 stage B1 on the
+  pre-freeze build. The verdicts are recorded in B2. Phases 3–4 and the encounter pool (or the drop path) are built in
+  B3. 39 §Stage B branches lists what each verdict means for this plan, for v2.7 36's `clock` and for v2.7 37. C5
+  re-runs the measurements on the frozen candidate.
+- **Phase 5 deferred to v2.8 13** (finding 14): the N3/N5 consumers and the `--replay` tooling (P5) have no v2.7 owner.
+  The fixtures built here stay as v2.8 13's inputs. `00-overview.md` §Deferred to v2.8.
+- **OOC turns** (finding 19). A whole-message OOC user line does not count toward `player_turns_in_checkpoint`.
+  Marked means wrapped in `((…))`, or starting `OOC:` / `(OOC`. The rule sits in the derive seam
+  (`runtime/stretchTurns.ts`); the same predicate is shared with v2.7 33's extraction rule and v2.7 37's agendas.
+  Tests: an OOC line inside a group round leaves the count unchanged, and deleting it changes nothing; property
+  rollback ≡ replay with OOC lines in the generator. Row v2.7 39 S-19.
+- Bundle (finding 21): Phase 3's validator, release logic and guidance strings record their main-entry cost in B3.
+  Main entry measured 1,217,068 B of 1,250,000 B at `1910441b`. Anything outside parse and the reply path goes to a
+  lazy chunk.
 - Phase 5 after Phase 2 (needs `quiet`/stall columns) and after v2.8 13's spike programme tooling (`--replay`, P5).
 - **v2.7 33 W2** before any Phase 5 output reaches a player as a note.
 - v2.7 03 group chats only; v2.7 01 feature registry + Help; v2.7 06 C9 (b) Activity panel (Phase 3 row).
@@ -316,3 +340,16 @@ does not exist, and the N5 judge-off column needs Phase 4's `quiet`.
 ### Placeholder values (measure, never retune silently)
 
 `PACE_PULL_AFTER` brief 3 / unhurried 6 / long 10; `PULL_STEADY_AFTER` 3.
+
+## Review 2026-10-07 (Sol)
+
+Source: v2.7 39 §Review 2026-10-07 (Sol). Finding 9 (stretch exits) is a code defect handled by another session; the
+Gate record is unchanged.
+
+| Finding | Change | Where |
+|---|---|---|
+| 1 | Phase 1 + M2 run in 39 stage B1, before freeze; Phases 3–4/encounters (or the drop path) built in B3; the FAIL branch names what happens to 36 `clock` and 37 | §Phase 1 (FAIL paragraph), §Dependencies |
+| 14 | Phase 5 (N3/N5 consumers, `--replay` tooling) deferred to v2.8 13; the fixtures stay as v2.8 13's inputs | §Dependencies |
+| 18 | M2 pull window (6 player turns), run end (arrival or `pull_after + 12`), hook labelling and the denominators fixed before any run | §Phase 2 Floors |
+| 19 | marked OOC lines do not count toward `player_turns_in_checkpoint`; predicate shared with 33 and 37; row 39 S-19 | §Dependencies |
+| 21 | coordinator budget 620 → 560 (the actual ratchet); Phase 3 main-entry cost budgeted against the 1,217,068 B measurement | §Phase 3, §Dependencies |

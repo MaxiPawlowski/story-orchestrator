@@ -66,7 +66,9 @@ Every row: ownership census rows for any write after an await; fault-matrix rows
 - Floors (**proposed**, frozen before the run): **M1** arms 0/5/10/20 extra active qualities on the academy-act lab copy,
   DeepSeek read model: no tier (`plotDeltaAccuracy`, facts, rejected) drops more than **3 points** vs arm 0; prompt
   tokens per read **≤ +15 %**, p50 read latency **≤ +20 %**; the highest passing arm sets `QUEST_SCOPE_CAP` (floor 5;
-  if arm 5 fails, Q1 ships without side quests discovered by extraction). **M2** completion recall on **20** labelled
+  if arm 5 fails, Q1 ships without side quests discovered by extraction). **Combined budget (review 2026-10-07
+  finding 17):** quests, v2.7 37 relationships and the existing card pulls are measured together in row v2.7 39 S-17
+  (stage B1, before freeze). This cap passing alone does not accept the combined feature. **M2** completion recall on **20** labelled
   cases (second-model labels, never the user): `done_when` latched within **N = 3 player turns** of the act in
   **≥ 0.80** of cases, false latches **≤ 1 of 20**.
 
@@ -88,7 +90,9 @@ Every row: ownership census rows for any write after an await; fault-matrix rows
 - Gate: jest per R3-06 (failed public check with transition unfired → one record; group round of 3 replies → one; rope
   found → second record; swipe and reopen → identical); payload invariance (no checks → byte-identical). Floor
   (**proposed**): RP, 20 public checks across the pilot, narrator contradicts the given outcome in **≤ 1**
-  (second-model labelled).
+  (second-model labelled), **and** the narration shows the given outcome (its consequence is visible in the reply,
+  second-model labelled) in **≥ 18 of 20**. A reply that ignores the outcome counts against the second floor, not as
+  "no contradiction" (review 2026-10-07 finding 18).
 
 ### Q4. Milestones
 
