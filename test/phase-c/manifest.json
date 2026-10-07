@@ -220,8 +220,9 @@
       "prerequisites": [
         "stub lab copy (2–3 downtime/road stubs made open, owned by v2.7 38)",
         "3 stubs x 2 arms x 2 runs",
-        "second-model hook labeller",
-        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+        "second-model hook labeller: --labeller <profile>, never the reply profile",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "runner: `node scripts/debug/so-b1-hooks.mts label --runs <private runs.json> --labeller <profile> --run <n>` (record test/phase-c/records/35-M2/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "adolion",
       "tier": [
@@ -247,8 +248,9 @@
       },
       "prerequisites": [
         "academy-act lab copy with quest qualities (v2.7 38 A4)",
-        "arms 0/5/10/20 extra active qualities",
-        "DeepSeek read profile"
+        "arms 0/5/10/20 extra active qualities (campaign lab/quests/academy-quests.arm-{0,5,10,20}.story.json, by path)",
+        "DeepSeek read profile",
+        "runner: `node scripts/debug/so-b1-quest-scope.mts m1 --lab <campaign lab/quests> --profile <read profile> --run <n>` (record test/phase-c/records/36-Q1-M1/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -273,7 +275,8 @@
       },
       "prerequisites": [
         "20 labelled completion cases (second-model labels, v2.7 38 A4)",
-        "DeepSeek read profile"
+        "DeepSeek read profile",
+        "runner: `node scripts/debug/so-b1-quest-scope.mts m2 --lab <campaign lab/quests> --profile <read profile> --run <n>` (record test/phase-c/records/36-Q1-M2/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -302,7 +305,8 @@
       "prerequisites": [
         "~20 labelled academy/7-member-act lab windows (v2.7 38 A4)",
         "arms (a) value hidden, (b) shown, (c) typed judge (TypeSafe)",
-        "DeepSeek read profile"
+        "DeepSeek read profile",
+        "runner: `node scripts/debug/so-b1-life-reads.mts m1 --lab <campaign lab/life> --profile <read profile> --run <n>` (record test/phase-c/records/37-M1/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -330,7 +334,8 @@
       ],
       "prerequisites": [
         "N relationship axes in {2, 4, 8, 16} per read",
-        "20 lab windows"
+        "20 lab windows",
+        "runner: `node scripts/debug/so-b1-life-reads.mts m2 --lab <campaign lab/life> --profile <read profile> --run <n>` (record test/phase-c/records/37-M2/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -358,7 +363,8 @@
       ],
       "prerequisites": [
         "7-member cast, ≥ 3 active quests, relationships and card pulls in the same reads",
-        "DeepSeek read profile"
+        "DeepSeek read profile",
+        "runner: `node scripts/debug/so-b1-combined-scope.mts run --row S-17 --lab <campaign lab/life> --profile <read profile> --run <n>` (record test/phase-c/records/S-17/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -385,7 +391,8 @@
         "37-S17 combined scope budget"
       ],
       "prerequisites": [
-        "S-17 setup with relationships registered (`relationship` scope source)"
+        "S-17 setup with relationships registered (`relationship` scope source)",
+        "runner: `node scripts/debug/so-b1-combined-scope.mts run --row 37-S17 --lab <campaign lab/life> --profile <read profile> --run <n>` (record test/phase-c/records/37-S17/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -413,8 +420,9 @@
       ],
       "prerequisites": [
         "test/fixtures/meanwhile-proposals.cases.json (20 cases)",
-        "globalThis.storyOrchestratorAgendaProposals.propose() on the CL route",
-        "second-model labels"
+        "propose()'s prompt and parser (buildMeanwhilePrompt / parseMeanwhile) per case through globalThis.storyOrchestratorLiveSuite.runMeanwhileCase on the CL route (propose() itself reads the open chat, not a case)",
+        "second-model labels: --labeller <profile>, never the curator profile",
+        "runner: `node scripts/debug/so-b1-meanwhile.mts run --profile <curator profile> --labeller <profile> --run <n>` (record test/phase-c/records/37-L3/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -443,7 +451,8 @@
       "prerequisites": [
         "test/fixtures/judge/spike-voice.json with its 20 rows collected (owed by v2.7 38)",
         "judge.uses.wardenVoice",
-        "TypeSafe key"
+        "TypeSafe key",
+        "runner: `node scripts/debug/so-judge.mts calibrate --use warden-voice --lab <campaign lab/life> --run <n>` (record test/phase-c/records/37-L6-C/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -474,8 +483,9 @@
         "wardenEnabled + judge.uses.wardenLore on",
         "adolion-fresh lane playing a lore story with real replies",
         "≥ 100 warden and ≥ 100 lore-check calls per run",
-        "plugin /status sampled per call",
-        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+        "plugin /status sampled per call (scripts/debug/so-b1-judge-causes.mts follow --out <calls.jsonl>, beside so-journal.mts follow, for the whole play)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "runner: `node scripts/debug/so-b1-judge-causes.mts score --row B1-C3 --calls <journal-follow.jsonl> --samples <calls.jsonl> --turns <turns.jsonl> --run <n>` (record test/phase-c/records/B1-C3/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "adolion",
       "tier": [
@@ -504,7 +514,8 @@
       ],
       "prerequisites": [
         "the B1-C3 runs",
-        "lore_select stories, judge.uses.loreSelect on"
+        "lore_select stories, judge.uses.loreSelect on",
+        "runner: `node scripts/debug/so-b1-judge-causes.mts score --row B1-C12 --calls <journal-follow.jsonl> --turns <turns.jsonl> --run <n>` (record test/phase-c/records/B1-C12/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "adolion",
       "tier": [
@@ -544,6 +555,35 @@
       "floor": {
         "text": "preference share (floor ≥ 60 %) and p95 latency vs control (floor ≤ 2×)",
         "citation": "39 §B1 rows from v2.8 01 (B1-R4); v2.8 01 §E"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "B1-PAR",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 39a",
+        "section": "§Hardware (B1 pod); 39 §B1 rows from v2.8 01"
+      },
+      "labels": [
+        "B1-PAR LLM_PARALLEL sizing on the B1 pod"
+      ],
+      "prerequisites": [
+        "one RunPod RTX PRO 6000 Blackwell (96 GB, Secure) with the Artemis GGUF, llama-server restarted per arm with LLM_PARALLEL 2, 4 and 6 (same args otherwise)",
+        "real Phase C load: as many adolion-fresh model lanes as the arm's LLM_PARALLEL, each playing its first B1 row",
+        "llama-server /slots or per-request timings readable (tokens_evaluated, predicted_per_second); run header records LLM_PARALLEL"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm (LLM_PARALLEL 2 / 4 / 6, ~5 min each in the first ~15 min of B1): per-stream tok/s (p50, min), prompt tokens per request (tokens_evaluated p50, p95) and turns/hour across the lanes; the chosen count is the arm with the most turns/hour whose per-stream rate stays at or above 25 tok/s, and B1 runs with that many model lanes",
+      "floor": {
+        "text": "chosen LLM_PARALLEL keeps per-stream ≥ 25 tok/s (p50 over the arm) and has the most turns/hour of the qualifying arms; no arm qualifies → fallback 2–3 × RTX PRO 4500",
+        "citation": "v2.7 39a §Hardware (B1 pod), owner decision 2026-10-07"
       },
       "evidence": [
         null,
@@ -3195,15 +3235,14 @@
         "section": "§W1 Floors V0"
       },
       "prerequisites": [
-        "the user's post-processor named (Recast-shaped fixtures stand in)",
-        "spikes.editReread on"
+        "the reference post-processor (test/fixtures/postprocessor/; the user runs none, 2026-10-07)",
+        "jest over src/runtime/spikes/editReread.review.test.ts (spike flag spikes.editReread on in the harness)"
       ],
-      "reset": "lane",
+      "reset": "local",
       "tier": [
-        "D",
-        "RP"
+        "D"
       ],
-      "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced",
+      "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced: the Regex placement and an in-round rewrite reach no cycle, a late post-render burst holds the reply until the last text is read, the v2.6 control reproduces",
       "floor": {
         "text": "the \"no audit\" case explained; the user's post-processor's event order traced",
         "citation": "v2.7 33 W1 V0"
@@ -3211,6 +3250,9 @@
       "evidence": [
         null,
         null
+      ],
+      "labels": [
+        "33 W1 V0 traced"
       ]
     },
     {
@@ -3221,15 +3263,16 @@
         "section": "§W1 Floors V3"
       },
       "prerequisites": [
-        "adolion-fresh lane, spikes.editReread on, post-processor leg",
+        "a model lane with the toy group \"Group: Arin, DM Narrator\" (Arin and DM Narrator enabled), dev build",
+        "fixture test/scenarios/v27-33-v3-postprocessor.json (reference post-processor test/fixtures/postprocessor/; it switches spikes.editReread on and restores it)",
         "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
       ],
-      "reset": "adolion",
+      "reset": "lane",
       "tier": [
         "CL",
         "RP"
       ],
-      "assertion": "the next request carries the settled text in every burst case",
+      "assertion": "the next request carries the settled text in every burst case: regex leg no edit seen; post-render single, double and late each carry only the next checkpoint's marker and the settled text, no hold timeout",
       "floor": {
         "text": "the next request carries the settled text in every burst case, ×2",
         "citation": "v2.7 33 W1 V3"
@@ -3237,6 +3280,9 @@
       "evidence": [
         null,
         null
+      ],
+      "labels": [
+        "33 W1 V3 post-processor"
       ]
     },
     {
@@ -3887,7 +3933,8 @@
         "section": "§M1; 39 C5 (37 M1, M3)"
       },
       "prerequisites": [
-        "37-M1 setup on the frozen candidate"
+        "37-M1 setup on the frozen candidate",
+        "runner: `node scripts/debug/so-b1-life-reads.mts m1 --row 37-M1-C5 --lab <campaign lab/life> --profile <read profile> --run <n>` (record test/phase-c/records/37-M1-C5/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "offline",
       "tier": [
@@ -4021,7 +4068,8 @@
         "section": "§Phase 2 Floors (M2); 39 C5"
       },
       "prerequisites": [
-        "35-M2 setup on the frozen candidate"
+        "35-M2 setup on the frozen candidate",
+        "runner: `node scripts/debug/so-b1-hooks.mts label --row 35-M2-C5 --runs <private runs.json> --labeller <profile> --run <n>` (record test/phase-c/records/35-M2-C5/run-<n>.json; refuses, exit 2, without its prerequisites)"
       ],
       "reset": "adolion",
       "tier": [
@@ -4760,9 +4808,8 @@
       ],
       "assertion": "S28 talking sprites: blind, preference and performance floors",
       "floor": {
-        "text": "v2.7 19 S28 floors (blind/preference/performance), not closed by Belle alone",
-        "citation": "v2.7 16 §Per plan 19; v2.7 19 S28",
-        "gap": "the S28 floors live in v2.7 19/24; copy them verbatim here before the freeze (owner v2.7 32)"
+        "text": "S28 QA: ≥90% frames pass QA on the first seed; S28 preference: B+P > today in ≥70% of pairs; seams ≤5%; S28 mouth: 2-vs-3 winner sets the default (>50%; tie → simple); S28 runtime: no >50 ms task; ≤1 ms/frame; ≤64 MB decoded; ≤4 KB chunk",
+        "citation": "v2.7 24 §Acceptance floors (predeclared, never retuned), the four S28 rows verbatim; their definitions in v2.7 19 §6 Spike S28 (QA = drift < 14 outside the eye/mouth band, the change inside the band)"
       },
       "evidence": [
         null,

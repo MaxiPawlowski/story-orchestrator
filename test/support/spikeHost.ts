@@ -15,6 +15,7 @@ export const spikeContext = {
   chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
+  generating: false,
   saveMetadata: async () => undefined,
   saveMetadataDebounced: () => undefined,
   saveSettingsDebounced: () => undefined,
@@ -35,6 +36,7 @@ export const resetSpikeHost = () => {
   spikeContext.chatId = "chat-a";
   spikeContext.chatMetadata = { integrity: "i-a" };
   spikeContext.extensionSettings = {};
+  spikeContext.generating = false;
 };
 
 const ok = async () => ({ ok: true as const, changed: false });
@@ -78,7 +80,7 @@ export const spikeStapi = {
   readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
   readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: () => ({ close: () => undefined }),
-  isHostGenerating: () => false,
+  isHostGenerating: () => spikeContext.generating,
   subscribeToHostEvents: (entries: Array<{ eventName: string | undefined; handler: Handler }>) => {
     const added = entries.filter((entry): entry is { eventName: string; handler: Handler } => typeof entry.eventName === "string");
     for (const entry of added) listeners.set(entry.eventName, [...(listeners.get(entry.eventName) ?? []), entry.handler]);

@@ -282,4 +282,13 @@ export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
       } : null;
     },
   }),
+  degrades({
+    id: "styles-missing", area: "display", scope: "install", audience: "player", feature: "capabilities",
+    detect: (snapshot) => (snapshot.stylesMissing ? {
+      consequence: "Story Orchestrator's panels show without their layout, so some controls can be hard to read or reach.",
+      detail: "The extension's stylesheet did not load when the page started (the browser console names the error). Reload the page; "
+        + "if it keeps happening, the extension's files on the server are incomplete, so reinstall or update it.",
+      player: "Story Orchestrator's panels did not load their layout. Reload the page to fix it.",
+    } : null),
+  }),
 ];

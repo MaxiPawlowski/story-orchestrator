@@ -12,7 +12,7 @@
     { "eval": "const rows = globalThis.storyOrchestratorRuntime.extras.checks?.records ?? []; if (rows.length !== 1 || rows[0].checkId !== 'climb') throw new Error('check records: ' + JSON.stringify(rows)); return rows.map((row) => row.outcome);" },
     { "ui": { "action": "open-drawer" } },
     { "eval": "document.querySelector('#so-open-journal')?.click(); await new Promise((resolve) => setTimeout(resolve, 800)); const text = document.querySelector('#so-journal')?.textContent ?? ''; if (!text.includes(\"The ferryman's debt\") || !text.includes('A helping hand')) throw new Error('journal: ' + text.slice(0, 300)); for (const leak of ['SO-HIDDEN-QUEST-TITLE', 'SO-HIDDEN-STEP', 'SO-AUTHOR-NOTE', 'SO-SECRET-MILESTONE']) if (document.body.textContent.includes(leak)) throw new Error('leak: ' + leak); return true;" },
-    { "eval": "const chips = [...document.querySelectorAll('#chat [data-so=\"roll-chip\"]')].map((chip) => chip.getAttribute('data-source')); if (chips.some((source) => source !== 'check')) throw new Error('author chips in player mode: ' + chips); return chips;" },
+    { "eval": "const read = () => [...document.querySelectorAll('#chat [data-so=\"roll-chip\"]')].map((chip) => chip.getAttribute('data-source')); let chips = read(); for (let i = 0; i < 25 && !chips.length; i += 1) { await new Promise((resolve) => setTimeout(resolve, 200)); chips = read(); } if (!chips.length) throw new Error('no dice chip in the chat: the public climb check should show one under the message it decided'); if (chips.some((source) => source !== 'check')) throw new Error('author chips in player mode: ' + chips); return chips;" },
     { "ui": { "action": "assert-player-clean" }, "log": 1500 }
   ]
 }

@@ -1,6 +1,13 @@
 {
   "note": "v2.7 plan 37 L6-C voice warden calibration (CL). Frozen 2026-10-07 before the first run, never retuned. The 20 replies (10 in character, 10 out of character) come from the 7-member act lab copy (v2.7 38) with labels from session evidence checked by a second model, never the user; NOT YET COLLECTED: rows owed to v2.7 39 B1.",
   "use": "wardenVoice",
+  "blocked": {
+    "owner": "v2.7 38 A4",
+    "why": "the 20 rows are real replies from the 7-member act lab copy with second-model labels; synthetic text would calibrate a different population than the floors were frozen for, so the fixture stays empty until the lab copy exists. 37-L6-C cannot run before then.",
+    "unblocks": [
+      "37-L6-C"
+    ]
+  },
   "floors": {
     "oocRecallMin": 0.8,
     "falseNoteRateMax": 0.1,

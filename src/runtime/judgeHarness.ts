@@ -15,8 +15,19 @@ import {
 import {
   runContradictionReleaseCalibration, scoreReleasePhaseA, type ContradictionReleaseCase, type ReleasePhaseAVerdict,
 } from "@judge/contradictionCalibration";
-import { runWardenLoreCalibration, type WardenLoreCase } from "@judge/calibration";
+import { runWardenLoreCalibration, runVoiceCalibration, type VoiceCase, type WardenLoreCase } from "@judge/calibration";
+import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { loadGameLayer } from "@engine/validate/gameLayer";
 import type { JudgeRuntime } from "./judge";
+import { voiceProfile } from "./continuity";
+import { rosterMemberName } from "./roster";
+
+export interface VoiceRow {
+  id: string;
+  member: string;
+  label: "in" | "ooc";
+  reply: string;
+}
 
 export interface JudgeHarness {
   probe(request: JudgeRequest, model?: string, provider?: JudgeProviderId): Promise<JudgeResult>;
@@ -25,6 +36,7 @@ export interface JudgeHarness {
   modelVerdict: JudgeRuntime["modelVerdict"];
   calibrate(use: string, cases: unknown[], model?: string, provider?: JudgeProviderId, split?: number): Promise<JudgeSelfTestReport>;
   calibrateLoreRelevance(cases: unknown[], model?: string, provider?: JudgeProviderId, split?: number): Promise<LoreRelevanceReport>;
+  calibrateVoice(story: unknown, rows: VoiceRow[], model?: string, provider?: JudgeProviderId): Promise<JudgeSelfTestReport>;
   rescore(use: string, rows: WardenRescoreRow[], model?: string, provider?: JudgeProviderId): Promise<RescoreResult[]>;
   scoreContradictionRelease(report: Pick<JudgeSelfTestReport, "rows">, cases: ContradictionReleaseCase[], modes: Record<string, readonly string[] | null>): ReleasePhaseAVerdict;
 }
@@ -87,7 +99,15 @@ const CALIBRATIONS: Record<string, (ask: Ask, cases: unknown[]) => Promise<Judge
   backgrounds: (ask, cases) => runBackgroundCalibration(ask, cases as BackgroundCase[], (cases as Array<{ installed?: string[] }>)[0]?.installed ?? []),
 };
 
-export const createJudgeHarness = (runtime: JudgeRuntime): JudgeHarness => ({
+export const voiceCases = (story: NormalizedStoryV2, rows: VoiceRow[]): VoiceCase[] => rows.map((row) => {
+  const wanted = row.member.trim().toLowerCase();
+  const member = story.roster.find((entry) => entry.id.toLowerCase() === wanted || rosterMemberName(entry).trim().toLowerCase() === wanted);
+  const voice = member ? voiceProfile(story, null, rosterMemberName(member)) : null;
+  if (!member || !voice) throw new Error(`voice row ${row.id}: "${row.member}" is not a roster member of ${story.title}`);
+  return { id: row.id, label: row.label, reply: { speaker: voice.speaker, text: row.reply }, voice };
+});
+
+export const createJudgeHarness =(runtime: JudgeRuntime): JudgeHarness => ({
   probe: (request, model, provider) => runtime.probe(request, model, provider),
   director: (input) => runtime.director(input),
   invalidateStatus: () => runtime.invalidateStatus(),
@@ -97,6 +117,10 @@ export const createJudgeHarness = (runtime: JudgeRuntime): JudgeHarness => ({
     return run ? run(askVia(runtime, model, provider, split), cases) : Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   },
   calibrateLoreRelevance: (cases, model, provider, split) => runLoreRelevanceCalibration(askVia(runtime, model, provider, split), cases as never),
+  calibrateVoice: async (story, rows, model, provider) => {
+    await loadGameLayer();
+    return runVoiceCalibration(askVia(runtime, model, provider, undefined), voiceCases(parseStoryV2OrThrow(story), rows));
+  },
   rescore: (use, rows, model, provider) => ((WARDEN_RESCORE_USES as readonly string[]).includes(use)
     ? runWardenRescore((request) => runtime.probe(request, model, provider), use as WardenRescoreUse, rows)
     : Promise.reject(new Error(`no rescore for judge use '${use}' yet`))),

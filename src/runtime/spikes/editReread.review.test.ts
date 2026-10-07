@@ -3,7 +3,7 @@ import { readEdited } from "./editRereadHost";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "../settingsModel";
 import { beginRun } from "../runToken";
 import { STEP_WINDOW, SpikeWorld, differentText, project, randomScript, seededRandom, type SpikeProjection, type SpikeTurn } from "../../../test/support/spikeHarness";
-import { spikeContext } from "../../../test/support/spikeHost";
+import { spikeContext, spikeEvents } from "../../../test/support/spikeHost";
 import type { RuntimeManager } from "../runtimeManager";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
@@ -358,6 +358,168 @@ describe("v2.7 33 W1 V7: the C12 interaction (an edit the onEnter rollback alrea
     }
     console.log(`v2.7 33 V7 ${JSON.stringify(ends)}`);
     expect(new Set(ends).size).toBe(2);
+  });
+});
+
+describe("v2.7 33 W1 V0: the traced post-processor orders, replayed against the real manager", () => {
+  const script: SpikeTurn[] = [{ user: "rain", reply: "song" }, { user: "fire", reply: "bread" }];
+  const gating: SpikeTurn[] = [{ user: "go", reply: "rain" }, { user: "fire", reply: "song" }];
+
+  const groupRound = async (world: SpikeWorld, user: string, reply: string, rewrite?: string) => {
+    const chat = spikeContext.chat;
+    spikeContext.generating = true;
+    chat.push({ name: "Player", is_user: true, mes: user, send_date: `t${chat.length}` });
+    await spikeEvents.emit("MESSAGE_SENT", chat.length - 1);
+    chat.push({ name: "Guide", is_user: false, mes: reply, send_date: `t${chat.length}`, swipes: [reply], swipe_id: 0 });
+    const id = chat.length - 1;
+    await spikeEvents.emit("MESSAGE_RECEIVED", id, "normal");
+    if (rewrite !== undefined) {
+      chat[id].mes = rewrite;
+      chat[id].swipes = [rewrite];
+      await spikeEvents.emit("MESSAGE_EDITED", id);
+    }
+    await spikeEvents.emit("CHARACTER_MESSAGE_RENDERED", id, "normal");
+    await world.settle();
+    spikeContext.generating = false;
+    await spikeEvents.emit("GENERATION_ENDED");
+    await world.settle();
+    return id;
+  };
+
+  const playedAs = async (turns: SpikeTurn[]): Promise<SpikeProjection> => {
+    const world = await SpikeWorld.open();
+    await world.play(turns);
+    const projection = project(world.manager);
+    world.close();
+    return projection;
+  };
+
+  const gatedRead = (world: SpikeWorld, gates: Array<() => void>) => async (messageId: number): Promise<RereadOutcome> => {
+    const seen = spikeContext.chat.map((row) => row.mes);
+    await new Promise<void>((resolve) => gates.push(resolve));
+    const now = spikeContext.chat.map((row) => row.mes);
+    seen.forEach((mes, index) => { spikeContext.chat[index].mes = mes; });
+    await world.reader.read({ from: Math.max(0, messageId - STEP_WINDOW + 1), to: messageId }, `edit:${messageId}`);
+    now.forEach((mes, index) => { spikeContext.chat[index].mes = mes; });
+    await world.manager.commitBoundary();
+    return "committed";
+  };
+
+  const gatedWorld = async (turns: SpikeTurn[]) => {
+    const world = await SpikeWorld.open();
+    const timers = new ManualTimers();
+    const gates: Array<() => void> = [];
+    const restaged: string[] = [];
+    const journal: Array<[string, string]> = [];
+    const edit = new EditReread({
+      host: world.manager, enabled: () => true, chat: chatNow, reread: gatedRead(world, gates), displace: displaceOf(world), timers,
+      journal: (summary, detail) => { journal.push([summary, detail]); }, restage: (type) => { restaged.push(type); },
+    });
+    world.bridge.setMutationSeam((kind, messageId, entered) => edit.seam(kind, messageId, entered));
+    await world.play(turns);
+    return { world, timers, gates, restaged, journal, edit, newest: spikeContext.chat.length - 1 };
+  };
+
+  it("a Regex-extension rewrite (alter chat, AI output) is already in the reply when MESSAGE_RECEIVED fires: no edit event, no cycle, the boundary reads the rewritten text", async () => {
+    const { world, edit } = await armed("reread");
+    await world.play(script);
+    const since = world.boundaries.length;
+    const id = await groupRound(world, "path", "go key");
+    expect(edit.stats).toMatchObject({ edits: 0, cycles: 0, reads: 0 });
+    expect(world.boundaries.slice(since).filter((boundary) => boundary.messageId === id).map((boundary) => boundary.text)).toEqual(["go key"]);
+    expect(project(world.manager)).toEqual(await playedAs([...script, { user: "path", reply: "go key" }]));
+    world.close();
+  });
+
+  it("a Recast-shaped rewrite inside the group round lands before our commit (the flush waits for the round): no cycle, every boundary reads the rewritten text, at the cost of a second boundary and read", async () => {
+    const { world, edit } = await armed("reread");
+    await world.play(script);
+    const since = world.boundaries.length;
+    const id = await groupRound(world, "path", "stone", "go key");
+    expect(edit.stats).toMatchObject({ edits: 0, cycles: 0, reads: 0 });
+    const atId = world.boundaries.slice(since).filter((boundary) => boundary.messageId === id).map((boundary) => boundary.text);
+    expect(atId).toEqual(["go key", "go key"]);
+    expect(world.reader.reasons.filter((reason) => reason === "cadence")).toHaveLength(4);
+    expect(project(world.manager)).toEqual(await playedAs([...script, { user: "path", reply: "go key" }]));
+    world.close();
+  });
+
+  it("a rewrite that lands after the settle window fired, while the first cycle still reads, holds the reply until the last text is read (the v2.6 'no audit' shape)", async () => {
+    const { world, timers, gates, restaged, journal, edit, newest } = await gatedWorld(gating);
+    expect(world.boundaries.some((boundary) => boundary.messageId === newest && boundary.fired)).toBe(true);
+    await world.edit(newest, ["go"], ["MESSAGE_EDITED"]);
+    let released = false;
+    const held = edit.hold("normal").then(() => { released = true; });
+    timers.fire(750);
+    await world.settle();
+    expect(gates).toHaveLength(1);
+    await world.edit(newest, ["go key"], ["MESSAGE_EDITED"]);
+    gates.shift()?.();
+    await world.settle();
+    expect(released).toBe(false);
+    timers.fire(750);
+    await world.settle();
+    expect(released).toBe(false);
+    expect(gates).toHaveLength(1);
+    gates.shift()?.();
+    await held;
+    await edit.settled();
+    await world.settle();
+    expect(edit.stats).toMatchObject({ edits: 2, cycles: 2, reads: 2, skipped: 0, holds: 1, timeouts: 0 });
+    expect(restaged).toEqual(["normal"]);
+    expect(journal).toEqual([]);
+    expect(JSON.stringify(world.manager.getSessionJournal())).not.toContain("eventless change");
+    expect(project(world.manager)).toEqual(await replay(gating, "go key"));
+    world.close();
+  });
+
+  it("control (the v2.6 mechanism): if the rewrite the seam takes leaves its fingerprint, the first read's own commit steps back as an eventless change and erases the audit it just wrote", async () => {
+    const { world, timers, gates, edit, newest } = await gatedWorld(gating);
+    const fingerprints = world.manager.chatSave.fingerprints;
+    const forget = fingerprints.forgetFrom.bind(fingerprints);
+    let kept = false;
+    fingerprints.forgetFrom = (messageId: number) => { if (!kept) forget(messageId); };
+    await world.edit(newest, ["go"], ["MESSAGE_EDITED"]);
+    timers.fire(750);
+    await world.settle();
+    kept = true;
+    await world.edit(newest, ["go key"], ["MESSAGE_EDITED"]);
+    kept = false;
+    gates.shift()?.();
+    await world.settle();
+    expect(edit.stats.reads).toBe(1);
+    expect(world.reader.reasons).toContain(`edit:${newest}`);
+    expect(world.manager.getExtractionAudits().some((audit) => audit.reason === `edit:${newest}`)).toBe(false);
+    expect(JSON.stringify(world.manager.getSessionJournal())).toContain(`eventless change at message ${newest}`);
+    timers.fire(750);
+    await world.settle();
+    gates.shift()?.();
+    await edit.settled();
+    await world.settle();
+    world.close();
+  });
+
+  it("control: a rewrite after the cycle finished is a fresh cycle, and the hold that already released is not held again", async () => {
+    const { world, timers, gates, edit, newest } = await gatedWorld(script);
+    await world.edit(newest, ["go"], ["MESSAGE_EDITED"]);
+    const first = edit.hold("normal");
+    timers.fire(750);
+    await world.settle();
+    gates.shift()?.();
+    await first;
+    await edit.settled();
+    await world.settle();
+    expect(edit.isPending()).toBe(false);
+    await world.edit(newest, ["go key"], ["MESSAGE_EDITED"]);
+    expect(edit.isPending()).toBe(true);
+    timers.fire(750);
+    await world.settle();
+    gates.shift()?.();
+    await edit.settled();
+    await world.settle();
+    expect(edit.stats).toMatchObject({ edits: 2, cycles: 2, reads: 2, holds: 1 });
+    expect(project(world.manager)).toEqual(await replay(script, "go key"));
+    world.close();
   });
 });
 

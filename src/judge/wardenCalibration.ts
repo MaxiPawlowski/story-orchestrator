@@ -157,6 +157,33 @@ export async function runWardenLoreCalibration(ask: Ask, cases: WardenLoreCase[]
   })));
 }
 
+export interface VoiceCase {
+  id: string;
+  label: "in" | "ooc";
+  reply: { speaker: string; text: string };
+  voice: NonNullable<WardenInput["voice"]>;
+}
+
+export const voiceInput = (entry: Pick<VoiceCase, "reply" | "voice">): WardenInput => ({ reply: entry.reply, facts: [], agency: null, houseRules: [], voice: entry.voice });
+
+export async function runVoiceCalibration(ask: Ask, cases: VoiceCase[]): Promise<JudgeSelfTestReport> {
+  return report(await Promise.all(cases.map(async (entry) => {
+    const input = voiceInput(entry);
+    const asked = await askWarden(ask, input);
+    const note = asked.answers ? readWarden(asked.answers, input).find((finding) => finding.family === "voice") ?? null : null;
+    const score = asked.answers ? scoreAnswer(asked.answers, "voice")?.score ?? null : null;
+    const row: JudgeSelfTestRow = {
+      id: `${entry.id}.${entry.label}`,
+      right: asked.answers !== null && Boolean(note) === (entry.label === "ooc"),
+      picked: asked.answers === null ? null : note ? `note score=${Number((score ?? 0).toFixed(3))}` : `no note score=${score === null ? "?" : Number(score.toFixed(3))}`,
+      detail: note?.text ?? null,
+      latencyMs: asked.latencyMs,
+      ...(asked.fallback ? { fallback: asked.fallback } : {}),
+    };
+    return { rows: [row], model: asked.model, latencyMs: asked.latencyMs };
+  })));
+}
+
 export interface CombinedContinuityCase extends ContinuityCase {
   player?: string;
   playerMessage?: string;

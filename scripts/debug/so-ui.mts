@@ -940,6 +940,7 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="agency-recovery"]', '[data-so="agency-take-alternate"]', '[data-so="agency-generate-road"]', '[data-so="agency-policy"]',
   '[data-so="memory-not-stored"]', '[data-so="memory-store-anyway"]', '[data-so="scene-read"]', '[data-so="scene-heading"]', '[data-so="lore-forced"]', '[data-so="judged-reads"]',
   '#so-judge-use-expansion-critic', '#so-judge-use-expansion-lookahead', '#so-judge-expansion-variants', '#so-judge-expansion-pick', '[data-so="expansion-judge"]', '#so-warden-enabled', '#so-warden-accept-mode',
+  '#so-agency-accept-mode', '#so-judge-use-attention-check',
   // v2.3 plan 09: the next-turn preview is author-grade by construction — it names the injection keys
   // and the members ST will draft for.
   '[data-so="next-turn-row"]', '[data-so="next-turn-clear"]', '[data-so="next-turn-reread-scene"]',

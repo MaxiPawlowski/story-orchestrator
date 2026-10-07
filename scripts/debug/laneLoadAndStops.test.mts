@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { isIntegrationPlay, laneLoadProblem } from './st-lanes.mts';
+import { isB1ModelRun, isIntegrationPlay, laneLoadProblem } from './st-lanes.mts';
 import { chatDriftStop, mutationStop } from './lib/integrationRuns.mts';
 import { revealSettingsControl } from './so-ui.mts';
 
@@ -17,6 +17,10 @@ test('lane load: more than two lanes with a model refuses, no-model and stopped 
   assert.equal(isIntegrationPlay(['scripts/debug/so-integration.mts', 'play', 'I4']), true);
   assert.equal(isIntegrationPlay(['scripts/debug/so-integration.mts', 'settings', 'I4']), false);
   assert.equal(isIntegrationPlay(['scripts/debug/so-run-header.mts', 'capture']), false);
+  assert.equal(isB1ModelRun(['scripts/debug/so-b1-life-reads.mts', 'm1', '--run', '1']), true);
+  assert.equal(isB1ModelRun(['scripts/debug/so-b1-judge-causes.mts', 'follow', '--out', 'x']), true);
+  assert.equal(isB1ModelRun(['scripts/debug/so-b1-life-reads.mts', 'score-m1', '--raw', 'x']), false, 'offline scoring takes no model');
+  assert.equal(isB1ModelRun(['scripts/debug/so-b1.mts', 'status']), false);
 });
 
 test('integration I4: a failed chat switch is a hard stop, and so is any drift away from the run chat', () => {

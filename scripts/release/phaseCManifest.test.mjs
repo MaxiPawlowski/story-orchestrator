@@ -51,6 +51,17 @@ test("the manifest and plan 39 name the same rows, both ways", () => {
   assert.deepEqual(parityProblems(manifest, plan), []);
 });
 
+test("the B1 pod-sizing row is in the manifest and in plan 39, and dropping either side is named", () => {
+  const sizing = manifest.rows.find((entry) => entry.id === "B1-PAR");
+  assert.ok(sizing, "the manifest has no B1-PAR row");
+  assert.equal(sizing.stage, "B1");
+  assert.match(sizing.floor.text, /25 tok\/s/);
+  assert.ok(planRowTokens(plan).includes("B1-PAR"), "plan 39 never mentions B1-PAR");
+  assert.match(parityProblems({ ...manifest, rows: manifest.rows.filter((entry) => entry.id !== "B1-PAR") }, plan).join("\n"), /B1-PAR/);
+  const unlisted = plan.split(/\r?\n/).filter((line) => !line.startsWith("| B1-PAR")).join("\n");
+  assert.match(parityProblems(manifest, unlisted).join("\n"), /manifest row B1-PAR is not named/);
+});
+
 test("the predecessor is a full commit and the absent rows give a reason", () => {
   assert.match(manifest.predecessor.commit, /^[0-9a-f]{40}$/);
   assert.ok(plan.includes(manifest.predecessor.commit), "plan 39 does not record the pinned predecessor");

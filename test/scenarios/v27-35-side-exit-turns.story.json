@@ -1,0 +1,77 @@
+{
+  "format": 2,
+  "id": "so-v27-35-side-exit-turns",
+  "title": "SO-V27-35 Side Exit Turns",
+  "description": "v2.7 plan 39 row S-09 refused fixture: the open stretch has a second exit gated on player_turns_in_checkpoint. Import must be refused naming transitions.1.",
+  "qualities": [
+    {
+      "key": "player_turns_in_checkpoint",
+      "type": "int",
+      "source": "code",
+      "rubric": "Player turns since this beat began."
+    },
+    {
+      "key": "reached_walls",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party arrived at the city walls?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "road",
+      "name": "On the road",
+      "objective": "Reach the walls.",
+      "type": "intermediate",
+      "start": true,
+      "guidance": "Late summer, dusty road, the party is in no hurry.",
+      "stretch": {
+        "mode": "open",
+        "pace": "brief",
+        "max_turns": 6,
+        "arrive_when": {
+          "q": "reached_walls",
+          "op": "==",
+          "v": true
+        }
+      }
+    },
+    {
+      "id": "walls",
+      "name": "The walls",
+      "objective": "The gate is shut.",
+      "type": "anchor"
+    },
+    {
+      "id": "camp",
+      "name": "The camp",
+      "objective": "Rest a while.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "road",
+      "to": "walls",
+      "priority": 1,
+      "gate": {
+        "q": "reached_walls",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "id": "to-camp",
+      "from": "road",
+      "to": "camp",
+      "priority": 2,
+      "gate": {
+        "q": "player_turns_in_checkpoint",
+        "op": ">=",
+        "v": 8
+      }
+    }
+  ],
+  "roster": [],
+  "version": 1
+}

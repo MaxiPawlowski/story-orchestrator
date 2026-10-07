@@ -1,0 +1,160 @@
+{
+ "name": "v27-33-v3-postprocessor",
+ "objective": "v2.7 33 W1 V3 (post-processor leg live, floor: the next request carries the settled text in every burst case, x2). NOT RUN (recorded 2026-10-07: written and validated statically, no live lane). Reference post-processor: one transform, SO-V3 typographic quotes (test/fixtures/postprocessor/so-v3-typographic-quotes.regex.json), in two placements. Regex leg: the stock Regex script (global, AI output, alters the chat) is applied by ST inside cleanUpMessage before saveReply, so the reply is already rewritten at MESSAGE_RECEIVED; asserted: every reply generated while it is installed carries no straight-quoted span and the edit re-read saw no edit. Post-render legs (test/fixtures/postprocessor/so-v3-postprocessor.js, Recast-shaped: after the round and after the story committed the reply, chat[id].mes rewritten, updateMessageBlock, MESSAGE_EDITED unawaited, saveChat): single, double (Recast's two safeUpdateMessageText calls) and late (a second rewrite 1500 ms after the first, past the 750 ms settle window, the V0 defect shape). Each rewrite appends a sentence that satisfies the next gate; the request the next send posts must carry only the next checkpoint's marker and the settled text, with no hold timeout. Run twice on a model lane: node scripts/debug/so-scenario.mts run test/scenarios/v27-33-v3-postprocessor.json --sandbox (requires.group pins the toy group by name). Manual equivalent: node scripts/debug/so-postprocessor.mts install --post-render --burst late --append \"...\".",
+ "requires": {
+  "lane": "model",
+  "group": "Group: Arin, DM Narrator",
+  "members": [
+   "Arin",
+   "DM Narrator"
+  ],
+  "why": "real replies on the main profile and real reads on the read role; the post-processor is scripted in the page, the spike flag spikes.editReread is switched on and restored by the scenario"
+ },
+ "cleanup": {
+  "steps": [
+   {
+    "eval": "const ctx = SillyTavern.getContext(); const v3 = globalThis.__v3; globalThis.__soPostProcessor?.disarm(); const removed = globalThis.__soPostProcessor?.removeRegex('SO-V3') ?? { removed: [] }; if (v3?.onSent) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, v3.onSent); const settings = ctx.extensionSettings['story-orchestrator']?.settings; if (settings && v3) { if (v3.before) settings.spikes = v3.before; else delete settings.spikes; } await (await import('/script.js')).saveSettings(); return { restored: v3?.before ?? null, removed };",
+    "log": true
+   }
+  ]
+ },
+ "steps": [
+  {
+   "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat (so-scenario --sandbox, requires.group)'); if (!globalThis.storyOrchestratorSpikes?.editReread) throw new Error('the edit re-read spike is not loaded: build and stage (npm run build && npm run stage, then st-session reload)'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const settings = ctx.extensionSettings['story-orchestrator']?.settings; if (!settings) throw new Error('no settings root'); const before = settings.spikes ? { ...settings.spikes } : null; settings.spikes = { ...(settings.spikes ?? {}), editReread: true }; await (await import('/script.js')).saveSettings(); if (rt.getGlobalSettings().spikes?.editReread !== true) throw new Error('the editReread flag did not land'); if (globalThis.__v3?.onSent) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__v3.onSent); globalThis.__v3 = { before, sent: [], cases: [], mark: 0 }; globalThis.__v3.onSent = (data, dryRun) => { if (dryRun) return; globalThis.__v3.sent.push({ at: Date.now(), active: rt.getEngineState()?.activeCheckpointId ?? null, prompt: typeof data?.prompt === 'string' ? data.prompt : JSON.stringify(data?.messages ?? data ?? null) }); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__v3.onSent); return { flag: true, spikesBefore: before, group: ctx.groupId };",
+   "log": true
+  },
+  {
+   "inject_script": "../fixtures/postprocessor/so-v3-postprocessor.js"
+  },
+  {
+   "import_story": {
+    "file": "./v27-33-v3-postprocessor.story.json"
+   }
+  },
+  {
+   "eval": "const script = {\"id\": \"so-v3-typographic-quotes\", \"scriptName\": \"SO-V3 typographic quotes\", \"findRegex\": \"/\\\"([^\\\"\\\\n]+)\\\"/g\", \"replaceString\": \"“$1”\", \"trimStrings\": [], \"placement\": [2], \"disabled\": false, \"markdownOnly\": false, \"promptOnly\": false, \"runOnEdit\": false, \"substituteRegex\": 0, \"minDepth\": null, \"maxDepth\": null}; const installed = globalThis.__soPostProcessor.installRegex(script); await (await import('/script.js')).saveSettings(); const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); globalThis.__v3.regexLeg = { installed, stats: stats(), from: SillyTavern.getContext().chat.length }; return installed;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I step into the hall and nod to the quartermaster.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "wait": {
+    "schedulerIdle": true,
+    "quietMs": 8000,
+    "timeoutMs": 300000
+   }
+  },
+  {
+   "eval": "const ctx = SillyTavern.getContext(); const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const leg = globalThis.__v3.regexLeg; const now = stats(); const replies = ctx.chat.slice(leg.from).filter((row) => !row.is_user && !row.is_system); if (!replies.length) throw new Error('no reply was generated while the regex script was installed'); const straight = replies.filter((row) => /\"[^\"\\n]+\"/.test(row.mes)).map((row) => row.mes.slice(0, 120)); if (straight.length) throw new Error('the Regex script did not rewrite these replies before they were saved: ' + JSON.stringify(straight)); if (now.edits !== leg.stats.edits || now.cycles !== leg.stats.cycles) throw new Error('a pre-render Regex rewrite reached the edit re-read: ' + JSON.stringify({ before: leg.stats, now })); const removed = globalThis.__soPostProcessor.removeRegex('SO-V3'); await (await import('/script.js')).saveSettings(); leg.result = { replies: replies.length, typographic: replies.filter((row) => /[“”]/.test(row.mes)).length, edits: now.edits - leg.stats.edits, removed }; return leg.result;",
+   "log": true
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); if (state.activeCheckpointId !== 'hall') throw new Error('expected hall before the single case, got ' + state.activeCheckpointId); const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const armed = globalThis.__soPostProcessor.arm({\"findRegex\": \"/\\\"([^\\\"\\\\n]+)\\\"/g\", \"replaceString\": \"“$1”\", \"burst\": \"single\", \"append\": \"The quartermaster unhooks the brass vault key from his belt and presses it into your palm.\", \"appendFirst\": \"\", \"delayMs\": 500, \"lateMs\": 1500, \"quietMs\": 1000, \"afterCommit\": true}); globalThis.__v3.cases.push({ burst: 'single', from: 'hall', to: 'vault', armed, stats: stats(), rewrites: globalThis.__soPostProcessor.rewrites.length }); return armed;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I tell the quartermaster that the guild sent me for the vault.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 250)); } }; const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const c = globalThis.__v3.cases[globalThis.__v3.cases.length - 1]; await until(() => globalThis.__soPostProcessor.rewrites.slice(c.rewrites).some((entry) => entry.settledAt || entry.skipped === 'the round did not settle'), 180000, 'the post-processor to rewrite the newest reply'); const entry = globalThis.__soPostProcessor.rewrites.slice(c.rewrites).find((row) => row.settledAt); if (!entry) throw new Error('the post-processor skipped every reply of the round: ' + JSON.stringify(globalThis.__soPostProcessor.rewrites.slice(c.rewrites))); globalThis.__soPostProcessor.disarm(); if (!entry.committedBefore) throw new Error('the rewrite landed before the story committed the reply, so this case measured the in-round order, not the edit re-read'); if (entry.activeBefore !== c.from) throw new Error('the raw reply already moved the story (' + entry.activeBefore + ') before the rewrite; the case is void, re-run it'); if (!entry.changed) throw new Error('the rewrite left the reply as it was'); if (entry.texts.length !== 1) throw new Error('expected the single burst, wrote ' + entry.texts.length + ' text(s)'); c.entry = { id: entry.id, texts: entry.texts.length, settledText: entry.texts[entry.texts.length - 1] }; c.afterRewrite = stats(); globalThis.__v3.mark = Date.now(); return c.entry;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I thank him and study the vault door.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const v3 = globalThis.__v3; const c = v3.cases[v3.cases.length - 1]; const request = v3.sent.find((entry) => entry.at >= v3.mark); if (!request) throw new Error('no request was captured after the rewrite'); const markers = ['HALL', 'VAULT', 'OPEN', 'TREASURY'].filter((name) => request.prompt.includes('[SO-V3-' + name + ']')); const now = stats(); const got = { burst: c.burst, activeAtRequest: request.active, markers, settledTextInRequest: request.prompt.includes(c.entry.settledText.slice(-60)), cycles: now.cycles - c.stats.cycles, reads: now.reads - c.stats.reads, holds: now.holds - c.stats.holds, timeouts: now.timeouts - c.stats.timeouts, holdP95Ms: now.holdP95Ms }; c.request = got; if (markers.length !== 1 || markers[0] !== 'VAULT') throw new Error('V3 single: the request after the rewrite carries ' + JSON.stringify(markers) + ', expected only VAULT :: ' + JSON.stringify(got)); if (!got.settledTextInRequest) throw new Error('V3 single: the request does not carry the settled text :: ' + JSON.stringify(got)); if (got.timeouts !== 0) throw new Error('V3 single: the hold timed out, so the reply went ahead on the pre-rewrite state :: ' + JSON.stringify(got)); return got;",
+   "log": true
+  },
+  {
+   "wait": {
+    "schedulerIdle": true,
+    "quietMs": 8000,
+    "timeoutMs": 300000
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); if (state.activeCheckpointId !== 'vault') throw new Error('expected vault before the double case, got ' + state.activeCheckpointId); const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const armed = globalThis.__soPostProcessor.arm({\"findRegex\": \"/\\\"([^\\\"\\\\n]+)\\\"/g\", \"replaceString\": \"“$1”\", \"burst\": \"double\", \"append\": \"You turn the key, and the vault door swings wide open with a groan.\", \"appendFirst\": \"\", \"delayMs\": 500, \"lateMs\": 1500, \"quietMs\": 1000, \"afterCommit\": true}); globalThis.__v3.cases.push({ burst: 'double', from: 'vault', to: 'open', armed, stats: stats(), rewrites: globalThis.__soPostProcessor.rewrites.length }); return armed;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I weigh the brass key in my hand and look at the vault door.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 250)); } }; const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const c = globalThis.__v3.cases[globalThis.__v3.cases.length - 1]; await until(() => globalThis.__soPostProcessor.rewrites.slice(c.rewrites).some((entry) => entry.settledAt || entry.skipped === 'the round did not settle'), 180000, 'the post-processor to rewrite the newest reply'); const entry = globalThis.__soPostProcessor.rewrites.slice(c.rewrites).find((row) => row.settledAt); if (!entry) throw new Error('the post-processor skipped every reply of the round: ' + JSON.stringify(globalThis.__soPostProcessor.rewrites.slice(c.rewrites))); globalThis.__soPostProcessor.disarm(); if (!entry.committedBefore) throw new Error('the rewrite landed before the story committed the reply, so this case measured the in-round order, not the edit re-read'); if (entry.activeBefore !== c.from) throw new Error('the raw reply already moved the story (' + entry.activeBefore + ') before the rewrite; the case is void, re-run it'); if (!entry.changed) throw new Error('the rewrite left the reply as it was'); if (entry.texts.length !== 2) throw new Error('expected the double burst, wrote ' + entry.texts.length + ' text(s)'); c.entry = { id: entry.id, texts: entry.texts.length, settledText: entry.texts[entry.texts.length - 1] }; c.afterRewrite = stats(); globalThis.__v3.mark = Date.now(); return c.entry;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I listen for anything moving beyond the door.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const v3 = globalThis.__v3; const c = v3.cases[v3.cases.length - 1]; const request = v3.sent.find((entry) => entry.at >= v3.mark); if (!request) throw new Error('no request was captured after the rewrite'); const markers = ['HALL', 'VAULT', 'OPEN', 'TREASURY'].filter((name) => request.prompt.includes('[SO-V3-' + name + ']')); const now = stats(); const got = { burst: c.burst, activeAtRequest: request.active, markers, settledTextInRequest: request.prompt.includes(c.entry.settledText.slice(-60)), cycles: now.cycles - c.stats.cycles, reads: now.reads - c.stats.reads, holds: now.holds - c.stats.holds, timeouts: now.timeouts - c.stats.timeouts, holdP95Ms: now.holdP95Ms }; c.request = got; if (markers.length !== 1 || markers[0] !== 'OPEN') throw new Error('V3 double: the request after the rewrite carries ' + JSON.stringify(markers) + ', expected only OPEN :: ' + JSON.stringify(got)); if (!got.settledTextInRequest) throw new Error('V3 double: the request does not carry the settled text :: ' + JSON.stringify(got)); if (got.timeouts !== 0) throw new Error('V3 double: the hold timed out, so the reply went ahead on the pre-rewrite state :: ' + JSON.stringify(got)); return got;",
+   "log": true
+  },
+  {
+   "wait": {
+    "schedulerIdle": true,
+    "quietMs": 8000,
+    "timeoutMs": 300000
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); if (state.activeCheckpointId !== 'open') throw new Error('expected open before the late case, got ' + state.activeCheckpointId); const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const armed = globalThis.__soPostProcessor.arm({\"findRegex\": \"/\\\"([^\\\"\\\\n]+)\\\"/g\", \"replaceString\": \"“$1”\", \"burst\": \"late\", \"append\": \"You step through the open vault door into the treasury.\", \"appendFirst\": \"You walk toward the open vault door.\", \"delayMs\": 500, \"lateMs\": 1500, \"quietMs\": 1000, \"afterCommit\": true}); globalThis.__v3.cases.push({ burst: 'late', from: 'open', to: 'treasury', armed, stats: stats(), rewrites: globalThis.__soPostProcessor.rewrites.length }); return armed;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I look past the open door into the dark beyond.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 250)); } }; const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const c = globalThis.__v3.cases[globalThis.__v3.cases.length - 1]; await until(() => globalThis.__soPostProcessor.rewrites.slice(c.rewrites).some((entry) => entry.settledAt || entry.skipped === 'the round did not settle'), 180000, 'the post-processor to rewrite the newest reply'); const entry = globalThis.__soPostProcessor.rewrites.slice(c.rewrites).find((row) => row.settledAt); if (!entry) throw new Error('the post-processor skipped every reply of the round: ' + JSON.stringify(globalThis.__soPostProcessor.rewrites.slice(c.rewrites))); globalThis.__soPostProcessor.disarm(); if (!entry.committedBefore) throw new Error('the rewrite landed before the story committed the reply, so this case measured the in-round order, not the edit re-read'); if (entry.activeBefore !== c.from) throw new Error('the raw reply already moved the story (' + entry.activeBefore + ') before the rewrite; the case is void, re-run it'); if (!entry.changed) throw new Error('the rewrite left the reply as it was'); if (entry.texts.length !== 2) throw new Error('expected the late burst, wrote ' + entry.texts.length + ' text(s)'); c.entry = { id: entry.id, texts: entry.texts.length, settledText: entry.texts[entry.texts.length - 1] }; c.afterRewrite = stats(); globalThis.__v3.mark = Date.now(); return c.entry;",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "I look around the treasury.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "eval": "const stats = () => ({ ...globalThis.storyOrchestratorSpikes.editReread.stats() }); const v3 = globalThis.__v3; const c = v3.cases[v3.cases.length - 1]; const request = v3.sent.find((entry) => entry.at >= v3.mark); if (!request) throw new Error('no request was captured after the rewrite'); const markers = ['HALL', 'VAULT', 'OPEN', 'TREASURY'].filter((name) => request.prompt.includes('[SO-V3-' + name + ']')); const now = stats(); const got = { burst: c.burst, activeAtRequest: request.active, markers, settledTextInRequest: request.prompt.includes(c.entry.settledText.slice(-60)), cycles: now.cycles - c.stats.cycles, reads: now.reads - c.stats.reads, holds: now.holds - c.stats.holds, timeouts: now.timeouts - c.stats.timeouts, holdP95Ms: now.holdP95Ms }; c.request = got; if (markers.length !== 1 || markers[0] !== 'TREASURY') throw new Error('V3 late: the request after the rewrite carries ' + JSON.stringify(markers) + ', expected only TREASURY :: ' + JSON.stringify(got)); if (!got.settledTextInRequest) throw new Error('V3 late: the request does not carry the settled text :: ' + JSON.stringify(got)); if (got.timeouts !== 0) throw new Error('V3 late: the hold timed out, so the reply went ahead on the pre-rewrite state :: ' + JSON.stringify(got)); return got;",
+   "log": true
+  },
+  {
+   "wait": {
+    "schedulerIdle": true,
+    "quietMs": 8000,
+    "timeoutMs": 300000
+   }
+  },
+  {
+   "eval": "const v3 = globalThis.__v3; return { regexLeg: v3.regexLeg?.result ?? null, cases: v3.cases.map((c) => ({ burst: c.burst, from: c.from, to: c.to, entry: c.entry ?? null, request: c.request ?? null })) };",
+   "log": true
+  }
+ ]
+}
