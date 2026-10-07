@@ -1,5 +1,6 @@
 import { chanceSeed, rollOutcome, seededStream, unitDraw } from "@engine/chance";
 import type { DerivedQualityView, PrimitiveValue, Quality } from "@engine/index";
+import type { LoadedStory } from "./types";
 
 export interface ChanceIds {
   chatId: string;
@@ -10,6 +11,11 @@ export interface ChanceContext extends ChanceIds {
   boundary: number;
   qualities: readonly Quality[];
 }
+
+export const chanceContext = (loaded: Pick<LoadedStory, "story" | "record"> | null, chatId: string | null, boundary: number): ChanceContext | null => {
+  const storyId = loaded?.story.id ?? loaded?.record.id;
+  return loaded && storyId && chatId ? { chatId, storyId, boundary, qualities: loaded.story.qualities } : null;
+};
 
 export type ChanceDrawKind = "npc" | "talk";
 

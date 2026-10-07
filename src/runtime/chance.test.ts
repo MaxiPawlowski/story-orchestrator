@@ -85,7 +85,7 @@ const context = (overrides: Partial<ChanceContext> = {}): ChanceContext => ({ ch
 
 describe("SP7 D1: a chance draw replays", () => {
   it("the same chat, story and boundary give the same draw, and the gate values are a function of them", () => {
-    const view = { boundary: 9, activeCheckpointId: "gate", checkpointStartedBoundary: 7 };
+    const view = { boundary: 9, activeCheckpointId: "gate", checkpointStartedBoundary: 7, checkpointStartedMessageId: -1, lastMessageId: 0 };
     expect(chanceGateValues(qualities, context(), view)).toEqual(chanceGateValues(qualities, context(), view));
     expect(npcRollDraw(context(), 4, "cp:onEnter:arin:0")).toBe(npcRollDraw(context(), 4, "cp:onEnter:arin:0"));
     expect(drive(freshEngine(seededDerive("chat-a")), 11, 0, BOUNDARIES)).toEqual(drive(freshEngine(seededDerive("chat-a")), 11, 0, BOUNDARIES));
@@ -191,8 +191,8 @@ describe("SP7 D3: the seed is a clock-like seam", () => {
   });
 
   it("control: the seam reads what the engine hands it, so a planted host value changes the draw", () => {
-    const view = { boundary: 3, activeCheckpointId: "gate", checkpointStartedBoundary: 2 };
-    expect(chanceGateValues(qualities, context(), view)).not.toEqual(chanceGateValues(qualities, context(), { ...view, checkpointStartedBoundary: 99 }));
+    const view = { boundary: 3, activeCheckpointId: "gate", checkpointStartedBoundary: 2, checkpointStartedMessageId: -1, lastMessageId: 0 };
+    expect(chanceGateValues(qualities, context(), view)).not.toEqual(chanceGateValues(qualities, context(), { ...view, checkpointStartedBoundary: 99, checkpointStartedMessageId: -1, lastMessageId: 0 }));
   });
 });
 
@@ -227,13 +227,13 @@ describe("SP7 D4/D4b machinery: the NPC roll and the talk pick replay on the sea
     const seams = createChanceSeams(() => null);
     expect(seams.npcRoll("k")).toBeNull();
     expect(seams.talkRandom()).toBeNull();
-    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 })).toEqual([]);
+    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 0 })).toEqual([]);
   });
 
   it("only rolled code qualities are drawn, read from the normalized story", () => {
     const seams = createChanceSeams(() => context({ boundary: 3 }));
-    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 }).map((delta) => delta.q)).toEqual(["lock_gives", "clue_die"]);
+    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 0 }).map((delta) => delta.q)).toEqual(["lock_gives", "clue_die"]);
     const extractorRoll = [{ ...qualities[1], source: "extractor" as const }];
-    expect(chanceGateValues(extractorRoll, context(), { boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 })).toEqual([]);
+    expect(chanceGateValues(extractorRoll, context(), { boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 0 })).toEqual([]);
   });
 });

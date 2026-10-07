@@ -1,4 +1,4 @@
-import { readsWorldEvidence, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { isOpenStretch, readsWorldEvidence, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
 import type { ChatWindowReader, ReconciliationDescriptor, SharedReadWindow } from "./types";
 import type { ExtractionScheduler } from "./scheduler";
 
@@ -74,7 +74,8 @@ const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Re
 export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, readWindow: ChatWindowReader): ReconciliationPlan | null {
   if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
-  const target = Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
+  if (isOpenStretch(checkpoint)) return null;
+  const target =Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
   const turns = state.boundary - state.checkpointStartedBoundary;
   if (turns < target || (turns - target) % 3 !== 0) return null;
   const unmet = new Set<string>();

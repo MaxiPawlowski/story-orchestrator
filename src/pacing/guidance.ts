@@ -17,10 +17,13 @@ export interface MemberGuidanceLine {
 
 export const memberGuidanceLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only: ${member.text.trim()}`;
 
-export const composeGuidanceBlock = (checkpoint: Checkpoint | null | undefined, policy: AgencyPolicy, withObjective = false, member: MemberGuidanceLine | null = null): string => {
+export const composeGuidanceBlock = (
+  checkpoint: Checkpoint | null | undefined, policy: AgencyPolicy, withObjective = false, member: MemberGuidanceLine | null = null, stretch: string | null = null,
+): string => {
   const guidance = guidanceShared(checkpoint?.guidance).trim();
   const directed = [
     guidance,
+    stretch ?? "",
     member?.text.trim() ? memberGuidanceLine(member) : "",
     withObjective && checkpoint?.objective?.trim() ? objectiveLine(checkpoint, policy) : "",
   ].filter(Boolean);

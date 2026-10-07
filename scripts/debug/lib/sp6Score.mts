@@ -7,7 +7,7 @@ export type Sp6Release = { boundary: number; id: string; block: string; reply: s
 
 export type Sp6Run = { at?: string; chatId?: string; arm: Sp6Arm; judge: Sp6Judge; replies: number; agencyFlags: number; releases: Sp6Release[]; carried: number };
 
-export const SP6_BARS = { runsPerCell: 2, minReleases: 20, k3Slack: 1, k4MaxRestates: 0, k5Release: 0.6, k5Control: 0.3 } as const;
+export const SP6_BARS = { runsPerCell: 2, minReleases: 20, k3Slack: 1, k4MaxRestates: 0, k5Release: 0.6, k5Control: 0.3, k5MinPooled: 20 } as const;
 
 export type Sp6Verdict = 'PASS' | 'FAIL' | 'INCOMPLETE';
 
@@ -61,9 +61,19 @@ export function scoreSp6(runs: Sp6Run[]) {
 
   const k5Release = cells.releaseOff.map((run) => ({ at: run.at ?? null, ...reachRate(run) }));
   const k5Control = cells.controlOff.map((run) => ({ at: run.at ?? null, ...reachRate(run) }));
+  const pooled = (rows: Array<{ measured: number; reached: number }>) => {
+    const measured = rows.reduce((sum, row) => sum + row.measured, 0);
+    const reached = rows.reduce((sum, row) => sum + row.reached, 0);
+    return { measured, reached, rate: measured ? reached / measured : Number.NaN };
+  };
+  const pooledRelease = pooled(k5Release);
+  const pooledControl = pooled(k5Control);
   const k5 = {
-    verdict: (cells.releaseOff.length < SP6_BARS.runsPerCell || cells.controlOff.length < SP6_BARS.runsPerCell ? 'INCOMPLETE'
-      : k5Release.every((row) => row.rate >= SP6_BARS.k5Release) && k5Control.every((row) => row.rate <= SP6_BARS.k5Control) ? 'PASS' : 'FAIL') as Sp6Verdict,
+    verdict: (cells.releaseOff.length < SP6_BARS.runsPerCell || cells.controlOff.length < SP6_BARS.runsPerCell
+      || pooledRelease.measured < SP6_BARS.k5MinPooled || pooledControl.measured < SP6_BARS.k5MinPooled ? 'INCOMPLETE'
+      : pooledRelease.rate >= SP6_BARS.k5Release && pooledControl.rate <= SP6_BARS.k5Control ? 'PASS' : 'FAIL') as Sp6Verdict,
+    rule: 'pooled over the runs of each arm (v2.7 35 decision 3); per-run rows are reported, not gated',
+    pooled: { release: pooledRelease, control: pooledControl },
     release: k5Release,
     control: k5Control,
   };

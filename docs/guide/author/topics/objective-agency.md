@@ -13,4 +13,4 @@ Fields: `checkpoints[].agency` (`protect_player_choice`, `never_narrate_player_a
 
 ---
 
-[Author's guide](../README.md) · previous: [Checkpoints](checkpoints.md) · next: [Tension targets](tension.md)
+[Author's guide](../README.md) · previous: [Checkpoints](checkpoints.md) · next: [Open stretches](open-stretches.md)

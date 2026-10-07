@@ -64,7 +64,8 @@ import { chatSettle } from "./chatSettle";
 import type { MutationKind } from "./turnBridge";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
-import { createChanceSeams } from "./chance";
+import { chanceContext, createChanceSeams } from "./chance";
+import { deriveQualities } from "./stretchTurns";
 import { recordLoreFired, type LoreFiredRecord } from "./loreFired";
 import type { InlineSettings } from "./settingsModel";
 
@@ -74,12 +75,8 @@ const boundStoryForOpenChat = () => {
 };
 
 export class RuntimeManager extends CoordinatorDelegates {
-  readonly chance = createChanceSeams(() => {
-    const story = this.loaded?.story;
-    const storyId = story?.id ?? this.loaded?.record.id;
-    return story && storyId && this.loadedChatId ? { chatId: this.loadedChatId, storyId, boundary: this.engine.currentBoundary, qualities: story.qualities } : null;
-  });
-  private engine = new StoryEngine({ now: () => Date.now(), derive: (view) => this.chance.derive(view) });
+  readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
+  private engine = new StoryEngine({ now: () => Date.now(), derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows) });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
