@@ -5,7 +5,7 @@ import { lapseAsEmpty } from "@extraction/modelError";
 import { askReply, type ExtractionReply, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import type { ParsedFact } from "@extraction/types";
-import { buildCanonSummaryPrompt, canonHistory, canonInputHash, openArcTexts, resolvedArcs, selectCanonFacts, type DerivedRecord } from "@memory/index";
+import { buildCanonSummaryPrompt, canonHistory, canonInputHash, openArcTexts, resolvedArcs, selectCanonFacts, type DerivedRecord, type MemoryEntry } from "@memory/index";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { CanonSource, MemoryRuntimeState } from "./types";
 
@@ -21,6 +21,8 @@ export interface CanonSynthesisDeps {
   enabled: () => boolean;
   firedTransitions: () => NormalizedTransition[];
   facts: () => ParsedFact[];
+  restingEntries: (entries: MemoryEntry[]) => MemoryEntry[];
+  restingLines: (text: string) => string;
   journal?: (summary: string, note: string) => void;
 }
 
@@ -36,16 +38,16 @@ export class CanonSynthesis {
 
   getCanon(): string {
     const canon = this.deps.memory().canon;
-    if (canon?.text && !canon.stale) return canon.text;
+    if (canon?.text && !canon.stale) return this.deps.restingLines(canon.text);
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return "";
-    return getCanonLite(story, state.visitedAnchors, this.deps.firedTransitions(), this.deps.facts());
+    return this.deps.restingLines(getCanonLite(story, state.visitedAnchors, this.deps.firedTransitions(), this.deps.facts()));
   }
 
   getCanonAt(checkpointId: string | null): string {
     const canon = this.deps.memory().canon;
-    return canon?.text && !canon.stale && canon.checkpointId !== checkpointId ? canonHistory(canon.text) : this.getCanon();
+    return canon?.text && !canon.stale && canon.checkpointId !== checkpointId ? this.deps.restingLines(canonHistory(canon.text)) : this.getCanon();
   }
 
   /** A decided conflict or a rollback was built from a claim this text still asserts.
@@ -56,14 +58,15 @@ export class CanonSynthesis {
   // never for the player, which takes the synthesized prose or nothing.
   getCanonProse(): string {
     const memory = this.deps.memory();
-    if (memory.canon?.text) return this.canonStale() ? "" : canonHistory(memory.canon.text);
-    return memory.entries.filter((entry) => entry.tier === "scene_history" && !entry.foldedInto && !entry.supersededBy).map((entry) => entry.text).join("\n\n");
+    if (memory.canon?.text) return this.canonStale() ? "" : this.deps.restingLines(canonHistory(memory.canon.text));
+    return this.deps.restingEntries(memory.entries).filter((entry) => entry.tier === "scene_history" && !entry.foldedInto && !entry.supersededBy).map((entry) => entry.text).join("\n\n");
   }
 
   private canonFacts(memory: MemoryRuntimeState) {
     const state = this.deps.getState();
     const objective = this.deps.getStory()?.checkpointById[state?.activeCheckpointId ?? ""]?.objective ?? "";
-    return selectCanonFacts(memory.entries, 30, { boundary: state?.boundary ?? 0, lastMessageId: state?.lastMessageId, turnText: objective, turnEntities: [], openArcs: openArcTexts(memory.arcs, 8) });
+    const shown = this.deps.restingEntries(memory.entries);
+    return selectCanonFacts(shown, 30, { boundary: state?.boundary ?? 0, lastMessageId: state?.lastMessageId, turnText: objective, turnEntities: [], openArcs: openArcTexts(memory.arcs, 8) });
   }
 
   private async ask(prompt: string, signal: AbortSignal): Promise<CanonReply> {
@@ -83,7 +86,7 @@ export class CanonSynthesis {
     const story = this.deps.getStory();
     const memory = this.deps.memory();
     if (!story || !this.deps.enabled() || this.inFlight) return false;
-    const arcSummaries = resolvedArcs(memory.arcs).filter((arc) => !arc.foldedInto).map((arc) => arc.summary).filter((summary): summary is string => Boolean(summary));
+    const arcSummaries = resolvedArcs(memory.arcs).filter((arc) => !arc.foldedInto).map((arc) => (arc.summary ? this.deps.restingLines(arc.summary) : "")).filter(Boolean);
     if (!arcSummaries.length) return false;
     const facts = this.canonFacts(memory).map((entry) => entry.text);
     const active = story.checkpointById[this.deps.getState()?.activeCheckpointId ?? ""];

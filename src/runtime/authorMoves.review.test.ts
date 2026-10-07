@@ -116,6 +116,7 @@ describe("T5-5-1: the driver Report reads the canon built for the checkpoint it 
       record: () => {}, save: async () => {},
       model: () => async () => ({ text: CANON, finish: "stop" }),
       ownership: () => testOwnership(), enabled: () => true, firedTransitions: () => [], facts: () => [],
+      restingEntries: (entries) => entries, restingLines: (text) => text,
     });
     return { synthesis, move: (id: string) => { active = id; } };
   };

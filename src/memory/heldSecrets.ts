@@ -57,6 +57,15 @@ const redacted = (text: string, secrets: readonly HeldSecret[], member: readonly
 export const withoutSecrets = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): string =>
   (secrets.length && keptFrom(text, secrets, member) ? redacted(text, secrets, member) ?? "" : text);
 
+export const withoutSecretLines = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): string => {
+  if (!secrets.length) return text;
+  return text.split("\n").flatMap((line) => {
+    if (!line.trim()) return [line];
+    const shown = withoutSecrets(line, secrets, member);
+    return shown ? [shown] : [];
+  }).join("\n");
+};
+
 export interface SharedTierView {
   entries: MemoryEntry[];
   withheld: Set<string>;

@@ -92,6 +92,7 @@ export class MemoryCoordinator {
     patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
+    restingEntries: (entries) => this.injector.restingEntries(entries), restingLines: (text) => this.injector.restingLines(text),
     journal: (summary, note) => this.deps.journal?.(summary, note),
   });
   readonly chapters: ChapterPort;
