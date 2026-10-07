@@ -30,6 +30,8 @@ function harness(replies: Array<ExtractionReply["finish"]>) {
     enabled: () => true,
     firedTransitions: () => [],
     facts: () => [],
+    restingEntries: (entries) => entries,
+    restingLines: (text) => text,
     journal: (summary, note) => { notes.push({ summary, note }); },
   });
   return { synthesis, asks, notes, canon: () => memory.canon?.text ?? null };

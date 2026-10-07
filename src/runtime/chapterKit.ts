@@ -183,7 +183,8 @@ export function storySoFar(host: ChapterHost): string {
   const memory = host.memory();
   const story = host.deps.getStory();
   const chapter = chapterOf(story, host.deps.getState()?.activeCheckpointId);
-  return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon: memory.canon && !memory.canon.stale ? memory.canon.text : "",
+  const canon = memory.canon && !memory.canon.stale ? host.coordinator.injector.restingLines(memory.canon.text) : "";
+  return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon,
     chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
 }
 
