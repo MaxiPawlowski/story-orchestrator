@@ -1,17 +1,14 @@
 import { subscribeToHostEvents, capabilityState, type CapabilityState } from "@services/STAPI";
-import { imageModel } from "@services/stHost/image";
 import {
-  spriteBuiltInExpressionsActive, spriteCast, spriteClassifyLocal, spriteDraftedName, spriteHint, spriteList, spriteMessage, spriteChatLength,
-  spriteReducedMotion, spriteStreamingReply, spriteVnMode, spriteWriteExpressions,
+  spriteBuiltInExpressionsActive, spriteCast, spriteDraftedName, spriteHideBuiltInExpressions, spriteHint, spriteList, spriteMembershipKey, spriteMessage, spriteChatLength,
+  spriteNarrowViewport, spriteReducedMotion, spriteStreamingReply, spriteVnMode, spriteWatchViewport, spriteWriteExpressions, type SpriteChatMessage,
 } from "@services/stHost/sprites";
-import { judgeUseActive } from "@judge/index";
 import type { RuntimeManager } from "@runtime/runtimeManager";
-import { withholds } from "@runtime/generationLifecycle";
 import { beginRun } from "@runtime/runToken";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
-import { classifyExpressions, NARRATION, type ExpressionDeps, type ExpressionRead } from "./classify";
-import { cardSet, keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, unionLabels, type SpriteProfile, type SpriteSetRule } from "./profile";
+import { classifyExpressions, NARRATION, type ExpressionRead } from "./classify";
+import { cardSet, keywordSet, placeSet, resolveSprite, unionLabels } from "./profile";
 import { cardValues } from "@engine/cardFields";
 import { segmentText, visibleReply, type Segment } from "./segment";
 import type { SpriteActivation, SpriteSettings } from "./settings";
@@ -19,11 +16,15 @@ import { spriteActivation, spritesActive, storyDirectsStage } from "./activation
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
 import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type Framing, type StageDirection } from "./direction";
-import { frameIndex, StreamActivity, type AnimationFrames } from "./animation";
+import { StreamActivity, type AnimationFrames } from "./animation";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
+import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
 import { changedLookIssues } from "./lookHealth";
 import { applyLookResult } from "./lookApply";
-import { storedReads, type StoredRead } from "./storedReads";
+import { storedReadRecord, storedReads, type StoredRead } from "./storedReads";
+import { castInventory, loadCast, SpriteListCache, type Actor } from "./castLoad";
+import { stagePackIssues } from "./stageHealth";
+import { ExpressionCallRing, expressionDeps, type ExpressionCallTrace } from "./expressionCalls";
 export { storedReads, type StoredRead } from "./storedReads";
 
 export interface StageActor {
@@ -44,30 +45,12 @@ export interface StageView {
   waitsForVn: boolean;
   actors: StageActor[];
   speaking: string | null;
+  talker: string | null;
   framing: Framing;
   settings: SpriteSettings;
   activation: SpriteActivation;
   capability: CapabilityState | "checking";
   reducedMotion: boolean;
-}
-
-interface Actor {
-  name: string;
-  avatar: string;
-  keys: string[];
-  muted: boolean;
-  profile: SpriteProfile;
-  rules: SpriteSetRule[];
-  packs: Map<string, Map<string, string>>;
-  frames: Map<string, Map<string, AnimationFrames>>;
-  set: string;
-  keyword: string | null;
-  label: string;
-  path: string;
-  desiredLabel: string;
-  generatedLook?: string;
-  lookError?: string;
-  lookStamp?: string;
 }
 
 interface Stream {
@@ -82,13 +65,15 @@ interface Stream {
 }
 
 const PASSAGE_KEY = 48;
-const LLM_TIMEOUT_MS = 15_000;
 const keyOf = (text: string) => text.slice(0, PASSAGE_KEY);
+const readsOf = (message: SpriteChatMessage): StoredRead[] => storedReads(message.expressions, message);
 
 export class SpriteStage {
   readonly activity = new StreamActivity();
+  readonly expressionCalls = new ExpressionCallRing();
   private actors: Actor[] = [];
   private speaking: string | null = null;
+  private talker: string | null = null;
   private stream: Stream | null = null;
   private listeners = new Set<() => void>();
   private loading = 0;
@@ -98,6 +83,9 @@ export class SpriteStage {
   private hinted = new Set<string>();
   private looks: import("./builder/onDemand").OnDemandLooks | null = null;
   private lookModule: Promise<void> | null = null;
+  private membership: string | null = null;
+  private packIssues: SpriteStageIssue[] = [];
+  private readonly lists = new SpriteListCache(spriteList);
 
   constructor(private readonly manager: RuntimeManager) {
     this.snapshot = this.compose();
@@ -128,21 +116,27 @@ export class SpriteStage {
     return spriteActivation(this.settings(), this.directs.value);
   }
 
+  private ready(): boolean {
+    return spritesActive(this.activation()) && this.settings().stage !== "off";
+  }
+
   private compose(): StageView {
     const settings = this.settings();
     const activation = this.activation();
-    const vn = spriteVnMode();
-    const ready = spritesActive(activation) && settings.stage !== "off" && !spriteBuiltInExpressionsActive();
+    const narrow = spriteNarrowViewport();
+    const vn = spriteVnMode() && !narrow;
+    const ready = this.ready();
     const direction = this.direction();
     const actors = this.actors
       .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking }, direction))
       .map(({ name, avatar, label, path, set, keys, frames }) => ({ name, avatar, label, path, set, frames: frames.get(set)?.get(label), spotlight: isSpotlit(direction, keys) }));
     return {
-      visible: ready && (settings.stage === "always" || vn) && actors.length > 0,
+      visible: ready && (narrow || settings.stage === "always" || vn) && actors.length > 0,
       placement: vn ? "vn" : "strip",
-      waitsForVn: ready && settings.stage === "vn" && !vn && actors.length > 0,
+      waitsForVn: ready && !narrow && settings.stage === "vn" && !vn && actors.length > 0,
       actors,
       speaking: this.speaking,
+      talker: this.talker,
       framing: direction?.framing ?? "full",
       settings,
       activation,
@@ -153,14 +147,22 @@ export class SpriteStage {
 
   notify = () => {
     this.snapshot = this.compose();
-    this.publishLookIssues();
+    spriteHideBuiltInExpressions(this.snapshot.visible);
+    this.publishHealth();
     this.hintVn();
     for (const listener of this.listeners) listener();
   };
 
-  private publishLookIssues(): void {
+  private publishHealth(): void {
+    const chatId = spriteCast().chatId;
     const issues = changedLookIssues(this.manager.getStory(), this.manager.getSnapshot().blackboard, this.settings(), spritesActive(this.activation()), this.actors);
-    if (publishSpriteLookIssues(spriteCast().chatId, issues)) this.manager.touch?.();
+    const looks = publishSpriteLookIssues(chatId, issues);
+    const stage = publishSpriteStageHealth(chatId, {
+      builtInExpressions: this.ready() && this.actors.length > 0 && spriteBuiltInExpressionsActive(),
+      packIssues: this.packIssues,
+      inventory: castInventory(this.actors),
+    });
+    if (looks || stage) this.manager.touch?.();
   }
 
   private hintVn(): void {
@@ -174,18 +176,19 @@ export class SpriteStage {
   start(): () => void {
     const off = subscribeToHostEvents([
       { eventName: "CHAT_CHANGED", handler: () => void this.reload() },
-      { eventName: "GROUP_UPDATED", handler: () => void this.reload() },
-      { eventName: "CHARACTER_EDITED", handler: () => void this.reload() },
+      { eventName: "GROUP_UPDATED", handler: () => this.groupUpdated() },
+      { eventName: "CHARACTER_EDITED", handler: () => { this.lists.clear(); void this.reload(); } },
       { eventName: "GROUP_MEMBER_DRAFTED", handler: (id: unknown) => this.begin(typeof id === "number" || Array.isArray(id) ? spriteDraftedName(id as number | [number]) : null) },
-      { eventName: "GENERATION_STARTED", handler: (type: unknown, _params: unknown, dryRun: unknown) => this.generationStarted(type, dryRun) },
       { eventName: "STREAM_TOKEN_RECEIVED", handler: () => this.streamToken() },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (id: unknown, type: unknown) => { if (typeof id === "number") void this.rendered(id, typeof type === "string" ? type : undefined); } },
       { eventName: "MESSAGE_SWIPED", handler: () => this.replay() },
+      { eventName: "MESSAGE_EDITED", handler: () => this.replay() },
       { eventName: "MESSAGE_DELETED", handler: () => this.replay() },
       { eventName: "SETTINGS_UPDATED", handler: this.notify },
     ]);
     const observer = typeof MutationObserver === "undefined" ? null : new MutationObserver(this.notify);
     observer?.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    const offViewport = spriteWatchViewport(this.notify);
     const offStory = this.manager.subscribe(() => this.placeChanged());
     const click = (event: MouseEvent) => this.clicked(event);
     document.addEventListener("click", click);
@@ -193,12 +196,22 @@ export class SpriteStage {
     return () => {
       off();
       offStory();
+      offViewport();
       observer?.disconnect();
       document.removeEventListener("click", click);
       this.stopPlayback();
       this.activity.stop();
       this.looks?.close();
+      spriteHideBuiltInExpressions(false);
     };
+  }
+
+  private groupUpdated(): void {
+    if (spriteMembershipKey() !== this.membership) {
+      void this.reload();
+      return;
+    }
+    if (this.castChanged()) this.notify();
   }
 
   async reload(): Promise<void> {
@@ -207,42 +220,26 @@ export class SpriteStage {
     const ticket = ++this.loading;
     this.capability = await capabilityState("sprites");
     if (ticket !== this.loading) return;
+    const cast = spriteCast();
     if (this.capability === "absent") {
       this.actors = [];
+      this.packIssues = [];
       this.stream = null;
+      this.membership = spriteMembershipKey(cast);
       this.notify();
       return;
     }
-    const cast = spriteCast();
-    const actors: Actor[] = [];
-    for (const member of cast.members) {
-      const folderGuess = member.avatar.replace(/\.[^.]+$/, "");
-      const profile = readSpriteProfile(member.profile, folderGuess);
-      if (!profile) continue;
-      const rules = readSpriteSets(member.profile);
-      const generated = this.settings().builders[profile.folder]?.baseSet;
-      if (generated && !rules.some((rule) => rule.id === generated)) rules.push({ id: generated, places: [], checkpoints: [], keywords: [] });
-      const packs = new Map<string, Map<string, string>>();
-      const frames = new Map<string, Map<string, AnimationFrames>>();
-      for (const rule of rules) {
-        const pack = spriteIndex(await spriteList(rule.id === "default" ? profile.folder : `${profile.folder}/${rule.id}`));
-        if (ticket !== this.loading) return;
-        if (pack.size) packs.set(rule.id, pack);
-        frames.set(rule.id, frameIndex(await spriteList(`${profile.folder}/anim-${rule.id}`)));
-        if (ticket !== this.loading) return;
-      }
-      const defaults = packs.get("default");
-      const first = defaults ? resolveSprite(profile, profile.default, defaults) : null;
-      if (!first) continue;
-      actors.push({
-        name: member.name, avatar: member.avatar, keys: this.keysFor(member.name), muted: member.muted, profile, rules: rules.filter((rule) => packs.has(rule.id)), packs, frames,
-        set: "default", keyword: null, label: first.label, desiredLabel: first.label, path: first.path,
-      });
-    }
-    this.actors = actors;
+    const loaded = await loadCast(cast.members, {
+      list: (folder) => this.lists.get(cast.chatId, folder), keysFor: (name) => this.keysFor(name), builders: this.settings().builders,
+    });
+    if (ticket !== this.loading) return;
+    this.actors = loaded.actors;
+    this.packIssues = stagePackIssues(this.manager.getStory(), loaded.gaps, loaded.actors);
+    this.membership = spriteMembershipKey(cast);
     this.placeKey = "";
     this.chooseSets();
     this.stream = null;
+    this.talker = null;
     this.replay();
   }
 
@@ -391,6 +388,7 @@ export class SpriteStage {
   replay(): void {
     this.activity.stop();
     this.stopPlayback();
+    if (!this.stream || this.stream.final) this.talker = null;
     const direction = this.direction();
     for (const actor of this.actors) this.setFace(actor.name, this.directedFace(actor, direction));
     const seen = new Set<string>();
@@ -398,8 +396,7 @@ export class SpriteStage {
     for (let id = spriteChatLength() - 1; id >= 0 && seen.size < this.actors.length; id -= 1) {
       const message = spriteMessage(id);
       if (!message || message.isUser || message.isSystem) continue;
-      const reads = storedReads(message.expressions);
-      for (const read of [...reads].reverse()) {
+      for (const read of [...readsOf(message)].reverse()) {
         const who = read.who === NARRATION ? message.name : read.who;
         speaking ??= this.actor(who) ? who : null;
         if (seen.has(who) || !this.actor(who)) continue;
@@ -413,10 +410,6 @@ export class SpriteStage {
     this.notify();
   }
 
-  private generationStarted(type: unknown, dryRun: unknown): void {
-    if (dryRun === true || withholds(type)) return;
-  }
-
   private begin(speaker: string | null): void {
     if (!speaker) return;
     this.castChanged();
@@ -424,6 +417,7 @@ export class SpriteStage {
     this.stream = { chatId: spriteCast().chatId, speaker, segments: [], reads: new Map(), classifying: Promise.resolve(), streamed: false, final: false };
     if (this.actor(speaker)) {
       this.speaking = speaker;
+      this.talker = speaker;
       this.notify();
     }
   }
@@ -453,6 +447,8 @@ export class SpriteStage {
     const labels = unionLabels(profiles);
     const localMap = Object.assign({}, ...profiles.map((profile) => profile.localMap)) as Record<string, string>;
     const base = stream.segments.length - segments.length;
+    const trace: ExpressionCallTrace = { steps: [], thinking: null };
+    const started = Date.now();
     const reads = await classifyExpressions({
       speaker: stream.speaker,
       cast: this.actors.map((actor) => actor.name),
@@ -460,7 +456,10 @@ export class SpriteStage {
       localMap,
       fallbackLabel: this.actor(stream.speaker)?.profile.default ?? profiles[0]?.default ?? "neutral",
       segments: segments.map((segment, offset) => ({ index: base + offset + 1, text: segment.text })),
-    }, this.deps());
+    }, expressionDeps(this.manager, trace));
+    this.expressionCalls.record({
+      at: started, chatId: stream.chatId, segments: segments.length, source: reads[0]?.source ?? "speaker", latencyMs: Date.now() - started, steps: trace.steps, thinking: trace.thinking,
+    });
     if (spriteCast().chatId !== stream.chatId) return;
     reads.forEach((read, offset) => {
       stream.reads.set(keyOf(segments[offset].text), read);
@@ -470,35 +469,19 @@ export class SpriteStage {
     });
   }
 
-  private deps(): ExpressionDeps {
-    const global = this.manager.getGlobalSettings();
-    const judge = this.manager.getJudge();
-    const profileId = global.sprites.profileId || global.image.directorProfileId;
-    return {
-      judge: judge && judgeUseActive(global.judge, "expressions")
-        ? async (request) => (await judge.ask("expressions", request, { timeoutMs: Math.max(global.judge.timeoutMs, 4000) })).answers
-        : null,
-      llm: profileId
-        ? async (system, user, grammar) => await imageModel(profileId, [{ role: "system", content: system }, { role: "user", content: user }], 160, grammar, AbortSignal.timeout(LLM_TIMEOUT_MS))
-        : null,
-      local: spriteClassifyLocal,
-      warn: (step, error) => log.warn(`Sprite expressions: ${step} failed`, error),
-    };
-  }
-
   private async rendered(id: number, type?: string): Promise<void> {
     if (type === "first_message" || type === "extension") return;
     const message = spriteMessage(id);
     if (!message || message.isUser || message.isSystem || !this.actors.length) return;
     const live = this.stream && this.stream.speaker === message.name && !this.stream.final ? this.stream : null;
     this.activity.stop();
-    if (storedReads(message.expressions).length && !live) {
+    if (readsOf(message).length && !live) {
       this.replay();
       return;
     }
     const text = visibleReply(message.text);
     if (!text) {
-      if (live) this.stream = null;
+      if (live) this.endStream(live);
       return;
     }
     const run = beginRun(this.manager.getOwnership(), { from: id, to: id });
@@ -518,15 +501,25 @@ export class SpriteStage {
         this.chooseSets(text);
         this.play(reads, finals, stream.speaker);
       } else if (reads.length) this.apply(reads[reads.length - 1], stream.speaker);
-      this.stream = null;
+      this.endStream(stream);
     }
     if (!reads.length || !stream.chatId) return;
     if (!run.stillOwns()) {
       log.warn("Sprite expressions not stored", run.lapsedDetail());
       return;
     }
-    const saved = await spriteWriteExpressions(stream.chatId, id, reads, message.text);
+    const owner = { text: message.text, swipeId: message.swipeId };
+    const saved = await spriteWriteExpressions(stream.chatId, id, storedReadRecord(reads, owner), owner);
     if (!saved.ok) log.warn("Sprite expressions not stored", saved.reason);
+  }
+
+  private endStream(stream: Stream): void {
+    if (this.stream !== stream) return;
+    this.stream = null;
+    if (this.talker === stream.speaker) {
+      this.talker = null;
+      this.notify();
+    }
   }
 
   private play(reads: StoredRead[], segments: Segment[], speaker: string): void {
@@ -551,7 +544,7 @@ export class SpriteStage {
     const message = spriteMessage(Number(row.getAttribute("mesid")));
     if (!message) return;
     const clicked = (target?.closest("p, q, em, i, span") ?? target)?.textContent?.trim() ?? "";
-    const reads = storedReads(message.expressions);
+    const reads = readsOf(message);
     const probe = clicked.replace(/["*]/g, "").slice(0, 24);
     const hit = probe ? reads.find((read) => read.at.replace(/["*]/g, "").includes(probe) || probe.includes(read.at.replace(/["*]/g, "").slice(0, 24))) : undefined;
     if (hit) {

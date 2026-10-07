@@ -36,6 +36,7 @@ const LorebooksGroup = lazyRetry(() => import("./PlayGroups").then((module) => (
 const PacingGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.PacingGroup })));
 const StagecraftGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.StagecraftGroup })));
 const TalkGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TalkGroup })));
+const CharacterStateGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.CharacterStateGroup })));
 const TransitionNoteRow = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TransitionNoteRow })));
 const WardenGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.WardenGroup })));
 const CapabilitiesGroup = lazyRetry(() => import("./CapabilitiesGroup"));
@@ -213,6 +214,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
           <SettingsArea {...area("characters")}>
             <Lazy fallback={null}><TalkGroup snapshot={snapshot} manager={manager} /></Lazy>
             <Lazy fallback={null}><InnerVoiceGroup snapshot={snapshot} manager={manager} /></Lazy>
+            <Lazy fallback={null}><CharacterStateGroup snapshot={snapshot} manager={manager} /></Lazy>
           </SettingsArea>
           <SettingsArea {...area("world")}>
             <Lazy fallback={null}><LorebooksGroup snapshot={snapshot} manager={manager} /></Lazy>

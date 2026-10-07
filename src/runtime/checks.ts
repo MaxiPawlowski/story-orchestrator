@@ -3,6 +3,7 @@ import { SILENT_REPLY_WINDOW } from "./thinkingSilence";
 import { DEGRADING_SETUP_CHECKS, IMAGE_CHECKS, INFO_SETUP_CHECKS, MODEL_CHECKS, REQUIREMENT_CHECKS } from "./checksSetup";
 import { PERSONA_BLOCK_CHECKS, PERSONA_DEGRADE_CHECKS, PERSONA_INFO_CHECKS } from "./checksPersona";
 import { GAME_CHECKS } from "./checksGame";
+import { SPRITE_DEGRADE_CHECKS, SPRITE_INFO_CHECKS } from "./checksSprites";
 
 export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest" | "characters";
 
@@ -26,7 +27,7 @@ export type PersonaFix = { kind: "switch-persona"; avatarId: string; label: stri
 
 export type OneClickFix = RepairAction | MakeGroupFix | PersonaFix;
 
-export type ShowMe = { kind: "setting"; id: string } | { kind: "group-members" };
+export type ShowMe = { kind: "setting"; id: string } | { kind: "group-members" } | { kind: "st-extensions" };
 
 export interface CheckFinding {
   consequence: string;
@@ -142,7 +143,8 @@ export const STORY_NEEDS_GROUP_CHECK: Check = {
 
 export const CHECKS: readonly Check[] = [
   ...MODEL_CHECKS, STORY_NEEDS_GROUP_CHECK, ...REQUIREMENT_CHECKS, ...PERSONA_BLOCK_CHECKS,
-  SECRET_LEAK_CHECK, THINKING_CHECK, ...PERSONA_DEGRADE_CHECKS, ...DEGRADING_SETUP_CHECKS, ...IMAGE_CHECKS, ...GAME_CHECKS, ...INFO_SETUP_CHECKS, ...PERSONA_INFO_CHECKS,
+  SECRET_LEAK_CHECK, THINKING_CHECK, ...PERSONA_DEGRADE_CHECKS, ...DEGRADING_SETUP_CHECKS, ...IMAGE_CHECKS, ...SPRITE_DEGRADE_CHECKS, ...GAME_CHECKS,
+  ...INFO_SETUP_CHECKS, ...SPRITE_INFO_CHECKS, ...PERSONA_INFO_CHECKS,
 ];
 
 const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(check.engineFree) || Boolean(snapshot.storyId);

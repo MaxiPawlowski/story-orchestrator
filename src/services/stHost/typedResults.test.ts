@@ -52,6 +52,8 @@ const READS: Record<string, string> = {
   spriteBuiltInExpressionsActive: "a question about the page: is ST's own Character Expressions stage mounted",
   spriteHint: "a one-time toast; nothing in ST changes and the settings panel states the same line",
   spriteStripRemove: "removes OUR strip host from the chat column; nothing ST keeps",
+  spriteHideBuiltInExpressions: "adds or removes OUR style element; ST's settings and DOM are untouched, and the stage's own view says when it applies",
+  spriteNarrowViewport: "a question about the page width",
 };
 
 // V17: the guard used to read the return type WRITTEN before `{` or `=>`, so an unannotated host write

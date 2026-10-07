@@ -759,7 +759,23 @@
     },
     "src/sprites/stage.ts#SpriteStage.reload": {
       "status": "partial",
-      "note": "Sprite stage fix wave (2026-10-02; src/sprites joined the census): reloads the cast, sprite packs and stream after awaiting capabilityState and each spriteList. COVERED: a load ticket (++this.loading) checked after every await, so a newer reload (CHAT_CHANGED, GROUP_UPDATED, CHARACTER_EDITED) supersedes an older one before it writes. NOT COVERED: no RunToken; everything it writes is in-memory view state rebuilt from the open chat on every load, nothing reaches chat metadata, settings or another chat."
+      "note": "Sprite stage fix wave (2026-10-02; src/sprites joined the census): reloads the cast, sprite packs and stream after awaiting capabilityState and each spriteList. COVERED: a load ticket (++this.loading) checked after every await, so a newer reload (CHAT_CHANGED, GROUP_UPDATED, CHARACTER_EDITED) supersedes an older one before it writes. NOT COVERED: no RunToken; everything it writes is in-memory view state rebuilt from the open chat on every load, nothing reaches chat metadata, settings or another chat. Sprites fix wave (2026-10-07): lists every member and set in parallel through a per-chat cache (loadCast) and still adopts the result only under the current ticket; GROUP_UPDATED reloads only on a membership change."
+    },
+    "src/sprites/castLoad.ts#loadMember": {
+      "status": "local",
+      "note": "Sprites fix wave (2026-10-07): builds call-local pack and frame maps from parallel sprite listings and returns them; it writes nothing shared. SpriteStage.reload adopts the result only while its load ticket is current. Case: stage.test.ts \"lists every set of every member at once, and a member who joins lists only their own folders\"."
+    },
+    "src/sprites/expressionCalls.ts#expressionDeps>anonymous": {
+      "status": "local",
+      "note": "Sprites fix wave (2026-10-07): records which thinking switch the expression call sent into the caller's own per-call trace object; nothing shared. Case: stage.test.ts \"records which source answered and how long it took; the LLM route asks with thinking off and drops a leading thought\"."
+    },
+    "src/sprites/faceFrames.ts#decodeFrames": {
+      "status": "local",
+      "note": "Sprites fix wave (2026-10-07): fills a call-local frame map and the caller's own held list after each decode, and stops when the face unmounted (live() false) before reserving. Cases: faceFrames.test.ts \"stops when the face unmounts mid-decode and keeps nothing\"."
+    },
+    "src/sprites/stage.ts#SpriteStage.classify": {
+      "status": "local",
+      "note": "Sprites fix wave (2026-10-07): appends one row to the stage's in-memory dev ring of expression calls (source, latency, steps); the chat check that guards the display writes follows it. Nothing reaches chat metadata or settings."
     },
     "src/sprites/stage.ts#SpriteStage.rendered": {
       "status": "checked",

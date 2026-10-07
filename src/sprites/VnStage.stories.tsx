@@ -3,6 +3,7 @@ import { expect } from "@storybook/test";
 import { defaultSpriteSettings } from "./settings";
 import type { SpriteStage, StageActor, StageView } from "./stage";
 import { VnStage } from "./VnStage";
+import { expectFits, VIEWPORTS } from "../../.storybook/fit";
 
 const swatch = (color: string) =>
   `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="120"><rect width="40" height="120" fill="${color}"/></svg>`)}`;
@@ -22,6 +23,7 @@ const view = (patch: Partial<StageView> = {}): StageView => ({
   waitsForVn: false,
   actors: [actor("Arin", "#a55"), actor("Companion", "#55a", true)],
   speaking: "Arin",
+  talker: null,
   framing: "full",
   settings: { ...defaultSpriteSettings(), enabled: true, explicit: true },
   activation: "user-on",
@@ -81,5 +83,19 @@ export const HiddenRendersNothing: Story = {
   args: { stage: stage(view({ visible: false })) },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-vn-stage")).toBeNull();
+  },
+};
+
+export const PhoneUsesTheStrip: Story = {
+  args: { stage: stage(view({ placement: "strip", speaking: "Companion", talker: "Arin" })) },
+  parameters: { testViewport: VIEWPORTS.phone },
+  play: async ({ canvasElement }) => {
+    const root = canvasElement.querySelector("#so-vn-stage");
+    await expect(root).toHaveAttribute("data-placement", "strip");
+    const sprites = [...canvasElement.querySelectorAll<HTMLElement>(".so-sprite")];
+    await expect(sprites).toHaveLength(2);
+    await expect(sprites[0]).toHaveClass("so-talking");
+    await expect(sprites[1]).toHaveClass("so-speaking");
+    await expectFits(canvasElement, sprites[1]);
   },
 };

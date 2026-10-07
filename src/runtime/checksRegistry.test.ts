@@ -35,6 +35,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   imageHealth: { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none" },
   imageRetired: [{ where: "background", was: "flux1-dev-fp8.safetensors" }],
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
+  spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
   gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [] },
   lifeAuthor: { rows: [], scopeOverflow: ["rel_arin_player_trust"], proposals: [] },
   wiGating: { mode: "scan", drift: [{ lorebook: "Ruins", comment: "CP2" }], missingKey: [] },
@@ -51,7 +52,7 @@ const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
   "transcript-copiers", "model-not-thinking", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks",
-  "images-on-no-service", "image-model-missing", "image-model-retired", "quest-scope-overflow", "relationship-scope-overflow",
+  "images-on-no-service", "image-model-missing", "image-model-retired", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
 ];
 
 const duplicateIds = (registry: readonly Check[]): string[] =>
@@ -180,8 +181,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 13 });
-    expect(hudSetupText(counts)).toBe("fix setup (27)");
+    expect(counts).toEqual({ blocks: 14, degrades: 14 });
+    expect(hudSetupText(counts)).toBe("fix setup (28)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });
@@ -195,8 +196,8 @@ describe("v2.7 plan 04 C: one surface", () => {
 
   it("Getting started reads the install checks", () => {
     expect(installFindings(everything({ ui: { authorView: true } })).map((step) => step.check))
-      .toEqual(["wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model"]);
-    expect(installFindings(everything())).toEqual([]);
+      .toEqual(["wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
+    expect(installFindings(everything()).map((step) => step.check)).toEqual(["sprites-builtin-expressions"]);
   });
 
   it("the story-needs-group finding carries the make-a-group fix", () => {

@@ -31,6 +31,7 @@ import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
 import type { ImageHealthView } from "./imageHealth";
 import type { SpriteLookIssue } from "./spriteLookHealth";
+import type { SpriteStageHealth } from "./spriteStageHealth";
 import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
@@ -445,6 +446,7 @@ export interface RuntimeSnapshot {
   /** Install image choices that named a retired model and now use the default. */
   imageRetired?: Array<{ where: string; was: string }>;
   spriteLookIssues?: SpriteLookIssue[];
+  spriteStage?: SpriteStageHealth;
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;
   activeObjective: string | null;

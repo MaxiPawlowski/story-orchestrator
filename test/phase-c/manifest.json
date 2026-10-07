@@ -5056,6 +5056,35 @@
       ]
     },
     {
+      "id": "C6-stage",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the sprites review (2026-10-07)"
+      },
+      "labels": [
+        "C6-stage stage correctness (sprites fixes 2026-10-07, `v2.7-sprites-fixes`, not run)"
+      ],
+      "prerequisites": [
+        "a group story that directs a stage with ≥ 3 members: one pack with anim frames, one pack missing a label a beat asks for, one member with no pack; SillyTavern's Character Expressions on, then off; a 390×844 viewport"
+      ],
+      "reset": "lane",
+      "tier": [
+        "LI",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the stage matches a replay of the chat after a reply, a swipe, an edit, a delete, a reopen and a chat switch (no expression from another swipe or another text); with Character Expressions on the stage still shows and ST's expression picture is hidden only while it shows; at 390×844 the stage shows as the strip with no /vn hint; a missing frame, label or set leaves the static or fallback sprite and is named by stage-pack-missing or the Studio's stage-sprite-unknown; seam or pop visible in ≤5% of rated clips (v2.7 32 Decision 2)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs; seam or pop visible in ≤5% of rated clips",
+        "citation": "39 §Rows added by the sprites review (C6-stage); v2.7 32 W6 Decision 2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
       "id": "38-G-campaign",
       "stage": "C7",
       "source": {

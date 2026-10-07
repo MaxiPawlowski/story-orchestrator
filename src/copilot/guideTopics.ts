@@ -350,6 +350,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "opener-uses-player-name": "player",
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
+  "stage-sprite-unknown": "presentation",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

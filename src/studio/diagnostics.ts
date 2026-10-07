@@ -13,6 +13,7 @@ import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
 import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
 import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
+import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -73,10 +74,11 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...KIND_CONSEQUENCES,
   ...PLAYER_CONSEQUENCES,
   ...LIFE_CONSEQUENCES,
+  ...STAGE_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
-export interface DiagnosticsContext extends InstallFacts {
+export interface DiagnosticsContext extends InstallFacts, StageInventory {
   worldInfoGating?: "file" | "scan";
 }
 
@@ -493,6 +495,7 @@ const DIAGNOSTIC_CHECKS = [
   checkStoryKind,
   checkPlayerProfile,
   checkAgendaPace,
+  checkStageSprites,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

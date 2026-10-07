@@ -64,6 +64,20 @@ describe("sprite profile", () => {
     expect(resolveSprite(profile, "unknown", files)).toEqual({ label: "neutral", path: "/n.png" });
     expect(resolveSprite(profile, "sad", spriteIndex([]))).toBeNull();
   });
+
+  it("a frame file never becomes the base sprite, whatever order ST lists them in", () => {
+    const listed = [{ label: "happy", path: "/characters/Belle/happy.blink.png?t=1" }, { label: "happy", path: "/characters/Belle/happy.png?t=2" }];
+    expect(spriteIndex(listed).get("happy")).toBe("/characters/Belle/happy.png?t=2");
+    expect(spriteIndex([...listed].reverse()).get("happy")).toBe("/characters/Belle/happy.png?t=2");
+  });
+
+  it("prefers <label>.png, then the label in another format, then an alternate; a frame alone is no base", () => {
+    expect(spriteIndex([{ label: "joy", path: "/x/joy-1.png" }, { label: "joy", path: "/x/joy.webp" }, { label: "joy", path: "/x/joy.png" }]).get("joy")).toBe("/x/joy.png");
+    expect(spriteIndex([{ label: "joy", path: "/x/joy-1.png" }, { label: "joy", path: "/x/joy.webp" }]).get("joy")).toBe("/x/joy.webp");
+    expect(spriteIndex([{ label: "joy", path: "/x/joy-1.png" }, { label: "joy", path: "/x/joy-talk.png" }]).get("joy")).toBe("/x/joy-1.png");
+    expect(spriteIndex([{ label: "joy", path: "/x/joy.talk.png" }, { label: "joy", path: "/x/joy.talk2.png" }, { label: "joy", path: "/x/joy-blink.png" }]).has("joy")).toBe(false);
+    expect(spriteIndex([{ label: "joy", path: "/x/Joy%20.png" }, { label: "joy", path: "/x/%E0%A4%A.png" }]).get("joy")).toBe("/x/Joy%20.png");
+  });
 });
 
 const input = (cast: string[]): ExpressionInput => ({

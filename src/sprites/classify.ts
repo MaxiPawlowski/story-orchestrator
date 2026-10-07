@@ -22,11 +22,33 @@ export interface ExpressionRead {
   source: ExpressionSource;
 }
 
+export interface ExpressionStep {
+  step: Exclude<ExpressionSource, "speaker">;
+  ms: number;
+  ok: boolean;
+}
+
 export interface ExpressionDeps {
   judge: ((request: JudgeRequest) => Promise<Record<string, JudgeAnswer> | null>) | null;
   llm: ((system: string, user: string, grammar: string) => Promise<string>) | null;
   local: ((text: string) => Promise<Array<{ label: string; score: number }>>) | null;
   warn?: (step: ExpressionSource, error: unknown) => void;
+  step?: (entry: ExpressionStep) => void;
+  now?: () => number;
+}
+
+async function timed<T>(deps: ExpressionDeps, step: ExpressionStep["step"], run: () => Promise<T | null>): Promise<T | null> {
+  const now = deps.now ?? (() => Date.now());
+  const started = now();
+  try {
+    const value = await run();
+    deps.step?.({ step, ms: now() - started, ok: value !== null });
+    return value;
+  } catch (error) {
+    deps.step?.({ step, ms: now() - started, ok: false });
+    deps.warn?.(step, error);
+    return null;
+  }
 }
 
 const asksWho = (input: ExpressionInput) => input.cast.length > 1 || !input.cast.includes(input.speaker);
@@ -109,32 +131,21 @@ export function localLabel(scores: Array<{ label: string; score: number }>, inpu
 
 export async function classifyExpressions(input: ExpressionInput, deps: ExpressionDeps): Promise<ExpressionRead[]> {
   if (!input.segments.length) return [];
-  if (deps.judge) {
-    try {
-      const answers = await deps.judge(buildExpressionRequest(input));
-      if (answers) return readExpressionAnswers(answers, input);
-    } catch (error) {
-      deps.warn?.("judge", error);
-    }
+  const { judge, llm, local } = deps;
+  if (judge) {
+    const answers = await timed(deps, "judge", () => judge(buildExpressionRequest(input)));
+    if (answers) return readExpressionAnswers(answers, input);
   }
-  if (deps.llm) {
-    try {
-      const { system, user } = expressionPrompt(input);
-      const parsed = parseExpressionLines(await deps.llm(system, user, expressionGrammar(input)), input);
-      if (parsed) return parsed;
-    } catch (error) {
-      deps.warn?.("llm", error);
-    }
+  if (llm) {
+    const { system, user } = expressionPrompt(input);
+    const parsed = await timed(deps, "llm", async () => parseExpressionLines(await llm(system, user, expressionGrammar(input)), input));
+    if (parsed) return parsed;
   }
-  if (deps.local) {
-    try {
-      const local = deps.local;
-      return await Promise.all(input.segments.map(async (segment) => ({
-        index: segment.index, who: input.speaker, face: localLabel(await local(segment.text), input), source: "local" as const,
-      })));
-    } catch (error) {
-      deps.warn?.("local", error);
-    }
+  if (local) {
+    const reads = await timed(deps, "local", () => Promise.all(input.segments.map(async (segment) => ({
+      index: segment.index, who: input.speaker, face: localLabel(await local(segment.text), input), source: "local" as const,
+    }))));
+    if (reads) return reads;
   }
   return input.segments.map((segment) => ({ index: segment.index, who: input.speaker, face: input.fallbackLabel, source: "speaker" }));
 }

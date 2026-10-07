@@ -4,7 +4,7 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { TALK_CHAIN_MAX_CAP } from "@engine/index";
 import type { RuntimeManager } from "@runtime/index";
-import { getGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
 import { keepGlobalStoryLore, releaseGlobalStoryLore } from "@runtime/storyLoreHost";
@@ -164,6 +164,21 @@ export const InnerVoiceGroup = ({ snapshot, manager }: GroupProps) => {
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <Lazy fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Lazy>
+    </div>
+  );
+};
+
+export const CharacterStateGroup = ({ manager }: GroupProps) => {
+  const [on, setOn] = useState(() => getGlobalSettings().sprites.cardOverlay);
+  const change = (cardOverlay: boolean) => {
+    setGlobalSettings({ sprites: { cardOverlay } });
+    setOn(cardOverlay);
+    manager.notify();
+  };
+  return (
+    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+      <GroupHeader title="Added to the reply prompt" scope="install" id="so-character-state-header" />
+      <CheckRow id="so-card-overlay" setting="sprites.cardOverlay" checked={on} onChange={change} />
     </div>
   );
 };

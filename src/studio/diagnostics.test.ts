@@ -158,6 +158,8 @@ describe("runDiagnostics", () => {
       ...runDiagnostics(installSeeded, { characterNames: () => ["Tobias"], backgroundNames: () => ["tavern day.jpg"] }),
       ...runDiagnostics(arrivalSeeded, { personaNames: () => ["Traveller"] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave", pace: "per_chapter", steps: [{ text: "packed" }] }] }] }),
+      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as StoryV2["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
+        { spriteInventory: () => ({ arin: { sets: ["default"], faces: ["neutral"] } }) }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

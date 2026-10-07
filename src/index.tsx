@@ -20,6 +20,7 @@ import { createMountRegistry } from "@utils/mountRegistry";
 import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
+import { spriteInventory } from "@runtime/spriteStageHealth";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
@@ -81,6 +82,7 @@ const studioDiagnostics = () => ({
   characterNames: getAllCharacterNames,
   backgroundNames: listBackgrounds,
   personaNames: listPersonas,
+  spriteInventory,
 });
 
 const openStudio = async (intent?: StudioOpenIntent, storyId?: string) => {
@@ -129,6 +131,11 @@ const fixSetup = (action: OneClickFix) => import("./setupFixes").then(({ createS
 
 const showSetupTarget = (target: ShowMe) => {
   if (target.kind === "group-members") return openGroup();
+  if (target.kind === "st-extensions") {
+    openExtensionsDrawer();
+    window.setTimeout(() => document.querySelector(".expression_settings")?.scrollIntoView({ block: "center", behavior: "smooth" }), 250);
+    return;
+  }
   openStorySettings();
   window.setTimeout(() => revealSetting(target.id), 250);
 };
@@ -368,10 +375,14 @@ const openSoDrawer = () => {
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
 // own inline drawer, then scroll it into view.
-const openStorySettings = () => {
+const openExtensionsDrawer = () => {
   const navToggle = document.querySelector<HTMLElement>("#extensions-settings-button .drawer-toggle");
   const navContent = document.getElementById("rm_extensions_block");
   if (navToggle && navContent && !navContent.classList.contains("openDrawer")) toggleNavbarDrawer(navToggle);
+};
+
+const openStorySettings = () => {
+  openExtensionsDrawer();
   const panel = document.getElementById("story-orchestrator-settings");
   const inlineToggle = panel?.querySelector<HTMLElement>(".inline-drawer-toggle");
   const inlineContent = panel?.querySelector<HTMLElement>(".inline-drawer-content");

@@ -2,6 +2,24 @@
 
 Open a story in Studio and choose **Sprites**. The member picker contains installed cards from that story's roster.
 
+## Where the stage looks for sprites
+
+Like SillyTavern's Character Expressions, the stage reads a character's sprites from the folder named after the
+character (`characters/<name>/`), or from the folder an expression override in Character Expressions names. A
+`folder` in the card's `so_sprites` block wins over both. Base sprites are the files named after their label
+(`happy.png`); a frame file such as `happy.blink.png` never becomes the base face, and animation frames live in
+`anim-<set>` folders.
+
+**SillyTavern's Character Expressions.** It may stay on. While the stage shows for a story with sprites,
+SillyTavern's own expression picture (and its Visual Novel sprites) is hidden, and it comes back when the stage is
+not showing; SillyTavern's settings are never changed. The Setup list says when both are on.
+
+**Phones.** Below 768 px wide the stage always shows as the strip above the chat, with or without `/vn`.
+
+When a story directs a stage and a character it shows has no pack, no sprites in its folder, or no sprite for a face
+or set a turning point asks for, the author's Setup list names it (*stage-pack-missing*), and Studio warns about a
+face or set that the installed packs do not have.
+
 1. Choose an existing transparent PNG or upload a reference PNG.
 2. Choose a separate output set name, using lowercase letters, digits and underscores.
 3. Adjust the red head box to cover the face. Its coordinates are pixels in the reference, not the preview.
@@ -74,7 +92,8 @@ enum quality. A checkpoint may apply `effects.card: {"member_id": {"hair": "red"
 edit wins; undoing a boundary restores the earlier value and its writer. A fresh chat has no applied change.
 
 Illustrations read the applied public visual fields. Pre-rendered sprite rules may select a set using
-`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate default-off switch.
+`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate default-off switch, under
+Characters › Added to the reply prompt.
 Private knowledge belongs in the knowledge system, never in a public card field.
 The local Artemis comparison kept this switch off by default: both tested placements agreed with every changed colour,
 but the memory-only baseline was equally good in one of the two runs, so the repeatable-benefit condition was not met.

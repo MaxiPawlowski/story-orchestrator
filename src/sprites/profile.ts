@@ -42,10 +42,33 @@ export interface SpriteFile {
   path: string;
 }
 
+export function spriteFileName(path: string): string {
+  const last = path.split("?")[0].split("/").pop() ?? "";
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+}
+
+const FRAME_SUFFIX = /[.-](blink|talk2|talk)$/i;
+
+const baseRank = (file: SpriteFile): number | null => {
+  const name = spriteFileName(file.path).toLowerCase();
+  const stem = name.replace(/\.[^.]+$/, "");
+  const label = file.label.toLowerCase();
+  if (stem === label) return name === `${label}.png` ? 0 : 1;
+  return FRAME_SUFFIX.test(stem) ? null : 2;
+};
+
 export function spriteIndex(files: SpriteFile[]): Map<string, string> {
-  const index = new Map<string, string>();
-  for (const file of files) if (!index.has(file.label)) index.set(file.label, file.path);
-  return index;
+  const best = new Map<string, { path: string; rank: number }>();
+  for (const file of files) {
+    const rank = baseRank(file);
+    const known = best.get(file.label);
+    if (rank !== null && (!known || rank < known.rank)) best.set(file.label, { path: file.path, rank });
+  }
+  return new Map([...best].map(([label, entry]) => [label, entry.path]));
 }
 
 export function resolveSprite(profile: SpriteProfile, label: string, available: Map<string, string>): { label: string; path: string } | null {

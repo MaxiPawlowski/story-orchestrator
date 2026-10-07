@@ -169,6 +169,15 @@ group turns, memory requests carry no budget key, one Chat Completion arm (`v2.6
 `prod`, ≈0.5 lane-hour. C4's R4 latency leg is recorded in B1-C3. 39 C5 already names C14-b (an acceptance row, not a measurement), so it is
 not repeated here. v2.8 01 §A (O-rows) is C5; v2.8 01 §C (option A) is v2.7 33 W1.
 
+### Rows added by the sprites review (2026-10-07)
+
+Plugin-side fixes for the talking-sprites review on `v2.7-sprites-fixes` (jest: `sprites/stage.test.ts`, `sprites/faceFrames.test.ts`,
+`sprites/sprites.test.ts`, `studio/stageDiagnostics.test.ts`, `runtime/checksRegistry.test.ts`; Storybook `Sprites/VnStage` `PhoneUsesTheStrip`).
+
+| Row | Setup | Assertion | Tier |
+|---|---|---|---|
+| C6-stage stage correctness (sprites fixes 2026-10-07, `v2.7-sprites-fixes`, not run) | a group story that directs a stage with ≥ 3 members: one pack with anim frames, one pack missing a label a beat asks for, one member with no pack; SillyTavern's Character Expressions on, then off; a 390×844 viewport | the stage matches a replay of the chat after a reply, a swipe, an edit, a delete, a reopen and a chat switch (no expression from another swipe or another text); with Character Expressions on the stage still shows and ST's expression picture is hidden only while it shows; at 390×844 the stage shows as the strip with no /vn hint; a missing frame, label or set leaves the static or fallback sprite and is named by `stage-pack-missing` or the Studio's `stage-sprite-unknown`; the seam/pop floor owed from plan 32 decision 2: seam or pop visible in ≤5% of rated clips | LI + CL |
+
 ### Rows for Sol findings 4–10 (code fixes on `v2.7-fix-sol-review`)
 
 The live and real-model counterparts of the deterministic pins that branch added (jest names cited). Each is a
@@ -301,7 +310,7 @@ purpose: `docs/release/2.4.0/`, journey and session records, the 2.4.0 test fixt
 Consequence: once Z writes `docs/release/2.7.0/attestation.json`, any later build still at 2.7.0 fails `test:release`
 (drift) until the version moves; the next development version bump is the first commit after the release.
 
-**Row manifest** `test/phase-c/manifest.json`: 193 rows, checked by `scripts/release/phaseCManifest.test.mjs` (part of
+**Row manifest** `test/phase-c/manifest.json`: 199 rows, checked by `scripts/release/phaseCManifest.test.mjs` (part of
 `npm run test:release`, so of `npm run gates`): every field present, ids unique, stage / tier / build / reset known,
 two evidence slots (`null` until a record path lands), floors that can fail (an "or refuse", "or skipped", "≥ 0",
 "≤ 100 %", "where possible" floor is refused, finding 18), and parity with this plan both ways: every first cell of a
@@ -316,15 +325,15 @@ Planted controls for each in the same file.
 | C0 | 2 | D 2 | 1 / 1 |
 | C1 | 3 | D 3 | 3 / 0 |
 | C1b | 2 | D 2 | 2 / 0 |
-| C2 | 51 | D 51 | 15 / 36 |
+| C2 | 53 | D 53 | 15 / 38 |
 | C3 | 10 | D 10 | 0 / 10 |
 | C4 | 16 | D 16, RP 15 | 0 / 16 |
-| C5 | 61 | CL 36, RP 33, D 10, LI 4 | 48 / 13 |
-| C6 | 22 | LI 19, CL 6, RP 3, LT 2 | 22 / 0 |
+| C5 | 64 | CL 37, RP 35, D 13, LI 4 | 49 / 15 |
+| C6 | 23 | LI 20, CL 7, RP 3, LT 2 | 23 / 0 |
 | C7 | 4 | RP 3, D 1 | 4 / 0 |
 | C8, C8b | 2 | CL 2 | 2 / 0 |
 | Z | 2 | D 2 | 2 / 0 |
-| **Total** | **193** | D 99, RP 61, CL 56, LI 23, LT 2 | 99 / 94 |
+| **Total** | **199** | D 104, RP 63, CL 58, LI 24, LT 2 | 101 / 98 |
 
 Conventions. A floor is the plan's text verbatim with a citation; `pass/fail: the assertion holds in both runs` where
 the source states a condition and no number; `record only` for counts (B1-C12, 35-M1). A `gap` field marks a row whose
@@ -610,6 +619,7 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | 38-D13b | C6 | LI | prod | v2.7 38 §Steps D13b + §Gates |
 | 38-D13c | C6 | LI | prod | v2.7 38 §Steps D13c |
 | 38-assets-saga | C6 | LI | prod | v2.7 38 header; v2.7 28 |
+| C6-stage | C6 | LI + CL | prod | v2.7 39 §Rows added by the sprites review (2026-10-07); v2.7 32 Decision 2 |
 | 38-G-campaign | C7 | D | prod | v2.7 38 §Gates |
 | 38-C7 | C7 | RP | prod | v2.7 38 §C7 integration criteria |
 | 38-C7-life | C7 | RP | prod | v2.7 38 §C7 (finding 18) |

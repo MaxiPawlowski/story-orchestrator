@@ -49,4 +49,5 @@ export const DIAGNOSTIC_CODES = [
   "opener-uses-player-name",
   "player-spoiler-risk",
   "agenda-pace-no-chapters",
+  "stage-sprite-unknown",
 ] as const;

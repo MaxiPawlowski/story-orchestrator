@@ -81,7 +81,7 @@ const readIncludeBody = (presetName: string | undefined): Record<string, unknown
   return foldIncludeBody(parseHostYaml(context.substituteParams ? context.substituteParams(raw) : raw));
 };
 
-const readReasoningRoute = (profileId: string): ReasoningRoute | null => {
+export const readReasoningRoute = (profileId: string): ReasoningRoute | null => {
   const profile = readProfile(profileId);
   const map = profile?.api ? getContext().CONNECT_API_MAP?.[profile.api] : undefined;
   if (!profile || !map) return null;

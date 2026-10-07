@@ -1,11 +1,12 @@
 export interface AnimationFrames { blink?: string; talk?: string; talk2?: string }
 import { fnv1a } from "@runtime/hash";
+import { spriteFileName } from "./profile";
 export type MouthMode = "off" | "simple" | "smooth";
 
 export function frameIndex(files: Array<{ path: string }>): Map<string, AnimationFrames> {
   const result = new Map<string, AnimationFrames>();
   for (const { path } of files) {
-    const filename = decodeURIComponent(path.split("?")[0].split("/").pop() ?? "");
+    const filename = spriteFileName(path);
     const match = /^([a-z0-9_]+)\.(blink|talk2|talk)\.png$/i.exec(filename);
     if (!match) continue;
     const entry = result.get(match[1]) ?? {};

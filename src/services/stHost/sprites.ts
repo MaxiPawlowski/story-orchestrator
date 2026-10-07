@@ -3,10 +3,14 @@ import { saveOpenChat } from "./persistence";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { isRecord } from "@utils/guards";
 import { generatedSpriteSets } from "./media";
+import { extensionsSharedModule } from "./modules";
+import { readReasoningRoute } from "./connectionProfiles";
+import { reasoningPayload } from "./reasoningPayload";
 
 export interface SpriteCastMember {
   name: string;
   avatar: string;
+  folder: string;
   profile: unknown;
   muted: boolean;
 }
@@ -17,6 +21,7 @@ export interface SpriteChatMessage {
   isUser: boolean;
   isSystem: boolean;
   text: string;
+  swipeId: number;
   avatar: string;
   expressions: unknown;
 }
@@ -40,9 +45,22 @@ const cards = (): CardLike[] => {
   return Array.isArray(characters) ? characters as CardLike[] : [];
 };
 
+const overrides = (): Array<Record<string, unknown>> => {
+  const list = (getContext().extensionSettings as Record<string, unknown>).expressionOverrides;
+  return Array.isArray(list) ? list.filter(isRecord) : [];
+};
+
+const folderOf = (name: string, avatar: string, profile: unknown): string => {
+  if (isRecord(profile) && typeof profile.folder === "string" && profile.folder.trim()) return profile.folder.trim();
+  const file = avatar.replace(/\.[^/.]+$/, "");
+  const override = overrides().find((entry) => entry.name === file)?.path;
+  return typeof override === "string" && override.trim() ? override.trim() : name;
+};
+
 const member = (card: CardLike | undefined, muted: boolean): SpriteCastMember | null => {
   if (!card || typeof card.name !== "string" || typeof card.avatar !== "string") return null;
-  return { name: card.name, avatar: card.avatar, profile: card.data?.extensions?.so_sprites ?? null, muted };
+  const profile = card.data?.extensions?.so_sprites ?? null;
+  return { name: card.name, avatar: card.avatar, folder: folderOf(card.name, card.avatar, profile), profile, muted };
 };
 
 export function spriteCast(): SpriteCast {
@@ -61,8 +79,7 @@ export function spriteBuilderMembers(names: string[]): Array<{ name: string; fol
   const selected = new Set(names.map((name) => name.toLowerCase()));
   return cards().flatMap((card) => {
     if (typeof card.name !== "string" || typeof card.avatar !== "string" || !selected.has(card.name.toLowerCase())) return [];
-    const profile = card.data?.extensions?.so_sprites;
-    const folder = isRecord(profile) && typeof profile.folder === "string" ? profile.folder : card.avatar.replace(/\.[^.]+$/, "");
+    const folder = folderOf(card.name, card.avatar, card.data?.extensions?.so_sprites);
     return [{ name: card.name, folder, image: `/characters/${encodeURIComponent(card.avatar)}` }];
   });
 }
@@ -82,6 +99,7 @@ export function spriteMessage(id: number): SpriteChatMessage | null {
     isUser: row.is_user === true,
     isSystem: row.is_system === true,
     text: typeof row.mes === "string" ? row.mes : "",
+    swipeId: typeof row.swipe_id === "number" ? row.swipe_id : 0,
     avatar: typeof row.original_avatar === "string" ? row.original_avatar : "",
     expressions: isRecord(row.extra) ? row.extra.so_expr : undefined,
   };
@@ -121,13 +139,35 @@ export async function spriteClassifyLocal(text: string): Promise<Array<{ label: 
   return rows.filter((row): row is { label: string; score: number } => isRecord(row) && typeof row.label === "string" && typeof row.score === "number");
 }
 
-export async function spriteWriteExpressions(chatId: string, id: number, reads: unknown, text: string): Promise<WriteResult<{ saved: true }>> {
+export interface SpriteModelReply {
+  text: string;
+  thinking: string | null;
+}
+
+const replyText = (response: unknown): string => {
+  if (typeof response === "string") return response;
+  if (isRecord(response) && typeof response.content === "string") return response.content;
+  if (isRecord(response) && typeof response.text === "string") return response.text;
+  throw new Error("The expression model answered no text.");
+};
+
+export async function spriteExpressionModel(profileId: string, messages: Array<{ role: string; content: string }>, maxTokens: number, grammar: string,
+  signal: AbortSignal): Promise<SpriteModelReply> {
+  const plan = reasoningPayload(readReasoningRoute(profileId), "off");
+  const response: unknown = await extensionsSharedModule.ConnectionManagerRequestService.sendRequest(
+    profileId, messages, maxTokens, { extractData: true, includePreset: true, includeInstruct: true, stream: false, signal }, { grammar, ...plan.payload },
+  );
+  return { text: replyText(response), thinking: plan.applied ? plan.sent : plan.unsupported };
+}
+
+export async function spriteWriteExpressions(chatId: string, id: number, record: unknown, owner: { text: string; swipeId: number }): Promise<WriteResult<{ saved: true }>> {
   const ctx = getContext();
   if (ctx.chatId !== chatId) return couldNot("The chat changed before the expressions were stored.");
   const row = ctx.chat[id];
   if (!isRecord(row)) return couldNot("The message is gone.");
-  if (row.mes !== text) return couldNot("The message changed before the expressions were stored.");
-  row.extra = { ...(isRecord(row.extra) ? row.extra : {}), so_expr: reads };
+  if (row.mes !== owner.text) return couldNot("The message changed before the expressions were stored.");
+  if ((typeof row.swipe_id === "number" ? row.swipe_id : 0) !== owner.swipeId) return couldNot("Another swipe is showing, so the expressions were not stored.");
+  row.extra = { ...(isRecord(row.extra) ? row.extra : {}), so_expr: record };
   const save = await saveOpenChat("sprite-expressions");
   return save.ok ? wrote({ saved: true }) : couldNot(save.reason);
 }
@@ -143,6 +183,39 @@ export function spriteReducedMotion(): boolean {
 
 export function spriteBuiltInExpressionsActive(): boolean {
   return typeof document !== "undefined" && document.getElementById("expression-wrapper") !== null;
+}
+
+const HIDE_ID = "so-hide-st-expressions";
+
+export function spriteHideBuiltInExpressions(hide: boolean): void {
+  if (typeof document === "undefined" || typeof document.getElementById !== "function") return;
+  const existing = document.getElementById(HIDE_ID);
+  if (!hide) {
+    existing?.remove();
+    return;
+  }
+  if (existing) return;
+  const style = document.createElement("style");
+  style.id = HIDE_ID;
+  style.textContent = "#expression-wrapper, #visual-novel-wrapper { display: none !important; }";
+  document.head.appendChild(style);
+}
+
+const NARROW = "(max-width: 768px)";
+
+export function spriteNarrowViewport(): boolean {
+  return typeof matchMedia === "function" && matchMedia(NARROW).matches;
+}
+
+export function spriteWatchViewport(listener: () => void): () => void {
+  if (typeof matchMedia !== "function") return () => undefined;
+  const media = matchMedia(NARROW);
+  media.addEventListener("change", listener);
+  return () => media.removeEventListener("change", listener);
+}
+
+export function spriteMembershipKey(cast: SpriteCast = spriteCast()): string {
+  return JSON.stringify([cast.chatId, cast.groupId, cast.members.map((entry) => [entry.avatar, entry.folder])]);
 }
 
 export function spriteHint(text: string): void {

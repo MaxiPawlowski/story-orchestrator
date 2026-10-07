@@ -39,6 +39,10 @@
   filter: none;
 }
 
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-talking {
+  filter: none;
+}
+
 :is(#so-vn-root, #so-stage-strip) .so-sprite.so-idle {
   filter: brightness(0.55) saturate(0.8);
 }
@@ -99,8 +103,4 @@
 @media (prefers-reduced-motion: reduce) {
   :is(#so-vn-root, #so-stage-strip) .so-breathing .so-sprite-breath { animation: none; }
   :is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-top { animation-duration: 0ms; }
-}
-
-@media (max-width: 768px) {
-  #so-vn-root { display: none; }
 }

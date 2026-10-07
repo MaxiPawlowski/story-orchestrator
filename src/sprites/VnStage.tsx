@@ -4,6 +4,7 @@ import { figureBox, frameSlice, type FigureBox, type Framing } from "./direction
 import { log } from "@utils/log";
 import "./styles.css";
 import { AnimatedFace } from "./AnimatedFace";
+import { frameBudget } from "./faceFrames";
 import { StreamActivity } from "./animation";
 
 const inactiveActivity = new StreamActivity();
@@ -82,9 +83,9 @@ function useVisibleShare(active: boolean): number {
   return share;
 }
 
-function Sprite({ actor, index, count, speaking, focus, breathing, crossfadeMs, reducedMotion, framing, share, stage }: {
-  actor: StageActor; index: number; count: number; speaking: boolean; focus: boolean; breathing: boolean; crossfadeMs: number; reducedMotion: boolean; framing: Framing;
-  share: number;
+function Sprite({ actor, index, count, speaking, talking, focus, breathing, crossfadeMs, reducedMotion, framing, share, budget, stage }: {
+  actor: StageActor; index: number; count: number; speaking: boolean; talking: boolean; focus: boolean; breathing: boolean; crossfadeMs: number; reducedMotion: boolean;
+  framing: Framing; share: number; budget: number;
   stage: SpriteStage;
 }) {
   const [layers, setLayers] = useState<Layer[]>([{ key: 0, src: actor.path }]);
@@ -105,7 +106,7 @@ function Sprite({ actor, index, count, speaking, focus, breathing, crossfadeMs, 
   }, []);
   const width = Math.min(34, 92 / Math.max(count, 1));
   const left = count <= 1 ? 50 : 50 + (index - (count - 1) / 2) * Math.min(width * 0.8, 88 / (count - 1));
-  const classes = ["so-sprite", focus ? (speaking ? "so-speaking" : "so-idle") : "", breathing && !reducedMotion ? "so-breathing" : "",
+  const classes = ["so-sprite", focus ? (speaking ? "so-speaking" : talking ? "so-talking" : "so-idle") : "", breathing && !reducedMotion ? "so-breathing" : "",
     actor.spotlight ? "so-spotlight" : "", framed ? `so-framed so-frame-${framing}` : ""].filter(Boolean).join(" ");
   const imageStyle: React.CSSProperties | undefined = framed ? { height: `${slice.scale * share * 100}%`, top: `${-slice.offset * share * 100}%` } : undefined;
   return (
@@ -118,7 +119,7 @@ function Sprite({ actor, index, count, speaking, focus, breathing, crossfadeMs, 
             onAnimationEnd={() => setLayers((current) => (current.length > 1 ? current.slice(-1) : current))} />
         ))}
         {actor.frames && <AnimatedFace frames={actor.frames} activity={stage.activity ?? inactiveActivity} name={actor.name} seed={actor.avatar}
-          blink={stage.view().settings.blink} mouth={stage.view().settings.mouth} paused={reducedMotion || mediaMotion || layers.length > 1} style={imageStyle} />}
+          blink={stage.view().settings.blink} mouth={stage.view().settings.mouth} paused={reducedMotion || mediaMotion || layers.length > 1} budget={budget} style={imageStyle} />}
       </div>
     </div>
   );
@@ -129,11 +130,12 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
   const share = useVisibleShare(view.visible);
   if (!view.visible) return null;
   const { settings } = view;
+  const budget = frameBudget(view.actors.filter((actor) => actor.frames).length);
   return (
     <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement}>
       {view.actors.map((actor, index) => (
         <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
-          stage={stage}
+          talking={view.talker === actor.name} budget={budget} stage={stage}
           framing={view.framing === "close" && view.actors.length > 1 && !actor.spotlight ? "thigh" : view.framing} share={share}
           focus={settings.focus && view.actors.length > 1} breathing={settings.breathing} crossfadeMs={settings.crossfadeMs} reducedMotion={view.reducedMotion} />
       ))}

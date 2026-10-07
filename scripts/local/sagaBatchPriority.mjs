@@ -1,5 +1,12 @@
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
+
+const { values: args } = parseArgs({ options: { repo: { type: 'string' }, member: { type: 'string' }, lane: { type: 'string', default: '6' } } });
+if (!args.repo || !args.member) throw new Error('Usage: node scripts/local/sagaBatchPriority.mjs --repo <story-orchestrator checkout> --member <cast member> [--lane <n>]');
+const repo = resolve(args.repo);
+const measurements = join(repo, 'test', 'measurements', 'v2.7', 'saga-main-cast');
 
 const gateway = 'http://127.0.0.1:18888';
 const status = async () => (await fetch(`${gateway}/status`)).json();
@@ -8,8 +15,8 @@ const queue = await (await fetch('http://127.0.0.1:8188/queue')).json();
 if (before.imageLease || before.activeText || before.waitingText || queue.queue_running.length || queue.queue_pending.length) throw new Error('Use an idle controller and ComfyUI.');
 const began = new Date().toISOString();
 const report = { began, condition: 'isolated-no-concurrent-build-gates', ok: false, before, queued: null, reply: null, log: '' };
-const child = spawn(process.execPath, ['scripts/debug/st-lanes.mts', 'run', '6', '--', 'scripts/debug/so-saga-sprites.mts', 'Natalia', '--warm-batch', '--limit', '2'],
-  { cwd: 'C:/dev/story-orchestrator', windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+const child = spawn(process.execPath, ['scripts/debug/st-lanes.mts', 'run', args.lane, '--', 'scripts/debug/so-saga-sprites.mts', args.member, '--warm-batch', '--limit', '2'],
+  { cwd: repo, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
 child.stdout.on('data', (data) => { report.log += data.toString(); });
 child.stderr.on('data', (data) => { report.log += data.toString(); });
 const completed = new Promise((done) => child.once('close', done));
@@ -48,7 +55,7 @@ try {
   report.after = await status();
   const imageRows = report.log.split('\n').filter((line) => line.includes('"ready":true')).length;
   if (imageRows !== 2) throw new Error('The priority check requires exactly two new saved frames.');
-  const frames = JSON.parse(await readFile('C:/dev/story-orchestrator/test/measurements/v2.7/saga-main-cast/frames-Natalia-all.json', 'utf8'));
+  const frames = JSON.parse(await readFile(join(measurements, `frames-${args.member}-all.json`), 'utf8'));
   const run = frames.runs.at(-1);
   const jobs = run.traffic.events.filter((event) => event.path.endsWith('/story-orchestrator-media/jobs'));
   if (Date.parse(run.began) < Date.parse(began) || jobs.length !== 2 || Date.parse(jobs[1].at) < Date.parse(report.reply.at)) {
@@ -61,7 +68,7 @@ try {
 finally {
   if (reading) await reading.catch(() => undefined);
   await completed;
-  const path = 'C:/dev/story-orchestrator/test/measurements/v2.7/saga-main-cast/warm-batch-priority.json';
+  const path = join(measurements, 'warm-batch-priority.json');
   const previous = await readFile(path, 'utf8').catch(() => null);
   if (previous) {
     const old = JSON.parse(previous);
