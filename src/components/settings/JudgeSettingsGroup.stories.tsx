@@ -68,6 +68,7 @@ export const OnlyBuiltUsesAreListed: Story = {
       "so-judge-use-typed-extraction",
       "so-judge-use-stall-check",
       "so-judge-use-curator-filter",
+      "so-judge-use-expressions",
     ]);
     await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
     await userEvent.click(rows[1]);

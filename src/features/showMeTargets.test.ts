@@ -49,7 +49,7 @@ const importedFrom = (source: string): Map<string, string> => {
     if (defaultName) names.set(defaultName, specifier);
     for (const [, member] of (/\{([^}]*)\}/.exec(clause)?.[1] ?? "").matchAll(/(?:^|,)\s*(?:type\s+)?(?:[\w$]+\s+as\s+)?([\w$]+)\s*(?=,|$)/g)) names.set(member, specifier);
   }
-  for (const [, name, specifier] of source.matchAll(/const\s+([A-Z][\w$]*)\s*=\s*(?:__SO_DEV__\s*\?\s*)?(?:lazyRetry|lazy)\(\s*\(\)\s*=>\s*import\("([^"]+)"\)/g)) names.set(name, specifier);
+  for (const [, name, specifier] of source.matchAll(/const\s+([A-Z][\w$]*)\s*=\s*(?:lazyRetry|lazy)\(\s*\(\)\s*=>\s*import\("([^"]+)"\)/g)) names.set(name, specifier);
   return names;
 };
 

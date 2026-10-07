@@ -269,14 +269,14 @@ export async function settleReapPrompts(page: Page, owned: string[], { quietMs =
     const dismissed: string[] = [];
     const started = Date.now();
     let lastSeen = Date.now();
-    while (Date.now() - lastSeen < quietMs && Date.now() - started < timeoutMs) {
+    while (Date.now() - started < timeoutMs) {
       const [open] = prompts();
       if (open) {
         answered.add(open.dialog);
         (open.dialog.querySelector('.popup-button-cancel') as HTMLElement | null)?.click();
         dismissed.push(open.text.slice(0, 200));
         lastSeen = Date.now();
-      }
+      } else if (Date.now() - lastSeen >= quietMs) break;
       await new Promise((resolve) => setTimeout(resolve, pollMs));
     }
     return { dismissed, leaked: prompts(true).map(({ text }) => text.slice(0, 200)) };

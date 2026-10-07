@@ -8,6 +8,7 @@ import { emptyEnvironment } from "@wizard/index";
 import { GUIDE_COPY } from "@features/helpCopy";
 import { authorGuideDoc } from "@features/guideLinks";
 import { STUDIO_TAB_GUIDE } from "./guideTabs";
+import { GUIDE_TOPICS } from "@copilot/guideTopics";
 
 const meta: Meta<typeof StudioModal> = {
   title: "Studio/StudioModal",
@@ -279,7 +280,7 @@ export const GuideOpensAboveTheStudioFromEveryTab: Story = {
         disclosure.open = true;
         const entry = required(disclosure.querySelector<HTMLDetailsElement>(`[data-so="guide-topic"][data-topic="${topic}"]`), "guide topic");
         entry.open = true;
-        await userEvent.click(required(entry.querySelector<HTMLButtonElement>('[data-so="guide-topic-open"]'), "open in the guide"));
+        await userEvent.click(await within(entry).findByRole("button", { name: `${GUIDE_COPY.openInGuide}: ${GUIDE_TOPICS[topic].title}` }));
         const reader = await body.findByRole("dialog", { name: GUIDE_COPY.title });
         await expect(reader).toHaveAttribute("open");
         await waitFor(() => expect(reader.querySelector(`[data-so="guide-page"][data-doc="${authorGuideDoc(topic)}"]`)).toBeVisible(), { timeout: 5000 });
