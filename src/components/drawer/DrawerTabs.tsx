@@ -20,6 +20,7 @@ const MessageInspector = lazyRetry(() => import("./MessageInspector"));
 const BlackboardTab = lazyRetry(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
 const SchedulerTab = lazyRetry(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
 const PayloadTab = lazyRetry(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
+const YourCharacter = lazyRetry(() => import("./YourCharacter"));
 const MemoryTab = lazyRetry(() => import("./tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 
 const AuthorTab = ({ id, children }: { id: DrawerTabId; children: ReactNode }) => (
@@ -129,6 +130,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
       <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}
         title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
     )}
+    {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
     {snapshot.briefing?.view && (
       <button id="so-story-briefing" type="button" className="menu_button opacity-80" title={BRIEFING_COPY.reopenHelp}
         onClick={() => requestBriefing()}>{BRIEFING_COPY.reopen}</button>

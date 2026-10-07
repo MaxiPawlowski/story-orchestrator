@@ -269,6 +269,7 @@ export async function capturePage(page) {
       display: {
         announceTransitions: settings?.display?.announceTransitions ?? null,
         hudEnabled: settings?.display?.hudEnabled ?? null,
+        playerSetup: settings?.display?.playerSetup ?? null,
         talkEnabled: settings?.talk?.enabled ?? null,
       },
       chat: {
@@ -278,6 +279,7 @@ export async function capturePage(page) {
         // `authorView` is nested under the snapshot's `ui` slice (runtime/types.ts UiRuntimeSettings),
         // not top level: reading it flat gave a permanent null on a live install (2026-09-20).
         authorView: snapshot ? snapshot.ui?.authorView ?? null : null,
+        personaLock: typeof ctx.chatMetadata?.persona === 'string' && ctx.chatMetadata.persona ? ctx.chatMetadata.persona : null,
       },
       story: {
         id: selectedStoryId,
@@ -311,6 +313,7 @@ export async function capturePage(page) {
           .flatMap((entry: any) => (Array.isArray(entry?.chats) ? entry.chats : []).map((chat: unknown) => `${entry?.id ?? '?'}/${String(chat)}`))
           .sort(),
         groups: (ctx.groups ?? []).map((entry: any) => `${entry?.id ?? '?'}@${entry?.name ?? ''}`).sort(),
+        personas: Object.entries(ctx.powerUserSettings?.personas ?? {}).map(([avatar, name]) => `${avatar}@${String(name)}`).sort(),
       },
     };
   });
@@ -440,6 +443,8 @@ const ALLOW_ALIASES: Record<string, string> = {
   lorebooksSelected: 'inventory.lorebooksSelected',
   disabledMembers: 'group.disabledMembers',
   groupChats: 'inventory.groupChats',
+  personas: 'inventory.personas',
+  personaLock: 'chat.personaLock',
 };
 
 export function allowFileEntries(text: string): string[] {

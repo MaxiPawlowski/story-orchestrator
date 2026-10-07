@@ -23,10 +23,11 @@ Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engin
 - [Macros and slash commands](macros-and-commands.md): story values in your cards and prompts, and the author commands.
 - [Examples](examples.md): a complete story to read, import and play.
 
-## The fields, one page per topic (36)
+## The fields, one page per topic (37)
 
 - [Title, description, id and version](topics/story-basics.md) (`story-basics`)
 - [Briefing](topics/briefing.md) (`briefing`)
+- [Who the player is](topics/player.md) (`player`)
 - [Dramatic shape](topics/arc-template.md) (`arc-template`)
 - [Requirements](topics/requirements.md) (`requirements`)
 - [Cast](topics/roster.md) (`roster`)

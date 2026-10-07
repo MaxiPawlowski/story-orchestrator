@@ -173,10 +173,10 @@ describe("card fields (plan 24 C)", () => {
   });
 
   it("creates and clears the player card without disturbing other player fields", () => {
-    const withPlayer: StoryDraft = { ...carded(), player: { name: "You" } };
+    const withPlayer: StoryDraft = { ...carded(), player: { role: "a courier" } };
     const bound = setMemberCard(withPlayer, "player", { fields: { look: { quality: "look" } } });
-    expect(bound.player).toEqual({ name: "You", card: { fields: { look: { quality: "look" } } } });
-    expect(setMemberCard(bound, "player", undefined).player).toEqual({ name: "You", card: undefined });
+    expect(bound.player).toEqual({ role: "a courier", card: { fields: { look: { quality: "look" } } } });
+    expect(setMemberCard(bound, "player", undefined).player).toEqual({ role: "a courier", card: undefined });
   });
 
   it("a bound card validates", () => {

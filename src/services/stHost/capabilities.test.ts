@@ -88,7 +88,7 @@ describe("capability probes", () => {
   beforeEach(() => {
     invalidateCapabilities();
     mockHost.parser = true;
-    mockHost.commands = ["bg", "sendas"];
+    mockHost.commands = ["bg", "sendas", "persona-create"];
     mockHost.judge = { configured: true };
     mockHost.vectorStatus = 200;
     mockHost.vectorThrows = false;
@@ -110,6 +110,12 @@ describe("capability probes", () => {
     const reports = await capabilityReport();
     expect(reports.map((report) => report.id)).toEqual(CAPABILITY_IDS);
     expect(reports.filter((report) => report.state !== "present").map((report) => `${report.id}: ${report.detail}`)).toEqual([]);
+  });
+
+  it("v2.7 plan 34: persona creation is present with /persona-create and absent on an older SillyTavern", async () => {
+    await expect(probeCapability("personaCrud", { refresh: true })).resolves.toMatchObject({ state: "present" });
+    mockHost.commands = ["bg", "sendas"];
+    await expect(probeCapability("personaCrud", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("Persona Management") });
   });
 
   it("v2.7 plan 24 A: the image capability is present through either SillyTavern's service or the media plugin's ComfyUI", async () => {

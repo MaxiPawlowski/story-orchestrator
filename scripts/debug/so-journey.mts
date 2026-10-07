@@ -13,7 +13,7 @@ import { journeyStoryRefs, splitJourneyLorebooks, storyListedBooks } from './lib
 import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
-import { readBriefingSetting, restoreBriefing, suppressBriefing } from './lib/briefingHarness.mts';
+import { readBriefingSetting, readDisplaySetting, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
 import { computeTallies, firstAttemptOf, gateFailures, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
 import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
@@ -293,7 +293,7 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-export type SetupApplied = { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; briefingBefore?: boolean | null; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown };
+export type SetupApplied = { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; briefingBefore?: boolean | null; playerSetupBefore?: boolean | null; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown };
 
 export const emptySetup = (): SetupApplied => ({ configSnapshot: null, chat: null, guard: null });
 
@@ -302,6 +302,7 @@ export async function applySetup(page, setup, { allowConfig, journey = null, gro
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   applied.briefingBefore = await readBriefingSetting(page);
+  applied.playerSetupBefore = await readDisplaySetting(page, 'playerSetup');
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
   if (allowConfig) applied.recoveredConfig = await recoverCrashedConfig(page);
   // Captured BEFORE a clear: read after it, a story the install already had read as this run's import,
@@ -401,7 +402,7 @@ export async function applySetup(page, setup, { allowConfig, journey = null, gro
   return applied;
 }
 
-export async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, briefingBefore = null as boolean | null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null, judgeRequests = null as ReturnType<typeof trackJudgeRequests> | null, quiesce = {} as QuiesceOptions, historyDir = DEBUG_DIR }) {
+export async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, briefingBefore = null as boolean | null, playerSetupBefore = null as boolean | null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null, judgeRequests = null as ReturnType<typeof trackJudgeRequests> | null, quiesce = {} as QuiesceOptions, historyDir = DEBUG_DIR }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   const generation = await quiesceBeforeSwitch(page, quiesce);
@@ -437,6 +438,7 @@ export async function runCleanup(page, journey, { importedHashes, libraryBefore,
   // S11: put install-wide extraction settings back to the pre-run capture, always.
   report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
   report.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
+  report.playerSetup = await restorePlayerSetup(page, playerSetupBefore).catch((error) => ({ error: error.message }));
   report.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
   if (judgeMode) report.judgeRestore = await restoreJudgeConfig(page, judgeMode.before).catch((error) => ({ error: error.message }));
   if (wiGating) report.wiGating = { mode: wiGating.mode, applied: wiGating.applied, restore: await restoreWiGating(page, wiGating.before).catch((error) => ({ error: error.message })) };
@@ -567,6 +569,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
       await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating, into: setupApplied });
       await suppressBriefing(page);
+      await suppressPlayerSetup(page);
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 
@@ -616,6 +619,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         activatedLorebooks: (setupApplied as { lorebooks?: { activated?: string[] } }).lorebooks?.activated ?? [],
         extractionBefore: (setupApplied as { extractionBefore?: unknown }).extractionBefore ?? null,
         briefingBefore: setupApplied.briefingBefore ?? null,
+        playerSetupBefore: setupApplied.playerSetupBefore ?? null,
         judgeMode: (setupApplied as { judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>> }).judgeMode ?? null,
         wiGating: (setupApplied as { wiGating?: Awaited<ReturnType<typeof applyWiGating>> }).wiGating ?? null,
       }).catch((error) => ({ error: error.message }));

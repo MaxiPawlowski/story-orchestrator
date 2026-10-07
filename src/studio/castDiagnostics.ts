@@ -1,6 +1,6 @@
 import type { StoryV2 } from "@engine/index";
-import { castMemberName, isCastMember } from "@engine/index";
-import { memberIsPlayer, playerRoles, rosterMemberIsPlayer, storyPlayerTexts } from "./playerRole";
+import { castMemberName, isCastMember, storyPlayerNames } from "@engine/index";
+import { memberIsPlayer, rosterMemberIsPlayer, storyPlayerRoles } from "./playerRole";
 
 type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member" | "requirement-persona-missing"
   | "cast-member-never-enabled";
@@ -119,8 +119,8 @@ export const checkRequiredPersonas = ({ draft, context, push }: CastRun) => {
 };
 
 export const checkPlayerInRoster = ({ draft, push }: CastRun) => {
-  const roles = playerRoles(storyPlayerTexts(draft));
-  const personas = draft.requirements?.personas ?? [];
+  const roles = storyPlayerRoles(draft);
+  const personas = storyPlayerNames(draft);
   draft.roster.forEach((member, index) => {
     const match = memberIsPlayer(member, roles, personas);
     if (!match && !rosterMemberIsPlayer(member, draft)) return;

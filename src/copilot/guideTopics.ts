@@ -24,6 +24,14 @@ export const GUIDE_TOPICS = {
       + "characters, plain text, no macros. Never sent to the model. Without it, player_intro shows as one section; description never does. A chapter's briefing opens that "
       + "chapter. Write only what the player may know then: no later beat, outcome, or character the start keeps off stage.",
   },
+  player: {
+    title: "Who the player is",
+    fields: "player.role, player.summary, player.name, player.assumes, player.suggested_description, player.inject",
+    text: "Who the player plays: role (one line, \"a hired adventurer\"), summary (player copy), name {mode: any|suggested|fixed, value}, assumes (what the story "
+      + "takes for granted), suggested_description (prefill for a persona the player may create). The start page asks once and locks the chosen persona to the chat. "
+      + "Unless inject is false, the reply prompt is told \"In this story, {{user}} is <role>: <summary>\". Never blocks a start except name.mode fixed. "
+      + "Prefer it to requirements.personas. No later beat or outcome in player text.",
+  },
   "arc-template": {
     title: "Dramatic shape",
     fields: "arc_template",
@@ -308,6 +316,8 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "cast-member-never-enabled": "cast-changes",
   "briefing-spoiler-risk": "briefing",
   "story-kind-invalid": "story-basics",
+  "opener-uses-player-name": "player",
+  "player-spoiler-risk": "player",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

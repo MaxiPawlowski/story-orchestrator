@@ -42,6 +42,8 @@ export interface HostEventPayloads {
   APP_READY: [];
   SETTINGS_UPDATED: [];
   PERSONA_CHANGED: [avatar: string];
+  // events.js:102, personas.js:839/848/1234.
+  PERSONA_UPDATED: [avatar: string];
   // Script.js:9902, slash-commands.js:5437.
   CHARACTER_EDITED: [payload: { detail?: { id?: unknown; character?: unknown } } | undefined];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];

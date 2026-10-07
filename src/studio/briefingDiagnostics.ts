@@ -25,7 +25,7 @@ const names = (text: string, term: string): boolean => {
   return new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(needle)}(?![\\p{L}\\p{N}_])`, "u").test(fold(text));
 };
 
-interface Terms {
+export interface Terms {
   checkpoints: string[];
   values: string[];
   muted: string[];
@@ -85,13 +85,17 @@ const fields = (briefing: StoryBriefing, path: string): Array<[string, string]> 
 
 const unique = (terms: string[]) => terms.filter((term, index) => terms.findIndex((other) => fold(other) === fold(term)) === index);
 
+export const namesTerms = (text: string, terms: Terms): string[] => [
+  ...unique(terms.checkpoints).filter((term) => names(text, term)).map((term) => `a later checkpoint ('${term}')`),
+  ...unique(terms.values).filter((term) => names(text, term)).map((term) => `a story value ('${term}')`),
+  ...unique(terms.muted).filter((term) => names(text, term)).map((term) => `a character who is not in the scene at the start ('${term}')`),
+];
+
+export const briefingTermsFor = (draft: StoryV2, startId: string): Terms => storyTerms(draft, startId);
+
 const checkFields = (briefing: StoryBriefing, path: string, terms: Terms, push: BriefingRun["push"]) => {
   fields(briefing, path).forEach(([at, text]) => {
-    const found = [
-      ...unique(terms.checkpoints).filter((term) => names(text, term)).map((term) => `a later checkpoint ('${term}')`),
-      ...unique(terms.values).filter((term) => names(text, term)).map((term) => `a story value ('${term}')`),
-      ...unique(terms.muted).filter((term) => names(text, term)).map((term) => `a character who is not in the scene at the start ('${term}')`),
-    ];
+    const found = namesTerms(text, terms);
     if (found.length) push("briefing-spoiler-risk", "warning", at, `this briefing text names ${found.join(", ")}; keep it to what the player may know when it shows`);
   });
 };

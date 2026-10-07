@@ -13,3 +13,4 @@ export * from "./checkpointGuidance";
 export * from "./castNames";
 export * from "./briefing";
 export * from "./stretch";
+export * from "./player";

@@ -30,6 +30,25 @@ it any time with **Story briefing** at the bottom of the drawer's Overview, or `
 its own, untick **Show the story briefing when a story starts** under **Display**, or tick **Don't show briefings**
 on the page itself. A story without a briefing shows its introduction instead, if it has one.
 
+## Your character
+
+A story can say who you play in it: a role, a few lines about you and what the story takes for granted. Then the
+start page also shows **Who you are in this story**, and you choose once:
+
+- **Play as** your current persona (what closing the page does too);
+- **Choose another persona** from the ones you have;
+- **Create a persona for this story**: the name and description are shown in full and you can edit them first.
+  It is only ever added; your other personas are never changed.
+
+Whatever you choose, the chat keeps that persona for the whole story (SillyTavern's own chat lock), and the opening
+scene waits for your choice. The story also tells the characters, in one line, who you are in it. If you switch
+persona in the middle of the story, the drawer says so with **Switch back**: characters know you as the person you
+started as. To play someone else, **Restart story** and choose again. A story that fixes your name waits until a
+persona with that name is chosen.
+
+**Your character in this story** at the bottom of the drawer's Overview, or `/story who`, shows it again. To skip the
+question and always keep your current persona, untick **Ask who you are when a story starts** under **Display**.
+
 ## Each chat keeps its own copy
 
 A chat keeps the exact version of the story it started with. Editing or deleting the story in the library never
@@ -94,6 +113,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story chapter <n>` | One ended chapter's summary. |
 | `/story chronicle export` | Copies the whole chronicle as Markdown. |
 | `/story intro` | Opens the story briefing again. |
+| `/story who` | Who you play in this story. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
 

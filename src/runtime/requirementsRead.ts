@@ -5,6 +5,7 @@ import { bookKey } from "./worldInfoMatch";
 
 export interface RequirementsView {
   persona: string;
+  fixedName?: string | null;
   personas?: string[];
   members: string[];
   muted?: string[];
@@ -48,6 +49,7 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
   const slotConflict = slotConflictOf(requirements, view.lore, options);
   const persona = view.persona.trim().toLowerCase();
   const missingPersonas = (requirements?.personas ?? []).filter((wanted) => !persona || persona !== wanted.toLowerCase());
+  const missingFixedName = view.fixedName && persona !== view.fixedName.trim().toLowerCase() ? view.fixedName : null;
   const missingMembers = (requirements?.members ?? []).filter((member) => !holds(view.members, member));
   const mutedMembers = (requirements?.members ?? []).filter((member) => holds(view.members, member) && holds(view.muted ?? [], member) && !holds(view.storyMuted ?? [], member));
   const satisfiedBy: Record<string, LoreSource> = {};
@@ -60,8 +62,9 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
   });
   const listed = view.lore.listed ?? [];
   return {
-    ready: missingPersonas.length === 0 && missingMembers.length === 0 && missingLorebooks.length === 0,
+    ready: missingPersonas.length === 0 && !missingFixedName && missingMembers.length === 0 && missingLorebooks.length === 0,
     missingPersonas,
+    ...(missingFixedName ? { missingFixedName } : {}),
     missingMembers,
     missingLorebooks,
     absentPersonas: view.personas ? missingPersonas.filter((wanted) => !holds(view.personas ?? [], wanted)) : [],

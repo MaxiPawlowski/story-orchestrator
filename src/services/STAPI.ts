@@ -7,6 +7,8 @@ export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions, Confirm
 export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
 export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock } from "@services/stHost/promptInspector";
 export { readPromptBudget } from "@services/stHost/contextBudget";
+export { loadPersonasModule, readPersonas, type HostPersonaRead } from "@services/stHost/personas";
+export const loadPersonaWrites = () => import("@services/stHost/personaWrites");
 export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export { readPromptBuckets } from "@services/stHost/promptBuckets";

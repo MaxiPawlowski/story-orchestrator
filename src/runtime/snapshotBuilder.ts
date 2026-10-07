@@ -34,6 +34,9 @@ import type { InlineSources, InlineView } from "./inlineTimeline";
 import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
 import { briefingState } from "./briefing";
+import { playerSetupView } from "./playerSetup";
+import { personaRead } from "./playerSetupPort";
+import { isRecord } from "@utils/guards";
 import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { buildPresence } from "./presence";
@@ -233,7 +236,9 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios" | "briefing";
+type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios" | "briefing" | "playerSetup";
+
+const playerSpoke = (chat: readonly unknown[]) => chat.some((row) => isRecord(row) && row.is_user === true && row.is_system !== true);
 
 export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, SetupSlices> => ({
   ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
@@ -242,6 +247,10 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   briefing: briefingState({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
     chatOpen: hasOpenChat(),
+  }),
+  playerSetup: playerSetupView({
+    story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.playerSetup, persona: personaRead(),
+    enabled: sources.extras.ui?.playerSetup !== false, beforeFirstMessage: !playerSpoke(sources.chat),
   }),
 });
 

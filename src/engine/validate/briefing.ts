@@ -9,7 +9,7 @@ const BRIEFING_KEYS = ["title", "image", "sections", "tone", "start_label"] as c
 const SECTION_KEYS = ["heading", "text"] as const;
 const MACRO = /\{\{[^}]*\}\}/;
 
-const readText = (value: unknown, path: string, max: number, errors: ValidationError[], required = false): string | undefined => {
+export const readText = (value: unknown, path: string, max: number, errors: ValidationError[], required = false, macros = false): string | undefined => {
   if (value === undefined) {
     if (required) addError(errors, path, "is required");
     return undefined;
@@ -18,7 +18,7 @@ const readText = (value: unknown, path: string, max: number, errors: ValidationE
   const text = value.trim();
   if (!text) return void (required && addError(errors, path, "must not be empty"));
   if (text.length > max) return void addError(errors, path, `is at most ${max} characters (has ${text.length})`);
-  if (MACRO.test(text)) return void addError(errors, path, "is shown as written, so it cannot hold a macro like {{user}}");
+  if (!macros && MACRO.test(text)) return void addError(errors, path, "is shown as written, so it cannot hold a macro like {{user}}");
   return text;
 };
 

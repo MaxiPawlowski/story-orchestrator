@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { briefingParagraphs, type BriefingView } from "@engine/index";
 import { BRIEFING_COPY, ONBOARDING_LINES } from "@features/helpCopy";
+import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
+import type { PlayerSetupView } from "@runtime/playerSetup";
+import type { ChooseIdentity } from "./PlayerSetupPane";
+
+const PlayerSetupPane = lazyRetry(() => import("./PlayerSetupPane"));
+
+export interface IdentitySlot {
+  view: PlayerSetupView;
+  rechoose: boolean;
+  onChoose: ChooseIdentity;
+}
 
 export interface BriefingModalProps {
   briefing: BriefingView | null;
@@ -8,6 +21,7 @@ export interface BriefingModalProps {
   blocks?: readonly string[];
   onboarding?: boolean;
   optOut?: boolean;
+  identity?: IdentitySlot | null;
   onClose: (result: { dontShow: boolean }) => void;
 }
 
@@ -31,7 +45,7 @@ const BriefingBody = ({ view, level }: { view: BriefingView; level: "story" | "c
   </section>
 );
 
-export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboarding = false, optOut = false, onClose }: BriefingModalProps) => {
+export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboarding = false, optOut = false, identity = null, onClose }: BriefingModalProps) => {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [dontShow, setDontShow] = useState(false);
   const closed = useRef(false);
@@ -51,7 +65,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
     };
   }, []);
   const lead = briefing ?? chapter;
-  const title = lead?.title ?? BRIEFING_COPY.beforeYouStart;
+  const title = lead?.title ?? (identity && !blocks.length ? PLAYER_SETUP_COPY.heading : BRIEFING_COPY.beforeYouStart);
   const startLabel = lead?.startLabel ?? BRIEFING_COPY.close;
   return (
     <dialog
@@ -74,6 +88,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
             <ul className="flex flex-col gap-1">{blocks.map((line) => <li key={line}>{line}</li>)}</ul>
           </section>
         )}
+        {identity && <Lazy fallback={null}><PlayerSetupPane view={identity.view} rechoose={identity.rechoose} onChoose={identity.onChoose} /></Lazy>}
         {briefing && <BriefingBody view={briefing} level="story" />}
         {chapter && <BriefingBody view={chapter} level={briefing ? "chapter" : "story"} />}
         {onboarding && (

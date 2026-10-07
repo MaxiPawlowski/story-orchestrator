@@ -1,4 +1,5 @@
 import { readChapters, type ValidationError } from "@engine/index";
+import { readPlayer } from "@engine/validate/player";
 import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
@@ -82,6 +83,11 @@ export const EDIT_TOOLS = {
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
   setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?, exclusive?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
+  setPlayer: {
+    backedBy: "setPlayer",
+    doc: "Say who the player plays (the whole profile). Player copy: no later beat or outcome. Never a persona: the player chooses or creates one at the start.",
+    args: { player: req("object", "{role?, summary?, name?: {mode: any|suggested|fixed, value?}, assumes?: string[], suggested_description?, inject?}") },
+  },
   setChapters: {
     backedBy: "setChapters",
     composes: ["addChapter", "updateChapter", "removeChapter", "setChapterPolicy", "setCheckpointChapter"],
@@ -224,6 +230,14 @@ export type ToolCheck =
   | { ok: true; spec: AgentToolSpec; op?: AgentOp }
   | { ok: false; message: string };
 
+const readPlayerCall = (spec: AgentToolSpec, args: Record<string, unknown>): ToolCheck => {
+  if (isRecord(args.player) && args.player.card !== undefined) return { ok: false, message: "setPlayer.player.card: card fields are authored in the Roster tab, not here" };
+  const errors: ValidationError[] = [];
+  const player = readPlayer(args.player, errors) ?? {};
+  if (errors.length) return { ok: false, message: errors.map((error) => `setPlayer.${error.path}: ${error.message}`).join("; ") };
+  return { ok: true, spec, op: { kind: "setPlayer", player } };
+};
+
 const readChaptersCall = (spec: AgentToolSpec, args: Record<string, unknown>): ToolCheck => {
   const errors: ValidationError[] = [];
   const chapters = readChapters(args.chapters, errors) ?? [];
@@ -252,6 +266,7 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
     return { ok: true, spec, op: { kind: "setHouseRules", rules } };
   }
   if (call.tool === "setChapters") return readChaptersCall(spec, call.args);
+  if (call.tool === "setPlayer") return readPlayerCall(spec, call.args);
   const text = (key: string) => String(call.args[key]).trim();
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
   if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };

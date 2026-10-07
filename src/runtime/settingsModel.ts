@@ -60,7 +60,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; inline: InlineSettings; presence: PresenceSettings };
+  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -194,7 +194,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, briefing: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
+  display: { announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT } },
@@ -279,6 +279,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     pacing: { hintEnabled: pacing.hintEnabled !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
+      playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),
     },

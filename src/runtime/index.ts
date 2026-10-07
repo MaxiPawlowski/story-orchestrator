@@ -1,12 +1,14 @@
 import { getChatWindow } from "@extraction/index";
 import {
-  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, onGroupEdited, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
+  clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
+  onGroupEdited, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { onChanceDraw } from "./chance";
 import { startPlaysIndex } from "./playsIndexHost";
 import { startStoryScenario } from "./storyScenarioHost";
+import { installPersonaHost } from "./playerSetupPort";
 import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
@@ -26,6 +28,7 @@ import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/g
 import { publishSpikeDebug } from "./spikeDebug";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
+import { couldNot, type WriteResult } from "@utils/writeResult";
 import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
 import { CHAT_LOADING_STATUS, loadInlineComposer } from "./snapshotBuilder";
@@ -73,6 +76,25 @@ const spikePort = () => ({
   },
 });
 
+type PersonaWrites = Awaited<ReturnType<typeof loadPersonaWrites>>;
+const personaWrite = <T extends object>(run: (writes: PersonaWrites) => Promise<WriteResult<T>>): Promise<WriteResult<T>> =>
+  Promise.resolve().then(loadPersonaWrites).then(run).catch((error: unknown) => {
+    log.warn("persona controls did not load", error);
+    return couldNot("SillyTavern's persona controls did not load");
+  });
+
+const startPersonaHost = () => {
+  runtimeDisposers.push(installPersonaHost({
+    read: () => readPersonas(),
+    select: (avatarId) => personaWrite((writes) => writes.selectPersona(avatarId)),
+    lock: () => personaWrite((writes) => writes.lockPersonaToChat()),
+    create: (input) => personaWrite((writes) => writes.createPersona(input)),
+  }));
+  void Promise.resolve().then(loadPersonasModule).then(() => runtimeManager.notify(), (error: unknown) => log.warn("personas.js did not load; the start page reads no persona", error));
+  void import("./playerRoleHost").then(({ startPlayerRole }) => { if (started) runtimeDisposers.push(startPlayerRole(runtimeManager)); })
+    .catch((error: unknown) => featureFailed("Who you are in this story", error));
+};
+
 const registerHostSurfaces = () => {
   // A build with no MacrosParser throws on the first registration, and this call sits
   // in the middle of startRuntime: unguarded, a missing macro engine would take the bridge, the judge,
@@ -84,6 +106,7 @@ const registerHostSurfaces = () => {
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   runtimeDisposers.push(startStoryScenario());
+  startPersonaHost();
   if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
     if (!started) return;
     let unpublish = () => {};

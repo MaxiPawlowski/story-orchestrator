@@ -13,4 +13,4 @@ Field: `arc_template` (`schema.ts` `ArcTemplate`, `validate/storyOptions.ts` `re
 
 ---
 
-[Author's guide](../README.md) · previous: [Briefing](briefing.md) · next: [Requirements](requirements.md)
+[Author's guide](../README.md) · previous: [Who the player is](player.md) · next: [Requirements](requirements.md)

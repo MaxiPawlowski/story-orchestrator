@@ -245,7 +245,7 @@
       "reason": "T6-3-3: why a harness role fell back to its On failure profile (the harness plugin's classified message), shown only in the Studio wizard panes"
     },
     {
-      "site": "src/index.tsx#dropPersonaRequirement",
+      "site": "src/setupFixes.ts#dropPersonaRequirement",
       "kind": 1,
       "template": "`Remove the persona requirement ${named} from this story? The story is saved to the library and this chat takes the change.`",
       "surface": "author",
@@ -1419,6 +1419,9 @@
     { "site": "src/services/stHost/media.ts#removeStorySprites", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-confirmed story-scoped sprite removal returns a typed refusal shown in the sprite settings." },
     { "site": "src/sprites/SpriteGroup.tsx#SpriteGroup>callback", "kind": 1, "template": "`Remove Story Orchestrator's generated sprites for \"${snapshot.storyTitle ?? storyId}\"? Sprites you built yourself stay.`",
-      "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "Explicit confirmation naming the story whose generated sprites are removed." }
+      "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "Explicit confirmation naming the story whose generated sprites are removed." },
+    {"site": "src/copilot/agent/tools.ts#readPlayerCall>callback", "kind": 2, "template": "`setPlayer.${error.path}: ${error.message}`", "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "our validator's message for the agent's setPlayer call, shown in the wizard"},
+    {"site": "src/runtime/playerSetupPort.ts#personaRead", "kind": 3, "template": "catch {} #1", "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "An unreadable persona host reads as no persona: the start page offers nothing to switch and the story starts with the current persona."},
+    {"site": "src/services/stHost/personas.ts#loadPersonasModule", "kind": 3, "template": ".catch(() => null)", "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A build without personas.js answers every persona write with a couldNot naming the missing switch or lock."}
   ]
 }

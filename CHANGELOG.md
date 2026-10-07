@@ -23,6 +23,9 @@ lanes (not accepted: the user's review and human sessions are outstanding). v2.7
 - **Chance**: authored dice rolls, NPC reply chances and the speaker pick are seeded, so a swipe or a reopened chat
   replays the same result.
 - **Branches**: a branch from a story chat offers **Continue from here** instead of taking the parent's run.
+- **Who you are in this story**: a story's `player` profile (role, summary, assumptions, name rule) shows on its start
+  page, where you keep, choose or create a persona; the chat locks it for the whole story, the opening waits for it,
+  the characters are told your role in one line, and a mid-story switch offers **Switch back** (v2.7 34).
 
 ### Memory and characters
 - **Private knowledge stays private** in shared summaries too: memory tiers are redacted per drafted member,

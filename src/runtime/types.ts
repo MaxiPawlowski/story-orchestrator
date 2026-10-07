@@ -10,6 +10,7 @@ import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
 import type { BriefingRecord, BriefingState } from "./briefing";
+import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
@@ -81,6 +82,8 @@ export interface RequirementsState {
   absentMembers?: string[];
   absentLorebooks?: string[];
   absentPersonas?: string[];
+  /** The story's fixed player name, when the selected persona has another name: `ready` waits for it. */
+  missingFixedName?: string | null;
   /** Required members present in the group but muted there: they satisfy nothing, and Repair names them. `ready` is unaffected, so a story cast effect can still unmute them. */
   mutedMembers?: string[];
   /** Which binding ST scans each present book through (author view). */
@@ -159,6 +162,7 @@ export interface RuntimeExtras {
   lastSessionAt: string | null;
   branchedFrom?: BranchOrigin;
   briefing?: BriefingRecord;
+  playerSetup?: PlayerSetupRecord;
   updatedAt: string;
 }
 
@@ -176,6 +180,7 @@ export interface UiRuntimeSettings {
   announceTransitions: boolean;
   hudEnabled: boolean;
   briefing?: boolean;
+  playerSetup?: boolean;
   inline: InlineSettings;
   presence?: PresenceSettings;
 }
@@ -514,6 +519,7 @@ export interface RuntimeSnapshot {
   thinkingSilent?: boolean;
   competingScenarios?: string[];
   briefing?: BriefingState | null;
+  playerSetup?: PlayerSetupView | null;
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

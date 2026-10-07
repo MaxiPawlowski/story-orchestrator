@@ -367,3 +367,47 @@ Pass: the start-setup step is reached or auto-skipped as designed in 10/10; the 
 `player` role appear in the first reply's prompt (dry-run capture) in 10/10; a second-model rater judges the first
 narrator reply consistent with the player role in ≥ 9/10; 0 replies narrate the player's own action. Below floor is a
 failure, recorded, never retuned.
+
+## Gate record (2026-10-07, branch `v2.7-34-persona`)
+
+Deterministic tiers only (no live or LLM run; live rows go to v2.7 39 Phase C). Built in a worktree, so Storybook was
+NOT run: `npm run gates -- --no-storybook` (the gate runner prints `SKIPPED: test-storybook:ci`). The new stories
+(`PlayerSetupPane`, `PlayerEditor`, `YourCharacter`, `BriefingModal` WithIdentity) are typechecked and linted but their
+plays have not run.
+
+| Command | Result |
+|---|---|
+| `npm run gates -- --no-storybook` | all green in 78.6s: typecheck, build, build:dev, test, test:debug, test:replay, typecheck:test, test:plugin, lint, test:release, debug:typecheck |
+| jest (inside gates) | 557 suites passed, 1 skipped; 6578 tests passed, 1 skipped |
+| test:replay | defect replay 32 of 32 killed |
+| test:debug | 1090/1090 pass |
+| prod `dist/index.js` | 1,246,361 B (budget 1,250,000; base before plan 34 1,244,767) |
+| runtime manager | 700 effective lines (budget 700) |
+
+Built: story `player` profile (schema, `engine/player.ts`, `validate/player.ts`, storyDiff `player-profile-changed`);
+the identity step (`runtime/playerSetup*.ts`, `extras.playerSetup`, opener gated by `identitySettled`, every choice
+chat-locks); the player-role injection (`INJECTION_REGISTRY.playerRole`, `playerRoleHost.ts`, re-checked on
+PERSONA_CHANGED/PERSONA_UPDATED, off only on a content match); persona host seams (`stHost/personas.ts` read,
+`stHost/personaWrites.ts` lazy writes, capability `personaCrud`); checks `persona-fit`, `persona-fit-cast`,
+`persona-fit-empty`, `persona-switch` ("Switch back"), persona-unselected gains "Open the start page" before the first
+message; `requirements.missingFixedName`; start page pane in the briefing modal, drawer "Your character", `/story who`;
+setting `display.playerSetup` (`#so-player-setup-enabled`, baseline off); Studio PlayerEditor + diagnostics
+`opener-uses-player-name`, `player-spoiler-risk`; agent tool `setPlayer` (no persona tool); guide topic `player`,
+player guide section; harness verbs `so-ui player-setup | player-setup-choose`, suppress/restore in so-scenario and
+so-journey, run-header fields, so-assets persona cleanup.
+
+Deviations:
+- The record lives in `extras.playerSetup`, not `extras.ui.playerSetup`: it is per-chat run state that Restart
+  resets, not a UI override.
+- `persona-fit` is three ids (`persona-fit` blocks, `-cast` degrades, `-empty` info), because one check cannot have
+  three severities.
+- Staged-wizard prompts are unchanged; the wizard writes `player` only through the agent's `setPlayer` tool.
+- Lazy splits for the bundle budget: `playerSetupPort.ts` (main) + `playerSetupControl.ts`, `personaWrites`,
+  `playerRoleHost`, `YourCharacter`, `BriefingHost`, `setupFixes.ts` and `makeGroupHost` (index.tsx) are loaded on use.
+- The role block re-checks on persona events (personas.js:166, :1234), not at GENERATION_STARTED: a description edit
+  emits PERSONA_UPDATED, and a second GENERATION_STARTED listener is not needed.
+- S30-1 (identity step before the opener) not spiked; the primary path is built. Live lane rows and the RP floors are
+  not run (v2.7 39 C5).
+
+Open: S30-1 result; whether a persona switch in an empty group chat re-triggers ST's greeting; multi-user installs
+(personas are per ST user, untested).
