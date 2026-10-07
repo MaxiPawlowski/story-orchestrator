@@ -218,6 +218,20 @@ describe("runDiagnostics", () => {
     expect(hits[0].message).toContain("orphan");
   });
 
+  it("counts a quest's gates as scope (v2.7 36 quest scope source) without hiding a milestone-only orphan", () => {
+    const story: StoryV2 = { ...clean,
+      qualities: [...clean.qualities, { key: "seen", type: "bool", source: "extractor", rubric: "r" },
+        { key: "found", type: "bool", source: "extractor", rubric: "r" },
+        { key: "step_done", type: "bool", source: "extractor", rubric: "r" },
+        { key: "only_milestone", type: "bool", source: "extractor", rubric: "r" }],
+      quests: [{ id: "q", title: "Q", kind: "side", visible_when: { q: "seen", op: "==", v: true }, done_when: { q: "found", op: "==", v: true },
+        steps: [{ text: "s", done_when: { q: "step_done", op: "==", v: true } }] }],
+      milestones: [{ id: "m", title: "M", when: { q: "only_milestone", op: "==", v: true } }],
+    };
+    const hits = runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope");
+    expect(hits.map((entry) => entry.message)).toEqual([expect.stringContaining("only_milestone")]);
+  });
+
   it("warns that a free-text location quality leaves the scene tracker placeless, unless places are listed (v2.2 plan 03)", () => {
     const freeText: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "string", source: "extractor", rubric: "Where?" }] };
     expect(runDiagnostics(freeText).filter((entry) => entry.code === "scene-read-location-empty")).toEqual([expect.objectContaining({ severity: "warning", path: "qualities.1" })]);
