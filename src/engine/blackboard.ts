@@ -39,6 +39,14 @@ export class Blackboard {
 
   constructor(private readonly story: Pick<NormalizedStoryV2, "qualityByKey" | "cardFieldByQuality">, snapshot?: BlackboardSnapshot) {
     if (snapshot) this.restore(snapshot);
+    else this.seed();
+  }
+
+  private seed(): void {
+    for (const quality of Object.values(this.story.qualityByKey)) {
+      const start = quality.step_rule?.start;
+      if (start !== undefined && this.values[quality.key] === undefined) this.values[quality.key] = start;
+    }
   }
 
   get(key: string): PrimitiveValue | undefined {
@@ -97,6 +105,7 @@ export class Blackboard {
     this.versions[key] = (this.versions[key] ?? 0) + 1;
     if (value === undefined) delete this.values[key];
     else this.values[key] = value;
+    this.seed();
     if (this.story.cardFieldByQuality?.[key]) {
       if (value === undefined) delete this.writerOf[key];
       else this.writerOf[key] = { writer: "manual", boundary: this.writeBoundary };
@@ -117,6 +126,7 @@ export class Blackboard {
     this.versions = cloneRecord(snapshot.versions);
     this.latched = cloneRecord(snapshot.latched);
     this.writerOf = Object.fromEntries(Object.entries(snapshot.writerOf ?? {}).map(([key, value]) => [key, { ...value }]));
+    this.seed();
   }
 
   setWriteBoundary(boundary: number): void { this.writeBoundary = boundary; }

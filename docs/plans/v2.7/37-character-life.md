@@ -433,3 +433,40 @@ measured numbers are placeholders until v2.7 39 B1/B2 (rows `37-*` in 39 §Rows 
 - Should an unread relationship read as `start` in gates (seeded), which needs a code/extractor dual-writer rule?
 - Should `per_chapter` be refused in a story without chapters (today it moves once)?
 - Should an away member addressed by name get an explicit narrator line ("X is not here"), or is dropping enough?
+
+### Owner decisions 2026-10-07 (built on `v2.7-owner-decisions` from `v2.7-image-track-wip` @ `4edf5da8`)
+
+The three open questions above, answered by the owner and built; deterministic tiers only, no live run.
+
+- **Q1, an unread relationship reads as `start`: yes.** `Blackboard` seeds every quality whose `step_rule` carries a
+  `start` (only the compiled `rel_*` axes do) when it is built, restored (rollback, hydrate, reopen) or reset by the
+  author (`override(key, undefined)`). The seed is no write: no version, no latch, no writer record, no delta, so the
+  extractor (judge-first or shared read, through the step clamp) stays the only writer, and a code write is still
+  refused (`source mismatch`). A gate sees `start` from turn one; a swipe back past the first read lands on `start`; a
+  stored state without the key reopens on it. This replaces the deviation "An unread relationship is unset on the
+  blackboard". Tests: `engine/life/life.test.ts` "an unread relationship reads as its start" (6 cases incl. a gate
+  met by `start: 2` and its control `start: 1`, a code write refused, rollback past the read, a stripped state
+  reopened, an author reset, and the control that a quality without a `start` stays unset); the 4-seed rollback ≡
+  replay and reopen ≡ continuous property stays green.
+- **Q2, `per_chapter` without chapters: refused.** `checkLife` takes whether the story declares chapters and refuses
+  `roster.N.agenda.M.pace` with "pace per_chapter needs chapters, and this story declares none, so the agenda would
+  move once and then never again: use per_n_boundaries with every, or add chapters". Studio diagnostic
+  `agenda-pace-no-chapters` (blocking, `studio/lifeDiagnostics.ts`, consequence "The story cannot load: this plan waits
+  for a new chapter, and the story has none, so it would move once and never again.", guide topic `character-life`).
+  Tests: `validate/life.test.ts`, `studio/diagnostics.test.ts` (own case + the every-code-once seeded run).
+- **Q3, an addressed away member: the narrator is told.** When the player's latest in-character line (OOC lines are no
+  turn) speaks to a member the schedule puts away, by name (the talk layer's `narrowByMention`, so "don't tell Arin"
+  is no address) or by an alias only that member has (`distinctAliases`), one shared line rides that loud generation:
+  "Arin is not here: the player spoke to Arin, who is elsewhere right now. Nobody answers as Arin in this reply; the
+  narrator says Arin is not present." New registry block `awayNotice` (`story_orchestrator_away_notice`, depth 0,
+  label "Who is not here", in the depth-0 collision set with the continuity note and check outcomes), set on the
+  generation's open (never for quiet or impersonate) and cleared on its close; never in a drafted member's private
+  block (away status is no secret). Nobody away addressed: the block is never set, so prompts are byte-identical.
+  `talk/rules.ts addressedAmong`, `runtime/awayNotice.ts`, wired in `runtime/wiring/generation.ts`. Tests:
+  `runtime/awayNotice.test.ts` (name, alias, an alias two members share resolves to nobody, an excluded mention,
+  here/not addressed/no schedule controls, an OOC line after the address, an older address, quiet/impersonate, no
+  write when nothing applies).
+
+Commands: `npm run gates -- --no-storybook` all green in 175.6 s (test 6883 pass / 1 skipped, test:replay 32 of 32
+killed); `test-storybook:ci` SKIPPED (Storybook cannot run from a worktree). Prod `dist/index.js` 1,176,107 B (budget
+1,250,000). Rows: 39 §Rows owed by v2.7 37, 37-Q1..Q3 (not run).

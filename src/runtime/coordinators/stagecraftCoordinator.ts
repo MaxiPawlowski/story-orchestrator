@@ -75,7 +75,7 @@ const readReply = (chat: unknown[], messageId: number): { speaker: string; text:
 const playerWroteBetween = (chat: unknown[], after: number, upTo: number): boolean => {
   for (let index = after + 1; index <= Math.min(upTo, chat.length - 1); index += 1) {
     const message = cleanWindowMessage(chat[index]);
-    if (message.keep && message.isUser) return true;
+    if (message.keep && message.isUser && !isOocLine(chat[index])) return true;
   }
   return false;
 };

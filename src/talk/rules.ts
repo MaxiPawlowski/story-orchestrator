@@ -1,5 +1,6 @@
 import type { RosterMember, TalkControl } from "@engine/index";
 import type { DirectorWindowMessage, TalkCandidate } from "./types";
+import { aliasKey, distinctAliases } from "./aliases";
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
@@ -54,10 +55,12 @@ const excluded = (clause: string, at: number, length: number): boolean =>
 const addressedIn = (clause: string, word: string): boolean =>
   [...clause.matchAll(new RegExp(`\\b${escapeWord(word)}\\b`, "g"))].some((match) => !excluded(clause, match.index ?? 0, word.length));
 
+const clausesOf = (text: string): string[] => text.toLowerCase().replace(/\u2019/g, "'").split(/[.!?;:\n]+/);
+
 export const narrowByMention = (candidates: TalkCandidate[], text: string): TalkCandidate[] => {
   const words = new Set(extractWords(text));
   if (!words.size) return [];
-  const clauses = text.toLowerCase().replace(/\u2019/g, "'").split(/[.!?;:\n]+/);
+  const clauses = clausesOf(text);
   return candidates.filter((candidate) => extractWords(candidate.name).some((word) => words.has(word) && clauses.some((clause) => addressedIn(clause, word))));
 };
 
@@ -81,6 +84,22 @@ export const withAddressed = (candidates: TalkCandidate[], addressed: TalkCandid
   ...candidates,
   ...addressed.filter((member) => !candidates.some((candidate) => candidate.rosterId === member.rosterId)),
 ];
+
+const addressedByAlias = (candidates: TalkCandidate[], text: string): TalkCandidate[] => {
+  const clauses = clausesOf(text);
+  const aliases = distinctAliases(candidates);
+  return candidates.filter((candidate) => (aliases.get(candidate.rosterId) ?? [])
+    .some((alias) => clauses.some((clause) => addressedIn(clause, aliasKey(alias)))));
+};
+
+export const addressedAmong = (roster: RosterMember[], rosterIds: readonly string[], text: string): TalkCandidate[] => {
+  const wanted = new Set(rosterIds);
+  const everyone = roster.map((member): TalkCandidate => ({
+    rosterId: member.id, name: member.name ?? member.id, weight: 1, ...(member.aliases?.length ? { aliases: member.aliases } : {}),
+  }));
+  const named = narrowByMention(everyone.filter((candidate) => wanted.has(candidate.rosterId)), text);
+  return withAddressed(named, addressedByAlias(everyone, text).filter((candidate) => wanted.has(candidate.rosterId)));
+};
 
 export const directorEnabled =(control: TalkControl): boolean => control.director === true || (typeof control.director === "object" && control.director !== null);
 

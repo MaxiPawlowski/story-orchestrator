@@ -86,6 +86,20 @@ describe("v2.7 plan 37: what the validator refuses", () => {
     expect(errorsOf(withArin({ schedule: [{ when: { q: "nowhere", op: "==", v: true }, at: "docks" }] })).some((error) => error.path.includes("schedule.0.when"))).toBe(true);
   });
 
+  it("owner decision 2026-10-07: refuses a per_chapter agenda in a story without chapters, saying why and what to use", () => {
+    const agenda = [{ id: "plan", goal: "Leave town", pace: "per_chapter", steps: [{ text: "packed" }, { text: "left" }] }];
+    const refused = errorsOf(withArin({ agenda })).filter((error) => error.path === "roster.0.agenda.0.pace");
+    expect(refused).toHaveLength(1);
+    expect(refused[0].message).toContain("needs chapters");
+    expect(refused[0].message).toContain("per_n_boundaries");
+    const chaptered = withArin({ agenda });
+    chaptered.chapters = [{ id: "one", title: "One" }];
+    chaptered.checkpoints = (chaptered.checkpoints as Array<Record<string, unknown>>).map((checkpoint) => ({ ...checkpoint, chapter: "one" }));
+    expect(errorsOf(chaptered)).toEqual([]);
+    const paced = withArin({ agenda: [{ ...agenda[0], pace: "per_n_boundaries", every: 2 }] });
+    expect(errorsOf(paced)).toEqual([]);
+  });
+
   it("refuses a clock with fewer than two times", () => {
     const story = copy();
     story.clock = { times: ["noon"] };

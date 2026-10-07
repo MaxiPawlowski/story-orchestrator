@@ -73,7 +73,7 @@ current scene** or **Restart story**.
 
 To say something outside the story, wrap the whole message in double brackets, `((brb, dinner))`, or start it with
 `OOC:` or `(OOC`. The characters still see it, but the story does not read it: it changes nothing in the story,
-counts as no turn and is never remembered. Brackets inside an ordinary line, "I say (quietly) hello", are read as
+counts as no turn, is never remembered and is not listed in the story panel's log. Brackets inside an ordinary line, "I say (quietly) hello", are read as
 usual. To correct the story, edit the message instead.
 
 ## Stuck? "What could I do?"

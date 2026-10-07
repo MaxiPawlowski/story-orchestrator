@@ -140,7 +140,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
-  layer?.life.checkLife(life, roster, qualityByKey, errors);
+  layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
   const widgets = layer?.readWidgets(json.widgets, qualityByKey, qualities, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;

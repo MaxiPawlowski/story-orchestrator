@@ -366,3 +366,16 @@ Coordinator line budget: noted as 560 (`test/findings/codeHealth.json`); this pl
 - Should an unearned secret milestone show a count ("1 more to find")? Not built: a count also reveals.
 - Should an offered quest ever expire? Today it waits forever; expiring would need a non-time gate the author writes.
 - `QUEST_SCOPE_CAP` and the combined budget with card pulls (and v2.7 37 relationships) are unmeasured.
+
+### Owner decisions 2026-10-07 (built on `v2.7-owner-decisions` from `v2.7-image-track-wip` @ `4edf5da8`)
+
+- **The story panel's action log never lists an OOC line.** `widgets.ts actionRows` skips a player row that
+  `engine/ooc.ts isOocLine` marks (`((…))`, `OOC:`, `(OOC`), so the `log` widget and the Journal's synthesized Log show
+  only in-character actions; brackets inside an ordinary line still count. Tests: `runtime/gameProjection.test.ts`
+  (each OOC form left out, order kept; control: the same lines in character are all listed).
+- **A pending warden note does not lapse on an OOC line** (v2.7 finding 19, the note lifecycle shared with the
+  continuity warden): `playerWroteBetween` in `stagecraftCoordinator.ts` no longer counts an OOC player line as "the
+  player wrote again". Test: `stagecraftCoordinator.test.ts` "an out-of-character player line is no new turn" (each
+  OOC form, then accept and carry), beside the control "a newer reply lapses it".
+
+Gates as in 37's owner-decision record (all green, Storybook skipped); row 39 S-19-OOC-b (not run).

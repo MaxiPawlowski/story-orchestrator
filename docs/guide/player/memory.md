@@ -31,7 +31,8 @@ It shows progress (`Memorizing: 3/12`) and can be stopped.
 ## Private knowledge
 
 In a group, each character knows only what they saw or were told. A secret one character keeps is not shown to the
-others' replies. You do not need to do anything for this.
+others' replies. A memory that would give such a secret away is left out of the Memory tab, or shown without the
+sentence that does. You do not need to do anything for this.
 
 ## Chapters
 

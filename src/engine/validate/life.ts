@@ -218,9 +218,15 @@ const lifeGates = (member: LifeMember): Array<[string, GateNode]> => [
   ...member.schedule.map((entry, index): [string, GateNode] => [`schedule.${index}.when`, entry.when]),
 ];
 
-export const checkLife = (life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
+export const AGENDA_NO_CHAPTERS = "pace per_chapter needs chapters, and this story declares none, so the agenda would move once and then never again: "
+  + "use per_n_boundaries with every, or add chapters";
+
+export const checkLife = (
+  life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
+) => {
   for (const member of life?.members ?? []) {
     const path = `roster.${roster.findIndex((entry) => entry.id === member.id)}`;
     lifeGates(member).forEach(([field, gate]) => validateGate(gate, qualityByKey, `${path}.${field}`, errors));
+    if (!hasChapters) member.agenda.forEach((agenda, index) => { if (agenda.pace === "per_chapter") addError(errors, `${path}.agenda.${index}.pace`, AGENDA_NO_CHAPTERS); });
   }
 };

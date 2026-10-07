@@ -11,7 +11,7 @@ Two things follow, and most of the advice below comes from them:
 - **The story only knows what the chat shows.** A gate on a thought, a mood or something that happened off screen never opens, because nobody can quote it.
 - **The chat can be rewound.** Swipes, edits and deletions roll the story back. Effects are rebuilt from the path the chat took, so they must depend on the path, never on the clock.
 
-A player line that is wholly out of character (wrapped in `((…))`, or starting `OOC:` / `(OOC`) stays in the chat the narrator sees, but the reading model is never shown it: it sets no quality, fact or memory, and it is no player turn for open-stretch pace, agendas or a refused route (`src/engine/ooc.ts`). Tell players to correct the story with an edit, not an OOC line.
+A player line that is wholly out of character (wrapped in `((…))`, or starting `OOC:` / `(OOC`) stays in the chat the narrator sees, but the reading model is never shown it: it sets no quality, fact or memory, and it is no player turn for open-stretch pace, agendas or a refused route (`src/engine/ooc.ts`). A continuity note waiting for review does not lapse on it, and the story panel's log does not list it. Tell players to correct the story with an edit, not an OOC line.
 
 ---
 

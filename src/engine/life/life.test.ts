@@ -203,3 +203,68 @@ describe("v2.7 plan 37: rollback ≡ replay with agendas, moods, clock and OOC l
     }
   });
 });
+
+describe("owner decision 2026-10-07 (plan 37 Q1): an unread relationship reads as its start", () => {
+  const TRUST = "rel_arin_player_trust";
+  const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")) as { roster: Array<{ relationships?: Array<Record<string, unknown>> }> };
+  const startingAt = (start: number) => {
+    const raw = JSON.parse(JSON.stringify(RAW)) as typeof RAW;
+    raw.roster[0].relationships = raw.roster[0].relationships?.map((relationship) => (relationship.toward === "player" ? { ...relationship, start } : relationship));
+    return parseStoryV2OrThrow(raw);
+  };
+
+  it("holds start on the blackboard from load, with no version, so the extractor's first read is still the first write", () => {
+    const run = play();
+    expect(run.values()[TRUST]).toBe(0);
+    expect(run.values().rel_arin_narrator_respect).toBe(0);
+    expect(run.engine.serialize().blackboard.versions[TRUST]).toBeUndefined();
+    run.turn({ text: "hello", deltas: { [TRUST]: 1 } });
+    expect(run.values()[TRUST]).toBe(1);
+    expect(run.engine.serialize().blackboard.versions[TRUST]).toBe(1);
+  });
+
+  it("a gate on it holds from turn one when start meets it; control: a start below the gate waits for a read", () => {
+    const met = play(startingAt(2));
+    met.turn({ text: "hello" });
+    expect(met.engine.serialize().activeCheckpointId).toBe("confession");
+    const below = play(startingAt(1));
+    below.turn({ text: "hello" });
+    expect(below.engine.serialize().activeCheckpointId).toBe("start");
+    below.turn({ text: "I help you", deltas: { [TRUST]: 2 } });
+    expect(below.engine.serialize().activeCheckpointId).toBe("confession");
+  });
+
+  it("keeps the extractor the only writer: a code write to it is refused", () => {
+    const run = play();
+    run.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas: [{ q: TRUST, v: 3, source: "code" }] });
+    run.engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    expect(run.values()[TRUST]).toBe(0);
+  });
+
+  it("a rollback past the first read lands on start, and a stored state without the key reopens on start", () => {
+    const run = play(startingAt(1));
+    run.turn({ text: "hello" });
+    run.turn({ text: "I help you", deltas: { [TRUST]: 2 } });
+    expect(run.engine.rollbackTo(1)).toEqual({ ok: true, result: "applied" });
+    expect(run.values()[TRUST]).toBe(1);
+    const saved = run.engine.serialize();
+    const stripped = { ...saved, blackboard: { ...saved.blackboard, values: Object.fromEntries(Object.entries(saved.blackboard.values).filter(([key]) => !key.startsWith("rel_"))) } };
+    const reopened = play(startingAt(1));
+    reopened.engine.hydrate(stripped);
+    expect(reopened.values()[TRUST]).toBe(1);
+    expect(reopened.values()).toEqual(run.values());
+  });
+
+  it("an author reset of the value goes back to start, not to unset", () => {
+    const run = play();
+    run.turn({ text: "hello", deltas: { [TRUST]: 1 } });
+    run.engine.resetQuality(TRUST);
+    expect(run.values()[TRUST]).toBe(0);
+  });
+
+  it("control: a quality without a relationship start is still unset until read", () => {
+    const run = play();
+    expect(run.values()[moodKey("arin")]).toBeUndefined();
+    expect(run.values().location).toBeUndefined();
+  });
+});

@@ -1,5 +1,5 @@
 import {
-  checksById, evaluateGate, isClosed, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState, type GateReader, type NormalizedStoryV2,
+  checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState, type GateReader, type NormalizedStoryV2,
   type PrimitiveValue, type Quest, type QuestProgress, type StoryWidget,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
@@ -103,7 +103,7 @@ const firstLine = (text: string) => {
 };
 
 const actionRows = (chat: readonly unknown[], from: number, log: readonly BoundaryLogEntry[]): LogRowView[] => chat.flatMap((row, messageId): LogRowView[] => {
-  if (!isRecord(row) || row.is_user !== true || row.is_system === true || messageId <= from || typeof row.mes !== "string" || !row.mes.trim()) return [];
+  if (!isRecord(row) || row.is_user !== true || row.is_system === true || messageId <= from || typeof row.mes !== "string" || !row.mes.trim() || isOocLine(row)) return [];
   const boundary = log.find((entry) => entry.context.lastMessageId >= messageId)?.boundary ?? (log.at(-1)?.boundary ?? 0);
   return [{ at: { boundary, messageId }, kind: "action", actor: PLAYER_ACTOR, text: firstLine(row.mes) }];
 });

@@ -462,6 +462,7 @@ export interface RuntimeSnapshot {
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;
+  memoryShown?: MemoryEntry[];
   chapters?: ChapterView;
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;

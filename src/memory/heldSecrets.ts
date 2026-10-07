@@ -47,8 +47,10 @@ export const keptFrom = (text: string, secrets: readonly HeldSecret[], member: r
 
 const SENTENCE_BREAK = /(?<=[.!?]["')\]]?)\s+|\n+/;
 
+const sentencesOf = (text: string): string[] => text.split(SENTENCE_BREAK).map((sentence) => sentence.trim()).filter(Boolean);
+
 const redacted = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): string | null => {
-  const sentences = text.split(SENTENCE_BREAK).map((sentence) => sentence.trim()).filter(Boolean);
+  const sentences = sentencesOf(text);
   const shown = sentences.filter((sentence) => !keptFrom(sentence, secrets, member));
   const joined = shown.join(" ");
   return shown.length && shown.length < sentences.length && !keptFrom(joined, secrets, member) ? joined : null;
@@ -70,6 +72,12 @@ export const shownRows = <T extends { text: string }>(rows: readonly T[], restin
   const text = resting(row.text);
   return text ? [text === row.text ? row : { ...row, text }] : [];
 });
+
+export const withWithheld = (original: string, shown: string, edited: string): string => {
+  if (shown === original) return edited;
+  const kept = new Set(sentencesOf(shown));
+  return [edited.trim(), ...sentencesOf(original).filter((sentence) => !kept.has(sentence))].filter(Boolean).join(" ");
+};
 
 export interface SharedTierView {
   entries: MemoryEntry[];

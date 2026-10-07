@@ -27,6 +27,23 @@ const clean: StoryV2 = {
   roster: [],
 };
 
+describe("agenda pace without chapters (owner decision 2026-10-07)", () => {
+  const paceHits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "agenda-pace-no-chapters");
+  const withAgenda = (pace: "per_chapter" | "per_n_boundaries"): StoryV2 => ({
+    ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave town", pace, steps: [{ text: "packed" }] }] }],
+  });
+  it("blocks a per_chapter agenda in a story without chapters, consequence first", () => {
+    expect(paceHits(withAgenda("per_chapter"))).toEqual([
+      expect.objectContaining({ severity: "blocking", path: "roster.0.agenda.0.pace", consequence: DIAGNOSTIC_CONSEQUENCES["agenda-pace-no-chapters"] }),
+    ]);
+    expect(paceHits(withAgenda("per_chapter"))[0].message).toContain("per_n_boundaries");
+  });
+  it("passes per_n_boundaries, and per_chapter once the story has chapters", () => {
+    expect(paceHits(withAgenda("per_n_boundaries"))).toEqual([]);
+    expect(paceHits({ ...withAgenda("per_chapter"), chapters: [{ id: "one", title: "One" }] })).toEqual([]);
+  });
+});
+
 describe("story kind (2026-10-03)", () => {
   const kindHits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "story-kind-invalid");
   it("blocks a kind that is neither saga nor story, and passes both and absent", () => {
@@ -140,6 +157,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics(chaptered),
       ...runDiagnostics(installSeeded, { characterNames: () => ["Tobias"], backgroundNames: () => ["tavern day.jpg"] }),
       ...runDiagnostics(arrivalSeeded, { personaNames: () => ["Traveller"] }),
+      ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave", pace: "per_chapter", steps: [{ text: "packed" }] }] }] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));
