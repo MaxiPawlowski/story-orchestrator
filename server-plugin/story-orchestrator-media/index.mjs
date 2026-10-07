@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { ComfyJobs } from './jobs.mjs';
+import { createComfyTarget } from './comfyTarget.mjs';
 import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets, removeStorySprites, referencePack, referenceSets, spriteInventory, alphaRecipes,
     digest, recordReference, ownsReference, releaseReference, pruneReferences } from './files.mjs';
 
@@ -14,10 +14,9 @@ export async function init(router) {
         if (error.code !== 'ENOENT') throw error;
         return {};
     });
-    const url = config.comfyUrl ?? 'http://127.0.0.1:8188';
-    if (!/^https?:$/.test(new URL(url).protocol)) throw new Error('ComfyUI URL must use HTTP or HTTPS.');
+    const target = createComfyTarget({ configured: config.comfyUrl,
+        readSettings: async (req) => JSON.parse(await fs.readFile(path.join(req.user.directories.root, 'settings.json'), 'utf8')) });
     const roots = config.modelRoots ?? {};
-    const jobs = new ComfyJobs({ url });
     const allowedNodes = new Set(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
         'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
         'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
@@ -27,11 +26,11 @@ export async function init(router) {
         return root;
     };
     const route = (method, name, run) => router[method](name, async (req, res) => {
-        try { const user = owner(req); res.json(await run(req, user)); }
+        try { const user = owner(req); res.json(await run(req, user, await target(req))); }
         catch (error) { res.status(400).json({ error: error.message }); }
     });
-    route('get', '/status', async () => ({ ready: true, comfyUrl: url, fingerprints: Object.keys(roots) }));
-    route('get', '/discover', async () => {
+    route('get', '/status', async (_req, _user, { url, from }) => ({ ready: true, comfyUrl: url, comfyUrlFrom: from, fingerprints: Object.keys(roots) }));
+    route('get', '/discover', async (_req, _user, { jobs }) => {
         const nodes = await (await jobs.request('/object_info')).json();
         if (nodes.LoadImage?.input?.required?.image) nodes.LoadImage.input.required.image[0] = [];
         const embeddings = await (await jobs.request('/embeddings')).json();
@@ -44,7 +43,7 @@ export async function init(router) {
         };
     });
     route('post', '/fingerprint', (req) => fingerprint(roots[req.body.kind] ?? [], req.body.name));
-    route('post', '/reference', async (req, user) => {
+    route('post', '/reference', async (req, user, { url }) => {
         const bytes = pngBytes(req.body.data);
         const filename = `so_${randomUUID()}.png`;
         const name = `story-orchestrator/${filename}`;
@@ -63,17 +62,17 @@ export async function init(router) {
         }
         return { name };
     });
-    const prune = async (user, names) => {
+    const prune = async (user, names, jobs) => {
         const queue = await (await jobs.request('/queue')).json();
         if (queue.queue_running?.length || queue.queue_pending?.length) return { deleted: [], errors: [], deferred: 'ComfyUI still has work; references stay on disk.' };
         return pruneReferences(user, config.comfyInputRoot, names);
     };
-    route('post', '/reference/release', async (req, user) => {
+    route('post', '/reference/release', async (req, user, comfy) => {
         const result = await releaseReference(user, req.body.name);
-        return { ...result, prune: await prune(user, [req.body.name]) };
+        return { ...result, prune: await prune(user, [req.body.name], comfy.jobs) };
     });
-    route('post', '/prune', (req, user) => prune(user, req.body.names));
-    route('post', '/jobs', async (req, user) => {
+    route('post', '/prune', (req, user, { jobs }) => prune(user, req.body.names, jobs));
+    route('post', '/jobs', async (req, user, { jobs }) => {
         const graph = req.body.graph;
         if (!graph || typeof graph !== 'object' || Array.isArray(graph) || Object.keys(graph).length > 128) throw new Error('Invalid render recipe.');
         for (const node of Object.values(graph)) {
@@ -88,9 +87,9 @@ export async function init(router) {
         }
         return jobs.submit(user, req.body.id, graph);
     });
-    route('get', '/jobs/:id', (req, user) => jobs.poll(user, req.params.id));
-    route('post', '/jobs/:id/cancel', (req, user) => jobs.cancel(user, req.params.id));
-    route('get', '/jobs/:id/result', (req, user) => jobs.result(user, req.params.id));
+    route('get', '/jobs/:id', (req, user, { jobs }) => jobs.poll(user, req.params.id));
+    route('post', '/jobs/:id/cancel', (req, user, { jobs }) => jobs.cancel(user, req.params.id));
+    route('get', '/jobs/:id/result', (req, user, { jobs }) => jobs.result(user, req.params.id));
     route('post', '/sprites/read', (req, root) => reconcileSet(root, req.body.character, req.body.set));
     route('post', '/sprites/reference-sets', (req, root) => referenceSets(root, req.body.character));
     route('post', '/sprites/reference-pack', (req, root) => referencePack(root, req.body.character, req.body.set));

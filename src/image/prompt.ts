@@ -1,4 +1,4 @@
-import { ASPECTS, CHECKPOINTS, SHOTS, type Aspect, type Shot } from "./catalog";
+import { ASPECTS, checkpointFor, FAMILIES, familyOf, modelId, SHOTS, type Aspect, type Shot } from "./catalog";
 import type { ImageChat } from "@services/stHost/image";
 import type { Route } from "./routing";
 
@@ -63,13 +63,13 @@ const TAG_SKILL = [
 ].join(" ");
 
 export const imageMessages = (request: ImageRequest, scene: ImageScene, route: Route): Array<{ role: string; content: string }> => {
-  const menu = route.allowed.map((file) => {
-    const entry = CHECKPOINTS.find((item) => item.file === file);
-    return entry ? `${entry.file} (${entry.label}; ${entry.notes})` : file;
+  const menu = route.allowed.map((id) => {
+    const entry = id in FAMILIES ? checkpointFor("", id) : checkpointFor(id, familyOf(id) ?? route.family.id);
+    return `${id} (${entry.label}; ${entry.notes})`;
   }).join("\n");
   const system = [
     "You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative. No other text.",
-    `The checkpoint must be one of: ${route.allowed.join(", ")}. Use the default ${route.checkpoint.file} unless another allowed model clearly fits better.`,
+    `The checkpoint must be one of: ${route.allowed.join(", ")}. Use the default ${modelId(route.checkpoint)} unless another allowed model clearly fits better.`,
     `The aspect must be one of ${ASPECTS.join(", ")}; shot one of ${SHOTS.join(", ")}.`,
     `Default framing: ${route.shot}. Output only people actually visible in the "visible" list.`,
     TAG_SKILL,
@@ -101,7 +101,7 @@ export const parseImageReply = (raw: string, route: Route): ImageReply => {
   if (prompt.length < 10) throw new Error("The image director returned an empty visual prompt.");
   return {
     caption: typeof record.caption === "string" ? record.caption.slice(0, 200) : prompt.slice(0, 120),
-    checkpoint: typeof record.checkpoint === "string" && route.allowed.includes(record.checkpoint) ? record.checkpoint : route.checkpoint.file,
+    checkpoint: typeof record.checkpoint === "string" && route.allowed.includes(record.checkpoint) ? record.checkpoint : modelId(route.checkpoint),
     reason: typeof record.reason === "string" ? record.reason : "",
     visible: Array.isArray(record.visible) ? record.visible.filter((name): name is string => typeof name === "string") : [],
     aspect: typeof record.aspect === "string" && ASPECTS.includes(record.aspect as Aspect) ? record.aspect as Aspect : null,

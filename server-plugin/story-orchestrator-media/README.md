@@ -4,7 +4,9 @@ Install with `npm run plugin:install -- --with media`, then restart SillyTavern.
 Ordinary illustrations use ST's configured Image Generation backend without this plugin.
 Reference edits and the Studio sprite builder require it.
 
-`config.json` beside this plugin selects the ComfyUI server and local model roots:
+`config.json` beside this plugin holds the local model roots and, optionally, the ComfyUI server. Without `comfyUrl`
+the plugin uses the ComfyUI address set in SillyTavern's Image Generation settings (per user), then ComfyUI's
+documented default `http://127.0.0.1:8188`. `/status` reports which one it used (`comfyUrlFrom`).
 
 ```json
 {

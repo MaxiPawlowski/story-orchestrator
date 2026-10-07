@@ -18,6 +18,7 @@
     "server-plugin/story-orchestrator-gpu/README.md",
     "server-plugin/story-orchestrator-media/index.mjs",
     "server-plugin/story-orchestrator-media/jobs.mjs",
+    "server-plugin/story-orchestrator-media/comfyTarget.mjs",
     "server-plugin/story-orchestrator-media/files.mjs",
     "server-plugin/story-orchestrator-media/package.json",
     "server-plugin/story-orchestrator-media/README.md",

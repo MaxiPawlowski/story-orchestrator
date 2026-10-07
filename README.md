@@ -76,7 +76,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Characters | Motives and inner voice | Per-character aims steer replies without narrating for the player (inner voice off by default). |
 | World | Story lore | A story's lorebooks switch on only in its own chats, scene by scene. |
 | World | World Info curator | Proposes lorebook updates inside the story's declared books; you review them. |
-| World | Backgrounds, illustrations, sprites | Checkpoint backgrounds; ComfyUI illustrations; the sprite stage (optional). |
+| World | Backgrounds, illustrations, sprites | Checkpoint backgrounds; illustrations through your image service; the sprite stage (optional). |
 | Judge | Judgment model (optional) | Fast picks for speakers, lore, memory checks and scene tracking; never blocks. |
 | Authoring | Checkpoint Studio | Visual editor with consequence-first diagnostics and safe saves. |
 | Authoring | Setup wizard and story agent | Premise to playable story; creates cards, lorebook and group only with your OK. |
@@ -84,9 +84,11 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 
 ## Illustrations and scope
 
-Images are optional and need your own ComfyUI and an image-prompt profile (**General setup → Image service**). Install
-settings decide whether automation is allowed; a story can ask for art at its own moments; each chat can pause it or
-draw on demand from **Overview → Illustrations**. Change the default image models to ones your ComfyUI has. The GPU
+Images are optional. By default they use whatever image source SillyTavern's own Image Generation extension has set up
+(**General setup → Image service**); an image-prompt profile is optional, and a template works without one. With no
+image service nothing is drawn and nothing fails. Install settings decide whether automation is allowed; a story can ask
+for art at its own moments; each chat can pause it or draw on demand from **Overview → Illustrations**. The advanced
+ComfyUI recipes need the optional media plugin and pick a model per picture type from what your ComfyUI has. The GPU
 plugin is optional; configure its adapter when local text and image models need to share one GPU.
 [More](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/images.md)
 

@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { brokerAddress, mountManagedRoutes } from './managed.mjs';
+import { brokerAddress, managedControllerUrl, mountManagedRoutes } from './managed.mjs';
+import { start, exit } from './index.mjs';
 
-test('the broker address comes from config.json, with loopback 18888 only as the documented default', () => {
-    assert.deepEqual(brokerAddress({}), { listenHost: '127.0.0.1', listenPort: 18888, controllerUrl: 'http://127.0.0.1:18888' });
+test('the broker address comes from config.json; 18888 is only the documented listen default, no controller is assumed', () => {
+    assert.deepEqual(brokerAddress({}), { listenHost: '127.0.0.1', listenPort: 18888, controllerUrl: null });
     assert.deepEqual(brokerAddress({ listenHost: 'localhost', listenPort: 19000, controllerUrl: 'http://127.0.0.1:19500' }),
         { listenHost: 'localhost', listenPort: 19000, controllerUrl: 'http://127.0.0.1:19500' });
     assert.throws(() => brokerAddress({ listenHost: '0.0.0.0' }), /loopback/);
@@ -38,4 +39,29 @@ test('a caller disconnected after a grant releases only its granted lease', asyn
     res.destroyed = true;
     await handlers.get('/lease')({ body: {} }, res);
     assert.deepEqual(calls.at(-1), ['http://127.0.0.1:18888/release', '{"lease":"owned"}']);
+});
+
+test('the managed adapter is refused at init without a controllerUrl, and never assumes one', async () => {
+    assert.throws(() => managedControllerUrl({ adapter: 'managed' }), /controllerUrl/);
+    assert.equal(managedControllerUrl({ adapter: 'managed', controllerUrl: 'http://127.0.0.1:19500' }), 'http://127.0.0.1:19500');
+    const routes = [];
+    const router = { get: (route) => routes.push(route), post: (route) => routes.push(route) };
+    await assert.rejects(start(router, { adapter: 'managed' }), /controllerUrl/);
+    assert.deepEqual(routes, []);
+    await start(router, { adapter: 'managed', controllerUrl: 'http://localhost:19500' });
+    assert.deepEqual(routes.sort(), ['/lease', '/release', '/renew', '/status']);
+});
+
+test('the none adapter passes images through on the configured port', async () => {
+    const handlers = new Map();
+    const router = { get: (route, fn) => handlers.set(route, fn), post: (route, fn) => handlers.set(route, fn) };
+    const listenPort = 20000 + Math.floor(Math.random() * 20000);
+    await start(router, { adapter: 'none', listenPort });
+    try {
+        const res = { data: null, json(data) { this.data = data; } };
+        await handlers.get('/lease')({ body: {} }, res);
+        assert.deepEqual({ lease: res.data.lease, brokered: res.data.brokered }, { lease: null, brokered: false });
+        const status = await (await fetch(`http://127.0.0.1:${listenPort}/status`)).json();
+        assert.equal(status.adapter, 'none');
+    } finally { await exit(); }
 });

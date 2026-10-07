@@ -12,7 +12,7 @@ Install from this checkout with `npm run plugin:install -- --with gpu`, enable s
 |---|---|
 | `none` (default when no config exists) | Images pass through without a GPU lease; the text proxy refuses requests. |
 | `unsloth` | Coordinates an Unsloth text model and ComfyUI; requires `upstream`, `model` and `comfyUrl`. |
-| `managed` | Forwards lease routes to an external controller (`controllerUrl`, default `http://127.0.0.1:18888`); that controller owns the text port. |
+| `managed` | Forwards lease routes to an external controller at `controllerUrl` (required; the plugin refuses to start without it, and the extension then renders without coordination); that controller owns the text port. |
 
 Example Unsloth configuration:
 

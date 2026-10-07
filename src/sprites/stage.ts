@@ -22,6 +22,7 @@ import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOn
 import { frameIndex, StreamActivity, type AnimationFrames } from "./animation";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { changedLookIssues } from "./lookHealth";
+import { applyLookResult } from "./lookApply";
 import { storedReads, type StoredRead } from "./storedReads";
 export { storedReads, type StoredRead } from "./storedReads";
 
@@ -371,20 +372,7 @@ export class SpriteStage {
     this.looks.request({ folder: actor.profile.folder, member: member.id, label, fields,
       accepts: () => this.actors.includes(actor) && this.settings().onDemand && this.manager.getSnapshot().storyId === storyId
         && JSON.stringify(cardValues(story, this.manager.getSnapshot().blackboard, member.id, true)) === stamp,
-      apply: (set, files, frames) => {
-        actor.lookError = undefined;
-        actor.packs.set(set, spriteIndex(files));
-        if (frames) {
-          const index = actor.frames.get(set) ?? new Map<string, AnimationFrames>();
-          index.set(label, frames);
-          actor.frames.set(set, index);
-        }
-        if (actor.desiredLabel !== label) return;
-        actor.set = set;
-        actor.generatedLook = stamp;
-        const hit = resolveSprite(actor.profile, label, actor.packs.get(set) ?? new Map());
-        if (hit) { actor.path = hit.path; actor.label = hit.label; this.notify(); }
-      },
+      apply: (set, files, frames) => { if (applyLookResult(actor, { set, label, stamp, files, frames })) this.notify(); },
       failed: (reason) => { actor.lookError = reason; this.notify(); },
     });
   }

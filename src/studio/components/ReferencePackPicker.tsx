@@ -6,10 +6,11 @@ import type { HeadBox } from "../../sprites/builder/pixels";
 import type { ComfyDiscovery } from "@services/stHost/media";
 import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
+import { RENDER_PRESETS } from "../../sprites/settings";
 
-export default function ReferencePackPicker({ character, discovery, models, box, steps, busy, setBusy, services }: {
+export default function ReferencePackPicker({ character, discovery, models, box, steps, resolution = RENDER_PRESETS.standard.resolution, busy, setBusy, services }: {
   character: string; discovery: ComfyDiscovery; models: { diffusion: string; encoder: string; vae: string };
-  box: HeadBox; steps: number; busy: boolean; setBusy(value: boolean): void; services: SpriteBuilderHost;
+  box: HeadBox; steps: number; resolution?: number; busy: boolean; setBusy(value: boolean): void; services: SpriteBuilderHost;
 }) {
   const [packs, setPacks] = useState<string[]>([]);
   const [pack, setPack] = useState("");
@@ -41,7 +42,7 @@ export default function ReferencePackPicker({ character, discovery, models, box,
       if (after.sha256 !== before.sha256) throw new Error("The expression pack changed. Check it again before using it.");
       if (!live.current || !draftOwnership.check(run).ok) return;
       const settings = getGlobalSettings().sprites;
-      setGlobalSettings({ sprites: { builders: { ...settings.builders, [character]: { baseSet: pack, box, models, steps } } } });
+      setGlobalSettings({ sprites: { builders: { ...settings.builders, [character]: { baseSet: pack, box, models, steps, resolution } } } });
       setAdopted(`Using ${pack || "the default pack"}: ${before.files.length} expressions. Original images stay protected.`);
     } catch (reason) { if (live.current) setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }

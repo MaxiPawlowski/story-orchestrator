@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { listConnectionProfiles } from "@services/STAPI";
 import { imageChat } from "@services/stHost/image";
 import type { RuntimeManager } from "@runtime/runtimeManager";
-import { ASPECTS, CHECKPOINTS, SHOTS, type Aspect, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
+import { ASPECTS, familyOf, SHOTS, type Aspect, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 import { type ImageBinding, type ImageRoute, type ImageSettings } from "./settings";
 import { startImage } from "./start";
 import { guideUrl } from "@features/registry";
@@ -14,6 +14,11 @@ import { FAMILIES } from "./catalog";
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
 const quality = ["base", "hires"] as const;
+const familyNote = (file: string, wanted: string): string => {
+  const found = familyOf(file);
+  if (found === wanted) return "";
+  return found ? ` (${FAMILIES[found].label})` : " (family not recognised)";
+};
 
 const useImage = (manager: RuntimeManager) => {
   const [image] = useState(() => startImage(manager));
@@ -97,7 +102,6 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           </select>
           <fieldset className="my-2 flex flex-col gap-1 rounded border p-2">
             <legend className="font-semibold">{selectedPurpose}</legend>
-            <FieldLabel htmlFor={routeId("checkpoint")} setting="image.purposes.*.checkpoint" />
             {settings.backend === "comfy" && <>
               <button type="button" className="st-button" onClick={() => {
                 void comfyDiscover().then((models) => setInstalled(models.checkpoints)).catch((error) => setTestResult(String(error)));
@@ -106,11 +110,13 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
               <select id={routeId("family")} className="text_pole" value={entry.family} onChange={(event) => route(selectedPurpose, { family: event.target.value })}>
                 {Object.values(FAMILIES).map((family) => <option key={family.id} value={family.id}>{family.label}</option>)}
               </select>
+              <FieldLabel htmlFor={routeId("checkpoint")} setting="image.purposes.*.checkpoint" />
+              <select id={routeId("checkpoint")} className="text_pole" value={entry.checkpoint} onChange={(event) => route(selectedPurpose, { checkpoint: event.target.value })}>
+                <option value="">Pick the one installed {FAMILIES[entry.family]?.label ?? "matching"} model</option>
+                {[...new Set([entry.checkpoint, ...installed])].filter(Boolean).map((file) => <option key={file} value={file}>
+                  {file}{familyNote(file, entry.family)}</option>)}
+              </select>
             </>}
-            <select id={routeId("checkpoint")} className="text_pole" value={entry.checkpoint} onChange={(event) => route(selectedPurpose, { checkpoint: event.target.value })}>
-              {settings.backend === "comfy" ? [...new Set([entry.checkpoint, ...installed])].map((file) => <option key={file} value={file}>{file}</option>)
-                : CHECKPOINTS.map((checkpoint) => <option key={checkpoint.file} value={checkpoint.file}>{checkpoint.label}</option>)}
-            </select>
             <FieldLabel htmlFor={routeId("quality")} setting="image.purposes.*.quality" />
             <select id={routeId("quality")} className="text_pole" value={entry.quality} onChange={(event) => route(selectedPurpose, { quality: event.target.value as Quality })}>
               {option(quality)}

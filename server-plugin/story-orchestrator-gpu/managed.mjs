@@ -6,7 +6,13 @@ export function brokerAddress(config = {}) {
     const listenPort = config.listenPort ?? DEFAULT_BROKER_PORT;
     if (!LOOPBACK.includes(listenHost)) throw new Error('The GPU broker text proxy must listen on a loopback address.');
     if (!Number.isInteger(listenPort) || listenPort < 1 || listenPort > 65535) throw new Error('The GPU broker listen port must be 1..65535.');
-    return { listenHost, listenPort, controllerUrl: config.controllerUrl ?? `http://127.0.0.1:${DEFAULT_BROKER_PORT}` };
+    return { listenHost, listenPort, controllerUrl: config.controllerUrl ?? null };
+}
+
+export function managedControllerUrl(config = {}) {
+    const { controllerUrl } = brokerAddress(config);
+    if (typeof controllerUrl !== 'string' || !controllerUrl) throw new Error('The managed GPU adapter needs controllerUrl in config.json; no controller address is assumed.');
+    return controllerUrl;
 }
 
 export function mountManagedRoutes(router, url, fetchImpl = fetch) {

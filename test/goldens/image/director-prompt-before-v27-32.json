@@ -1,0 +1,32 @@
+{
+  "scene": [
+    {
+      "role": "system",
+      "content": "You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative. No other text.\nThe checkpoint must be one of: waiIllustriousSDXL_v170.safetensors, JANKUTrainedChenkinNoobai_v777.safetensors. Use the default waiIllustriousSDXL_v170.safetensors unless another allowed model clearly fits better.\nThe aspect must be one of portrait, square, landscape, wide; shot one of close, upper, cowboy, full, wide, pov, from_above, from_below.\nDefault framing: cowboy. Output only people actually visible in the \"visible\" list.\nWrite 25–45 comma-separated visual tags for SDXL. Count only visible people. Copy fixed hair, eyes, clothing from their descriptions. Do not include names, ages, artist names or quality tags. Describe one frozen moment and use a camera/framing tag."
+    },
+    {
+      "role": "user",
+      "content": "PURPOSE: scene; scene image is the target reply, background contains no people.\n\nSTORY BEAT (not an image model): At the walls\n\nCURRENT LOCATION: Wendhope\n\nSTORY VISUAL DIRECTION: Soft watercolor\n\nAVAILABLE IMAGE MODELS:\nwaiIllustriousSDXL_v170.safetensors (WAI-illustrious v17; Anime, characters, action and scenery.)\nJANKUTrainedChenkinNoobai_v777.safetensors (JANKU v7.77; Detailed portraits and faces.)\n\nCURRENT CAST:\nTobias (focus): short brown hair\n\nNAMED NPCS AND PLACES VISIBLE IN THE STORY (appearance only):\nWendhope: misty stone walls.\n\nSTORY (newest last):\nPlayer: Where are we?\nTARGET Tobias: At the gates of Wendhope."
+    }
+  ],
+  "portrait": [
+    {
+      "role": "system",
+      "content": "You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative. No other text.\nThe checkpoint must be one of: JANKUTrainedChenkinNoobai_v777.safetensors. Use the default JANKUTrainedChenkinNoobai_v777.safetensors unless another allowed model clearly fits better.\nThe aspect must be one of portrait, square, landscape, wide; shot one of close, upper, cowboy, full, wide, pov, from_above, from_below.\nDefault framing: close. Output only people actually visible in the \"visible\" list.\nWrite 25–45 comma-separated visual tags for SDXL. Count only visible people. Copy fixed hair, eyes, clothing from their descriptions. Do not include names, ages, artist names or quality tags. Describe one frozen moment and use a camera/framing tag."
+    },
+    {
+      "role": "user",
+      "content": "PURPOSE: portrait; scene image is the target reply, background contains no people.\n\nSTORY BEAT (not an image model): At the walls\n\nCURRENT LOCATION: Wendhope\n\nSTORY VISUAL DIRECTION: Soft watercolor\n\nAVAILABLE IMAGE MODELS:\nJANKUTrainedChenkinNoobai_v777.safetensors (JANKU v7.77; Detailed portraits and faces.)\n\nCURRENT CAST:\nTobias (focus): short brown hair\n\nNAMED NPCS AND PLACES VISIBLE IN THE STORY (appearance only):\nWendhope: misty stone walls.\n\nSTORY (newest last):\nPlayer: Where are we?\nTARGET Tobias: At the gates of Wendhope."
+    }
+  ],
+  "background": [
+    {
+      "role": "system",
+      "content": "You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative. No other text.\nThe checkpoint must be one of: waiIllustriousSDXL_v170.safetensors. Use the default waiIllustriousSDXL_v170.safetensors unless another allowed model clearly fits better.\nThe aspect must be one of portrait, square, landscape, wide; shot one of close, upper, cowboy, full, wide, pov, from_above, from_below.\nDefault framing: wide. Output only people actually visible in the \"visible\" list.\nWrite 25–45 comma-separated visual tags for SDXL. Count only visible people. Copy fixed hair, eyes, clothing from their descriptions. Do not include names, ages, artist names or quality tags. Describe one frozen moment and use a camera/framing tag."
+    },
+    {
+      "role": "user",
+      "content": "PURPOSE: background; scene image is the target reply, background contains no people.\n\nINSTRUCTION: a ruined temple\n\nSTORY BEAT (not an image model): At the walls\n\nCURRENT LOCATION: Wendhope\n\nSTORY VISUAL DIRECTION: Soft watercolor\n\nAVAILABLE IMAGE MODELS:\nwaiIllustriousSDXL_v170.safetensors (WAI-illustrious v17; Anime, characters, action and scenery.)\n\nCURRENT CAST:\nTobias (focus): short brown hair\n\nNAMED NPCS AND PLACES VISIBLE IN THE STORY (appearance only):\nWendhope: misty stone walls.\n\nSTORY (newest last):\nPlayer: Where are we?\nTARGET Tobias: At the gates of Wendhope."
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import { contentHash, EDIT_RECIPE, recipeProblems } from "./recipes";
 import { publicLook } from "@engine/cardFields";
 import { log } from "@utils/log";
 import { waitForTextPriority } from "./textPriority";
-import { completeLookFrames, LOOK_CONTRACT } from "./lookFrames";
+import { completeLookFrames, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
 
 export interface LookRequest {
@@ -82,10 +82,11 @@ export class OnDemandLooks {
       ]);
       const base = await spriteReferencePack(request.folder, config.baseSet);
       const version = base.sha256;
-      const key = await contentHash(new TextEncoder().encode(JSON.stringify({ contract: LOOK_CONTRACT, story, member: request.member,
-        fields: Object.entries(request.fields).sort(([a], [b]) => a.localeCompare(b)), version, models: { diffusion, encoder, vae },
-        recipe: EDIT_RECIPE, box: config.box, steps: config.steps })));
+      const models = { diffusion, encoder, vae };
+      const key = await contentHash(new TextEncoder().encode(lookKeyInput({ story, member: request.member, fields: request.fields, version, models,
+        recipe: EDIT_RECIPE, config })));
       const set = `look_${key.slice(0, 8)}`;
+      const build = { folder: request.folder, set, label: request.label, key, story, member: request.member, models, config };
       const existing = await spriteList(`${request.folder}/${set}`);
       const cached = await spriteManifest(request.folder, set);
       guard();
@@ -108,10 +109,7 @@ export class OnDemandLooks {
           return path;
         },
         render: async (kind) => {
-          const candidate = await builder.build({ character: request.folder, set, label: request.label, kind, value: request.label,
-            reference: path, referenceHash: hash, box: config.box, models: { diffusion, encoder, vae },
-            seed: (Number.parseInt(key.slice(0, 8), 16) + (kind === "blink" ? 1 : 2)) >>> 0,
-            steps: config.steps, story, member: request.member });
+          const candidate = await builder.build(lookFrameRequest(build, kind, { path, sha256: hash }));
           if (this.stopped || !run.stillOwns() || !request.accepts()) throw new Error("The look changed before this frame could be saved.");
           const saved = await builder.save(candidate);
           guard();
@@ -135,9 +133,7 @@ export class OnDemandLooks {
       await waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
         signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard();
-      const candidate = await builder.build({ character: request.folder, set, label: request.label, kind: "look", value: publicLook(request.fields), reference: reference.path,
-        referenceHash: reference.sha256, box: config.box,
-        models: { diffusion, encoder, vae }, seed: Number.parseInt(key.slice(0, 8), 16), steps: config.steps, story, member: request.member });
+      const candidate = await builder.build(lookStillRequest(build, publicLook(request.fields), reference));
       const after = await spriteReferencePack(request.folder, config.baseSet);
       guard();
       if (after.sha256 !== version) throw new Error("The reference pack changed during the render. Generate this look again.");

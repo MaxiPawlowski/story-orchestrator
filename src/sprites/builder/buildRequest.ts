@@ -1,4 +1,5 @@
 import type { SpriteBuildRequest } from "./builder";
+import { validResolution } from "../settings";
 
 export function validateBuildRequest(request: SpriteBuildRequest): number {
   if (!request.character || /[\\/]/.test(request.character) || !/^[a-z0-9_]{1,80}$/.test(request.set) || !/^[a-z0-9_]{1,80}$/.test(request.label)) {
@@ -13,7 +14,7 @@ export function validateBuildRequest(request: SpriteBuildRequest): number {
     throw new Error("Choose an installed background-removal setup before building a base.");
   }
   const resolution = request.resolution ?? 1024;
-  if (!Number.isInteger(resolution) || resolution < 256 || resolution > 2048 || resolution % 32) {
+  if (!validResolution(resolution)) {
     throw new Error("Edit resolution must be 256–2048 pixels in steps of 32.");
   }
   return resolution;

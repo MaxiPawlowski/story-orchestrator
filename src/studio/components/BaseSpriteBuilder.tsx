@@ -5,10 +5,11 @@ import { recipeProblems } from "../../sprites/builder/recipes";
 import type { SpriteBuilder as Builder, SpriteCandidate } from "../../sprites/builder/builder";
 import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
+import { builderRender, RENDER_PRESETS } from "../../sprites/settings";
 
-export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, seed, busy, setBusy, builder, services }: {
+export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, resolution = RENDER_PRESETS.standard.resolution, seed, busy, setBusy, builder, services }: {
   character: string; image?: string; set: string; models: { diffusion: string; encoder: string; vae: string };
-  discovery: ComfyDiscovery; steps: number; seed: number; busy: boolean; setBusy(value: boolean): void;
+  discovery: ComfyDiscovery; steps: number; resolution?: number; seed: number; busy: boolean; setBusy(value: boolean): void;
   builder: Pick<Builder, "build" | "save" | "cancel" | "close">; services: SpriteBuilderHost;
 }) {
   const [alpha, setAlpha] = useState(discovery.alpha?.[0]?.id ?? "");
@@ -35,7 +36,7 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
       for (let at = 0; at < 4 && live.current && !cancelled.current; at += 1) {
         try {
           const candidate = await builder.build({ character, set, label: "neutral", kind: "base", value: "neutral standing sprite",
-            reference: image, box: { x: 0, y: 0, width: 8, height: 8 }, models: { diffusion, encoder, vae }, cutout, seed: (seed + at) >>> 0, steps });
+            reference: image, box: { x: 0, y: 0, width: 8, height: 8 }, models: { diffusion, encoder, vae }, cutout, seed: (seed + at) >>> 0, steps, resolution });
           if (live.current) setCandidates((rows) => [...rows, candidate]);
         } catch (error) {
           if (live.current) setErrors((rows) => [...rows, `Candidate ${at + 1}: ${String(error)}`]);
@@ -59,7 +60,7 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
       const settings = getGlobalSettings().sprites;
       setGlobalSettings({ sprites: { builders: { ...settings.builders, [input.character]: { baseSet: input.set,
         box: { x: Math.round((neutral.width - width) / 2), y: 0, width, height },
-        models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, steps: input.steps } } } });
+        models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, ...builderRender(input) } } } });
       setSaved(result.path);
     } catch (error) { if (live.current) setErrors([String(error)]); }
     finally { setBusy(false); }

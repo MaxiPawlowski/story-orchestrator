@@ -1,7 +1,10 @@
 import { renderFacts, renderKey } from "./renderFacts";
-import { CHECKPOINTS, FAMILIES, JANKU, WAI } from "./catalog";
+import { checkpointFor, FAMILIES } from "./catalog";
 
-const checkpoint = (file: string) => CHECKPOINTS.find((row) => row.file === file)!;
+const WAI = "waiIllustriousSDXL_v170.safetensors";
+const JANKU = "JANKUTrainedChenkinNoobai_v777.safetensors";
+
+const checkpoint = (file: string) => checkpointFor(file, file === JANKU ? "sdxl-noobai" : "sdxl-illustrious");
 const facts = (over: Partial<Parameters<typeof renderFacts>[0]> = {}) => renderFacts({
   checkpoint: checkpoint(WAI), loras: [], family: FAMILIES["sdxl-illustrious"], aspect: "wide", quality: "base", ...over,
 });

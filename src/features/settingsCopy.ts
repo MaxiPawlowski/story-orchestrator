@@ -247,7 +247,8 @@ export const SETTING_COPY = {
     "Avoid explicit imagery",
     "Adds safety terms to every picture prompt and skips explicit requests.",
   ),
-  "image.purposes.*.checkpoint": copy("Model", "The image model this kind of picture uses."),
+  "image.purposes.*.checkpoint": copy("Model",
+    "The ComfyUI model this kind of picture uses. Left on automatic, it uses the one installed model of the recipe family; with none or several, Setup asks you to choose."),
   "image.purposes.*.family": copy("Recipe family", "Choose the workflow family supported by your installed checkpoint. A file name alone does not identify its architecture."),
   "image.purposes.*.quality": copy("Quality", "Base is faster; hires adds an upscale pass and takes longer."),
   "image.purposes.*.aspect": copy("Shape", "The picture's proportions. Auto lets the image-prompt model choose."),
@@ -279,7 +280,11 @@ export const SETTING_COPY = {
     "Adds this story’s applied public changes to the next reply prompt. Optional and off by default. Character cards and personas stay unchanged."),
   "sprites.onDemand": copy("Generate changed looks when needed",
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
-  "sprites.mouth": copy("Mouth movement", "Moves the speaking character’s mouth while replies stream. Smooth uses half-open frames when available. Reduced motion switches this off."),
+  "sprites.mouth": copy("Mouth movement",
+    "Moves the speaking character’s mouth while replies stream. Simple, the default, switches between closed and open frames. "
+      + "Smooth adds half-open frames when the pack has them. Reduced motion switches this off."),
+  "sprites.renderPreset": copy("Render preset",
+    "The size and steps the Studio sprite builder starts with. Standard renders at 1024 px with 25 steps; Fast preview at 512 px with 20 steps, quicker but softer."),
 } as const satisfies Record<string, SettingCopy>;
 
 export type SettingCopyKey = keyof typeof SETTING_COPY;

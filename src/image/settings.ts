@@ -1,4 +1,4 @@
-import { ASPECTS, FAMILY_IDS, JANKU, WAI, type Aspect, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
+import { ASPECTS, DEFAULT_FAMILY, FAMILY_IDS, type Aspect, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 
 export interface ImageRoute {
   checkpoint: string;
@@ -57,8 +57,8 @@ export const messageAlreadyDrawn = (
 ): boolean => messageId !== null && Boolean(chat?.messages?.[messageId]?.extra?.media?.length);
 
 const row = (patch: Partial<ImageRoute> = {}): ImageRoute => ({
-  checkpoint: WAI, quality: "base", aspect: "portrait", shot: "upper", placement: "inline",
-  family: "sdxl-illustrious",
+  checkpoint: "", quality: "base", aspect: "portrait", shot: "upper", placement: "inline",
+  family: DEFAULT_FAMILY,
   candidates: 1, extraPositive: "", extraNegative: "", safeMode: "inherit", directorMayOverride: false, ...patch,
 });
 
@@ -76,7 +76,7 @@ export const defaultImageSettings = (): ImageSettings => ({
   purposes: {
     scene: row({ aspect: "auto", shot: "cowboy", directorMayOverride: true }),
     character: row({ shot: "cowboy" }),
-    portrait: row({ checkpoint: JANKU, family: "sdxl-noobai", shot: "close" }),
+    portrait: row({ shot: "close" }),
     user: row({ shot: "upper" }),
     background: row({ aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
     free: row({ aspect: "auto", shot: "full", directorMayOverride: true }),
@@ -139,7 +139,7 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
       return [purpose, fallback];
     }
     return [purpose, {
-      checkpoint: str(current.checkpoint, fallback.checkpoint) || fallback.checkpoint,
+      checkpoint: str(current.checkpoint),
       family: pick(FAMILY_IDS, current.family, fallback.family),
       quality: pick(["base", "hires"] as const, current.quality, fallback.quality),
       aspect: pick([...ASPECTS, "auto"] as const, current.aspect, fallback.aspect),
