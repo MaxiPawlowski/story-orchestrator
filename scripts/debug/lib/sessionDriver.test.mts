@@ -5,14 +5,14 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ensureChat, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
 import type { LiveDeps } from './sessionLive.mts';
-import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
+import { clearPage, EVENT_TYPES, fakeClock, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 import { appendTurn, findCard, loadCards, loadIndex, liveTarget, markDeleted, nextSeq, parseLiveArgs, planStart, sessionChat, sessionChatsOf } from '../so-session.mts';
 
 afterEach(uninstall);
 
 const deps = (overrides: Partial<LiveDeps> = {}): LiveDeps => ({
   send: async () => ({ replied: true }), waitIdle: async () => undefined, waitScheduler: async () => ({}), startSend: async () => undefined,
-  waitGenerating: async () => true, clickSwipeRight: async () => undefined, ...clearPage, openChat: async () => undefined, reload: async () => undefined, now: () => Date.now(), ...overrides,
+  waitGenerating: async () => true, clickSwipeRight: async () => undefined, ...clearPage, openChat: async () => undefined, reload: async () => undefined, now: fakeClock(), ...overrides,
 });
 
 const chat = () => [{ name: 'Narrator', mes: 'Hall.' }, { name: 'You', is_user: true, mes: 'Hi.' }, { name: 'Belle', mes: 'Hey.' }];

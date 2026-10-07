@@ -34,14 +34,26 @@ const declaredName = (node: ts.Node): string | null => {
   return null;
 };
 
-const declarationsOf = (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+const perFile = (scan: (path: string, text: string) => string[]) => {
+  const seen = new Map<string, { text: string; found: string[] }>();
+  return (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+    const text = read(path);
+    const cached = seen.get(path);
+    if (cached && cached.text === text) return cached.found;
+    const found = scan(path, text);
+    seen.set(path, { text, found });
+    return found;
+  });
+};
+
+const declarationsOf = perFile((path, text) => {
   const found: string[] = [];
   const visit = (node: ts.Node) => {
     const name = declaredName(node);
     if (name && SYMBOLS.has(name)) found.push(`${rel(path)}#${name}`);
     ts.forEachChild(node, visit);
   };
-  visit(parse(path, read(path)));
+  visit(parse(path, text));
   return found;
 });
 
@@ -55,7 +67,7 @@ const presentModules = (files: string[], modules: string[]): string[] => {
   return modules.filter((module) => present.has(module));
 };
 
-const importsOf = (files: string[], read: Read = diskRead, modules: string[] = REMOVED_MODULES): string[] => files.flatMap((path) => {
+const importScan = (modules: string[]) => perFile((path, text) => {
   const found: string[] = [];
   const visit = (node: ts.Node) => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
@@ -70,9 +82,17 @@ const importsOf = (files: string[], read: Read = diskRead, modules: string[] = R
     if (ts.isPropertyAccessExpression(node) && SYMBOLS.has(node.name.text)) found.push(`${rel(path)} uses .${node.name.text}`);
     ts.forEachChild(node, visit);
   };
-  visit(parse(path, read(path)));
+  visit(parse(path, text));
   return found;
 });
+
+const importScans = new Map<string, ReturnType<typeof importScan>>();
+const importsOf = (files: string[], read: Read = diskRead, modules: string[] = REMOVED_MODULES): string[] => {
+  const key = modules.join("|");
+  const scan = importScans.get(key) ?? importScan(modules);
+  importScans.set(key, scan);
+  return scan(files, read);
+};
 
 describe("v2.7 plan 03 (D3, R3-16): solo-only code stays removed", () => {
   const files = allSources();
