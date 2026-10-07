@@ -60,6 +60,11 @@ export function uninstall() {
   delete (globalThis as any).__soSessionRecorder;
 }
 
+export function fakeClock(stepMs = 1000) {
+  let at = Date.parse("2026-10-07T00:00:00Z");
+  return () => (at += stepMs);
+}
+
 export function fakePage(extra: Record<string, unknown> = {}) {
   const typed: Record<string, string> = {};
   const clicks: string[] = [];

@@ -20,6 +20,7 @@ const config: StorybookConfig = {
     options: {},
   },
   webpackFinal: async (cfg) => {
+    cfg.cache = { type: "filesystem", name: `storybook-${cfg.mode ?? "production"}`, cacheDirectory: path.resolve(__dirname, "..", ".build", "webpack-cache"), buildDependencies: { config: [__filename] } };
     cfg.resolve = cfg.resolve || {};
     cfg.resolve.extensions = [".tsx", ".ts", ".jsx", ".js", ...(cfg.resolve.extensions || [])];
     cfg.resolve.alias = {

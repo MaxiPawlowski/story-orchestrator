@@ -21,6 +21,7 @@ module.exports = (env = {}, argv = {}) => {
     },
     target: "web",
     mode,
+    cache: { type: "filesystem", name: flavor, cacheDirectory: path.join(__dirname, ".build", "webpack-cache"), buildDependencies: { config: [__filename] } },
     devtool: flavor === "dev" ? "source-map" : false,
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
@@ -85,7 +86,7 @@ module.exports = (env = {}, argv = {}) => {
     plugins: [
       new webpack.DefinePlugin({ __SO_DEV__: JSON.stringify(flavor === "dev") }),
       ...(argv.watch ? [new LiveReloadPlugin({ appendScriptTag: true })] : []),
-      new ForkTsCheckerWebpackPlugin(),
+      ...(process.env.SO_BUILD_TYPECHECK === "0" ? [] : [new ForkTsCheckerWebpackPlugin()]),
       new BundledPackagesPlugin({ out: path.join(__dirname, ".build", `packages-${flavor}.json`), webpackDir: path.dirname(require.resolve("webpack/package.json")) }),
     ],
   };

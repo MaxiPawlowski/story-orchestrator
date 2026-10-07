@@ -25,8 +25,15 @@ export const prodFiles = (dir = SRC): string[] => walkAll(dir).filter(isProdSour
 export const sourceFiles = (dir: string): string[] =>
   existsSync(dir) ? walkAll(dir).filter((path) => /\.(tsx?|mts|mjs|cjs|js)$/.test(path) && !/\.d\.ts$/.test(path)).sort() : [];
 
-export const parse = (path: string, text = readFileSync(path, "utf8")): ts.SourceFile =>
-  ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+const parsed = new Map<string, ts.SourceFile>();
+
+export const parse = (path: string, text = readFileSync(path, "utf8")): ts.SourceFile => {
+  const cached = parsed.get(path);
+  if (cached && cached.text === text) return cached;
+  const sf = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  parsed.set(path, sf);
+  return sf;
+};
 
 export interface FunctionMetric {
   file: string;
@@ -132,6 +139,16 @@ export const longLines = (path: string, limit: number, text = readFileSync(path,
 const ALIAS = /^@(components|services|utils|constants|engine|runtime|extraction|pacing|generation|memory|copilot|talk|wizard|stagecraft|judge)\/(.*)$/;
 const EXTENSIONS = [".ts", ".tsx", ".d.ts", ".mts", ".js", ".json"];
 
+const fileOnDisk = new Map<string, boolean>();
+
+const isFileOnDisk = (candidate: string): boolean => {
+  const known = fileOnDisk.get(candidate);
+  if (known !== undefined) return known;
+  const found = existsSync(candidate) && statSync(candidate).isFile();
+  fileOnDisk.set(candidate, found);
+  return found;
+};
+
 export const resolveSpecifier = (from: string, specifier: string, known: ReadonlySet<string> = new Set()): string | null => {
   let base: string;
   const alias = ALIAS.exec(specifier);
@@ -140,7 +157,7 @@ export const resolveSpecifier = (from: string, specifier: string, known: Readonl
   else return null;
   const candidates = [base, ...EXTENSIONS.map((ext) => base + ext), ...EXTENSIONS.map((ext) => join(base, `index${ext}`))];
   for (const candidate of candidates) {
-    if (known.has(candidate) || (existsSync(candidate) && statSync(candidate).isFile())) return candidate;
+    if (known.has(candidate) || isFileOnDisk(candidate)) return candidate;
   }
   return null;
 };
@@ -162,11 +179,19 @@ const importClauseIsTypeOnly = (clause: ts.ImportClause | undefined): boolean =>
   return bindings.elements.length > 0 && bindings.elements.every((element) => element.isTypeOnly);
 };
 
-export const importEdges = (path: string, text = readFileSync(path, "utf8"), known: ReadonlySet<string> = new Set()): ImportEdge[] => {
+type RawEdge = Omit<ImportEdge, "target">;
+
+const rawEdgeCache = new Map<string, { text: string; edges: RawEdge[] }>();
+
+export const importEdges = (path: string, text = readFileSync(path, "utf8"), known: ReadonlySet<string> = new Set()): ImportEdge[] =>
+  rawImportEdges(path, text).map((edge) => ({ ...edge, target: resolveSpecifier(path, edge.specifier, known) }));
+
+const rawImportEdges = (path: string, text: string): RawEdge[] => {
+  const cached = rawEdgeCache.get(path);
+  if (cached && cached.text === text) return cached.edges;
   const sf = parse(path, text);
-  const edges: ImportEdge[] = [];
-  const add = (specifier: string, typeOnly: boolean, dynamic: boolean) =>
-    edges.push({ specifier, target: resolveSpecifier(path, specifier, known), typeOnly, dynamic });
+  const edges: RawEdge[] = [];
+  const add = (specifier: string, typeOnly: boolean, dynamic: boolean) => edges.push({ specifier, typeOnly, dynamic });
   const visit = (node: ts.Node) => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       add(node.moduleSpecifier.text, importClauseIsTypeOnly(node.importClause), false);
@@ -182,6 +207,7 @@ export const importEdges = (path: string, text = readFileSync(path, "utf8"), kno
     ts.forEachChild(node, visit);
   };
   visit(sf);
+  rawEdgeCache.set(path, { text, edges });
   return edges;
 };
 

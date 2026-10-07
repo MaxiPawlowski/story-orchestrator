@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { captureReopenState, checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
 import { runById, verifyRun, type RouteDoc, type RunsDoc, type RunSpec } from './lib/integrationRuns.mts';
-import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
+import { clearPage, EVENT_TYPES, fakeClock, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
 
 afterEach(() => uninstall());
 
@@ -96,7 +96,7 @@ test('play drives the route on a fake page: played and forced steps, a reopen cu
     ...clearPage,
     openChat: async () => undefined,
     reload: async () => { reloads += 1; },
-    now: () => Date.now(),
+    now: fakeClock(),
     spawnTails: async () => ({ stop: async () => { tailsStopped = true; } }),
     settleChat: async () => undefined,
     captureEvidence: async () => ({ capturedAt: 'now', chatId: 'chat-a', slices: { chat: [] }, unread: {} }),
@@ -157,7 +157,7 @@ test('play cuts the memory model through page.route during its window only, neve
       return { replied: true };
     },
     waitIdle: async () => undefined, waitScheduler: async () => ({ quietMs: 0 }), startSend: async () => undefined, waitGenerating: async () => true,
-    clickSwipeRight: async () => undefined, ...clearPage, openChat: async () => undefined, reload: async () => undefined, now: () => Date.now(),
+    clickSwipeRight: async () => undefined, ...clearPage, openChat: async () => undefined, reload: async () => undefined, now: fakeClock(),
     spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
     captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
   };
@@ -196,7 +196,7 @@ test('T7 I4: a chat switch that fails under load stops the run; no later turn is
     openChat: async (_page, target) => {
       if (!stuck && target.chatId === 'chat-b') { stuck = true; fake.ctx.chatId = 'chat-b'; throw new Error('open chat did not settle within 60000 ms'); }
     },
-    reload: async () => undefined, now: () => Date.now(),
+    reload: async () => undefined, now: fakeClock(),
     spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
     captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
   };
@@ -230,7 +230,7 @@ test('negative control for I4: a switch that lands and returns lets the run play
     waitIdle: async () => undefined, waitScheduler: async () => ({ quietMs: 0 }), startSend: async () => undefined, waitGenerating: async () => true,
     clickSwipeRight: async () => undefined, ...clearPage,
     openChat: async (_page, target) => { fake.ctx.chatId = target.chatId; },
-    reload: async () => undefined, now: () => Date.now(),
+    reload: async () => undefined, now: fakeClock(),
     spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
     captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
   };

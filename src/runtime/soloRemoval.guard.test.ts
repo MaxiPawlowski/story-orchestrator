@@ -34,14 +34,26 @@ const declaredName = (node: ts.Node): string | null => {
   return null;
 };
 
-const declarationsOf = (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+const perFile = (scan: (path: string, text: string) => string[]) => {
+  const seen = new Map<string, { text: string; found: string[] }>();
+  return (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+    const text = read(path);
+    const cached = seen.get(path);
+    if (cached && cached.text === text) return cached.found;
+    const found = scan(path, text);
+    seen.set(path, { text, found });
+    return found;
+  });
+};
+
+const declarationsOf = perFile((path, text) => {
   const found: string[] = [];
   const visit = (node: ts.Node) => {
     const name = declaredName(node);
     if (name && SYMBOLS.has(name)) found.push(`${rel(path)}#${name}`);
     ts.forEachChild(node, visit);
   };
-  visit(parse(path, read(path)));
+  visit(parse(path, text));
   return found;
 });
 
@@ -50,7 +62,7 @@ const removedModule = (specifier: string): string | null => {
   return REMOVED_MODULES.find((module) => module.replace(/\.tsx?$/, "").endsWith(bare.replace(/^(\.\.?\/)+/, ""))) ?? null;
 };
 
-const importsOf = (files: string[], read: Read = diskRead): string[] => files.flatMap((path) => {
+const importsOf = perFile((path, text) => {
   const found: string[] = [];
   const visit = (node: ts.Node) => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
@@ -65,7 +77,7 @@ const importsOf = (files: string[], read: Read = diskRead): string[] => files.fl
     if (ts.isPropertyAccessExpression(node) && SYMBOLS.has(node.name.text)) found.push(`${rel(path)} uses .${node.name.text}`);
     ts.forEachChild(node, visit);
   };
-  visit(parse(path, read(path)));
+  visit(parse(path, text));
   return found;
 });
 
