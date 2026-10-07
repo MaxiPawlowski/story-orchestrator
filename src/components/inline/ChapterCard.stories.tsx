@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "@storybook/test";
 import { ChapterCard } from "./ChapterCard";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof ChapterCard> = {
   title: "Inline/ChapterCard",
@@ -40,6 +41,23 @@ export const WithBriefing: Story = {
     await expect(canvas.getByText("Cold, tense")).toBeInTheDocument();
   },
 };
+
+const longCard = {
+  args: {
+    card: {
+      messageId: 6, chapterId: "siege", title: "The Siege of the Northern Watchtowers and the Long Night", number: 2, interlude: false, final: true,
+      briefing: {
+        title: "The Siege", image: null, tone: "Cold, tense", startLabel: "Begin", source: "authored" as const, chapterId: "siege",
+        sections: [{ heading: "Your watch", text: "The walls hold for one more night. Choose who stands watch on the eastern parapet, and who sleeps." }],
+      },
+    },
+  },
+};
+const chapterTitle = (canvasElement: HTMLElement) => within(canvasElement).getByText(/The Siege of the Northern Watchtowers/);
+
+export const Phone: Story = { ...longCard, ...fitsAt(VIEWPORTS.phone, chapterTitle) };
+export const Tablet: Story = { ...longCard, ...fitsAt(VIEWPORTS.tablet, chapterTitle) };
+export const Wide: Story = { ...longCard, ...fitsAt(VIEWPORTS.wide, chapterTitle) };
 
 export const Interlude: Story = {
   args: { card: { messageId: 4, chapterId: "camp", title: "Night Camp", number: null, interlude: true, final: false } },

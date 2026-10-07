@@ -9,7 +9,6 @@ jest.mock("@services/STAPI", () => ({
 import { parseStoryV2OrThrow } from "@engine/index";
 import { memoryExtensionKey, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
-import { syncMemoryMirror, type MemoryMirrorHost } from "./memoryMirror";
 import { recall } from "./chapterKit";
 import type { ChapterPort } from "./chapterPort";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
@@ -115,10 +114,11 @@ describe("T7-1 review: the World Info mirror is the resting view, because ST sca
     expect(mirror.live()).not.toMatch(SECRET);
   });
 
-  it("negative control: the raw rows, unfiltered, put the secret in the book, so the assertions above can fail", async () => {
-    const mirror = mirrorBook();
-    const host = { ...mirror.host, getChatId: () => "chat-a", ownership: coordinatorHarness([]).ownership } as unknown as MemoryMirrorHost;
-    await syncMemoryMirror({ title: "Secret Mirror", entries: ENTRIES, writes: {}, book: null }, host);
+  it("negative control: the same coordinator sync with the resting-view filter stubbed off puts the secret in the book, so the assertions above can fail", async () => {
+    const { coordinator, mirror } = coordinatorHarness(SECRET_KNOWLEDGE);
+    jest.spyOn(coordinator.injector, "restingEntries").mockImplementation((entries) => entries);
+    await coordinator.syncWorldInfo();
+    expect(mirror.book.get("so_whole")?.content).toBe(ENTRIES[0].text);
     expect(mirror.live()).toMatch(SECRET);
   });
 

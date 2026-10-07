@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import type { BriefingView } from "@engine/index";
 import { BRIEFING_COPY } from "@features/helpCopy";
 import { BriefingModal } from "./BriefingModal";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const briefing: BriefingView = {
   title: "The Road to Varn",
@@ -98,6 +99,12 @@ export const EscapeCloses: Story = {
   },
 };
 
-export const Phone: Story = { args: { blocks: [BLOCK], onboarding: true, optOut: true }, parameters: { testViewport: { width: 390, height: 844 } } };
-export const Tablet: Story = { args: { blocks: [BLOCK], onboarding: true, optOut: true }, parameters: { testViewport: { width: 768, height: 1024 } } };
-export const Desktop: Story = { args: { blocks: [BLOCK], onboarding: true, optOut: true }, parameters: { testViewport: { width: 1440, height: 900 } } };
+const everything = { args: { blocks: [BLOCK], onboarding: true, optOut: true } };
+const begin = async (canvasElement: HTMLElement) => {
+  const dialog = await within(canvasElement).findByRole("dialog", { name: "The Road to Varn" });
+  return within(dialog).getByRole("button", { name: "Begin" });
+};
+
+export const Phone: Story = { ...everything, ...fitsAt(VIEWPORTS.phone, begin) };
+export const Tablet: Story = { ...everything, ...fitsAt(VIEWPORTS.tablet, begin) };
+export const Desktop: Story = { ...everything, ...fitsAt(VIEWPORTS.wide, begin) };

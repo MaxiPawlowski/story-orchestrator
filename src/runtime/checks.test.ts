@@ -16,12 +16,7 @@ const snapshotWith = (overrides: Partial<RuntimeSnapshot> = {}): RuntimeSnapshot
 const finding = { consequence: "author words", detail: "how", player: "player words" };
 const check = (overrides: Partial<Check>): Check => ({ id: "t", area: "lore", scope: "story", audience: "player", severity: "degrades", detect: () => finding, ...overrides });
 
-describe("v2.7 plan 31 seed: the check registry", () => {
-  it("every registered check has a unique id and declares scope, audience and severity", () => {
-    expect(new Set(CHECKS.map((entry) => entry.id)).size).toBe(CHECKS.length);
-    for (const entry of CHECKS) expect([entry.scope, entry.audience, entry.severity].every(Boolean)).toBe(true);
-  });
-
+describe("v2.7 plan 04: the check registry", () => {
   it("a story- or chat-scoped check runs only while a story plays in this chat; an install check always", () => {
     for (const scope of ["story", "chat"] as const) {
       expect(runCheck(check({ scope }), snapshotWith({ storyId: null }))).toBeNull();

@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import type { ActivityRow } from "@runtime/activityFeed";
 import { ActivityPanel } from "./ActivityPanel";
 import { PanelFrame } from "./PanelFrame";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const ROWS: ActivityRow[] = [
   { id: "roll:quality:lock_gives:4:6:9", messageId: 6, category: "rolls", text: "lock_gives: d20 9 vs 12, success" },
@@ -47,6 +48,12 @@ export const WithSetupFindings: Story = {
     await expect(canvasElement.querySelectorAll('[data-so="activity-row"]')).toHaveLength(5);
   },
 };
+
+const filter = (canvasElement: HTMLElement) => within(canvasElement).getByRole("combobox");
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, filter);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, filter);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, filter);
 
 export const Empty: Story = {
   args: { rows: [] },

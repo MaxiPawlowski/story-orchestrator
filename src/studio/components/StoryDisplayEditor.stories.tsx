@@ -3,6 +3,7 @@ import { expect, userEvent, within } from "@storybook/test";
 import StoryDisplayEditor from "./StoryDisplayEditor";
 import { useDraftStore } from "../draft";
 import { sampleStory, seedDraft } from "../stories/fixtures";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof StoryDisplayEditor> = {
   title: "Studio/StoryDisplayEditor",
@@ -27,6 +28,13 @@ export const AllOnByDefault: Story = {
     await expect(useDraftStore.getState().draft.display).toBeUndefined();
   },
 };
+
+const seeded = { beforeEach: () => { seedDraft(sampleStory()); } };
+const firstToggle = (canvasElement: HTMLElement) => within(canvasElement).getByText("Chapter title cards");
+
+export const Phone: Story = { ...seeded, ...fitsAt(VIEWPORTS.phone, firstToggle) };
+export const Tablet: Story = { ...seeded, ...fitsAt(VIEWPORTS.tablet, firstToggle) };
+export const Wide: Story = { ...seeded, ...fitsAt(VIEWPORTS.wide, firstToggle) };
 
 export const KeepsLoreNames: Story = {
   beforeEach: () => {

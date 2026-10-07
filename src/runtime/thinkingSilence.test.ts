@@ -11,7 +11,7 @@ const sendas = { name: "Herald", is_user: false, mes: "Hear ye.", extra: { api: 
 const note = { name: "System", is_user: false, is_system: true, mes: "note", extra: { api: "textgenerationwebui" } };
 const silent = (count: number) => Array.from({ length: count }, () => reply(""));
 
-describe("v2.7 plan 06 A: replies that carry no thought", () => {
+describe("v2.7 plan 08 A: replies that carry no thought", () => {
   it("the last five generated replies all empty → silent", () => {
     expect(repliesCarryNoThought([greeting, user, ...silent(SILENT_REPLY_WINDOW)])).toBe(true);
     expect(repliesCarryNoThought([user, reply(), reply(" "), ...silent(3)])).toBe(true);
@@ -51,7 +51,7 @@ const snapshotWith = (overrides: Partial<RuntimeSnapshot> = {}): RuntimeSnapshot
     ...overrides,
   }) as unknown as RuntimeSnapshot;
 
-describe("v2.7 plan 06 A: the warning reaches the author and the player", () => {
+describe("v2.7 plan 08 A: the warning reaches the author and the player", () => {
   it("author: the Repair row says what is lost, why, and shows the harvest switch", () => {
     const step = nextRepairStep(snapshotWith({ thinkingSilent: true }));
     expect(step).toMatchObject({ area: "thinking", targetId: THINKING_TARGET_ID, provisionable: false });

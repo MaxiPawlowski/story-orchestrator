@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect } from "@storybook/test";
 import { RollChips } from "./RollChips";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof RollChips> = {
   title: "Inline/RollChips",
@@ -35,3 +36,9 @@ export const NoRolls: Story = {
     await expect(canvasElement.querySelector('[data-so="roll-chips"]')).toBeNull();
   },
 };
+
+const firstChip = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="roll-chip"]');
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, firstChip);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, firstChip);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, firstChip);

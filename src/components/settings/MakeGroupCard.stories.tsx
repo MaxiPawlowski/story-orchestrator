@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { NO_GROUP_NOTICE } from "@runtime/noGroup";
 import MakeGroupCard, { MAKE_GROUP_LABEL } from "./MakeGroupCard";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof MakeGroupCard> = {
   title: "Settings/MakeGroupCard",
@@ -53,6 +54,8 @@ export const WizardOff: Story = {
   },
 };
 
-export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
-export const Tablet: Story = { parameters: { testViewport: { width: 768, height: 1024 } } };
-export const Desktop: Story = { parameters: { testViewport: { width: 1440, height: 900 } } };
+const makeGroup = (canvasElement: HTMLElement) => within(canvasElement).getByRole("button", { name: MAKE_GROUP_LABEL });
+
+export const Phone: Story = fitsAt(VIEWPORTS.phone, makeGroup);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, makeGroup);
+export const Desktop: Story = fitsAt(VIEWPORTS.wide, makeGroup);

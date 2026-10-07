@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { HudStrip } from "./HudStrip";
+import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   ({
@@ -182,3 +183,31 @@ export const HiddenWhenNoStory: Story = {
     await expect(canvas.queryByRole("button")).toBeNull();
   },
 };
+
+const DUPLICATE_IDS = { config: { rules: [{ id: "duplicate-id", enabled: false }, { id: "duplicate-id-active", enabled: false }] } };
+
+export const SecretLeakAlertIsTheSameWithAndWithoutAHeldSecret: Story = {
+  parameters: { a11y: DUPLICATE_IDS },
+  render: (args) => (
+    <>
+      <div data-arm="held"><HudStrip {...args} snapshot={baseSnapshot({ ...playing, secretLeaks: ["Summarize"], secretsHeld: true })} /></div>
+      <div data-arm="unheld"><HudStrip {...args} snapshot={baseSnapshot({ ...playing, secretLeaks: ["Summarize"], secretsHeld: false })} /></div>
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    const arm = (name: string) => canvasElement.querySelector(`[data-arm="${name}"] #so-hud`);
+    const chip = (name: string) => arm(name)?.querySelector("#so-hud-setup");
+    await expect(chip("held")).not.toBeNull();
+    await expect(chip("unheld")).not.toBeNull();
+    await expect(arm("held")?.textContent).toBe(arm("unheld")?.textContent);
+    await expect(chip("held")?.getAttribute("title")).toBe(chip("unheld")?.getAttribute("title"));
+    await expect(chip("held")?.getAttribute("title")).not.toMatch(/held|hiding|unaware/i);
+  },
+};
+
+const hudButton = (canvasElement: HTMLElement) => canvasElement.querySelector(".so-hud-main");
+const crowded = { args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true, pendingDeltas: [{ quality: "luke_decision", value: "accepted", source: "extractor" }] }) } };
+
+export const Phone: Story = { ...crowded, ...fitsAt(VIEWPORTS.phone, hudButton) };
+export const Tablet: Story = { ...crowded, ...fitsAt(VIEWPORTS.tablet, hudButton) };
+export const Wide: Story = { ...crowded, ...fitsAt(VIEWPORTS.wide, hudButton) };

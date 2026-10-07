@@ -80,6 +80,18 @@ describe("v2.7 plan 03: the player-confirmed, create-only flow", () => {
     expect([...no.calls, ...moved.calls]).toEqual([]);
   });
 
+  it("a chat change after the create binds the group and opens nothing", async () => {
+    let bound = false;
+    const h = deps({ beginRun: () => ({ stillOwns: () => !bound }) });
+    h.deps.bind = jest.fn((groupId: string, storyId: string) => { bound = true; h.calls.push(`bind ${groupId} ${storyId}`); });
+    const outcome = await makeGroupForStory(h.deps, "ruins");
+    expect(outcome).toMatchObject({ ok: false, reason: "lapsed" });
+    expect(outcome.message).toContain("was not opened");
+    expect(h.calls).toEqual(["create The Ruins", "bind g9 ruins"]);
+    expect(h.deps.open).not.toHaveBeenCalled();
+    expect(h.deps.select).not.toHaveBeenCalled();
+  });
+
   it("a missing narrator stops before the question", async () => {
     const h = deps({ environment: () => ({ ...install, characterNames: ["Mara"] }) });
     expect(await makeGroupForStory(h.deps, "ruins")).toMatchObject({ ok: false, reason: "missing", missing: ["Ruins Narrator"], narrator: "Ruins Narrator" });
