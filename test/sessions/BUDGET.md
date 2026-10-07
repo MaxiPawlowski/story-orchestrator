@@ -79,8 +79,9 @@ RunPod billing check 2026-10-02 04:30Z: this work's pods total USD 15.28 (5mmoei
 
 ## v2.7 Phase C (approved 2026-10-07)
 
-User approved RunPod for Phase C (`docs/plans/v2.7/39-test-from-zero.md` §RunPod budget): about 30–32 lane-hours, about
-16–18 pod-hours on an RTX PRO 4500 (about $12–13), within the approved $20 with a stop at 150% ($30). Stop the pod at
+User approved RunPod for Phase C (`docs/plans/v2.7/39-test-from-zero.md` §RunPod budget): about 45.5–49.5 lane-hours,
+about 24–27 pod-hours on an RTX PRO 4500 (about $17–19.5; re-estimated 2026-10-07 with the B1 rows split from v2.8 01),
+within the approved ≈ 27 pod-hours / $20 with a stop at 150% ($30). Stop the pod at
 every pause; one row per pod below.
 
 | Date | Pod | GPU | $/h | Hours | Cost | Note |

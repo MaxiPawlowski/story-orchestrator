@@ -61,7 +61,7 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 
 | # | Plan | Was (v2.7) | What gets built | Implementation | Acceptance |
 |---|---|---|---|---|---|
-| 01 (**§C → v2.7 33 W1; owed rows → v2.7 39**) | `01-v27-carry-over.md` | 02, 06, 08, 10, 23, 29 parts | owed real-model rows of built v2.7 work; 02 C3/C4/C12; model-driven C11; SP2 v2 option A; funded thinking A/B; story/checkpoint thinking level (R4); Q-M5/P3; frozen v2.6 measurements; Claude's over-steer card + session | D (option A code, R4 lift) | RP, CL, LI |
+| 01 (**v2.7 follow-up, split 2026-10-07**: §C → v2.7 33 W1; §A + C4 live → v2.7 39 C5; C3/C12/C13-b/R4 measurements → v2.7 39 B1) | `01-v27-carry-over.md` | 02, 06, 08, 10, 23, 29 parts; v2.7 39 B1 results | C3 fix, C12 batching, C13-b build, model-driven C11 (F1/F2/F7); funded thinking A/B; R4 gate lift + Studio control; Q-M5/P3; frozen v2.6 measurements; Claude's over-steer card + session | D (R4 lift, C12, C11, C3 fix) | RP, CL, LI |
 | 02 (**moved → v2.7 38**) | `02-adolion-campaign.md` | 05 A4, A5 + new | lab data, playtest fix round, `player` blocks, `render_sprites` paths off `C:`, `--anim` frames, trigger narrowing | D (campaign repo) | LI (renders), RP (lab runs) |
 | 03 (**moved → v2.7 34**) | `03-player-persona-and-start-setup.md` | 30 | story `player` profile, "Who are you in this story" step, persona lock, mid-story switch finding | D (S30-1 on a lane, scripted opener) | RP (final suite: injected block) |
 | 04 (**C4/C7/C9a → v2.7 36; C5 → v2.7 33**) | `04-story-presence-panels.md` | 04 §C (C4, C5, C7, C9 a) | Journal panel, "What could I do?" suggestions, stat sheet, public roll chips; in v2.7 06's panel frame and toggles (C1–C3, C6, C9 b moved to v2.7 06, user 2026-10-03) | D | D; CL for C5 suggestions |
@@ -155,7 +155,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 
 | Plan | State |
 |---|---|
-| 01 | written 2026-10-03 from v2.7 carry-in; items decided; option A, the A/B, R4 and the session not run or built; owed v2.7 live rows open |
+| 01 | v2.7 follow-up plan (split 2026-10-07, owner): measurements in v2.7 39 B1, owed rows + C4 live in 39 C5, option A built as v2.7 33 W1; remaining build work, the A/B, R4 lift, §F and the session not run or built |
 | 02 | written; decided (do every step); A4/A5 and new rows not started |
 | 03 | written; decided (review of the answers applied); not built; S30-1 not run |
 | 04 | written; decided; reduced to C4, C5, C7, C9 (a) on 2026-10-03 (the rest moved to v2.7 06); not built |

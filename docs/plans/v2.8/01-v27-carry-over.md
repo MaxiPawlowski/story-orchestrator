@@ -1,18 +1,32 @@
 # Plan 01 — v2.7 carry-over: owed acceptance and model-driven carry-in
 
-**Status (2026-10-03): v2.8 plan 01 (new; extracted from v2.7 02, 08, 10, 12/12a and v2.9 04). Items decided by the user
-on 2026-10-03; nothing in this plan is built or run yet.** Overview: `00-overview.md`.
-**Gate tiers** (00-overview §Gate taxonomy): implementation D (option A, R4 lift, C12 batching, C11 F2/F7); acceptance
-RP, CL and LI per row.
+**Status (2026-10-07): the v2.7 follow-up plan (split, owner 2026-10-07).** Its measurement-only items run in v2.7 39
+stage B1 on the same pod (39 §B1 rows from v2.8 01); C4's live checks run in 39 C5; §A runs in 39 C5 and §C was built
+as v2.7 33 W1. What stays here is build work and model experiments: C12 batching, C11-F2, C11-F7, C11-F1, the C3 fix,
+§D, §E's gate lift + Studio control, §F, §G. Nothing here is built or run yet (written 2026-10-03, items decided by the
+user then). Overview: `00-overview.md`.
+**Gate tiers** (00-overview §Gate taxonomy): implementation D (R4 lift, C12 batching, C11 F2/F7, any C3 fix);
+acceptance RP, CL and LI per row.
 
 ## Why
 
-v2.7 builds only work whose gates are deterministic (`v2.7/RENUMBER.md`). Sol's split review (item 2) found that v2.7
-code already merged still owes real-model acceptance rows, and that npm gates cannot close them. This plan owns those
-rows, the model-consuming carry-in items from v2.7 02, and the decided pieces of v2.7 08, 10 and 12 that need a model.
+v2.7 now runs real-model acceptance itself (v2.7 39, re-scope 2026-10-07), so the owed rows and the measurements moved
+there. This plan keeps the work that a 39 result unlocks, built after v2.7 freezes. It depends on 39:
+
+| Here | Needs from v2.7 39 |
+|---|---|
+| C3 fix (if any) | B1-C3: the recorded cause per timeout (4000 ms budget, plugin queueing or provider) |
+| C12 batching | B1-C12: lore-select requests per turn (the "before" count) |
+| C13-b digest build | B1-C13b: W4 (b) PASS (or the row's absence recorded at 39 B0) |
+| §E R4 gate lift + Studio control | B1-R4: the 16 pairs rated, preference and p95 latency |
+| §G session | 39 C5 runs 33 W2 on the same over-steer card shape; this plan's card and contract stand |
+
 A row here closes only with its acceptance tier green.
 
 ## A. Owed acceptance of merged v2.7 work
+
+**Absorbed (2026-10-07): every row below runs in v2.7 39 C5 (O-rows) from zero; kept here as history.** A row 39 records
+as failed comes back here only by the user's decision (39 rule 8).
 
 Source: each plan's gate record. Tier D rows are owed live checks that need no model. They close in v2.7 when its live
 gate runs, and are listed here only so nothing is lost. If v2.7 freezes without them, they become v2.8 rows.
@@ -43,16 +57,19 @@ The v2.7 close-out walks its gate records and adds any row missing here before v
 
 | # | Item | What | Tier | Gate |
 |---|---|---|---|---|
-| C3 | **Warden and lore-check timeouts** | pooled over the playtest, warden calls timed out 7.2% and lore-check calls 3.9%, both above J2's 1-in-50 bar. Find out whether it is the 4000 ms budget, plugin queueing or provider latency before tuning anything. Runs on the first v2.7 build (decision: v2.6 stays untouched) | CL (TypeSafe) | formal `so-judge timeouts` ×2 (was v2.6's owed R4); the floor stays 1 in 50, never retuned |
-| C4 | **Separate-arm live checks** | the warden-lore runtime shipped as a separate call (kept by v2.7 13); R4, R6 and the G-L7 J8 on/off checks were owed to v2.6 plan 15 Part B | CL + RP | as written in `v2.6/04-remaining-builds.md` §L7 (`:536-540`) |
-| C12 | **Lore select costs 5 judge requests per turn** | campaign lab finding C11 | CL | measure the per-turn request count on the campaign; then batch the questions into fewer requests (v2.8 13 notes extra questions on an existing call cost almost nothing). Floors: lore-select answers unchanged on the frozen fixture; requests per turn recorded before and after |
+| C3 | **Warden and lore-check timeouts — fix** | pooled over the playtest, warden calls timed out 7.2% and lore-check calls 3.9%, both above J2's 1-in-50 bar. **The cause measurement moved to v2.7 39 B1-C3** (2026-10-07). Here: the fix the recorded cause calls for, nothing tuned before it; none if B1-C3 passes ×2 | D impl; CL (TypeSafe) acceptance | formal `so-judge timeouts` ×2 after the fix (was v2.6's owed R4); the floor stays 1 in 50, never retuned |
+| ~~C4~~ | **Separate-arm live checks — moved** | no code owed (the separate arm was built in v2.6 04 §L7). Live checks moved to v2.7 39: R4 latency in B1-C3, R6 and G-L7 J8 on/off as C5 rows C4-R6, C4-J8 (2026-10-07) | — | v2.7 39 |
+| C12 | **Lore select costs 5 judge requests per turn — batching** | campaign lab finding C11. **The per-turn count moved to v2.7 39 B1-C12** (2026-10-07). Here: batch the questions into fewer requests (v2.8 13 notes extra questions on an existing call cost almost nothing) | D impl; CL | floors: lore-select answers unchanged on the frozen fixture; requests per turn recorded after, against B1-C12's before |
 | C11-F2 | **`commit_evidence` per value** | today per quality, not per value (campaign F2). Commitment semantics change (Sol split item 3) | D impl; CL acceptance | its own short plan section first (problem, floor, gate); then jest + the live suite's commitment fixtures |
 | C11-F7 | **Chain voice ignores `no_repeat`** | model-driven chain behaviour (campaign F7) | D impl; RP acceptance | own plan section first; acceptance in the final suite |
 | C11-F1 | **Judge-typed evidence cut to 160 chars** | evidence handling (campaign F1) | assign after its plan | Sol split item 3: its downstream acceptance effects must be stated before it is placed. Display/journal parts go to v2.7 |
-| C13-b | **SP8 digest or prompt changes** | exact promotion of the measured tiers/spans is v2.7 02 C13 (deterministic). Any digest or changed curator prompt is here | CL | the SP8 floors from `v2.6/03-sp8-restated.md`, re-run, never retuned |
-| C14-b | **Enlarged extraction inputs** | v2.7 02 C14 fixes the 8192 context default with a model-specific context table (deterministic tests). Any extraction input that grows as a result keeps a real-model acceptance row (Sol split item 5) | CL | the live suite tiers at their floors on the enlarged input |
+| C13-b | **SP8 digest or prompt changes — build** | exact promotion of the measured tiers/spans is v2.7 02 C13 (deterministic). **The W4 (b) digest measurement moved to v2.7 39 B1-C13b** (2026-10-07). Here: build the digest or prompt change only after B1-C13b passes ×2 | D impl; CL | the SP8 floors from `v2.6/03-sp8-restated.md`, re-run on the built change, never retuned |
+| ~~C14-b~~ | **Enlarged extraction inputs — moved** | already a v2.7 39 C5 acceptance row (acceptance, not a measurement); not repeated in B1 | — | v2.7 39 C5 |
 
 ## C. SP2 re-commit after edit, v2 — option A (approved)
+
+**Absorbed (2026-10-07): built as v2.7 33 W1 (floors V0–V8 verbatim there); its live rows run in v2.7 39 (C4 J6 with W1
+on, C5, row 33 W1 V7-live). Kept here as history.**
 
 From `v2.7/10-sp2-recommit-v2.md` (old 08). The user's answer to its decision 1, verbatim: "Yes, i do. This is actually
 an important feature for me." Option C (the "catching up after your edit" status) is built in v2.7 10; A is built here.
@@ -115,7 +132,8 @@ in v2.7 08; option C (turning thinking on from a non-thinking setup) is refused 
 - **Studio:** a story-level control; a warning on `low` where talk control drafts a group (budget 128 broke form 4/40).
 - **Floor (R4, unchanged):** blind A/B on 20 climax turns across 2 stories, arm preferred ≥ 60 %, p95 latency ≤ 2× the
   control; arm = checkpoint `high`, control = install `medium`. Data: 16 more pairs (4 of 20 exist,
-  `test/sessions/rating-pack/R4/status.json`).
+  `test/sessions/rating-pack/R4/status.json`). **The pairs and their ratings are collected in v2.7 39 B1-R4**
+  (2026-10-07, data only); the lift and the Studio control stay here and start from that record.
 - **Also owed:** the reply-effort ST live gate (off/low/medium/high × n ≥ 3 group turns, memory requests carry no
   budget key, a CC arm), `v2.6/05-reasoning-control.md` §Live.
 - Gates: `npm run gates`; live per CLAUDE.md runtime tier; guide topic + registry entry (rule 10). Tier: D impl, RP
@@ -159,9 +177,10 @@ decision 5, verbatim: "i'll play it, but add a tesst case so that claude also pl
 
 ## Gates (plan close)
 
-- Every row in §A–§G carries its own gate above; the plan closes when every row is green or explicitly re-assigned
-  with the user's agreement.
-- `npm run gates` for every code change (C, E, C12, C11-F2/F7, the `intents` scorer).
+- Every row still owned here (§B C3 fix, C12, C11-F2/F7/F1, C13-b; §D–§G) carries its own gate above; the plan
+  closes when every row is green or explicitly re-assigned with the user's agreement. §A, §C and the moved §B rows
+  close in v2.7 39.
+- `npm run gates` for every code change (E, C12, C11-F2/F7, C3 fix, C13-b, the `intents` scorer).
 - Real-LLM rows ride the v2.8 final suite where they are regression, and run on their own where a decision waits on
   them (rule 8).
 

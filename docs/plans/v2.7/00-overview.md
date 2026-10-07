@@ -92,7 +92,7 @@ Plans 01–28 below are history: built or recorded, every gate re-run in Phase C
 | 36 | `36-quests-and-story-panels.md` | quests, inventory, checks, milestones; one widget/panel layer (v2.8 18 + 04 C4/C7/C9a + 23 A) | 35, 34, 06 | D, CL, RP | built, on master 2026-10-07 (Storybook fixed after merge; live rows, M1/M2 and the combined scope budget in 39) |
 | 37 | `37-character-life.md` | relationships, mood, agendas, whereabouts, voice warden (was v2.8 20) | 33 W2, 35, 36, 20 | D, CL, RP | built, on master 2026-10-07 (caps placeholders until 39 B1; meanwhile + voice warden dev-only; live rows in 39) |
 | 38 | `38-adolion-campaign.md` | campaign upkeep + Saga assets/outfits + lab copies for 35–37 (was v2.8 02; 07 A3/A6 live, 28 assets) | 32, 35–37 | D, LI, RP | building 2026-10-07 |
-| 39 | `39-test-from-zero.md` | stage B (measure → decide → implement), then Phase C: freeze, every manifest row ×2 from zero, real-model and image acceptance, close-out with verdict ACCEPTED / PARTIAL / INCOMPLETE | all | all | seeded; amended by review 2026-10-07 |
+| 39 | `39-test-from-zero.md` | stage B (measure → decide → implement), then Phase C: freeze, every manifest row ×2 from zero, real-model and image acceptance, close-out with verdict ACCEPTED / PARTIAL / INCOMPLETE; B1 also runs v2.8 01's measurements (B1-C3, B1-C12, B1-C13b, B1-R4), C5 its C4 live checks | all | all | seeded; amended by review 2026-10-07; v2.8 01 split 2026-10-07 (pod estimate ≈ 24–27 pod-hours) |
 
 Phase A (29–31) first; 32 and 33 in parallel; 34 → 35 → 36 → 37; 38 alongside 35–37 (lab copies, due before 39 B1)
 and after 32 (assets); then 39 **stage B before the freeze** (review 2026-10-07 finding 1). B1 runs the measurements
@@ -180,6 +180,7 @@ re-read each against the current tree, then fix.
 | Sprite visuals (26, 28) | approved ("looks good") |
 | Raw evidence | to the private `so-sessions` repo (done: `test/sessions/evidence/`, pushed 2026-10-07) |
 | New v2.8 ideas | TunnelVision harvest, test/gate speed, gamification prior art, GPU broker in the ST plugin, ST workflows in stories, Civitai/HF model downloads → v2.8 25–30 |
+| v2.8 01 split (owner) | measurements into 39 B1, build work + model A/B stay in v2.8 01 |
 
 ## Decisions (user, 2026-10-03)
 

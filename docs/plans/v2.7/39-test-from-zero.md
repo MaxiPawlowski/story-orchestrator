@@ -4,6 +4,8 @@
 many test to be done"); needs user approval; not run.** Overview: `00-overview.md`. Supersedes `16-test-plan.md`'s
 close-out (§Close-out checklist) and absorbs the real-model rows v2.7 had moved to `v2.8/01-v27-carry-over.md` §A and
 the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the deterministic row list for 01–28.
+**Split 2026-10-07 (owner):** v2.8 01's measurement-only items run here in B1 (§B1 rows from v2.8 01) and its C4 live
+checks in C5; their fixes, the R4 gate lift and the model A/B stay in `v2.8/01-v27-carry-over.md`.
 
 ## Rules
 
@@ -58,7 +60,7 @@ candidate (finding 1).
 | Step | What | Tier | Where |
 |---|---|---|---|
 | B0 | release version `2.7.0` in `package.json` + `manifest.json` (finding 3); `attestation.test.mjs` made to FAIL, not log, on current-vs-attested bundle drift (`scripts/release/attestation.test.mjs:55-64`), and to fail, not skip, when `docs/release/<version>/attestation.json` is missing in acceptance mode (`:17-23`); row manifest (rule 10); pinned predecessor named and its goldens captured (§Payload contracts) | D | local, lane 1 |
-| B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget | RP + CL | pod, ≤ 2 model lanes |
+| B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget; v2.8 01 rows B1-C3, B1-C12, B1-C13b, B1-R4 (§B1 rows from v2.8 01) | RP + CL | pod, ≤ 2 model lanes |
 | B2 | decision record appended here: SP6 verdict, M2 verdict, `QUEST_SCOPE_CAP`, `REL_AXES_PER_READ`, combined overflow priority, 37 default read path, each dev flag's fate (prod default / off / removed); the branch each verdict takes (§Stage B branches) | — | — |
 | B3 | build the B2 branch: 35 Phases 3–4 + encounter pool, or the drop path; 36 `clock` or its removal; 37 caps; promotions final; main-entry bundle and ratchet budgets checked (C1b) | D | worktrees, `npm run gates` |
 | C0 | freeze; `so-run-header capture` baseline; payload goldens on the candidate: `node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0` (cases `test/scenarios/payload/*.json`, no model call), plus the feature contracts and off-path captures (§Payload contracts) | D | lane 1 |
@@ -67,7 +69,7 @@ candidate (finding 1).
 | C2 | mocked scenario corpus ×2; every plan's live (D) row ×2 (v2.7 16 §Per plan + rows of 29–38); rendered-target checks (finding 20): on the prod build every Help "Show me" target and every "?"/Repair/Studio guide link resolves to a visible control or a rendered guide heading, and the Studio guide link opens the reader while `#so-studio-modal` is open | D | no-model lanes 1–4 in parallel |
 | C3 | payload preservation vs the predecessor goldens and repeatability vs C0 (§Payload contracts): `so-payload-golden.mts capture --label c3 --out test/measurements/v2.7/payload/c3`, then `diff test/measurements/v2.7/payload/base test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/declared.json` and `diff …/c0 …/c3` (exit 1 on an undeclared or stale diff); feature contracts off/on; negative controls | D | no-model lane |
 | C4 | journeys J0–J14 `--strict` ×2; J6 again with plan 33 W1 on (V8) | D + RP | model lanes ≤ 2 |
-| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O13b, O14, C14-b), 03 (O16), 07 (O15), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card; W1 V7-live, below), 34, 35 (B1's measurements re-run on the candidate, then Phase 3/4 rows of the B2 branch), 36, 37 (M1, M3), S-15 – S-19, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
+| C5 | real-model acceptance rows per plan: 02 (O3–O8, O13, O13b, O14, C14-b, C4-R6, C4-J8), 03 (O16), 07 (O15), 08–10 (O9–O11), 33 W1–W4 (+ the W2 over-steer session card; W1 V7-live, below), 34, 35 (B1's measurements re-run on the candidate, then Phase 3/4 rows of the B2 branch), 36, 37 (M1, M3), S-15 – S-19, 32 W8 S32-1 ×2, 32 W6 streamed-reply row | RP + CL | pod |
 | C6 | image rows: 32's route A/B, S32-2, multi-character sprite rows; 38's asset checks | LI + CL | local ComfyUI, isolated lane |
 | C7 | Adolion integration ×2 on `adolion-fresh` (38): every story starts, plays N turns, reopen, rollback, chapter; character-life exercise on the 7-member act (38 §C7) | RP | pod |
 | C8 | live smoke on a clean install: v2.7 16 §Live smoke procedure (5 turns, DeepSeek CC, no pod; plumbing only, not acceptance), all features on as shipped | CL | fresh lane |
@@ -142,6 +144,25 @@ Floors tightened before any run (finding 18): 32 W1 route A minimum render count
 positive narration assertion; 37 M3 behavioural threshold; 38 C7 character-life exercise. The numbers live in those
 plans.
 
+### B1 rows from v2.8 01 (split, owner 2026-10-07)
+
+Measurement only, no code. Each is a manifest row (rule 10), ×2 with the rule 11 reset, on the B1 build, same pod as
+B1. A result below a floor is recorded as a failed row (finding id, owner v2.8 01, the user's decision; rule 8), never
+re-run until green; the fix is built in v2.8 01. Evidence: public summary at `test/phase-c/records/<id>/run-{1,2}.json`,
+raw requests and replies in private `so-sessions` (rule 6). Campaign rows report counts only (rule 7).
+
+| Id | Source | Prerequisites | Floor / what is recorded | Tier | Build |
+|---|---|---|---|---|---|
+| B1-C3 warden + lore-check timeout causes | v2.8 01 §B C3 | TypeSafe key; `wardenEnabled` + `judge.uses.wardenLore` on; adolion-fresh lane playing a lore story with real replies; ≥ 100 warden and ≥ 100 lore-check calls per run; plugin `/status` (`adaptive`, lanes) sampled per call | formal `so-judge timeouts` per run; floor 1 timeout in 50 per use, never retuned (v2.8 01 C3; J2 bar). Recorded per timed-out call: client wait vs the 4000 ms budget, plugin queue wait (lane / account hold, `Retry-After`), provider latency; each timeout attributed to one cause, else counted `unattributed`. Also records R4 latency with `wardenLore` on (v2.6 04 §L7) | CL (judge) + RP (replies) | dev-diagnostic |
+| B1-C12 lore-select requests per turn | v2.8 01 §B C12 | same runs as B1-C3 (`lore_select` stories, `judge.uses.loreSelect` on) | count only, no floor: lore-select judge requests per loud turn (p50, p95, max) from `extras.judge.calls`; the "before" number for v2.8 01's batching | CL | dev-diagnostic |
+| B1-C13b SP8 digest arm | v2.8 01 §B C13-b | the SP8 digest arm as measured in v2.6 03 (lab path, no product prompt change; the shipped curator prompt stays byte-identical per v2.7 02 C13); curator profile; the lane's campaign world book as padding. Enters the manifest only if the arm runs on the B0 build without code; otherwise B0 records its absence and the row stays in v2.8 01 | `v2.6/03-sp8-restated.md` W4 (b), verbatim: "every role-calibration floor met (validity ≥ 0.9, opShape ≥ 0.85, decision ≥ 0.7) in **both** runs"; ratio ≤ 0.40 (W4 (a)) recorded beside. A PASS lets v2.8 01 build the digest; 2.7 ships none | CL (curator) | dev-diagnostic |
+| B1-R4 checkpoint thinking level pairs | v2.8 01 §E (data only) | llama.cpp thinking setup on the pod; dev build with `spikes.reasoningEffect`; 20 climax turns across 2 stories (4 pairs exist, `test/sessions/rating-pack/R4/`) | 16 more blind pairs, arm checkpoint `high` vs control install `medium`; rated blind by Astra (delegated; v2.7 08 decision 6, never the user); recorded: preference share (floor ≥ 60 %) and p95 latency vs control (floor ≤ 2×), `v2.8/01` §E R4 unchanged. The gate lift and Studio control stay in v2.8 01 | RP | dev-diagnostic |
+
+C4's live checks (v2.8 01 §B C4: the separate warden-lore arm, built in v2.6, no code owed) run in C5 as acceptance:
+**C4-R6** over-steer after a lore note (v2.5 08 R6 rubric) and **C4-J8** G-L7 J8 on/off, ×2 each, CL + RP, `prod`.
+C4's R4 latency leg is recorded in B1-C3. 39 C5 already names C14-b (an acceptance row, not a measurement), so it is
+not repeated here. v2.8 01 §A (O-rows) is C5; v2.8 01 §C (option A) is v2.7 33 W1.
+
 ### Rows for Sol findings 4–10 (code fixes on `v2.7-fix-sol-review`)
 
 The live and real-model counterparts of the deterministic pins that branch added (jest names cited). Each is a
@@ -187,11 +208,12 @@ name), members, judge: "off"}` and mocks every model call; run each `node script
 | Block | Lane-hours (est.) |
 |---|---|
 | B1 measurements (35 Phase 1 + M2 ≈ 7–9, 36 M1/M2 ≈ 2; 37 M1/M2 and S-17 are CL) | ~9–11 |
+| B1 rows from v2.8 01 (B1-C3 + B1-C12 shared play ≈ 2, B1-R4 16 pairs ≈ 2; B1-C13b is CL) | ~4 |
 | C4 journeys ×2 | ~6 |
-| C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 37 M3, S-19, 02/08–10 O-rows) | ~19–21 |
+| C5 rows (35 Phase 1 3–5 + M2 ≈4, 32 S32-1 ≈2 + W6 ≈0.5, 33 incl. over-steer ≈4, 34, 36/37 floors, 37 M3, S-19, 02/08–10 O-rows; C4-R6 + C4-J8 ≈ 1.5) | ~20.5–22.5 |
 | C7 Adolion ×2 | ~6 |
 | C8 smoke, C8b stranger install | 0 (DeepSeek) |
-| **Total** | **~40–44 lane-hours ≈ 21–24 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $15–17; inside the approved ≈ 27 pod-hours / ≈ $20 with a 150% stop) |
+| **Total** | **~45.5–49.5 lane-hours ≈ 24–27 pod-hours** (two lanes share one pod; RTX PRO 4500 ≈ $0.72/h → ≈ $17–19.5; at most the approved ≈ 27 pod-hours / ≈ $20 with a 150% stop; was ~40–44 ≈ 21–24 before the v2.8 01 split added ≈ 5.5 lane-hours) |
 
 Pod rules: `v2.6 gotchas` (direct SSH tunnel, `MAX_UPTIME_HOURS`, restart renews the window, record ports); stop the
 pod at every pause; `test/sessions/BUDGET.md` updated per block.
