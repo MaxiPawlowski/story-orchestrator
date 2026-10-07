@@ -86,6 +86,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story chronicle export` | Copies the whole chronicle as Markdown. |
 | `/story intro` | Opens the story briefing again. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
+| `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
 
 `/so-mem list`, `/so-mem pin <n> on|off` and `/so-mem exclude <n>` manage memories from the chat box (see
 [Memory](memory.md)). `/cp` is an author tool and works only in Author view.

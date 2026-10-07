@@ -66,3 +66,16 @@ export const Phone: Story = { parameters: { testViewport: { width: 390, height: 
 export const Tablet: Story = { parameters: { testViewport: { width: 768, height: 1024 } } };
 
 export const Wide: Story = { parameters: { testViewport: { width: 1440, height: 900 } } };
+
+export const OpensTheGuide: Story = {
+  args: { onOpenDoc: fn() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Open the guide" }));
+    await expect(args.onOpenDoc).toHaveBeenCalledWith();
+    const memory = canvasElement.querySelector('[data-so="help-feature"][data-feature="memory"]') as HTMLElement;
+    await expect(within(memory).queryByRole("link", { name: "Read more" })).toBeNull();
+    await userEvent.click(within(memory).getByRole("button", { name: "Read more" }));
+    await expect(args.onOpenDoc).toHaveBeenCalledWith("player/memory.md");
+  },
+};

@@ -61,4 +61,11 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     where: drawerAt("#so-open-activity", "Activity"),
     settings: [], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story", "author-view"],
   },
+  {
+    id: "guide", name: "Guide", area: "setup", audience: "player",
+    oneLine: "The whole guide inside SillyTavern: playing, setup and writing stories.",
+    what: "Open the guide from Help or with /story guide. Read more in Help opens the page about that feature. Pages about writing stories show only in Author view.",
+    where: settingsAt("#so-help-toggle", "Help → Open the guide"),
+    settings: [], doc: "player/README.md", status: "shipped", since: "2.7.0",
+  },
 ];

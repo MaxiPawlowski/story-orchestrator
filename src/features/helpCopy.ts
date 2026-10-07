@@ -45,3 +45,17 @@ export const ONBOARDING_LINES: ReadonlyArray<{ icon: string; text: string }> = [
   { icon: "fa-brain", text: "The drawer's Memory tab lists what the story remembers. Pin what matters, remove what is wrong." },
   { icon: "fa-terminal", text: "/story recap, /story intro and /story help work from the chat box." },
 ];
+
+export const GUIDE_COPY = {
+  title: "Guide",
+  open: "Open the guide",
+  back: "Back",
+  forward: "Forward",
+  search: "Search the guide",
+  searchPlaceholder: "memory, images, quests…",
+  noMatch: "No page matches. Try another word.",
+  pages: "Pages",
+  onGitHub: "Open on GitHub",
+  missing: "That page is not available here. Pick one from the list.",
+  audience: { player: "Playing", setup: "Setup", author: "Writing stories" },
+} as const;

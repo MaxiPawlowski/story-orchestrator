@@ -20,6 +20,7 @@ export const PANELS_KEY = "panels";
 export const PANEL_DEFAULTS: Record<string, PanelGeometry> = {
   help: { x: 80, y: 80, w: 420, h: 520 },
   activity: { x: 120, y: 100, w: 440, h: 480 },
+  guide: { x: 100, y: 60, w: 780, h: 620 },
 };
 
 const fallback: PanelGeometry = { x: 80, y: 80, w: 420, h: 480 };

@@ -17,6 +17,9 @@ and offers to make the group for you.
 | Write your own story | [Author's guide](author/README.md) |
 | Work on the code | [Developer docs](../dev/contributing.md) |
 
+This guide also ships inside the extension: **Help → Open the guide**, any **Read more** in Help, or `/story guide`.
+Author pages show there only in Author view.
+
 ## Install
 
 **From a release zip (recommended).** A release is one file, `story-orchestrator-<version>.zip` (attached to a GitHub

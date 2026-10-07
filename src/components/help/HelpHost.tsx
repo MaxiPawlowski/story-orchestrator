@@ -6,12 +6,13 @@ import { HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 export interface HelpHostProps {
   authorView: boolean;
   onShowMe: (where: FeatureWhere) => void;
+  onOpenDoc?: (doc?: string) => void;
   onClose: () => void;
 }
 
 const guideTopics = (): HelpGuideTopic[] => GUIDE_TOPIC_IDS.map((id) => ({ id, title: GUIDE_TOPICS[id].title, text: GUIDE_TOPICS[id].text, doc: authorGuideDoc(id) }));
 
-export default function HelpHost({ authorView, onShowMe, onClose }: HelpHostProps) {
+export default function HelpHost({ authorView, onShowMe, onOpenDoc, onClose }: HelpHostProps) {
   const settings = getGlobalSettings();
   return (
     <HelpPanel
@@ -20,6 +21,7 @@ export default function HelpHost({ authorView, onShowMe, onClose }: HelpHostProp
       homePage={HOME_PAGE}
       guideTopics={authorView ? guideTopics() : []}
       onShowMe={onShowMe}
+      onOpenDoc={onOpenDoc}
       onClose={onClose}
     />
   );

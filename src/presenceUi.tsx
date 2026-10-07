@@ -14,14 +14,17 @@ import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { BRIEFING_COPY, HELP_COPY } from "@features/helpCopy";
+import { BRIEFING_COPY, GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
 import { PanelFrame } from "./components/panels/PanelFrame";
+import { onGuideRequest, requestGuide } from "@guide/request";
+import type { GuideTarget } from "@guide/types";
 
 const HelpHost = lazyRetry(() => import("./components/help/HelpHost"));
 const ActivityPanel = lazyRetry(() => import("./components/panels/ActivityPanel"));
+const GuideHost = lazyRetry(() => import("./guide/GuideHost"));
 
-export type PanelId = "help" | "activity";
+export type PanelId = "help" | "activity" | "guide";
 
 const panelListeners = new Set<() => void>();
 let openPanels: readonly PanelId[] = [];
@@ -32,6 +35,8 @@ export const setPanel = (id: PanelId, open: boolean) => {
 };
 
 export const togglePanel = (id: PanelId) => setPanel(id, !openPanels.includes(id));
+
+let guideTarget: GuideTarget | null = null;
 
 export const useOpenPanels = () => useSyncExternalStore(
   (listener) => { panelListeners.add(listener); return () => { panelListeners.delete(listener); }; },
@@ -73,7 +78,12 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       <>
         {panels.includes("help") && (
           <Panel id="help" title={HELP_COPY.heading}>
-            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onClose={() => setPanel("help", false)} /></Lazy>
+            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} /></Lazy>
+          </Panel>
+        )}
+        {panels.includes("guide") && (
+          <Panel id="guide" title={GUIDE_COPY.title}>
+            <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget} onTargetSeen={() => { guideTarget = null; }} /></Lazy>
           </Panel>
         )}
         {activity && (
@@ -87,6 +97,10 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
 
   const mountPanels = (ui: MountRegistry) => {
     if (document.getElementById("so-panels-root")) return;
+    ui.add(onGuideRequest((target) => {
+      guideTarget = target;
+      setPanel("guide", true);
+    }));
     const root = ui.element(document.createElement("div"));
     root.id = "so-panels-root";
     document.body.appendChild(root);

@@ -41,6 +41,7 @@ module.exports = (env = {}, argv = {}) => {
         "@stagecraft": path.resolve(__dirname, "src/stagecraft"),
         "@judge": path.resolve(__dirname, "src/judge"),
         "@features": path.resolve(__dirname, "src/features"),
+        "@guide": path.resolve(__dirname, "src/guide"),
       },
       fallback: {
         fs: false,

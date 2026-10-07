@@ -12,6 +12,7 @@ export const STORY_VERBS: readonly SlashVerb[] = [
   { verb: "chapter", usage: "/story chapter <n>", what: "the summary of one ended chapter" },
   { verb: "chronicle", usage: "/story chronicle export", what: "copy the story so far as Markdown" },
   { verb: "flag", usage: "/story flag [note]", what: "mark this moment for the author to look at" },
+  { verb: "guide", usage: "/story guide [page]", what: "open the guide, at a page such as player/memory" },
   { verb: "help", usage: "/story help", what: "this list" },
 ];
 

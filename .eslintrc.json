@@ -51,6 +51,7 @@
   ],
   "ignorePatterns": [
     "dist/**",
+    "src/**/*.generated.ts",
     "node_modules/**",
     "webpack.config.js",
     "postcss.config.js",

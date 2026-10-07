@@ -47,6 +47,7 @@ const config: StorybookConfig = {
       "@stagecraft": path.resolve(__dirname, "../src/stagecraft"),
       "@judge": path.resolve(__dirname, "../src/judge"),
       "@features": path.resolve(__dirname, "../src/features"),
+      "@guide": path.resolve(__dirname, "../src/guide"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),

@@ -18,7 +18,7 @@ const walkAll = (dir: string): string[] =>
   });
 
 export const isProdSource = (path: string): boolean =>
-  /\.tsx?$/.test(path) && !/\.d\.ts$/.test(path) && !/\.(test|stories)\.tsx?$/.test(path) && !/[\\/]__mocks__[\\/]/.test(path);
+  /\.tsx?$/.test(path) && !/\.d\.ts$/.test(path) && !/\.(test|stories|generated)\.tsx?$/.test(path) && !/[\\/]__mocks__[\\/]/.test(path);
 
 export const prodFiles = (dir = SRC): string[] => walkAll(dir).filter(isProdSource).sort();
 
