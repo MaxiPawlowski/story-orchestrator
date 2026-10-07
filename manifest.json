@@ -6,7 +6,7 @@
   "js": "dist/index.js",
   "css": "",
   "author": "Rolita",
-  "version": "2.4.0",
+  "version": "2.7.0",
   "minimum_client_version": "1.18.0",
   "homePage": "https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md",
   "auto_update": true,

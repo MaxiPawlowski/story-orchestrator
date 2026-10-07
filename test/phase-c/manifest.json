@@ -1,0 +1,5265 @@
+{
+  "kind": "phase-c-row-manifest",
+  "plan": "docs/plans/v2.7/39-test-from-zero.md",
+  "version": "2.7.0",
+  "writtenAt": "2026-10-07",
+  "predecessor": {
+    "commit": "4238ec2f8967f39074f42a0157ce8297576f615e",
+    "why": "first parent of 8163b0b3 (merge: v2.7 32 images); 32's only branch commit fa57a898 (director prompt, the first 32 model-input change) is not its ancestor (merge-base 8a9e06e3). Latest v2.7 commit before that change, so 29–31 are in the base and every later model-input change (32–37) must be declared"
+  },
+  "tiers": [
+    "D",
+    "RP",
+    "CL",
+    "LI",
+    "LT",
+    "human"
+  ],
+  "builds": [
+    "prod",
+    "dev-diagnostic"
+  ],
+  "stages": [
+    "B0",
+    "B1",
+    "C0",
+    "C1",
+    "C1b",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "C8b",
+    "Z"
+  ],
+  "binaryFloor": "pass/fail: the assertion holds in both runs",
+  "recordOnly": "record only",
+  "resets": {
+    "lane": "rule 11: `st-lanes.mts seed <n> --fresh`; clear persona locks and restore the default persona; restore model routing (run-header `profiles` diff 0); `so-assets.mts remove --marker <m> --baseline <run baseline>` with `cleanup.mirrorBooks` leaked 0; `so-journey.mts restore-config`; `st-session.mts reload` (clears the judge cache); `so-run-header diff` around the run shows declared paths only",
+    "adolion": "rule 11 with `adolion-fresh seed <n>` (pinned campaign) in place of `st-lanes.mts seed`; every other step of `lane`",
+    "comfy": "`lane`, plus the media ledger cleaned (`so-assets.mts remove --marker` covering sprites and references, sha256 inventory diff empty) and the ComfyUI queue empty before run 2; isolated lane",
+    "offline": "no install state: the fixture's sha256 unchanged between runs, the page reloaded (judge cache), the same model and provider in both run headers",
+    "local": "no install state: `git status --porcelain` clean apart from the row's declared outputs, `dist/` rebuilt from the same commit"
+  },
+  "absent": [
+    {
+      "id": "B1-C13b",
+      "labels": [
+        "B1-C13b SP8 digest arm"
+      ],
+      "why": "the SP8 digest arm was removed on 2026-10-01 (8017879f, after W4 (b) FAILED: opShape 0.81 / 0.76 < 0.85): no `--digest-pad`, no curatorDigest.ts, `spikes.sp8CuratorDigest` gone. It cannot run on the B0 build without code, so per 39 §B1 the row stays in v2.8 01 (C13-b)",
+      "record": "39 §B0 record"
+    },
+    {
+      "id": "S-18",
+      "why": "finding 18 tightened floors and defined replay (39 §Rows added: \"Floors tightened before any run (finding 18)\", rule 12); it adds no row of its own, the tightened floors sit in the rows of 32, 35, 36, 37 and 38",
+      "record": "39 §B0 record"
+    }
+  ],
+  "rows": [
+    {
+      "id": "B0-base",
+      "stage": "B0",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts; §B0 record"
+      },
+      "prerequisites": [
+        "predecessor worktree at the pinned commit built (build:dev) and staged on a no-model lane",
+        "candidate checkout's so-payload-golden.mts and test/scenarios/payload/*.json"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "payload goldens of the pinned predecessor captured with --label base into test/measurements/v2.7/payload/base, every case present, index.json written, no capture-failed.json",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts (preservation baseline)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K2",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record, final floor table"
+      },
+      "prerequisites": [
+        "test/scenarios/live-v25-09-sp6-k2.json",
+        "spikes.sp6Complications on",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the complication block placement over loud and quiet requests",
+      "floor": {
+        "text": "the block rides exactly the next loud request, never quiet/impersonate",
+        "citation": "v2.7 35 §Gate record (K2)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K3",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record, final floor table"
+      },
+      "prerequisites": [
+        "lab/complications/sp6-adolion.journey.json (98 turns)",
+        "release/control x judge on/off, x2 each",
+        "TypeSafe key (agencyCheck)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "releases per run and agency flags vs control",
+      "floor": {
+        "text": "≥ 20 releases per run; `agencyCheck` flags ≤ control mean + 1; judge-off column recorded",
+        "citation": "v2.7 35 §Gate record (K3)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K4",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record, final floor table"
+      },
+      "prerequisites": [
+        "35-K3 replies",
+        "lab/complications/sp6-k4-lines.json"
+      ],
+      "reset": "offline",
+      "tier": [
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "no released line restated verbatim",
+      "floor": {
+        "text": "0 verbatim restatements",
+        "citation": "v2.7 35 §Gate record (K4)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K5",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record, final floor table"
+      },
+      "prerequisites": [
+        "lab/complications/sp6-k5-stalled.json",
+        "release vs control x2",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "share of releases that reach the band within 6 boundaries",
+      "floor": {
+        "text": "pooled over the ×2 runs per arm, ≥ 20 measured releases pooled: release ≥ 60 % reach the band within 6 boundaries, control ≤ 30 %; per-run rates reported",
+        "citation": "v2.7 35 §Gate record (K5)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-M1",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 2 Floors (M1)"
+      },
+      "prerequisites": [
+        "v2.6 session evidence (private so-sessions), no new runs"
+      ],
+      "reset": "offline",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "stub stretch lengths, refusal/agency-recovery rate in stubs, flags in stubs vs anchors",
+      "floor": {
+        "text": "record only",
+        "citation": "v2.7 35 §Phase 2 Floors: \"a baseline, not a gate\""
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-M2",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 2 Floors (M2)"
+      },
+      "prerequisites": [
+        "stub lab copy (2–3 downtime/road stubs made open, owned by v2.7 38)",
+        "3 stubs x 2 arms x 2 runs",
+        "second-model hook labeller",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "open-stretch pull: no narrated decisions, the player arrives by their own move, a hook inside the pull window",
+      "floor": {
+        "text": "0 narrated player decisions in open stretches; the player reaches the destination by their own move in at least 90% of runs; every run past `pull_after` player turns shows at least one hook within the pull window. Window: the 6 player turns after `pull_after`; run end at `arrive_when` or `pull_after + 12` player turns; the 90 % floor is over every run of the arm (6 of 6)",
+        "citation": "v2.7 35 §Phase 2 Floors (M2, tightened by 39 finding 18)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-Q1-M1",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Q1 Floors (M1)"
+      },
+      "prerequisites": [
+        "academy-act lab copy with quest qualities (v2.7 38 A4)",
+        "arms 0/5/10/20 extra active qualities",
+        "DeepSeek read profile"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "read accuracy, tokens and latency per scope arm; sets QUEST_SCOPE_CAP",
+      "floor": {
+        "text": "no tier (`plotDeltaAccuracy`, facts, rejected) drops more than **3 points** vs arm 0; prompt tokens per read **≤ +15 %**, p50 read latency **≤ +20 %**; the highest passing arm sets `QUEST_SCOPE_CAP` (floor 5; if arm 5 fails, Q1 ships without side quests discovered by extraction)",
+        "citation": "v2.7 36 §Q1 Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-Q1-M2",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Q1 Floors (M2)"
+      },
+      "prerequisites": [
+        "20 labelled completion cases (second-model labels, v2.7 38 A4)",
+        "DeepSeek read profile"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "`done_when` recall and false latches",
+      "floor": {
+        "text": "`done_when` latched within **N = 3 player turns** of the act in **≥ 0.80** of cases, false latches **≤ 1 of 20**",
+        "citation": "v2.7 36 §Q1 Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-M1",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Measurement M1"
+      },
+      "labels": [
+        "37-M1 relationship read accuracy"
+      ],
+      "prerequisites": [
+        "~20 labelled academy/7-member-act lab windows (v2.7 38 A4)",
+        "arms (a) value hidden, (b) shown, (c) typed judge (TypeSafe)",
+        "DeepSeek read profile"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "relationship read direction accuracy per arm; decides the default read path",
+      "floor": {
+        "text": "direction accuracy ≥ 0.80; stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points below arm (b) on direction accuracy (else the anchoring guard is reconsidered, not the floor). The arm that passes decides the read path's default (judge first only if (c) passes).",
+        "citation": "v2.7 37 §M1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-M2",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§M2 + §Floors (2026-10-07)"
+      },
+      "labels": [
+        "37-M2 cost"
+      ],
+      "prerequisites": [
+        "N relationship axes in {2, 4, 8, 16} per read",
+        "20 lab windows"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "prompt cost of the relationship, mood and agenda blocks; sets REL_AXES_PER_READ",
+      "floor": {
+        "text": "the relationship + mood + agenda blocks together add ≤ 350 prompt tokens per drafted member at p95 and ≤ 600 at max over the 20 lab windows; extraction prompt growth ≤ +12 % tokens with p50 latency ≤ +15 %.",
+        "citation": "v2.7 37 §Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-17",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-17 combined scope budget"
+      ],
+      "prerequisites": [
+        "7-member cast, ≥ 3 active quests, relationships and card pulls in the same reads",
+        "DeepSeek read profile"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the combined scope budget and fairness across sources",
+      "floor": {
+        "text": "36's M1 token/latency floors and 37's M2 ceiling hold together; overflow priority as B2 decides; fairness: no active quest left out of scope for more than 3 consecutive reads; caps passing separately is not enough",
+        "citation": "39 §Rows added (S-17); v2.7 37 §Combined scope budget"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-S17",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Combined scope budget"
+      },
+      "labels": [
+        "37-S17 combined scope budget"
+      ],
+      "prerequisites": [
+        "S-17 setup with relationships registered (`relationship` scope source)"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "S-17 with the relationship source; records the cross-source overflow order B2 decides",
+      "floor": {
+        "text": "36's M1 token/latency floors and this plan's M2 ceiling must hold at once … no active quest or present pair waits more than 3 consecutive reads. Each cap passing alone does not accept the combined feature.",
+        "citation": "v2.7 37 §Combined scope budget"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-L3",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§L3 curator proposals gate"
+      },
+      "labels": [
+        "37-L3 meanwhile proposals"
+      ],
+      "prerequisites": [
+        "test/fixtures/meanwhile-proposals.cases.json (20 cases)",
+        "dev build, globalThis.storyOrchestratorAgendaProposals.propose() on the CL route",
+        "second-model labels"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "meanwhile proposals stay in goal and never narrate the player",
+      "floor": {
+        "text": "in-goal rate ≥ 0.85, 0 narrated player actions, 0 references to unreached content in a spoiler subset",
+        "citation": "v2.7 37 §L3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-L6-C",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§L6 Calibration row L6-C"
+      },
+      "labels": [
+        "37-L6-C voice warden"
+      ],
+      "prerequisites": [
+        "test/fixtures/judge/spike-voice.json with its 20 rows collected (owed by v2.7 38)",
+        "judge.uses.wardenVoice",
+        "TypeSafe key"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "voice warden OOC recall and false notes, offline replay",
+      "floor": {
+        "text": "**OOC recall ≥ 0.80** (≥ 8 of 10 OOC replies noted), **false-note rate ≤ 0.10** (≤ 1 of 10 in-character replies noted), **0 notes that propose a rewrite or narrate a player action**, fallback rate (timeout / too-large / error) ≤ 1 in 20. Run ×2 offline replay; both runs must pass.",
+        "citation": "v2.7 37 §L6"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "B1-C3",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§B C3; 39 §B1 rows from v2.8 01"
+      },
+      "labels": [
+        "B1-C3 warden + lore-check timeout causes"
+      ],
+      "prerequisites": [
+        "TypeSafe key",
+        "wardenEnabled + judge.uses.wardenLore on",
+        "adolion-fresh lane playing a lore story with real replies",
+        "≥ 100 warden and ≥ 100 lore-check calls per run",
+        "plugin /status sampled per call",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "warden and lore-check timeouts per use, each attributed to one cause (client wait vs 4000 ms, plugin queue wait, provider latency) or counted unattributed; R4 latency with wardenLore on recorded",
+      "floor": {
+        "text": "formal `so-judge timeouts` per run; floor 1 timeout in 50 per use, never retuned (v2.8 01 C3; J2 bar)",
+        "citation": "39 §B1 rows from v2.8 01 (B1-C3)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "B1-C12",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§B C12; 39 §B1 rows from v2.8 01"
+      },
+      "labels": [
+        "B1-C12 lore-select requests per turn"
+      ],
+      "prerequisites": [
+        "the B1-C3 runs",
+        "lore_select stories, judge.uses.loreSelect on"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "lore-select judge requests per loud turn (p50, p95, max) from extras.judge.calls",
+      "floor": {
+        "text": "record only",
+        "citation": "39 §B1 rows from v2.8 01 (B1-C12): \"count only, no floor\""
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "B1-R4",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§E (data only); 39 §B1 rows from v2.8 01"
+      },
+      "labels": [
+        "B1-R4 checkpoint thinking level pairs"
+      ],
+      "prerequisites": [
+        "llama.cpp thinking setup on the pod",
+        "dev build with spikes.reasoningEffect",
+        "20 climax turns across 2 stories (4 pairs in so-sessions rating-pack/R4/)",
+        "Astra as the delegated blind rater"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "16 more blind pairs, arm checkpoint high vs control install medium; preference share and p95 latency vs control",
+      "floor": {
+        "text": "preference share (floor ≥ 60 %) and p95 latency vs control (floor ≤ 2×)",
+        "citation": "39 §B1 rows from v2.8 01 (B1-R4); v2.8 01 §E"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C0-freeze",
+      "stage": "C0",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C0; rule 2"
+      },
+      "prerequisites": [
+        "B2 decision record appended",
+        "B3 branch built and merged",
+        "version 2.7.0"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "one commit plus its prod and dev bundle sha256 recorded before C1; so-run-header capture baseline written",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 rule 2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C0-goldens",
+      "stage": "C0",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C0"
+      },
+      "prerequisites": [
+        "frozen candidate dev build staged on a no-model lane"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0, every case present",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Sequence C0"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C1-gates",
+      "stage": "C1",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C1; v2.7 31 §C"
+      },
+      "prerequisites": [
+        "main checkout (Storybook needs it)",
+        "frozen candidate"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "npm run gates (full, with Storybook) twice; the Storybook plays owed by 29, 30, 34, 36 and 37 run here",
+      "floor": {
+        "text": "green twice in a row with identical counts",
+        "citation": "v2.7 31 §C; 39 C1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C1-release",
+      "stage": "C1",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C1"
+      },
+      "prerequisites": [
+        "npm run build (prod)"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "npm run test:release on the prod build: build manifest, versions, bundle budget, dev-only surfaces absent (v2.7 29 D4, 31 FLUX nodes and lease, 32 W4 D4: no lease-pool code and no 2048/4096 reserve)",
+      "floor": {
+        "text": "0 bundle hits",
+        "citation": "v2.7 32 W4 (D4 half); v2.7 29 §Gates; v2.7 31 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C1-clean-host",
+      "stage": "C1",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W4"
+      },
+      "prerequisites": [
+        "scripts/release/clean-host.sh",
+        "package as shipped, no backend, no broker"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "images off and quiet on a clean host",
+      "floor": {
+        "text": "clean-host 0 render attempts and 0 errors with no backend",
+        "citation": "v2.7 32 W4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C1b-ratchet",
+      "stage": "C1b",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C1b"
+      },
+      "prerequisites": [
+        "the pinned predecessor's test/findings/codeHealth.json",
+        "prod build"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "each codeHealth list ⊆ the predecessor's, each budget ≤ the predecessor's, the guard constants equal the file; main entry within budget with each 35–37 production path's cost recorded in B3",
+      "floor": {
+        "text": "coordinator **560**, manager 700, file 600 … main entry ≤ 1,250,000 B",
+        "citation": "39 C1b"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-B3",
+      "stage": "C1b",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Gates Bundle"
+      },
+      "labels": [
+        "37-B3 bundle"
+      ],
+      "prerequisites": [
+        "npm run build"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "main entry and the lazy game-layer chunk measured; the proposal coordinator and its prompt absent from prod",
+      "floor": {
+        "text": "main entry ≤ 1,250,000 B",
+        "citation": "39 C1b; v2.7 37 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C2-corpus",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C2; v2.7 16 §Regression"
+      },
+      "prerequisites": [
+        "no-model lanes 1–4, dev build",
+        "run header around the batch"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "mocked scenario corpus (test/scenarios/*.json except live-*) x2 --strict, run-header diff declared paths only",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Regression across v2.7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C2-rendered-targets",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C2 (finding 20); v2.7 29/30 Review (Sol) finding 20"
+      },
+      "prerequisites": [
+        "prod build served on a lane",
+        "a planted dev-only feature (29 R20a)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "every Help \"Show me\" target and every \"?\"/Repair/Studio guide link resolves to a visible control or a rendered guide heading; the Studio guide link opens the reader while #so-studio-modal is open (hit-test by pointer and keyboard); the planted dev-only feature does not appear",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C2; v2.7 29 / 30 finding 20"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-K1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Step 0 K1"
+      },
+      "prerequisites": [
+        "group story, Summarize on (main source, interval > 0) and chat vectors on",
+        "runs with and without a seed_metadata held [hiding] row"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "assert-player-clean and a DOM snapshot diff of the player surfaces identical with and without the held secret",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Step 0"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-07-A3A8",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Step 0 07 A3 + A8"
+      },
+      "prerequisites": [
+        "adolion-fresh seed with the pinned campaign"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "adolion-fresh seed + check green on one lane; drift accepted with a reason",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Step 0"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-01-in-app-walk",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 01; 39 §C2 rows"
+      },
+      "labels": [
+        "01 in-app walk"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-01-in-app-walk.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "in-app walk from cleared memory model to the first send (no reply); Show me landings; settings-header \"?\" opens/toggles",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-02-C1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 02 C1 SP5.b"
+      },
+      "prerequisites": [
+        "no-LLM group scenario with a story scenario swapped at a transition by /cp activate",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "payload capture shows the authored scenario block and nothing else; leaving writes nothing; removing the story restores the pre-story value",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-02-C2-K1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 02 C2-K1; 39 §C2 rows"
+      },
+      "labels": [
+        "02 C2-K1"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-02-c2-k1.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "transcript-copier alert identical for the player with and without a held secret",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Step 0 K1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-02-C11-F1a",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 02 C11-F1a; 39 §C2 rows"
+      },
+      "labels": [
+        "02 C11-F1a"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-02-c11-f1a.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "so-journal show on a seeded held judge-typed reading names the cut; the row is author-only",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-02-C13",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 02 C13; 39 §C2 rows"
+      },
+      "labels": [
+        "02 C13"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-02-c13-curator-tiers.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "an op into a protected span refused; an applied op reverted by a swipe; curator request bytes identical",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-02-C14",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 02 C14 + 14; 39 §C2 rows"
+      },
+      "labels": [
+        "02 C14 + 14"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-02-c14-role-picker.json",
+        "a lane listing a TC, a DeepSeek CC and a harness route"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the role picker lists each route in the right group; no route changed (run-header profiles diff empty)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-03-group-only",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 03"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-03-no-group-solo-blob.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "legacy solo blob: make-a-group card only, no extraction call, no injection in the dry-run capture, select refused; make a group creates and binds a group; cleanup deletes it",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-04-health-center",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 04; 39 §C2 rows"
+      },
+      "labels": [
+        "04 health center"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-04-health-center.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "Repair order, Show me, no toast; the HUD count equals blocks + degrades rows; with and without a seeded secret",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-05-briefing",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 05; 39 §C2 rows"
+      },
+      "labels": [
+        "05 briefing"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-05-briefing.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "briefing once per new chat, not on reopen, again on Restart; /story intro and the drawer button re-open it; the setting off suppresses it",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-06-presence",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 06; 39 §C2 rows"
+      },
+      "labels": [
+        "06 presence"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-06-presence.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "badges and Continue list across two stories; chapter card on a seeded chapter; wand targets; per-story off; panel position after reload",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-07-A6",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 07"
+      },
+      "prerequisites": [
+        "adolion-fresh lane"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the nine bound groups show the badge and the right saga/act kind (counts only)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-08-thinking",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 08; 39 §C2 rows"
+      },
+      "labels": [
+        "08 thinking"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-08-thinking-warning.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the thinking finding appears and clears over scripted replies with and without extra.reasoning; harvest off gives none",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-09-commitment",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 09; 39 §C2 rows"
+      },
+      "labels": [
+        "09 commitment"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-09-commit-hold.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "so-journal show on a seeded held commitment row",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-10-catch-up",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 10; 39 §C2 rows"
+      },
+      "labels": [
+        "10 catch-up"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-d-10-edit-catch-up.json",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "editing the newest reply shows catching-up until the mocked audit lands, then idle; guide line present",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O2",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O2"
+      },
+      "prerequisites": [
+        "Help open, Show-me landings, settings-header \"?\", inline legend"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "assert-player-clean green with each open",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "29-D1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 29",
+        "section": "§Gates (D)"
+      },
+      "prerequisites": [
+        "release-candidate settings panel on a lane"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "change a setting, reload, read it back unchanged",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 29 §Gates: settings round-trip on a lane, ×2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "29-D2",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 29",
+        "section": "§Gates (D)"
+      },
+      "prerequisites": [
+        "live settings panel, player mode"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "so-ui assert-player-clean on the live panel",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 29 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "30-D1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 30",
+        "section": "§Gates (D) Phase C live"
+      },
+      "prerequisites": [
+        "live lane"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "a settings \"?\" opens the reader at the right page and heading",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 30 §Gates: open from a settings \"?\" and from a Repair row; search finds a page; ×2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "30-D2",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 30",
+        "section": "§Gates (D) Phase C live"
+      },
+      "prerequisites": [
+        "a Repair row present"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "the Repair row's link opens the right guide page",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 30 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "30-D3",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 30",
+        "section": "§Gates (D) Phase C live"
+      },
+      "prerequisites": [
+        "reader open"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "#so-guide-search finds a page",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 30 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "31-G3",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 31",
+        "section": "§Gates (D)"
+      },
+      "prerequisites": [
+        "seeded install with flux-dev (or a /flux/i checkpoint) stored"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the image-model-retired Repair row names each row; the setting falls back to the default, no error",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 31 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W4-scenario",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§Tests added; §Phase C rows owed"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-32-images-clean-host.json",
+        "requires.lane no-model"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "no /api/sd/, media job or /prompt request; no lastError; image health absent on both routes",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 32 §Tests added"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-D-clean",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W2/W3/W4 Gates"
+      },
+      "prerequisites": [
+        "agency family auto, attention check on, suggestions panel open, lane"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "assert-player-clean green with W2 notes, W3 attention and the W4 suggestions panel",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 33 W2/W3/W4 Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-flow",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "new bound group chat, scripted new_chat_only opener",
+        "so-ui player-setup / player-setup-choose keep|pick|create|skip"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "every choice, Skip included, leaves chat_metadata.persona set",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-F11",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "existing persona whose description lacks the story role"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "picking it puts the playerRole block in the dry-run payload",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-switch",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "two scripted turns, then a persona switch"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "persona-switch appears with Switch back; clicking it restores the locked persona and clears the finding",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-reopen",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "close and reopen the chat"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the pane is not re-shown, the lock holds, Your character in this story has no switch controls",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-restart",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "Restart"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the pane is re-offered and a new lock written",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-fixed",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "name.mode fixed, another persona selected"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the opener waits until the fixed-name persona is locked, then posts once",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-brief-off",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "display.briefing off, a story with a player block"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the identity pane still shows and locks",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-solo",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "a solo chat with the story's character (control)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the story refuses, no pane, no lock written",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-harness",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates D, Live"
+      },
+      "prerequisites": [
+        "harness session"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "setup off by default (auto-Skip still locks); so-assets lists/removes marker-titled personas; so-run-header records inventory.personas and the chat lock",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-L-multiuser",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§pane, Multi-user installs"
+      },
+      "prerequisites": [
+        "a lane with a second ST user (seeded for this row)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the pane reads the current user's personas only",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Multi-user installs"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-04",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-04 refused lock + reload"
+      ],
+      "prerequisites": [
+        "a player story bound to a fresh group chat with a scripted new_chat_only opener",
+        "in-page wrapper on setPersonaLockState that refuses once"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "no opener before success or the explicit continue; lock-failed UI and persona-lock blocks check; the pending record survives a reload; Try again locks and posts once; continue posts once with locked false and the journal line",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-04)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-05",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-05 chat switch during a persona write"
+      ],
+      "prerequisites": [
+        "two bound group chats A and B",
+        "in-page delay on loadPersonasModule and the persona switch"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "B's chat_metadata.persona unchanged (server copy); no opener in A or B; A still pending; setPersonaLockState never called while B is open",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-05)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-09",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-09 open-stretch side exit refused"
+      ],
+      "prerequisites": [
+        "a story whose open stretch has a side exit on player_turns_in_checkpoint and one on an always-true gate",
+        "every shipped story with a stretch"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "both side-exit stories refused at import naming the transition; Studio diagnostics name it on edit; every shipped stretch story imports clean (counts only for Adolion)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-09)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P2-curve",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 2 / Owed"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-35-open-stretch-curve.json (+ .story.json)",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "turn count, no objective line, no hook before pull_after, gentle then strong pull",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 35 §Phase 2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P2-clean",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Owed Phase 2"
+      },
+      "prerequisites": [
+        "an open stretch playing"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "assert-player-clean green; no objective line at inline L1/L2",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 35 §Owed Phase 2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-Q5-scn",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Q5 Gate"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-36-quests.json (+ .story.json)",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "discovery, completion, reward, swipe and reopen leave host state equal to replay",
+      "floor": {
+        "text": "0 host-state mismatches",
+        "citation": "v2.7 36 §Q5"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-P-live",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§P Gate"
+      },
+      "prerequisites": [
+        "lane, Author view for /cp set"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "/cp set updates the panels; a swipe reverts; per-story off hides; position survives reload",
+      "floor": {
+        "text": "`assert-player-clean` 0 findings with every panel open",
+        "citation": "v2.7 36 §P"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-spoiler-sweep",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Spoiler rules"
+      },
+      "prerequisites": [
+        "player mode, inline L2, a hidden check"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "assert-player-clean sweeps Journal, Stat sheet, every player widget and a hidden-check chip",
+      "floor": {
+        "text": "`assert-player-clean` 0 findings",
+        "citation": "v2.7 36 §Spoiler rules"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-D1",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Gates no-LLM group scenario; 39 §Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-D1 character life, no model"
+      ],
+      "prerequisites": [
+        "test/scenarios/v27-37-character-life.json (+ .story.json)",
+        "no-model lane, toy group \"Group: Arin, DM Narrator\", judge off"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "an agenda step lands after two /cp set boundaries; an OOC line neither moves nor counts; a night schedule puts Arin away; drafted blocks carry only their own member's state; player mode shows none; assert-player-clean with the drawer open",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-D2",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Gates; 39 §Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-D2 schedule drop live"
+      ],
+      "prerequisites": [
+        "37-D1 lane",
+        "time_of_day night, the party at the market, a scripted line addressed to Arin",
+        "director mocked"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the talk decision never names Arin while she is away; disabled_members unchanged (run-header diff)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-D3",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Gates; 39 §Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-D3 agenda effect + swipe"
+      ],
+      "prerequisites": [
+        "a story copy whose second agenda step carries a world_info enable on a test book",
+        "a scripted npc_replies reply on the first"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the entry is on after the landing boundary and off after a swipe/delete of that reply; the NPC reply posts once and a swipe rewinds its marker",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-spoiler",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Gates Spoiler checklist"
+      },
+      "prerequisites": [
+        "player mode at every inline level, an away member, a meanwhile fact"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "no relationship value, mood, agenda step, meanwhile fact or away reason in player surfaces; who-is-here shows player-safe names only",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 37 §Spoiler checklist"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C3-preservation",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C3; §Payload contracts"
+      },
+      "prerequisites": [
+        "B0-base goldens",
+        "frozen candidate dev build on a no-model lane",
+        "test/measurements/v2.7/payload/declared.json"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "so-payload-golden capture --label c3, then diff base→c3 with --declared: only declared hunks, no stale declaration",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C3-repeatability",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C3"
+      },
+      "prerequisites": [
+        "C0-goldens",
+        "C3 capture"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "diff c0→c3 with no declarations",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-role-line",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "role line (34)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: no player profile gives no role block, byte-identical to base; on: role block in the resting prompt and each drafted member's request; negative control (delete the block) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-open-stretch",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "open-stretch pull (35)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: no stretch, byte-identical to base; on: no objective line; no pull before pull_after; pull line after it; negative control (inject the objective line) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-check-outcomes",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "check outcomes (36 Q3)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: no checks, byte-identical to base; on: one outcome steering line per attempted check, no roll numbers; negative control (drop the outcome line) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-agency-notes",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "agency notes (33 W2)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: agency family review, byte-identical to base; on: the note at continuityNote on the next loud request; negative control (strip the note) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-quest-scope",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "quest scope (36 Q1)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: no quests, read prompt byte-identical, byte-identical to base; on: scope keys per quest status, cap respected; negative control (add an out-of-status key) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-relationship-scope",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "relationship scope (37 L1)"
+      ],
+      "prerequisites": [
+        "C3 capture",
+        "B0-base goldens",
+        "the feature off and on in the case's story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "off: no relationships, byte-identical to base; on: axes of present members only, REL_AXES_PER_READ respected; negative control (add an absent member's axis) makes the check fail",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-privacy",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts"
+      },
+      "labels": [
+        "privacy, every capture above"
+      ],
+      "prerequisites": [
+        "every capture of the contracts and off-path rows",
+        "a synthetic held secret planted in a private source"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the planted secret appears in no shared or off-path request and in no other member's request",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts (privacy row)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "PC-off-path",
+      "stage": "C3",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Payload contracts (off-path requests)"
+      },
+      "prerequisites": [
+        "mocked answers; capture at each request seam (Connection Manager / judge client)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "suggestions, shared read / scene / epistemic passes, warden (with the attention question) and curator requests captured on base and candidate; each differs only by declared hunks",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Payload contracts"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J0",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J0)",
+        "no model",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J0 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J1",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J1)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J1 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J2",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J2)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J2 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J3",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J3)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J3 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J4",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J4)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J4 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J5",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J5)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J5 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J6",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J6)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J6 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J7",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J7)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J7 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J8",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J8)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J8 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J9",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J9)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J9 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J10",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J10)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J10 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J11",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J11)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J11 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J12",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J12)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J12 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J13",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J13)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J13 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J14",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C4"
+      },
+      "prerequisites": [
+        "test/journeys (J14)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "--strict"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "journey J14 --strict, cleanup clean, first-attempt rate printed",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C4; v2.4 plan 09 §Matrix (green twice)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "J6-W1",
+      "stage": "C4",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W1 Floors V8; 39 C4"
+      },
+      "prerequisites": [
+        "spikes.editReread on",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "J6 with plan 33 W1 on",
+      "floor": {
+        "text": "J6 green ×2 with the flag on",
+        "citation": "v2.7 33 W1 V8"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O1",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O1"
+      },
+      "prerequisites": [
+        "adolion-fresh lane, our settings cleared",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "a fresh install reaches a first real reply using only in-app guidance",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O3"
+      },
+      "prerequisites": [
+        "local ComfyUI, director profile",
+        "a beat with and one without player_name"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "one real image cue per beat",
+      "floor": {
+        "text": "no internal checkpoint name in the prompt",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O4",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O4"
+      },
+      "prerequisites": [
+        "fired and unfired Appearance: entries in real play",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "only the fired Appearance entry reaches the image prompt",
+      "floor": {
+        "text": "only the fired one reaches the image prompt",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O5"
+      },
+      "prerequisites": [
+        "an illustrate: false beat; a chapter look override"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "no automatic cue on the illustrate: false beat; the chapter look override applies",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O6",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O6"
+      },
+      "prerequisites": [
+        "a narrator/system member"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "the narrator gives no card-description look",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O7",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O7"
+      },
+      "prerequisites": [
+        "curator profile",
+        "a story with stagecraft.exclude"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "one real curator pass",
+      "floor": {
+        "text": "the excluded entry is never shown or written",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O8",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O8"
+      },
+      "prerequisites": [
+        "group story, seeded held [hiding] row, Summarize and chat vectors on"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "the copier row and #so-hud-setup show in player mode and clear when off",
+      "floor": {
+        "text": "the player copy must be identical with and without held secrets",
+        "citation": "v2.8 01 §A (after the K1 fix)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O9",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O9"
+      },
+      "prerequisites": [
+        "fix overlay + harvest on; then the thinking overlay",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the thinking row, HUD chip and harvest line after 5 real replies in player and author view; the thinking overlay gives none",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O10",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O10"
+      },
+      "prerequisites": [
+        "read role on DeepSeek, a playing chat"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "editing the newest reply",
+      "floor": {
+        "text": "pipeline `catching-up` until the re-read audit lands",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O11",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O11"
+      },
+      "prerequisites": [
+        "a held commitment row from real play"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "so-journal show lists the held commitment row",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O12",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O12"
+      },
+      "prerequisites": [
+        "every merged v2.7 plan's gate record"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "each \"Live: NOT run\" line of a merged v2.7 gate record maps to a manifest row (walk recorded with the mapping)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O13",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O13"
+      },
+      "prerequisites": [
+        "SP5.b story-owned scenario story",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the scenario in real replies",
+      "floor": {
+        "text": "the scenario reaches the prompt and the reply follows it",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O13b",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O13b"
+      },
+      "prerequisites": [
+        "authoring profile on a cloud route"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "one agentic-wizard authoring run",
+      "floor": {
+        "text": "proposes a valid `effects.scenario` when asked and never otherwise (W1-style checks, ×2)",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O14",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O14"
+      },
+      "prerequisites": [
+        "curator profile",
+        "a book with so:auto / so:protect markers"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the promoted SP8 tiers and spans hold under a real curator pass",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O15",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O15"
+      },
+      "prerequisites": [
+        "a second-model rater (never the user)",
+        "every story and Saga chapter briefing"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "spoiler terms beyond check_player_copy.py and agreement with the authored player copy (counts only)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.8 01 §A; v2.7 38 D13a"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "O16",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§A O16"
+      },
+      "prerequisites": [
+        "authoring profile",
+        "a one-character story"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "one agentic authoring run",
+      "floor": {
+        "text": "creates/asks for a group with that member (and the narrator when the story has one), ×2",
+        "citation": "v2.8 01 §A"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C14-b",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§B C14-b (moved to 39 C5)"
+      },
+      "prerequisites": [
+        "a memory profile whose context the table enlarges (DeepSeek CC, no preset)",
+        "live suite extractor fixtures"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "extraction quality on the inputs the context table enlarges",
+      "floor": {
+        "text": "record only",
+        "citation": "v2.7 02 C14; v2.8 01 §B",
+        "gap": "no floor is declared in v2.7 02, v2.7 14 or v2.8 01; owner v2.7 02 predeclares one before the freeze, else the row stays record-only and cannot be green"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C4-R6",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§B C4; 39 §B1 rows from v2.8 01"
+      },
+      "prerequisites": [
+        "wardenLore on (the separate arm)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles",
+        "TypeSafe key"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "over-steer after a lore note (v2.5 08 R6 rubric, v2.4 07 judge rubric): the reply after a lore note does not restate it or swing past it; the warden-facts arm is the baseline",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.5 08 R6"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C4-J8",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§B C4; 39 §B1 rows from v2.8 01"
+      },
+      "prerequisites": [
+        "J8 with wardenLore off and on",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "G-L7 J8 on/off",
+      "floor": {
+        "text": "J8 green ×2 in each arm",
+        "citation": "v2.5 08 G-L7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "R4-live",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.8 01",
+        "section": "§E Also owed; 39 §B1 rows from v2.8 01"
+      },
+      "prerequisites": [
+        "llama.cpp thinking setup on the pod",
+        "one Chat Completion arm"
+      ],
+      "reset": "lane",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the install-wide reply thinking budget off/low/medium/high over n ≥ 3 group turns each; memory requests carry no budget key",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.6 05 §Live"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W1-V0",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W1 Floors V0"
+      },
+      "prerequisites": [
+        "the user's post-processor named (Recast-shaped fixtures stand in)",
+        "spikes.editReread on"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the v2.6 \"no audit\" case explained and the post-processor's event order traced",
+      "floor": {
+        "text": "the \"no audit\" case explained; the user's post-processor's event order traced",
+        "citation": "v2.7 33 W1 V0"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W1-V3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W1 Floors V3"
+      },
+      "prerequisites": [
+        "adolion-fresh lane, spikes.editReread on, post-processor leg",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the next request carries the settled text in every burst case",
+      "floor": {
+        "text": "the next request carries the settled text in every burst case, ×2",
+        "citation": "v2.7 33 W1 V3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W1-V4",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W1 Floors V4"
+      },
+      "prerequisites": [
+        "adolion-fresh lane, spikes.editReread on, editor leg",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "an edit counts before the next reply",
+      "floor": {
+        "text": "4 of 4, ×2",
+        "citation": "v2.7 33 W1 V4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W1-V5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W1 Floors V5"
+      },
+      "prerequisites": [
+        "the V3/V4 runs"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "extra reads per settled edit and hold p95",
+      "floor": {
+        "text": "R5′: extra reads per settled edit net of displaced reads ≤ 1; hold p95 recorded",
+        "citation": "v2.7 33 W1 V5"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W1-V7-live",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "33 W1 V7-live"
+      ],
+      "prerequisites": [
+        "a real onEnter NPC post and its /cut after an edited reply",
+        "spikes.editReread on"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "ends like a replay of the edited chat, gate kept and gate broken",
+      "floor": {
+        "text": "edit of the gating reply with an onEnter post ends like a replay of the edited chat",
+        "citation": "v2.7 33 W1 V7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W2-oversteer",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W2 Floor, Decision 3; v2.8 01 §G"
+      },
+      "prerequisites": [
+        "Claude's session card, ≥ 40 turns",
+        "second-model rater",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the agency check in auto mode over a long session",
+      "floor": {
+        "text": "at least 1 reply narrating the player's action, decision or words, caught by the check. Notes rated \"helpful or invisible\" in at least 80 % of cases, and 0 notes that produced an OOC or over-corrected reply. Missing either floor means E or keep `review`.",
+        "citation": "v2.7 33 W2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W2-J8.10",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W2 Gate"
+      },
+      "prerequisites": [
+        "so-journey J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto",
+        "TypeSafe key"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "J8.10 with the agency check in auto mode",
+      "floor": {
+        "text": "J8.10 green ×2",
+        "citation": "v2.7 33 W2 Gate"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W3-N1",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W3 N1"
+      },
+      "prerequisites": [
+        "so-judge calibrate --use attentionCheck --record, page reloaded between runs",
+        "TypeSafe key"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "attention detection calibration",
+      "floor": {
+        "text": "ignores recall ≥ 0.85, responds specificity ≥ 0.95 (agency's pair)",
+        "citation": "v2.7 33 W3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W3-combined",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W3 Gate/Floors"
+      },
+      "prerequisites": [
+        "warden with and without the attention question",
+        "TypeSafe key"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "warden p95 and timeout/refusal rate recorded; continuity, agency and house-rules fixture rates unchanged",
+      "floor": {
+        "text": "existing continuity, agency and house-rules fixture rates unchanged (P2); timeouts stay 1 in 50, never retuned",
+        "citation": "v2.7 33 W3; v2.8 01 C3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W3-live",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W3 Gate"
+      },
+      "prerequisites": [
+        "group chat on a lane, TypeSafe key"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "real-judge attention checks in a group",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 33 W3 Gate"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W4-live",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W4 Gate"
+      },
+      "prerequisites": [
+        "memory profile on DeepSeek"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "suggestions fill the input and never send",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 33 W4 Gate"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W4-spoiler",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W4 Floors"
+      },
+      "prerequisites": [
+        "a story with a gated route"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "no unreached checkpoint name in suggestions (string check against the story's unreached names)",
+      "floor": {
+        "text": "never sent, fill the input only, no unreached checkpoint name in 10 runs on a story with a gated route",
+        "citation": "v2.7 33 W4 Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "33-W4-useful",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 33",
+        "section": "§W4 Floors (Decision 7)"
+      },
+      "prerequisites": [
+        "20 clicks on 2 group stories (one gated)",
+        "second-model rater (never the user)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "suggestion sets rated fits / generic / off",
+      "floor": {
+        "text": "≥ 75 % `fits`; ≥ 90 % of sets hold one suggestion that engages the current objective or an open thread; 0 suggestions that state an outcome for the player (\"you find the key\"); 0 exact duplicates of the player's last line; p95 click-to-fill ≤ 10 s",
+        "citation": "v2.7 33 W4 Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-RP",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Floors (proposed 2026-10-07)"
+      },
+      "prerequisites": [
+        "10 fresh story starts across 3 stories",
+        "dry-run capture",
+        "second-model rater",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "start setup, persona name and role in the first reply's prompt, first narrator reply consistent with the role",
+      "floor": {
+        "text": "10 fresh story starts across 3 stories ×2. Pass: the start-setup step is reached or auto-skipped as designed in 10/10; the chosen persona's name and the story's `player` role appear in the first reply's prompt (dry-run capture) in 10/10; a second-model rater judges the first narrator reply consistent with the player role in ≥ 9/10; 0 replies narrate the player's own action.",
+        "citation": "v2.7 34 §Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "34-copy",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 34",
+        "section": "§Gates, Player-visible surface"
+      },
+      "prerequisites": [
+        "a session card of the final suite (Claude-run)"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the start-setup pane copy checked in play (each finding filed)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 34 §Player-visible surface"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-06",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-06 persona placement None"
+      ],
+      "prerequisites": [
+        "a persona whose description carries the role line; placement None, then In prompt, then the line deleted",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "placement None gives the playerRole block once; In prompt with the line gives none; line deleted brings it back; one real request per step agrees with the dry run",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-06)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-07",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-07 suggestions with unnamed checkpoints"
+      ],
+      "prerequisites": [
+        "a story whose start and a generated beat have no player_name, expansion on"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the suggestions request and the shown suggestions hold no checkpoint name or id; unnamed scenes skipped; the current scene reads Current scene",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-07)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-08",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-08 held-secret suggestions"
+      ],
+      "prerequisites": [
+        "knowledge tracking on, a synthetic [hiding] row, canon restating it in other words"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the suggestion request restates no held secret; negative control with the row retired carries the paraphrase; member requests unchanged",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-08)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-10",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-10 swipe window"
+      ],
+      "prerequisites": [
+        "a lore_select story, judge on, a reply naming an unmentioned lore entry",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "requests during the swipe equal those of the chat with the reply deleted (rule 12); the discarded text reaches no judge or memory request; the landed swipe is in the next read",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-10)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-11",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-11 held-secret canon"
+      ],
+      "prerequisites": [
+        "S-11 setup: [hiding] + [knows] echo, a fact and an arc summary restating it, {{story_canon}} in the narrator card, storySoFar on"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the canon request, stored canon, Overview, /story recap and away recap restate no held secret; the kept-out member's and resting requests carry it nowhere; retired row brings the paraphrase back; a chat without a held secret sends a byte-identical canon request",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-11)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-12",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows for Sol findings 4–10"
+      },
+      "labels": [
+        "S-12 held-secret chapters, threads and other shared text"
+      ],
+      "prerequisites": [
+        "S-11 setup plus fact, scene summary, open arc and ledger row restating the secret; chapters on with small chronicleTokens"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "seal, era and saga requests and every stored and shown chapter text restate no held secret; dossiers keep it only for a holder; inline L1/L2 chips, expansion, curator and warden inputs restate none; retired row brings it back; no-secret chats send byte-identical requests",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows for Sol findings 4–10 (S-12)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-15",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-15 mixed-origin rollback"
+      ],
+      "prerequisites": [
+        "quest reward, agenda step, complication (if built) and stagecraft writes interleaved on one WI target",
+        "fake-host jest + a no-model scenario"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "one chronological undo across origins (restoreFor), origins survive compaction and hydrate, externally-changed recorded, host state = replay",
+      "floor": {
+        "text": "0 host mismatches",
+        "citation": "39 §Rows added (S-15)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-16",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-16 quest lifecycle"
+      ],
+      "prerequisites": [
+        "ignored offer, offer → active, completion toggling, done and failed in one boundary, changed reward, story update after a reward"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "the 36 quest lifecycle",
+      "floor": {
+        "text": "0 host mismatches",
+        "citation": "39 §Rows added (S-16)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-19",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-19 OOC and story clock"
+      ],
+      "prerequisites": [
+        "group rounds, Continue, swipe, a marked OOC message, reopen",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "an OOC message counts no player turn, yields no delta, ticks no agenda; story_day/time_of_day move only by 37's producer; Continue/swipe/reopen ≡ continuous run",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows added (S-19)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S-19-OOC",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Rows added by the 2026-10-07 review"
+      },
+      "labels": [
+        "S-19-OOC read and turn rule (built on `v2.7-ooc`, not run)"
+      ],
+      "prerequisites": [
+        "a group chat at an open stretch with player_turns_in_checkpoint declared",
+        "((…)), OOC: …, (OOC) … lines and the control line",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "OOC lines stay in the request but in no read window; an OOC-only window makes no call; turn counts, refusal streak and awaits-the-player ignore them, the control counts; no warden player_message for an OOC reply; chats without OOC lines send byte-identical read prompts",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows added (S-19-OOC)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-S19",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§Story clock Gate; 39 §Rows owed by v2.7 37"
+      },
+      "labels": [
+        "37-S19 story clock"
+      ],
+      "prerequisites": [
+        "S-19 with clock declared",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "lane",
+      "tier": [
+        "D",
+        "RP"
+      ],
+      "build": "dev-diagnostic",
+      "assertion": "time_of_day moves one step per boundary, story_day only on a wrap; Continue/swipe/reopen ≡ continuous run; an OOC line ticks no agenda",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Rows owed by v2.7 37"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-M1-C5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§M1; 39 C5 (37 M1, M3)"
+      },
+      "prerequisites": [
+        "37-M1 setup on the frozen candidate"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "37-M1 re-run on the candidate with the B2 default read path",
+      "floor": {
+        "text": "direction accuracy ≥ 0.80; stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points below arm (b) on direction accuracy",
+        "citation": "v2.7 37 §M1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "37-M3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 37",
+        "section": "§M3; 39 §Rows added"
+      },
+      "labels": [
+        "37 M3",
+        "37-M3 player value"
+      ],
+      "prerequisites": [
+        "7-member act pilot",
+        "20 paired excerpts on/off, same openings",
+        "blind second model",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "character life on vs off, player value",
+      "floor": {
+        "text": "on preferred in **≥ 12 of 20**; on rated worse on consistency in **≤ 2 of 20**; **0** leaks of a relationship value, mood, agenda step or meanwhile fact into player surfaces. Required exercise per run (else the run is INCOMPLETE): **≥ 1** axis moved by a read, **≥ 1** agenda step advanced, **≥ 1** schedule drop, **≥ 1** mood re-read.",
+        "citation": "v2.7 37 §M3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-Q3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Q3 Floor"
+      },
+      "prerequisites": [
+        "20 public checks across the pilot",
+        "second-model labels",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "the narration reflects and never contradicts the given check outcome",
+      "floor": {
+        "text": "narrator contradicts the given outcome in **≤ 1** (second-model labelled), **and** the narration shows the given outcome (its consequence is visible in the reply, second-model labelled) in **≥ 18 of 20**",
+        "citation": "v2.7 36 §Q3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-pilot-academy",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Order 7"
+      },
+      "prerequisites": [
+        "Adolion academy-act lab copy",
+        "second-model content review",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the quest pilot plays (counts only)",
+      "floor": {
+        "text": "≥ 1 quest activated and ≥ 1 step done",
+        "citation": "v2.7 38 §C7 (quest pilot)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "36-pilot-saga",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 36",
+        "section": "§Order 7"
+      },
+      "prerequisites": [
+        "Saga with the v2.7 28 cast",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the quest pilot plays on the Saga (counts only)",
+      "floor": {
+        "text": "≥ 1 quest activated and ≥ 1 step done",
+        "citation": "v2.7 38 §C7 (quest pilot)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-M2-C5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 2 Floors (M2); 39 C5"
+      },
+      "prerequisites": [
+        "35-M2 setup on the frozen candidate"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "35-M2 re-run on the candidate as acceptance",
+      "floor": {
+        "text": "0 narrated player decisions in open stretches; the player reaches the destination by their own move in at least 90% of runs; every run past `pull_after` player turns shows at least one hook within the pull window",
+        "citation": "v2.7 35 §Phase 2 Floors"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K3-C5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record; 39 C5"
+      },
+      "branch": "SP6 PASS",
+      "prerequisites": [
+        "35-K3 setup on the frozen candidate"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "35-K3 re-run on the candidate",
+      "floor": {
+        "text": "≥ 20 releases per run; `agencyCheck` flags ≤ control mean + 1; judge-off column recorded",
+        "citation": "v2.7 35 §Gate record (K3)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K4-C5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record; 39 C5"
+      },
+      "branch": "SP6 PASS",
+      "prerequisites": [
+        "35-K4 setup on the frozen candidate"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "35-K4 re-run on the candidate",
+      "floor": {
+        "text": "0 verbatim restatements",
+        "citation": "v2.7 35 §Gate record (K4)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-K5-C5",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Gate record; 39 C5"
+      },
+      "branch": "SP6 PASS",
+      "prerequisites": [
+        "35-K5 setup on the frozen candidate"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "35-K5 re-run on the candidate",
+      "floor": {
+        "text": "pooled over the ×2 runs per arm, ≥ 20 measured releases pooled: release ≥ 60 % reach the band within 6 boundaries, control ≤ 30 %",
+        "citation": "v2.7 35 §Gate record (K5)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P3-K2",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 3 Floor"
+      },
+      "branch": "SP6 PASS",
+      "prerequisites": [
+        "production path, group, live",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the released complication block on the production path; assert-player-clean on a release",
+      "floor": {
+        "text": "the block rides exactly the next loud request, never quiet/impersonate",
+        "citation": "v2.7 35 §Phase 3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P4-M2",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 4 Floor"
+      },
+      "branch": "SP6 PASS, M2 PASS",
+      "prerequisites": [
+        "M2 pressure arm, 3 stubs x 1 arm x 2 + control reuse",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "M2 with pressure on",
+      "floor": {
+        "text": "M2's three floors hold with pressure on",
+        "citation": "v2.7 35 §Phase 4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P4-K3",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 4 Floor"
+      },
+      "branch": "SP6 PASS, M2 PASS",
+      "prerequisites": [
+        "pressure releases",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "agency flags over pressure releases",
+      "floor": {
+        "text": "K3 (agency flags ≤ no-pressure control + 1)",
+        "citation": "v2.7 35 §Phase 4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-P4-K4",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 4 Floor"
+      },
+      "branch": "SP6 PASS, M2 PASS",
+      "prerequisites": [
+        "pressure releases"
+      ],
+      "reset": "offline",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "no restatement over pressure releases",
+      "floor": {
+        "text": "K4 (0 verbatim restatements)",
+        "citation": "v2.7 35 §Phase 4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-ENC",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 2 gate (encounter pool); 39 §Stage B branches"
+      },
+      "branch": "SP6 PASS, M2 PASS",
+      "prerequisites": [
+        "encounter pool built (B3)"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "encounter generation golden and the contract-drop test; encounter titles player-safe",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Stage B branches"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "35-DROP",
+      "stage": "C2",
+      "source": {
+        "plan": "v2.7 35",
+        "section": "§Phase 1 drop path; 39 §Stage B branches"
+      },
+      "branch": "SP6 FAIL or INCOMPLETE",
+      "prerequisites": [
+        "drop path built (B3)"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "the validator refuses pressure/trigger and a clock widget with a consequence line; DROPPED_SPIKES planted-import control fails; guide drift marks pools unsupported",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 §Stage B branches"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W8-S32-1",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W8; 39 C5"
+      },
+      "labels": [
+        "S32-1"
+      ],
+      "prerequisites": [
+        "RunPod main model; 3 members, one visual change, 10 replies each, N = 30 per arm",
+        "arms depth 1 / depth 4 / no block",
+        "second-model rater"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the card overlay keeps the changed look in mentioning replies",
+      "floor": {
+        "text": "≥90% of mentioning replies agree with Y and ≥15 mentioning replies per arm; the baseline arm must be worse",
+        "citation": "v2.7 32 W8"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W6-stream",
+      "stage": "C5",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W6; 39 C5"
+      },
+      "prerequisites": [
+        "Artemis RunPod RP named in the run header",
+        "3 actors, streamed real reply, 1920×1080 and 390×844"
+      ],
+      "reset": "lane",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "talking-sprite performance during a streamed reply",
+      "floor": {
+        "text": "no task >50 ms; animator ≤1 ms/frame; decoded stage memory ≤64 MB; layout/paint on overlays only; lazy chunk grows ≤4 KB",
+        "citation": "v2.7 32 W6"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W1-A",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W1; 39 C6"
+      },
+      "prerequisites": [
+        "ST comfy source on local ComfyUI, director on",
+        "10 checkpoint/scene cues per run"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "route A story-authored illustrations",
+      "floor": {
+        "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2. A run of refusals fails however well named.",
+        "citation": "v2.7 32 W1 (finding 18)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W1-template",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W1 Floor"
+      },
+      "prerequisites": [
+        "template arm, no director profile"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "route A with the template arm",
+      "floor": {
+        "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2",
+        "citation": "v2.7 32 W1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W1-director",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W1 Gate"
+      },
+      "prerequisites": [
+        "DeepSeek director"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "route A with the cloud director",
+      "floor": {
+        "text": "≥ 9 of 10 render (an image delivered and shown); the rest refuse with a named reason; 0 silent failures; ×2",
+        "citation": "v2.7 32 W1"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W2-B",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W2"
+      },
+      "prerequisites": [
+        "route B, discovered models only"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "route B renders use only discovered models",
+      "floor": {
+        "text": "LI 10 of 10 route B renders use only discovered models, ×2",
+        "citation": "v2.7 32 W2"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W3",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W3"
+      },
+      "prerequisites": [
+        "template and director arms, both routes"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "built template prompt and spoiler rules hold (player_name, only looks the player has seen)",
+      "floor": {
+        "text": "≥ 9 of 10 render per arm (the W1 floor, per arm)",
+        "citation": "v2.7 32 W3"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W4-nobroker",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W4"
+      },
+      "prerequisites": [
+        "a lane with story-orchestrator-gpu uninstalled"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "route B render, a Studio sprite build and an on-demand look complete without the broker",
+      "floor": {
+        "text": "LI 3 of 3 paths complete without the broker, ×2",
+        "citation": "v2.7 32 W4"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W5-builder",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W5"
+      },
+      "prerequisites": [
+        "≥ 3 marker-scoped test characters (test/scenarios/v27-c6-test-cast.json)",
+        "neutral + 3 labels each",
+        "second-model rater"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "sprite builder sample rated",
+      "floor": {
+        "text": "second-model rating of the sample ≥ 90 % \"same character\" and ≥ 90 % \"label visible\"",
+        "citation": "v2.7 32 W5"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W5-cancel",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W5"
+      },
+      "prerequisites": [
+        "cancel mid-run"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "a cancelled build leaves nothing",
+      "floor": {
+        "text": "a cancel mid-run leaves no file",
+        "citation": "v2.7 32 W5"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W5-cleanup",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W5"
+      },
+      "prerequisites": [
+        "so-assets cleanup with the run baseline"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "the install is as before",
+      "floor": {
+        "text": "`so-assets` cleanup leaves the install as before (sha256 inventory diff)",
+        "citation": "v2.7 32 W5"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W5-base",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W5"
+      },
+      "prerequisites": [
+        "base-from-card (test/scenarios/v27-card-art-base.json)"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "base creation",
+      "floor": {
+        "text": "four candidates + alpha, author picks, QA passes",
+        "citation": "v2.7 32 W5; v2.7 24 C"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W6-frames",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W6"
+      },
+      "prerequisites": [
+        "≥ 3 characters"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "talking-sprite frames pass QA",
+      "floor": {
+        "text": "≥90% frames pass QA on the first seed",
+        "citation": "v2.7 32 W6"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W6-seam",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W6, Decision 2"
+      },
+      "prerequisites": [
+        "C5/C6 clips, second-model rater"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "seam or pop visible in rated clips",
+      "floor": {
+        "text": "seam or pop visible in ≤5% of rated clips",
+        "citation": "v2.7 32 W6"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-W7-look",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W7"
+      },
+      "prerequisites": [
+        "an appearance change and an expression switch",
+        "LI + LT/RP"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the reply wait is bounded and look frames pass QA",
+      "floor": {
+        "text": "at most the one edit in progress; ≥90% frames pass QA on the first seed",
+        "citation": "v2.7 32 W7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S32-2",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W8; 39 C6"
+      },
+      "prerequisites": [
+        "5 looks × neutral + 3 expressions on ≥ 3 characters"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "changed-look sets rated",
+      "floor": {
+        "text": "≥90% \"same character\" and ≥90% \"changed attribute visible\"; time-to-first-frame recorded (no floor; never blocking)",
+        "citation": "v2.7 32 W8"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "S32-2-lifecycle",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§W8"
+      },
+      "prerequisites": [
+        "cache reuse, supersession, reopen, rollback, new chat, text wait"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "the look lifecycle behaves as designed; onDemand stays off until it passes ×2",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 32 W8"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "32-director-payload",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 32",
+        "section": "§Model input (rule 6)"
+      },
+      "prerequisites": [
+        "CL director",
+        "golden director-prompt-before-v27-32.json"
+      ],
+      "reset": "offline",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "only the declared model lines differ from the golden",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 32 §Model input"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-18-refadopt",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 18 + 24 B/C"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-existing-expression-reference.json"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "existing expression reference adoption",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan 18"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-19-S28",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 19 + 24 D"
+      },
+      "prerequisites": [
+        "three characters, both generation arms"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI",
+        "LT",
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "S28 talking sprites: blind, preference and performance floors",
+      "floor": {
+        "text": "v2.7 19 S28 floors (blind/preference/performance), not closed by Belle alone",
+        "citation": "v2.7 16 §Per plan 19; v2.7 19 S28",
+        "gap": "the S28 floors live in v2.7 19/24; copy them verbatim here before the freeze (owner v2.7 32)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "16-20-local-card",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Per plan 20 + 24 E"
+      },
+      "prerequisites": [
+        "test/scenarios/v27-local-card-reply.json",
+        "local Artemis (LT)"
+      ],
+      "reset": "lane",
+      "tier": [
+        "LT"
+      ],
+      "build": "prod",
+      "assertion": "a living-card reply on the local route",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Per plan 20"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-D13b",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§Steps D13b + §Gates"
+      },
+      "prerequisites": [
+        "tray ComfyUI, render_sprites.py",
+        "COMFY_DIR/Python from env/config"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "the sprite script asserts no hard-coded C: path; tray status OK",
+      "floor": {
+        "text": "one set re-rendered byte-equivalent or QA-equivalent",
+        "citation": "v2.7 38 D13b"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-D13c",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§Steps D13c"
+      },
+      "prerequisites": [
+        "S28 frame count decided, v2.7 18 builder contract"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "blink/mouth frames per expression for the campaign cast (counts only)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 38 D13c"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-assets-saga",
+      "stage": "C6",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "header; v2.7 28"
+      },
+      "prerequisites": [
+        "Saga main-cast assets + 31 authored outfits"
+      ],
+      "reset": "comfy",
+      "tier": [
+        "LI"
+      ],
+      "build": "prod",
+      "assertion": "every Saga main-cast asset and authored outfit present and passing QA (counts only)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 38; v2.7 28"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-G-campaign",
+      "stage": "C7",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§Gates"
+      },
+      "prerequisites": [
+        "campaign repo at the adolion-fresh pin"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "check_all.sh --fast, validate-stories on all nine + tutorial, check_player_copy.py, check_triggers.py with the coverage rule",
+      "floor": {
+        "text": "no gating transition loses its trigger",
+        "citation": "v2.7 38 §Gates"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-C7",
+      "stage": "C7",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§C7 integration criteria"
+      },
+      "prerequisites": [
+        "each of the 9 stories on adolion-fresh",
+        "N = 12 player turns (Saga 20, one chapter seal)",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "every story starts, plays N turns, reopen, rollback, chapter (counts only)",
+      "floor": {
+        "text": "every reply rendered; one boundary committed per reply; no `error` or stalled pipeline state for > 2 consecutive turns; at least one checkpoint transition by turn N; reopen after turn 6 restores the same checkpoint, memory counts and talk state; one swipe + one edit roll back and replay to the same state; save health ok; `assert-player-clean` green; no ComfyUI call unless the story enables images",
+        "citation": "v2.7 38 §C7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-C7-life",
+      "stage": "C7",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§C7 (finding 18)"
+      },
+      "prerequisites": [
+        "the 7-member act",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "character-life exercise per run",
+      "floor": {
+        "text": "≥ 1 relationship axis moved by a read, ≥ 1 agenda step advanced and reverted by the swipe, ≥ 1 schedule drop driven by the story clock, ≥ 1 mood re-read at a scene break. Without them the run is INCOMPLETE for that story, not a pass.",
+        "citation": "v2.7 38 §C7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "38-C7-quest",
+      "stage": "C7",
+      "source": {
+        "plan": "v2.7 38",
+        "section": "§C7 (finding 18)"
+      },
+      "prerequisites": [
+        "the academy act",
+        "RunPod pod with Artemis (Artemis RunPod RP), tunnel up, run header names the profiles"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "build": "prod",
+      "assertion": "quest pilot exercise (counts only)",
+      "floor": {
+        "text": "≥ 1 quest activated and ≥ 1 step done",
+        "citation": "v2.7 38 §C7"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C8-smoke",
+      "stage": "C8",
+      "source": {
+        "plan": "v2.7 16",
+        "section": "§Live smoke procedure; 39 C8"
+      },
+      "prerequisites": [
+        "fresh lane, DeepSeek CC profile, no pod",
+        "all features on as shipped"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "5 turns: every reply rendered, a boundary per reply, no console error, no stall/error, save health ok, assert-player-clean green, Activity lists the turn's work, plays index updated, no ComfyUI call (plumbing only)",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "v2.7 16 §Live smoke"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "C8b-stranger",
+      "stage": "C8b",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence C8b"
+      },
+      "prerequisites": [
+        "prod build, empty extension settings, no optional GPU broker, no Adolion assets"
+      ],
+      "reset": "lane",
+      "tier": [
+        "CL"
+      ],
+      "build": "prod",
+      "assertion": "following the installed guide alone reaches the first real rendered reply in a group story; each uncovered step recorded",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 C8b (finding 13)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "Z-docs",
+      "stage": "Z",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence Z"
+      },
+      "prerequisites": [
+        "frozen candidate"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "settings reference + README table regenerated from the registry (drift test fails a hand edit), guide vs UI, What's new 2.7",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 Z; v2.7 29 R20b"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "Z-attestation",
+      "stage": "Z",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§Sequence Z; rule 2"
+      },
+      "prerequisites": [
+        "docs/release/2.7.0/attestation.json written, citing archived records only",
+        "npm run build on the candidate"
+      ],
+      "reset": "local",
+      "tier": [
+        "D"
+      ],
+      "build": "prod",
+      "assertion": "SO_ACCEPTANCE=1 npm run test:release after the attestation is written: attestation present, candidate commit = the frozen commit (built commit descends from it with no source change), bundle.served.sha256 = build = attested, no drift",
+      "floor": {
+        "text": "pass/fail: the assertion holds in both runs",
+        "citation": "39 Z (finding 3)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    }
+  ]
+}

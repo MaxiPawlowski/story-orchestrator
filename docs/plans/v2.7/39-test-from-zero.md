@@ -59,7 +59,7 @@ candidate (finding 1).
 
 | Step | What | Tier | Where |
 |---|---|---|---|
-| B0 | release version `2.7.0` in `package.json` + `manifest.json` (finding 3); `attestation.test.mjs` made to FAIL, not log, on current-vs-attested bundle drift (`scripts/release/attestation.test.mjs:55-64`), and to fail, not skip, when `docs/release/<version>/attestation.json` is missing in acceptance mode (`:17-23`); row manifest (rule 10); pinned predecessor named and its goldens captured (§Payload contracts) | D | local, lane 1 |
+| B0 | release version `2.7.0` in `package.json` + `manifest.json` (finding 3); `attestation.test.mjs` made to FAIL, not log, on current-vs-attested bundle drift (`scripts/release/attestation.test.mjs:55-64`), and to fail, not skip, when `docs/release/<version>/attestation.json` is missing in acceptance mode (`SO_ACCEPTANCE=1`, §B0 record); row manifest (rule 10); pinned predecessor named and its goldens captured (§Payload contracts). Deterministic part done 2026-10-07 (§B0 record); the goldens capture is row B0-base (B0-live, needs a lane) | D | local, lane 1 |
 | B1 | measurements: 35 SP6 K2–K5 and M2 A/B (stub lab copy, v2.7 38); 36 Q1 M1 scope arms + M2 recall; 37 M1 read accuracy + M2 cost; S-17 combined scope budget; v2.8 01 rows B1-C3, B1-C12, B1-C13b, B1-R4 (§B1 rows from v2.8 01) | RP + CL | pod, ≤ 2 model lanes |
 | B2 | decision record appended here: SP6 verdict, M2 verdict, `QUEST_SCOPE_CAP`, `REL_AXES_PER_READ`, combined overflow priority, 37 default read path, each dev flag's fate (prod default / off / removed); the branch each verdict takes (§Stage B branches) | — | — |
 | B3 | build the B2 branch: 35 Phases 3–4 + encounter pool, or the drop path; 36 `clock` or its removal; 37 caps; promotions final; main-entry bundle and ratchet budgets checked (C1b) | D | worktrees, `npm run gates` |
@@ -75,7 +75,7 @@ candidate (finding 1).
 | C8 | live smoke on a clean install: v2.7 16 §Live smoke procedure (5 turns, DeepSeek CC, no pod; plumbing only, not acceptance), all features on as shipped | CL | fresh lane |
 | C8b | stranger install, guide only (finding 13): prod build, clean settings (empty extension settings, no optional GPU broker, no Adolion assets); follow the installed guide alone to the first real rendered reply in a group story; record each step the guide did not cover | CL | fresh lane, prod |
 | C9 | user sessions (optional): play from the guide only; flags filed | human | user's choice |
-| Z | close-out: settings reference + README table regenerated from the registry (owner v2.7 29), guide vs UI, What's new 2.7, every gate record final, v2.8 carry-over rewritten; write `docs/release/2.7.0/attestation.json`, THEN `npm run build && npm run test:release` on the candidate: attestation present, its candidate commit = the frozen commit, `bundle.served.sha256` = build = attested (finding 3) | D | — |
+| Z | close-out: settings reference + README table regenerated from the registry (owner v2.7 29), guide vs UI, What's new 2.7, every gate record final, v2.8 carry-over rewritten; write `docs/release/2.7.0/attestation.json`, THEN `npm run build && SO_ACCEPTANCE=1 npm run test:release` on the candidate: attestation present, its candidate commit = the frozen commit, `bundle.served.sha256` = build = attested (finding 3) | D | — |
 
 C5 order follows dependencies: 33 W2 (agency → auto) before any warden row; 34 persona before 36/37 rows that read
 it. 35's measurements already ran in B1; C5 re-runs them on the candidate as acceptance.
@@ -273,3 +273,338 @@ C6 is unchanged.
 | 20 | C2 checks rendered targets, including the Studio link with the modal open | C2 |
 | 21 | ratchet/budget compare against the fixed predecessor; coordinator 560; main-entry headroom budgeted | C1b |
 | 23 | the model-location prerequisite follows v2.7 rule 8 (existing image models stay on `C:`); 38's gate line fixed | v2.7 38 |
+
+## B0 record (2026-10-07, branch `v2.7-39-b0`, deterministic part)
+
+No live run, no lane, no ST, no model. Gates: §B0 gates below.
+
+**Version.** `package.json`, `manifest.json` (ST loader), the `package-lock.json` root and the top CHANGELOG heading
+(`## 2.7.0 (candidate, not accepted)`) name `2.7.0`; `versions.test.mjs` (R4) holds the four together. Left alone on
+purpose: `docs/release/2.4.0/`, journey and session records, the 2.4.0 test fixtures, and
+`UPGRADE_BASELINE = "2.4.0"` in `src/features/registry.ts` (the last released version, which What's new counts from).
+
+**Attestation check** (`scripts/release/acceptanceChecks.mjs`, wired into `attestation.test.mjs`; planted controls in
+`acceptanceChecks.test.mjs`):
+
+| Branch | Ordinary `npm run gates` / `test:release` | Acceptance mode (`SO_ACCEPTANCE=1`, or `npm run test:release --acceptance`) |
+|---|---|---|
+| `docs/release/<version>/attestation.json` missing | attestation checks skip (2.7.0 has none until Z) | **fails** |
+| current `dist/index.js` ≠ attested bundle | **fails** (was a log line) | **fails** |
+| no `dist/` | build checks skip | **fails** |
+| after writing | `candidate.commit` is a full hash; `served.sha256` = attested bundle; `dist/manifest.json` is prod, describes `dist/index.js`, bundle = attested, `source.sha256` = attested source; the build commit is the candidate, or descends from it with no change under `src/`, `webpack.config.js`, `postcss.config.js`, `tsconfig.json`, `package.json`, `manifest.json` | same |
+
+Consequence: once Z writes `docs/release/2.7.0/attestation.json`, any later build still at 2.7.0 fails `test:release`
+(drift) until the version moves; the next development version bump is the first commit after the release.
+
+**Row manifest** `test/phase-c/manifest.json`: 193 rows, checked by `scripts/release/phaseCManifest.test.mjs` (part of
+`npm run test:release`, so of `npm run gates`): every field present, ids unique, stage / tier / build / reset known,
+two evidence slots (`null` until a record path lands), floors that can fail (an "or refuse", "or skipped", "≥ 0",
+"≤ 100 %", "where possible" floor is refused, finding 18), and parity with this plan both ways: every first cell of a
+`Row` / `Id` / `Contract` table here and every O-, S-, S32-, B1-, C4-R6/J8, C14-b and R4-live id mentioned (ranges
+expanded) is a manifest row, a row label or a listed absence, and every manifest row is named in §Row manifest index.
+Planted controls for each in the same file.
+
+| Stage | Rows | Tiers (rows per tier; a row can carry two) | prod / dev-diagnostic |
+|---|---|---|---|
+| B0 | 1 | D 1 | 0 / 1 |
+| B1 | 17 | CL 12, RP 7, D 1 | 0 / 17 |
+| C0 | 2 | D 2 | 1 / 1 |
+| C1 | 3 | D 3 | 3 / 0 |
+| C1b | 2 | D 2 | 2 / 0 |
+| C2 | 51 | D 51 | 15 / 36 |
+| C3 | 10 | D 10 | 0 / 10 |
+| C4 | 16 | D 16, RP 15 | 0 / 16 |
+| C5 | 61 | CL 36, RP 33, D 10, LI 4 | 48 / 13 |
+| C6 | 22 | LI 19, CL 6, RP 3, LT 2 | 22 / 0 |
+| C7 | 4 | RP 3, D 1 | 4 / 0 |
+| C8, C8b | 2 | CL 2 | 2 / 0 |
+| Z | 2 | D 2 | 2 / 0 |
+| **Total** | **193** | D 99, RP 61, CL 56, LI 23, LT 2 | 99 / 94 |
+
+Conventions. A floor is the plan's text verbatim with a citation; `pass/fail: the assertion holds in both runs` where
+the source states a condition and no number; `record only` for counts (B1-C12, 35-M1). A `gap` field marks a row whose
+floor is not declared yet: C14-b (owner v2.7 02) and 16-19-S28 (S28 floors to copy from v2.7 19/24, owner v2.7 32);
+neither can be green until it is filled. Rows that only one B2 branch builds carry `branch` (35-K3/K4/K5-C5, 35-P3-K2,
+35-P4-*, 35-ENC: SP6 PASS; 35-DROP: SP6 FAIL or INCOMPLETE); B2 deletes the rows of the branches not taken, each with
+a record line (rule 10). Rows from 16 §Per plan and plans 29–38 take ids `<plan>-<item>`; their jest-only gates run
+inside C1-gates. `prod` vs `dev-diagnostic` follows the source where it says so; otherwise a row driven through the
+scenario or journey runners is `dev-diagnostic` (they refuse a prod page), a gate, UI drive or acceptance row is `prod`.
+Resets (rule 11) are named procedures in the manifest's `resets`: `lane`, `adolion`, `comfy`, `offline`, `local`.
+
+Absent, with the reason in the manifest's `absent`: **B1-C13b** (the SP8 digest arm was removed on 2026-10-01 in
+`8017879f` after W4 (b) failed, opShape 0.81 / 0.76 < 0.85; no `--digest-pad`, no `curatorDigest.ts`, no
+`spikes.sp8CuratorDigest`, so it cannot run on the B0 build without code and stays in v2.8 01 C13-b) and **S-18**
+(finding 18 tightened floors; it has no row of its own). Not manifest rows: C9 (optional by the sequence, and a row
+without evidence would make the verdict INCOMPLETE), the 32 W1 cloud source arm (only with the user's approval), 33 W3
+N6 nudge and J7.2 and 35 Phase 5 N3/N5 (deferred to v2.8 13), 34 S30-1 (a spike the build already decided).
+
+**Pinned predecessor:** `4238ec2f8967f39074f42a0157ce8297576f615e` ("debug: player-clean sweep covers guide reader
+author pages", 2026-10-07). It is the first parent of `8163b0b3` (merge: v2.7 32 images). Plan 32's only branch commit
+`fa57a898` carries 32's first model-input change (the director prompt, golden `director-prompt-before-v27-32.json`) and
+is not an ancestor of it (merge-base `8a9e06e3`). So it is the latest v2.7 commit before that change. 29–31 are in the
+base, and every model-input change from 32 on must be declared in `declared.json`. It is later than the commit before
+29 merged (`2a8b0f46`): this section's rule names 32's change as the cut, and an earlier base would charge 29–31's
+diffs to C3 too. `package-lock.json` is identical between the two commits, so the main checkout's `node_modules` serves
+the predecessor's worktree.
+
+**B0-live (row B0-base, not run):** the predecessor bundle is served, and the candidate's capture tool and payload cases
+run against it. Lanes share ST's one extension slot, so no other lane may be serving while the predecessor is staged.
+
+```
+git -C C:/dev/story-orchestrator worktree add C:/dev/so-pred-4238ec2f 4238ec2f8967f39074f42a0157ce8297576f615e
+New-Item -ItemType Junction -Path C:\dev\so-pred-4238ec2f\node_modules -Target C:\dev\story-orchestrator\node_modules
+Copy-Item C:\dev\story-orchestrator\.st-root C:\dev\so-pred-4238ec2f\
+cd C:/dev/so-pred-4238ec2f && npm run build:dev && npm run stage -- --flavor dev
+cd C:/dev/story-orchestrator
+node scripts/debug/st-lanes.mts stop 1; node scripts/debug/st-lanes.mts no-model 1; node scripts/debug/st-lanes.mts start 1
+node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run 1 -- scripts/debug/so-payload-golden.mts capture --label base --out test/measurements/v2.7/payload/base
+node scripts/debug/st-lanes.mts run 1 -- scripts/debug/so-payload-golden.mts capture --label base-r2 --out test/measurements/v2.7/payload/base-r2
+node scripts/debug/so-payload-golden.mts diff test/measurements/v2.7/payload/base test/measurements/v2.7/payload/base-r2
+npm run build:dev && npm run stage -- --flavor dev
+node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-session.mts reload
+git worktree remove C:/dev/so-pred-4238ec2f
+```
+
+Check before trusting it: `base/index.json` names a served bundle sha256 equal to
+`C:/dev/so-pred-4238ec2f/dist-dev/manifest.json` `bundle.sha256`; the two base captures diff clean with no
+declarations; no `capture-failed.json`. Risk: the capture probe is newer than the predecessor's runtime (the tool came
+in at `7ddcb292`, after the cut). If a case fails on a missing handle, that is a B0 blocker for 39, never a reason to
+move the cut. Record the commit, both hashes and the run headers in `test/measurements/v2.7/payload/base/`.
+
+**Stage B tooling readiness** (checked on disk 2026-10-07; nothing built here):
+
+| B1 measurement | Exists | Missing (B0 blocker, owner) |
+|---|---|---|
+| 35 SP6 K2–K5 | scorer `scripts/debug/lib/sp6Score.mts` (+ `so-sp6-score.mts`, `sp6Score.test.mts`, K5 pooling); K2 `test/scenarios/live-v25-09-sp6-k2.json`; campaign `lab/complications/sp6-adolion.journey.json`, `sp6-k4-lines.json`, `sp6-k5-stalled.json`; `scripts/check_lab.py` | — (ready; `check_lab.py` green is its prerequisite) |
+| 35 M1 | v2.6 session evidence (private `so-sessions`) | an extraction script for stub lengths and stub refusals (small; v2.7 35) |
+| 35 M2 | the curve scenario `v27-35-open-stretch-curve.json` (C2 only, not M2) | the stub lab copy (2–3 stubs made open; v2.7 38 A4); the second-model hook labeller and an M2 scorer (window, denominators; v2.7 35) |
+| 36 Q1 M1 | `so-live-suite.mts` per-tier scoring | the academy-act lab copy with quest qualities (v2.7 38 A4); an arm runner for 0/5/10/20 extra active qualities (v2.7 36) |
+| 36 Q1 M2 | — | 20 labelled completion cases (v2.7 38 A4 + second-model labels); a recall/false-latch scorer (v2.7 36) |
+| 37 M1 | `so-judge calibrate` (arm (c) shape) | ~20 labelled relationship windows (v2.7 38 A4); a three-arm runner and scorer (v2.7 37) |
+| 37 M2 | — | an axes-per-read cost runner over N ∈ {2, 4, 8, 16} (v2.7 37); the windows above |
+| S-17 / 37-S17 | — | a combined-scope runner over a 7-member cast with ≥ 3 quests (v2.7 37, after 36 M1 and 37 M2 tooling) |
+| 37 L3 | `test/fixtures/meanwhile-proposals.cases.json`; in-page `storyOrchestratorAgendaProposals.propose()` | a script that replays the 20 cases through the page and scores them (v2.7 37) |
+| 37 L6-C | `test/fixtures/judge/spike-voice.json` (floors frozen) | its 20 lab-copy rows (v2.7 38); `so-judge calibrate --use wardenVoice` is not in the tool's use list, so the route is unverified (v2.7 37) |
+| B1-C3 | `so-judge timeouts --records` (counts and the close); plugin `/status` `adaptive` | per-call cause attribution (client wait vs 4000 ms, plugin queue / lane / account hold, `Retry-After`, provider latency) and per-call `/status` sampling (v2.8 01 C3 measurement, run by 39 B1) |
+| B1-C12 | `extras.judge.calls` in the exported state | a per-loud-turn count (p50 / p95 / max) over the ring: trivial wiring, done at B1 |
+| B1-C13b | — | absent (above) |
+| B1-R4 | `so-session` `rating-pack --arm/--gate`, `so-model-blind.mts`; 4 pairs in private `so-sessions` `rating-pack/R4/` | — (ready; dev build with `spikes.reasoningEffect`) |
+
+**Other B0 blockers.**
+
+| Blocker | Rows | Owner |
+|---|---|---|
+| no prod-build drive path: `so-scenario`, `so-journey` and every `storyOrchestratorRuntime` read refuse a prod page, so a `prod` row can only be driven through DOM-level `so-ui` verbs and ST's own controls; that path is not built for most of the 99 `prod` rows | every `prod` row in C2–C8b | v2.7 39 (debug tooling) before C2 |
+| C14-b has no predeclared floor | C14-b | v2.7 02 |
+| S28 floors not copied into the manifest | 16-19-S28 | v2.7 32 |
+| 33 W1 V0 needs the user's post-processor named | 33-W1-V0 | user |
+| lab data from v2.7 38 A4 (relationship windows, academy-act quest copy, stub lab copy, spike-voice rows) | 35-M2, 36-Q1-M1/M2, 37-M1/M2, S-17, 37-S17, 37-L6-C | v2.7 38 |
+| B0-base not run (needs a lane and ST) | B0-base, C3-preservation, PC-* | v2.7 39 B0-live |
+
+**§B0 gates** (worktree, so Storybook is skipped: the runner finds no stories from a `.claude` worktree path, v2.7 16).
+`npm run gates -- --no-storybook`: all green in 303.8 s (typecheck, test, typecheck:test, build, build:dev,
+debug:typecheck, lint, test:release 129 tests / 115 pass / 14 skipped, test:plugin, test:debug, test:replay 32 of 32
+killed); test-storybook:ci SKIPPED (worktree). `SO_ACCEPTANCE=1 node --test scripts/release/attestation.test.mjs`:
+1 fail, as designed (no `docs/release/2.7.0/attestation.json` yet).
+
+## Row manifest index
+
+Every row of `test/phase-c/manifest.json`, one line each (the manifest holds prerequisites, reset, assertion, floor and
+evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disagree.
+
+| Id | Stage | Tier | Build | Source |
+|---|---|---|---|---|
+| B0-base | B0 | D | dev-diagnostic | v2.7 39 §Payload contracts; §B0 record |
+| 35-K2 | B1 | RP | dev-diagnostic | v2.7 35 §Gate record, final floor table |
+| 35-K3 | B1 | RP + CL | dev-diagnostic | v2.7 35 §Gate record, final floor table |
+| 35-K4 | B1 | RP | dev-diagnostic | v2.7 35 §Gate record, final floor table |
+| 35-K5 | B1 | RP | dev-diagnostic | v2.7 35 §Gate record, final floor table |
+| 35-M1 | B1 | D | dev-diagnostic | v2.7 35 §Phase 2 Floors (M1) |
+| 35-M2 | B1 | RP + CL | dev-diagnostic | v2.7 35 §Phase 2 Floors (M2) |
+| 36-Q1-M1 | B1 | CL | dev-diagnostic | v2.7 36 §Q1 Floors (M1) |
+| 36-Q1-M2 | B1 | CL | dev-diagnostic | v2.7 36 §Q1 Floors (M2) |
+| 37-M1 | B1 | CL | dev-diagnostic | v2.7 37 §Measurement M1 |
+| 37-M2 | B1 | CL | dev-diagnostic | v2.7 37 §M2 + §Floors (2026-10-07) |
+| S-17 | B1 | CL | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| 37-S17 | B1 | CL | dev-diagnostic | v2.7 37 §Combined scope budget |
+| 37-L3 | B1 | CL | dev-diagnostic | v2.7 37 §L3 curator proposals gate |
+| 37-L6-C | B1 | CL | dev-diagnostic | v2.7 37 §L6 Calibration row L6-C |
+| B1-C3 | B1 | CL + RP | dev-diagnostic | v2.8 01 §B C3; 39 §B1 rows from v2.8 01 |
+| B1-C12 | B1 | CL | dev-diagnostic | v2.8 01 §B C12; 39 §B1 rows from v2.8 01 |
+| B1-R4 | B1 | RP | dev-diagnostic | v2.8 01 §E (data only); 39 §B1 rows from v2.8 01 |
+| C0-freeze | C0 | D | prod | v2.7 39 §Sequence C0; rule 2 |
+| C0-goldens | C0 | D | dev-diagnostic | v2.7 39 §Sequence C0 |
+| C1-gates | C1 | D | prod | v2.7 39 §Sequence C1; v2.7 31 §C |
+| C1-release | C1 | D | prod | v2.7 39 §Sequence C1 |
+| C1-clean-host | C1 | D | prod | v2.7 32 §W4 |
+| C1b-ratchet | C1b | D | prod | v2.7 39 §Sequence C1b |
+| 37-B3 | C1b | D | prod | v2.7 37 §Gates Bundle |
+| C2-corpus | C2 | D | dev-diagnostic | v2.7 39 §Sequence C2; v2.7 16 §Regression |
+| C2-rendered-targets | C2 | D | prod | v2.7 39 §Sequence C2 (finding 20); v2.7 29/30 Review (Sol) finding 20 |
+| 16-K1 | C2 | D | dev-diagnostic | v2.7 16 §Step 0 K1 |
+| 16-07-A3A8 | C2 | D | dev-diagnostic | v2.7 16 §Step 0 07 A3 + A8 |
+| 16-01-in-app-walk | C2 | D | dev-diagnostic | v2.7 16 §Per plan 01; 39 §C2 rows |
+| 16-02-C1 | C2 | D | dev-diagnostic | v2.7 16 §Per plan 02 C1 SP5.b |
+| 16-02-C2-K1 | C2 | D | dev-diagnostic | v2.7 16 §Per plan 02 C2-K1; 39 §C2 rows |
+| 16-02-C11-F1a | C2 | D | dev-diagnostic | v2.7 16 §Per plan 02 C11-F1a; 39 §C2 rows |
+| 16-02-C13 | C2 | D | dev-diagnostic | v2.7 16 §Per plan 02 C13; 39 §C2 rows |
+| 16-02-C14 | C2 | D | dev-diagnostic | v2.7 16 §Per plan 02 C14 + 14; 39 §C2 rows |
+| 16-03-group-only | C2 | D | dev-diagnostic | v2.7 16 §Per plan 03 |
+| 16-04-health-center | C2 | D | dev-diagnostic | v2.7 16 §Per plan 04; 39 §C2 rows |
+| 16-05-briefing | C2 | D | dev-diagnostic | v2.7 16 §Per plan 05; 39 §C2 rows |
+| 16-06-presence | C2 | D | dev-diagnostic | v2.7 16 §Per plan 06; 39 §C2 rows |
+| 16-07-A6 | C2 | D | dev-diagnostic | v2.7 16 §Per plan 07 |
+| 16-08-thinking | C2 | D | dev-diagnostic | v2.7 16 §Per plan 08; 39 §C2 rows |
+| 16-09-commitment | C2 | D | dev-diagnostic | v2.7 16 §Per plan 09; 39 §C2 rows |
+| 16-10-catch-up | C2 | D | dev-diagnostic | v2.7 16 §Per plan 10; 39 §C2 rows |
+| O2 | C2 | D | prod | v2.8 01 §A O2 |
+| 29-D1 | C2 | D | prod | v2.7 29 §Gates (D) |
+| 29-D2 | C2 | D | prod | v2.7 29 §Gates (D) |
+| 30-D1 | C2 | D | prod | v2.7 30 §Gates (D) Phase C live |
+| 30-D2 | C2 | D | prod | v2.7 30 §Gates (D) Phase C live |
+| 30-D3 | C2 | D | prod | v2.7 30 §Gates (D) Phase C live |
+| 31-G3 | C2 | D | dev-diagnostic | v2.7 31 §Gates (D) |
+| 32-W4-scenario | C2 | D | dev-diagnostic | v2.7 32 §Tests added; §Phase C rows owed |
+| 33-D-clean | C2 | D | prod | v2.7 33 §W2/W3/W4 Gates |
+| 34-L-flow | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-F11 | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-switch | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-reopen | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-restart | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-fixed | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-brief-off | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-solo | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-harness | C2 | D | dev-diagnostic | v2.7 34 §Gates D, Live |
+| 34-L-multiuser | C2 | D | dev-diagnostic | v2.7 34 §pane, Multi-user installs |
+| S-04 | C2 | D | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-05 | C2 | D | dev-diagnostic | v2.7 39 §Rows for Sol findings 4–10 |
+| S-09 | C2 | D | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| 35-P2-curve | C2 | D | dev-diagnostic | v2.7 35 §Phase 2 / Owed |
+| 35-P2-clean | C2 | D | prod | v2.7 35 §Owed Phase 2 |
+| 36-Q5-scn | C2 | D | dev-diagnostic | v2.7 36 §Q5 Gate |
+| 36-P-live | C2 | D | dev-diagnostic | v2.7 36 §P Gate |
+| 36-spoiler-sweep | C2 | D | prod | v2.7 36 §Spoiler rules |
+| 37-D1 | C2 | D | dev-diagnostic | v2.7 37 §Gates no-LLM group scenario; 39 §Rows owed by v2.7 37 |
+| 37-D2 | C2 | D | dev-diagnostic | v2.7 37 §Gates; 39 §Rows owed by v2.7 37 |
+| 37-D3 | C2 | D | dev-diagnostic | v2.7 37 §Gates; 39 §Rows owed by v2.7 37 |
+| 37-spoiler | C2 | D | prod | v2.7 37 §Gates Spoiler checklist |
+| C3-preservation | C3 | D | dev-diagnostic | v2.7 39 §Sequence C3; §Payload contracts |
+| C3-repeatability | C3 | D | dev-diagnostic | v2.7 39 §Sequence C3 |
+| PC-role-line | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-open-stretch | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-check-outcomes | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-agency-notes | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-quest-scope | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-relationship-scope | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-privacy | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts |
+| PC-off-path | C3 | D | dev-diagnostic | v2.7 39 §Payload contracts (off-path requests) |
+| J0 | C4 | D | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J1 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J2 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J3 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J4 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J5 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J6 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J7 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J8 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J9 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J10 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J11 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J12 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J13 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J14 | C4 | D + RP | dev-diagnostic | v2.7 39 §Sequence C4 |
+| J6-W1 | C4 | D + RP | dev-diagnostic | v2.7 33 §W1 Floors V8; 39 C4 |
+| O1 | C5 | RP | prod | v2.8 01 §A O1 |
+| O3 | C5 | LI + CL | prod | v2.8 01 §A O3 |
+| O4 | C5 | LI + RP | prod | v2.8 01 §A O4 |
+| O5 | C5 | LI | prod | v2.8 01 §A O5 |
+| O6 | C5 | LI | prod | v2.8 01 §A O6 |
+| O7 | C5 | CL | prod | v2.8 01 §A O7 |
+| O8 | C5 | D | prod | v2.8 01 §A O8 |
+| O9 | C5 | RP | prod | v2.8 01 §A O9 |
+| O10 | C5 | CL | prod | v2.8 01 §A O10 |
+| O11 | C5 | CL | prod | v2.8 01 §A O11 |
+| O12 | C5 | D | prod | v2.8 01 §A O12 |
+| O13 | C5 | RP | prod | v2.8 01 §A O13 |
+| O13b | C5 | CL | prod | v2.8 01 §A O13b |
+| O14 | C5 | CL | prod | v2.8 01 §A O14 |
+| O15 | C5 | CL | prod | v2.8 01 §A O15 |
+| O16 | C5 | CL | prod | v2.8 01 §A O16 |
+| C14-b | C5 | CL | prod | v2.8 01 §B C14-b (moved to 39 C5) |
+| C4-R6 | C5 | CL + RP | prod | v2.8 01 §B C4; 39 §B1 rows from v2.8 01 |
+| C4-J8 | C5 | CL + RP | prod | v2.8 01 §B C4; 39 §B1 rows from v2.8 01 |
+| R4-live | C5 | RP | prod | v2.8 01 §E Also owed; 39 §B1 rows from v2.8 01 |
+| 33-W1-V0 | C5 | D + RP | dev-diagnostic | v2.7 33 §W1 Floors V0 |
+| 33-W1-V3 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V3 |
+| 33-W1-V4 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V4 |
+| 33-W1-V5 | C5 | CL + RP | dev-diagnostic | v2.7 33 §W1 Floors V5 |
+| 33-W1-V7-live | C5 | D + CL | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| 33-W2-oversteer | C5 | RP + CL | prod | v2.7 33 §W2 Floor, Decision 3; v2.8 01 §G |
+| 33-W2-J8.10 | C5 | CL | prod | v2.7 33 §W2 Gate |
+| 33-W3-N1 | C5 | CL | dev-diagnostic | v2.7 33 §W3 N1 |
+| 33-W3-combined | C5 | CL | dev-diagnostic | v2.7 33 §W3 Gate/Floors |
+| 33-W3-live | C5 | CL | dev-diagnostic | v2.7 33 §W3 Gate |
+| 33-W4-live | C5 | CL | prod | v2.7 33 §W4 Gate |
+| 33-W4-spoiler | C5 | CL | prod | v2.7 33 §W4 Floors |
+| 33-W4-useful | C5 | CL | prod | v2.7 33 §W4 Floors (Decision 7) |
+| 34-RP | C5 | RP + CL | prod | v2.7 34 §Floors (proposed 2026-10-07) |
+| 34-copy | C5 | RP | prod | v2.7 34 §Gates, Player-visible surface |
+| S-06 | C5 | D + RP | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-07 | C5 | CL | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-08 | C5 | CL | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-10 | C5 | CL + RP | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-11 | C5 | CL | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-12 | C5 | CL | prod | v2.7 39 §Rows for Sol findings 4–10 |
+| S-15 | C5 | D | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| S-16 | C5 | D | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| S-19 | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| S-19-OOC | C5 | D + RP | dev-diagnostic | v2.7 39 §Rows added by the 2026-10-07 review |
+| 37-S19 | C5 | D + RP | dev-diagnostic | v2.7 37 §Story clock Gate; 39 §Rows owed by v2.7 37 |
+| 37-M1-C5 | C5 | CL | prod | v2.7 37 §M1; 39 C5 (37 M1, M3) |
+| 37-M3 | C5 | RP + CL | prod | v2.7 37 §M3; 39 §Rows added |
+| 36-Q3 | C5 | RP + CL | prod | v2.7 36 §Q3 Floor |
+| 36-pilot-academy | C5 | RP | prod | v2.7 36 §Order 7 |
+| 36-pilot-saga | C5 | RP | prod | v2.7 36 §Order 7 |
+| 35-M2-C5 | C5 | RP + CL | prod | v2.7 35 §Phase 2 Floors (M2); 39 C5 |
+| 35-K3-C5 | C5 | RP + CL | prod | v2.7 35 §Gate record; 39 C5 (branch: SP6 PASS) |
+| 35-K4-C5 | C5 | RP | prod | v2.7 35 §Gate record; 39 C5 (branch: SP6 PASS) |
+| 35-K5-C5 | C5 | RP | prod | v2.7 35 §Gate record; 39 C5 (branch: SP6 PASS) |
+| 35-P3-K2 | C5 | RP | prod | v2.7 35 §Phase 3 Floor (branch: SP6 PASS) |
+| 35-P4-M2 | C5 | RP + CL | prod | v2.7 35 §Phase 4 Floor (branch: SP6 PASS, M2 PASS) |
+| 35-P4-K3 | C5 | RP + CL | prod | v2.7 35 §Phase 4 Floor (branch: SP6 PASS, M2 PASS) |
+| 35-P4-K4 | C5 | RP | prod | v2.7 35 §Phase 4 Floor (branch: SP6 PASS, M2 PASS) |
+| 35-ENC | C2 | D | prod | v2.7 35 §Phase 2 gate (encounter pool); 39 §Stage B branches (branch: SP6 PASS, M2 PASS) |
+| 35-DROP | C2 | D | prod | v2.7 35 §Phase 1 drop path; 39 §Stage B branches (branch: SP6 FAIL or INCOMPLETE) |
+| 32-W8-S32-1 | C5 | RP | prod | v2.7 32 §W8; 39 C5 |
+| 32-W6-stream | C5 | RP | prod | v2.7 32 §W6; 39 C5 |
+| 32-W1-A | C6 | LI | prod | v2.7 32 §W1; 39 C6 |
+| 32-W1-template | C6 | LI | prod | v2.7 32 §W1 Floor |
+| 32-W1-director | C6 | LI + CL | prod | v2.7 32 §W1 Gate |
+| 32-W2-B | C6 | LI | prod | v2.7 32 §W2 |
+| 32-W3 | C6 | LI + CL | prod | v2.7 32 §W3 |
+| 32-W4-nobroker | C6 | LI | prod | v2.7 32 §W4 |
+| 32-W5-builder | C6 | LI + CL | prod | v2.7 32 §W5 |
+| 32-W5-cancel | C6 | LI | prod | v2.7 32 §W5 |
+| 32-W5-cleanup | C6 | LI | prod | v2.7 32 §W5 |
+| 32-W5-base | C6 | LI | prod | v2.7 32 §W5 |
+| 32-W6-frames | C6 | LI | prod | v2.7 32 §W6 |
+| 32-W6-seam | C6 | CL | prod | v2.7 32 §W6, Decision 2 |
+| 32-W7-look | C6 | LI + RP | prod | v2.7 32 §W7 |
+| S32-2 | C6 | LI + RP | prod | v2.7 32 §W8; 39 C6 |
+| S32-2-lifecycle | C6 | LI + RP | prod | v2.7 32 §W8 |
+| 32-director-payload | C6 | CL | prod | v2.7 32 §Model input (rule 6) |
+| 16-18-refadopt | C6 | LI | prod | v2.7 16 §Per plan 18 + 24 B/C |
+| 16-19-S28 | C6 | LI + LT + CL | prod | v2.7 16 §Per plan 19 + 24 D |
+| 16-20-local-card | C6 | LT | prod | v2.7 16 §Per plan 20 + 24 E |
+| 38-D13b | C6 | LI | prod | v2.7 38 §Steps D13b + §Gates |
+| 38-D13c | C6 | LI | prod | v2.7 38 §Steps D13c |
+| 38-assets-saga | C6 | LI | prod | v2.7 38 header; v2.7 28 |
+| 38-G-campaign | C7 | D | prod | v2.7 38 §Gates |
+| 38-C7 | C7 | RP | prod | v2.7 38 §C7 integration criteria |
+| 38-C7-life | C7 | RP | prod | v2.7 38 §C7 (finding 18) |
+| 38-C7-quest | C7 | RP | prod | v2.7 38 §C7 (finding 18) |
+| C8-smoke | C8 | CL | prod | v2.7 16 §Live smoke procedure; 39 C8 |
+| C8b-stranger | C8b | CL | prod | v2.7 39 §Sequence C8b |
+| Z-docs | Z | D | prod | v2.7 39 §Sequence Z |
+| Z-attestation | Z | D | prod | v2.7 39 §Sequence Z; rule 2 |

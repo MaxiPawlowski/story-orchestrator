@@ -4,12 +4,14 @@
 // built one, or a "green" status with an empty notGreen list are all refutable on disk.
 
 import { strict as assert } from "node:assert";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, posix, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { acceptanceMode, ACCEPTANCE_ENV, candidateProblems, driftProblems, missingAttestationProblems, SOURCE_PATHS } from "./acceptanceChecks.mjs";
 import { attestedJourneyIds, catalogProblems, citedRecords, journeyCatalog, recordsRootOf } from "./attestationChecks.mjs";
 import { citedPathProblem, engineHistoryCitation, greenTwiceEverywhere, journeyVerdicts, resolveCited, runLines, statusProblems } from "./attestationRules.mjs";
 
@@ -19,6 +21,7 @@ const attestationPath = join(root, "docs", "release", version, "attestation.json
 const journeysDir = join(root, "test", "journeys");
 const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
 
+const acceptance = acceptanceMode(process.env);
 const read = () => JSON.parse(readFileSync(attestationPath, "utf8"));
 const skip = () => (existsSync(attestationPath) ? false : `no docs/release/${version}/attestation.json — the acceptance plan writes it`);
 const recordsDir = () => recordsRootOf(read(), root);
@@ -48,7 +51,7 @@ test("the attestation records only the attested build; the current one is comput
   assert.equal(attestation.extension.version, version, "the attestation and package.json disagree on the version");
   assert.equal(attestation.build.current, undefined, "build.current is back: a hand-edited mirror of dist goes stale on every build");
   const current = currentBuild();
-  if (!current?.manifest) return;
+  if (!current?.manifest) return assert.ok(!acceptance, "acceptance mode and no dist/manifest.json: build the candidate first");
   assert.equal(current.manifest.bundle.sha256, current.bundleSha256, "dist/manifest.json does not describe dist/index.js");
 });
 
@@ -58,10 +61,28 @@ test("drift from the attested build is declared by policy, never silent", { skip
   assert.match(attested.bundle.sha256, /^[0-9a-f]{64}$/);
   assert.match(attested.source.sha256, /^[0-9a-f]{64}$/);
   assert.ok(attestation.build.driftPolicy?.length > 60, "no driftPolicy: nothing says what a build other than the attested one is covered by");
+  assert.deepEqual(driftProblems({ attestedBundle: attested.bundle.sha256, current: currentBuild(), acceptance }), []);
+});
+
+test(`acceptance mode (${ACCEPTANCE_ENV}=1) requires the attestation; ordinary gates skip its checks until the close-out writes it`, () => {
+  assert.deepEqual(missingAttestationProblems({ exists: existsSync(attestationPath), version, acceptance }), []);
+});
+
+const git = {
+  isAncestor: (ancestor, descendant) => {
+    try {
+      execFileSync("git", ["merge-base", "--is-ancestor", ancestor, descendant], { cwd: root, stdio: "ignore" });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  changedSources: (from, to) => execFileSync("git", ["diff", "--name-only", from, to, "--", ...SOURCE_PATHS], { cwd: root, encoding: "utf8" }).split(/\r?\n/).filter(Boolean),
+};
+
+test("the candidate commit built the bundle the attestation names, and the served hash is that bundle", { skip: skip() }, () => {
   const current = currentBuild();
-  if (current && current.bundleSha256 !== attested.bundle.sha256) {
-    console.log(`# current bundle ${current.bundleSha256.slice(0, 12)} is not the attested ${attested.bundle.sha256.slice(0, 12)}: the attestation's evidence does not describe it`);
-  }
+  assert.deepEqual(candidateProblems({ attestation: read(), manifest: current?.manifest ?? null, currentBundle: current?.bundleSha256, git }), []);
 });
 
 test("the served hash is the attested hash, not a copy of it", { skip: skip() }, () => {

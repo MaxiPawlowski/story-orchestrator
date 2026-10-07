@@ -4,12 +4,13 @@ Versions are the extension's own `package.json` version, which is also what `man
 settings panel report. A version is "accepted" only when an acceptance run says so; the per-plan Gate
 records under `docs/plans/` are the as-built truth, and this file is the summary a reader starts from.
 
-## 2.5 – 2.7 (unreleased)
+## 2.7.0 (candidate, not accepted)
 
 Nothing after 2.4.0 has been released. v2.5 (plans in `docs/plans/v2.5/`) closed unreleased on 2026-09-30 and was
 folded into v2.6, which re-measured everything on the Adolion campaign and was played end to end by Claude on test
 lanes (not accepted: the user's review and human sessions are outstanding). v2.7 (urgent fixes, quick wins) is in build (`docs/plans/v2.7/`); v2.8 and v2.9 are planned.
-`package.json` stays at 2.4.0 until a release.
+`package.json` is 2.7.0 since v2.7 39 B0 (the version the Phase C candidate is frozen at); 2.7.0 is released only
+when `docs/release/2.7.0/attestation.json` says ACCEPTED.
 
 ### Playing
 - **Notes under messages**: small icons under each message show what the story did there (scene change, memory,
