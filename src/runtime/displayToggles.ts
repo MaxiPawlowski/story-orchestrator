@@ -1,7 +1,7 @@
 import type { StoryDisplay, StoryDisplayToggle } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
-export const PRESENCE_TOGGLES = ["continueList", "groupCard", "chapterCard", "wand", "rollChips"] as const;
+export const PRESENCE_TOGGLES = ["continueList", "groupCard", "chapterCard", "wand", "rollChips", "suggestions"] as const;
 export type PresenceToggle = (typeof PRESENCE_TOGGLES)[number];
 
 export const STORY_TOGGLE_KEYS: Record<PresenceToggle, StoryDisplayToggle> = {
@@ -10,6 +10,7 @@ export const STORY_TOGGLE_KEYS: Record<PresenceToggle, StoryDisplayToggle> = {
   chapterCard: "chapter_card",
   wand: "wand",
   rollChips: "roll_chips",
+  suggestions: "suggestions",
 };
 
 export interface PresenceSettings extends Record<PresenceToggle, boolean> {
@@ -19,7 +20,7 @@ export interface PresenceSettings extends Record<PresenceToggle, boolean> {
 export const PRESENCE_SETTING_KEYS = ["listBadges", ...PRESENCE_TOGGLES] as const;
 
 export const defaultPresenceSettings = (): PresenceSettings => ({
-  listBadges: true, continueList: true, groupCard: true, chapterCard: true, wand: true, rollChips: true,
+  listBadges: true, continueList: true, groupCard: true, chapterCard: true, wand: true, rollChips: true, suggestions: true,
 });
 
 export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
@@ -27,6 +28,7 @@ export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
   const on = (key: keyof PresenceSettings) => source[key] !== false;
   return {
     listBadges: on("listBadges"), continueList: on("continueList"), groupCard: on("groupCard"), chapterCard: on("chapterCard"), wand: on("wand"), rollChips: on("rollChips"),
+    suggestions: on("suggestions"),
   };
 };
 

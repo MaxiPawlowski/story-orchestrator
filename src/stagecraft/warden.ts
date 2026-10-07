@@ -6,6 +6,7 @@ export interface WardenCheckInput {
   reply: { speaker: string; text: string };
   facts: string[];
   agency: { player: string; message: string } | null;
+  attention?: { player: string; message: string };
   houseRules: string[];
   lore?: Array<{ comment: string; text: string }>;
   houseRuleContext?: {
@@ -25,19 +26,35 @@ export interface WardenCheckFinding {
 
 export const wardenFamilyOf = (op: Pick<WardenNoteOp, "family">): WardenNoteFamily => op.family ?? "continuity";
 
+export const PLAYER_FACING_FAMILIES: readonly WardenNoteFamily[] = ["agency", "attention"];
+
+export interface WardenModes {
+  wardenAcceptMode: StagecraftAcceptMode;
+  agencyAcceptMode?: StagecraftAcceptMode;
+}
+
+export const DEFAULT_AGENCY_ACCEPT_MODE: StagecraftAcceptMode = "auto";
+
+export const wardenFamilyMode = (modes: WardenModes, family: WardenNoteFamily): StagecraftAcceptMode => {
+  if (modes.wardenAcceptMode === "off") return "off";
+  return PLAYER_FACING_FAMILIES.includes(family) ? modes.agencyAcceptMode ?? DEFAULT_AGENCY_ACCEPT_MODE : modes.wardenAcceptMode;
+};
+
 export interface WardenFamiliesActive {
   continuity: boolean;
   agency: boolean;
   houseRules: string[];
   lore?: boolean;
+  attention?: boolean;
 }
 
-export const anyWardenFamily = (active: WardenFamiliesActive): boolean => active.continuity || active.agency || active.houseRules.length > 0;
+export const anyWardenFamily = (active: WardenFamiliesActive): boolean => active.continuity || active.agency || active.attention === true || active.houseRules.length > 0;
 
 export const wardenFamilyActive = (op: WardenNoteOp, active: WardenFamiliesActive): boolean => {
   const family = wardenFamilyOf(op);
   if (family === "continuity") return active.continuity;
   if (family === "agency") return active.agency;
+  if (family === "attention") return active.attention === true;
   if (family === "lore") return active.lore === true;
   return (op.rules ?? []).some((rule) => active.houseRules.includes(rule));
 };
@@ -59,6 +76,7 @@ export interface WardenFindingView {
 const findingPhrase = (finding: WardenFindingView): string => {
   if (finding.family === "continuity") return `contradicts ${finding.facts.length === 1 ? "an established fact" : `${finding.facts.length} established facts`}`;
   if (finding.family === "agency") return "writes the player's own part";
+  if (finding.family === "attention") return "does not answer what the player said";
   if (finding.family === "lore") return `contradicts ${finding.lore?.length === 1 ? "a lore entry" : `${finding.lore?.length ?? 0} lore entries`}`;
   const count = finding.rules?.length ?? 0;
   return `breaks ${count === 1 ? "a house rule" : `${count} house rules`}`;
@@ -70,7 +88,9 @@ export const wardenSummary = (speaker: string, findings: WardenFindingView[]): s
 
 export const withdrawRemovedRules = (op: WardenNoteOp, rules: string[]): boolean => wardenFamilyOf(op) === "house-rule" && (op.rules ?? []).some((rule) => !rules.includes(rule));
 
-export const wardenNoteOps = (findings: WardenCheckFinding[], established: WardenFactSource[], replyMessageId: number, mode: StagecraftAcceptMode): CuratorOpRecord[] => findings.map((finding) => ({
+export const wardenNoteOps = (
+  findings: WardenCheckFinding[], established: WardenFactSource[], replyMessageId: number, modeOf: (family: WardenNoteFamily) => StagecraftAcceptMode,
+): CuratorOpRecord[] => findings.filter((finding) => modeOf(finding.family) !== "off").map((finding) => ({
   op: {
     kind: "note" as const,
     text: finding.text,
@@ -81,14 +101,14 @@ export const wardenNoteOps = (findings: WardenCheckFinding[], established: Warde
     ...(finding.lore ? { lore: finding.lore } : {}),
     ...(finding.score !== undefined ? { score: finding.score } : {}),
   },
-  status: mode === "auto" ? "accepted" as const : "pending" as const,
+  status: modeOf(finding.family) === "auto" ? "accepted" as const : "pending" as const,
 }));
 
 const continuityOnly = (families: WardenNoteFamily[]) => families.every((family) => family === "continuity");
 
 export const wardenFlagJournal = (speaker: string, findings: WardenCheckFinding[]): [string, string] => [
   continuityOnly(findings.map((finding) => finding.family)) ? `Continuity warden flagged ${speaker}'s reply` : `Warden flagged ${speaker}'s reply (${wardenReason(findings)})`,
-  findings.flatMap((finding) => finding.rules ?? finding.lore ?? (finding.family === "agency" ? [`agency ${finding.score ?? ""}`.trim()] : finding.facts)).join(" | "),
+  findings.flatMap((finding) => finding.rules ?? finding.lore ?? (PLAYER_FACING_FAMILIES.includes(finding.family) ? [`${finding.family} ${finding.score ?? ""}`.trim()] : finding.facts)).join(" | "),
 ];
 
 export const wardenNoteJournal = (ops: WardenNoteOp[]): [string, string] => [

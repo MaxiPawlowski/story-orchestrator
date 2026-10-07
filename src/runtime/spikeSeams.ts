@@ -2,6 +2,8 @@ import type { GenerationIntent } from "./generationLifecycle";
 
 export interface SpikeSeams {
   generation?: (intent: GenerationIntent) => void;
+  hold?: (type: string) => Promise<void>;
+  ownsReread?: () => boolean;
 }
 
 export const spikeSeams: SpikeSeams = {};

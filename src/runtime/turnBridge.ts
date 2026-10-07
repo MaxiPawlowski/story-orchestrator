@@ -42,7 +42,7 @@ const continueStamp = (messageId: number): string => {
 
 export type MutationKind = "swipe" | "edit" | "delete" | "update";
 
-export type MutationSeam = (kind: MutationKind, messageId: number) => (() => Promise<void>) | null;
+export type MutationSeam = (kind: MutationKind, messageId: number, entered?: boolean) => (() => Promise<void>) | null;
 
 interface PendingBoundary {
   run: RunGuard;
@@ -249,6 +249,9 @@ export class TurnBridge {
       const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
       if (replaced) return replaced();
       await this.manager.rollbackFromMessage(from, journal ?? undefined, kind === "update" ? "edit" : kind, ...(decoded ? [decoded.count] : []));
+    } else if (edited && run.stillOwns()) {
+      const reread = this.seam?.(kind, messageId, true) ?? null;
+      if (reread) return reread();
     }
     if (!recommit || !run.stillOwns()) return;
     this.turnKeys.add(String(messageId));

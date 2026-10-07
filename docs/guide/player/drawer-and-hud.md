@@ -50,8 +50,12 @@ The ? button opens Help in a panel you can drag, resize and close with Escape; i
 On a narrow screen it docks along the bottom. While a story plays, the extensions wand beside where you type
 also offers **Story recap**, **Story briefing** (when the story has one), **Flag this moment** and **Open the story drawer**.
 
+The lightbulb opens **What could I do?** (see [Starting, continuing and restarting](playing.md)).
+
 In Author view, the list button next to ? opens the **Activity** panel: what the machine did behind each recent
-message, rolls included, each linked to its message.
+message, rolls included, each linked to its message. The Scheduler tab also names phrases the newest reply repeats
+from at least two of the five replies before it ("Repeating across the last 6 replies: …"); it is counted in code,
+calls no model and only reports.
 
 ## Notes under messages
 

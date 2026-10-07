@@ -1,19 +1,20 @@
 import { PLAYER_ACTION_CLAUSE, PLAYER_REF } from "@engine/index";
 import { buildContinuityRequest, continuityNote } from "./curators";
 import {
-  AGENCY_SCORE, CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_GROUP, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_MESSAGE_CHARS, HOUSE_RULE_P, HOUSE_RULE_ROLE_CHARS, LORE_CONTENT_CHARS,
+  AGENCY_SCORE, ATTENTION_SCORE, CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_GROUP, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_MESSAGE_CHARS, HOUSE_RULE_P, HOUSE_RULE_ROLE_CHARS, LORE_CONTENT_CHARS,
   WARDEN_ARM, WARDEN_LORE_MAX_NOTE, WARDEN_LORE_P, WARDEN_MAX_LORE, WARDEN_MAX_RULES, type WardenArm,
 } from "./policy";
 import { noul, noulAnswer, score, scoreAnswer } from "./questions";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 
-export const WARDEN_FAMILIES = ["continuity", "agency", "house-rule"] as const;
+export const WARDEN_FAMILIES = ["continuity", "agency", "attention", "house-rule"] as const;
 export type WardenFamily = (typeof WARDEN_FAMILIES)[number];
 
 export interface WardenInput {
   reply: { speaker: string; text: string };
   facts: string[];
   agency: { player: string; message: string } | null;
+  attention?: { player: string; message: string };
   houseRules: string[];
   lore?: WardenLore[];
   houseRuleContext?: HouseRuleContext;
@@ -64,6 +65,21 @@ export const AGENCY_LEVELS = [
   "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
   "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words",
 ] as const;
+
+export const ATTENTION_QUESTION =
+  "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. " +
+  "If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.";
+
+export const ATTENTION_LEVELS = [
+  "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+  "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+  "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it",
+] as const;
+
+export const attentionNoteText = (player: string): string => {
+  const name = player.trim() || "the player";
+  return `Attention: the last reply passed over what ${name} said or did. Let the next reply answer it before the scene moves on.`;
+};
 
 export const HOUSE_RULE_CRITERIA = {
   true: "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
@@ -154,6 +170,11 @@ const agencyPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions
     ? { state: { player: input.agency.player, player_message: input.agency.message }, questions: { agency: score(AGENCY_QUESTION, [...AGENCY_LEVELS]) } }
     : null;
 
+const attentionPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"> | null =>
+  input.attention
+    ? { state: { player: input.attention.player, player_message: input.attention.message }, questions: { attention: score(ATTENTION_QUESTION, [...ATTENTION_LEVELS]) } }
+    : null;
+
 const rulesPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"> | null => {
   const asked = keptRules(input.houseRules).map((rule, index) => ({ rule, index })).filter((entry) => !paragraphBreak(entry.rule, input.reply.text));
   if (!asked.length) return null;
@@ -184,7 +205,7 @@ export function buildWardenRequests(input: WardenInput, arm: WardenArm = WARDEN_
   const continuity = input.facts.length ? buildContinuityRequest(input.reply, input.facts) : null;
   const rules = rulesPart(input);
   const own = rules && input.houseRuleContext ? [{ state: { reply: input.reply, ...rules.state }, questions: rules.questions }] : [];
-  const parts = [agencyPart(input), own.length ? null : rules, lorePart(input)].filter((part): part is Pick<JudgeRequest, "state" | "questions"> => part !== null);
+  const parts = [agencyPart(input), attentionPart(input), own.length ? null : rules, lorePart(input)].filter((part): part is Pick<JudgeRequest, "state" | "questions"> => part !== null);
   if (arm === "separate") return [...(continuity ? [continuity] : []), ...parts.map((part) => ({ state: { reply: input.reply, ...part.state }, questions: part.questions })), ...own];
   if (!continuity && !parts.length) return own;
   const base = continuity ?? { state: { reply: input.reply }, questions: {} };
@@ -197,6 +218,8 @@ export function readWarden(answers: Record<string, JudgeAnswer>, input: WardenIn
   if (continuity) findings.push({ family: "continuity", text: continuity.text, facts: continuity.facts });
   const agency = input.agency ? scoreAnswer(answers, "agency") : null;
   if (input.agency && agency && agency.score > AGENCY_SCORE) findings.push({ family: "agency", text: agencyNoteText(input.agency.player), facts: [], score: agency.score });
+  const attention = input.attention ? scoreAnswer(answers, "attention") : null;
+  if (input.attention && attention && attention.score < ATTENTION_SCORE) findings.push({ family: "attention", text: attentionNoteText(input.attention.player), facts: [], score: attention.score });
   const broken = keptRules(input.houseRules)
     .map((rule, index) => ({ rule, p: houseRuleP(answers, input, index) ?? 0 }))
     .filter((entry) => entry.p >= HOUSE_RULE_P)
@@ -220,6 +243,7 @@ export function readWardenLore(answers: Record<string, JudgeAnswer>, input: Ward
 export const wardenFamiliesAsked = (input: WardenInput): WardenFamily[] => [
   ...(input.facts.length ? ["continuity" as const] : []),
   ...(input.agency ? ["agency" as const] : []),
+  ...(input.attention ? ["attention" as const] : []),
   ...(keptRules(input.houseRules).length ? ["house-rule" as const] : []),
 ];
 
@@ -230,6 +254,7 @@ export const wardenRecordP = (answers: Record<string, JudgeAnswer> | null, input
     facts: Math.min(input.facts.length, CONTINUITY_MAX_FACTS),
     flagged: findings.find((finding) => finding.family === "continuity")?.facts.length ?? 0,
     ...(input.agency ? { agency: agency ? Number(agency.score.toFixed(3)) : -1 } : {}),
+    ...(input.attention ? { attention: answers ? Number((scoreAnswer(answers, "attention")?.score ?? -1).toFixed(3)) : -1 } : {}),
     ...(keptRules(input.houseRules).length ? { rules: keptRules(input.houseRules).length, broken: findings.find((finding) => finding.family === "house-rule")?.rules?.length ?? 0 } : {}),
     ...(keptLore(input.lore).length ? { lore: keptLore(input.lore).length, contradicted: answers ? readWardenLore(answers, input)?.lore.length ?? 0 : 0 } : {}),
   };

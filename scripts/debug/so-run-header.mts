@@ -256,6 +256,7 @@ export async function capturePage(page) {
         acceptMode: settings?.stagecraft?.acceptMode ?? null,
         wardenEnabled: settings?.stagecraft?.wardenEnabled ?? null,
         wardenAcceptMode: settings?.stagecraft?.wardenAcceptMode ?? null,
+        agencyAcceptMode: settings?.stagecraft?.agencyAcceptMode ?? null,
       },
       extraction: {
         enabled: settings?.extraction?.enabled ?? null,

@@ -261,8 +261,8 @@ describe("judge settings", () => {
   it("enables shipped uses by default except those below their floor, and keeps the judge configurable", () => {
     const defaults = defaultJudgeSettings();
     expect(defaults.enabled).toBe(true);
-    expect(JUDGE_USES_OFF_BY_DEFAULT).toEqual(["houseRules"]);
-    expect(JUDGE_USE_KEYS.filter((key) => defaults.uses[key] !== true)).toEqual(["houseRules"]);
+    expect(JUDGE_USES_OFF_BY_DEFAULT).toEqual(["houseRules", "attentionCheck"]);
+    expect(JUDGE_USE_KEYS.filter((key) => defaults.uses[key] !== true)).toEqual(["houseRules", "attentionCheck"]);
     expect(sanitizeJudgeSettings({ ...defaults, uses: { ...defaults.uses, houseRules: true } }).uses.houseRules).toBe(true);
     expect(defaults.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "code" });
     expect(defaults.model).toBe("jev-1.13.0");

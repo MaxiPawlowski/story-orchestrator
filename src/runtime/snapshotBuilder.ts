@@ -1,7 +1,7 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
-import { curatorLorebooks } from "@stagecraft/index";
+import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { currentThreads, latestScene } from "./recapCurrent";
@@ -251,6 +251,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
   const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
   return {
     rolls: composeRolls(quality, sources.extras.chance ?? createChance()),
+    repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
     }),

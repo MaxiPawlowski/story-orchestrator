@@ -73,6 +73,7 @@ export const CONTINUITY_MAX_FACTS = 40;
 export const CONTINUITY_MAX_NOTE_FACTS = 2;
 export const CONTINUITY_TIMEOUT_MS = 4000;
 export const AGENCY_SCORE = 2.5;
+export const ATTENTION_SCORE = 0.75;
 export const HOUSE_RULE_P = 0.7;
 export const HOUSE_RULE_MAX_NOTE = 2;
 export const WARDEN_MAX_RULES = 8;

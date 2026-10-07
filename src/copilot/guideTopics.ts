@@ -243,7 +243,7 @@ export const GUIDE_TOPICS = {
     text: "illustrations {checkpoints, scenes, style, appearances} asks for pictures of beats and scenes in one style, with each cast member's look; never describe a secret "
       + "form there. illustrate: false skips a beat's pictures; chapters[].illustrations {style, appearances} overrides the look for one chapter. A lore entry's look is "
       + "used once it has fired in the chat, or always from a \"Public appearance:\" line. effects.stage {framing, spotlight, cast} places sprites for a beat. "
-      + "display.lore_names_public shows lore entry names in the timeline; off when a name spoils. display.continue_list|group_card|chapter_card|wand|roll_chips false hides it.",
+      + "display.lore_names_public shows lore names in the timeline; off when one spoils. display.continue_list|group_card|chapter_card|wand|roll_chips|suggestions false hides it.",
   },
 } as const satisfies Record<string, GuideTopic>;
 

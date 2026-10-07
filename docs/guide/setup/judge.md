@@ -48,6 +48,7 @@ Every use is on by default except **House rules**. The ones marked *author* show
 | Expansion review (*author*) | Reviews generated scenes instead of a second model call. | up to 40 established facts, the target scene, cast names, the tension trajectory, the generated scenes |
 | Prepare ahead (*author*) | Writes generated scenes one step ahead, where play is heading. Needs Heading toward. | nothing beyond Heading toward and the expansion |
 | Agency check (*author*, warden) | Asks whether a reply wrote what only you do, say or decide; if so the next prompt leaves your part to you. | the character reply, your latest message and your persona name |
+| Answers the player (*author*, warden, **off**) | Asks whether a reply answered what you just said or did; if not, the next prompt asks for an answer. A refusal or a dodge in character counts as an answer. Not measured yet, so off. | nothing beyond the warden's call |
 | House rules (*author*, warden, **off**) | Checks a reply against the story's house rules. Below its measured floor, so off by default. | the character reply and the house rules |
 | Lore check (*author*, warden) | Checks a reply against the story's own lore entries that fired for it. Needs the continuity warden on. | the reply and up to 8 fired story lore entries (600 characters each) |
 | Exclusive lore selection (*author*) | For a story marked exclusive, switches off for one reply the lore-select entries the judge did not pick. Needs Lore selection and per-chat lore gating. | nothing beyond Lore selection |
@@ -70,7 +71,10 @@ Notes per use:
   suggests.
 - Curator focus pays off once the curator's scope passes about 40 entries.
 - Every-turn story reads does nothing until the story marks qualities with `read_as`.
-- The warden uses are best in `review` mode. Lore check's live latency and over-steer are not measured yet.
+- The warden uses are best in `review` mode, except the two about your part (Agency check and Answers the player):
+  their notes go in on their own by default ("Notes about the player's part" under Background helpers), because a
+  player who never opens the drawer would otherwise never get them. Lore check's live latency and over-steer are not
+  measured yet.
 
 The warden uses run after a reply and only put a note in the *next* reply's prompt; review mode lets the author
 approve each note first.

@@ -15,6 +15,7 @@ const ID: Record<keyof PresenceSettings, string> = {
   chapterCard: "so-presence-chapter-card",
   wand: "so-presence-wand",
   rollChips: "so-presence-roll-chips",
+  suggestions: "so-presence-suggestions",
 };
 
 export const PresenceControls = ({ snapshot, onChange }: PresenceControlsProps) => {

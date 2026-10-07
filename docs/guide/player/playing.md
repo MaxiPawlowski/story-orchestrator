@@ -50,6 +50,15 @@ next reply.
 If an edit reaches back further than the chat can rewind, the story stays where it is and offers **Re-read from the
 current scene** or **Restart story**.
 
+## Stuck? "What could I do?"
+
+The lightbulb button in the story drawer (and **What could I do?** in the wand menu) asks the memory model for four
+things you could try next. It sees only what you have already seen: the scenes you reached, the drawer's Overview
+and the recent messages, never the story's later scenes or anything a character keeps from you. Pick one and it is
+put in the box where you type; nothing is sent until you send it, and it never replaces something you started
+typing. **Other ideas** asks again. It calls the model only when you open it. A story can switch the button off, and
+so can you under Display.
+
 ## Branches
 
 A branch made from a chat that plays a story does not pick the story up on its own. The story bar shows

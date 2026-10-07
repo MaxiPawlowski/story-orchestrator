@@ -342,6 +342,10 @@ const DrawerPanel = () => {
               <span>Author view</span>
             </label>
           )}
+          {snapshot.ready && snapshot.presence?.shown.suggestions && (
+            <button id="so-open-suggestions" type="button" data-so="open-suggestions" className="menu_button fa-solid fa-lightbulb" aria-expanded={panels.includes("suggestions")}
+              aria-label={PRESENCE_TEXT.suggestionsOpen} title={PRESENCE_TEXT.suggestionsOpen} onClick={() => togglePanel("suggestions")} />
+          )}
           {snapshot.ready && snapshot.ui.authorView && (
             <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
               aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />

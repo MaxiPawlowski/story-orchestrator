@@ -62,6 +62,23 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     settings: [], doc: "player/drawer-and-hud.md", status: "shipped", since: "2.7.0", needs: ["story", "author-view"],
   },
   {
+    id: "suggestions", name: "What could I do?", area: "play", audience: "player",
+    oneLine: "A button that suggests a few things you could try next, and puts the one you pick in the box where you type.",
+    what: "Click the lightbulb in the story drawer or pick it from the wand menu. The memory model suggests four things you could do or say, from what you have already seen. "
+      + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
+    where: drawerAt("#so-open-suggestions", "What could I do?"),
+    settings: ["display.presence.suggestions"], doc: "player/playing.md", status: "shipped", since: "2.7.0", needs: ["story", "memory-profile"],
+    isOn: (settings) => settings.display.presence.suggestions,
+  },
+  {
+    id: "repetition-readout", name: "Repetition readout", area: "play", audience: "author",
+    oneLine: "Author view names phrases the latest reply repeats from the five before it.",
+    what: "A short line in the Scheduler tab lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
+      + "Counted in code, with no model call. It only reports; nothing reaches the prompt.",
+    where: drawerAt("[data-so=\"repetition\"]", "Scheduler › Repetition"),
+    settings: [], doc: "player/drawer-and-hud.md", status: "experimental", since: "2.7.0", needs: ["story", "author-view"],
+  },
+  {
     id: "guide", name: "Guide", area: "setup", audience: "player",
     oneLine: "The whole guide inside SillyTavern: playing, setup and writing stories.",
     what: "Open the guide from Help or with /story guide. Read more in Help opens the page about that feature. Pages about writing stories show only in Author view.",

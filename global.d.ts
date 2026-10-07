@@ -61,9 +61,11 @@ declare global {
   var storyOrchestratorDebugSelfTestResponses: string[] | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
   var storyOrchestratorDebugInnerResponse: string | null | undefined;
+  var storyOrchestratorDebugSuggestionsResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorSpikes: ({
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
+    editReread?: { stats: () => import("./src/runtime/spikes/editReread").EditRereadStats & { holdP95Ms: number | null } };
     reasoningEffect?: import("./src/runtime/replyEffortHost").EffortDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorTalk: { chainPending: () => boolean } | undefined;

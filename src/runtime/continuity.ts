@@ -85,7 +85,8 @@ export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStor
   const runtime = judge();
   const story = view.getStory();
   const agency = Boolean(runtime?.active("agencyCheck")) && agencyForCheckpoint(story, view.getState()?.activeCheckpointId).never_narrate_player_action;
-  return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")) };
+  const attention = Boolean(runtime?.ridesWarden("attentionCheck"));
+  return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")), ...(attention ? { attention } : {}) };
 };
 
 export const houseRuleScene = (story: NormalizedStoryV2 | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {

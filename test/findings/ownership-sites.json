@@ -65,6 +65,10 @@
       "status": "checked",
       "note": "v2.8: mints a chat/story RunGuard before discovery, checks it together with the applied look before render, upload and stage application. Cached files are applied under the same check. The builder has its own upload guard."
     },
+    "src/runtime/spikes/editReread.ts#EditReread.cycle": {
+      "status": "checked",
+      "note": "v2.7 33 W1 (2026-10-07; dev-only import, install-wide flag spikes.editReread, default off): the run is minted when the settle window fires, and checked before the cycle starts, after its rollback, after the re-enqueue commit and after the read, before every write. The stats it bumps and the rollingBack flag are in-memory; the flag is set only around its own rollback so the scheduler does not queue a second re-read (editReread.review.test.ts)."
+    },
     "src/runtime/spikes/swipeBack.ts#SwipeBack.restore": {
       "status": "checked",
       "note": "v2.5 plan 09 SP1 spike (2026-09-26; dev-only import, install-wide flag spikes.swipeBackCache, default off): the run minted when the bridge handed the swipe over is checked before the record is written back. loadSelectedFromChat starts a new epoch by design, so after it the chat id and the engine's last message are compared with the cache key before the queued writes are re-enqueued, and a run minted after the load is checked before notify. persist goes through the ChatSave chokepoint, which refuses another chat's write; the stats it bumps are in-memory counters."
@@ -663,7 +667,7 @@
     },
     "src/runtime/turnBridge.ts#TurnBridge.onMutation": {
       "status": "partial",
-      "note": "v2.6 plan 04 C12: the mutation now asks RuntimeManager.rollbackOnEnter first, so the spike seam's `replaced()` (swipeBack / recommitEdit, each with its own row) runs after an await. COVERED: the seam is consulted only when no onEnter plan claimed the mutation, and each seam checks its own run before it writes. NOT COVERED: the rollback itself takes no token; the mutation is its own consequence, as in runRollback. T0 fixes (2026-10-01): the bridge now mints a run before the rollback and re-commits a swipe back to a stored version only while that run still owns the chat (turnBridgeSwipeBack.test.ts)."
+      "note": "v2.6 plan 04 C12: the mutation now asks RuntimeManager.rollbackOnEnter first, so the spike seam's `replaced()` (swipeBack / recommitEdit, each with its own row) runs after an await. COVERED: the seam is consulted only when no onEnter plan claimed the mutation, and each seam checks its own run before it writes. NOT COVERED: the rollback itself takes no token; the mutation is its own consequence, as in runRollback. T0 fixes (2026-10-01): the bridge now mints a run before the rollback and re-commits a swipe back to a stored version only while that run still owns the chat (turnBridgeSwipeBack.test.ts). v2.7 33 W1: after an onEnter rollback claimed an edit, the seam is asked once more (entered) only while the run minted before the rollback still owns the chat (editReread.review.test.ts V7)."
     },
     "src/runtime/turnBridge.ts#TurnBridge.onChatChanged": {
       "status": "local",

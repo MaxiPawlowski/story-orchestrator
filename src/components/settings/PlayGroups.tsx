@@ -7,7 +7,7 @@ import { getGlobalSettings, type TalkChainSettings } from "@runtime/settingsStor
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
 import { keepGlobalStoryLore, releaseGlobalStoryLore } from "@runtime/storyLoreHost";
-import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
+import { STAGECRAFT_ACCEPT_MODES, wardenFamilyMode, type StagecraftAcceptMode } from "@stagecraft/index";
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
 import StoryLoreGlobal from "./StoryLoreGlobal";
 import { GroupHeader } from "./GroupHeader";
@@ -93,6 +93,19 @@ const WardenControls = ({ snapshot, manager }: GroupProps) => {
         >
           <option value="review">Ask me first</option>
           <option value="auto">Add them on their own</option>
+        </select>
+      </div>
+      <div className="flex flex-col gap-1 text-sm">
+        <FieldLabel htmlFor="so-agency-accept-mode" setting="stagecraft.agencyAcceptMode" />
+        <select
+          id="so-agency-accept-mode"
+          value={wardenFamilyMode(snapshot.stagecraft.settings, "agency")}
+          disabled={wardenAcceptMode === "off"}
+          onChange={(event) => manager.setStagecraftSettings({ agencyAcceptMode: isAcceptMode(event.target.value) ? event.target.value : "auto" })}
+        >
+          <option value="auto">Add them on their own</option>
+          <option value="review">Ask me first</option>
+          <option value="off">Do not check</option>
         </select>
       </div>
     </>

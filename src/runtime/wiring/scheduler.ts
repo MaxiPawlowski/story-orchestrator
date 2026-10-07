@@ -6,6 +6,7 @@ import { runBoundaryWork } from "../boundaryWork";
 import { requestBudget, routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
 import { beginRun } from "../runToken";
+import { spikeSeams } from "../spikeSeams";
 import { droppedReadEnd } from "@extraction/readCursor";
 import type { Disposers, LiveParts } from "./types";
 
@@ -69,6 +70,7 @@ export const startScheduler = (live: LiveParts, disposers: Disposers) => {
     if (live.scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler: live.scheduler, ...(live.scene ? { scene: live.scene } : {}) });
   }));
   disposers.push(runtimeManager.onRollback((messageId, window, kind) => {
+    if (spikeSeams.ownsReread?.()) return;
     live.scheduler?.schedule({ priority: 0, reason: rollbackRereadReason(messageId, kind), window });
   }));
   disposers.push(scheduleSceneBreak(live));

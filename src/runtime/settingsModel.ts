@@ -93,7 +93,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
 
 export const SPIKE_FLAGS = [
   "swipeBackCache", "sp6Complications",
-  "reasoningEffect",
+  "reasoningEffect", "editReread",
 ] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
@@ -177,7 +177,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
-export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" });
+export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
@@ -271,6 +271,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       wardenAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.wardenAcceptMode,
+      agencyAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
+        ? (value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
+        : defaults.stagecraft.agencyAcceptMode,
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),

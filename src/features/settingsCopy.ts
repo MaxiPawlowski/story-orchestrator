@@ -97,6 +97,11 @@ export const SETTING_COPY = {
     "Roll chips in Author view",
     "Author view only: each dice roll and background draw under the message it belongs to, and in the Activity panel. Players never see them.",
   ),
+  "display.presence.suggestions": copy(
+    "What could I do?",
+    "A button in the story drawer and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
+      + "nothing is sent until you send it. The request sees only what you have already seen in the story.",
+  ),
   "display.hudEnabled": copy(
     "Show story status above the chat input",
     "A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer.",
@@ -200,6 +205,12 @@ export const SETTING_COPY = {
   "stagecraft.wardenAcceptMode": copy(
     "Warden notes",
     "Ask me first: you approve each note. Add them on their own: notes go into the next prompt without you seeing them.",
+  ),
+  "stagecraft.agencyAcceptMode": copy(
+    "Notes about the player's part",
+    "When a reply writes what only you do, say or decide, or ignores what you just said, the next reply's prompt carries a one-line reminder. "
+      + "Add them on their own (the default): the reminder goes in without anyone approving it. Ask me first: it waits like the other notes. "
+      + "Only replies are checked; your own messages are never changed.",
   ),
   "judge.enabled": copy(
     "Use the judge",

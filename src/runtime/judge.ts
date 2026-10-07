@@ -55,6 +55,11 @@ export class JudgeRuntime {
     return judgeUseActive(this.deps.getSettings(), use);
   }
 
+  ridesWarden(use: JudgeUseKey): boolean {
+    const settings = this.deps.getSettings();
+    return judgeUseActive(settings, use) && providerCleared(settings.provider?.warden ?? DEFAULT_JUDGE_PROVIDER, use, this.served);
+  }
+
   // variants are their own opt-in (count > 1), still behind the master switch.
   expansionSettings(): JudgeSettings["expansion"] | null {
     const settings = this.deps.getSettings();

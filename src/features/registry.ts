@@ -64,13 +64,13 @@ const studioAt = (selector: string, label: string): FeatureWhere => ({ selector,
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
 const JUDGE_USE_SINCE: Partial<Record<JudgeUseKey, string>> = {
-  agencyCheck: "2.3.0", typedExtraction: "2.4.0", stallCheck: "2.4.0", houseRules: "2.5.0", loreExclusive: "2.5.0", wardenLore: "2.6.0", expressions: "2.6.0",
+  agencyCheck: "2.3.0", typedExtraction: "2.4.0", stallCheck: "2.4.0", houseRules: "2.5.0", loreExclusive: "2.5.0", wardenLore: "2.6.0", expressions: "2.6.0", attentionCheck: "2.7.0",
 };
 
 const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   director: "characters", expressions: "world", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
-  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters",
+  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters",
 };
 
 const AUTHOR_FACING_USES: readonly JudgeUseKey[] = ["lookahead", "curatorFilter"];
@@ -209,7 +209,8 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, the "
       + "next reply's prompt restates that fact once, after your approval or on its own.",
     where: settingsAt("#so-warden-enabled", "Author services › Continuity warden"),
-    settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "judge.provider.warden"], doc: "author/topics/house-rules.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
+    settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
+    doc: "author/topics/house-rules.md", status: "shipped", since: "2.2.0", needs: ["judge-plugin"],
     isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
   },
   {
