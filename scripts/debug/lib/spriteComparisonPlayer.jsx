@@ -5,6 +5,8 @@ import { StreamActivity } from '../../../src/sprites/animation';
 
 const pack = JSON.parse(document.getElementById('pack-data').textContent);
 const store = `sprite-ratings:${pack.id}`;
+const who = pack.character;
+const slug = String(who).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const modes = ['off', 'simple', 'smooth'];
 const lines = {
   neutral: 'The road is clear. We can leave when you are ready.',
@@ -19,8 +21,8 @@ const ids = ['regular', 'simple', 'smooth'];
 function Actor({ sample, variant, activity, zoom, paused }) {
   const source = variant === 2 && sample.previous ? sample.previous : sample;
   const frames = React.useMemo(() => variant === 0 ? {} : { blink: source.blink, talk: source.talk, talk2: source.talk2 }, [source, variant]);
-  return <div className="portrait"><div className="zoom" style={{ transform: `scale(${zoom})` }}><img src={source.base} alt={`Belle, ${sample.label}`} />
-    <AnimatedFace frames={frames} activity={activity} name="Belle" seed="belle-comparison"
+  return <div className="portrait"><div className="zoom" style={{ transform: `scale(${zoom})` }}><img src={source.base} alt={`${who}, ${sample.label}`} />
+    <AnimatedFace frames={frames} activity={activity} name={who} seed={`${slug}-comparison`}
       blink={variant !== 0} mouth={modes[variant]} paused={paused} /></div></div>;
 }
 
@@ -45,7 +47,7 @@ function App() {
     const words = lines[sample.label].split(' ');
     const advance = () => {
       if (index < words.length) {
-        activity.pulse('Belle'); setPlaying(true); setText(words.slice(0, ++index).join(' '));
+        activity.pulse(who); setPlaying(true); setText(words.slice(0, ++index).join(' '));
         timer = setTimeout(advance, 240);
       } else {
         activity.stop(); setPlaying(false);
@@ -65,10 +67,10 @@ function App() {
   const exported = () => {
     const blob = new Blob([JSON.stringify({ kind: 'labeled-sprite-review', pack: pack.id, rater: 'user', votes }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob), link = document.createElement('a');
-    link.href = url; link.download = 'belle-sprite-ratings.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    link.href = url; link.download = `${slug}-sprite-ratings.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const booleans = [['false', 'No'], ['true', 'Yes']];
-  return <main><h1>Belle sprite comparison</h1>
+  return <main><h1>{who} sprite comparison</h1>
     <p>All three options use the same artwork and speech timing. Regular keeps its original mouth;
       the other two add blink and talking frames.</p>
     {sample.previous && <p>Repaired two-frame candidate: {pack.resolution} pixels, {pack.steps} steps.

@@ -1,3 +1,5 @@
+import { DISCOVERY_NEEDS, IMAGE_NEEDS, type ImageNeed } from './imageHarnessConfig.mts';
+
 export type LaneKind = 'no-model' | 'model';
 
 export interface ScenarioRequires {
@@ -10,8 +12,23 @@ export interface ScenarioRequires {
   roleProfiles?: 'text-completion';
   macroEngine?: boolean;
   vectorsWorldInfo?: boolean;
+  comfy?: true;
+  imageHarness?: ImageNeed[];
   prior?: string;
   why?: string;
+}
+
+export interface ComfyFacts {
+  cleared: boolean;
+  plugin: 'present' | 'absent' | 'error' | null;
+  discovered: { diffusionModels: string[]; textEncoders: string[]; vaes: string[]; checkpoints: string[]; alpha: string[] } | null;
+  probe: string | null;
+}
+
+export interface HarnessFacts {
+  path: string;
+  gaps: string[];
+  config: { editModels?: { diffusion: string; encoder: string; vae: string }; backgroundRemoval?: string; raterProfile?: string; controllerUrl?: string; localProfiles?: { main: string; memory: string } } | null;
 }
 
 export interface RequiresFacts {
@@ -24,9 +41,12 @@ export interface RequiresFacts {
   vectorsWorldInfo?: boolean | null;
   modelReachable?: boolean | null;
   modelProbe?: string | null;
+  comfy?: ComfyFacts | null;
+  harness?: HarnessFacts | null;
+  profileNames?: string[];
 }
 
-export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'prior', 'why']);
+export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'prior', 'why']);
 export const LANE_KINDS = new Set<LaneKind>(['no-model', 'model']);
 export const MAIN_APIS = new Set(['textgenerationwebui', 'openai', 'kobold', 'novel', 'koboldhorde']);
 
@@ -49,6 +69,13 @@ export function validateRequires(value: unknown, where = 'requires'): string[] {
   if ('judge' in value && value.judge !== 'off') problems.push(`${where}.judge: only "off" is a requirement (judge on is the install default since v2.6 rule 5)`);
   if ('mainApi' in value && !MAIN_APIS.has(String(value.mainApi))) problems.push(`${where}.mainApi: expected one of ${[...MAIN_APIS].join(', ')}`);
   if ('roleProfiles' in value && value.roleProfiles !== 'text-completion') problems.push(`${where}.roleProfiles: only "text-completion" is a requirement`);
+  if ('comfy' in value && value.comfy !== true) problems.push(`${where}.comfy: only true is a requirement`);
+  if (value.comfy === true && value.lane !== 'model') problems.push(`${where}.comfy: a ComfyUI scenario declares lane "model", so a no-model batch never reaches ComfyUI`);
+  if ('imageHarness' in value) {
+    const needs = value.imageHarness;
+    if (!Array.isArray(needs) || !needs.length || needs.some((need) => !(IMAGE_NEEDS as readonly string[]).includes(need))) problems.push(`${where}.imageHarness: expected a non-empty list of ${IMAGE_NEEDS.join(', ')}`);
+    else if (needs.some((need) => DISCOVERY_NEEDS.has(need)) && value.comfy !== true) problems.push(`${where}.imageHarness: ${needs.filter((need) => DISCOVERY_NEEDS.has(need)).join(', ')} are checked against ComfyUI discovery: add requires.comfy`);
+  }
   return problems;
 }
 
@@ -85,6 +112,38 @@ export function requiresProblems(requires: ScenarioRequires, facts: RequiresFact
   if (typeof requires.vectorsWorldInfo === 'boolean' && facts.vectorsWorldInfo !== requires.vectorsWorldInfo) problems.push(`needs Vectors > World Info ${requires.vectorsWorldInfo ? 'on' : 'off'}, it is ${facts.vectorsWorldInfo ? 'on' : 'off'}`);
   if (requires.lane === 'no-model' && facts.modelReachable !== false) problems.push(`needs a no-model lane (st-lanes.mts no-model <n>: keys removed, judge off), and the memory profile ${facts.modelReachable ? 'answered' : 'could not be probed'}${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
   if (requires.lane === 'model' && facts.modelReachable !== true) problems.push(`needs a lane with a live model, and the memory profile did not answer${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
+  if (requires.comfy) problems.push(...comfyProblems(facts.comfy ?? null));
+  if (requires.imageHarness?.length) problems.push(...harnessProblems(requires.imageHarness, facts));
+  return problems;
+}
+
+export function comfyProblems(comfy: ComfyFacts | null): string[] {
+  if (!comfy?.cleared) return ['needs a lane cleared for ComfyUI (SO_ALLOW_COMFY=1, or "allowComfy": true in the lane image-harness config): a lane never reaches ComfyUI unless it says so'];
+  if (comfy.plugin === 'absent') return ['needs the story-orchestrator-media server plugin, and /api/plugins/story-orchestrator-media/status answered 404'];
+  if (comfy.plugin !== 'present') return [`needs the story-orchestrator-media server plugin, and its status could not be read${comfy.probe ? ` (${comfy.probe})` : ''}`];
+  if (!comfy.discovered) return [`needs ComfyUI reachable through the media plugin, and discovery did not answer${comfy.probe ? ` (${comfy.probe})` : ''}`];
+  return [];
+}
+
+export function harnessProblems(needs: ImageNeed[], facts: RequiresFacts): string[] {
+  const harness = facts.harness;
+  if (!harness) return ['needs the lane image-harness config, and it was not read'];
+  if (harness.gaps.length) return harness.gaps;
+  const config = harness.config ?? {};
+  const found = facts.comfy?.discovered;
+  const problems: string[] = [];
+  if (needs.includes('editModels') && config.editModels && found) {
+    const lists: Record<string, string[]> = { diffusion: found.diffusionModels, encoder: found.textEncoders, vae: found.vaes };
+    for (const [field, name] of Object.entries(config.editModels)) if (!lists[field]?.includes(name)) problems.push(`needs the ${field} model "${name}" in ComfyUI, discovery does not list it`);
+  }
+  if (needs.includes('backgroundRemoval') && config.backgroundRemoval && found && !found.alpha.includes(config.backgroundRemoval)) {
+    problems.push(`needs the background-removal recipe "${config.backgroundRemoval}", the media plugin offers ${JSON.stringify(found.alpha)}`);
+  }
+  const profiles = facts.profileNames ?? [];
+  if (needs.includes('rater') && config.raterProfile && !profiles.includes(config.raterProfile)) problems.push(`needs the rater profile "${config.raterProfile}" in Connection Manager`);
+  if (needs.includes('localProfiles') && config.localProfiles) {
+    for (const name of [config.localProfiles.main, config.localProfiles.memory]) if (!profiles.includes(name)) problems.push(`needs the local profile "${name}" in Connection Manager`);
+  }
   return problems;
 }
 

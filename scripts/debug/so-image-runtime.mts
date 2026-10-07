@@ -8,74 +8,93 @@ import { dismissBriefing } from './lib/briefingHarness.mts';
 import { settleReapPrompts } from './lib/identityVerbs.mts';
 import { snapshotSpriteAssets, scopedSprites, scopedSpriteReferences, removeSpriteAssets, removeSpriteReferences } from './lib/spriteAssets.mts';
 import { snapshotAssets, removeMarkedAssets } from './so-assets.mts';
+import { builderBox, evidencePath, requireHarness, argValue } from './lib/imageHarness.mts';
+import { parseBox, requireIsolatedLane, slugName } from './lib/imageHarnessConfig.mts';
 
-if (Number(process.env.SO_LANE) !== 6) throw new Error('Use the isolated Belle pilot lane 6.');
+requireIsolatedLane(process.env, 'so-image-runtime');
+const args = process.argv.slice(2);
+const harness = requireHarness(['controller', 'localProfiles', 'editModels']);
+const controller = harness.controllerUrl.replace(/\/+$/, '');
+const profileNames = [harness.localProfiles.main, harness.localProfiles.memory];
+const character = argValue(args, '--character');
+const groupId = argValue(args, '--group');
+if (!character || !groupId) throw new Error('Use --character <card name> --group <id|name> [--folder <sprite folder>] [--box x,y,w,h].');
+const folder = argValue(args, '--folder', character);
+const rosterId = slugName(character).replace(/-/g, '_') || 'subject';
 const marker = 'SO-V27-LIVELOOK';
-const groupId = '1791068844825';
-const directory = resolve('test/measurements/v2.7/image-completion/runtime');
+const directory = evidencePath('image-completion', 'runtime');
 await mkdir(directory, { recursive: true });
 const report: any = { at: new Date().toISOString(), ok: false };
 
 await withST(async (page) => {
-  await openGroup(page, groupId);
+  const openedGroup = String((await openGroup(page, groupId)).opened.id);
+  const box = await builderBox(page, folder, parseBox(argValue(args, '--box')));
+  const comfyUrl = await page.evaluate(async () => {
+    const ctx = (globalThis as any).SillyTavern.getContext();
+    const response = await fetch('/api/plugins/story-orchestrator-media/status', { headers: ctx.getRequestHeaders() });
+    return response.ok ? String((await response.json()).comfyUrl ?? '').replace(/\/+$/, '') : null;
+  });
+  if (!comfyUrl) throw new Error('The media plugin did not report its ComfyUI URL.');
+  Object.assign(report, { character, folder, box, controller, comfyUrl });
   const baseline = await snapshotSpriteAssets(page);
   const assetsBaseline = await snapshotAssets(page);
   if (!assetsBaseline.trusted) throw new Error('A trusted install asset baseline is required.');
   if (!baseline.trusted || scopedSprites(baseline, marker).length) throw new Error('The runtime check needs a clean trusted sprite baseline.');
-  const saved = await page.evaluate((marker) => {
+  const saved = await page.evaluate(({ marker, names }) => {
     const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
     const library = ctx.extensionSettings['story-orchestrator'].v2Stories;
     if (!Array.isArray(library)) throw new Error('The library baseline is unavailable.');
     return { settings: JSON.parse(JSON.stringify(rt.getGlobalSettings())), selected: ctx.extensionSettings.connectionManager.selectedProfile,
       storyIndex: library.findIndex((record) => record.id === marker.toLowerCase()),
       stories: JSON.parse(JSON.stringify(library.filter((record) => record.id === marker.toLowerCase()))),
-      profiles: ctx.extensionSettings.connectionManager.profiles.filter((profile) => ['Artemis Local (Unsloth)', 'Story Orchestrator Memory Unsloth'].includes(profile.name))
+      profiles: ctx.extensionSettings.connectionManager.profiles.filter((profile) => names.includes(profile.name))
         .map((profile) => ({ id: profile.id, api: profile.api })) };
-  }, marker);
+  }, { marker, names: profileNames });
   let chatId: string | null = null;
   let reading: Promise<any> | null = null;
-  const referenceHash = async () => page.evaluate(async () => {
+  const referenceHash = async () => page.evaluate(async (folder) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
-    const response = await fetch('/api/plugins/story-orchestrator-media/sprites/reference-pack', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ character: 'Belle', set: '' }) });
+    const response = await fetch('/api/plugins/story-orchestrator-media/sprites/reference-pack', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ character: folder, set: '' }) });
     if (!response.ok) throw new Error('Original-reference inventory unavailable.');
     return (await response.json()).sha256;
-  });
+  }, folder);
   report.originalBefore = await referenceHash();
   try {
     await startNewChat(page);
     chatId = await page.evaluate(() => (globalThis as any).SillyTavern.getContext().chatId);
     if (!chatId) throw new Error('No sandbox chat opened.');
-    await page.evaluate(async ({ marker, saved }) => {
+    await page.evaluate(async ({ marker, saved, names, controller, character, folder, rosterId, box, models }) => {
       const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
       const profiles = ctx.extensionSettings.connectionManager.profiles;
       for (const prior of saved.profiles) profiles.find((profile) => profile.id === prior.id).api = 'llamacpp';
-      const main = profiles.find((profile) => profile.name === 'Artemis Local (Unsloth)');
-      const memory = profiles.find((profile) => profile.name === 'Story Orchestrator Memory Unsloth');
-      if (!main || !memory || main['api-url'] !== 'http://127.0.0.1:18888' || memory['api-url'] !== 'http://127.0.0.1:18888') throw new Error('Local profiles are not pinned to the controller.');
+      const main = profiles.find((profile) => profile.name === names[0]);
+      const memory = profiles.find((profile) => profile.name === names[1]);
+      const server = (profile) => String(profile?.['api-url'] ?? '').replace(/\/+$/, '');
+      if (!main || !memory || server(main) !== controller || server(memory) !== controller) throw new Error('Local profiles are not pinned to the controller.');
       const slashPath = '/scripts/slash-commands.js';
       const slash = await import(slashPath);
       await slash.executeSlashCommandsWithOptions(`/profile "${main.name}"`);
       ctx.extensionSettings['story-orchestrator'].settings.image.enabled = false;
       (globalThis as any).storyOrchestratorSprites.updateSettings({ enabled: true, explicit: true, onDemand: true, cardOverlay: false,
-        builders: { ...rt.getGlobalSettings().sprites.builders, Belle: { baseSet: '', box: { x: 221, y: 11, width: 320, height: 320 }, steps: 25,
-          models: { diffusion: 'qwen_image_2.1_int8_convrot.safetensors', encoder: 'qwen3vl_8b_int8_convrot.safetensors', vae: 'qwen_image_2.1_vae_bf16.safetensors' } } } });
+        builders: { ...rt.getGlobalSettings().sprites.builders, [folder]: { baseSet: '', box: { x: box[0], y: box[1], width: box[2], height: box[3] }, steps: 25,
+          models } } });
       rt.setExtractionSettings({ enabled: true, cadence: 1000, stabilityLag: 0, profileId: memory.id,
         profiles: { ...rt.getGlobalSettings().extraction.profiles, read: memory.id } });
       const story = { format: 2, id: marker.toLowerCase(), version: 1, title: marker, description: 'An isolated appearance and image/read recovery check.',
-        roster: [{ id: 'belle', name: 'Belle', role: 'Portrait subject', card: { fields: { hair: { quality: 'hair', visual: true } } } }],
+        roster: [{ id: rosterId, name: character, role: 'Portrait subject', card: { fields: { hair: { quality: 'hair', visual: true } } } }],
         qualities: [{ key: 'hair', type: 'enum', values: ['black', 'green'], source: 'extractor', rubric: 'Established current hair colour, green after the dye.' }],
-        requirements: { members: ['Belle'] }, checkpoints: [{ id: 'start', name: 'Portrait', type: 'anchor', start: true, objective: 'Pose after dyeing the hair green.', illustrate: false,
-          effects: { card: { belle: { hair: 'green' } }, stage: { framing: 'close', cast: { belle: { face: 'neutral' } } } } }], transitions: [] };
+        requirements: { members: [character] }, checkpoints: [{ id: 'start', name: 'Portrait', type: 'anchor', start: true, objective: 'Pose after dyeing the hair green.', illustrate: false,
+          effects: { card: { [rosterId]: { hair: 'green' } }, stage: { framing: 'close', cast: { [rosterId]: { face: 'neutral' } } } } }], transitions: [] };
       const imported = await rt.importStory(JSON.stringify(story));
       if (imported?.ok === false) throw new Error('The runtime fixture import was refused.');
-    }, { marker, saved });
+    }, { marker, saved, names: profileNames, controller, character, folder, rosterId, box, models: harness.editModels });
     if (await page.locator('dialog#so-briefing[open]').count()) await dismissBriefing(page);
     await closeUnpinnedDrawers(page);
-    await sendCompactMessage(page, 'Belle has just dyed her hair green. Her current hair colour is green. We are sitting for a portrait in the studio.');
+    await sendCompactMessage(page, `${character} has just dyed their hair green. Their current hair colour is green. We are sitting for a portrait in the studio.`);
     const deadline = Date.now() + 300000;
     let state;
     while (Date.now() < deadline) {
-      state = await (await fetch('http://127.0.0.1:18888/status')).json();
+      state = await (await fetch(`${controller}/status`)).json();
       if (state.imageLease) break;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
@@ -96,7 +115,7 @@ await withST(async (page) => {
     void reading.catch((error) => { failure = error; });
     while (Date.now() < deadline) {
       if (failure) throw failure;
-      state = await (await fetch('http://127.0.0.1:18888/status')).json();
+      state = await (await fetch(`${controller}/status`)).json();
       if (state.imageLease && state.waitingText > 0 && state.activeText === 0) break;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
@@ -104,20 +123,20 @@ await withST(async (page) => {
     report.queued = true;
     report.read = await reading;
     reading = null;
-    await page.waitForFunction(() => (globalThis as any).storyOrchestratorSprites.view().actors.some((actor) => actor.name === 'Belle' && actor.set.startsWith('look_')),
-      undefined, { polling: 500, timeout: 300000 });
-    await triggerGroupMember(page, 'Belle');
-    report.after = await page.evaluate(() => {
+    await page.waitForFunction((character) => (globalThis as any).storyOrchestratorSprites.view().actors.some((actor) => actor.name === character && actor.set.startsWith('look_')),
+      character, { polling: 500, timeout: 300000 });
+    await triggerGroupMember(page, character);
+    report.after = await page.evaluate((character) => {
       const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
       const snapshot = rt.getSnapshot(), reply = ctx.chat.at(-1);
       const audits = snapshot.extraction.audits ?? [];
       const audit = audits.find((row) => row.reason === 'v27-image-runtime') ?? snapshot.extraction.lastAudit;
       if (!audit?.rawResponse?.trim() || !audit?.prompt?.trim()) throw new Error('No real extraction audit was retained.');
-      if (!snapshot.boundary || reply?.is_user || reply?.name !== 'Belle' || !reply.mes?.trim()) throw new Error('The next real reply did not commit a boundary.');
-      const actor = (globalThis as any).storyOrchestratorSprites.view().actors.find((actor) => actor.name === 'Belle');
+      if (!snapshot.boundary || reply?.is_user || reply?.name !== character || !reply.mes?.trim()) throw new Error('The next real reply did not commit a boundary.');
+      const actor = (globalThis as any).storyOrchestratorSprites.view().actors.find((actor) => actor.name === character);
       if (!actor?.set.startsWith('look_') || snapshot.blackboard.hair !== 'green') throw new Error('The reached appearance did not remain on the stage.');
       return { boundary: snapshot.boundary, replyLength: reply.mes.length, auditCount: audits.length, auditRaw: audit.rawResponse, set: actor.set };
-    });
+    }, character);
     const inventory = await snapshotSpriteAssets(page);
     report.generated = scopedSprites(inventory, marker, baseline);
     if (!report.generated.length || report.generated.some((row) => row.sha256 !== row.actualHash)) throw new Error('The on-demand output is not hash-matching owned art.');
@@ -134,7 +153,7 @@ await withST(async (page) => {
       (globalThis as any).storyOrchestratorRuntime.setExtractionSettings(settings.extraction);
     }, saved.settings);
     if (chatId) {
-      const chats = await deleteSandboxChats(page, { groupId, owned: new Set([chatId]), preexisting: new Set() });
+      const chats = await deleteSandboxChats(page, { groupId: openedGroup, owned: new Set([chatId]), preexisting: new Set() });
       if (chats.notDeleted.length) throw new Error('The runtime sandbox chat remained.');
       await settleReapPrompts(page, [chatId]);
     }
@@ -151,8 +170,8 @@ await withST(async (page) => {
     await saveSettingsNow(page);
     const idleDeadline = Date.now() + 300000;
     while (true) {
-      const state = await (await fetch('http://127.0.0.1:18888/status')).json();
-      const queue = await (await fetch('http://127.0.0.1:8188/queue')).json();
+      const state = await (await fetch(`${controller}/status`)).json();
+      const queue = await (await fetch(`${comfyUrl}/queue`)).json();
       if (!state.imageLease && !queue.queue_running?.length && !queue.queue_pending?.length) break;
       if (Date.now() > idleDeadline) throw new Error('Owned cancelled image work did not settle before cleanup.');
       await new Promise((resolve) => setTimeout(resolve, 500));

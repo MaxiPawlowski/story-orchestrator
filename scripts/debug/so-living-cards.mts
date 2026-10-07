@@ -11,6 +11,9 @@ import { sendCompactMessage, triggerGroupMember } from './st-actions.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { settleReapPrompts } from './lib/identityVerbs.mts';
 import { S32_ARMS, S32_FLOORS, scoreCardArm, decideCardOverlay } from './lib/livingCardScore.mts';
+import { argValue, evidencePath, requireHarness } from './lib/imageHarness.mts';
+import { requireIsolatedLane } from './lib/imageHarnessConfig.mts';
+import { normalizedServer, readActiveMain, requireTextCompletionMain } from './lib/activeProfile.mts';
 
 const args = process.argv.slice(2);
 const round = Number(args[args.indexOf('--round') + 1]);
@@ -51,28 +54,28 @@ export async function cleanupLivingRound(page, { marker, baseline, before, group
 }
 
 async function measureRound(page) {
-  if (!Number.isInteger(Number(process.env.SO_LANE)) || Number(process.env.SO_LANE) < 1 || ![1, 2].includes(round)) {
-    throw new Error('Run S32-1 on an isolated lane, with --round 1 or 2.');
+  requireIsolatedLane(process.env, 'S32-1');
+  if (![1, 2].includes(round)) {
+    throw new Error('Run S32-1 with --round 1 or 2.');
   }
   const marker = `SOV27LIVINGR${round}`;
-  const directory = resolve(PROJECT_ROOT, 'test/measurements/v2.7/s32-1', `round-${round}`);
+  const directory = evidencePath('s32-1', `round-${round}`);
+  const rater = requireHarness(['rater']).raterProfile;
+  const main = await readActiveMain(page);
+  const server = normalizedServer(requireTextCompletionMain(main, 'S32-1'));
   await mkdir(directory, { recursive: true });
   const baseline = await snapshotAssets(page);
   if (!baseline.trusted || leakCount(await listMarkedAssets(page, marker, { baseline }))) throw new Error('The asset baseline is untrusted or this round already has marked assets.');
   await writeFile(resolve(directory, 'asset-baseline.json'), JSON.stringify(baseline, null, 2));
   const before = await page.evaluate(() => {
     const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
-    const profile = ctx.extensionSettings.connectionManager.profiles.find((profile) => profile.id === ctx.extensionSettings.connectionManager.selectedProfile);
-    if (ctx.mainApi !== 'textgenerationwebui' || profile?.api !== 'llamacpp' || profile?.['api-url'] !== 'http://127.0.0.1:18888') {
-      throw new Error('Select the local Artemis llama.cpp profile before S32-1.');
-    }
     return { settings: JSON.parse(JSON.stringify(rt.getGlobalSettings())), groupId: ctx.groupId, chatId: ctx.chatId };
   });
   const hash = await buildHash(page);
   await writeFile(resolve(directory, 'recovery.json'), JSON.stringify({ marker, baselineFile: resolve(directory, 'asset-baseline.json'), before }, null, 2));
   const template = JSON.parse(await readFile(resolve(PROJECT_ROOT, '.claude/skills/st-character-authoring/templates/create-body.json'), 'utf8'));
   const names = ['Arin', 'Kira', 'Nox'].map((name) => `${marker} ${name}`);
-  const report: any = { kind: 's32-1', round, marker, build: hash, floors: S32_FLOORS, main: 'local Artemis', rater: 'deepseek 4.1 flash', arms: {}, cleanup: null };
+  const report: any = { kind: 's32-1', round, marker, build: hash, floors: S32_FLOORS, main: main.name, mainServer: main.url, rater, arms: {}, cleanup: null };
   let groupId: string | null = null;
   const owned = new Set<string>();
   try {
@@ -158,12 +161,12 @@ async function measureRound(page) {
         const started = Date.now();
         await sendCompactMessage(page, 'Describe your current hair colour as you pose for this portrait, in one or two sentences.');
         await triggerGroupMember(page, names[member]);
-        const row = await page.evaluate(({ name, expected, arm }) => {
+        const row = await page.evaluate(({ name, expected, arm, server }) => {
           const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
           const reply = ctx.chat.at(-1);
-          const request = (globalThis as any).__s32Capture.requests.find((body) => body.api_type === 'llamacpp' && body.api_server === 'http://127.0.0.1:18888');
+          const request = (globalThis as any).__s32Capture.requests.find((body) => String(body.api_server ?? '').trim().replace(/\/+$/, '').toLowerCase() === server);
           if (!request || reply?.is_user || reply?.name !== name || !reply.mes?.trim()) {
-            throw new Error(`S32 reply refused: localRequest=${Boolean(request)}, expected=${name}, actual=${reply?.name ?? 'none'}, user=${Boolean(reply?.is_user)}, length=${reply?.mes?.length ?? 0}.`);
+            throw new Error(`S32 reply refused: mainRequest=${Boolean(request)}, expected=${name}, actual=${reply?.name ?? 'none'}, user=${Boolean(reply?.is_user)}, length=${reply?.mes?.length ?? 0}.`);
           }
           const prompt = String(request.prompt ?? '');
           const overlay = prompt.includes('Current public state (overrides the character card where they differ):');
@@ -171,15 +174,15 @@ async function measureRound(page) {
           const depth = Number(ctx.extensionPrompts.story_orchestrator_card_overlay?.depth ?? 0);
           if (arm !== 'none' && depth !== (arm === 'depth1' ? 1 : 4)) throw new Error('The depth arm did not land.');
           return { name, expected, text: reply.mes, prompt, depth, boundary: rt.getSnapshot().boundary };
-        }, { name: names[member], expected: colourNames[member], arm });
+        }, { name: names[member], expected: colourNames[member], arm, server });
         const { prompt, ...reply } = row;
         rows.push({ ...reply, ms: Date.now() - started, promptSha256: createHash('sha256').update(prompt).digest('hex') });
         await writeFile(resolve(directory, `progress-${arm}.json`), JSON.stringify(rows, null, 2));
-        console.log(`${arm}: ${at + 1}/30 local replies`);
+        console.log(`${arm}: ${at + 1}/30 main-model replies`);
       }
-      const ratings = await page.evaluate(async (rows) => {
+      const ratings = await page.evaluate(async ({ rows, rater }) => {
         const ctx = (globalThis as any).SillyTavern.getContext();
-        const profile = ctx.extensionSettings.connectionManager.profiles.find((profile) => profile.name === 'deepseek 4.1 flash');
+        const profile = ctx.extensionSettings.connectionManager.profiles.find((profile) => profile.name === rater);
         if (!profile) throw new Error('The independent rater profile is missing.');
         const messages = [{ role: 'system', content: 'Rate each reply for the named speaker only. mentions=true when it states a current hair colour. agrees=true only when that colour agrees with expected (colour synonyms count). Past colours or other people do not contradict the current colour. If no current hair colour is stated, mentions=false and agrees=false. Return only a JSON array in the input order: [{"id":0,"mentions":true,"agrees":true},...]. Do not omit any reply.' },
           { role: 'user', content: JSON.stringify(rows.map((row, id) => ({ id, speaker: row.name, expected: row.expected, reply: row.text }))) }];
@@ -190,7 +193,7 @@ async function measureRound(page) {
           throw new Error('The independent rater omitted or malformed a reply rating.');
         }
         return parsed;
-      }, rows);
+      }, { rows, rater });
       report.arms[arm] = { rows, ratings, score: scoreCardArm(ratings) };
       await page.evaluate(() => {
         const ctx = (globalThis as any).SillyTavern.getContext(), capture = (globalThis as any).__s32Capture;
@@ -212,7 +215,7 @@ async function measureRound(page) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (args[0] === 'run') runCli(measureRound);
   else if (args[0] === 'cleanup') runCli(async (page) => {
-    const directory = resolve(PROJECT_ROOT, 'test/measurements/v2.7/s32-1', `round-${round}`);
+    const directory = evidencePath('s32-1', `round-${round}`);
     const baseline = JSON.parse(await readFile(resolve(directory, 'asset-baseline.json'), 'utf8'));
     let recovery;
     const source = args.indexOf('--known-snapshot');
@@ -221,7 +224,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const original = previous.state?.globalSettings;
       if (!original?.memory || !original?.sprites) throw new Error('The supplied snapshot does not hold the original extension settings.');
       const current = await page.evaluate(() => JSON.parse(JSON.stringify((globalThis as any).storyOrchestratorRuntime.getGlobalSettings())));
-      recovery = { before: { groupId: '1791068844825', settings: { ...current, memory: original.memory, sprites: original.sprites,
+      recovery = { before: { groupId: argValue(args, '--group'), settings: { ...current, memory: original.memory, sprites: original.sprites,
         extraction: { ...current.extraction, enabled: original.extraction.enabled }, display: { ...current.display, briefing: true } } } };
     } else recovery = JSON.parse(await readFile(resolve(directory, 'recovery.json'), 'utf8'));
     const result = await cleanupLivingRound(page, { marker: `SOV27LIVINGR${round}`, baseline, before: recovery.before });
@@ -231,7 +234,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   else if (args[0] === 'score') {
     const reports = await Promise.all(args.slice(1).map(async (file) => JSON.parse(await readFile(file, 'utf8'))));
     const decision = decideCardOverlay(reports);
-    await writeFile(resolve(PROJECT_ROOT, 'test/measurements/v2.7/s32-1/decision.json'), JSON.stringify(decision, null, 2));
+    await writeFile(evidencePath('s32-1', 'decision.json'), JSON.stringify(decision, null, 2));
     console.log(JSON.stringify(decision, null, 2));
   } else throw new Error('Use run|cleanup --round 1|2 (through st-lanes) or score <round-1/report.json> <round-2/report.json>.');
 }

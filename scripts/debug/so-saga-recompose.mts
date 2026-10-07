@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const samples = JSON.parse(await readFile(resolve(out, 'samples.json'), 'utf8'));
 const regions = { Ronan: { x: 102, y: 140, width: 115, height: 64, feather: 3 },
   Javon: { x: 102, y: 115, width: 115, height: 52, feather: 3 },

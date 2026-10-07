@@ -74,6 +74,7 @@ export const UI_ACTIONS = new Set([
   'sprite-reference',
   'card-reply-local',
   'sprite-base',
+  'sprite-frames',
 ]);
 
 export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept-op', 'reject-op', 'apply', 'state']);

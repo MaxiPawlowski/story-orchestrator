@@ -1,12 +1,16 @@
 import { createHash } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { withST } from './lib/cli.mts';
 import { ensureSTReady } from './lib/st-ready.mts';
 import { openGroup, startNewChat, closeUnpinnedDrawers } from './st-navigation.mts';
 import { sendCompactMessage, triggerGroupMember } from './st-actions.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
+import { argValue } from './lib/imageHarness.mts';
 
+const group = argValue(process.argv.slice(2), '--group', "Adolion - The Adventurer's Road");
+
+await mkdir(resolve('test/sessions/evidence/measurements-v2.7/main-rollout'), { recursive: true });
 const report: any = { at: new Date().toISOString(), ok: false };
 try {
     await withST(async (page) => {
@@ -32,7 +36,7 @@ try {
         report.build = { flavor: build.flavor, sha256: createHash('sha256').update(Buffer.from(build.data)).digest('hex'), debugHandles: build.handles };
         if (report.build.flavor !== 'prod' || report.build.sha256 !== build.expected || build.handles.length) throw new Error('Served production build identity failed.');
         if (process.argv[2] === 'probe') {
-            await openGroup(page, "Adolion - The Adventurer's Road");
+            await openGroup(page, group);
             await startNewChat(page);
             await page.waitForTimeout(10000);
             report.probe = await page.evaluate(() => {
@@ -41,7 +45,7 @@ try {
             });
             return;
         }
-        await openGroup(page, "Adolion - The Adventurer's Road");
+        await openGroup(page, group);
         await startNewChat(page);
         await page.waitForFunction(() => {
             const ctx = (globalThis as any).SillyTavern.getContext();
@@ -82,10 +86,10 @@ try {
             return { chatId: ctx.chatId, groupId: ctx.groupId, storyId: blob.selectedStoryId, version: record.playedVersion, pinned: Boolean(record.pinnedStory?.briefing), playerMessages: ctx.chat.filter((m: any) => m.is_user).length, briefingOpen: Boolean(document.querySelector('dialog#so-briefing[open]')) };
         });
         if (report.readyChat.playerMessages || !report.readyChat.pinned) throw new Error('The ready-to-play chat is not fresh.');
-        await page.screenshot({ path: resolve('test/measurements/v2.7/main-rollout/production-ready.png') });
+        await page.screenshot({ path: resolve('test/sessions/evidence/measurements-v2.7/main-rollout/production-ready.png') });
         await client.detach();
         report.ok = true;
     });
 } catch (error) { report.error = String(error); process.exitCode = 1; }
-await writeFile(resolve('test/measurements/v2.7/main-rollout/production.json'), JSON.stringify(report, null, 2));
+await writeFile(resolve('test/sessions/evidence/measurements-v2.7/main-rollout/production.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report));

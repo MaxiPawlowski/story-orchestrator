@@ -1,17 +1,25 @@
 {
-  "name": "v2.7 24: reuse existing expressions without acquiring ownership of their art",
-  "requires": { "group": "SO Belle image pilot", "members": ["Belle"], "authorView": true },
+  "name": "v2.7 32 W5: reuse a test-cast member's original expressions without acquiring ownership of their art",
+  "requires": {
+    "lane": "model",
+    "comfy": true,
+    "imageHarness": ["editModels"],
+    "group": "SOIMG Test cast",
+    "members": ["SOIMG Sable"],
+    "authorView": true,
+    "why": "seed the test cast with art first: st-lanes.mts run <n> -- scripts/debug/so-image-cast.mts seed --art <dir>; the lane's image-harness.json names the edit models"
+  },
   "steps": [
     { "import_story": {
-      "format": 2, "id": "so-v27-reference", "version": 1, "title": "SO-V27-REFERENCE", "description": "A synthetic expression-reference check.",
-      "roster": [{"id": "belle", "name": "Belle", "role": "Portrait subject"}],
-      "qualities": [], "requirements": {"members": ["Belle"]},
+      "format": 2, "id": "soimg-reference", "version": 1, "title": "SOIMG reference", "description": "A synthetic expression-reference check.",
+      "roster": [{"id": "sable", "name": "SOIMG Sable", "role": "Portrait subject"}],
+      "qualities": [], "requirements": {"members": ["SOIMG Sable"]},
       "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Inspect the reference pack.", "illustrate": false}],
       "transitions": []
     } },
     { "ui": { "action": "briefing-dismiss" } },
     { "ui": { "action": "open-studio" } },
     { "ui": { "action": "studio-tab", "label": "Sprites" } },
-    { "ui": { "action": "sprite-reference", "character": "Belle", "pack": "" }, "log": true }
+    { "ui": { "action": "sprite-reference", "character": "SOIMG Sable", "pack": "" }, "log": true }
   ]
 }

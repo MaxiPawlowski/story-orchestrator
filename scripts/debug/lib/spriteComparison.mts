@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { seededRandom } from './ratingPack.mts';
+import { slugName } from './imageHarnessConfig.mts';
 
 export const COMPARISON_ARMS = ['regular', 'simple', 'smooth'] as const;
 export const COMPARISON_LABELS = ['neutral', 'happy', 'angry', 'worried'] as const;
@@ -9,12 +10,14 @@ export interface ComparisonVote { id: string; preferred: 'A' | 'B' | 'tie' | nul
 export interface LookRating { id: number; sameCharacter: boolean; changeVisible: boolean; expressionPreserved: boolean }
 export interface LabeledVote { label: string; preferred: ComparisonArm | 'tie' | null; modes: Record<ComparisonArm, { seam: boolean | null; expression: boolean | null }>; note: string }
 
-export function labeledComparison(samples: ComparisonSample[], seed: string) {
+export function labeledComparison(samples: ComparisonSample[], seed: string, character: string) {
+  const who = slugName(character ?? '');
+  if (!who) throw new Error('A labeled comparison names its character.');
   comparisonPack(samples, seed);
   const votes: LabeledVote[] = samples.map(({ label }) => ({ label, preferred: null,
     modes: { regular: { seam: null, expression: null }, simple: { seam: null, expression: null }, smooth: { seam: null, expression: null } }, note: '' }));
   const content = createHash('sha256').update(JSON.stringify(samples)).digest('hex').slice(0, 12);
-  return { id: `belle-${seed}-${content}-labeled`, samples, votes };
+  return { id: `${who}-${seed}-${content}-labeled`, character, samples, votes };
 }
 
 export function scoreLabeled(votes: LabeledVote[]) {

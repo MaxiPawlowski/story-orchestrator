@@ -163,7 +163,7 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
   const removed = await evaluateInST(page, async ({ targets, baseline, books }) => {
     const ctx = SillyTavern.getContext();
     const headers = ctx.getRequestHeaders();
-    const report: { characters: string[]; groups: string[]; lorebooks: string[]; lorebooksViaHost: string[]; lorebooksUnlisted: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], lorebooks: books.lorebooks, lorebooksViaHost: books.viaHost, lorebooksUnlisted: books.unlisted, regexScripts: [], qrSets: [], evicted: books.evicted, staleCache: books.staleCache, errors: [...books.errors] };
+    const report: { characters: string[]; groups: string[]; expressions: string[]; lorebooks: string[]; lorebooksViaHost: string[]; lorebooksUnlisted: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], expressions: [], lorebooks: books.lorebooks, lorebooksViaHost: books.viaHost, lorebooksUnlisted: books.unlisted, regexScripts: [], qrSets: [], evicted: books.evicted, staleCache: books.staleCache, errors: [...books.errors] };
     const post = async (url: string, body: unknown, label: string) => {
       const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
       if (!response.ok) report.errors.push(`${label}: ${response.status}`);
@@ -172,6 +172,17 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
     // Groups first: deleting a member card out from under a group leaves the group broken.
     for (const group of targets.groups) {
       if (await post('/api/groups/delete', { id: group.id }, `group ${group.name}`)) report.groups.push(group.name);
+    }
+    const needle = String(targets.marker).trim().toLowerCase();
+    for (const character of targets.characters.filter((entry) => String(entry.name).trim().toLowerCase().startsWith(needle))) {
+      const folder = String(character.name);
+      const listed = await fetch(`/api/sprites/get?name=${encodeURIComponent(folder)}`, { headers });
+      const files = listed.ok ? await listed.json() : [];
+      for (const file of Array.isArray(files) ? files : []) {
+        const spriteName = decodeURIComponent(String(file?.path ?? '').split('?')[0].split('/').pop() ?? '').replace(/\.[^.]+$/, '');
+        if (!spriteName) continue;
+        if (await post('/api/sprites/delete', { name: folder, label: file.label, spriteName }, `expression ${folder}/${spriteName}`)) report.expressions.push(`${folder}/${spriteName}`);
+      }
     }
     for (const character of targets.characters) {
       if (await post('/api/characters/delete', { avatar_url: character.avatar, delete_chats: true }, `character ${character.name}`)) report.characters.push(character.name);
@@ -230,7 +241,8 @@ ledger).
 
 Generated sprite labels (including animation frames) are scoped by marker-named sets/characters or a marker-named
 story in their generated-file ledger. A trusted sprite baseline protects every pre-existing label. Original expression
-packs have no generated ownership and are never removed.
+packs have no generated ownership and are never removed, except the root expressions of a marker-NAMED card
+(a seeded test cast, so-image-cast.mts), which go with the card.
 
   --baseline <file>        an asset baseline (so-journey writes .debug/so-journey-asset-baseline.json).
                            Never implied: a stale one would count every ledger entry since it was taken.

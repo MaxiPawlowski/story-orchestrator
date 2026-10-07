@@ -1,17 +1,24 @@
 {
-  "name": "v2.7 24: applied living-card appearance reaches a real local Artemis reply",
-  "requires": { "group": "SO Belle image pilot", "members": ["Belle"], "authorView": true, "mainApi": "textgenerationwebui" },
+  "name": "v2.7 32 W8: an applied living-card appearance reaches a real main-model reply (test cast)",
+  "requires": {
+    "lane": "model",
+    "mainApi": "textgenerationwebui",
+    "group": "SOIMG Test cast",
+    "members": ["SOIMG Wren"],
+    "authorView": true,
+    "why": "seed the test cast first: st-lanes.mts run <n> -- scripts/debug/so-image-cast.mts seed (art not needed)"
+  },
   "steps": [
     { "import_story": {
-      "format": 2, "id": "so-v27-card-reply", "version": 1, "title": "SO-V27-CARD-REPLY", "description": "A synthetic portrait after a visible hair-colour change.",
-      "roster": [{"id": "belle", "name": "Belle", "role": "Portrait subject", "card": {"fields": {"hair": {"quality": "hair", "visual": true}}}}],
-      "qualities": [{"key": "hair", "type": "enum", "values": ["black", "green"], "source": "extractor", "rubric": "The established current hair colour."}],
-      "requirements": {"members": ["Belle"]},
+      "format": 2, "id": "soimg-card-reply", "version": 1, "title": "SOIMG card reply", "description": "A synthetic portrait after a visible hair-colour change.",
+      "roster": [{"id": "wren", "name": "SOIMG Wren", "role": "Portrait subject", "card": {"fields": {"hair": {"quality": "hair", "visual": true}}}}],
+      "qualities": [{"key": "hair", "type": "enum", "values": ["auburn", "green"], "source": "extractor", "rubric": "The established current hair colour."}],
+      "requirements": {"members": ["SOIMG Wren"]},
       "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Pose for a portrait after the established colour change.",
-        "illustrate": false, "effects": {"card": {"belle": {"hair": "green"}}}}],
+        "illustrate": false, "effects": {"card": {"wren": {"hair": "green"}}}}],
       "transitions": []
     } },
     { "ui": { "action": "briefing-dismiss" } },
-    { "ui": { "action": "card-reply-local" }, "log": true }
+    { "ui": { "action": "card-reply-local", "character": "SOIMG Wren", "field": "hair", "value": "green" }, "log": true }
   ]
 }

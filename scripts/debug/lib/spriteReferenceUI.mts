@@ -1,10 +1,11 @@
 import { saveSettingsNow } from './settingsSave.mts';
+import { requireHarness } from './imageHarness.mts';
 import { closeCheckpointStudio } from '../so-ui.mts';
 import { closeUnpinnedDrawers } from '../st-navigation.mts';
 
 export async function adoptExpressionPack(page, spec: { character: string; pack?: string; models?: { diffusion: string; encoder: string; vae: string } }) {
   const pack = spec.pack ?? '';
-  const models = spec.models ?? { diffusion: 'qwen_image_2.1_int8_convrot.safetensors', encoder: 'qwen3vl_8b_int8_convrot.safetensors', vae: 'qwen_image_2.1_vae_bf16.safetensors' };
+  const models = spec.models ?? requireHarness(['editModels']).editModels;
   const saved = await page.evaluate(() => JSON.parse(JSON.stringify((globalThis as any).storyOrchestratorRuntime.getGlobalSettings().sprites)));
   const inventory = async (folder: string) => page.evaluate(async ({ folder, pack }) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
@@ -41,7 +42,7 @@ export async function adoptExpressionPack(page, spec: { character: string; pack?
     if (before.reference.sha256 !== after.reference.sha256) throw new Error('Adopting an expression pack changed its original image bytes.');
     if (JSON.stringify(before.generated) !== JSON.stringify(after.generated)) throw new Error('Reference adoption changed generated-file ownership.');
     const config = await page.evaluate((folder) => (globalThis as any).storyOrchestratorRuntime.getGlobalSettings().sprites.builders[folder], folder);
-    if (config?.baseSet !== pack || JSON.stringify(config.models) !== JSON.stringify(models)) throw new Error('The reference settings did not land.');
+    if (config?.baseSet !== pack || (['diffusion', 'encoder', 'vae'] as const).some((key) => config.models?.[key] !== models[key])) throw new Error('The reference settings did not land.');
     return { character: spec.character, folder, pack, expressions: before.reference.files.length, hash: before.reference.sha256,
       originalUnchanged: true, ownershipUnchanged: true, configSaved: true };
   } finally {

@@ -1,18 +1,28 @@
 {
-  "name": "v2.8 public card values restore with a real fired transition",
-  "requires": {"group": "SO Belle image pilot"},
+  "name": "v2.7 32 W8: public card values restore with a real fired transition (test cast, no model)",
+  "requires": {
+    "lane": "no-model",
+    "group": "SOIMG Test cast",
+    "members": ["SOIMG Wren"],
+    "why": "seed the test cast first: st-lanes.mts run <n> -- scripts/debug/so-image-cast.mts seed --no-art"
+  },
   "steps": [
-    {"eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:false}); globalThis.storyOrchestratorImage.updateSettings({enabled:false}); globalThis.storyOrchestratorSprites.updateSettings({onDemand:false}); return {configured:true};"},
+    {"eval": "const rt=globalThis.storyOrchestratorRuntime; const s=rt.getGlobalSettings(); globalThis.__soV27RollbackPrior={image:s.image.enabled, onDemand:s.sprites.onDemand}; rt.setExtractionSettings({enabled:false}); globalThis.storyOrchestratorImage.updateSettings({enabled:false}); globalThis.storyOrchestratorSprites.updateSettings({onDemand:false}); return {configured:true, prior:globalThis.__soV27RollbackPrior};"},
     {"import_story": {
-      "format": 2, "id": "so-card-rollback", "title": "SO card rollback", "description": "Synthetic public look rollback.",
-      "roster": [{"id":"belle","name":"Belle","card":{"fields":{"hair":{"quality":"hair","visual":true}}}}],
+      "format": 2, "id": "soimg-card-rollback", "title": "SOIMG card rollback", "description": "Synthetic public look rollback.",
+      "roster": [{"id":"wren","name":"SOIMG Wren","card":{"fields":{"hair":{"quality":"hair","visual":true}}}}],
       "qualities": [{"key":"hair","type":"string","source":"extractor","rubric":"Public hair."},{"key":"done","type":"bool","source":"code","rubric":"Scripted gate."}],
-      "checkpoints": [{"id":"start","name":"Start","type":"anchor","start":true,"objective":"Begin."},{"id":"changed","name":"Changed","type":"anchor","objective":"Changed.","effects":{"card":{"belle":{"hair":"green"}}}}],
+      "checkpoints": [{"id":"start","name":"Start","type":"anchor","start":true,"objective":"Begin."},{"id":"changed","name":"Changed","type":"anchor","objective":"Changed.","effects":{"card":{"wren":{"hair":"green"}}}}],
       "transitions": [{"from":"start","to":"changed","priority":1,"gate":{"q":"done","op":"==","v":true}}]
     }},
     {"send": "A synthetic portrait session."},
-    {"slash": "/sendas name=\"Belle\" raw=false The portrait is ready."},
+    {"slash": "/sendas name=\"SOIMG Wren\" raw=false The portrait is ready."},
     {"eval": "const rt=globalThis.storyOrchestratorRuntime; await rt.setQuality('done','true'); const s=rt.getSnapshot(); if(s.activeCheckpointId!=='changed'||s.blackboard.hair!=='green')throw Error('entry write missing'); return {checkpoint:s.activeCheckpointId,hair:s.blackboard.hair};"},
     {"eval": "const rt=globalThis.storyOrchestratorRuntime; const outcome=await rt.rollbackFromMessage(0); if(outcome.result!=='applied')throw Error('rollback must restore a fired boundary'); const s=rt.getSnapshot(); if(s.blackboard.hair!==undefined||s.activeCheckpointId!=='start')throw Error('look did not roll back'); return {restored:true,checkpoint:s.activeCheckpointId};"}
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {"eval": "const p=globalThis.__soV27RollbackPrior; if(!p) return {restored:false, reason:'nothing was switched'}; globalThis.storyOrchestratorImage.updateSettings({enabled:p.image}); globalThis.storyOrchestratorSprites.updateSettings({onDemand:p.onDemand}); const s=globalThis.storyOrchestratorRuntime.getGlobalSettings(); if(s.image.enabled!==p.image||s.sprites.onDemand!==p.onDemand) throw Error('image.enabled / sprites.onDemand did not restore'); delete globalThis.__soV27RollbackPrior; SillyTavern.getContext().saveSettingsDebounced(); return {restored:true, image:s.image.enabled, onDemand:s.sprites.onDemand};"}
+    ]
+  }
 }

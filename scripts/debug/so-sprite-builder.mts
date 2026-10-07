@@ -6,11 +6,14 @@ import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { openCheckpointStudio } from './so-ui.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { readBuilderError } from './lib/spriteBuilderUI.mts';
+import { requireHarness, builderBox } from './lib/imageHarness.mts';
+import { parseBox, setSlug } from './lib/imageHarnessConfig.mts';
 
 const args = process.argv.slice(2);
 const value = (flag: string, fallback: string): string => { const at = args.indexOf(flag); return at < 0 ? fallback : args[at + 1] ?? fallback; };
 
-export async function buildSpriteFromUI(page, options: { character: string; set: string; label: string; kind: string; box: number[]; reference: string; seed: number; steps: number; value?: string; resolution?: number; region?: Record<string, number> }) {
+export async function buildSpriteFromUI(page, options: { character: string; set: string; label: string; kind: string; box: number[]; reference: string; seed: number; steps: number; value?: string; resolution?: number; region?: Record<string, number>; models?: { diffusion: string; encoder: string; vae: string } }) {
+  const models = options.models ?? requireHarness(['editModels']).editModels;
   const root = page.locator('#so-sprite-builder');
   if (!await root.isVisible()) await page.locator('#so-studio-tab-sprites').click({ force: true });
   await root.getByLabel('Character', { exact: true }).selectOption({ label: options.character });
@@ -25,9 +28,7 @@ export async function buildSpriteFromUI(page, options: { character: string; set:
     const error = await readBuilderError(root);
     if (error) throw new Error(error);
   }
-  await root.getByLabel('diffusion', { exact: true }).selectOption('qwen_image_2.1_int8_convrot.safetensors');
-  await root.getByLabel('encoder', { exact: true }).selectOption('qwen3vl_8b_int8_convrot.safetensors');
-  await root.getByLabel('vae', { exact: true }).selectOption('qwen_image_2.1_vae_bf16.safetensors');
+  for (const key of ['diffusion', 'encoder', 'vae'] as const) await root.getByLabel(key, { exact: true }).selectOption(models[key]);
   for (const [at, field] of ['x', 'y', 'width', 'height'].entries()) await root.getByLabel(field, { exact: true }).fill(String(options.box[at]));
   await root.getByLabel('Edit', { exact: true }).selectOption(options.kind);
   if (options.kind === 'look') await root.getByLabel('Visible change', { exact: true }).fill(options.value ?? '');
@@ -57,10 +58,23 @@ export async function buildSpriteFromUI(page, options: { character: string; set:
     preview: await root.locator('img[alt$="preview"]').getAttribute('src').then((src) => Boolean(src?.startsWith('data:image/png'))) };
 }
 
+const required = (flag: string): string => {
+  const given = value(flag, '');
+  if (!given) throw new Error(`${flag} is required (the harness names no default character, story or set).`);
+  return given;
+};
+
+const packSpec = async (page) => {
+  const character = required('--character');
+  const folder = value('--folder', character);
+  const set = value('--set', `so_${setSlug(character)}_pilot`);
+  return { character, folder, set, box: await builderBox(page, folder, parseBox(value('--box', ''))) };
+};
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
   const command = args[0] ?? 'state';
   if (command === 'setup') {
-    const story = JSON.parse(await readFile(resolve(value('--story', 'test/scenarios/v27-belle-pilot.story.json')), 'utf8'));
+    const story = JSON.parse(await readFile(resolve(required('--story')), 'utf8'));
     const result = await page.evaluate(async (story) => {
       const ctx = SillyTavern.getContext();
       if (!ctx.groupId || !ctx.chatId) throw new Error('Open the explicitly pinned pilot group before setup.');
@@ -76,9 +90,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
     await writeJSON(result, 'sprite-builder-setup');
   } else if (command === 'build') {
     if (!await page.locator('#so-studio-modal[open]').count()) await openCheckpointStudio(page);
+    const pack = await packSpec(page);
     const result = await buildSpriteFromUI(page, {
-      character: value('--character', 'Belle'), set: value('--set', 'so_belle_pilot'), label: value('--label', 'happy'), kind: value('--kind', 'expression'),
-      reference: value('--reference', 'neutral'), box: value('--box', '221,11,320,320').split(',').map(Number), seed: Number(value('--seed', '1')), steps: Number(value('--steps', '25')),
+      character: pack.character, set: pack.set, label: value('--label', 'happy'), kind: value('--kind', 'expression'),
+      reference: value('--reference', 'neutral'), box: pack.box, seed: Number(value('--seed', '1')), steps: Number(value('--steps', '25')),
     });
     await writeJSON(result, 'sprite-builder-preview');
     await page.locator('#so-sprite-builder img[alt$="preview"]').scrollIntoViewIfNeeded();
@@ -88,6 +103,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
     await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.innerText.includes('Saved to '), undefined, { polling: 250, timeout: 30_000 });
     await writeJSON({ evidence: await page.locator('#so-sprite-builder').innerText() }, 'sprite-builder-saved');
   } else if (command === 'pilot-pack') {
+    const { character, folder, set, box } = await packSpec(page);
     if (!await page.locator('#so-studio-modal[open]').count()) await openCheckpointStudio(page);
     for (const label of ['neutral', 'happy', 'angry', 'worried']) {
       const exists = await page.evaluate(async (args) => {
@@ -95,9 +111,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
         const response = await fetch('/api/plugins/story-orchestrator-media/sprites/read', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(args) });
         const data = await response.json();
         return response.ok && data?.labels?.[args.label]?.status === 'complete';
-      }, { character: 'Belle', set: 'so_belle_pilot', label });
+      }, { character: folder, set, label });
       if (!exists) {
-        const result = await buildSpriteFromUI(page, { character: 'Belle', set: 'so_belle_pilot', label, kind: 'expression', reference: 'neutral', box: [221, 11, 320, 320], seed: 1, steps: 25 });
+        const result = await buildSpriteFromUI(page, { character, set, label, kind: 'expression', reference: 'neutral', box, seed: 1, steps: 25 });
         await writeJSON(result, `sprite-pilot-${label}`);
         await page.locator('#so-sprite-builder').getByRole('button', { name: 'Keep this sprite' }).click({ force: true });
         await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.innerText.includes('Saved to '), undefined, { polling: 250, timeout: 30_000 });
@@ -109,9 +125,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
         const response = await fetch('/api/plugins/story-orchestrator-media/sprites/read', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(args) });
         const data = await response.json();
         return response.ok && data?.labels?.[args.label]?.status === 'complete';
-      }, { character: 'Belle', set: 'anim-so_belle_pilot', label: `${label}.${kind}` });
+      }, { character: folder, set: `anim-${set}`, label: `${label}.${kind}` });
       if (exists) continue;
-      const result = await buildSpriteFromUI(page, { character: 'Belle', set: 'so_belle_pilot', label, kind, reference: `so_belle_pilot/${label}`, box: [221, 11, 320, 320], seed: 1, steps: 25 });
+      const result = await buildSpriteFromUI(page, { character, set, label, kind, reference: `${set}/${label}`, box, seed: 1, steps: 25 });
       await writeJSON(result, `sprite-pilot-${label}-${kind}`);
       await page.locator('#so-sprite-builder').getByRole('button', { name: 'Keep this sprite' }).click({ force: true });
       await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.innerText.includes('Saved to '), undefined, { polling: 250, timeout: 30_000 });
@@ -120,12 +136,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
   } else if (command === 'look-check') {
     await page.waitForFunction(() => globalThis.storyOrchestratorSprites.view().actors.some((actor) => actor.set.startsWith('look_')),
       undefined, { polling: 500, timeout: 900_000 });
-    const result = await page.evaluate(() => {
+    const look = { character: required('--character'), quality: required('--quality'), value: required('--value') };
+    const result = await page.evaluate((look) => {
       const rt = globalThis.storyOrchestratorRuntime, stage = globalThis.storyOrchestratorSprites;
-      const snapshot = rt.getSnapshot(), actor = stage.view().actors.find((actor) => actor.name === 'Belle');
-      if (snapshot.blackboard.belle_hair !== 'green' || !actor?.set.startsWith('look_')) throw new Error('The applied public look did not select its generated set.');
-      return { hair: snapshot.blackboard.belle_hair, set: actor.set, path: actor.path };
-    });
+      const snapshot = rt.getSnapshot(), actor = stage.view().actors.find((actor) => actor.name === look.character);
+      if (snapshot.blackboard[look.quality] !== look.value || !actor?.set.startsWith('look_')) throw new Error('The applied public look did not select its generated set.');
+      return { character: look.character, [look.quality]: snapshot.blackboard[look.quality], set: actor.set, path: actor.path };
+    }, look);
     await writeJSON(result, 'sprite-pilot-look');
     await writeScreenshot(page, 'sprite-pilot-look');
   } else if (command === 'cancel') {
