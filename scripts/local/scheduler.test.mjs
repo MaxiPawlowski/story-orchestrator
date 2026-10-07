@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ResidencyScheduler } from './scheduler.mjs';
+import { footprintKey, FOOTPRINT_REVISION } from './footprints.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-const free = (freeMiB) => ({ gpus: [{ usedMiB: 24576 - freeMiB, freeMiB }], host: { availableMiB: 24000, commitFreeMiB: 80000 } });
+const free = (freeMiB) => ({ highCadence: true, gpus: [{ usedMiB: 24576 - freeMiB, freeMiB }], host: { availableMiB: 24000, commitFreeMiB: 80000 } });
 
 function setup(overrides = {}) {
     const { config: configOverrides = {}, ...rest } = overrides;
@@ -106,7 +107,7 @@ test('a shed profile returns to full speed after the idle window', async () => {
 
 test('a swap clears the shed intent so the next text request loads full speed', async () => {
     let n = 0;
-    const { scheduler, backend } = setup({ snapshot: async () => free([3000, 11048, 3000, 22000][n++] ?? 22000) });
+    const { scheduler, backend } = setup({ snapshot: async () => free([3000, 11048, 11048, 3000, 22000][n++] ?? 22000) });
     const shed = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 });
     assert.equal(shed.decision, 'shed-text');
     assert.equal(backend.fitTarget, 9000 + 2048);
@@ -121,7 +122,7 @@ test('a mismatched lease cannot release another render; a single observation doe
     assert.equal(await scheduler.release('wrong'), false);
     scheduler.lease.seenJob = true;
     await scheduler.release(lease.lease);
-    assert.equal(scheduler.footprints.scene.verified, false);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].verified, false);
 });
 
 test('a workflow becomes verified after two consistent observations', async () => {
@@ -129,13 +130,13 @@ test('a workflow becomes verified after two consistent observations', async () =
     const first = await scheduler.reserve({ workflowKey: 'scene' });
     scheduler.lease.seenJob = true;
     await scheduler.release(first.lease);
-    assert.equal(scheduler.footprints.scene.verified, false);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].verified, false);
     const second = await scheduler.reserve({ workflowKey: 'scene' });
     scheduler.lease.seenJob = true;
     await scheduler.release(second.lease);
-    assert.equal(scheduler.footprints.scene.verified, true);
-    assert.equal(scheduler.footprints.scene.runs, 2);
-    assert.equal(scheduler.footprints.scene.samples.length, 2);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].verified, true);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].runs, 2);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].samples.length, 2);
 });
 
 test('an inconsistent observation blocks verification', async () => {
@@ -147,8 +148,8 @@ test('an inconsistent observation blocks verification', async () => {
     scheduler.lease.seenJob = true;
     scheduler.lease.peakGpu = 9000;
     await scheduler.release(second.lease);
-    assert.equal(scheduler.footprints.scene.verified, false);
-    assert.equal(scheduler.footprints.scene.runs, 2);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].verified, false);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].runs, 2);
 });
 
 test('an idle restore owns the lifecycle until it settles; queued text and an image wait', async () => {
@@ -163,7 +164,7 @@ test('an idle restore owns the lifecycle until it settles; queued text and an im
     const reserving = scheduler.reserve({ needGpuMiB: 9000 });
     await tick();
     await assert.rejects(scheduler.load('fast'), /active work/);
-    assert.deepEqual(calls, ['free', 'restore']);
+    assert.deepEqual(calls, ['unload', 'free', 'restore']);
     gate.resolve(); await restoring;
     const lease = await reserving;
     assert.equal(calls.includes('text'), false);
@@ -188,7 +189,7 @@ test('post-shed admission keeps the GPU reserve, not only the render allocation'
     let n = 0;
     const { scheduler, calls } = setup({ snapshot: async (options) => {
         assert.equal(options.fresh, true);
-        return free([3000, 9500, 22000][n++]);
+        return free([3000, 9500, 22000][n++] ?? 22000);
     } });
     const lease = await scheduler.reserve({ needGpuMiB: 9000 });
     assert.equal(lease.decision, 'swap-text');
@@ -205,6 +206,26 @@ test('image admission refuses insufficient physical RAM or commit and an impossi
         await assert.rejects(scheduler.reserve({ needGpuMiB: 9000, needRamMiB: 9000 }), /admission refused/);
         assert.equal(scheduler.lease, null);
     }
+});
+
+test('verified same-runtime RAM demand replaces the conservative loader estimate without weakening reserves', async () => {
+    const snapshot = { ...free(22000), host: { availableMiB: 13000, commitFreeMiB: 70000 } };
+    const key = footprintKey({ workflowKey: 'edit', runtime: { id: 'unknown', streaming: false }, models: [], cacheState: 'cold-or-unknown', text: null });
+    const make = (verified, revision = FOOTPRINT_REVISION) => {
+        const result = setup({ snapshot: async () => snapshot, config: { defaultImageRamMiB: 20000 },
+            footprints: { [key]: { revision, verified, ramMiB: 3000, gpuMiB: 9000 } } });
+        result.backend.profile = null;
+        return result.scheduler;
+    };
+    const learned = make(true);
+    await learned.reserve({ workflowKey: 'edit', needGpuMiB: 9000 });
+    assert.equal(learned.lease.needRamMiB, 3000);
+    await assert.rejects(make(false).reserve({ workflowKey: 'edit', needGpuMiB: 9000 }), /admission refused/);
+    await assert.rejects(make(true, FOOTPRINT_REVISION - 1).reserve({ workflowKey: 'edit', needGpuMiB: 9000 }), /admission refused/);
+    await assert.rejects(make(true).reserve({ workflowKey: 'edit', needGpuMiB: 9000, needRamMiB: 20000 }), /admission refused/);
+    const reserve = make(true);
+    reserve.snapshot = async () => ({ ...snapshot, host: { availableMiB: 3000 + 4095, commitFreeMiB: 70000 } });
+    await assert.rejects(reserve.reserve({ workflowKey: 'edit', needGpuMiB: 9000 }), /admission refused/);
 });
 
 test('a failed shed RAM admission falls back to swapping instead of stranding the request', async () => {
@@ -239,12 +260,12 @@ test('total-wait policy swaps an unmeasured reduced profile and restores for a c
     scheduler.timings = { 'fast:full': { loadMs: 22000, tokensPerSecond: 30, promptMs: 1000 }, 'fast:11048': { loadMs: 22000, tokensPerSecond: 3 } };
     const before = calls.length;
     await scheduler.text(async () => { calls.push('reply'); }, null, 256);
-    assert.deepEqual(calls.slice(before), ['free', 'load', 'reply']);
+    assert.deepEqual(calls.slice(before), ['unload', 'free', 'load', 'reply']);
     assert.equal(backend.fitTarget, null);
     assert.equal(scheduler.lastTextDecision.restore, true);
 });
 
-test('a cheap measured reply keeps the reduced profile and learned RAM demand never shrinks to a warm delta', async () => {
+test('a cheap measured reply keeps the reduced profile and observations are distinct from estimates', async () => {
     const { scheduler, backend, calls } = setup({ config: { residencyObjective: 'total-wait' } });
     backend.fitTarget = 11048;
     scheduler.timings = { 'fast:full': { loadMs: 22000, tokensPerSecond: 30 }, 'fast:11048': { loadMs: 2000, tokensPerSecond: 3 } };
@@ -253,6 +274,20 @@ test('a cheap measured reply keeps the reduced profile and learned RAM demand ne
     const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000, needRamMiB: 10000 });
     scheduler.lease.seenJob = true;
     await scheduler.release(lease.lease);
-    assert.equal(scheduler.footprints.scene.ramMiB, 10000);
-    assert.equal(scheduler.footprints.scene.gpuMiB, 9000);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].ramMiB, 512);
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].gpuMiB, 512);
+});
+
+test('periodic lease sampling uses the fresh high-cadence seam instead of the cached status snapshot', async () => {
+    let busy = false;
+    const { scheduler } = setup({ snapshot: async (options) => {
+        assert.equal(options?.fresh, true);
+        return free(22000);
+    }, queue: async () => ({ queue_running: busy ? [[1, 'owned']] : [], queue_pending: [] }) });
+    const lease = await scheduler.reserve({ workflowKey: 'flux', needGpuMiB: 18000, needRamMiB: 4096 });
+    busy = true; await scheduler.sampleLease(); busy = false;
+    assert.equal(scheduler.lease.highCadence, true);
+    assert.equal(scheduler.lease.seenJob, true);
+    assert.equal(scheduler.lastError, null);
+    await scheduler.release(lease.lease);
 });

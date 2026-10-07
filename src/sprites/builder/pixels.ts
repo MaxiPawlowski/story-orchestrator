@@ -1,4 +1,5 @@
 import type { EditKind } from "./recipes";
+import { mouthRegion, regionWeight, validateRegion, type FrameRegion } from "./frameRegion";
 
 export interface PixelImage { width: number; height: number; data: Uint8ClampedArray; sha256?: string }
 export interface HeadBox { x: number; y: number; width: number; height: number }
@@ -9,10 +10,14 @@ export function validateBox(image: Pick<PixelImage, "width" | "height">, box: He
     || box.x + box.width > image.width || box.y + box.height > image.height) throw new Error("The head box must fit inside the reference image.");
 }
 
-export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind): PixelImage {
+export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind, frameRegion?: FrameRegion): PixelImage {
   validateBox(base, box);
   if (edit.width !== box.width || edit.height !== box.height) throw new Error("Resize the edit to the reference head box before compositing.");
   const frame = kind === "blink" || kind === "talk" || kind === "talk2";
+  const mouth = kind === "talk" || kind === "talk2" || kind === "rest";
+  const region = mouth ? frameRegion ?? mouthRegion(box) : undefined;
+  const eyeExclusion = kind === "blink" ? mouthRegion(box) : undefined;
+  if (region) validateRegion(box, region);
   const data = frame ? new Uint8ClampedArray(base.data.length) : new Uint8ClampedArray(base.data);
   const low = kind === "blink" ? 0.12 : kind === "talk" || kind === "talk2" ? 0.55 : 0;
   const high = kind === "blink" ? 0.55 : 1;
@@ -20,7 +25,7 @@ export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind
     const distance = Math.sqrt(((x + 0.5 - box.width / 2) / (box.width / 2)) ** 2 + ((y + 0.5 - box.height / 2) / (box.height / 2)) ** 2);
     const edge = Math.min(1, Math.max(0, (1 - distance) / 0.12));
     const band = Math.min(1, Math.max(0, (y / box.height - low) / 0.04), Math.max(0, (high - y / box.height) / 0.04));
-    const weight = edge * band;
+    const weight = eyeExclusion && regionWeight(x, y, eyeExclusion) > 0 ? 0 : region ? regionWeight(x, y, region) : edge * band;
     if (!weight) continue;
     const target = ((box.y + y) * base.width + box.x + x) * 4, source = (y * edit.width + x) * 4;
     for (let channel = 0; channel < 3; channel += 1) {
@@ -29,6 +34,20 @@ export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind
     data[target + 3] = frame ? Math.round(base.data[target + 3] * weight) : base.data[target + 3];
   }
   return { width: base.width, height: base.height, data };
+}
+
+export function checkMouthCoverage(base: PixelImage, output: PixelImage, box: HeadBox, region: FrameRegion, patch = true): string[] {
+  validateRegion(box, region);
+  for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
+    const offset = ((box.y + y) * base.width + box.x + x) * 4;
+    const weight = regionWeight(x, y, region);
+    if (weight === 1 && output.data[offset + 3] !== base.data[offset + 3]) return ["The mouth replacement leaves original pixels visible inside its region."];
+    if (!weight && patch && output.data[offset + 3] !== 0) return ["The mouth patch extends outside its replacement region."];
+    if (!weight && !patch && [0, 1, 2, 3].some((channel) => output.data[offset + channel] !== base.data[offset + channel])) {
+      return ["The resting edit changes pixels outside its mouth region."];
+    }
+  }
+  return [];
 }
 
 export function checkPixels(base: PixelImage, output: PixelImage, box: HeadBox, frame = false): PixelQA {
@@ -43,10 +62,12 @@ export function checkPixels(base: PixelImage, output: PixelImage, box: HeadBox, 
     const offset = (y * base.width + x) * 4;
     if (output.data[offset + 3] > 8) {
       opaque += 1;
-      colours.add((output.data[offset] << 16) | (output.data[offset + 1] << 8) | output.data[offset + 2]);
+      if (colours.size < 8) colours.add((output.data[offset] << 16) | (output.data[offset + 1] << 8) | output.data[offset + 2]);
     } else alphaPixels += 1;
     const inside = x >= box.x && x < box.x + box.width && y >= box.y && y < box.y + box.height;
-    const delta = Math.max(...[0, 1, 2].map((channel) => Math.abs(base.data[offset + channel] - output.data[offset + channel])));
+    const needsDelta = inside && output.data[offset + 3] > 8 || !inside && !frame;
+    const delta = needsDelta ? Math.max(Math.abs(base.data[offset] - output.data[offset]),
+      Math.abs(base.data[offset + 1] - output.data[offset + 1]), Math.abs(base.data[offset + 2] - output.data[offset + 2])) : 0;
     if (inside && output.data[offset + 3] > 8 && delta > 4) changed += 1;
     if (!inside && !frame) { ringDrift += delta; ringCount += 1; }
     if (!frame && output.data[offset + 3] !== base.data[offset + 3]) alphaChanged = true;

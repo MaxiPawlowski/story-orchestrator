@@ -102,7 +102,8 @@ export const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
             return (
               <div key={`${entity}-${row.field}`} className="flex gap-2 opacity-80 flex-wrap">
                 <span>{row.field}={row.value}{row.bound ? " 🔒" : ""}</span>
-                {row.bound && <span title="mirrored read-only from a blackboard quality">blackboard</span>}
+                 {row.bound && <span title="mirrored read-only from a blackboard quality">blackboard</span>}
+                 {row.cardWriter && <span>current card state · {row.cardWriter} · boundary {row.turn}</span>}
                 {id && <button className="menu_button" onClick={() => void manager.removeLedgerEntry(id)}>Remove</button>}
               </div>
             );

@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { admission, stableSamples, textLatencyDecision } from './policy.mjs';
-import { estimateNeedMiB } from './models.mjs';
+import { admission, textLatencyDecision } from './policy.mjs';
+import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
+import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 
 export class ResidencyScheduler {
-    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {} }) {
-        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings });
+    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }) }) {
+        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime });
         this.pending = [];
         this.activeText = false;
         this.imagePending = false;
@@ -17,6 +18,8 @@ export class ResidencyScheduler {
         this.lastError = null;
         this.releasing = null;
         this.lastTextDecision = null;
+        this.lastWorkflow = null;
+        this.lastCacheMode = null;
     }
 
     text(run, signal, budget = null) {
@@ -58,12 +61,12 @@ export class ResidencyScheduler {
     async needFor(body, key) {
         const footprint = key ? this.footprints[key] : null;
         const measured = Number.isFinite(footprint?.gpuMiB) ? footprint.gpuMiB : null;
-        if (footprint?.verified && measured !== null) return Math.ceil(measured);
-        if (Number.isFinite(body?.needGpuMiB) && body.needGpuMiB > 0) return Math.ceil(Number(body.needGpuMiB));
+        const verified = footprint?.revision === FOOTPRINT_REVISION && footprint.verified && measured !== null ? measured : 0;
+        if (Number.isFinite(body?.needGpuMiB) && body.needGpuMiB > 0) return Math.ceil(Math.max(verified, Number(body.needGpuMiB)));
         if (Array.isArray(body?.modelFiles) && body.modelFiles.length && this.config.modelDirs) {
             try {
-                return Math.ceil(await estimateNeedMiB({ modelDirs: this.config.modelDirs, files: body.modelFiles,
-                    width: body.width, height: body.height, hires: body.hires }));
+                return Math.ceil(Math.max(verified, await estimateNeedMiB({ modelDirs: this.config.modelDirs, files: body.modelFiles,
+                    width: body.width, height: body.height, hires: body.hires })));
             } catch (error) { this.lastError = error.message; }
         }
         if (measured !== null) return Math.ceil(measured);
@@ -83,9 +86,19 @@ export class ResidencyScheduler {
             const queue = await this.queue();
             if (queue.queue_running?.length || queue.queue_pending?.length) throw new Error('ComfyUI has an existing job; the controller will not interrupt it.');
             const key = typeof body.workflowKey === 'string' && body.workflowKey.length < 20000 ? body.workflowKey : null;
-            const needGpuMiB = await this.needFor(body, key);
-            const footprint = key ? this.footprints[key] : null;
-            const needRamMiB = Math.ceil(Math.max(footprint?.ramMiB ?? 0, Number.isFinite(body.needRamMiB) && body.needRamMiB >= 0 ? body.needRamMiB : needGpuMiB));
+            const runtime = await this.runtime();
+            const models = body.modelFiles?.length && this.config.modelDirs ? await modelIdentities(this.config.modelDirs, body.modelFiles) : [];
+            const identity = { workflowKey: key, runtime, models,
+                cacheState: this.lastWorkflow === key && this.lastCacheMode === 'ram-warm' ? 'warm-possible' : 'cold-or-unknown',
+                text: this.backend.status().pid ? { profile: this.backend.status().profile, fitTarget: this.backend.status().fitTargetMiB } : null };
+            const observedKey = key ? footprintKey(identity) : null;
+            const needGpuMiB = await this.needFor(body, observedKey);
+            const footprint = observedKey ? this.footprints[observedKey] : null;
+            const measuredRam = footprint?.revision === FOOTPRINT_REVISION && footprint.verified && Number.isFinite(footprint.ramMiB) ? footprint.ramMiB : null;
+            const estimatedRam = models.length ? estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
+                width: body.width, height: body.height, hires: body.hires, streaming: runtime.streaming }) : this.config.defaultImageRamMiB ?? 8192;
+            const needRamMiB = Math.ceil(Math.max(measuredRam ?? estimatedRam,
+                Number.isFinite(body.needRamMiB) && body.needRamMiB >= 0 ? body.needRamMiB : 0));
             const room = needGpuMiB + this.config.reserves.gpuMiB;
             const benchmarkMode = this.config.experiments ? body.benchmarkMode : null;
             let snapshot = await this.snapshot({ fresh: true });
@@ -118,7 +131,10 @@ export class ResidencyScheduler {
             this.lastError = null;
             this.lastNeedGpuMiB = needGpuMiB;
             this.lastLeaseAt = Date.now();
-            this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key, before: snapshot, peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, seenJob: false, decision, needGpuMiB, needRamMiB };
+            this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: snapshot,
+                peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
+                lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
+                trace: [] };
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) { this.lastError = error.message; throw error; }
         finally { this.imagePending = false; if (!this.lease) void this.pump(); }
@@ -149,13 +165,24 @@ export class ResidencyScheduler {
         const lease = this.lease;
         if (!lease) return;
         try {
-            const [snapshot, queue] = await Promise.all([this.snapshot(), this.queue()]);
+            const [snapshot, queue] = await Promise.all([this.snapshot({ fresh: true }), this.queue()]);
             if (this.lease !== lease) return;
-            lease.peakGpu = Math.max(lease.peakGpu, snapshot.gpus[0].usedMiB);
-            lease.lowRam = Math.min(lease.lowRam, snapshot.host.availableMiB);
+            this.observe(snapshot);
             lease.seenJob ||= Boolean(queue.queue_running?.length || queue.queue_pending?.length);
             if (Date.now() - lease.touched > 120000 && !queue.queue_running?.length && !queue.queue_pending?.length) await this.release(lease.id);
         } catch (error) { this.lastError = error.message; }
+    }
+
+    observe(snapshot) {
+        const lease = this.lease;
+        if (!lease) return;
+        lease.peakGpu = Math.max(lease.peakGpu, snapshot.gpus[0].usedMiB);
+        lease.lowRam = Math.min(lease.lowRam, snapshot.host.availableMiB);
+        lease.lowCommit = Math.min(lease.lowCommit, snapshot.host.commitFreeMiB);
+        lease.lowGpu = Math.min(lease.lowGpu, snapshot.gpus[0].freeMiB);
+        lease.highCadence &&= snapshot.highCadence === true;
+        lease.trace.push(snapshot);
+        if (lease.trace.length > 5000) { lease.trace.shift(); lease.highCadence = false; }
     }
 
     async release(id) {
@@ -175,22 +202,18 @@ export class ResidencyScheduler {
             if (Date.now() > deadline) throw new Error('Image work is still running; text remains queued.');
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
+        const profile = this.config.profiles?.[this.backend.desiredProfile ?? this.config.defaultProfile];
+        const cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
+            maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+        this.observe(await this.snapshot({ fresh: true }));
+        this.lastWorkflow = lease.workflowKey;
+        this.lastCacheMode = cache?.mode ?? null;
         if (lease.key && lease.seenJob) {
-            const old = this.footprints[lease.key];
-            const gpuMiB = Math.ceil((lease.peakGpu - lease.before.gpus[0].usedMiB) * 1.2 + 512);
-            const ramMiB = Math.max(lease.needRamMiB, Math.ceil((lease.before.host.availableMiB - lease.lowRam) * 1.2 + 512));
-            const samples = [...(old?.samples ?? []), { gpuMiB, ramMiB }].slice(-3);
-            this.footprints[lease.key] = {
-                gpuMiB: Math.max(lease.needGpuMiB, gpuMiB, ...samples.map((row) => row.gpuMiB)),
-                ramMiB: Math.max(ramMiB, ...samples.map((row) => row.ramMiB)),
-                runs: (old?.runs ?? 0) + 1,
-                samples,
-                verified: stableSamples(samples),
-            };
+            this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
             await this.saveFootprints(this.footprints);
         }
-        const profile = this.config.profiles?.[this.backend.desiredProfile ?? this.config.defaultProfile];
-        await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500 });
+        this.lastMeasurement = { key: lease.key, workflowKey: lease.workflowKey, identity: lease.identity, lowRamMiB: lease.lowRam,
+            lowGpuMiB: lease.lowGpu, lowCommitMiB: lease.lowCommit, highCadence: lease.highCadence, seenJob: lease.seenJob, trace: lease.trace };
         this.lease = null;
         this.lastLeaseAt = Date.now();
         void this.pump();
@@ -213,6 +236,9 @@ export class ResidencyScheduler {
 
     async restoreText() {
         const name = this.backend.desiredProfile ?? this.config.defaultProfile;
+        const current = this.backend.status();
+        if (current.pid && current.profile === name && current.fitTargetMiB === null) return;
+        await this.backend.unload();
         await this.freeImages({ ramRequiredMiB: this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 });
         await this.backend.load(name, { fitTarget: null });
     }
@@ -231,6 +257,12 @@ export class ResidencyScheduler {
 
     async load(profile, options = {}) {
         await this.exclusive(async () => {
+            const selected = this.config.profiles?.[profile];
+            if (this.config.profiles && (!selected || selected.disabled)) throw new Error('That residency profile is unavailable.');
+            const current = this.backend.status();
+            const fitTarget = Number.isFinite(options.fitTarget) ? Math.ceil(options.fitTarget) : null;
+            if (current.pid && current.profile === profile && current.fitTargetMiB === fitTarget) { this.manualHold = false; return; }
+            await this.backend.unload();
             await this.freeImages({ ramRequiredMiB: this.config.profiles?.[profile]?.estimatedRamMiB ?? 6500 });
             await this.backend.load(profile, options);
             this.manualHold = false;
@@ -247,6 +279,7 @@ export class ResidencyScheduler {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText ? 1 : 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
-            lastDecision: this.lastDecision, lastNeedGpuMiB: this.lastNeedGpuMiB, lastError: this.lastError };
+            lastDecision: this.lastDecision, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
+            lastError: this.lastError };
     }
 }

@@ -38,6 +38,8 @@ import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
+import { imageHealth } from "./imageHealth";
+import { cardSurface } from "./cardLedger";
 import type { PlaysIndex } from "./playsIndex";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -322,7 +324,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
   const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
-
   return {
     ready: Boolean(loaded),
     storyId: loaded?.record.id ?? null,
@@ -335,6 +336,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyDescription: story?.description ?? null,
     publicStoryIntro: publishedIntro(story),
     imageStory: story?.illustrations ? { checkpoints: story.illustrations.checkpoints === true, scenes: story.illustrations.scenes === true } : null,
+    imageHealth: imageHealth(),
     activeCheckpointId: active?.id ?? null,
     activeCheckpointName: active?.name ?? null,
     activeObjective: active?.objective ?? null,
@@ -388,7 +390,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     narrative,
     lastRollback: sources.lastRollback,
     rollbackUnavailable: sources.rollbackUnavailable,
-    ledger: sources.ledger,
+    ...cardSurface(story, state, sources.chatId ?? openChatId(), sources.ledger),
     memoryInjection: sources.memoryInjection ?? null,
     lastFired,
     driver: sources.driver,

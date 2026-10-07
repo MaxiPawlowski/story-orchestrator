@@ -8,7 +8,7 @@ out, every tool of the CLI off. Off until a task is routed to it. User guide:
 ## Install
 
 1. Copy this folder to `<SillyTavern>/plugins/story-orchestrator-harness/` (from a source checkout:
-   `npm run plugin:install -- --st-root <SillyTavern>`).
+    `npm run plugin:install -- --st-root <SillyTavern> --with harness`).
 2. Install and log in to the CLI on the server. Only subscription logins are used, never API keys:
 
    | Harness | Binary | Login file |

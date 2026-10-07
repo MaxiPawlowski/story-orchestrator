@@ -1,0 +1,17 @@
+{
+  "name": "v2.7 24: reuse existing expressions without acquiring ownership of their art",
+  "requires": { "group": "SO Belle image pilot", "members": ["Belle"], "authorView": true },
+  "steps": [
+    { "import_story": {
+      "format": 2, "id": "so-v27-reference", "version": 1, "title": "SO-V27-REFERENCE", "description": "A synthetic expression-reference check.",
+      "roster": [{"id": "belle", "name": "Belle", "role": "Portrait subject"}],
+      "qualities": [], "requirements": {"members": ["Belle"]},
+      "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Inspect the reference pack.", "illustrate": false}],
+      "transitions": []
+    } },
+    { "ui": { "action": "briefing-dismiss" } },
+    { "ui": { "action": "open-studio" } },
+    { "ui": { "action": "studio-tab", "label": "Sprites" } },
+    { "ui": { "action": "sprite-reference", "character": "Belle", "pack": "" }, "log": true }
+  ]
+}

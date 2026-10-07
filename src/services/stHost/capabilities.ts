@@ -3,6 +3,8 @@ import { readPromptBudget } from "./contextBudget";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { pluginVersionIssue } from "@utils/pluginVersions";
 import { backgroundsModule } from "./modules";
+import { stImageReadiness } from "./stImage";
+import { mediaStatus, comfyDiscover } from "./media";
 import { listSlashCommands } from "./selectors";
 import { getHostVersion, macroEngineInUse } from "./version";
 import { installScanGating, probeScanGating } from "./worldInfoScan";
@@ -17,7 +19,7 @@ import { installScanGating, probeScanGating } from "./worldInfoScan";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "harness" | "contextBudget" | "wiScanGating" | "sprites";
+export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "harness" | "contextBudget" | "wiScanGating" | "image" | "sprites";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -108,6 +110,17 @@ const wiScanGatingProbe: Probe = async () => {
   }
 };
 
+// Two ways an install can draw: SillyTavern's own image service, or the owned ComfyUI jobs the
+// media plugin hosts. Either one makes illustrations possible; both missing is the fact Repair needs.
+const imageProbe: Probe = async () => {
+  const st = await stImageReadiness();
+  if (st.ready) return present(`SillyTavern's image service (${st.source ?? "source unknown"})`);
+  const media = await mediaStatus();
+  if (!media) return absent(`${st.reason ?? "No image service is set up."} The optional media plugin is not installed either.`);
+  await comfyDiscover();
+  return present(`the media plugin's ComfyUI (${media.comfyUrl})`);
+};
+
 const spritesProbe: Probe = async () => {
   const headers = (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
   const response = await fetch("/api/sprites/get?name=so-capability-probe", { headers });
@@ -126,6 +139,7 @@ const PROBES: Record<CapabilityId, Probe> = {
   harness: harnessProbe,
   contextBudget: contextBudgetProbe,
   wiScanGating: wiScanGatingProbe,
+  image: imageProbe,
   sprites: spritesProbe,
 };
 

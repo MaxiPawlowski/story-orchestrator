@@ -1,12 +1,13 @@
 import { closeSync, existsSync, openSync, readFileSync, readSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SERVER_PLUGINS } from "../lib/pluginInstall.mjs";
 
 export const MIRROR_PREFIX = "Story Orchestrator - ";
 export const OWNER_COMMENT = "so-owner";
 export const SETTINGS_KEY = "story-orchestrator";
 export const JUDGE_SECRET_KEY = "typesafe_api_key";
-export const PLUGINS = ["story-orchestrator-judge", "story-orchestrator-gpu", "story-orchestrator-harness"];
+export const PLUGINS = Object.freeze(Object.keys(SERVER_PLUGINS));
 
 const readJson = (path) => { try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; } };
 const list = (dir) => (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []);

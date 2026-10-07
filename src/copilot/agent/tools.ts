@@ -176,6 +176,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   clearStartCheckpoint: "setStartCheckpoint moves the start; a story without one does not validate",
   setStoryId: "the story's identity is the author's, set in the Story tab",
   setBriefing: "player copy the author writes in the Story tab; drafting it is a later model-backed step",
+  setMemberCard: "card-field bindings are authored in the Roster tab and the checkpoint Card changes section; an agent tool for them is a later step",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

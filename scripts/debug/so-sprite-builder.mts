@@ -5,36 +5,56 @@ import { runCli } from './lib/cli.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { openCheckpointStudio } from './so-ui.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
+import { readBuilderError } from './lib/spriteBuilderUI.mts';
 
 const args = process.argv.slice(2);
 const value = (flag: string, fallback: string): string => { const at = args.indexOf(flag); return at < 0 ? fallback : args[at + 1] ?? fallback; };
 
-export async function buildSpriteFromUI(page, options: { character: string; set: string; label: string; kind: string; box: number[]; reference: string; seed: number; steps: number }) {
+export async function buildSpriteFromUI(page, options: { character: string; set: string; label: string; kind: string; box: number[]; reference: string; seed: number; steps: number; value?: string; resolution?: number; region?: Record<string, number> }) {
   const root = page.locator('#so-sprite-builder');
-  await page.locator('#so-studio-tab-roster').click({ force: true });
-  await page.locator('#so-studio-tab-sprites').click({ force: true });
+  if (!await root.isVisible()) await page.locator('#so-studio-tab-sprites').click({ force: true });
   await root.getByLabel('Character', { exact: true }).selectOption({ label: options.character });
   await root.getByLabel('Output set', { exact: true }).fill(options.set);
   await root.getByLabel('Reference sprite', { exact: true }).selectOption({ label: options.reference });
-  await root.getByRole('button', { name: 'Discover image-edit setup' }).click({ force: true });
-  await root.getByLabel('diffusion', { exact: true }).waitFor({ state: 'visible' });
+  if (!await root.getByLabel('diffusion', { exact: true }).isVisible()) {
+    await root.getByRole('button', { name: 'Discover image-edit setup' }).click({ force: true });
+    await page.waitForFunction(() => {
+      const root = document.getElementById('so-sprite-builder');
+      return root?.querySelector('[aria-label="diffusion"]') || root?.querySelector(':scope > [role="alert"]');
+    }, undefined, { polling: 250, timeout: 35000 });
+    const error = await readBuilderError(root);
+    if (error) throw new Error(error);
+  }
   await root.getByLabel('diffusion', { exact: true }).selectOption('qwen_image_2.1_int8_convrot.safetensors');
   await root.getByLabel('encoder', { exact: true }).selectOption('qwen3vl_8b_int8_convrot.safetensors');
   await root.getByLabel('vae', { exact: true }).selectOption('qwen_image_2.1_vae_bf16.safetensors');
   for (const [at, field] of ['x', 'y', 'width', 'height'].entries()) await root.getByLabel(field, { exact: true }).fill(String(options.box[at]));
   await root.getByLabel('Edit', { exact: true }).selectOption(options.kind);
+  if (options.kind === 'look') await root.getByLabel('Visible change', { exact: true }).fill(options.value ?? '');
   await root.getByLabel('Expression label', { exact: true }).fill(options.label);
   await root.getByLabel('Seed', { exact: true }).fill(String(options.seed));
   await root.getByLabel('Steps', { exact: true }).fill(String(options.steps));
+  if (options.resolution) await root.getByLabel('Edit resolution', { exact: true }).selectOption(String(options.resolution));
+  if (options.region) {
+    const controls = root.locator('#so-sprite-mouth-region');
+    if (!await controls.getByLabel('Mouth x', { exact: true }).isVisible()) await controls.locator('summary').click({ force: true });
+    for (const [key, value] of Object.entries(options.region)) await controls.getByLabel(`Mouth ${key}`, { exact: true }).fill(String(value));
+  }
   await root.getByRole('button', { name: 'Generate preview' }).click({ force: true });
   await page.waitForFunction(() => {
     const root = document.getElementById('so-sprite-builder');
-    return !!root?.querySelector('[role="alert"]') || [...root?.querySelectorAll('button') ?? []].some((button) => button.textContent === 'Keep this sprite');
+    return !!root?.querySelector(':scope > [role="alert"]') || [...root?.querySelectorAll('button') ?? []].some((button) => button.textContent === 'Keep this sprite');
   }, undefined, { polling: 500, timeout: 900_000 });
-  const error = await root.locator('[role="alert"]').textContent().catch(() => null);
+  const error = await readBuilderError(root);
   if (error) throw new Error(error);
+  const preview = root.locator('[data-so="sprite-preview"]');
+  const timings = await preview.getAttribute('data-timings');
+  const raw = preview.locator('img[alt="Raw edit"]');
+  const reference = preview.locator('img[alt="Reference crop"]');
   return { character: options.character, set: options.set, label: options.label, kind: options.kind,
-    evidence: await root.innerText(), preview: await root.locator('img[alt$="preview"]').getAttribute('src').then((src) => Boolean(src?.startsWith('data:image/png'))) };
+    evidence: await root.innerText(), timings: timings ? JSON.parse(timings) : null,
+    raw: await raw.count() ? await raw.getAttribute('src') : null, referenceCrop: await reference.count() ? await reference.getAttribute('src') : null,
+    preview: await root.locator('img[alt$="preview"]').getAttribute('src').then((src) => Boolean(src?.startsWith('data:image/png'))) };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {

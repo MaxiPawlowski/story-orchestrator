@@ -1,6 +1,30 @@
-import type { CardFieldIndex, NormalizedStoryV2, PrimitiveValue, Quality, RosterMember, StoryV2, ValidationError } from "./schema";
+import type { CardBinding, CardFieldIndex, NormalizedStoryV2, PrimitiveValue, Quality, RosterMember, StoryV2, ValidationError } from "./schema";
 import { isRecord } from "@utils/guards";
 import { qualityAccepts, type Blackboard } from "./blackboard";
+
+// The qualities a card field may bind to: a non-latching extractor string or enum, the same rule
+// `indexCardFields` enforces, offered to the Studio so an author cannot author an invalid binding.
+export const cardQualityEligible = (quality: Pick<Quality, "type" | "source" | "latching" | "monotonic">): boolean =>
+  (quality.type === "string" || quality.type === "enum") && quality.source === "extractor" && !quality.latching && !quality.monotonic;
+
+export const boundCardQualities = (roster: RosterMember[], player: StoryV2["player"]): Set<string> =>
+  new Set([...roster.map((member) => member.card), player?.card].flatMap((card) => Object.values(card?.fields ?? {}).map((binding) => binding.quality)));
+
+export interface DeclaredCardField {
+  owner: string;
+  field: string;
+  quality: Quality;
+}
+
+/** Every card field the story declares, with its quality, for the checkpoint card-effect editor. */
+export const declaredCardFields = (roster: RosterMember[], player: StoryV2["player"], qualities: Quality[]): DeclaredCardField[] => {
+  const byKey = new Map(qualities.map((quality) => [quality.key, quality]));
+  const owners: Array<[string, CardBinding | undefined]> = [...roster.map((member): [string, CardBinding | undefined] => [member.id, member.card]), ["player", player?.card]];
+  return owners.flatMap(([owner, card]) => Object.entries(card?.fields ?? {}).flatMap(([field, binding]) => {
+    const quality = byKey.get(binding.quality);
+    return quality ? [{ owner, field, quality }] : [];
+  }));
+};
 
 export function indexCardFields(roster: RosterMember[], player: StoryV2["player"], qualities: Record<string, Quality>, errors: ValidationError[]): CardFieldIndex {
   const index: CardFieldIndex = {};
@@ -64,7 +88,9 @@ export const publicLook = (fields: Record<string, string>): string => Object.ent
 
 export function cardReadKeys(story: Pick<NormalizedStoryV2, "cardFieldByQuality">, owners: string[], cursor = 0): string[] {
   const present = new Set([...owners, "player"]);
-  const keys = Object.entries(story.cardFieldByQuality ?? {}).filter(([, binding]) => present.has(binding.owner)).map(([key]) => key);
+  const rank = new Map([...owners, "player"].map((owner, at) => [owner, at]));
+  const keys = Object.entries(story.cardFieldByQuality ?? {}).filter(([, binding]) => present.has(binding.owner))
+    .sort(([, left], [, right]) => (rank.get(left.owner) ?? 0) - (rank.get(right.owner) ?? 0)).map(([key]) => key);
   if (keys.length <= 12) return keys;
   const tail = keys.slice(8);
   return [...keys.slice(0, 8), ...Array.from({ length: Math.min(4, tail.length) }, (_, at) => tail[(Math.max(0, Math.floor(cursor)) + at) % tail.length])];

@@ -4,6 +4,7 @@ import {
 } from "@engine/index";
 import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import type { DeclaredCardField } from "@engine/cardFields";
 import { isRecord } from "@utils/guards";
 
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
@@ -185,8 +186,9 @@ const EffectsEditor: React.FC<{
   roster: RosterMember[];
   castable?: RosterMember[];
   backgroundNames?: string[];
+  cardFields?: DeclaredCardField[];
   onChange: (next: CheckpointEffects) => void;
-}> = ({ effects, roster, castable = roster, backgroundNames = [], onChange }) => {
+}> = ({ effects, roster, castable = roster, backgroundNames = [], cardFields = [], onChange }) => {
   const emit = (next: CheckpointEffects) => {
     const cleaned: CheckpointEffects = { ...next };
     (Object.keys(cleaned) as Array<keyof CheckpointEffects>).forEach((key) => {
@@ -201,6 +203,15 @@ const EffectsEditor: React.FC<{
   const castEnable = readStrings(cast?.enable);
   const castDisable = readStrings(cast?.disable);
   const worldInfo = isRecord(effects.world_info) ? effects.world_info : undefined;
+  const card = isRecord(effects.card) ? (effects.card as Record<string, Record<string, string>>) : undefined;
+  const ownerLabel = (owner: string) => (owner === "player" ? "You" : roster.find((member) => member.id === owner)?.name ?? owner);
+  const setCardValue = (owner: string, field: string, value: string) => {
+    const next = { ...(card ?? {}) };
+    const values = { ...(next[owner] ?? {}) };
+    if (value.trim()) values[field] = value; else delete values[field];
+    if (Object.keys(values).length) next[owner] = values; else delete next[owner];
+    emit({ ...effects, card: Object.keys(next).length ? next : undefined });
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -286,6 +297,30 @@ const EffectsEditor: React.FC<{
       <Section title="World info" enabled={worldInfo !== undefined} onToggle={(on) => emit({ ...effects, world_info: on ? { enable: [], disable: [] } : undefined })}>
         <WorldInfoList title="enable" entries={readWorldInfoEntries(worldInfo?.enable)} onChange={(enable) => emit({ ...effects, world_info: { ...worldInfo, enable } })} />
         <WorldInfoList title="disable" entries={readWorldInfoEntries(worldInfo?.disable)} onChange={(disable) => emit({ ...effects, world_info: { ...worldInfo, disable } })} />
+      </Section>
+
+      <Section
+        title="Card changes"
+        help={"Rewrites a character's card field for play from this checkpoint on, e.g. after a transformation. Only fields declared in the Roster tab appear, " +
+          "and an empty value leaves the field unchanged."}
+        enabled={card !== undefined}
+        onToggle={(on) => emit({ ...effects, card: on ? {} : undefined })}
+      >
+        {cardFields.length === 0 ? <p className="text-xs st-muted">Declare a card field in the Roster tab first.</p> : cardFields.map(({ owner, field, quality }) => (
+          <label key={`${owner}:${field}`} className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-xs st-muted">{ownerLabel(owner)} · {field}</span>
+            {quality.type === "enum" && quality.values?.length ? (
+              <select className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} value={card?.[owner]?.[field] ?? ""}
+                onChange={(event) => setCardValue(owner, field, event.target.value)}>
+                <option value="">no change</option>
+                {quality.values.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            ) : (
+              <input className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} placeholder="value" value={card?.[owner]?.[field] ?? ""}
+                onChange={(event) => setCardValue(owner, field, event.target.value)} />
+            )}
+          </label>
+        ))}
       </Section>
 
       <Section

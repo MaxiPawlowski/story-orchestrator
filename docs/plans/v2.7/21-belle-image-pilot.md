@@ -3,7 +3,9 @@
 Status: IMPLEMENTED CANDIDATE, acceptance PARTIAL. v2.7 plan 21 (was `v2.8/image-pilot.md`; moved to v2.7 with the
 image track, 2026-10-04). User approved 2026-10-03: Belle the Barbarian is the pilot; every implementation is
 reusable production code. This record accepts no plan by itself: the deterministic gate is green, and the live
-visual/model acceptance (S28, S32-1, S32-2, route A, clean-host) stays owned by v2.8 01 / the v2.8 final suite.
+visual/model acceptance stays owned by `24-image-and-local-completion.md`. S32-1 is measured (keep prompt default
+off); the user owns regular/two/three-frame visual ratings. The 2026-10-04 sections below are historical; plan 24
+records later controls, cleanup, residency fixes, base creation and look/recovery measurements.
 
 ## Existing patterns
 

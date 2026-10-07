@@ -1,4 +1,5 @@
-import { isValidationErrorList, parseStoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStoryV2, type Quality } from "@engine/index";
+import { boundCardQualities, cardQualityEligible, declaredCardFields } from "@engine/cardFields";
 import { newStoryDraft, type StoryDraft } from "./draft";
 import {
   addCheckpoint,
@@ -8,6 +9,7 @@ import {
   nextId,
   removeCheckpoint,
   removeQuality,
+  setMemberCard,
   setRequirements,
   setStagecraft,
   setStartCheckpoint,
@@ -157,6 +159,46 @@ describe("setLoreSelect (v2.2 plan 04)", () => {
     expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: true }).lore_select).toEqual({ lorebooks: ["Story Lore"], exclusive: true });
     expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: false }).lore_select).toEqual({ lorebooks: ["Story Lore"] });
     expect(setLoreSelect(draft, { lorebooks: [], exclusive: true }).lore_select).toEqual({ lorebooks: [], exclusive: true });
+  });
+});
+
+describe("card fields (plan 24 C)", () => {
+  const carded = (): StoryDraft => ({ ...base(), qualities: [{ key: "look", type: "string", source: "extractor", rubric: "how the look changes" }], roster: [{ id: "guide", name: "The Guide" }] });
+
+  it("binds a quality to a member's card and drops an emptied card", () => {
+    const bound = setMemberCard(carded(), "guide", { fields: { look: { quality: "look", visual: true } } });
+    expect(bound.roster[0].card).toEqual({ fields: { look: { quality: "look", visual: true } } });
+    expect(setMemberCard(bound, "guide", { fields: {} }).roster[0].card).toBeUndefined();
+    expect(setMemberCard(bound, "guide", undefined).roster[0].card).toBeUndefined();
+  });
+
+  it("creates and clears the player card without disturbing other player fields", () => {
+    const withPlayer: StoryDraft = { ...carded(), player: { name: "You" } };
+    const bound = setMemberCard(withPlayer, "player", { fields: { look: { quality: "look" } } });
+    expect(bound.player).toEqual({ name: "You", card: { fields: { look: { quality: "look" } } } });
+    expect(setMemberCard(bound, "player", undefined).player).toEqual({ name: "You", card: undefined });
+  });
+
+  it("a bound card validates", () => {
+    const bound = setMemberCard(carded(), "guide", { fields: { look: { quality: "look" } } });
+    expect(isValidationErrorList(parseStoryV2(bound))).toBe(false);
+  });
+
+  it("only a non-latching extractor string or enum may bind", () => {
+    const quality = (over: Partial<Quality>): Quality => ({ key: "q", type: "string", source: "extractor", rubric: "", ...over });
+    expect(cardQualityEligible(quality({ type: "string" }))).toBe(true);
+    expect(cardQualityEligible(quality({ type: "enum" }))).toBe(true);
+    expect(cardQualityEligible(quality({ type: "int" }))).toBe(false);
+    expect(cardQualityEligible(quality({ source: "code" }))).toBe(false);
+    expect(cardQualityEligible(quality({ latching: true }))).toBe(false);
+    expect(cardQualityEligible(quality({ monotonic: true }))).toBe(false);
+  });
+
+  it("collects bound qualities across the roster and the player, and lists declared fields", () => {
+    const quality: Quality = { key: "look", type: "enum", values: ["one"], source: "extractor", rubric: "" };
+    const roster = [{ id: "a", name: "A", card: { fields: { look: { quality: "look" }, ghost: { quality: "gone" } } } }];
+    expect([...boundCardQualities(roster, { card: { fields: { mood: { quality: "mood" } } } })].sort()).toEqual(["gone", "look", "mood"]);
+    expect(declaredCardFields(roster, undefined, [quality]).map((entry) => `${entry.owner}:${entry.field}:${entry.quality.key}`)).toEqual(["a:look:look"]);
   });
 });
 

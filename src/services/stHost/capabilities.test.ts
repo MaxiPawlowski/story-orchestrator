@@ -18,6 +18,17 @@ jest.mock("./judge", () => ({
 
 const mockHarness = { status: { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: true, fresh: true, version: "2.1.282" } } } as unknown };
 
+const mockImage = { ready: true, source: "comfy" as string | null, media: { ready: true, comfyUrl: "http://127.0.0.1:8188" } as { ready: boolean; comfyUrl: string } | null, discoverThrows: false };
+
+jest.mock("./stImage", () => ({ stImageReadiness: async () => ({ ready: mockImage.ready, reason: mockImage.ready ? null : "No image service is set up.", source: mockImage.source }) }));
+jest.mock("./media", () => ({
+  mediaStatus: async () => mockImage.media,
+  comfyDiscover: async () => {
+    if (mockImage.discoverThrows) throw new Error("ComfyUI did not answer.");
+    return { nodes: {}, embeddings: [], checkpoints: [], diffusionModels: [], textEncoders: [], vaes: [], loras: [], upscalers: [] };
+  },
+}));
+
 jest.mock("./harnessCache", () => ({ refreshHarnessStatus: async () => mockHarness.status }));
 
 describe("harness capability", () => {
@@ -89,12 +100,29 @@ describe("capability probes", () => {
     mockHost.script = { getMaxContextTokens: () => 98304, getMaxResponseTokens: () => 600, getMaxPromptTokens: () => 97704 };
     globalThis.fetch = okFetch(mockHost.vectorStatus) as unknown as typeof fetch;
     Object.assign(mockScan, { ordered: true, emits: true, throws: false, installed: 0, disposed: 0 });
+    mockImage.ready = true;
+    mockImage.source = "comfy";
+    mockImage.media = { ready: true, comfyUrl: "http://127.0.0.1:8188" };
+    mockImage.discoverThrows = false;
   });
 
   it("probes every capability id and reports a healthy install as present", async () => {
     const reports = await capabilityReport();
     expect(reports.map((report) => report.id)).toEqual(CAPABILITY_IDS);
     expect(reports.filter((report) => report.state !== "present").map((report) => `${report.id}: ${report.detail}`)).toEqual([]);
+  });
+
+  it("v2.7 plan 24 A: the image capability is present through either SillyTavern's service or the media plugin's ComfyUI", async () => {
+    await expect(probeCapability("image", { refresh: true })).resolves.toMatchObject({ state: "present", detail: expect.stringContaining("SillyTavern") });
+    mockImage.ready = false;
+    mockImage.media = null;
+    const absent = await probeCapability("image", { refresh: true });
+    expect(absent.state).toBe("absent");
+    expect(absent.detail).toContain("media plugin is not installed");
+    mockImage.media = { ready: true, comfyUrl: "http://127.0.0.1:8188" };
+    await expect(probeCapability("image", { refresh: true })).resolves.toMatchObject({ state: "present", detail: expect.stringContaining("8188") });
+    mockImage.discoverThrows = true;
+    await expect(probeCapability("image", { refresh: true })).resolves.toMatchObject({ state: "error" });
   });
 
   it("names an absent macro engine rather than throwing on the first registration", async () => {

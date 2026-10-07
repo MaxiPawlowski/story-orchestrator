@@ -52,3 +52,12 @@ test("rotation reads all overflow fields despite a fixed priority order", () => 
   expect(new Set(reads.flat()).size).toBe(30);
   expect(new Set(Array.from({ length: 6 }, () => cardReadKeys({ cardFieldByQuality: index }, ["test"], 0)).flat()).size).toBe(12);
 });
+
+test("speaker-first owner order takes the priority slots without starving other members", () => {
+  const index = Object.fromEntries(["first", "second", "third"].flatMap((owner) =>
+    Array.from({ length: 10 }, (_, at) => [`${owner}${at}`, { owner, field: `field${at}`, visual: true }])));
+  const reads = Array.from({ length: 6 }, (_, at) => cardReadKeys({ cardFieldByQuality: index }, ["third", "first", "second"], at * 4));
+  expect(reads[0].slice(0, 8)).toEqual(Array.from({ length: 8 }, (_, at) => `third${at}`));
+  expect(new Set(reads.flat()).size).toBe(30);
+  expect(cardReadKeys({ cardFieldByQuality: index }, ["first", "second"], 0).some((key) => key.startsWith("third"))).toBe(false);
+});

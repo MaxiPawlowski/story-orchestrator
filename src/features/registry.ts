@@ -320,8 +320,22 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "sprite-builder", name: "Build sprite packs", area: "authoring", audience: "author",
     oneLine: "Edit a reference picture into expression sprites and animation frames.",
-    what: "Choose a cast member, reference and edit box in Studio. Preview each image before saving into a separate generated set. Existing artwork is protected.",
+    what: "Choose a cast member, reference and edit box in Studio. Preview each image before saving into a separate generated set. "
+      + "Use an existing expression pack as the reference for changed looks without rebuilding it. Existing artwork is protected.",
     where: studioAt("#so-studio-tab-sprites", "Sprites"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["comfyui"],
+  },
+  {
+    id: "sprite-mouth-region", name: "Mouth replacement region", area: "authoring", audience: "author",
+    oneLine: "Replace the lips cleanly while leaving the rest of the expression intact.",
+    what: "Adjust the green mouth region inside the head box. Keep the old and new lip outlines in its opaque middle, with feathering on the surrounding skin. "
+      + "Closed-mouth neutral rest creates a corrected still in a separate set; review it before building speaking frames.",
+    where: studioAt("#so-sprite-mouth-region", "Sprites › Mouth replacement region"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["comfyui"],
+  },
+  {
+    id: "sprite-edit-resolution", name: "Sprite edit resolution", area: "authoring", audience: "author",
+    oneLine: "Compare smaller edits for faster sprite generation.",
+    what: "Choose 512, 768 or 1024 pixels for an edit. Smaller edits may be faster; review the face and expression before using them. The saved sprite keeps its original canvas size.",
+    where: studioAt("#so-sprite-edit-resolution", "Sprites › Edit resolution"), settings: [], doc: "setup/sprites.md", status: "experimental", since: "2.7.0", needs: ["comfyui"],
   },
   {
     id: "sprite-animation", name: "Animated faces", area: "world", audience: "setup",

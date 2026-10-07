@@ -6,6 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { deleteLorebooksInPage } from './lib/lorebookDelete.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
+import { removeSpriteAssets, removeSpriteReferences, scopedSprites, scopedSpriteReferences, snapshotSpriteAssets } from './lib/spriteAssets.mts';
 
 // The wizard creates real assets in the user's install. J9 therefore names everything it creates
 // with a marker prefix and deletes exactly those at the end — a leaked asset is a gate failure, not
@@ -21,7 +22,7 @@ export const DEFAULT_MARKER = 'SO-J9';
 // therefore trusted only when the settings root exists and ST has finished loading its lists; an
 // untrusted one is ignored entirely rather than believed, falling back to marker-only scope.
 export async function snapshotAssets(page) {
-  return evaluateInST(page, () => {
+  const inventory = await evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
     const sessions = root?.wizardSessions;
@@ -41,6 +42,7 @@ export async function snapshotAssets(page) {
       lorebooks,
     };
   });
+  return { ...inventory, sprites: await snapshotSpriteAssets(page) };
 }
 
 // A baseline we cannot trust is worse than none: every foreign session's ledger would read as
@@ -135,20 +137,28 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
   }, { marker: requireMarker(marker), baseline: usable, pinned: ledger });
   // S9: regex scripts and QR sets carry no ledger, so the marker is their whole scope.
   const regexNames = new Set(markerNamed(found.allRegex.map((script) => script.name), marker));
+  const spriteInventory = await snapshotSpriteAssets(page);
+  if (!spriteInventory.trusted && baseline?.sprites?.trusted) throw new Error(`Sprite cleanup lost its inventory: ${spriteInventory.reason}`);
   const scoped = {
     ...found,
     regexScripts: found.allRegex.filter((script) => regexNames.has(script.name)),
     qrSets: markerNamed(found.allQrSets, marker),
+    sprites: scopedSprites(spriteInventory, marker, baseline?.sprites),
+    spriteInventory,
+    spriteReferences: scopedSpriteReferences(spriteInventory, marker, baseline?.sprites),
   };
   return baseline && !usable ? { ...scoped, baselineUntrusted: reasons } : scoped;
 }
 
-export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length + (found.regexScripts?.length ?? 0) + (found.qrSets?.length ?? 0);
+export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length
+  + (found.regexScripts?.length ?? 0) + (found.qrSets?.length ?? 0) + (found.sprites?.length ?? 0) + (found.spriteReferences?.length ?? 0);
 
 export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null } = {}) {
   const { usable, reasons } = baselineTrust(baseline);
   if (baseline && !usable) console.log(`Asset baseline untrusted, falling back to marker-only scope: ${reasons.join('; ')}`);
   const found = await listMarkedAssets(page, marker, { baseline });
+  const referenceRemoval = await removeSpriteReferences(page, found.spriteReferences);
+  const spriteRemoval = await removeSpriteAssets(page, found.sprites);
   const books = await deleteLorebooksInPage(page, found.lorebooks);
   const removed = await evaluateInST(page, async ({ targets, baseline, books }) => {
     const ctx = SillyTavern.getContext();
@@ -202,7 +212,8 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
   }, { targets: found, baseline: usable, books });
   const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
-  return { marker, found, removed, saved, leaked, clean: leakCount(leaked) === 0 && removed.staleCache.length === 0 && !('error' in saved) };
+  return { marker, found, removed: { ...removed, sprites: spriteRemoval, spriteReferences: referenceRemoval }, saved, leaked,
+    clean: leakCount(leaked) === 0 && removed.staleCache.length === 0 && !spriteRemoval.errors.length && !referenceRemoval.errors.length && !('error' in saved) };
 }
 
 const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>] [--baseline <file>]
@@ -216,6 +227,10 @@ any asset that already existed. Run "list" first: "ledger" says where each ledge
 
 Marker-named global regex scripts and Quick Reply sets are in scope too (by name only; they have no
 ledger).
+
+Generated sprite labels (including animation frames) are scoped by marker-named sets/characters or a marker-named
+story in their generated-file ledger. A trusted sprite baseline protects every pre-existing label. Original expression
+packs have no generated ownership and are never removed.
 
   --baseline <file>        an asset baseline (so-journey writes .debug/so-journey-asset-baseline.json).
                            Never implied: a stale one would count every ledger entry since it was taken.

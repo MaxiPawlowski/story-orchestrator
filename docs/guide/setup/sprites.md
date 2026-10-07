@@ -14,13 +14,46 @@ drift; they do not prove identity. Review the actual image before saving. Use a 
 Saving an expression remembers its reference setup for optional on-demand edits. It never edits the character card.
 The generated set is available to story stage direction after a stage reload. Original/default packs remain intact.
 
+## Reuse expressions you already have
+
+You do not need to rebuild a good expression pack. In Studio › Sprites, discover the image-edit setup, select its
+models, then choose **Reference pack** and **Use this expression pack**. The pack needs a neutral image and transparent,
+non-blank expression PNGs. The check reads and fingerprints each image; it writes only the reference settings.
+Original images never become generated assets and cannot be removed through generated-sprite cleanup.
+
+Changed looks reuse the matching expression's pose and identity, falling back to neutral when that expression is absent.
+A changed reference image makes a new cache key; an image changed during a render is refused rather than silently saved.
+
+## Make a base when the character has no sprites
+
+Discover the image-edit setup, then open **Build a base from character-card art**. Choose the installed background-removal
+model and **Build four base candidates**. Review the face, clothing, framing and transparent edges, then keep one neutral
+base. Reload the Sprites tab and use that base to build its expressions. Candidates are previews until you choose one.
+Background removal needs an explicitly configured, installed model in the optional media plugin; nothing is downloaded.
+
 ## Blink and mouth
+
+If the original neutral expression is not a suitable resting pose, choose **Closed-mouth neutral rest**. This
+changes only the selected mouth region and keeps a complete transparent sprite. Preview it in a separate output
+set; review the still image before using it as an animation reference. The original/default PNG is never edited.
 
 Select the expression's own image as the reference. Generate **Blink frame**, **Mouth open frame**, and optionally
 **Mouth half-open frame**. Use the same output set and expression label. Frames go into `anim-<set>` so ST never
 mistakes them for ordinary expression sprites.
 
-The eyes and mouth use separate transparent bands, so blinking can overlap speech. Mouth movement offers Off,
+For a mouth frame, open **Mouth replacement region**. Green shows its patch inside the red head box. Keep the old
+and new lip outlines and smile corners inside the opaque middle; feather only the surrounding skin. Coordinates
+are relative to the head box. Each reference can keep its own adjustment while the tab stays open.
+
+**Inspect the edit before compositing** shows the cropped reference and raw model edit, so a generated mouth can be
+distinguished from a blending artifact. Adjusting only the mouth region reuses a bounded raw-edit cache in the open
+builder; the image model is not called again. Closing the tab clears that cache. Model, reference, prompt, seed,
+step count and resolution changes make a new render key.
+
+**Edit resolution** offers 512, 768 and 1024. Smaller edits may be faster, but review the face before keeping them.
+The saved frame retains the original canvas size. Preview timing includes cleanup, with rendering reported separately.
+
+The eyes and mouth use separate transparent patches, so blinking can overlap speech. Mouth movement offers Off,
 Simple and Smooth; Smooth falls back to Simple if a half-open frame is missing. No frames means a static face.
 Both the browser's and ST's reduced-motion setting disable facial animation.
 
@@ -37,10 +70,12 @@ enum quality. A checkpoint may apply `effects.card: {"member_id": {"hair": "red"
 edit wins; undoing a boundary restores the earlier value and its writer. A fresh chat has no applied change.
 
 Illustrations read the applied public visual fields. Pre-rendered sprite rules may select a set using
-`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate default-off switch while its
-model measurement is pending. Private knowledge belongs in the knowledge system, never in a public card field.
+`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate default-off switch.
+Private knowledge belongs in the knowledge system, never in a public card field.
+The local Artemis comparison kept this switch off by default: both tested placements agreed with every changed colour,
+but the memory-only baseline was equally good in one of the two runs, so the repeatable-benefit condition was not met.
 
-**Generate changed looks when needed** is off by default. It requires a saved Studio base pack, ComfyUI and the
+**Generate changed looks when needed** is off by default. It requires a saved or reused reference pack, ComfyUI and the
 media plugin. It renders the current expression first and keeps the old sprite visible while working. A rollback
 restores the old set; cached generated files stay available.
 

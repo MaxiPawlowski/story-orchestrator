@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 import SpriteBuilder, { type SpriteBuilderHost } from "./SpriteBuilder";
 import { useDraftStore, newStoryDraft } from "../draft";
 import { EDIT_NODES } from "../../sprites/builder/recipes";
@@ -12,6 +12,7 @@ const services: SpriteBuilderHost = {
   fingerprint: async (_kind, name) => ({ name, sha256: "a".repeat(64), size: 1 }),
   manifest: async () => null,
   sets: async () => [], delete: async () => ({ ok: true, deleted: true }),
+  referenceSets: async () => [""], referencePack: async (character, set) => ({ character, set, sha256: "a".repeat(64), files: [] }),
   decode: async () => ({ width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4) }),
   builder: () => ({ close: () => {}, cancel: () => {}, build: async () => { throw new Error("Synthetic render refused."); },
     save: async () => { throw new Error("No preview to save."); } }),
@@ -43,3 +44,24 @@ export const MissingBackend: Story = {
 };
 
 export const NoCast: Story = { args: { services: { ...services, members: () => [] } } };
+
+export const ClosedMouthRest: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.selectOptions(canvas.getByRole("combobox", { name: "Edit" }), "rest");
+    await userEvent.click(canvas.getByText("Mouth replacement region"));
+    await expect(canvas.getByRole("spinbutton", { name: "Mouth feather" })).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "Generate preview" })).toBeDisabled();
+  },
+};
+
+export const RefusesEmptyReferencePack: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Discover image-edit setup" }));
+    const button = await canvas.findByRole("button", { name: "Use this expression pack" });
+    await waitFor(() => expect(button).toBeEnabled());
+    await userEvent.click(button);
+    await expect(await canvas.findByRole("alert")).toHaveTextContent("Choose an expression pack with a neutral reference.");
+  },
+};

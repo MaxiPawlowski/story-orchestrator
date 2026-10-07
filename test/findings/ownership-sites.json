@@ -1,11 +1,43 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/sprites/builder/batchLease.ts#SpriteBatchLease.acquire": {
+      "status": "local",
+      "note": "Own instance's unit lock only; reserved before the await and released on failure. Concurrent caller control: builder/batchLease.test.ts."
+    },
+    "src/sprites/builder/batchLease.ts#SpriteBatchLease.close": {
+      "status": "local",
+      "note": "Closes only this pool's captured handle, never another lease; cleanup remains valid after ownership lapses. Tests: builder/batchLease.test.ts."
+    },
+    "src/sprites/builder/batchLease.ts#SpriteBatchLease.drop": {
+      "status": "local",
+      "note": "Serializes release of this pool's captured lease and resets private counters; duplicate timeout/close control in builder/batchLease.test.ts."
+    },
+    "src/sprites/builder/batchLease.ts#SpriteBatchLease.prepare": {
+      "status": "local",
+      "note": "Private pool admission only. Injected current guard after text wait and reservation; a late grant is released, not retained. Tests: builder/batchLease.test.ts."
+    },
+    "src/sprites/builder/batchLease.ts#SpriteBatchLease.unit.release": {
+      "status": "local",
+      "note": "Own unit bookkeeping and captured lease release. Text/headroom, workflow, bounded count and timeout controls in builder/batchLease.test.ts."
+    },
+    "src/sprites/builder/lookFrames.ts#completeLookFrames": {
+      "status": "local",
+      "note": "Builds a call-local returned frame map only. Ownership is checked through injected guard after cache/read/wait/render; it performs no persistent or stage writes. Negative controls: sprites/builder/lookFrames.test.ts."
+    },
+    "src/sprites/builder/onDemand.ts#OnDemandLooks.edit.animate.render": {
+      "status": "checked",
+      "note": "Rechecks the owning chat/story and current look after the GPU frame answers, immediately before saving. SpriteBuilder.save independently checks its retained run. The caller rechecks before applying the complete pair; builder/builder.test.ts and lookFrames.test.ts cover stale renders and wait handoffs."
+    },
+    "src/sprites/builder/builder.ts#SpriteBuilder.build.timed": {
+      "status": "local",
+      "note": "Per-candidate phase measurements only; writes no chat, draft or host state. Wall-time cleanup regression: sprites/builder/builder.test.ts."
+    },
     "src/sprites/builder/builder.ts#SpriteBuilder.build": {
       "status": "checked",
       "note": "v2.8 Belle pilot: draft/chat RunGuard before reference upload, before rendering and before retaining a preview. Cancellation releases the lease in finally. Upload is a separate synchronous ownership check in SpriteBuilder.save. Tests: sprites/builder/builder.test.ts, old draft and cancellation controls."
     },
-    "src/sprites/builder/host.ts#createSpriteBuilder.lease": {
+    "src/sprites/builder/host.ts#createSpriteBuilder.lease.acquire": {
       "status": "local",
       "note": "v2.8: the returned lease owns its heartbeat timer and release; it changes no chat state. A reservation is checked by SpriteBuilder.build immediately after it answers."
     },

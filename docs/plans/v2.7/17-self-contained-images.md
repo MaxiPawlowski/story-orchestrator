@@ -2,8 +2,8 @@
 
 **Status (2026-10-04): v2.7 plan 17 (was v2.8 05, before that v2.7 plan 26; moved to v2.7 with the image track,
 2026-10-04). Implemented candidate; `npm run gates` green and the Belle pilot exercised the route, discovery, owned
-jobs and Test render. Live acceptance (LI/CL/RP) is PARTIAL and, per v2.7 rule 5, stays owned by v2.8 01 /
-the v2.8 final suite. See `21-belle-image-pilot.md` §Gate record.**
+jobs and Test render. Live acceptance is PARTIAL, owned by `24-image-and-local-completion.md`.
+See that plan's latest Gate record and `21-belle-image-pilot.md`.**
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance LI (local ComfyUI through the broker) + CL
 (a cloud director profile). Nothing here needs RunPod.

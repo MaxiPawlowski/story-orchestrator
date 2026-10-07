@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
+import { addRosterMember, nextId, removeRosterMember, setMemberCard, updateRosterMember } from "../mutations";
 import { setRosterDrive, setRosterView } from "../innerVoiceMutations";
+import CardFieldsEditor from "./CardFieldsEditor";
 
 const splitAliases = (text: string) => text.split(",").map((alias) => alias.trim()).filter(Boolean);
 
@@ -30,6 +31,8 @@ const AliasesField = ({ index, aliases, onCommit }: { index: number; aliases: st
 // members, cast_changes. Studio-born stories used to render those pickers empty (finding).
 const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }) => {
   const roster = useDraftStore((state) => state.draft.roster);
+  const qualities = useDraftStore((state) => state.draft.qualities);
+  const player = useDraftStore((state) => state.draft.player);
   const directed = useDraftStore((state) => state.draft.checkpoints.some((checkpoint) => Boolean(checkpoint.talk_control)));
   const mutate = useDraftStore((state) => state.mutate);
   const withoutRole = roster.filter((member) => !member.role?.trim()).map((member) => member.name || member.id);
@@ -116,11 +119,19 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
                 <span className="text-xs st-muted">Narrator view <HelpTooltip title={"A narrator is told every character's private aims and secrets, to foreshadow. It is told " +
                   "never to reveal what a character conceals."} /></span>
               </label>
+              <CardFieldsEditor card={member.card} qualities={qualities} roster={roster} player={player}
+                onChange={(card) => mutate((current) => setMemberCard(current, member.id, card))} />
               <button type="button" className="st-button danger" aria-label={`Remove member ${index + 1}`} onClick={() => mutate((current) => removeRosterMember(current, member.id))}>×</button>
             </li>
           ))}
         </ul>
       )}
+      <div data-so="player-card" className="st-subpanel flex flex-col gap-2 p-2">
+        <span className="text-xs st-muted">Player card <HelpTooltip title={"Binds a quality to the player's own card, so their look or state can change as the story " +
+          "moves. Only an extracted string or enum that does not latch can bind."} /></span>
+        <CardFieldsEditor card={player?.card} qualities={qualities} roster={roster} player={player}
+          onChange={(card) => mutate((current) => setMemberCard(current, "player", card))} />
+      </div>
       <datalist id="so-roster-names">
         {memberNames.map((name) => <option key={name} value={name} />)}
       </datalist>

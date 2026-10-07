@@ -3,8 +3,9 @@
 **Status (2026-10-04): v2.7 plan 19 (was v2.8 07; before that v2.7 plan 28, "Talkinghead review"; moved to v2.7 with
 the image track, 2026-10-04). Implemented candidate: blink/talk/talk2 frames, the streamed-mouth animator and the
 Mouth movement setting are built; the Belle pilot produced the frames and a real streamed reply moved the mouth.
-Spike S28 (blind visual/performance floors) is NOT run. Per v2.7 rule 5, S28 and the streamed acceptance stay owned
-by v2.8 01 / the v2.8 final suite. See `21-belle-image-pilot.md` §Gate record.** Overview: `00-overview.md`.
+Full spike S28 is open, owned by `24-image-and-local-completion.md`. Its Belle original-expression frame matrices
+pass pixel QA ×2; the labeled regular/two/three-frame review awaits the user. Multi-character, from-neutral and
+live performance floors are still unmeasured. See plan 24's latest Gate record.** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D + LI (spike S28 renders frames on the local ComfyUI);
 acceptance LI + a streamed reply on a named backend (RP: `Artemis RunPod RP`; or CL: a DeepSeek Chat Completion
 profile with streaming on).

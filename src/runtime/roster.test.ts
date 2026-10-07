@@ -4,7 +4,7 @@
 const mockChat: { rows: unknown[] } = { rows: [] };
 
 import { chooseByRules, buildCandidates } from "@talk/rules";
-import { activeSpeakerId, nameForRosterId, namesForRosterId } from "./roster";
+import { activeSpeakerId, cardScopeOwners, nameForRosterId, namesForRosterId } from "./roster";
 import type { RosterHost } from "./hostPorts";
 
 const host: RosterHost = {
@@ -79,4 +79,11 @@ describe("talk no_repeat after a Note (talk/rules, T10)", () => {
     const pick = chooseByRules(control, candidates, { lastSpeakerRosterId: speakerAfter(note), random: () => 0 });
     expect(pick?.rosterId).toBe("arin");
   });
+});
+
+test("card scope prioritizes the newest speaker, then mentioned members, ignoring system prose", () => {
+  mockChat.rows = [{ ...player, mes: "I ask Ponticius." }, reply("Luke"), { ...note, mes: "Arin" }];
+  expect(cardScopeOwners(story, host)).toEqual(["luke", "ponticius", "arin", "dm"]);
+  mockChat.rows = [{ ...player, mes: "An unrelated name: Carin." }, reply("DM Narrator")];
+  expect(cardScopeOwners(story, host)).toEqual(["dm", "arin", "luke", "ponticius"]);
 });

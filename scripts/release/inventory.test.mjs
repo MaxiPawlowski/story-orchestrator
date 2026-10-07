@@ -20,6 +20,7 @@ function fixture() {
   mkdirSync(join(data, "vectors", "transformers", "so_consol_1_ab"), { recursive: true });
   mkdirSync(join(data, "vectors", "transformers", "chat_42"), { recursive: true });
   mkdirSync(join(root, "plugins", "story-orchestrator-judge"), { recursive: true });
+  mkdirSync(join(root, "plugins", "story-orchestrator-media"), { recursive: true });
   mkdirSync(join(root, "plugins", "someone-else"), { recursive: true });
   return { root, data };
 }
@@ -36,7 +37,7 @@ test("UN: the inventory lists exactly what we own, and never a foreign book, cha
     assert.deepEqual(out.chats, [{ file: "chats/Arin/one.jsonl", kind: "solo" }, { file: "group chats/g1.jsonl", kind: "group" }]);
     assert.equal(out.judgeKey, true);
     assert.deepEqual(out.transientVectors, ["vectors/transformers/so_consol_1_ab"]);
-    assert.deepEqual(out.plugins, ["story-orchestrator-judge"]);
+    assert.deepEqual(out.plugins, ["story-orchestrator-judge", "story-orchestrator-media"]);
     assert.ok(!JSON.stringify(out).includes("sk-SECRET-VALUE"), "the judge key is reported by presence only");
   } finally {
     rmSync(root, { recursive: true, force: true });

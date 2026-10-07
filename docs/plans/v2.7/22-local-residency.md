@@ -220,3 +220,27 @@ Command for each family, twice consecutively: `SO_LOCAL_RECORD_DIR="test/measure
 node scripts/local/render-benchmark.mjs <config> auto <family> 128 --summary`. All chose `swap-text`; warm model/node
 reuse is useful on scene/portrait even though the next text reload is still required. These are not a comparison
 against identical cold-cache arms and not the missing ST-browser acceptance.
+
+### FLUX follow-up — plan 25, 2026-10-04
+
+The old 26357 MiB free-RAM admission requirement was a budget under the old loader/accounting, not a universal FLUX
+hardware minimum. Plan `25-flux-memory-and-backend-spikes.md` corrects the RAM/GPU coupling and runtime provenance,
+provisions an isolated supported torch/CUDA environment and measures the same FP8 checkpoint successfully twice.
+Normal stock interpreter selected for playtest with backup; quantized GGUF/Nunchaku alternatives miss the total-wait
+floor and remain non-default. Qwen edit and installed BiRefNet cutout work. ST transport/queued-memory request ×2
+  passes on a lane; full story extraction/boundary acceptance and overall D remain owed (external sprite guards red).
+
+### Image integration follow-up — 2026-10-05
+
+User handed residency defects to image completion (plan 24). Its gate record owns commands and archived evidence.
+Fixed learned GPU accounting (footprint revision 3: observed additional peak + 512 MiB uncertainty, fixed 2048 MiB
+reserve added at admission) and verified-RAM precedence (same-runtime verified demand replaces the conservative
+estimate; explicit caller demand and fixed 4096 MiB reserve remain). Old observations remain historical, unverified
+or mismatched runtimes keep conservative estimates. Local tests 61/61; full `npm run gates` all 12 green (1033 debug,
+6392 Jest, 517 Storybook). Controller `9247e0d271ae`.
+
+Actual Belle on-demand edit → queued `runExtractionNow` → own real audit → next local Artemis reply/boundary green
+twice, clean isolated-lane restoration. Citations: plan 24 §User comparison and residency integration, its
+`test/measurements/v2.7/image-completion/runtime/` records. Qwen look matrices on this controller pass 20/20 identity
+and visible-change ratings twice. This closes the missing story-level Qwen recovery proof, not the entire family,
+idle, speed-comparison or sprite-visual acceptance matrix.

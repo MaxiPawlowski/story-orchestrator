@@ -1,5 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import type { RosterHost } from "./hostPorts";
+import { isRecord } from "@utils/guards";
 
 // Roster ↔ ST group/chat resolution, shared by the manager, the coordinators and the talk host.
 
@@ -28,6 +29,22 @@ export function enabledCharacterNames(story: NormalizedStoryV2 | null, host: Ros
   const enabled = new Set(enabledCharacterIds(story, host));
   const names = story.roster.filter((member) => enabled.has(member.id)).map(rosterMemberName);
   return names.length ? names : story.roster.map(rosterMemberName);
+}
+
+export function cardScopeOwners(story: NormalizedStoryV2 | null, host: RosterHost): string[] {
+  const owners = enabledCharacterIds(story, host);
+  if (!story) return owners;
+  const speaker = activeSpeakerId(story, host);
+  const text = host.chatRows().slice(-3).filter((row) => isRecord(row) && row.is_system !== true)
+    .map((row) => isRecord(row) && typeof row.mes === "string" ? row.mes : "").join(" ").toLowerCase();
+  const words = ` ${text.replace(/[^\p{L}\p{N}]+/gu, " ")} `;
+  const rank = (owner: string) => {
+    if (owner === speaker) return 0;
+    const member = story.roster.find((member) => member.id === owner);
+    const name = member ? rosterMemberName(member).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim() : "";
+    return name && words.includes(` ${name} `) ? 1 : 2;
+  };
+  return owners.sort((left, right) => rank(left) - rank(right));
 }
 
 export function activeSpeakerId(story: NormalizedStoryV2 | null, host: RosterHost): string | null {

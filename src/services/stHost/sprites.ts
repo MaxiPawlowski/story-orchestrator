@@ -57,13 +57,13 @@ export function spriteCast(): SpriteCast {
   return { chatId, groupId, members: members.filter((entry): entry is SpriteCastMember => entry !== null) };
 }
 
-export function spriteBuilderMembers(names: string[]): Array<{ name: string; folder: string }> {
+export function spriteBuilderMembers(names: string[]): Array<{ name: string; folder: string; image?: string }> {
   const selected = new Set(names.map((name) => name.toLowerCase()));
   return cards().flatMap((card) => {
     if (typeof card.name !== "string" || typeof card.avatar !== "string" || !selected.has(card.name.toLowerCase())) return [];
     const profile = card.data?.extensions?.so_sprites;
     const folder = isRecord(profile) && typeof profile.folder === "string" ? profile.folder : card.avatar.replace(/\.[^.]+$/, "");
-    return [{ name: card.name, folder }];
+    return [{ name: card.name, folder, image: `/characters/${encodeURIComponent(card.avatar)}` }];
   });
 }
 

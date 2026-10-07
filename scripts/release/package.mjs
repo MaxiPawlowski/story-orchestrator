@@ -1,9 +1,10 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { allowlistIssues, chunkIssues, loadAllowlist, neverIssues, sha256, stageList, stageTree, walk, writeZip } from "./artifact.mjs";
 import { fileListIssues, flavourIssues } from "./buildChecks.mjs";
+import { pluginVersions } from "../lib/pluginInstall.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -31,7 +32,6 @@ const tree = walk(out);
 const issues = [...neverIssues(tree, allowlist), ...allowlistIssues(tree, list), ...chunkIssues(readFileSync(join(out, "dist", "index.js"), "utf8"), tree)];
 if (issues.length) fail(issues.join("; "));
 
-const pluginVersion = (plugin) => (existsSync(join(root, "server-plugin", plugin, "package.json")) ? readJson(`server-plugin/${plugin}/package.json`).version : null);
 const tags = git("tag", "--points-at", "HEAD").split(/\r?\n/).filter(Boolean);
 const releaseManifest = {
   kind: "release-manifest",
@@ -41,11 +41,7 @@ const releaseManifest = {
   tag: tags.find((tag) => tag === `v${version}`) ?? null,
   bundle: { sha256: distManifest.bundle.sha256, bytes: distManifest.bundle.bytes },
   source: { sha256: distManifest.source.sha256 },
-  plugins: {
-    "story-orchestrator-judge": pluginVersion("story-orchestrator-judge"),
-    "story-orchestrator-gpu": pluginVersion("story-orchestrator-gpu"),
-    "story-orchestrator-harness": pluginVersion("story-orchestrator-harness"),
-  },
+  plugins: pluginVersions(root),
   files: list.map((path) => ({ path, sha256: sha256(readFileSync(join(out, path))) })),
 };
 writeFileSync(join(out, "release-manifest.json"), `${JSON.stringify(releaseManifest, null, 2)}\n`);

@@ -23,6 +23,10 @@ const readVersion = (dir, fsImpl) => {
     }
 };
 
+export function pluginVersions(extensionRoot, fsImpl = fs) {
+    return Object.fromEntries(Object.keys(SERVER_PLUGINS).map((name) => [name, readVersion(path.join(extensionRoot, 'server-plugin', name), fsImpl)]));
+}
+
 export function compareVersions(left, right) {
     const parts = (value) => String(value).split('.').map((part) => Number.parseInt(part, 10) || 0);
     const [a, b] = [parts(left), parts(right)];

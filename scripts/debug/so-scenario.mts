@@ -787,6 +787,9 @@ async function uiStep(page, spec) {
   if (action === 'open-studio') return openCheckpointStudio(page);
   if (action === 'close-studio') return closeCheckpointStudio(page);
   if (action === 'studio-tab') return switchStudioTab(page, label);
+  if (action === 'sprite-reference') return (await import('./lib/spriteReferenceUI.mts')).adoptExpressionPack(page, spec);
+  if (action === 'card-reply-local') return (await import('./lib/cardReply.mts')).checkLocalCardReply(page);
+  if (action === 'sprite-base') return (await import('./lib/spriteBaseUI.mts')).buildCardBase(page);
   if (action === 'studio-save') return saveStudioDraft(page, (typeof spec === 'object' ? spec?.choice : null) ?? null);
   if (action === 'open-wizard') return openWizard(page);
   if (action === 'new-story-wizard') return openWizard(page, { newStory: true, title: spec?.title ?? null });

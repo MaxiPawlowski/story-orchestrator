@@ -173,6 +173,56 @@ export const REQUIREMENT_CHECKS: readonly Check[] = [
 
 const degrades = (check: Omit<Check, "severity">): Check => ({ ...check, severity: "degrades" });
 
+export const IMAGE_TARGET_ID = "so-image-settings";
+
+export const IMAGE_CHECKS: readonly Check[] = [
+  degrades({
+    id: "images-on-no-service", area: "image", scope: "install", audience: "author", feature: "images",
+    detect: (snapshot) => {
+      const health = snapshot.imageHealth;
+      const wants = Boolean(snapshot.imageStory && (snapshot.imageStory.checkpoints || snapshot.imageStory.scenes));
+      if (!health?.enabled || health.automation === "manual" || !wants || health.service !== "absent") return null;
+      return {
+        consequence: "This story asks for pictures, but nothing can draw them, so it plays without them.",
+        detail: health.detail,
+        target: { kind: "setting", id: IMAGE_TARGET_ID },
+      };
+    },
+  }),
+  degrades({
+    id: "image-model-missing", area: "image", scope: "install", audience: "author", feature: "images",
+    detect: (snapshot) => {
+      const missing = snapshot.imageHealth?.missingModels ?? [];
+      return missing.length ? {
+        consequence: "A picture type names a model this ComfyUI does not have, so those pictures fail.",
+        detail: `Not installed on ComfyUI: ${missing.join(", ")}`,
+        target: { kind: "setting", id: IMAGE_TARGET_ID },
+      } : null;
+    },
+  }),
+];
+
+export const INFO_SETUP_CHECKS: readonly Check[] = [
+  {
+    id: "look-sprites-missing", area: "image", scope: "story", audience: "author", severity: "info", feature: "sprite-builder",
+    detect: (snapshot) => {
+      const issues = snapshot.spriteLookIssues ?? [];
+      return issues.length ? {
+        consequence: "A character's changed appearance has no matching sprites, so the stage keeps an older look.",
+        detail: issues.map((issue) => `${issue.name}: ${issue.reason}`).join(" · "),
+        target: { kind: "setting", id: "so-sprite-on-demand" },
+      } : null;
+    },
+  },
+  {
+    id: "gpu-broker-no-text-model", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
+    detect: (snapshot) => (snapshot.imageHealth?.broker === "none" ? {
+      consequence: "The GPU broker is installed but shares no text model, so image renders never pause a local model.",
+      detail: "Adapter: none. Images pass through while the local text model keeps its memory.",
+    } : null),
+  },
+];
+
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
   degrades({
     id: "chapter-unsummarized", area: "chapter", scope: "story", audience: "author", feature: "chapters",

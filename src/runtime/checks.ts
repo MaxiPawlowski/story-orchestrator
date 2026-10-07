@@ -1,8 +1,8 @@
 import type { RuntimeSnapshot } from "./types";
 import { SILENT_REPLY_WINDOW } from "./thinkingSilence";
-import { DEGRADING_SETUP_CHECKS, MODEL_CHECKS, REQUIREMENT_CHECKS } from "./checksSetup";
+import { DEGRADING_SETUP_CHECKS, IMAGE_CHECKS, INFO_SETUP_CHECKS, MODEL_CHECKS, REQUIREMENT_CHECKS } from "./checksSetup";
 
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image";
 
 export type CheckScope = "install" | "chat" | "story";
 export type CheckAudience = "player" | "author";
@@ -138,7 +138,7 @@ export const STORY_NEEDS_GROUP_CHECK: Check = {
 
 export const CHECKS: readonly Check[] = [
   ...MODEL_CHECKS, STORY_NEEDS_GROUP_CHECK, ...REQUIREMENT_CHECKS,
-  SECRET_LEAK_CHECK, THINKING_CHECK, ...DEGRADING_SETUP_CHECKS,
+  SECRET_LEAK_CHECK, THINKING_CHECK, ...DEGRADING_SETUP_CHECKS, ...IMAGE_CHECKS, ...INFO_SETUP_CHECKS,
 ];
 
 const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(check.engineFree) || Boolean(snapshot.storyId);

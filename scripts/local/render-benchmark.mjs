@@ -6,14 +6,18 @@ import { renderSignature } from './policy.mjs';
 import { memorySnapshot, gpuMemory } from './telemetry.mjs';
 import { bytesToMiB, estimateGpuMiB } from './estimate.mjs';
 import { readSafetensorsBytes } from './safetensors.mjs';
+import { fluxSpikeGraph, spikeModelFiles } from './fluxSpikeGraph.mjs';
 
 const configFile = process.argv[2];
 const mode = process.argv[3] ?? 'solo';
 const familyName = process.argv[4] ?? 'scene';
 if (!configFile || !['solo', 'swap', 'shed', 'auto'].includes(mode)) throw new Error('Usage: node scripts/local/render-benchmark.mjs <config.json> solo|swap|shed|auto [scene|background|portrait|hires|lora|edit|sprite] [replyTokens]');
 const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
+if (process.env.SO_BENCH_REFERENCE) config.benchmarkEdit = { reference: process.env.SO_BENCH_REFERENCE,
+    diffusion: 'qwen_image_2.1_int8_convrot.safetensors', encoder: 'qwen3vl_8b_int8_convrot.safetensors', vae: 'qwen_image_2.1_vae_bf16.safetensors' };
 const replyTokens = Number(process.argv[5] ?? 128);
-const seed = Date.now() % 4294967296;
+const seed = process.env.SO_BENCH_SEED ? Number(process.env.SO_BENCH_SEED) : Date.now() % 4294967296;
+const positive = process.env.SO_BENCH_PROMPT ?? 'an empty old stone hall, fireplace, warm light, detailed architecture, no people';
 if (!Number.isInteger(replyTokens) || replyTokens < 8 || replyTokens > 2048) throw new Error('Benchmark reply budget must be 8..2048 tokens.');
 const home = fileURLToPath(new URL('../../', import.meta.url));
 const moduleFrom = async (file) => {
@@ -27,11 +31,15 @@ const family = FAMILIES[checkpoint.family];
 const size = family.sizes.wide;
 const loras = familyName === 'lora' ? [{ file: config.benchmarkLora, weight: 0.6 }] : [];
 if (familyName === 'lora' && !config.benchmarkLora) throw new Error('Choose an installed SDXL benchmarkLora in the config before measuring LoRA.');
-let graph = buildGraph({ checkpoint, family, loras, positive: 'an empty old stone hall, fireplace, warm light, detailed architecture, no people', negative: 'text, watermark, low quality',
+let graph = buildGraph({ checkpoint, family, loras, positive, negative: 'text, watermark, low quality',
     size, seed, hires: familyName === 'hires', upscaler: family.upscaler });
 const checkpointPath = `${config.checkpointDir ?? 'C:/dev/models/checkpoints'}/${checkpoint.file}`;
 let modelFiles = [{ kind: 'checkpoints', name: checkpoint.file }, ...loras.map((lora) => ({ kind: 'loras', name: lora.file }))];
 if (familyName === 'hires') modelFiles.push({ kind: 'upscale_models', name: family.upscaler });
+if (familyName === 'background' && config.fluxSpike?.arm !== 'stock' && config.fluxSpike?.arm) {
+    graph = fluxSpikeGraph({ ...config.fluxSpike, positive, size, seed });
+    modelFiles = spikeModelFiles(config.fluxSpike);
+}
 if (['edit', 'sprite'].includes(familyName)) {
     if (!config.benchmarkEdit?.reference) throw new Error('Set benchmarkEdit models and a ComfyUI reference image before measuring edit/sprite.');
     const { editGraph, editInstruction } = await moduleFrom('src/sprites/builder/recipes.ts');
@@ -54,7 +62,8 @@ const text = async () => {
     if (!data.content?.trim()) throw new Error('Text benchmark answered without a visible reply.');
     return { elapsedMs: Date.now() - began, length: data.content?.length, timings: data.timings, status: await (await fetch(`${url}/status`)).json() };
 };
-const result = { mode, family: familyName, modelFiles, seed, replyTokens, checkpoint: checkpoint.file, estimatedMiB, before: await memorySnapshot() };
+const result = { mode, family: familyName, arm: config.fluxSpike?.arm ?? 'stock', positive, modelFiles, seed, replyTokens,
+    checkpoint: checkpoint.file, estimatedMiB, before: await memorySnapshot() };
 const samples = [];
 let lease;
 let ownedPrompt;
@@ -80,7 +89,7 @@ try {
     if (!ownedPrompt) throw new Error(JSON.stringify(queued));
     const deadline = Date.now() + 600000;
     while (Date.now() < deadline) {
-        const history = await (await fetch(`${config.comfyUrl}/history/${ownedPrompt}`, { signal: AbortSignal.timeout(10000) })).json();
+        const history = await (await fetch(`${config.comfyUrl}/history/${ownedPrompt}`, { signal: AbortSignal.timeout(config.comfyRequestTimeoutMs ?? 60000) })).json();
         const entry = history[ownedPrompt];
         if (entry?.status?.completed) {
             if (entry.status.status_str !== 'success') throw new Error(JSON.stringify(entry.status));
@@ -99,11 +108,15 @@ try {
     result.afterRender = await memorySnapshot();
     const releaseBegan = Date.now();
     await post(url, '/release', { lease: lease.lease }); lease = null;
+    result.measurement = await (await fetch(`${url}/measurement`)).json();
     await post(url, '/control/automatic', {});
     result.releaseMs = Date.now() - releaseBegan;
     if (mode !== 'solo') result.textAfter = await text();
     result.totalCycleMs = Date.now() - cycleBegan;
     result.controllerAfter = await (await fetch(`${url}/status`)).json();
+    if (!result.measurement?.highCadence || !result.measurement.seenJob) throw new Error('The render did not produce sufficient real-job memory telemetry.');
+    if (result.measurement.lowRamMiB < config.reserves.ramMiB || result.measurement.lowGpuMiB < config.reserves.gpuMiB
+        || result.measurement.lowCommitMiB < config.reserves.ramMiB) throw new Error('The render crossed a predeclared memory reserve.');
     result.ok = true;
 } catch (error) {
     result.ok = false; result.error = error.message;
@@ -114,7 +127,7 @@ try {
     await post(url, '/control/automatic', {}).catch(() => {});
     result.samples = samples;
     result.after = await memorySnapshot();
-    const record = path.join(process.env.SO_LOCAL_RECORD_DIR ?? config.stateDir, `render-${familyName}-${mode}-${Date.now()}.json`);
+    const record = path.join(process.env.SO_LOCAL_RECORD_DIR ?? config.stateDir, `render-${result.arm}-${familyName}-${mode}-${Date.now()}.json`);
     await fs.writeFile(record, JSON.stringify(result, null, 2));
     console.log(JSON.stringify(process.argv.includes('--summary') ? { record, ok: result.ok, family: familyName, decision: result.lease?.decision,
         renderMs: result.render?.elapsedMs, totalCycleMs: result.totalCycleMs, tokensPerSecond: result.textAfter?.timings?.predicted_per_second, error: result.error }

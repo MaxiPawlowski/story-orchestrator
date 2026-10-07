@@ -3,6 +3,7 @@ import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
 import { setCheckpointMotive } from "../innerVoiceMutations";
+import { declaredCardFields } from "@engine/cardFields";
 import AgencyEditor from "./AgencyEditor";
 import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";
@@ -208,6 +209,7 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         roster={draft.roster}
         castable={draft.roster.filter((member) => !rosterMemberIsPlayer(member, draft))}
         backgroundNames={backgroundNames}
+        cardFields={declaredCardFields(draft.roster, draft.player, draft.qualities)}
         onChange={(next: CheckpointEffects) => patch({ effects: Object.keys(next).length ? next : undefined })}
       />
     </div>

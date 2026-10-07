@@ -83,6 +83,26 @@ export const AuthorsAliases: Story = {
   },
 };
 
+export const BindsACardFieldToAQuality: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getAllByRole("button", { name: "+ Card field" })[0]);
+    await expect(useDraftStore.getState().draft.roster[0].card).toEqual({ fields: { field: { quality: "route" } } });
+    await userEvent.click(canvas.getByLabelText("Field 1 changes the picture"));
+    await expect(useDraftStore.getState().draft.roster[0].card).toEqual({ fields: { field: { quality: "route", visual: true } } });
+    await userEvent.click(canvas.getByRole("button", { name: "Remove field 1" }));
+    await expect(useDraftStore.getState().draft.roster[0].card).toBeUndefined();
+  },
+};
+
+export const BindsThePlayerCard: Story = {
+  play: async ({ canvasElement }) => {
+    const playerCard = canvasElement.querySelector("[data-so=player-card]") as HTMLElement;
+    await userEvent.click(within(playerCard).getByRole("button", { name: "+ Card field" }));
+    await expect(useDraftStore.getState().draft.player?.card).toEqual({ fields: { field: { quality: "route" } } });
+  },
+};
+
 export const RolesHintOnlyForDirectedStories: Story = {
   beforeEach: () => {
     const story = sampleStory();

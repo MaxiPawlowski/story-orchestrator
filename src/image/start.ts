@@ -1,6 +1,7 @@
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { StoryImageDirector } from "./runtime";
 import { registerImageSurface } from "@services/stHost/imageSurface";
+import { setImageHealth } from "@runtime/imageHealth";
 
 let image: StoryImageDirector | null = null;
 let dispose: (() => void) | null = null;
@@ -16,6 +17,7 @@ export function startImage(manager: RuntimeManager): StoryImageDirector {
 }
 
 export function stopImage(): void {
+  setImageHealth(null);
   dispose?.();
   dispose = null;
   image = null;

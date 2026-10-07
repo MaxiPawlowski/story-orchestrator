@@ -2,14 +2,15 @@ import { isHostGenerating, listConnectionProfiles, getScannableEntries } from "@
 import {
   imageChat, imageModel, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, type ImageMedia,
 } from "@services/stHost/image";
-import { reserveGpu, releaseGpu } from "@services/stHost/gpuBroker";
+import { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
+import { setImageHealth, type ImageHealthView } from "@runtime/imageHealth";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { imageSize, type Aspect } from "./catalog";
 import { buildGraph } from "./graph";
 import { renderFacts, renderKey } from "./renderFacts";
 import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
-import { comfyDiscover, comfyRenderOwned } from "@services/stHost/media";
+import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
 import { pickImageCheckpoint, resolveImageRoute, type ImageArgs, type Route } from "./routing";
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
@@ -53,7 +54,33 @@ export class StoryImageDirector {
   constructor(private readonly manager: RuntimeManager) { this.queue.subscribe(() => this.notify()); }
 
   settings(): ImageSettings { return getGlobalSettings().image; }
-  updateSettings(patch: Partial<ImageSettings>): ImageSettings { const settings = setGlobalSettings({ image: patch }).image; this.notify(); return settings; }
+  updateSettings(patch: Partial<ImageSettings>): ImageSettings { const settings = setGlobalSettings({ image: patch }).image; void this.refreshHealth(); this.notify(); return settings; }
+
+  private async computeHealth(): Promise<ImageHealthView> {
+    const settings = this.settings();
+    const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode } as const;
+    const broker = (await gpuBrokerStatus())?.adapter ?? null;
+    if (!settings.enabled) return { ...base, service: "unknown", detail: "Illustrations are off.", source: null, missingModels: [], broker };
+    if (settings.backend === "st") {
+      const ready = await stImageReadiness();
+      return { ...base, service: ready.ready ? "ready" : "absent", detail: ready.reason ?? "SillyTavern's image service is ready.", source: ready.source, missingModels: [], broker };
+    }
+    const status = await mediaStatus();
+    if (!status) return { ...base, service: "absent", detail: "The optional media plugin is not installed.", source: null, missingModels: [], broker };
+    try {
+      const discovery = await comfyDiscover();
+      const missing = [...new Set(Object.values(settings.purposes).map((route) => route.checkpoint))].filter((file) => !discovery.checkpoints.includes(file));
+      return { ...base, service: "ready", detail: `ComfyUI at ${status.comfyUrl}.`, source: "comfy", missingModels: missing, broker };
+    } catch (error) {
+      return { ...base, service: "absent", detail: error instanceof Error ? error.message : "ComfyUI did not answer.", source: null, missingModels: [], broker };
+    }
+  }
+
+  async refreshHealth(): Promise<void> {
+    try { setImageHealth(await this.computeHealth()); } catch { setImageHealth(null); }
+    this.manager.touch?.();
+    this.notify();
+  }
   override(): ImageOverride { return current().override; }
   async setOverride(override: ImageOverride): Promise<void> {
     const chatId = imageChat()?.id;
@@ -96,6 +123,7 @@ export class StoryImageDirector {
   }
 
   start(): () => void {
+    void this.refreshHealth();
     let initialChat: string | null = null;
     const off = [
       this.manager.subscribe(() => {

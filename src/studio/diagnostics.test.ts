@@ -203,6 +203,17 @@ describe("runDiagnostics", () => {
     expect(runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope")).toHaveLength(0);
   });
 
+  it("recognizes the runtime's card scope without hiding an unbound orphan", () => {
+    const story: StoryV2 = { ...clean,
+      qualities: [...clean.qualities, { key: "hair", type: "string", source: "extractor", rubric: "confirmed hair" },
+        { key: "orphan", type: "string", source: "extractor", rubric: "unused" }],
+      roster: [{ id: "belle", name: "Belle", card: { fields: { hair: { quality: "hair", visual: true } } } }],
+    };
+    const hits = runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope");
+    expect(hits).toHaveLength(1);
+    expect(hits[0].message).toContain("orphan");
+  });
+
   it("warns that a free-text location quality leaves the scene tracker placeless, unless places are listed (v2.2 plan 03)", () => {
     const freeText: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "string", source: "extractor", rubric: "Where?" }] };
     expect(runDiagnostics(freeText).filter((entry) => entry.code === "scene-read-location-empty")).toEqual([expect.objectContaining({ severity: "warning", path: "qualities.1" })]);

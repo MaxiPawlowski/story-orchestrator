@@ -71,6 +71,9 @@ export const UI_ACTIONS = new Set([
   'open-wizard', 'new-story-wizard', 'wizard-run', 'wizard-answer', 'wizard-apply', 'wizard-state',
   'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue', 'branch-continue',
   'next-turn', 'memory-fates', 'jump', 'model-calls', 'gate-replay', 'inline', 'inline-level', 'briefing', 'briefing-dismiss',
+  'sprite-reference',
+  'card-reply-local',
+  'sprite-base',
 ]);
 
 export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept-op', 'reject-op', 'apply', 'state']);

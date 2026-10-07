@@ -1,5 +1,5 @@
 import type {
-  ArcBridge, ArcTemplate, Chapter, ChapterSealPolicy, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
+  ArcBridge, ArcTemplate, CardBinding, Chapter, ChapterSealPolicy, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
   StoryBriefing, StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
@@ -112,6 +112,14 @@ export const removeRosterMember = (draft: StoryDraft, id: string): StoryDraft =>
   ...draft,
   roster: draft.roster.filter((entry) => entry.id !== id),
 });
+
+// A card field binds a story entity's live card to an extracted quality. `owner` is a roster id or
+// "player"; a card with no fields is dropped, so an emptied card does not linger as `{ fields: {} }`.
+export const setMemberCard = (draft: StoryDraft, owner: string, card: CardBinding | undefined): StoryDraft => {
+  const clean = card && Object.keys(card.fields).length ? card : undefined;
+  if (owner === "player") return { ...draft, player: draft.player || clean ? { ...(draft.player ?? {}), card: clean } : undefined };
+  return { ...draft, roster: draft.roster.map((member) => (member.id === owner ? { ...member, card: clean } : member)) };
+};
 
 export const setStoryField = <K extends keyof StoryDraft>(draft: StoryDraft, key: K, value: StoryDraft[K]): StoryDraft => ({
   ...draft,

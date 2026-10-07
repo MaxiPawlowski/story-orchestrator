@@ -4,9 +4,10 @@
 2026-10-04). Implemented candidate: bound public card fields, transactional entry writes, provenance, the
 starvation-free scope rotation, the visual readers (image/sprites) and the default-off on-demand look edits are
 built, and the Belle pilot generated a green-haired look that persisted a fired transition and rolled back. S32-1
-(main-model overlay depth/default) and S32-2 (five-look identity) are NOT run; the prompt overlay and on-demand
-edits stay off by default. Per v2.7 rule 5, those measurements stay owned by v2.8 01 / the v2.8 final suite. See
-`21-belle-image-pilot.md` §Gate record.** Overview: `00-overview.md`.
+(main-model overlay depth/default) is complete (keep-off); S32-2's Belle five-look builder identity/visible-change
+matrices pass ×2, while lifecycle/text-wait acceptance remains open. Prompt overlay and on-demand edits stay off by
+default. Completion belongs to `24-image-and-local-completion.md`; its Gate record supersedes the older pilot slice.**
+Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance RP (S32-1, the overlay block on the main
 model) and LI (look sprites, S32-2, after v2.7 18).
 

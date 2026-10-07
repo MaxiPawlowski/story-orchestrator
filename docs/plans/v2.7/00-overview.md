@@ -1,6 +1,6 @@
 # Implementation Overview — Story Orchestrator v2.7
 
-**Status: IN BUILD (re-scoped 2026-10-03 at the version split).** v2.7 = **urgent fixes + quick wins whose gates are
+**Status: IN BUILD; SCOPE UNDER REVIEW (user, 2026-10-07): v2.7 is being re-scoped with new items, then every test re-runs from zero.** Earlier: re-scoped 2026-10-03 at the version split. v2.7 = **urgent fixes + quick wins whose gates are
 deterministic** (`npm run gates`, no-LLM scenarios, seeded metadata, dry-run payloads, Storybook). Everything else the
 user decided on 2026-10-03 is v2.8 (`docs/plans/v2.8/00-overview.md`); everything deferred is v2.9
 (`docs/plans/v2.9/00-overview.md`). Old → new numbers: `RENUMBER.md`. Review findings: `review-2026-10-03.md` (old
@@ -58,13 +58,12 @@ Every merged row's **live gate is NOT run** (each gate record says so). Determin
     copy is reviewed by a second model (review B4).
 12. **References are version-qualified** ("v2.7 03", "v2.8 01", "v2.6 plan 11"), never a bare number (review B12,
     F36). Every plan closes with `npm run gates`.
-13. **The image track (plans 17–21) moved from v2.8 on 2026-10-04** (user decision). Its implementation is v2.7
-    (deterministic); its live tiers (LI/CL/RP) are still owned by v2.8 01 / the v2.8 final suite under rule 5, so a
-    green `npm run gates` never closes S28, S32-1, S32-2, route A or a clean-host row. The pilot record
-    (`21-belle-image-pilot.md`) lists exactly what is proven and what is owed.
-14. **Local residency (plans 22–23) is the current work** and keeps its own LT/LI live rows; it is not the v2.8 final
-    suite's. Moving it into v2.7 does not relax rule 5 for the image track (plans 17–21): their live tiers stay owned
-    by v2.8 01 / the final suite.
+13. **The image track (plans 17–21) moved from v2.8 on 2026-10-04** (user decision). Completion and live acceptance
+    are owned by v2.7 24: local Artemis replies (LT), local ComfyUI images (LI), existing DeepSeek/Jev roles permitted
+    (CL); no pod. This is an explicit exception to rule 5. `npm run gates` never closes S28, S32-1, S32-2 or route A.
+    v2.8 01 O3–O6 stay with v2.8 01. The pilot record states its historical evidence; plan 24 carries later updates.
+14. **Local residency (plans 22–23) is separately owned by another agent**, including its LT/LI rows. Plan 24 consumes
+    its broker interface and reports integration findings; it does not implement residency or FreeToken work.
 
 ## Gate taxonomy (same codes as v2.8)
 
@@ -90,7 +89,7 @@ Step 0 runs first. Then file order, except where a row says "together".
 | 04 | `04-story-health-center.md` | one check registry (extend `checks.ts`), Repair as its ordering, one Story setup surface | seeded, not built | — |
 | 05 | `05-story-briefing.md` | static briefing, modal, Studio editor, chapter briefings, C8 onboarding, saga/act indicator, the activation sequence frame | not built | LLM drafting → v2.8 10; identity step → v2.8 03 |
 | 06 | `06-story-presence-ui.md` | plays index, badges, C1 Continue list, C2 hover card, C3 chapter card, C6 wand entry, C9 (b) author Activity + roll store, panel frame, per-story toggles | not built | C4, C5, C7, C9 (a) public chips → v2.8 04 |
-| 07 | `07-adolion-campaign.md` | A1, A2 (done); A3, A8 (step 0b); A6 badge check after 06; A7 briefings after 05 | partly done | A4, A5, D13 → v2.8 02 |
+| 07 | `07-adolion-campaign.md` | A1, A2, A3, A7, A8 (done); A6 deterministic half done | partly done; live rows owed | A4, A5, D13 → v2.8 02 |
 | 08 | `08-thinking-per-story.md` | warning (built); copy fix (A11) | built | story/checkpoint level (R4) → v2.8 01 §E |
 | 09 | `09-commitment-double-negatives.md` | option E (built); close | built | — |
 | 10 | `10-sp2-recommit-v2.md` | option C (built); guide line | built; doc line open | option A → v2.8 01 §C |
@@ -107,7 +106,12 @@ Step 0 runs first. Then file order, except where a row says "together".
 | 21 | `21-belle-image-pilot.md` | the Belle pilot record: gate record, delivered scope, open acceptance | written 2026-10-04 | — |
 | 22 | `22-local-residency.md` | local residency controller: Artemis on the local GPU for replies + extraction, DeepSeek image direction/judge kept; owned GPU gateway; VRAM arbiter (estimate/retain/shed/swap/idle-restore) | IN BUILD (moved from `v2.8/local-residency.md`, 2026-10-04); text→image→text live green, arbiter slice green | LT/LI live rows stay this plan's |
 | 23 | `23-local-residency-freetoken.md` | FreeToken pattern-harvest record (no code ported) | written 2026-10-04 | — |
+| 24 | `24-image-and-local-completion.md` | completes 17–21: image readiness, protected existing-pack references, sprite cleanup, Studio card/base controls, S28 and S32; local Artemis + local images, existing cloud roles permitted; 22–23 external | IN BUILD; D green; reference adoption/local reply smoke ×2; S32-1 complete, keep-off; LI blocked by controller reclamation | — |
 | Z | close-out | regenerate settings reference + README feature table; second feature triage; guide pages vs the UI; What's new for 2.7; walk every gate record into v2.8 01 §A | open | — |
+| 25 | `25-flux-memory-and-backend-spikes.md` | FLUX memory repair on the 3090/32 GiB host, backend spikes | implemented; acceptance PARTIAL | — |
+| 26 | `26-sprite-quality-and-speed.md` | opaque mouth region, expression-aware mouth, raw-edit cache, two-frame default, resolution/steps compare | implemented candidate; visual approval given by the user 2026-10-07 | — |
+| 27 | `27-main-st-rollout.md` | current build + all nine Adolion stories on the main install, regular sprite packs | COMPLETE 2026-10-06 | — |
+| 28 | `28-saga-main-cast.md` | eight Saga main characters: base packs, blink/talk, living-card fields, changed-look animation | IN BUILD; 8 base packs 238/238 frames | — |
 
 **Together** (Sol split item 6): 03 and 04 are built at their seam (`story-needs-group` is a 04 check; the refusal is
 03's). Their gates use scripted messages, seeded metadata and dry-run payloads. 05 needs 04's `blocks` findings for
@@ -172,7 +176,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 04 | BUILT, merged 41c0c07e; live D rows owed |
 | 05 | BUILT (static half), merged 41c0c07e; live D rows owed |
 | 06 | BUILT (A, B, moved C-items), merged 41c0c07e; live D rows owed (incl. payload invariance) |
-| 07 | A1, A2 done; A3, A8 open (step 0b); A6, A7 wait on 06, 05 |
+| 07 | A1, A2, A3, A7, A8 done (campaign `b65b5e6`, `c0927b5`); A6 deterministic half done (all nine read `saga`); live rows (A3 lane seed, A6 badge) owed |
 | 08 | BUILT (warning); A11 copy fix built on `worktree-agent-adc7c17ca7267180d` (guide + drift test); closes in v2.7 |
 | 09 | BUILT (E); closes in v2.7 |
 | 10 | BUILT (C); guide line built on `worktree-agent-adc7c17ca7267180d`; C live row owed; closes in v2.7 |
@@ -189,7 +193,12 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 21 | written 2026-10-04 (Belle pilot record) |
 | 22 | IN BUILD (moved from `v2.8/local-residency.md`, 2026-10-04); text→image→text live green; VRAM-arbiter slice green (estimator 9059 vs measured 9058; shed/swap decisions); open: page-side workflowKey retention wiring, background/edit/sprite families |
 | 23 | written 2026-10-04 (FreeToken pattern harvest; no code ported) |
+| 24 | IN BUILD, NOT accepted (2026-10-05): D green, 6,392 jest / 1,026 debug / 517 Storybook passed; protected existing-pack adoption, generated/ref cleanup, author mirror, speaker-first scope, readiness and base-from-card code built. Reference/live local reply checks green ×2. S32-1: overlays 100%/100%, baseline 73.3%/100%; default stays off (baseline not worse twice). Base recipe v2 RGB fix D green; LI recheck refused by controller reclamation. S28, S32-2, route/clean-host and final docs owed. Plans 22–23 external |
 
+| 25 | IMPLEMENTED (2026-10-05); local/transport discovery green; overall acceptance PARTIAL |
+| 26 | IMPLEMENTED CANDIDATE (2026-10-06); D and image/read/reply regression green; **user visual approval given 2026-10-07** (neutral/happy and the eight-character playback pack) |
+| 27 | COMPLETE (2026-10-06): plugin + nine stories on the main install, regular expression sprites |
+| 28 | IN BUILD: eight base packs generated and verified (238/238, 58 speaking composites recomposed), user approved 2026-10-07. Open: 31 authored outfits, living-card prompt repair + S32-1 rerun, text→image recovery gate (red: RAM admission), Saga integration ×2 |
 ## Review 2026-10-03
 
 Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),

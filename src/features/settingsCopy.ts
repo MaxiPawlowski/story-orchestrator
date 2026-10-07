@@ -276,7 +276,7 @@ export const SETTING_COPY = {
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
   "sprites.cardOverlay": copy("Current character state in replies",
-    "Adds this story’s applied public changes to the next reply prompt. Off until the card-versus-overlay measurement is complete. Character cards and personas stay unchanged."),
+    "Adds this story’s applied public changes to the next reply prompt. Optional and off by default. Character cards and personas stay unchanged."),
   "sprites.onDemand": copy("Generate changed looks when needed",
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
   "sprites.mouth": copy("Mouth movement", "Moves the speaking character’s mouth while replies stream. Smooth uses half-open frames when available. Reduced motion switches this off."),

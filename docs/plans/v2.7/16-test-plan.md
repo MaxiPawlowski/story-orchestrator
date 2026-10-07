@@ -4,6 +4,8 @@
 Model: `v2.6/10-acceptance.md` (phase F, verdict rules) and `v2.6/14-tiered-testing.md` (tiers, ×2, findings), scoped
 down: v2.7 accepts **tier D only** (v2.7 rules 5–6). Every real-model row is listed in §What v2.7 does NOT prove with its
 owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/24-test-plan.md`) runs them.
+Exception (user, 2026-10-04): image plans 17–21 close through v2.7 24, using local Artemis (LT), local ComfyUI (LI)
+and the existing cloud director/rater/judge (CL). Plans 22–23 are separately owned. No pod for plan 24.
 
 ## Rules
 
@@ -25,7 +27,10 @@ owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/24-test-plan.md`
 6. **Findings** get an id `V27-<plan>-<n>`, severity and class as in v2.6 14 rule 3, a row in the plan's gate record,
    and a deterministic regression check that then runs ×2.
 7. **Cleanup is a gate** (v2.6 debug rules): sandbox chats, mirror books, created groups and reap prompts cleaned and
-   reported; a leak fails the run.
+    reported; a leak fails the run.
+8. **Image-track exception.** For v2.7 24, rules 1 and 4 permit declared LT/LI/CL calls and media on, on an isolated
+   lane. Every new generated sprite and temporary reference is ledgered, baseline-scoped and cleaned. Model weights
+   remain at the existing paths. A controller refusal blocks the LI row; it never substitutes a mock.
 
 ## Step 0 (code recheck, before any other v2.7 gate)
 
@@ -57,6 +62,11 @@ owner in `v2.8/01-v27-carry-over.md`; v2.8's final suite (`v2.8/24-test-plan.md`
 | 10 recommit C | `editCatchUp.test.ts` (built) | `plan03a-edit-rollback.json` with a mocked re-read | — | after the edit | edit the newest reply; `so-ui.mts pipeline` = `catching-up` until the mocked audit lands, then idle; guide line present |
 | 11, 12, 12a, 13 | none (docs) | — | — | — | — |
 | 15 SP10 | `devOnly.guard.test.ts` with planted imports for the two removed modules | `v24-01-toolcall-run.json` still green | — | — | — |
+| 17 image routes + 24 A | image capability/Repair registry, route/template/provenance contracts, `npm run gates` | no-service and owned-job controls | image settings and empty states | author findings hidden | route A/B, director/template, Test render and clean-host acceptance owned by 24 (LI/CL) |
+| 18 sprites + 24 B/C | read-only pack fingerprints, ownership/ref cleanup, base recipe + alpha graph, pixel QA, cancellation | `v27-existing-expression-reference.json` | SpriteBuilder, ReferencePackPicker, BaseSpriteBuilder | author controls hidden | reference adoption ×2; `v27-card-art-base.json` (LI), three-character identity/expression ratings and cleanup |
+| 19 talking sprites + 24 D | frame contracts, reduced motion and animator tests | missing-frame controls | sprite stage and mouth settings | — | S28: three characters, both generation arms, blind/preference/performance floors (LI/LT/CL); not closed by Belle alone |
+| 20 living cards + 24 E | field scope priority/rotation, snapshot-only author ledger mirror, readiness checks, transactional rollback | `v27-card-rollback.json` | Roster/card editors and sprite settings | author-only provenance/readiness | `v27-local-card-reply.json` ×2 (LT); S32-1 three arms ×30 replies ×2 on local Artemis; S32-2 five looks ×4 expressions (LI/CL) |
+| 21 pilot record | docs | — | — | — | historical single-character evidence; later acceptance lives in 24 |
 
 Every plan closes with `npm run gates` (full, with Storybook, from the main checkout, not a `.claude` worktree path:
 the Storybook runner finds no stories there, as both 2026-10-03 gate records found).
@@ -104,7 +114,8 @@ extraction accuracy, judge verdicts and any floor are v2.8 rows. A defect it fin
 | judge-typed evidence on the whole message (guard semantics) | — | v2.8 01 C11-F1 |
 | warden/lore timeouts, separate-arm checks | — | v2.8 01 C3, C4 |
 | independent-model content review of the A7 briefings | v2.7 07 A7 | v2.8 01 O15 |
-| any human or blind rating | — | v2.8 01 §F, v2.8 24 |
+| any human or blind rating outside the image track | — | v2.8 01 §F, v2.8 24 |
+| S28 talking-sprite visual/performance acceptance, S32-2 changed-look identity | v2.7 18–20 | v2.7 24; LI rows remain open while the local controller refuses admission/reclamation |
 
 ## Archive locations
 

@@ -155,6 +155,11 @@ export const comfyFingerprint = async () => { throw new Error("No model files in
 export const comfyReference = async () => { throw new Error("No uploads in Storybook."); };
 export const comfyRenderOwned = async () => { throw new Error("No render jobs in Storybook."); };
 export const spriteManifest = async () => null;
+export const spriteReferenceSets = async () => [""];
+export const spriteReferencePack = async (character: string, set: string) => ({ character, set, sha256: "a".repeat(64), files: [] });
+export const comfyReleaseReference = async () => ({ ok: true, released: true });
+export const gpuBrokerStatus = async () => null;
+export const removeStorySprites = async () => ({ ok: false, reason: "No removals in Storybook." });
 export const generatedSpriteSets = async () => [];
 export const saveGeneratedSprite = async () => ({ ok: false, reason: "No uploads in Storybook." });
 export const deleteGeneratedSprite = async () => ({ ok: false, reason: "No deletions in Storybook." });

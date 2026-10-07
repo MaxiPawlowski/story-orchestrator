@@ -1,0 +1,17 @@
+{
+  "name": "v2.7 24: four card-art base candidates, installed alpha removal, independent identity review and owned cleanup",
+  "requires": { "group": "SO Belle image pilot", "members": ["Belle"], "authorView": true },
+  "steps": [
+    { "import_story": {
+      "format": 2, "id": "so-v27-base", "version": 1, "title": "SO-V27-BASE", "description": "A synthetic card-art base check.",
+      "roster": [{"id": "belle", "name": "Belle", "role": "Portrait subject"}],
+      "qualities": [], "requirements": {"members": ["Belle"]},
+      "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Build a portrait base.", "illustrate": false}],
+      "transitions": []
+    } },
+    { "ui": { "action": "briefing-dismiss" } },
+    { "ui": { "action": "open-studio" } },
+    { "ui": { "action": "studio-tab", "label": "Sprites" } },
+    { "ui": { "action": "sprite-base" }, "log": true }
+  ]
+}

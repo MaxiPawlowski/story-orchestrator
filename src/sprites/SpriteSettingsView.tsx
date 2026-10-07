@@ -13,6 +13,8 @@ export interface SpriteSettingsViewProps {
   onChange(patch: Partial<SpriteSettings>): void;
   onSwitch(enabled: boolean): void;
   onStoryDecides(): void;
+  onRemoveStorySprites?: () => void;
+  removeNotice?: string | null;
 }
 
 const ACTIVATION_TEXT: Record<SpriteActivation, string> = {
@@ -22,7 +24,9 @@ const ACTIVATION_TEXT: Record<SpriteActivation, string> = {
   off: "Off: this chat's story directs no stage. If a newer version of the story adds one, take it with Update or Restart in the Story Orchestrator drawer.",
 };
 
-export function SpriteSettingsView({ settings, activation, waitsForVn, capability, profiles, onStage, onChange, onSwitch, onStoryDecides }: SpriteSettingsViewProps) {
+export function SpriteSettingsView({
+  settings, activation, waitsForVn, capability, profiles, onStage, onChange, onSwitch, onStoryDecides, onRemoveStorySprites, removeNotice,
+}: SpriteSettingsViewProps) {
   const on = (activation === "user-on" || activation === "story") && settings.stage !== "off";
   const stage = settings.stage === "off" ? "vn" : settings.stage;
   const toggle = (next: boolean) => {
@@ -59,6 +63,10 @@ export function SpriteSettingsView({ settings, activation, waitsForVn, capabilit
         <select id="so-sprite-mouth" value={settings.mouth} onChange={(event) => onChange({ mouth: event.target.value as typeof settings.mouth })}>
           <option value="off">Off</option><option value="simple">Simple</option><option value="smooth">Smooth (falls back to simple)</option>
         </select>
+        {onRemoveStorySprites && <div className="flex flex-col gap-1">
+          <button id="so-sprite-remove-story" type="button" className="menu_button text-xs" onClick={onRemoveStorySprites}>Remove generated sprites for this story</button>
+          {removeNotice && <span id="so-sprite-remove-notice" role="status" className="text-xs opacity-70">{removeNotice}</span>}
+        </div>}
       </Advanced>
       <div id="so-sprite-cast" className="text-xs opacity-70">{onStage || PLAYER_COPY.spriteNoPack}</div>
     </div>

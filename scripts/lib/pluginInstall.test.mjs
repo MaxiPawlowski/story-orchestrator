@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { applyInstall, compareVersions, planInstall } from './pluginInstall.mjs';
+import { applyInstall, compareVersions, planInstall, pluginVersions, SERVER_PLUGINS } from './pluginInstall.mjs';
 
 const PLUGINS = { 'story-orchestrator-judge': ['package.json', 'index.mjs'], 'story-orchestrator-harness': ['package.json', 'index.mjs'] };
 
@@ -59,7 +59,16 @@ test('CR-J5: an older install is upgraded; a newer one is refused unless forced'
 });
 
 test('CR-J5: the repo\'s real plugin list matches what ships in server-plugin/', async () => {
-    const { SERVER_PLUGINS } = await import('./pluginInstall.mjs');
     const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'server-plugin');
+    assert.deepEqual(Object.keys(SERVER_PLUGINS).sort(), fs.readdirSync(repo).filter((name) => fs.statSync(path.join(repo, name)).isDirectory()).sort());
     for (const [name, files] of Object.entries(SERVER_PLUGINS)) for (const file of files) assert.ok(fs.existsSync(path.join(repo, name, file)), `${name}/${file}`);
+});
+
+test('release plugin versions include media and match every registered package', () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+    const versions = pluginVersions(root);
+    assert.ok(versions['story-orchestrator-media']);
+    for (const name of Object.keys(SERVER_PLUGINS)) {
+        assert.equal(versions[name], JSON.parse(fs.readFileSync(path.join(root, 'server-plugin', name, 'package.json'), 'utf8')).version);
+    }
 });

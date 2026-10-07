@@ -2,6 +2,8 @@ import { webcrypto } from "node:crypto";
 import { SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
 import { editKey } from "./recipes";
+import { referenceProblems } from "./referencePack";
+import { sanitizeSpriteSettings } from "../settings";
 
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
@@ -75,4 +77,76 @@ test("changing weights under the same filename changes the cache key", async () 
   const first = await editKey(input);
   const second = await editKey({ ...input, models: { ...models, diffusion: { ...models.diffusion, sha256: "d".repeat(64) } } });
   expect(second).not.toBe(first);
+});
+
+test("a mask adjustment recomposes the owned raw edit without another lease, upload or render", async () => {
+  const { builder, deps } = fixture();
+  const first = await builder.build({ ...request, kind: "talk", value: "happy" });
+  const second = await builder.build({ ...request, kind: "talk", value: "happy", frameRegion: { x: 3, y: 9, width: 10, height: 4, feather: 1 } });
+  expect(first.key).not.toBe(second.key);
+  expect(deps.render).toHaveBeenCalledTimes(1);
+  expect(deps.uploadReference).toHaveBeenCalledTimes(1);
+  expect(second.timings?.cacheHit).toBe(true);
+  expect(second.timings?.renderMs).toBe(0);
+  await builder.build({ ...request, kind: "talk", value: "happy", resolution: 512 });
+  expect(deps.render).toHaveBeenCalledTimes(2);
+  builder.close();
+  await builder.build({ ...request, kind: "talk", value: "happy" });
+  expect(deps.render).toHaveBeenCalledTimes(3);
+});
+
+test("returned wall time includes lease cleanup rather than reporting the earlier render completion", async () => {
+  const { builder, deps } = fixture();
+  deps.lease = async () => ({ release: async () => { await new Promise((resolve) => setTimeout(resolve, 15)); } });
+  const candidate = await builder.build(request);
+  expect(candidate.timings?.leaseReleaseMs).toBeGreaterThanOrEqual(10);
+  expect(candidate.timings?.totalMs).toBeGreaterThanOrEqual(candidate.timings?.leaseReleaseMs ?? 0);
+  expect(candidate.seconds * 1000).toBeCloseTo(candidate.timings?.totalMs ?? NaN, 6);
+});
+
+test("a reference changed since inventory is refused before any GPU work", async () => {
+  const { builder, deps } = fixture();
+  await expect(builder.build({ ...request, referenceHash: "a".repeat(64) })).rejects.toThrow("changed before the render");
+  expect(deps.uploadReference).not.toHaveBeenCalled();
+  expect(deps.render).not.toHaveBeenCalled();
+});
+
+test("reference adoption accepts existing transparent art and refuses opaque or blank images", () => {
+  expect(referenceProblems(base)).toEqual([]);
+  const opaque = image(32, 32);
+  opaque.data[3] = 255;
+  expect(referenceProblems(opaque)).toContain("The reference needs a visible subject and a transparent background.");
+  expect(referenceProblems({ ...base, data: new Uint8ClampedArray(base.data.length) })).toHaveLength(2);
+  const builders = { Test: { baseSet: "", box, models: { diffusion: "edit", encoder: "encoder", vae: "vae" }, steps: 25 } };
+  expect(sanitizeSpriteSettings({ builders }).builders).toEqual(builders);
+  expect(sanitizeSpriteSettings({ builders: { Test: { ...builders.Test, baseSet: "../escape" } } }).builders).toEqual({});
+});
+
+test("base creation accepts opaque card art only with a fingerprinted alpha step and validates the resulting cutout", async () => {
+  const { builder, deps } = fixture();
+  const card = image(32, 32);
+  card.data[3] = 255;
+  deps.decode = async (src) => src === "card" ? card : image(32, 32, 80);
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  const baseRequest = { ...request, kind: "base" as const, reference: "card", label: "neutral", cutout };
+  const candidate = await builder.build(baseRequest);
+  expect(candidate.qa.ok).toBe(true);
+  expect(candidate.inputs.cutout).toEqual(cutout);
+  expect(deps.render).toHaveBeenCalledWith(expect.objectContaining({
+    "9": { class_type: "SplitImageWithAlpha", inputs: { image: ["8", 0] } },
+    "10": { class_type: "BiRefNetRMBG", inputs: expect.objectContaining({ image: ["9", 0], model: "BiRefNet_toonout", background: "Alpha" }) },
+    "11": { class_type: "SaveImage", inputs: { filename_prefix: "so-sprite-base", images: ["10", 0] } },
+  }), expect.any(AbortSignal));
+  await expect(builder.build({ ...baseRequest, cutout: undefined })).rejects.toThrow("background-removal setup");
+  deps.decode = async () => card;
+  await expect(builder.build({ ...baseRequest, seed: 2 })).rejects.toThrow("transparent background");
+});
+
+test("a failed reference cleanup still releases the GPU lease", async () => {
+  const { builder, deps } = fixture();
+  const release = jest.fn(async () => {});
+  deps.lease = async () => ({ release });
+  deps.releaseReference = async () => { throw new Error("cleanup unavailable"); };
+  await expect(builder.build(request)).rejects.toThrow("cleanup unavailable");
+  expect(release).toHaveBeenCalledTimes(1);
 });

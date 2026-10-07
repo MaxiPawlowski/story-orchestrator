@@ -27,6 +27,27 @@ export interface GpuRequest {
   signal?: AbortSignal;
 }
 
+export interface GpuBrokerStatus { adapter: "none" | "unsloth" | "managed"; guarding: boolean; activeText?: number; waitingText?: number;
+  gpuFreeMiB?: number; ramAvailableMiB?: number }
+
+export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
+  let response: Response;
+  try {
+    response = await fetch(`${URL}/status`, { headers: getContext().getRequestHeaders?.() ?? { "Content-Type": "application/json" } });
+  } catch { return null; }
+  if (!response.ok) return null;
+  const data: unknown = await response.json().catch(() => null);
+  if (!isRecord(data) || typeof data.adapter !== "string" || !["none", "unsloth", "managed"].includes(data.adapter)) return null;
+  const telemetry = isRecord(data.telemetry) ? data.telemetry : {};
+  const host = isRecord(telemetry.host) ? telemetry.host : {};
+  const gpu = Array.isArray(telemetry.gpus) && isRecord(telemetry.gpus[0]) ? telemetry.gpus[0] : {};
+  return { adapter: data.adapter as GpuBrokerStatus["adapter"], guarding: data.guarding === true,
+    ...(typeof data.activeText === "number" ? { activeText: data.activeText } : {}),
+    ...(typeof data.waitingText === "number" ? { waitingText: data.waitingText } : {}),
+    ...(typeof gpu.freeMiB === "number" ? { gpuFreeMiB: gpu.freeMiB } : {}),
+    ...(typeof host.availableMiB === "number" ? { ramAvailableMiB: host.availableMiB } : {}) };
+}
+
 export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
   let response: Response;
   try {

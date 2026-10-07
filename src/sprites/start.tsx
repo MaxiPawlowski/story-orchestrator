@@ -6,6 +6,8 @@ import { spriteStripHost, spriteStripRemove } from "@services/stHost/sprites";
 import { SpriteStage } from "./stage";
 import { VnStage } from "./VnStage";
 import { ROOT_OPTIONS } from "@utils/mountRegistry";
+import { beginSpriteBatch, endSpriteBatch } from "./builder/batchHost";
+import { log } from "@utils/log";
 
 function StageMount({ stage }: { stage: SpriteStage }) {
   const view = useSyncExternalStore(stage.subscribe, stage.view);
@@ -20,7 +22,9 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
   if (stage) return stage;
   const current = new SpriteStage(manager);
   stage = current;
-  if (__SO_DEV__) globalThis.storyOrchestratorSprites = current;
+  if (__SO_DEV__) globalThis.storyOrchestratorSprites = Object.assign(current, {
+    beginBuildBatch: () => beginSpriteBatch(manager.getOwnership()), endBuildBatch: endSpriteBatch,
+  });
   const stop = current.start();
   const host = document.createElement("div");
   host.id = "so-vn-root";
@@ -28,6 +32,7 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
   const root = createRoot(host, ROOT_OPTIONS);
   root.render(<StageMount stage={current} />);
   dispose = () => {
+    if (__SO_DEV__) void endSpriteBatch().catch((error) => log.warn("The sprite build batch could not close", error));
     stop();
     root.unmount();
     host.remove();

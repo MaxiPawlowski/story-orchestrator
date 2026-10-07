@@ -1,0 +1,17 @@
+{
+  "name": "v2.7 24: applied living-card appearance reaches a real local Artemis reply",
+  "requires": { "group": "SO Belle image pilot", "members": ["Belle"], "authorView": true, "mainApi": "textgenerationwebui" },
+  "steps": [
+    { "import_story": {
+      "format": 2, "id": "so-v27-card-reply", "version": 1, "title": "SO-V27-CARD-REPLY", "description": "A synthetic portrait after a visible hair-colour change.",
+      "roster": [{"id": "belle", "name": "Belle", "role": "Portrait subject", "card": {"fields": {"hair": {"quality": "hair", "visual": true}}}}],
+      "qualities": [{"key": "hair", "type": "enum", "values": ["black", "green"], "source": "extractor", "rubric": "The established current hair colour."}],
+      "requirements": {"members": ["Belle"]},
+      "checkpoints": [{"id": "start", "name": "Portrait", "type": "anchor", "start": true, "objective": "Pose for a portrait after the established colour change.",
+        "illustrate": false, "effects": {"card": {"belle": {"hair": "green"}}}}],
+      "transitions": []
+    } },
+    { "ui": { "action": "briefing-dismiss" } },
+    { "ui": { "action": "card-reply-local" }, "log": true }
+  ]
+}

@@ -178,7 +178,7 @@ export async function openCheckpointStudio(page) {
   }
   await studioBtn.scrollIntoViewIfNeeded().catch(() => undefined);
   await studioBtn.waitFor({ state: 'visible', timeout: 10000 });
-  await studioBtn.click();
+  await studioBtn.click({ noWaitAfter: true });
   // An unsaved draft for this story asks whether to resume it: keep it, so a draft prepared by the
   // caller survives the open.
   const resumed = await answerStudioPopup(page, '.popup-button-ok');

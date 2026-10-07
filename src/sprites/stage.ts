@@ -20,14 +20,10 @@ import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
 import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type Framing, type StageDirection } from "./direction";
 import { frameIndex, StreamActivity, type AnimationFrames } from "./animation";
-
-export interface StoredRead {
-  i: number;
-  who: string;
-  face: string;
-  src: string;
-  at: string;
-}
+import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
+import { changedLookIssues } from "./lookHealth";
+import { storedReads, type StoredRead } from "./storedReads";
+export { storedReads, type StoredRead } from "./storedReads";
 
 export interface StageActor {
   name: string;
@@ -69,6 +65,8 @@ interface Actor {
   path: string;
   desiredLabel: string;
   generatedLook?: string;
+  lookError?: string;
+  lookStamp?: string;
 }
 
 interface Stream {
@@ -154,9 +152,15 @@ export class SpriteStage {
 
   notify = () => {
     this.snapshot = this.compose();
+    this.publishLookIssues();
     this.hintVn();
     for (const listener of this.listeners) listener();
   };
+
+  private publishLookIssues(): void {
+    const issues = changedLookIssues(this.manager.getStory(), this.manager.getSnapshot().blackboard, this.settings(), spritesActive(this.activation()), this.actors);
+    if (publishSpriteLookIssues(spriteCast().chatId, issues)) this.manager.touch?.();
+  }
 
   private hintVn(): void {
     if (!this.snapshot.waitsForVn || this.snapshot.capability !== "present") return;
@@ -310,6 +314,8 @@ export class SpriteStage {
       const directed = memberDirection(direction, actor.keys);
       const member = story?.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
       const fields = member && story ? cardValues(story, values, member.id, true) : {};
+      const stamp = JSON.stringify(fields);
+      if (actor.lookStamp !== stamp) { actor.lookError = undefined; actor.lookStamp = stamp; }
       const look = cardSet(actor.rules, fields);
       this.requestLook(actor);
       const cached = actor.generatedLook === JSON.stringify(fields) && actor.set.startsWith("look_") ? actor.set : null;
@@ -365,14 +371,21 @@ export class SpriteStage {
     this.looks.request({ folder: actor.profile.folder, member: member.id, label, fields,
       accepts: () => this.actors.includes(actor) && this.settings().onDemand && this.manager.getSnapshot().storyId === storyId
         && JSON.stringify(cardValues(story, this.manager.getSnapshot().blackboard, member.id, true)) === stamp,
-      apply: (set, files) => {
+      apply: (set, files, frames) => {
+        actor.lookError = undefined;
         actor.packs.set(set, spriteIndex(files));
+        if (frames) {
+          const index = actor.frames.get(set) ?? new Map<string, AnimationFrames>();
+          index.set(label, frames);
+          actor.frames.set(set, index);
+        }
         if (actor.desiredLabel !== label) return;
         actor.set = set;
         actor.generatedLook = stamp;
         const hit = resolveSprite(actor.profile, label, actor.packs.get(set) ?? new Map());
         if (hit) { actor.path = hit.path; actor.label = hit.label; this.notify(); }
       },
+      failed: (reason) => { actor.lookError = reason; this.notify(); },
     });
   }
 
@@ -558,11 +571,4 @@ export class SpriteStage {
       this.apply(hit, message.name);
     }
   }
-}
-
-export function storedReads(value: unknown): StoredRead[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is StoredRead => Boolean(entry) && typeof entry === "object"
-    && typeof (entry as StoredRead).who === "string" && typeof (entry as StoredRead).face === "string")
-    .map((entry) => ({ ...entry, at: typeof entry.at === "string" ? entry.at : "" }));
 }

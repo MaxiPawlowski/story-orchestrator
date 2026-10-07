@@ -14,15 +14,34 @@ export interface ComfyDiscovery {
   vaes: string[];
   loras: string[];
   upscalers: string[];
+  alpha?: AlphaRecipe[];
 }
 
+export interface MediaStatus { ready: boolean; comfyUrl: string }
 export interface ModelFingerprint { name: string; sha256: string; size: number }
+export interface AlphaRecipe { id: string; node: "RMBG" | "BiRefNetRMBG"; model: string; files: ModelFingerprint[] }
+export interface SpriteReferencePack {
+  character: string;
+  set: string;
+  sha256: string;
+  files: Array<{ label: string; path: string; sha256: string; width: number; height: number }>;
+}
 export interface SpriteManifest {
   owner: "story-orchestrator";
   version: number;
   character: string;
   set: string;
-  labels: Record<string, { key: string; sha256: string; recipe: { id: string; version: number }; qa: unknown; status: string }>;
+  labels: Record<string, { key: string; sha256: string; recipe: { id: string; version: number }; qa: unknown; status: string;
+    inputs?: { base?: string } }>;
+}
+
+export async function spriteFileFingerprint(path: string, signal?: AbortSignal): Promise<string> {
+  if (!path.startsWith("/characters/")) throw new Error("Choose a sprite served by this SillyTavern.");
+  const response = await fetch(path, { signal, cache: "no-store" });
+  if (!response.ok) throw new Error("The saved sprite could not be read.");
+  const bytes = await response.arrayBuffer();
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(hash)].map((value) => value.toString(16).padStart(2, "0")).join("");
 }
 
 async function request(route: string, body?: unknown, signal?: AbortSignal): Promise<unknown> {
@@ -35,6 +54,16 @@ async function request(route: string, body?: unknown, signal?: AbortSignal): Pro
   return data;
 }
 
+export async function mediaStatus(): Promise<MediaStatus | null> {
+  let response: Response;
+  try {
+    response = await fetch(`${ROOT}/status`, { headers: getContext().getRequestHeaders?.() ?? { "Content-Type": "application/json" } });
+  } catch { return null; }
+  if (response.status === 404 || response.status === 405 || !response.ok) return null;
+  const data: unknown = await response.json().catch(() => null);
+  return isRecord(data) && data.ready === true ? { ready: true, comfyUrl: String(data.comfyUrl ?? "") } : null;
+}
+
 export async function comfyDiscover(signal?: AbortSignal): Promise<ComfyDiscovery> {
   const data = await request("/discover", undefined, signal);
   if (!isRecord(data) || !isRecord(data.nodes)) throw new Error("ComfyUI discovery returned no node schemas.");
@@ -44,7 +73,7 @@ export async function comfyDiscover(signal?: AbortSignal): Promise<ComfyDiscover
   };
   return { nodes: data.nodes as ComfyDiscovery["nodes"], embeddings: strings("embeddings"), checkpoints: strings("checkpoints"),
     diffusionModels: strings("diffusionModels"), textEncoders: strings("textEncoders"), vaes: strings("vaes"),
-    loras: strings("loras"), upscalers: strings("upscalers") };
+    loras: strings("loras"), upscalers: strings("upscalers"), alpha: Array.isArray(data.alpha) ? data.alpha as AlphaRecipe[] : [] };
 }
 
 export async function comfyFingerprint(kind: string, name: string, signal?: AbortSignal): Promise<ModelFingerprint> {
@@ -55,10 +84,17 @@ export async function comfyFingerprint(kind: string, name: string, signal?: Abor
   return { name: data.name, sha256: data.sha256, size: data.size };
 }
 
-export async function comfyReference(data: string, signal?: AbortSignal): Promise<string> {
-  const answer = await request("/reference", { data }, signal);
+export async function comfyReference(data: string, signal?: AbortSignal, scope?: { character: string; set: string; story?: string }): Promise<string> {
+  const answer = await request("/reference", { data, scope }, signal);
   if (!isRecord(answer) || typeof answer.name !== "string") throw new Error("The reference upload returned no name.");
   return answer.name;
+}
+
+export async function comfyReleaseReference(name: string): Promise<WriteResult<{ released: true }>> {
+  try {
+    const data = await request("/reference/release", { name });
+    return isRecord(data) && data.released === true ? wrote({ released: true }) : couldNot("Reference cleanup was not confirmed.");
+  } catch (error) { return couldNot(error instanceof Error ? error.message : String(error)); }
 }
 
 export async function comfyRenderOwned(graph: Record<string, unknown>, signal: AbortSignal): Promise<{ data: string; format: string }> {
@@ -91,6 +127,25 @@ export async function spriteManifest(character: string, set: string): Promise<Sp
   return isRecord(data) && data.owner === "story-orchestrator" && isRecord(data.labels) ? data as unknown as SpriteManifest : null;
 }
 
+export async function spriteReferenceSets(character: string): Promise<string[]> {
+  const data = await request("/sprites/reference-sets", { character });
+  if (!Array.isArray(data) || !data.every((set) => typeof set === "string" && (set === "" || /^[a-z0-9_]{1,80}$/.test(set)))) {
+    throw new Error("The reference pack list is incomplete.");
+  }
+  return data;
+}
+
+export async function spriteReferencePack(character: string, set: string): Promise<SpriteReferencePack> {
+  const data = await request("/sprites/reference-pack", { character, set });
+  const hash = (value: unknown) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+  if (!isRecord(data) || data.character !== character || data.set !== set || !hash(data.sha256) || !Array.isArray(data.files)
+    || !data.files.every((file) => isRecord(file) && typeof file.label === "string" && typeof file.path === "string" && hash(file.sha256)
+      && typeof file.width === "number" && typeof file.height === "number" && file.width > 0 && file.height > 0)) {
+    throw new Error("The reference pack inventory is incomplete.");
+  }
+  return data as unknown as SpriteReferencePack;
+}
+
 export async function generatedSpriteSets(character: string): Promise<SpriteManifest[]> {
   const data = await request("/sprites/list", { character });
   return Array.isArray(data) ? data.filter((row): row is SpriteManifest => isRecord(row) && row.owner === "story-orchestrator" && isRecord(row.labels)) : [];
@@ -112,5 +167,13 @@ export async function deleteGeneratedSprite(character: string, set: string, labe
   try {
     const data = await request("/sprites/delete", { character, set, label, expectedHash });
     return isRecord(data) && data.deleted === true ? wrote({ deleted: true }) : couldNot("The sprite deletion was not confirmed.");
+  } catch (error) { return couldNot(error instanceof Error ? error.message : String(error)); }
+}
+
+export async function removeStorySprites(story: string): Promise<WriteResult<{ sets: number; labels: number }>> {
+  try {
+    const data = await request("/sprites/remove-story", { story });
+    if (!isRecord(data) || !Array.isArray(data.sets) || !Array.isArray(data.labels)) return couldNot("The sprite removal returned no report.");
+    return wrote({ sets: data.sets.length, labels: data.labels.length });
   } catch (error) { return couldNot(error instanceof Error ? error.message : String(error)); }
 }

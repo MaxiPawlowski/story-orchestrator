@@ -3,10 +3,9 @@
 **Status (2026-10-04): v2.7 plan 18 (was v2.8 06; before that "26b", which had no file; moved to v2.7 with the image
 track, 2026-10-04). Implemented candidate; `npm run gates` green, and the Belle pilot built a 4-expression,
 12-frame pack on the local ComfyUI. The multi-character LI acceptance and the second-model identity rating are
-PARTIAL and, per v2.7 rule 5, stay owned by v2.8 01 / the v2.8 final suite. See `21-belle-image-pilot.md`
-§Gate record. Originally written from v2.7 17 decision 6 and the
-dependencies of v2.7 19 and 20 (review F31). The user approved planning it ("i think we have most of the work already
-done"); this contract is not yet reviewed by the user; not built.** Overview: `00-overview.md`.
+PARTIAL, owned by `24-image-and-local-completion.md`. That plan records protected reference adoption, four-candidate
+base creation and cleanup completion; the Belle pilot record retains the earlier slice. Originally written from
+v2.7 17 decision 6 and the dependencies of 19 and 20 (review F31).** Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance LI (local ComfyUI through the broker).
 
 ## Why

@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
-import { fingerprint, pngBytes, saveSprite, readSet, deleteSprite, listSets } from './files.mjs';
+import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets, removeStorySprites, referencePack, referenceSets, spriteInventory, alphaRecipes,
+    digest, recordReference, ownsReference, releaseReference, pruneReferences } from './files.mjs';
 
 export const info = { id: 'story-orchestrator-media', name: 'Story Orchestrator media', description: 'Owned ComfyUI jobs and generated sprite files.' };
 const home = path.dirname(fileURLToPath(import.meta.url));
@@ -17,10 +18,9 @@ export async function init(router) {
     if (!/^https?:$/.test(new URL(url).protocol)) throw new Error('ComfyUI URL must use HTTP or HTTPS.');
     const roots = config.modelRoots ?? {};
     const jobs = new ComfyJobs({ url });
-    const references = new Map();
     const allowedNodes = new Set(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
         'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
-        'FluxGuidance', 'ConditioningZeroOut', 'EmptySD3LatentImage', 'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode']);
+        'FluxGuidance', 'ConditioningZeroOut', 'EmptySD3LatentImage', 'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
     const owner = (req) => {
         const root = req.user?.directories?.characters;
         if (!root) throw new Error('Open SillyTavern with a user session first.');
@@ -40,40 +40,64 @@ export async function init(router) {
             nodes, embeddings, checkpoints: choices('CheckpointLoaderSimple', 'ckpt_name'), diffusionModels: choices('UNETLoader', 'unet_name'),
             textEncoders: choices('CLIPLoader', 'clip_name'), vaes: choices('VAELoader', 'vae_name'),
             loras: choices('LoraLoader', 'lora_name'), upscalers: choices('UpscaleModelLoader', 'model_name'),
+            alpha: await alphaRecipes(roots, config.alphaRecipes, nodes),
         };
     });
     route('post', '/fingerprint', (req) => fingerprint(roots[req.body.kind] ?? [], req.body.name));
     route('post', '/reference', async (req, user) => {
         const bytes = pngBytes(req.body.data);
+        const filename = `so_${randomUUID()}.png`;
+        const name = `story-orchestrator/${filename}`;
+        await recordReference(user, name, digest(bytes), req.body.scope ?? {});
         const form = new FormData();
-        form.set('image', new Blob([bytes], { type: 'image/png' }), `so_${randomUUID()}.png`);
+        form.set('image', new Blob([bytes], { type: 'image/png' }), filename);
         form.set('subfolder', 'story-orchestrator');
-        const response = await fetch(`${url.replace(/\/$/, '')}/upload/image`, { method: 'POST', body: form, signal: AbortSignal.timeout(30_000) });
-        if (!response.ok) throw new Error(`ComfyUI reference upload answered ${response.status}.`);
-        const data = await response.json();
-        const name = `${data.subfolder ? `${data.subfolder}/` : ''}${data.name}`;
-        references.set(name, user);
-        const owned = [...references].filter(([, owner]) => owner === user);
-        for (const [old] of owned.slice(0, Math.max(0, owned.length - 32))) references.delete(old);
-        while (references.size > 512) references.delete(references.keys().next().value);
+        try {
+            const response = await fetch(`${url.replace(/\/$/, '')}/upload/image`, { method: 'POST', body: form, signal: AbortSignal.timeout(30_000) });
+            if (!response.ok) throw new Error(`ComfyUI reference upload answered ${response.status}.`);
+            const data = await response.json();
+            if (data.subfolder !== 'story-orchestrator' || data.name !== filename) throw new Error('ComfyUI changed the owned reference filename.');
+        } catch (error) {
+            await releaseReference(user, name);
+            throw error;
+        }
         return { name };
     });
-    route('post', '/jobs', (req, user) => {
+    const prune = async (user, names) => {
+        const queue = await (await jobs.request('/queue')).json();
+        if (queue.queue_running?.length || queue.queue_pending?.length) return { deleted: [], errors: [], deferred: 'ComfyUI still has work; references stay on disk.' };
+        return pruneReferences(user, config.comfyInputRoot, names);
+    };
+    route('post', '/reference/release', async (req, user) => {
+        const result = await releaseReference(user, req.body.name);
+        return { ...result, prune: await prune(user, [req.body.name]) };
+    });
+    route('post', '/prune', (req, user) => prune(user, req.body.names));
+    route('post', '/jobs', async (req, user) => {
         const graph = req.body.graph;
         if (!graph || typeof graph !== 'object' || Array.isArray(graph) || Object.keys(graph).length > 128) throw new Error('Invalid render recipe.');
         for (const node of Object.values(graph)) {
             if (!node || !allowedNodes.has(node.class_type) || !node.inputs || typeof node.inputs !== 'object') throw new Error('The recipe contains an unsupported node.');
-            if (node.class_type === 'LoadImage' && references.get(node.inputs.image) !== user) throw new Error('This reference image does not belong to this user. Upload it through the builder first.');
+            if (node.class_type === 'LoadImage' && !(await ownsReference(user, node.inputs.image))) throw new Error('This reference image does not belong to this user. Upload it through the builder first.');
             if (node.class_type === 'SaveImage' && !/^so[-_][a-z0-9_-]{1,80}$/.test(node.inputs.filename_prefix)) throw new Error('Generated images need an owned output prefix.');
+            if (['RMBG', 'BiRefNetRMBG'].includes(node.class_type)) {
+                const recipe = config.alphaRecipes?.find((recipe) => recipe.node === node.class_type && recipe.model === node.inputs.model);
+                if (!recipe?.files?.length) throw new Error('Configure the installed background-removal files before building a base. No model is downloaded.');
+                for (const file of recipe.files) await fingerprint(roots[file.kind] ?? [], file.name);
+            }
         }
         return jobs.submit(user, req.body.id, graph);
     });
     route('get', '/jobs/:id', (req, user) => jobs.poll(user, req.params.id));
     route('post', '/jobs/:id/cancel', (req, user) => jobs.cancel(user, req.params.id));
     route('get', '/jobs/:id/result', (req, user) => jobs.result(user, req.params.id));
-    route('post', '/sprites/read', (req, root) => readSet(root, req.body.character, req.body.set));
+    route('post', '/sprites/read', (req, root) => reconcileSet(root, req.body.character, req.body.set));
+    route('post', '/sprites/reference-sets', (req, root) => referenceSets(root, req.body.character));
+    route('post', '/sprites/reference-pack', (req, root) => referencePack(root, req.body.character, req.body.set));
+    route('get', '/sprites/inventory', (_req, root) => spriteInventory(root));
     route('post', '/sprites/list', (req, root) => listSets(root, req.body.character));
     route('post', '/sprites/save', (req, root) => saveSprite(root, req.body));
+    route('post', '/sprites/remove-story', (req, root) => removeStorySprites(root, req.body.story));
     route('post', '/sprites/delete', (req, root) => deleteSprite(root, req.body));
     console.log('[story-orchestrator-media] owned render jobs ready');
 }

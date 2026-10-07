@@ -1,15 +1,20 @@
-import { comfyDiscover, comfyFingerprint, spriteManifest } from "@services/stHost/media";
+import { comfyDiscover, comfyFingerprint, spriteFileFingerprint, spriteManifest, spriteReferencePack } from "@services/stHost/media";
 import { spriteList } from "@services/stHost/sprites";
+import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { beginRun } from "@runtime/runToken";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { createSpriteBuilder } from "./host";
 import { contentHash, EDIT_RECIPE, recipeProblems } from "./recipes";
 import { publicLook } from "@engine/cardFields";
 import { log } from "@utils/log";
+import { waitForTextPriority } from "./textPriority";
+import { completeLookFrames, LOOK_CONTRACT } from "./lookFrames";
+import { frameIndex, type AnimationFrames } from "../animation";
 
 export interface LookRequest {
   folder: string; member: string; label: string; fields: Record<string, string>;
-  accepts(): boolean; apply(set: string, files: Array<{ label: string; path: string }>): void;
+  accepts(): boolean; apply(set: string, files: Array<{ label: string; path: string }>, frames?: AnimationFrames): void;
+  failed?(reason: string): void;
 }
 
 export class OnDemandLooks {
@@ -64,7 +69,7 @@ export class OnDemandLooks {
     try {
       const settings = this.manager.getGlobalSettings().sprites;
       const config = settings.builders[request.folder];
-      if (!config || !settings.onDemand) throw new Error("Build and save an expression pack in Studio before enabling on-demand look edits.");
+      if (!config || !settings.onDemand) throw new Error("Choose an expression reference pack in Studio before enabling on-demand look edits.");
       const story = this.manager.getSnapshot().storyId;
       if (!story) return;
       const discovery = await comfyDiscover(run.signal);
@@ -75,26 +80,75 @@ export class OnDemandLooks {
         comfyFingerprint("textEncoders", config.models.encoder, run.signal),
         comfyFingerprint("vaes", config.models.vae, run.signal),
       ]);
-      const base = await spriteManifest(request.folder, config.baseSet);
-      if (!base) throw new Error("The base pack has no generated-asset manifest.");
-      const version = await contentHash(new TextEncoder().encode(JSON.stringify(base)));
-      const key = await contentHash(new TextEncoder().encode(JSON.stringify({ story, member: request.member,
-        fields: Object.entries(request.fields).sort(([a], [b]) => a.localeCompare(b)), version, models: { diffusion, encoder, vae }, recipe: EDIT_RECIPE })));
+      const base = await spriteReferencePack(request.folder, config.baseSet);
+      const version = base.sha256;
+      const key = await contentHash(new TextEncoder().encode(JSON.stringify({ contract: LOOK_CONTRACT, story, member: request.member,
+        fields: Object.entries(request.fields).sort(([a], [b]) => a.localeCompare(b)), version, models: { diffusion, encoder, vae },
+        recipe: EDIT_RECIPE, box: config.box, steps: config.steps })));
       const set = `look_${key.slice(0, 8)}`;
       const existing = await spriteList(`${request.folder}/${set}`);
       const cached = await spriteManifest(request.folder, set);
       guard();
-      if (cached?.labels[request.label]?.status === "complete") { request.apply(set, existing); return; }
-      const sources = await spriteList(`${request.folder}/${config.baseSet}`);
-      const reference = sources.find((file) => file.label === request.label)?.path ?? sources.find((file) => file.label === "neutral")?.path;
+      const animate = async (path: string, hash: string): Promise<AnimationFrames> => completeLookFrames({
+        guard,
+        wait: () => waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
+          signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
+        cached: async (kind) => {
+          const manifest = await spriteManifest(request.folder, `anim-${set}`);
+          guard();
+          const row = manifest?.labels[`${request.label}.${kind}`];
+          if (row?.status !== "complete") return null;
+          const index = frameIndex(await spriteList(`${request.folder}/anim-${set}`));
+          guard();
+          const path = index.get(request.label)?.[kind];
+          if (!path || row.inputs?.base !== hash) throw new Error("The cached animation no longer matches this look.");
+          const actual = await spriteFileFingerprint(path, run.signal);
+          guard();
+          if (actual !== row.sha256) throw new Error("The cached animation changed outside Story Orchestrator.");
+          return path;
+        },
+        render: async (kind) => {
+          const candidate = await builder.build({ character: request.folder, set, label: request.label, kind, value: request.label,
+            reference: path, referenceHash: hash, box: config.box, models: { diffusion, encoder, vae },
+            seed: (Number.parseInt(key.slice(0, 8), 16) + (kind === "blink" ? 1 : 2)) >>> 0,
+            steps: config.steps, story, member: request.member });
+          if (this.stopped || !run.stillOwns() || !request.accepts()) throw new Error("The look changed before this frame could be saved.");
+          const saved = await builder.save(candidate);
+          guard();
+          return saved.path;
+        },
+      });
+      if (cached?.labels[request.label]?.status === "complete") {
+        const rendered = await spriteReferencePack(request.folder, set);
+        guard();
+        if (rendered.files.find((file) => file.label === request.label)?.sha256 !== cached.labels[request.label].sha256) {
+          throw new Error("The cached sprite changed outside Story Orchestrator. Choose another generated set.");
+        }
+        const file = rendered.files.find((file) => file.label === request.label);
+        if (!file) throw new Error("The cached look expression is missing.");
+        const frames = await animate(file.path, file.sha256);
+        guard();
+        request.apply(set, existing, frames); return;
+      }
+      const reference = base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
       if (!reference) throw new Error("The base pack has no reference for this expression.");
+      await waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
+        signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard();
-      const candidate = await builder.build({ character: request.folder, set, label: request.label, kind: "look", value: publicLook(request.fields), reference, box: config.box,
+      const candidate = await builder.build({ character: request.folder, set, label: request.label, kind: "look", value: publicLook(request.fields), reference: reference.path,
+        referenceHash: reference.sha256, box: config.box,
         models: { diffusion, encoder, vae }, seed: Number.parseInt(key.slice(0, 8), 16), steps: config.steps, story, member: request.member });
+      const after = await spriteReferencePack(request.folder, config.baseSet);
       guard();
+      if (after.sha256 !== version) throw new Error("The reference pack changed during the render. Generate this look again.");
       const saved = await builder.save(candidate);
       guard();
-      request.apply(set, [...existing.filter((file) => file.label !== request.label), { label: request.label, path: saved.path }]);
+      const frames = await animate(saved.path, saved.sha256);
+      guard();
+      request.apply(set, [...existing.filter((file) => file.label !== request.label), { label: request.label, path: saved.path }], frames);
+    } catch (error) {
+      if (!this.stopped && run.stillOwns() && request.accepts()) request.failed?.(error instanceof Error ? error.message : String(error));
+      throw error;
     } finally {
       builder.close(); run.release();
       if (this.active === builder) { this.active = null; this.activeRequest = null; }

@@ -2,6 +2,14 @@
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
   "closed": true,
   "rows": [
+    { "site": "src/services/stHost/media.ts#comfyReleaseReference", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Owned temporary-reference cleanup returns a typed refusal logged by the builder host; no player copy." },
+    { "site": "src/sprites/builder/onDemand.ts#OnDemandLooks.edit", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Changed-look failure is kept in the author-only readiness finding; no player toast." },
+    { "site": "src/studio/components/BaseSpriteBuilder.tsx#build>callback", "kind": 2, "template": "`Candidate ${at + 1}: ${String(error)}`",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Per-candidate QA/backend refusal in Studio, before the author can save a base." },
+    { "site": "src/studio/components/ReferencePackPicker.tsx#adopt", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Explicit reference-pack validation refusal in Studio; no player surface." },
     { "site": "src/services/stHost/sprites.ts#spriteReferences", "kind": 3, "template": ".catch(() => [])",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "An absent media plugin leaves ordinary sprite references available; discovery states the missing setup before rendering." },
     { "site": "src/studio/components/GeneratedSpriteSets.tsx#erase", "kind": 1, "template": "`Remove the generated sprite ${label} from ${manifest.set}?`",
@@ -1395,6 +1403,22 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "WriteResult reason: logged by the make-a-group flow; the player card shows a fixed sentence"
-    }
+    },
+    { "site": "src/services/stHost/media.ts#mediaStatus", "kind": 3, "template": ".catch(() => null)",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A malformed media-plugin status reads as no plugin; the image capability and Repair say so." },
+    { "site": "src/services/stHost/media.ts#mediaStatus", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "An unreachable media plugin is an absent service fact for the image checks, shown nowhere as an error." },
+    { "site": "src/services/stHost/gpuBroker.ts#gpuBrokerStatus", "kind": 3, "template": ".catch(() => null)",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A malformed broker status means no managed adapter; the image checks then say images pass through." },
+    { "site": "src/services/stHost/gpuBroker.ts#gpuBrokerStatus", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "An unreachable broker reads as absent; the image path already treats a missing broker as pass-through." },
+    { "site": "src/image/runtime.ts#StoryImageDirector.computeHealth", "kind": 2, "template": "error instanceof Error ? error.message : \"ComfyUI did not answer.\"",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only health detail for the Repair checks; never a player toast." },
+    { "site": "src/image/runtime.ts#StoryImageDirector.refreshHealth", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A failed health probe clears the read-model so the checks show nothing rather than a stale verdict." },
+    { "site": "src/services/stHost/media.ts#removeStorySprites", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-confirmed story-scoped sprite removal returns a typed refusal shown in the sprite settings." },
+    { "site": "src/sprites/SpriteGroup.tsx#SpriteGroup>callback", "kind": 1, "template": "`Remove Story Orchestrator's generated sprites for \"${snapshot.storyTitle ?? storyId}\"? Sprites you built yourself stay.`",
+      "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "Explicit confirmation naming the story whose generated sprites are removed." }
   ]
 }

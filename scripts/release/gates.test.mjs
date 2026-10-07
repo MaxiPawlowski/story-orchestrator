@@ -3,17 +3,26 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { GATE_STEPS, gateSteps } from "./gates.mjs";
+import { GATE_PHASES, GATE_STEPS, gateSteps } from "./gates.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ciRuns = (yaml) => [...yaml.matchAll(/^\s+run: npm (?:run )?([\w:-]+)\s*$/gm)].map((match) => match[1]);
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 
 test("CR-P21: npm run gates is the overview rule 16 chain, in order, and every step is a real script", () => {
-  assert.deepEqual(GATE_STEPS, ["typecheck", "typecheck:test", "lint", "test", "build", "build:dev", "test:debug", "debug:typecheck", "test:release", "test:replay", "test:plugin", "test-storybook:ci"]);
+  assert.deepEqual([...GATE_STEPS].sort(), ["build", "build:dev", "debug:typecheck", "lint", "test", "test-storybook:ci", "test:debug", "test:plugin", "test:release", "test:replay", "typecheck", "typecheck:test"]);
+  assert.equal(new Set(GATE_STEPS).size, GATE_STEPS.length);
   assert.equal(pkg.scripts.gates, "node scripts/release/gates.mjs");
   assert.deepEqual(GATE_STEPS.filter((step) => !pkg.scripts[step]), []);
-  assert.ok(GATE_STEPS.indexOf("build") < GATE_STEPS.indexOf("build:dev") && GATE_STEPS.indexOf("build:dev") < GATE_STEPS.indexOf("test:release"), "test:release reads both builds");
+  const phaseOf = (step) => GATE_PHASES.findIndex((phase) => phase.includes(step));
+  assert.ok(phaseOf("build") < phaseOf("test:release") && phaseOf("build:dev") < phaseOf("test:release"), "test:release reads both builds, so both finish in an earlier phase");
+  assert.ok(phaseOf("test") < phaseOf("test:replay"), "replay needs a green suite first");
+});
+
+test("concurrent phases: --serial runs one step at a time, a skipped step leaves its phase, an emptied phase is dropped", () => {
+  assert.equal(gateSteps(["--serial"]).serial, true);
+  assert.ok(gateSteps(["--no-storybook"]).phases.every((phase) => !phase.includes("test-storybook:ci")));
+  assert.deepEqual(gateSteps(["--skip=test"]).phases.length, GATE_PHASES.length - 1);
 });
 
 test("CR-P21: CI runs every step of the gates chain", () => {

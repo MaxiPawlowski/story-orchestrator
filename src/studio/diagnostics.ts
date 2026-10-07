@@ -3,6 +3,7 @@ import {
   type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
+import { boundCardQualities } from "@engine/cardFields";
 import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkMotives, checkRequirementMembers } from "./authoringDiagnostics";
 import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
@@ -250,7 +251,7 @@ const checkLatchingSnapshots = (run: DiagnosticRun) => {
 
 const checkQualitiesInScope = (run: DiagnosticRun) => {
   const { draft, push } = run;
-  const referencedKeys = new Set<string>();
+  const referencedKeys = boundCardQualities(draft.roster ?? [], draft.player);
   draft.transitions.forEach((transition) => walkLeaves(transition.gate, (leaf) => referencedKeys.add(leaf.q)));
   draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => referencedKeys.add(key)));
   draft.qualities.forEach((quality, index) => {
@@ -260,7 +261,7 @@ const checkQualitiesInScope = (run: DiagnosticRun) => {
         "quality-never-in-scope",
         "warning",
         `qualities.${index}`,
-        `'${quality.key}' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it`,
+        `'${quality.key}' has no gate, snapshot or card binding, so extraction never reads it`,
       );
     }
   });

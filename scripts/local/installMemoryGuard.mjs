@@ -1,0 +1,17 @@
+import { cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+const config = JSON.parse(await readFile(process.env.SO_LOCAL_CONFIG ?? 'C:/dev/tools/story-orchestrator-local/config.json', 'utf8'));
+await stat(join(config.comfyRoot, 'main.py'));
+const parent = join(config.comfyRoot, 'custom_nodes');
+await stat(parent);
+const target = join(parent, 'story_orchestrator_local');
+const owner = join(target, 'so-owner.json');
+const exists = await stat(target).catch(() => null);
+if (exists && JSON.parse(await readFile(owner, 'utf8').catch(() => '{}')).owner !== 'story-orchestrator') throw new Error('The target custom node is not owned by this project.');
+await mkdir(target, { recursive: true });
+const source = new URL('./comfyMemoryGuard/__init__.py', import.meta.url);
+await cp(source, join(target, '__init__.py'));
+const sha256 = createHash('sha256').update(await readFile(source)).digest('hex');
+await writeFile(owner, JSON.stringify({ owner: 'story-orchestrator', sha256, installedAt: new Date().toISOString() }, null, 2));
+console.log(JSON.stringify({ target, sha256, restartRequired: true }));

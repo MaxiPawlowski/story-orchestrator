@@ -57,7 +57,7 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     cardOverlay: value.cardOverlay === true,
     onDemand: value.onDemand === true,
     builders: Object.fromEntries(Object.entries(isRecord(value.builders) ? value.builders : {}).flatMap(([folder, entry]) => {
-      if (!isRecord(entry) || typeof entry.baseSet !== "string" || !/^[a-z0-9_]+$/.test(entry.baseSet) || !isRecord(entry.box) || !isRecord(entry.models)) return [];
+      if (!isRecord(entry) || typeof entry.baseSet !== "string" || (entry.baseSet !== "" && !/^[a-z0-9_]+$/.test(entry.baseSet)) || !isRecord(entry.box) || !isRecord(entry.models)) return [];
       const box = entry.box, models = entry.models;
       if (![box.x, box.y, box.width, box.height].every((value) => typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 8192)
         || ![models.diffusion, models.encoder, models.vae].every((value) => typeof value === "string" && value.length > 0)) return [];

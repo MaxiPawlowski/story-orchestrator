@@ -29,8 +29,27 @@ The panel appears under **Extensions → Story Orchestrator**.
 | Declared older host | 1.18.0 (`minimum_client_version`): machine gates only, not played through |
 
 Other versions are untested; details in the
-[guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md#tested-on). Optional server plugins (judge, harness, GPU) are installed separately:
+[guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md#tested-on). Optional server plugins (judge, harness, GPU, media) are installed separately:
 [Setup](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/README.md#server-plugins).
+
+### Companion server plugins
+
+Their source, tests and READMEs live in [`server-plugin/`](server-plugin/) in this repository. The release zip
+includes their runtime source. They run inside SillyTavern's Node server; the browser extension calls their
+`/api/plugins/story-orchestrator-*` routes.
+
+| Plugin | Provides |
+|---|---|
+| [Judge](server-plugin/story-orchestrator-judge/README.md) | Server-side judgment-provider requests and credentials. |
+| [Harness](server-plugin/story-orchestrator-harness/README.md) | Model tasks through coding-agent CLIs and the wizard's opencode tool bridge. |
+| [GPU](server-plugin/story-orchestrator-gpu/README.md) | Coordination of local text generation and ComfyUI sharing a GPU. |
+| [Media](server-plugin/story-orchestrator-media/README.md) | Owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. |
+
+From a source checkout, `npm run plugin:install` installs judge. Add `-- --with gpu,media,harness` to install all
+four. Use `npm run plugin:install -- --with gpu,media,harness --check` to compare installed runtime files with this
+checkout, including changes within the same version. Installation preserves local `config.json` files.
+Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, and restart SillyTavern after installing or updating.
+From a release zip, copy the chosen companion folders from `server-plugin/` into `<SillyTavern>/plugins/`.
 
 ## Quick start
 
@@ -68,7 +87,7 @@ Other versions are untested; details in the
 Images are optional and need your own ComfyUI and an image-prompt profile (**General setup → Image service**). Install
 settings decide whether automation is allowed; a story can ask for art at its own moments; each chat can pause it or
 draw on demand from **Overview → Illustrations**. Change the default image models to ones your ComfyUI has. The GPU
-plugin is for one specific single-GPU setup; do not install it otherwise.
+plugin is optional; configure its adapter when local text and image models need to share one GPU.
 [More](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/images.md)
 
 ## Judge recommended configuration

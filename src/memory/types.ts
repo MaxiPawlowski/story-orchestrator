@@ -164,6 +164,7 @@ export interface LedgerView {
   value: string;
   bound: boolean;
   turn: number;
+  cardWriter?: "authored" | "read" | "manual";
 }
 
 export interface SceneBreakSignal {

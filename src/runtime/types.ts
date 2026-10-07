@@ -28,6 +28,8 @@ import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
+import type { ImageHealthView } from "./imageHealth";
+import type { SpriteLookIssue } from "./spriteLookHealth";
 import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
@@ -464,6 +466,9 @@ export interface RuntimeSnapshot {
   storyDescription: string | null;
   publicStoryIntro?: string | null;
   imageStory?: { checkpoints: boolean; scenes: boolean } | null;
+  /** What the image service can currently do, published by the image director for the Repair checks. */
+  imageHealth?: ImageHealthView | null;
+  spriteLookIssues?: SpriteLookIssue[];
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;
   activeObjective: string | null;
