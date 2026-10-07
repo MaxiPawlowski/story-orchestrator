@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import { TOY_GROUP_NAME, toyGroupCreateBody, toyGroupProblems } from '../lib/toyGroup.mjs';
 import {
-  acceptBaseline, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
+  acceptBaseline, badgeReport, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
 import { comfyCalls } from './lib/sessionArtifacts.mts';
@@ -35,6 +35,9 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
   check <lane> [--drop-book <name>]
       re-read the inventory of a running lane and check it; --drop-book deletes that book first
       (the planted-missing-book negative control)
+  badges <lane>
+      the nine bound groups each show a story badge of their story's kind (saga or story) in the character
+      list; prints counts only (16-07-A6)
   diff <a.json> <b.json>    compare two inventories, exit 1 on any difference
   accept-baseline <lane> --reason "<why>" [--by <who>] [--report <report-*.json>]
       re-accept the newest (or the named) drifted seed as this lane's baseline after a deliberate seeding
@@ -308,7 +311,12 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   if (install.code !== 0 || refusedLines.length) throw new Error(`installer: exit ${install.code}; ${refusedLines.join('; ') || install.output.slice(-800)}`);
   console.log(`      ${install.output.split(/\r?\n/).filter(Boolean).length} lines, no FAIL/SKIP/WARN`);
   const spriteInstaller = join(spriteDir, '..', '..', 'scripts', 'install_st.py');
+  const spriteLedger = join(spriteDir, '..', '..', 'build', 'installed.json');
+  const exportLedger = join(exportDir, 'build', 'installed.json');
+  await mkdir(dirname(spriteLedger), { recursive: true });
+  await writeFile(spriteLedger, await readFile(exportLedger));
   const sprites = await run('python', [spriteInstaller, '--sprites'], { env: { ADOLION_ST_URL: paths.url.replace(/\/$/, ''), PYTHONIOENCODING: 'utf-8' } });
+  await writeFile(exportLedger, await readFile(spriteLedger));
   const spriteRefused = installerProblems(sprites.output);
   if (sprites.code !== 0 || spriteRefused.length) throw new Error(`sprite upload: exit ${sprites.code}; ${spriteRefused.slice(0, 5).join('; ') || sprites.output.slice(-800)}`);
   console.log(`      sprites: ${sprites.output.split(/\r?\n/).filter((line) => /sprites uploaded/.test(line)).length} folder(s) uploaded, no FAIL`);
@@ -367,6 +375,35 @@ async function check(n: number, dropBook: string | null) {
   const report = { lane: n, commit, droppedBook: dropBook, dropped: page.dropped ?? null, problems, driftFromSeed: drift, summary: summary(inventory) };
   await writeFile(join(paths.work, `check-${stamp}.json`), JSON.stringify({ ...report, inventory }, null, 2), 'utf-8');
   return report;
+}
+
+async function badgesPhase(outFile: string) {
+  const [{ runCli }, { evaluateInST }] = await Promise.all([import('./lib/cli.mts'), import('./lib/evaluate.mts')]);
+  await runCli(async (page) => {
+    const observed = await evaluateInST(page, async () => {
+      const ctx = SillyTavern.getContext();
+      const root = (ctx.extensionSettings?.['story-orchestrator'] ?? {}) as Record<string, any>;
+      const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
+      const kinds = Object.fromEntries(library.map((entry: any) => [String(entry?.id), entry?.raw?.kind ?? null]));
+      const blocks = Array.from(document.querySelectorAll('#rm_print_characters_block .group_select[data-grid]')).map((element) => ({
+        grid: String(element.getAttribute('data-grid')), kind: (element.querySelector('.so-story-badge') as HTMLElement | null)?.dataset.kind ?? null,
+      }));
+      return { bindings: { ...(root.groupStories ?? {}) }, kinds, blocks };
+    });
+    await writeFile(outFile, JSON.stringify(observed, null, 2), 'utf-8');
+  });
+}
+
+async function badges(n: number) {
+  const paths = lane(n);
+  const pin = await readPin(null);
+  const exportDir = join(paths.work, `campaign-${pin.commit.slice(0, 12)}`);
+  if (!existsSync(exportDir)) throw new Error(`lane ${n} has no export of ${pin.commit}; seed it first`);
+  const manifest = await manifestFromExport(exportDir, pin.commit);
+  const out = join(paths.work, 'badges.json');
+  await rm(out, { force: true });
+  await inLane(n, 'scripts/debug/adolion-fresh.mts', '_badges', out);
+  return { ...badgeReport(await readJson(out), manifest.stories.map((story) => String(story.id))) };
 }
 
 async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: string, outFile: string, dropBook: string | null) {
@@ -592,6 +629,10 @@ const laneArg = (value: string | undefined) => {
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
   if (!command || command === '--help') { console.log(USAGE); return; }
+  if (command === '_badges') {
+    await badgesPhase(rest[0]);
+    return;
+  }
   if (command === '_page') {
     const [mode, exportDir, commit, outFile] = rest;
     await pagePhase(mode as 'seed' | 'check', exportDir, commit, outFile, argValue(rest, '--drop-book'));
@@ -608,6 +649,7 @@ async function main() {
     if (rest.includes('--no-preset-overlay') && argValue(rest, '--preset-overlay')) throw new Error('--preset-overlay and --no-preset-overlay exclude each other');
     report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'), rest.includes('--no-preset-overlay'), argValue(rest, '--preset-overlay'));
   }
+  else if (command === 'badges') report = await badges(laneArg(rest[0]));
   else if (command === 'check') report = await check(laneArg(rest[0]), argValue(rest, '--drop-book'));
   else if (command === 'accept-baseline') {
     report = await acceptLaneBaseline(laneArg(rest[0]), argValue(rest, '--reason') ?? '', argValue(rest, '--by') ?? process.env.USERNAME ?? process.env.USER ?? 'unknown', argValue(rest, '--report'));

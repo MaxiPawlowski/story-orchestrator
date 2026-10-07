@@ -486,3 +486,33 @@ export function spriteFolders(packs: SpritePackSource[], cardNames: string[]): S
 export function installerProblems(output: string): string[] {
   return output.split(/\r?\n/).filter((line) => /^(FAIL|SKIP|WARN) /.test(line));
 }
+
+export interface BadgeObservation {
+  bindings: Record<string, string>;
+  kinds: Record<string, string | null>;
+  blocks: { grid: string; kind: string | null }[];
+}
+
+export interface BadgeReport { bound: number; listed: number; badges: number; saga: number; story: number; problems: string[] }
+
+export function badgeReport(observed: BadgeObservation, storyIds: readonly string[]): BadgeReport {
+  const problems: string[] = [];
+  const bound = Object.entries(observed.bindings).filter(([, storyId]) => storyIds.includes(storyId));
+  if (bound.length !== storyIds.length) problems.push(`${bound.length} group(s) bound to the ${storyIds.length} campaign stories, expected ${storyIds.length}`);
+  const blocks = new Map(observed.blocks.map((block) => [block.grid, block.kind]));
+  let listed = 0;
+  let badges = 0;
+  let saga = 0;
+  let story = 0;
+  for (const [groupId, storyId] of bound) {
+    if (!blocks.has(groupId)) { problems.push(`bound group ${groupId} is not listed in the character list`); continue; }
+    listed += 1;
+    const kind = blocks.get(groupId) ?? null;
+    if (!kind) { problems.push(`bound group ${groupId} has no story badge`); continue; }
+    badges += 1;
+    if (kind === 'saga') saga += 1; else story += 1;
+    const expected = observed.kinds[storyId] === 'saga' ? 'saga' : 'story';
+    if (kind !== expected) problems.push(`bound group ${groupId} shows a ${kind} badge, its story is a ${expected}`);
+  }
+  return { bound: bound.length, listed, badges, saga, story, problems };
+}

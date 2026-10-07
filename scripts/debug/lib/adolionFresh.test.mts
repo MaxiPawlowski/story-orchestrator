@@ -342,3 +342,18 @@ test('T6-3-3: the strip disables ST\'s Image Generation extension in the lane co
   assert.equal(imageExtensionProblems({}).length, 1, 'a settings file without disabledExtensions is not a pass');
   assert.equal(imageExtensionProblems({ extension_settings: { disabledExtensions: 'stable-diffusion' } }).length, 1);
 });
+
+test('badgeReport counts the bound groups badges and their kind', async () => {
+  const { badgeReport } = await import('./adolionFresh.mts');
+  const observed = {
+    bindings: { g1: 'saga', g2: 'act', other: 'toy' },
+    kinds: { saga: 'saga', act: null },
+    blocks: [{ grid: 'g1', kind: 'saga' }, { grid: 'g2', kind: 'story' }, { grid: 'other', kind: null }],
+  };
+  assert.deepEqual(badgeReport(observed, ['saga', 'act']), { bound: 2, listed: 2, badges: 2, saga: 1, story: 1, problems: [] });
+  const wrong = badgeReport({ ...observed, blocks: [{ grid: 'g1', kind: 'story' }] }, ['saga', 'act']);
+  assert.deepEqual(wrong.problems, ['bound group g1 shows a story badge, its story is a saga', 'bound group g2 is not listed in the character list']);
+  assert.deepEqual(badgeReport({ ...observed, blocks: [{ grid: 'g1', kind: null }, { grid: 'g2', kind: 'story' }] }, ['saga', 'act', 'missing']).problems, [
+    '2 group(s) bound to the 3 campaign stories, expected 3', 'bound group g1 has no story badge',
+  ]);
+});
