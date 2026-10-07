@@ -36,16 +36,40 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 
 ### Sprite builder (v2.7 18/19/20)
 
-`so-sprite-builder.mts setup` imports the synthetic pilot into the explicitly opened group, disables extraction on
+**From zero on any isolated lane** (v2.7 39 C6, plan 32 decision 9). Nothing here pins a lane, group, port, model
+file or profile name:
+
+1. Lane config: copy `scripts/debug/image-harness.example.json` to `<so-lanes>/<n>/image-harness.json` (or set
+   `SO_IMAGE_HARNESS`) and fill in what the run needs: `allowComfy`, `editModels` (as the media plugin's `/discover`
+   lists them), `backgroundRemoval` (an alpha recipe id), `raterProfile` (the second-model rater), and for the
+   residency scripts `controllerUrl` + `localProfiles`. Scenarios state what they need in
+   `requires.comfy` / `requires.imageHarness` and print `not-runnable: …` when the lane lacks it; a lane never reaches
+   ComfyUI unless it is cleared (`allowComfy` or `SO_ALLOW_COMFY=1`), and a `comfy` scenario must declare lane `model`.
+2. Test cast: `st-lanes run <n> -- scripts/debug/so-image-cast.mts seed --art <dir>` creates the `SOIMG` cast from
+   `test/fixtures/image-test-cast/cast.json` (three characters: glasses, hair over the eyes, a non-human face; card art,
+   four original expressions and an optional `box.json` face box per member) and the group `SOIMG Test cast`.
+   `--no-art` is enough for the no-model rollback and the reply rows. `status`, `remove` (= `so-assets.mts remove
+   --marker SOIMG` with the seed baseline). The marker has no separator on purpose: ST's mention matcher splits names
+   into words.
+3. Rows: `v27-card-rollback.json` (no-model), `v27-local-card-reply.json`, `v27-existing-expression-reference.json`,
+   `v27-card-art-base.json`, and the multi-character `v27-c6-test-cast.json` (W5 reference + base ×3, W6 frames ×3,
+   W7/S32-2 looks ×3, card overlay per member). Raw evidence goes to `test/sessions/evidence/measurements-v2.7/`
+   (private so-sessions), never `test/measurements/`.
+
+`so-sprite-builder.mts setup --story <file>` imports a story into the explicitly opened group, disables extraction on
 the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
 
-`build --character Belle --set so_belle_pilot --label happy --kind expression --reference neutral --box 221,11,320,320`
-drives the real discovery, fingerprint and preview controls. It does not save automatically. `save` clicks Keep;
+`build --character "SOIMG Wren" [--set so_soimg_wren_pilot] --label happy --kind expression --reference neutral [--box x,y,w,h]`
+drives the real discovery, fingerprint and preview controls (edit models from the lane config; the box from `--box`, the
+saved builder settings or the seeded cast). It does not save automatically. `save` clicks Keep;
 `cancel` cancels the owned render; `state` captures the current panel. Build has a fifteen-minute bound and records a
 preview screenshot. Frame kinds are `blink`, `talk`, `talk2`; use the generated expression as the reference.
+`so-sprite-comparison.mts build|looks --character <name>` and `so-neutral-rest.mts` / `so-neutral-speaking.mts
+--character <name> --group <name>` take the same character and box arguments. Belle (`v27-belle-pilot.story.json`)
+remains optional extra evidence only; it never closes a multi-character floor.
 
-The synthetic story is `test/scenarios/v27-belle-pilot.story.json`. Use `st-lanes run <n> -- scripts/debug/so-sprite-builder.mts ...`.
-Model files remain at their configured paths; these tools never copy, move or download weights.
+Use `st-lanes run <n> -- scripts/debug/<tool>.mts ...`. Model files remain at their configured paths; these tools never
+copy, move or download weights.
 
 | Script | Key commands |
 |---|---|

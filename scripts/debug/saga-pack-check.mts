@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const browser = await chromium.launch({ headless: true });
 const report: any = { at: new Date().toISOString(), ok: false };
 try {

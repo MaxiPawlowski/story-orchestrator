@@ -788,8 +788,9 @@ async function uiStep(page, spec) {
   if (action === 'close-studio') return closeCheckpointStudio(page);
   if (action === 'studio-tab') return switchStudioTab(page, label);
   if (action === 'sprite-reference') return (await import('./lib/spriteReferenceUI.mts')).adoptExpressionPack(page, spec);
-  if (action === 'card-reply-local') return (await import('./lib/cardReply.mts')).checkLocalCardReply(page);
-  if (action === 'sprite-base') return (await import('./lib/spriteBaseUI.mts')).buildCardBase(page);
+  if (action === 'card-reply-local') return (await import('./lib/cardReply.mts')).checkLocalCardReply(page, spec);
+  if (action === 'sprite-base') return (await import('./lib/spriteBaseUI.mts')).buildCardBase(page, spec);
+  if (action === 'sprite-frames') return (await import('./lib/spriteFramesUI.mts')).buildFramePreviews(page, spec);
   if (action === 'studio-save') return saveStudioDraft(page, (typeof spec === 'object' ? spec?.choice : null) ?? null);
   if (action === 'open-wizard') return openWizard(page);
   if (action === 'new-story-wizard') return openWizard(page, { newStory: true, title: spec?.title ?? null });
@@ -1227,8 +1228,15 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let reenabled: string[] = [];
   let residueBefore: ResidueSnapshot | null = null;
   if (sandbox) {
-    if (pinned.group) await openGroup(page, pinned.group);
-    else await openMostRecentGroupChat(page);
+    if (pinned.group) {
+      const opened = await openGroup(page, pinned.group).then(() => null, (error) => error);
+      if (opened) {
+        if (!requires.group || !/^no group matching/.test(opened.message ?? '')) throw opened;
+        const problems = [`needs group "${requires.group}", and no group of that name or id exists${requires.why ? ` (${requires.why})` : ''}`];
+        console.log(notRunnableLine(problems));
+        return { file, steps: [], ok: false, notRunnable: true, requires: { problems, group: pinned }, error: notRunnableLine(problems), cleanup: null };
+      }
+    } else await openMostRecentGroupChat(page);
     reenabled = await establishGroupRequires(page, requires);
     guard = (await beginSandboxSession(page)).guard;
     await clearDebugResponses(page);

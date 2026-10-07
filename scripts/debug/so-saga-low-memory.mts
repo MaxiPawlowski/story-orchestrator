@@ -4,8 +4,8 @@ import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
 
-if (Number(process.env.SO_LANE) !== 6) throw new Error('Use isolated lane 6.');
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+if (!Number.isInteger(Number(process.env.SO_LANE)) || Number(process.env.SO_LANE) < 1) throw new Error('Use an isolated lane: st-lanes.mts run <n> -- ... with n >= 1.');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const audit = JSON.parse(await readFile(resolve(out, 'resume-audit.json'), 'utf8'));
 if (!audit.ok || audit.problems.length) throw new Error('A clean resume audit is required.');
 const samples = JSON.parse(await readFile(resolve(out, 'samples.json'), 'utf8'));

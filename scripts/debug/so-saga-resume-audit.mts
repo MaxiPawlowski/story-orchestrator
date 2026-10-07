@@ -3,8 +3,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { withST } from './lib/cli.mts';
 
-if (Number(process.env.SO_LANE) !== 6) throw new Error('Use isolated lane 6.');
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+if (!Number.isInteger(Number(process.env.SO_LANE)) || Number(process.env.SO_LANE) < 1) throw new Error('Use an isolated lane: st-lanes.mts run <n> -- ... with n >= 1.');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const inventory = JSON.parse(await readFile(resolve(out, 'inventory.json'), 'utf8'));
 const samples = JSON.parse(await readFile(resolve(out, 'samples.json'), 'utf8'));
 const set = 'so_saga_main_v1';

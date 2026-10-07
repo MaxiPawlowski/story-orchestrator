@@ -80,6 +80,45 @@ test('lane kinds: a no-model scenario refuses a lane whose model answers, and a 
   assert.equal(laneOf({ lane: 'model' }, 'no-model'), 'model');
 });
 
+const discovered = { diffusionModels: ['d.safetensors'], textEncoders: ['e.safetensors'], vaes: ['v.safetensors'], checkpoints: [], alpha: ['alpha'] };
+const harness = (config) => ({ path: 'lane/image-harness.json', gaps: [], config });
+
+test('comfy and imageHarness are check-only and validated: ComfyUI only on a model lane, discovery needs comfy', () => {
+  assert.deepEqual(validateRequires({ lane: 'model', comfy: true, imageHarness: ['editModels', 'backgroundRemoval', 'rater'] }), []);
+  assert.deepEqual(validateRequires({ imageHarness: ['rater'] }), []);
+  assert.match(validateRequires({ comfy: true }).join(), /declares lane "model"/);
+  assert.match(validateRequires({ lane: 'no-model', comfy: true }).join(), /no-model batch never reaches ComfyUI/);
+  assert.match(validateRequires({ lane: 'model', comfy: false }).join(), /only true/);
+  assert.match(validateRequires({ imageHarness: ['editModels'] }).join(), /add requires\.comfy/);
+  assert.match(validateRequires({ imageHarness: ['models'] }).join(), /non-empty list of editModels/);
+  assert.match(validateRequires({ imageHarness: [] }).join(), /non-empty list/);
+});
+
+test('comfy: an uncleared lane, a missing plugin and a dead ComfyUI are each named; a cleared, answering one passes', () => {
+  assert.match(requiresProblems({ comfy: true }, {}).join(), /needs a lane cleared for ComfyUI/);
+  assert.match(requiresProblems({ comfy: true }, { comfy: { cleared: false, plugin: null, discovered: null, probe: null } }).join(), /SO_ALLOW_COMFY=1/);
+  assert.match(requiresProblems({ comfy: true }, { comfy: { cleared: true, plugin: 'absent', discovered: null, probe: null } }).join(), /media server plugin.*404/);
+  assert.match(requiresProblems({ comfy: true }, { comfy: { cleared: true, plugin: 'present', discovered: null, probe: 'ECONNREFUSED' } }).join(), /discovery did not answer \(ECONNREFUSED\)/);
+  assert.match(requiresProblems({ comfy: true }, { comfy: { cleared: true, plugin: null, discovered: null, probe: 'not probed: the lane has no live model' } }).join(), /status could not be read/);
+  assert.deepEqual(requiresProblems({ comfy: true }, { comfy: { cleared: true, plugin: 'present', discovered, probe: null } }), []);
+});
+
+test('imageHarness: a missing config, an undiscovered model, an unoffered alpha recipe and an absent rater are named', () => {
+  const comfy = { cleared: true, plugin: 'present' as const, discovered, probe: null };
+  assert.match(requiresProblems({ imageHarness: ['rater'] }, {}).join(), /was not read/);
+  assert.match(requiresProblems({ imageHarness: ['rater'] }, { harness: { path: 'h', gaps: ['needs raterProfile in h'], config: null } }).join(), /needs raterProfile in h/);
+  const config = { editModels: { diffusion: 'd.safetensors', encoder: 'e.safetensors', vae: 'other.safetensors' }, backgroundRemoval: 'birefnet', raterProfile: 'Rater' };
+  const problems = requiresProblems({ lane: 'model', comfy: true, imageHarness: ['editModels', 'backgroundRemoval', 'rater'] },
+    { modelReachable: true, comfy, harness: harness(config), profileNames: ['Main'] }).join('; ');
+  assert.match(problems, /vae model "other\.safetensors"/);
+  assert.doesNotMatch(problems, /diffusion model/);
+  assert.match(problems, /background-removal recipe "birefnet"/);
+  assert.match(problems, /rater profile "Rater"/);
+  assert.deepEqual(requiresProblems({ lane: 'model', comfy: true, imageHarness: ['editModels', 'backgroundRemoval', 'rater'] },
+    { modelReachable: true, comfy, harness: harness({ ...config, editModels: { ...config.editModels, vae: 'v.safetensors' }, backgroundRemoval: 'alpha' }), profileNames: ['Rater'] }), []);
+  assert.match(requiresProblems({ imageHarness: ['localProfiles'] }, { harness: harness({ localProfiles: { main: 'M', memory: 'R' } }), profileNames: ['M'] }).join(), /local profile "R"/);
+});
+
 test('check-only conditions: main API, role profiles, macro engine, vectors World Info, prior step', () => {
   assert.match(requiresProblems({ mainApi: 'openai' }, { mainApi: 'textgenerationwebui' }).join(), /needs main API openai/);
   assert.match(requiresProblems({ roleProfiles: 'text-completion' }, { roleModes: { read: 'cc', director: 'tc' } }).join(), /read=cc/);

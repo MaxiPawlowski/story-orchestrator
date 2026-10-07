@@ -7,9 +7,11 @@ import { openCheckpointStudio, closeCheckpointStudio } from './so-ui.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { buildSpriteFromUI } from './so-sprite-builder.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
+import { argValue, requireHarness } from './lib/imageHarness.mts';
 
-if (Number(process.env.SO_LANE) !== 6) throw new Error('Use isolated lane 6.');
-const directory = resolve('test/measurements/v2.7/saga-main-cast');
+if (!Number.isInteger(Number(process.env.SO_LANE)) || Number(process.env.SO_LANE) < 1) throw new Error('Use an isolated lane: st-lanes.mts run <n> -- ... with n >= 1.');
+const controller = requireHarness(['controller']).controllerUrl.replace(/\/+$/, '');
+const directory = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const inventory = JSON.parse(await readFile(resolve(directory, 'inventory.json'), 'utf8'));
 const boxes = { Belle: [221, 11, 320, 320], Dalan: [340, 0, 320, 280], Tobias: [340, 0, 320, 280],
   Natalia: [240, 35, 320, 280], Shiya: [220, 70, 320, 280], Ronan: [240, 10, 320, 320],
@@ -48,7 +50,7 @@ await withST(async (page) => {
     if (path.endsWith('/story-orchestrator-media/jobs')) traffic.imageJobs++;
   };
   page.on('request', count);
-  const run = { began: new Date().toISOString(), warm, traffic, before: await (await fetch('http://127.0.0.1:18888/status')).json(), generated: 0 };
+  const run = { began: new Date().toISOString(), warm, traffic, before: await (await fetch(`${controller}/status`)).json(), generated: 0 };
   report.memory = [{ phase: 'start', node: process.memoryUsage() }];
   const story = { format: 2, id: 'so-saga-art-build', version: 1, title: 'SO Saga main-cast art',
     description: 'Isolated expression-animation workshop for the eight main characters.',
@@ -60,7 +62,7 @@ await withST(async (page) => {
       const root = (globalThis as any).SillyTavern.getContext().extensionSettings['story-orchestrator'];
       root.settings.image.enabled = false; root.settings.sprites.onDemand = false; root.settings.extraction.enabled = false;
     });
-    await openGroup(page, 'Adolion - The Saga');
+    await openGroup(page, argValue(process.argv.slice(2), '--group', 'Adolion - The Saga'));
     await page.evaluate(async (story) => {
       const rt = (globalThis as any).storyOrchestratorRuntime;
       await rt.importStory(JSON.stringify(story));
@@ -70,7 +72,7 @@ await withST(async (page) => {
     await page.waitForSelector('#so-open-studio', { state: 'attached', timeout: 30000 });
     if (await page.locator('dialog#so-briefing[open]').count()) await dismissBriefing(page);
     await closeUnpinnedDrawers(page);
-    const rest = JSON.parse(await readFile(resolve('test/measurements/v2.7/sprite-quality/neutral-rest/report.json'), 'utf8'));
+    const rest = JSON.parse(await readFile(resolve(argValue(process.argv.slice(2), '--rest-report', 'test/sessions/evidence/measurements-v2.7/sprite-quality/neutral-rest/report.json')), 'utf8'));
     const neutral = rest.candidates.find((row) => row.number === 3);
     const jobs: any[] = [];
     const verified = await page.evaluate(async ({ selected, set }) => {
@@ -131,7 +133,7 @@ await withST(async (page) => {
     }
     await openCheckpointStudio(page);
     report.memory.push({ phase: 'references-ready', node: process.memoryUsage(), browserHeap: await page.evaluate(() => (performance as any).memory?.usedJSHeapSize),
-      ram: (await (await fetch('http://127.0.0.1:18888/status')).json()).telemetry.host.availableMiB });
+      ram: (await (await fetch(`${controller}/status`)).json()).telemetry.host.availableMiB });
     if (warm) batch = await page.evaluateHandle(async () => await (globalThis as any).storyOrchestratorSprites.beginBuildBatch());
     frames: for (const { member, source, id, sample, hash, packet } of jobs) {
         for (const kind of ['blink', 'talk']) {
@@ -177,12 +179,12 @@ await withST(async (page) => {
       .every((row) => { const sample = samples.find((s) => s.id === `${member.name}/${row.label}`); return Boolean(sample?.blink && sample?.talk); }));
   } finally {
     report.memory.push({ phase: 'end', node: process.memoryUsage(), browserHeap: await page.evaluate(() => (performance as any).memory?.usedJSHeapSize),
-      ram: (await (await fetch('http://127.0.0.1:18888/status')).json()).telemetry.host.availableMiB });
+      ram: (await (await fetch(`${controller}/status`)).json()).telemetry.host.availableMiB });
     if (batch) { await batch.evaluate((close) => close()); await batch.dispose(); }
     page.off('request', count);
     run.generated = generated;
     report.runs ??= [];
-    report.runs.push({ ...run, ended: new Date().toISOString(), after: await (await fetch('http://127.0.0.1:18888/status')).json() });
+    report.runs.push({ ...run, ended: new Date().toISOString(), after: await (await fetch(`${controller}/status`)).json() });
     await closeCheckpointStudio(page); await closeUnpinnedDrawers(page);
     await page.evaluate((settings) => { (globalThis as any).SillyTavern.getContext().extensionSettings['story-orchestrator'].settings = settings;
       (globalThis as any).storyOrchestratorRuntime.touch(); }, saved);

@@ -1,9 +1,16 @@
 import { sendUserMessage } from '../st-actions.mts';
 import { saveSettingsNow } from './settingsSave.mts';
 import { closeUnpinnedDrawers } from '../st-navigation.mts';
+import { normalizedServer, readActiveMain, requireTextCompletionMain } from './activeProfile.mts';
 
-export async function checkLocalCardReply(page) {
+export async function checkLocalCardReply(page, spec: { character?: string; field?: string; value?: string } = {}) {
+  const character = spec.character;
+  const field = spec.field ?? 'hair';
+  const value = spec.value ?? 'green';
+  if (!character) throw new Error('card-reply-local needs "character": the roster member whose card field the story changed.');
   if (await page.locator('#so-studio-modal[open]').count()) throw new Error('Close Studio before the local reply check; a modal would intercept Send.');
+  const main = await readActiveMain(page);
+  const server = normalizedServer(requireTextCompletionMain(main, 'card-reply-local'));
   await closeUnpinnedDrawers(page);
   const saved = await page.evaluate(() => {
     const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
@@ -17,26 +24,27 @@ export async function checkLocalCardReply(page) {
     return saved;
   });
   try {
-    const result = await sendUserMessage(page, 'For this portrait, describe the colour of your hair in one or two sentences while staying in character.',
+    const result = await sendUserMessage(page, `For this portrait, describe your ${field} in one or two sentences while staying in character.`,
       { idleTimeoutMs: 300000, expectReply: true });
-    if (!result.replied) throw new Error('Local Artemis did not produce a non-empty reply.');
-    return await page.evaluate(() => {
+    if (!result.replied) throw new Error('The main model did not produce a non-empty reply.');
+    return await page.evaluate(({ server, character, field, value, profile }) => {
       const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
       const requests = (globalThis as any).__soV27CardCapture.requests;
-      const request = requests.find((body) => body.api_type === 'llamacpp' && body.api_server === 'http://127.0.0.1:18888');
-      if (!request) throw new Error('The actual reply request did not use local Artemis through llama.cpp.');
+      const norm = (entry) => String(entry ?? '').trim().replace(/\/+$/, '').toLowerCase();
+      const request = requests.find((body) => norm(body.api_server) === server);
+      if (!request) throw new Error(`The reply request did not go to the active profile's server (${profile ?? 'no profile'}); saw ${JSON.stringify(requests.map((body) => body.api_server ?? null))}.`);
       const prompt = JSON.stringify(request);
-      if (!prompt.includes('Current public state (overrides the character card where they differ):') || !prompt.includes('hair: green')) {
-        throw new Error('The applied public appearance did not reach the real local reply request.');
+      if (!prompt.includes('Current public state (overrides the character card where they differ):') || !prompt.includes(`${field}: ${value}`)) {
+        throw new Error('The applied public appearance did not reach the real reply request.');
       }
       const snapshot = rt.getSnapshot();
-      if (!snapshot.ledger.some((row) => row.entity === 'Belle' && row.field === 'hair' && row.value === 'green' && row.bound && row.cardWriter === 'authored')) {
+      if (!snapshot.ledger.some((row) => row.entity === character && row.field === field && row.value === value && row.bound && row.cardWriter === 'authored')) {
         throw new Error('The author current-state mirror does not match the applied card field.');
       }
       const reply = ctx.chat.filter((row) => !row.is_user && !row.is_system).at(-1);
-      return { localArtemis: true, overlayInRequest: true, authorMirror: true, replyLength: reply?.mes?.length ?? 0,
-        mentionsGreen: /green/i.test(reply?.mes ?? ''), boundary: snapshot.boundary };
-    });
+      return { profile, apiType: request.api_type ?? null, overlayInRequest: true, authorMirror: true, replyLength: reply?.mes?.length ?? 0,
+        mentionsValue: new RegExp(value, 'i').test(reply?.mes ?? ''), boundary: snapshot.boundary };
+    }, { server, character, field, value, profile: main.name });
   } finally {
     await page.evaluate((saved) => {
       const ctx = (globalThis as any).SillyTavern.getContext();

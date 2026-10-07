@@ -4,7 +4,7 @@ import json
 import pathlib
 from PIL import Image, ImageDraw
 
-OUT = pathlib.Path("C:/dev/story-orchestrator/test/measurements/v2.7/saga-main-cast")
+OUT = pathlib.Path(__file__).resolve().parents[2] / "test/sessions/evidence/measurements-v2.7/saga-main-cast"
 samples = json.loads((OUT / "samples.json").read_text(encoding="utf-8"))
 names = list(dict.fromkeys(row["name"] for row in samples))
 boxes = {"Belle": (221, 11, 320, 320), "Dalan": (340, 0, 320, 280), "Tobias": (340, 0, 320, 280),

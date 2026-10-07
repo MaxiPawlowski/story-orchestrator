@@ -1,0 +1,39 @@
+{
+  "marker": "SOIMG",
+  "group": "SOIMG Test cast",
+  "purpose": "v2.7 plan 32 decision 9 / plan 39 C6: marker-scoped multi-character test cast for the image, sprite and living-card rows. Seeded by scripts/debug/so-image-cast.mts, removed by so-assets.mts remove --marker SOIMG.",
+  "markerNote": "SOIMG has no word boundary inside it on purpose: ST's group mention matcher splits names into words, so a marker like SO-IMG would make every 'so' in a reply a mention of every member.",
+  "expressions": ["neutral", "happy", "angry", "worried"],
+  "members": [
+    {
+      "short": "wren",
+      "name": "SOIMG Wren",
+      "variety": "glasses",
+      "description": "SOIMG Wren is a fictional portrait subject: a woman in her thirties with thick round tortoiseshell glasses, a short auburn bob, freckles and a mustard knit cardigan. The portrait studio is her whole setting.",
+      "personality": "Precise, warm, a little dry. Speaks in short first-person replies.",
+      "first_mes": "I push my glasses up and settle onto the stool by the window.",
+      "card": { "field": "hair", "quality": "wren_hair", "from": "auburn", "to": "green" },
+      "looks": ["hair dyed emerald green", "hair dyed silver white", "glasses swapped for red cat-eye frames", "cardigan coloured cobalt blue", "cardigan coloured crimson red"]
+    },
+    {
+      "short": "sable",
+      "name": "SOIMG Sable",
+      "variety": "hair over the eyes",
+      "description": "SOIMG Sable is a fictional portrait subject: a young man whose long straight black fringe hides both eyes completely, with pale skin and a high-collared grey coat. The portrait studio is his whole setting.",
+      "personality": "Quiet and wry. Speaks in short first-person replies.",
+      "first_mes": "",
+      "card": { "field": "coat", "quality": "sable_coat", "from": "grey", "to": "green" },
+      "looks": ["fringe dyed bright red", "fringe dyed platinum blonde", "coat coloured forest green", "coat coloured mustard yellow", "silver hoop earring added"]
+    },
+    {
+      "short": "quill",
+      "name": "SOIMG Quill",
+      "variety": "non-human face",
+      "description": "SOIMG Quill is a fictional portrait subject: a lizardfolk artisan with a green scaled snout, amber slit-pupil eyes, a small ridge of horns and a brown leather apron. The portrait studio is their whole setting.",
+      "personality": "Cheerful and patient. Speaks in short first-person replies.",
+      "first_mes": "",
+      "card": { "field": "apron", "quality": "quill_apron", "from": "brown", "to": "white" },
+      "looks": ["scales tinted deep blue", "scales tinted ruby red", "horn ridge painted gold", "apron coloured white", "apron coloured purple"]
+    }
+  ]
+}

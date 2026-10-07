@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const audit = JSON.parse(await readFile(join(out, 'resume-audit.json'), 'utf8'));
 if (!audit.ok || audit.missing.length || audit.verified.length !== 238) throw new Error('Only a complete verified pack may be archived.');
 const inventory = JSON.parse(await readFile(join(out, 'inventory.json'), 'utf8'));

@@ -5,10 +5,10 @@ import { comparisonPack, scoreComparison, scoreLooks, labeledComparison, scoreLa
 const samples = ['neutral', 'happy', 'angry', 'worried'].map((label) => ({ label, base: 'data:image/png;base64,YQ==', blink: 'data:image/png;base64,Yg==', talk: 'data:image/png;base64,Yw==', talk2: 'data:image/png;base64,ZA==' }));
 
 test('labeled review presents every expression once with three explicit modes and preserves a pending verdict', () => {
-  const pack = labeledComparison(samples, 'pilot');
+  const pack = labeledComparison(samples, 'pilot', 'Belle');
   assert.equal(pack.samples.length, 4);
   assert.match(pack.id, /^belle-pilot-[a-f0-9]{12}-labeled$/);
-  assert.notEqual(pack.id, labeledComparison(samples.map((sample) => ({ ...sample, talk: 'data:image/png;base64,eA==' })), 'pilot').id);
+  assert.notEqual(pack.id, labeledComparison(samples.map((sample) => ({ ...sample, talk: 'data:image/png;base64,eA==' })), 'pilot', 'Belle').id);
   assert.equal(scoreLabeled(pack.votes).status, 'pending-user-ratings');
   const votes = pack.votes.map((vote) => ({ ...vote, preferred: 'smooth' as const,
     modes: { regular: { seam: false, expression: true }, simple: { seam: false, expression: true }, smooth: { seam: false, expression: true } } }));
@@ -17,6 +17,18 @@ test('labeled review presents every expression once with three explicit modes an
   assert.equal(scoreLabeled(votes).acceptance, 'pending-full-S28-matrix-and-runtime-gates');
   assert.throws(() => scoreLabeled(votes.slice(1)), /four/);
   assert.throws(() => scoreLabeled([votes[0], votes[0], votes[2], votes[3]]), /four/);
+});
+
+test('a labeled pack is named after its character, so two characters on the same seed never share a pack id', () => {
+  const wren = labeledComparison(samples, 'c6', 'SOIMG Wren');
+  const sable = labeledComparison(samples, 'c6', 'SOIMG Sable');
+  assert.match(wren.id, /^soimg-wren-c6-[a-f0-9]{12}-labeled$/);
+  assert.match(sable.id, /^soimg-sable-c6-[a-f0-9]{12}-labeled$/);
+  assert.notEqual(wren.id, sable.id);
+  assert.equal(wren.character, 'SOIMG Wren');
+  assert.deepEqual(wren.votes, sable.votes);
+  assert.throws(() => labeledComparison(samples, 'c6', ''), /names its character/);
+  assert.throws(() => labeledComparison(samples, 'c6', '***'), /names its character/);
 });
 
 test('every expression gets all three distinct comparisons with reproducible blind ordering', () => {

@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 
 ROOT = pathlib.Path("C:/dev/adolion-campaign")
 ART = pathlib.Path("C:/dev/so-lanes/6/adolion-fresh/sprites-40dd2d0f0a4c/campaign/sprites")
-OUT = pathlib.Path("C:/dev/story-orchestrator/test/measurements/v2.7/saga-main-cast")
+OUT = pathlib.Path(__file__).resolve().parents[2] / "test/sessions/evidence/measurements-v2.7/saga-main-cast"
 NAMES = ["Belle", "Dalan", "Tobias", "Natalia", "Shiya", "Ronan", "Javon", "Eriana"]
 OUT.mkdir(parents=True, exist_ok=True)
 rows = []

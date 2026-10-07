@@ -1,0 +1,13 @@
+{
+  "why": "Copy to <so-lanes>/<n>/image-harness.json (beside the lane's debug dir), or point SO_IMAGE_HARNESS at it. Machine values live here, never in scripts. Every key is optional: a scenario or script names what it needs (requires.imageHarness) and is not-runnable without it.",
+  "allowComfy": true,
+  "editModels": {
+    "diffusion": "<image-edit diffusion model, exactly as /api/plugins/story-orchestrator-media/discover lists it>",
+    "encoder": "<its text encoder>",
+    "vae": "<its VAE>"
+  },
+  "backgroundRemoval": "<an alpha recipe id the media plugin offers (discover.alpha[].id)>",
+  "raterProfile": "<Connection Manager profile of the independent second-model rater (vision-capable)>",
+  "controllerUrl": "<optional: the GPU residency controller, only for so-image-runtime / saga scripts>",
+  "localProfiles": { "main": "<optional: local main profile pinned to controllerUrl>", "memory": "<its memory profile>" }
+}

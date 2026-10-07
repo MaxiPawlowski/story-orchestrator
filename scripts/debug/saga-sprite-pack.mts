@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 const require = createRequire(import.meta.url);
-const out = resolve('test/measurements/v2.7/saga-main-cast');
+const out = resolve('test/sessions/evidence/measurements-v2.7/saga-main-cast');
 const samples = JSON.parse(await readFile(resolve(out, 'samples.json'), 'utf8')).filter((row) => row.blink && row.talk);
 const webpack = require('webpack');
 const config = require('../../webpack.config.js')({}, { mode: 'production' });

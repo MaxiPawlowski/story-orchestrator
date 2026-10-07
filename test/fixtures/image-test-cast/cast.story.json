@@ -1,0 +1,153 @@
+{
+  "format": 2,
+  "id": "soimg-cast",
+  "version": 1,
+  "title": "SOIMG cast session",
+  "description": "A synthetic multi-character portrait session: one visible change per member, independent of any campaign.",
+  "roster": [
+    {
+      "id": "wren",
+      "name": "SOIMG Wren",
+      "role": "Portrait subject",
+      "card": {
+        "fields": {
+          "hair": {
+            "quality": "wren_hair",
+            "visual": true
+          }
+        }
+      }
+    },
+    {
+      "id": "sable",
+      "name": "SOIMG Sable",
+      "role": "Portrait subject",
+      "card": {
+        "fields": {
+          "coat": {
+            "quality": "sable_coat",
+            "visual": true
+          }
+        }
+      }
+    },
+    {
+      "id": "quill",
+      "name": "SOIMG Quill",
+      "role": "Portrait subject",
+      "card": {
+        "fields": {
+          "apron": {
+            "quality": "quill_apron",
+            "visual": true
+          }
+        }
+      }
+    }
+  ],
+  "qualities": [
+    {
+      "key": "wren_hair",
+      "type": "enum",
+      "values": [
+        "auburn",
+        "green"
+      ],
+      "source": "extractor",
+      "rubric": "SOIMG Wren's current hair, only when a visible change is established.",
+      "evidence_from": "world"
+    },
+    {
+      "key": "sable_coat",
+      "type": "enum",
+      "values": [
+        "grey",
+        "green"
+      ],
+      "source": "extractor",
+      "rubric": "SOIMG Sable's current coat, only when a visible change is established.",
+      "evidence_from": "world"
+    },
+    {
+      "key": "quill_apron",
+      "type": "enum",
+      "values": [
+        "brown",
+        "white"
+      ],
+      "source": "extractor",
+      "rubric": "SOIMG Quill's current apron, only when a visible change is established.",
+      "evidence_from": "world"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "SOIMG Wren",
+      "SOIMG Sable",
+      "SOIMG Quill"
+    ]
+  },
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Portrait",
+      "player_name": "Portrait",
+      "type": "anchor",
+      "start": true,
+      "objective": "Pose for expression previews.",
+      "illustrate": false,
+      "effects": {
+        "stage": {
+          "framing": "full",
+          "cast": {
+            "wren": {
+              "face": "neutral"
+            },
+            "sable": {
+              "face": "neutral"
+            },
+            "quill": {
+              "face": "neutral"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "change",
+      "name": "New look",
+      "player_name": "New look",
+      "type": "anchor",
+      "objective": "Show every established change in the portrait.",
+      "illustrate": false,
+      "effects": {
+        "card": {
+          "wren": {
+            "hair": "green"
+          },
+          "sable": {
+            "coat": "green"
+          },
+          "quill": {
+            "apron": "white"
+          }
+        },
+        "stage": {
+          "framing": "full",
+          "cast": {
+            "wren": {
+              "face": "neutral"
+            },
+            "sable": {
+              "face": "neutral"
+            },
+            "quill": {
+              "face": "neutral"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "transitions": []
+}

@@ -6,11 +6,13 @@ import { parseGroupScript } from './lib/adolionFresh.mts';
 import { openGroup, startNewChat, closeUnpinnedDrawers } from './st-navigation.mts';
 import { sendCompactMessage, triggerGroupMember } from './st-actions.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
+import { argValue, requireHarness } from './lib/imageHarness.mts';
 
 const mode = process.argv[2] ?? 'inventory';
 if (!['inventory', 'import', 'smoke', 'image'].includes(mode)) throw new Error('Use inventory, import, smoke or image.');
-const campaign = 'C:/dev/adolion-campaign';
-const directory = resolve('test/measurements/v2.7/main-rollout');
+const campaign = argValue(process.argv.slice(2), '--campaign', process.env.ADOLION_CAMPAIGN ?? 'C:/dev/adolion-campaign');
+const group = argValue(process.argv.slice(2), '--group', "Adolion - The Adventurer's Road");
+const directory = resolve('test/sessions/evidence/measurements-v2.7/main-rollout');
 await mkdir(directory, { recursive: true });
 const files = (await readdir(`${campaign}/build/story`)).filter((name) => name.endsWith('.story.json')).sort();
 const stories = await Promise.all(files.map(async (name) => JSON.parse(await readFile(`${campaign}/build/story/${name}`, 'utf8'))));
@@ -56,18 +58,19 @@ try {
             report.save = await saveSettingsNow(page);
         }
         if (mode === 'smoke') {
-            const saved = await page.evaluate(() => {
+            const local = requireHarness(['controller', 'localProfiles']);
+            const saved = await page.evaluate(({ name, controller }) => {
                 const ctx = (globalThis as any).SillyTavern.getContext();
                 const settings = ctx.extensionSettings['story-orchestrator'].settings;
-                const profile = ctx.extensionSettings.connectionManager.profiles.find((p: any) => p.name === 'Artemis Local (Unsloth)');
-                if (!profile || profile.api !== 'llamacpp' || profile['api-url'] !== 'http://127.0.0.1:18888') throw new Error('Local reply profile is not pinned to the managed controller.');
+                const profile = ctx.extensionSettings.connectionManager.profiles.find((p: any) => p.name === name);
+                if (!profile || profile.api !== 'llamacpp' || String(profile['api-url'] ?? '').replace(/[/]+$/, '') !== controller) throw new Error('Local reply profile is not pinned to the managed controller.');
                 const prior = { image: settings.image.enabled, sprites: settings.sprites.enabled, onDemand: settings.sprites.onDemand, selected: ctx.extensionSettings.connectionManager.selectedProfile };
                 settings.image.enabled = false;
                 settings.sprites.enabled = true;
                 settings.sprites.onDemand = false;
                 for (const key of Object.keys(globalThis)) if (key.startsWith('storyOrchestratorDebug')) delete (globalThis as any)[key];
                 return prior;
-            });
+            }, { name: local.localProfiles.main, controller: local.controllerUrl.replace(/[/]+$/, '') });
             try {
                 await saveSettingsNow(page);
                 await page.evaluate(async () => {
@@ -75,7 +78,7 @@ try {
                     const slash = await import(modulePath);
                     await slash.executeSlashCommandsWithOptions('/profile "Artemis Local (Unsloth)"');
                 });
-                await openGroup(page, "Adolion - The Adventurer's Road");
+                await openGroup(page, group);
                 await startNewChat(page);
                 if (await page.locator('dialog#so-briefing[open]').count()) await dismissBriefing(page);
                 await closeUnpinnedDrawers(page);
