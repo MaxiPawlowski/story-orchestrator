@@ -12,7 +12,7 @@ import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
 import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
-import { dismissBriefing, readBriefingModal, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
+import { dismissBlocksPane, dismissBriefing, fixtureDrivesBriefing, isBriefingIntercept, readBriefingModal, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptForeignChat, adoptNewSandboxChat, assertInSandbox, cleanupForeignChats, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
@@ -1122,9 +1122,17 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
-async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null, requireStory = false } = {}) {
-  const result: { steps: unknown[]; ok: boolean; error: string | null; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail' } = { steps: [], ok: true, error: null, retries: [] };
+async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null, requireStory = false, dismissBlocks = false } = {}) {
+  const result: { steps: unknown[]; ok: boolean; error: string | null; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail'; blocksPaneDismissed?: Array<{ index: number; blocks: string[]; after: 'check' | 'intercept' }> } = { steps: [], ok: true, error: null, retries: [] };
   const attempts = new Map<number, number>();
+  const intercepted = new Set<number>();
+  const closeBlocksPane = async (index: number, after: 'check' | 'intercept') => {
+    const closed = await dismissBlocksPane(page).catch(() => null);
+    if (!closed) return false;
+    (result.blocksPaneDismissed ??= []).push({ index, blocks: closed.blocks, after });
+    console.log(`${label}${index + 1}/${steps.length} closed the "Before you start" pane (${after}): ${closed.blocks.join(' | ')}`);
+    return true;
+  };
   for (let index = 0; index < steps.length; index += 1) {
     const step = steps[index];
     const key = Object.keys(step).find((name) => !STEP_MODIFIERS.has(name));
@@ -1132,6 +1140,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
     let output;
     try {
       if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
+      if (dismissBlocks) await closeBlocksPane(index, 'check');
       if (requireStory && STORY_BOUND_VERBS.has(key) && !(await evaluateInST(page, () => Boolean(globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.storyId)))) throw new Error(storylessStepError(key));
       const chatsBeforeStep = guard && step.adoptsNewChat === true ? (await readActiveChat(page)).groupChats : null;
       const chatsByGroupBefore = guard && step.adoptsNewChat === 'other-group'
@@ -1158,6 +1167,11 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       if (step.log) console.log(`${label}${index + 1}/${steps.length} ${key} -> ${JSON.stringify(output ?? null).slice(0, typeof step.log === 'number' ? step.log : 800)}`);
     } catch (err) {
       const entry = { index, key, ok: false, ms: Date.now() - startedAt, error: err.message || String(err), output };
+      if (dismissBlocks && !intercepted.has(index) && isBriefingIntercept(entry.error) && await closeBlocksPane(index, 'intercept')) {
+        intercepted.add(index);
+        index -= 1;
+        continue;
+      }
       result.steps.push(entry);
       // A check that asserts ONE model sample is a coin flip, and running the journey twice does not
       // help: at a ~50% sample failure rate, two runs still red three times in four (2026-09-20).
@@ -1256,7 +1270,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       result = { file, steps: [], ok: false, notRunnable: true, requires: { ...established, group: pinned }, error: notRunnableLine(established.problems), cleanup: null };
       console.log(notRunnableLine(established.problems));
     } else {
-      result = { file, ...(await runSteps(page, withAuthorView(steps, requires), { scenarioDir, importedHashes, guard })), ...(established ? { requires: { ...established, group: pinned } } : {}), cleanup: null };
+      result = { file, ...(await runSteps(page, withAuthorView(steps, requires), { scenarioDir, importedHashes, guard, dismissBlocks: !fixtureDrivesBriefing(JSON.stringify(scenario)) })), ...(established ? { requires: { ...established, group: pinned } } : {}), cleanup: null };
     }
     if (!result.ok && !result.notRunnable) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
   } finally {

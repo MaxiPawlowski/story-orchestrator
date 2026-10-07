@@ -55,3 +55,20 @@ test('v2.7 34: the start-setup question is suppressed and restored on its own ke
   assert.equal((await restorePlayerSetup(page, suppressed.before)).restored, true);
   assert.deepEqual(writes, [{ playerSetup: false }, { playerSetup: true }]);
 });
+
+test('only a blocks-only "Before you start" pane is closed for a fixture that does not drive the briefing', async () => {
+  const { isBlocksOnlyPane, fixtureDrivesBriefing, isBriefingIntercept } = await import('./briefingHarness.mts');
+  const pane = { open: true, title: 'Before you start', sections: [], blocks: ['The story will not advance on its own until this is fixed.'], onboarding: false, optOut: false, startLabel: 'Close', pending: true, identity: false };
+  assert.equal(isBlocksOnlyPane(pane), true);
+  assert.equal(isBlocksOnlyPane({ ...pane, open: false }), false);
+  assert.equal(isBlocksOnlyPane({ ...pane, blocks: [] }), false);
+  assert.equal(isBlocksOnlyPane({ ...pane, sections: ['Who you are'] }), false, 'a briefing with story sections is never closed for the fixture');
+  assert.equal(isBlocksOnlyPane({ ...pane, identity: true }), false, 'the identity step is never answered for the fixture');
+  assert.equal(isBlocksOnlyPane({ ...pane, onboarding: true }), false);
+  assert.equal(fixtureDrivesBriefing(JSON.stringify({ steps: [{ ui: { action: 'briefing-dismiss' } }] })), true);
+  assert.equal(fixtureDrivesBriefing('{"eval":"document.querySelector(\'#so-player-setup\')"}'), true);
+  assert.equal(fixtureDrivesBriefing(JSON.stringify({ steps: [{ import_story: 'x.story.json' }, { ui: { action: 'open-drawer' } }] })), false);
+  assert.equal(isBriefingIntercept('<dialog open="" id="so-briefing" aria-labelledby="so-briefing-title">…</dialog> from <div id="so-briefing-root"> subtree intercepts pointer events'), true);
+  assert.equal(isBriefingIntercept('locator.click: Timeout 15000ms exceeded. | layout {"topmost":"dialog#so-briefing."}'), true);
+  assert.equal(isBriefingIntercept('locator.click: Timeout 15000ms exceeded. | layout {"topmost":"div#chat"}'), false);
+});
