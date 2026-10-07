@@ -460,6 +460,12 @@ dialog#so-briefing::backdrop {
   overflow-wrap: anywhere;
 }
 
+#so-briefing .menu_button {
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
 #so-briefing .so-briefing-title {
   margin: 0;
   font-size: 1.4em;

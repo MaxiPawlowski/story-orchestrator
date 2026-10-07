@@ -128,3 +128,18 @@ const begin = async (canvasElement: HTMLElement) => {
 export const Phone: Story = { ...everything, ...fitsAt(VIEWPORTS.phone, begin) };
 export const Tablet: Story = { ...everything, ...fitsAt(VIEWPORTS.tablet, begin) };
 export const Desktop: Story = { ...everything, ...fitsAt(VIEWPORTS.wide, begin) };
+
+const HOST_MENU_BUTTON = ".menu_button { width: min-content; display: flex; padding: 3px 5px; }";
+
+export const CloseButtonOnOneLine: Story = {
+  args: { briefing: null, blocks: [BLOCK] },
+  decorators: [(Inner) => <><style>{HOST_MENU_BUTTON}</style><Inner /></>],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = await canvas.findByRole("button", { name: BRIEFING_COPY.close });
+    const box = button.getBoundingClientRect();
+    const line = parseFloat(getComputedStyle(button).lineHeight) || parseFloat(getComputedStyle(button).fontSize) * 1.5;
+    await expect(box.height).toBeLessThan(line * 2);
+    await expect(box.width).toBeGreaterThan(box.height);
+  },
+};
