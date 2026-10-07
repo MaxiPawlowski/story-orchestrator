@@ -31,6 +31,7 @@ import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { dumpEngineHistory } from './lib/engineHistoryDump.mts';
+import { currentPageCapture } from './lib/pageCapture.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -537,6 +538,7 @@ function renderChecklist(results) {
 export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
   await assertRuntimeOnPage(page);
+  const pageMark = currentPageCapture()?.mark() ?? null;
   // A human check is scored in a file, not by the runner. Without --require-human-record the
   // count is still printed, so an acceptance run cannot read as complete with rubric rows open.
   const scoredHumanIds = humanRecordFile
@@ -663,6 +665,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     results,
     engineHistory: engineHistoryOfCleanup(setupApplied.cleanup),
     cleanup: setupApplied.cleanup ?? null,
+    page: pageMark === null ? null : currentPageCapture()?.summary(pageMark) ?? null,
   };
   await mkdir(DEBUG_DIR, { recursive: true });
   await writeFile(resolve(DEBUG_DIR, `journey-${journey.id}.md`), `${renderMatrix(journey, results)}${renderChecklist(results)}`, 'utf-8');
@@ -726,7 +729,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         wiGating: parseWiGating(argValue(args, '--wi-gating')),
       });
       return { ok };
-    });
+    }, { pageCapture: 'journey' });
   } else {
     console.log(USAGE);
     process.exit(1);

@@ -85,7 +85,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   if (command === 'follow') {
     const out = argValue(args, '--out');
     if (!out) { refuse(['needs --out <calls.jsonl> (private evidence: keep it with the session)']); process.exit(2); }
-    runCli((page) => follow(page, out, Number(argValue(args, '--interval-ms', '5000'))), { keepOpen: true });
+    runCli((page) => follow(page, out, Number(argValue(args, '--interval-ms', '5000'))), { keepOpen: true, pageCapture: 'b1-follow' });
   } else {
     const row = argValue(args, '--row') as 'B1-C3' | 'B1-C12';
     const calls = argValue(args, '--calls');

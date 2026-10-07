@@ -1,6 +1,7 @@
 import type { Page } from 'playwright';
-import { connectToST, type ConnectOptions, type ConnectResult } from './connection.mts';
+import { connectToST, DEBUG_DIR, type ConnectOptions, type ConnectResult } from './connection.mts';
 import { ensureSTReady } from './st-ready.mts';
+import { attachPageCapture, captureFileFor, captureWanted, pageErrorLines, setCurrentPageCapture, writeSummaryNextTo, type PageCapture } from './pageCapture.mts';
 
 export function hasHelpFlag(args: string[] = process.argv.slice(2)): boolean {
   return args.includes('--help') || args.includes('-h');
@@ -44,12 +45,18 @@ export interface CliResult {
 // Each script keeps its own --help/usage and argument validation before calling this.
 export async function runCli(
   main: (page: Page, conn: ConnectResult) => Promise<CliResult | void>,
-  { keepOpen = false }: { keepOpen?: boolean } = {},
+  { keepOpen = false, pageCapture }: { keepOpen?: boolean; pageCapture?: string | false } = {},
 ): Promise<void> {
   let browser;
+  let capture: PageCapture | null = null;
   try {
     const conn = await connectToST(commonConnectOptions());
     browser = conn.browser;
+    const label = keepOpen && typeof pageCapture !== 'string' ? null : captureWanted(process.env, pageCapture);
+    if (label) {
+      capture = attachPageCapture(conn.page, { file: captureFileFor(process.env, DEBUG_DIR, label), label });
+      setCurrentPageCapture(capture);
+    }
     await ensureSTReady(conn.page);
     const result = await main(conn.page, conn);
     if (result && result.ok === false) process.exitCode = 1;
@@ -57,6 +64,12 @@ export async function runCli(
     console.error('Error:', err instanceof Error ? err.message : String(err));
     process.exitCode = 1;
   } finally {
+    if (capture && !keepOpen) {
+      for (const line of pageErrorLines(capture.summary())) console.log(line);
+      try { writeSummaryNextTo(capture); } catch {}
+      capture.stop();
+      setCurrentPageCapture(null);
+    }
     if (browser && !keepOpen) await browser.close().catch(() => {});
     if (!keepOpen) process.exit(process.exitCode || 0);
   }
