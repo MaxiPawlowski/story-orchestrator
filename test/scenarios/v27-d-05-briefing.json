@@ -1,0 +1,208 @@
+{
+  "name": "v27-d-05-briefing",
+  "objective": "v2.7 05 live (D) row, no model, scripted messages only. With display.briefing on (the runner switches it off for every run and restores it): importing a briefed story into a group chat opens dialog#so-briefing once; after Set out it stays closed across a reload, a swipe and an edit of the reply (once per chat, extras.briefing.seen); Restart shows it again; /story intro and the drawer's Story briefing button (#so-story-briefing) re-open it; with display.briefing off a Restart does not show it. The C8 'how it works' section marks help.onboardingSeen, which cleanup puts back. Not here: Before you start in the modal (covered by v27-d-04 inline and the BriefingModal stories) and the opener payload capture (briefingActivation.test.ts payload invariance). Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-05-briefing.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "scripted messages only (/sendas); a model would only add reads the briefing does not depend on"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const help = SillyTavern.getContext().extensionSettings['story-orchestrator']?.settings?.help ?? {}; sessionStorage.setItem('v27d05', JSON.stringify({ onboardingSeen: help.onboardingSeen ?? null })); rt.setUiSettings({ briefing: true }); if (rt.getGlobalSettings().display.briefing !== true) throw new Error('display.briefing did not switch on'); return { briefing: true, onboardingSeenBefore: help.onboardingSeen ?? null };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d05",
+        "version": 1,
+        "title": "SO-V27D05 Briefing",
+        "description": "v2.7 05 live row: a story with an authored briefing.",
+        "briefing": {
+          "title": "The Long Road",
+          "start_label": "Set out",
+          "sections": [
+            {
+              "heading": "Where you are",
+              "text": "A wet road at the edge of town, and a friend who will not wait long."
+            },
+            {
+              "heading": "What you want",
+              "text": "Reach the coast before the autumn storms close the pass."
+            }
+          ]
+        },
+        "qualities": [
+          {
+            "key": "left_town",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party left town?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "edge",
+            "name": "The edge of town",
+            "objective": "Set out.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const dialog = await until(() => { const node = document.querySelector('dialog#so-briefing'); return node?.open ? node : null; }, 10000, \"the briefing to open on the story's first activation in this chat\"); const title = dialog.querySelector('#so-briefing-title')?.textContent?.trim() ?? null; if (title !== 'The Long Road') throw new Error(`the briefing shows another title: ${title}`); return { open: true, title };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "briefing-dismiss"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (document.querySelector('dialog#so-briefing')?.open) throw new Error('Set out did not close the briefing'); if (rt.getSnapshot().briefing?.pending) throw new Error('the briefing is still pending after it was closed'); return { pending: rt.getSnapshot().briefing?.pending ?? null };",
+      "log": true
+    },
+    {
+      "send": "I shoulder my pack and look down the road."
+    },
+    {
+      "slash": "/sendas name=Arin The road waits, and so do I."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); await sleep(3000); if (document.querySelector('dialog#so-briefing')?.open) throw new Error(\"reopening the chat showed the briefing again\"); return { open: false };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const reply = ctx.chat[ctx.chat.length - 1]; if (!reply || reply.is_user) throw new Error('the newest message is not the reply'); reply.swipes = [reply.mes, 'The road is long, and I am already wet.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipes: 2 };",
+      "log": true
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); await sleep(2000); if (document.querySelector('dialog#so-briefing')?.open) throw new Error(\"a swipe showed the briefing again\"); return { open: false };",
+      "log": true
+    },
+    {
+      "edit": {
+        "messageId": "last",
+        "text": "The road is long, and the rain has not stopped."
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); await sleep(2000); if (document.querySelector('dialog#so-briefing')?.open) throw new Error(\"an edit showed the briefing again\"); return { open: false };",
+      "log": true
+    },
+    {
+      "restart_story": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const dialog = await until(() => { const node = document.querySelector('dialog#so-briefing'); return node?.open ? node : null; }, 10000, \"Restart to show the briefing again\"); const title = dialog.querySelector('#so-briefing-title')?.textContent?.trim() ?? null; if (title !== 'The Long Road') throw new Error(`the briefing shows another title: ${title}`); return { open: true, title };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "briefing-dismiss"
+      }
+    },
+    {
+      "slash": "/story intro"
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const dialog = await until(() => { const node = document.querySelector('dialog#so-briefing'); return node?.open ? node : null; }, 10000, \"/story intro to re-open the briefing\"); const title = dialog.querySelector('#so-briefing-title')?.textContent?.trim() ?? null; if (title !== 'The Long Road') throw new Error(`the briefing shows another title: ${title}`); return { open: true, title };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "briefing-dismiss"
+      }
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const button = await until(() => document.querySelector('#so-story-briefing'), 5000, 'the drawer Story briefing button (#so-story-briefing)'); button.click(); return { clicked: true };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const dialog = await until(() => { const node = document.querySelector('dialog#so-briefing'); return node?.open ? node : null; }, 10000, \"the drawer button to re-open the briefing\"); const title = dialog.querySelector('#so-briefing-title')?.textContent?.trim() ?? null; if (title !== 'The Long Road') throw new Error(`the briefing shows another title: ${title}`); return { open: true, title };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "briefing-dismiss"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ briefing: false }); if (rt.getGlobalSettings().display.briefing !== false) throw new Error('display.briefing did not switch off'); return { briefing: false };",
+      "log": true
+    },
+    {
+      "restart_story": true
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); await sleep(3000); if (document.querySelector('dialog#so-briefing')?.open) throw new Error(\"with display.briefing off a Restart still showed the briefing\"); return { open: false };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const ctx = SillyTavern.getContext(); const saved = JSON.parse(sessionStorage.getItem('v27d05') ?? 'null'); if (!saved) return { restored: false }; const help = ctx.extensionSettings['story-orchestrator']?.settings?.help; if (help) { if (saved.onboardingSeen === null) delete help.onboardingSeen; else help.onboardingSeen = saved.onboardingSeen; } ctx.saveSettingsDebounced(); await new Promise((r) => setTimeout(r, 1500)); sessionStorage.removeItem('v27d05'); return { restored: true, onboardingSeen: saved.onboardingSeen };",
+        "log": true
+      }
+    ]
+  }
+}

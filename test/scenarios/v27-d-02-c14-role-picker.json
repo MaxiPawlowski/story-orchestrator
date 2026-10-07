@@ -1,0 +1,35 @@
+{
+  "name": "v27-d-02-c14-role-picker",
+  "objective": "v2.7 02 C14 + 14 live (D) row, no model. The settings panel's role picker (#so-role-profile-read, under Advanced > Models per task) and the memory model picker (#so-extraction-profile) group the Connection Manager profiles by source with a cloud/local label: a Text Completion profile and a DeepSeek Chat Completion profile sit in different groups, DeepSeek in 'DeepSeek · cloud', no group mixes TC and CC, every listed profile appears exactly once, both pickers list the same profiles. A harness route group is recorded when the lane's plugin offers one. Opening the picker changes no route and makes no model call: the Connection Manager profiles, the selected profile and the extraction routing read back identical, and no /api/backends/*/generate request is sent. The batch's run-header diff (profiles) is the install-level half. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c14-role-picker.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "why": "the lane must list a Text Completion profile and a DeepSeek Chat Completion profile (adolion-fresh seeds both); no story and no model call are needed"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const cm = ctx.extensionSettings.connectionManager ?? {}; globalThis.__v27d14 = { profiles: JSON.stringify(cm.profiles ?? []), selected: cm.selectedProfile ?? null, extraction: JSON.stringify(rt.getGlobalSettings().extraction), calls: [], original: globalThis.fetch }; const original = globalThis.fetch; globalThis.fetch = async (input, init) => { const url = typeof input === 'string' ? input : input?.url ?? ''; if (/\\/api\\/backends\\/.*\\/generate/.test(url)) globalThis.__v27d14.calls.push(url); return original(input, init); }; return { profiles: (cm.profiles ?? []).map((profile) => ({ name: profile.name, mode: profile.mode, api: profile.api })) };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; await until(() => document.querySelector('#so-memory-advanced'), 10000, 'the Memory model group (#so-memory-advanced) to load'); for (const id of ['so-memory-advanced', 'so-role-profiles']) { const node = document.getElementById(id); if (node && node.tagName === 'DETAILS' && !node.open) { node.open = true; node.dispatchEvent(new Event('toggle')); } } await until(() => document.querySelector('#so-role-profile-read'), 5000, 'the read role picker (#so-role-profile-read)'); const profiles = SillyTavern.getContext().extensionSettings.connectionManager?.profiles ?? []; const byId = new Map(profiles.map((profile) => [profile.id, profile])); const groupsOf = (selector) => [...document.querySelectorAll(`${selector} optgroup`)].map((group) => ({ label: group.label, locality: group.getAttribute('data-locality'), profileGroup: group.getAttribute('data-so') === 'profile-group', ids: [...group.querySelectorAll('option')].map((option) => option.value) })); const role = groupsOf('#so-role-profile-read'); const memory = groupsOf('#so-extraction-profile'); const listed = role.filter((group) => group.profileGroup); const ids = listed.flatMap((group) => group.ids); if (new Set(ids).size !== ids.length) throw new Error(`a profile is listed twice: ${JSON.stringify(listed)}`); const unknown = ids.filter((id) => !byId.has(id)); if (unknown.length) throw new Error(`the picker lists ids the Connection Manager does not hold: ${unknown.join(', ')}`); const tc = profiles.find((profile) => profile.mode === 'tc' && ids.includes(profile.id)); const deepseek = profiles.find((profile) => profile.mode === 'cc' && profile.api === 'deepseek' && ids.includes(profile.id)); if (!tc) throw new Error('needs a Text Completion profile in the picker; none is listed'); if (!deepseek) throw new Error('needs a DeepSeek Chat Completion profile in the picker; none is listed'); const groupOf = (id) => listed.find((group) => group.ids.includes(id)); if (groupOf(tc.id) === groupOf(deepseek.id)) throw new Error('the TC profile and the DeepSeek CC profile share a group'); if (groupOf(deepseek.id).label !== 'DeepSeek · cloud' || groupOf(deepseek.id).locality !== 'cloud') throw new Error(`DeepSeek is grouped as ${JSON.stringify(groupOf(deepseek.id))}`); const mixed = listed.filter((group) => new Set(group.ids.map((id) => byId.get(id)?.mode)).size > 1); if (mixed.length) throw new Error(`a group mixes TC and CC profiles: ${JSON.stringify(mixed)}`); const unlabelled = listed.filter((group) => !/ · (local|cloud)$/.test(group.label) && group.label !== 'Connection profiles'); if (unlabelled.length) throw new Error(`a group carries no cloud/local label: ${JSON.stringify(unlabelled)}`); const memoryIds = memory.filter((group) => group.profileGroup).flatMap((group) => group.ids).sort(); if (JSON.stringify(memoryIds) !== JSON.stringify([...ids].sort())) throw new Error(`the memory model picker lists other profiles: ${JSON.stringify(memoryIds)} vs ${JSON.stringify(ids)}`); const harness = role.find((group) => !group.profileGroup && /harness/i.test(group.label)); return { groups: listed.map((group) => `${group.label} (${group.ids.length})`), tc: groupOf(tc.id).label, deepseek: groupOf(deepseek.id).label, harness: harness ? `${harness.label} (${harness.ids.length})` : 'not offered on this lane' };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const cm = ctx.extensionSettings.connectionManager ?? {}; const before = globalThis.__v27d14; globalThis.fetch = before.original; if (JSON.stringify(cm.profiles ?? []) !== before.profiles) throw new Error('the Connection Manager profiles changed during the walk'); if ((cm.selectedProfile ?? null) !== before.selected) throw new Error(`the selected profile changed: ${before.selected} -> ${cm.selectedProfile}`); if (JSON.stringify(rt.getGlobalSettings().extraction) !== before.extraction) throw new Error('the extraction routing changed during the walk'); if (before.calls.length) throw new Error(`the picker walk sent ${before.calls.length} model request(s): ${before.calls.join(', ')}`); return { routesUnchanged: true, modelCalls: 0 };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "if (globalThis.__v27d14?.original) globalThis.fetch = globalThis.__v27d14.original; return { fetchRestored: Boolean(globalThis.__v27d14?.original) };"
+      }
+    ]
+  }
+}

@@ -41,6 +41,28 @@ the v2.7-plan rows of `v2.8/24-test-plan.md`. 16's per-plan table stays the dete
 C5 order follows dependencies: 33 W2 (agency → auto) before any warden row; 35 SP6 measurement before 35's build
 rows and 36's complication use; 34 persona before 36/37 rows that read it.
 
+## C2 rows: tier-D scenarios for plans 01–10 (2026-10-07)
+
+Written for C2 (`16-test-plan.md` §Per plan live (D) column), **written, not run** (no ST lane in the writing
+session). Each declares `requires {lane: "no-model", group: "Group: Arin, DM Narrator" (the sun-ruins toy group, by
+name), members, judge: "off"}` and mocks every model call; run each `node scripts/debug/so-scenario.mts run <file>
+--sandbox --group "Group: Arin, DM Narrator"` ×2 on a no-model lane. Validated: `validateFixture` + eval compile +
+`globalsReadButNeverWritten` (no vocabulary added).
+
+| Row | File (`test/scenarios/`) | State | Not expressed (owner) |
+|---|---|---|---|
+| 01 in-app walk | `v27-d-01-in-app-walk.json` | written, not run | only the memory model is cleared, not every setting (journey `clearGlobalConfig`) |
+| 02 C2-K1 | `v27-d-02-c2-k1.json` | written, not run | Help panel text not compared; both copiers on together, not one at a time (jest `secretLeak.test.ts`) |
+| 02 C11-F1a | `v27-d-02-c11-f1a.json` | written, not run | the typed reading is seeded in `typedRead.ts`'s shape (no judge on a no-model lane) |
+| 02 C13 | `v27-d-02-c13-curator-tiers.json` | written, not run | payload invariance of the curator prompt (jest pin `curatorTiers.review.test.ts`) |
+| 02 C14 + 14 | `v27-d-02-c14-role-picker.json` | written, not run | harness group only recorded, not required; run-header `profiles` diff is the batch's |
+| 04 health center | `v27-d-04-health-center.json` | written, not run | one-click fixes (they would edit the shared toy group; castRepair jest, `v27-03-no-group-solo-blob.json`); no `info` check fires on a no-model lane, so "info off the HUD count" is checked only as count = blocks/degrades rows |
+| 05 briefing | `v27-d-05-briefing.json` | written, not run | Before you start in the modal, opener payload capture (`briefingActivation.test.ts`) |
+| 06 presence | `v27-d-06-presence.json` | written, not run | paging a 10-per-page list, library delete keeps a pinned row (F14 jest), payload invariance on/off |
+| 08 thinking | `v27-d-08-thinking-warning.json` | written, not run | — |
+| 09 commitment | `v27-d-09-commit-hold.json` | written, not run | — |
+| 10 catch-up | `v27-d-10-edit-catch-up.json` | written, not run | holds the read lane with a scheduler job through the manager's private `scheduler` field (no hold hook exists) |
+
 ## RunPod budget (estimate, to be approved)
 
 | Block | Lane-hours (est.) |

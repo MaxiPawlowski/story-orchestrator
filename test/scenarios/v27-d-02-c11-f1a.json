@@ -1,0 +1,118 @@
+{
+  "name": "v27-d-02-c11-f1a",
+  "objective": "v2.7 02 C11-F1a live (D) row, no model. A held judge-typed commitment reading whose source message is longer than the 160-character typed-evidence cut: the reading is seeded in the exact shape runtime/typedRead.ts hands the commit guard (evidence = the first 160 characters, judge confidence, messageId, sourceChars) through applyExtractionAudit, and the player's line does not commit, so the guard holds it. The session journal (the so-journal show read, via getSessionJournal) carries a held row whose note says 'evidence cut to the first 160 of <n> characters of message 1'. Control: the same hold from an LLM-read delta with a short quote names no cut. The note is author detail: player mode never shows it. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c11-f1a.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Ponticius"
+    ],
+    "judge": "off",
+    "why": "the typed reading is seeded in typedRead's shape because a no-model lane has no judge; the subject is the journal note of a held cut reading (heldJournal.ts), not the judge's verdict"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so the message ids below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v27d-f1a",
+        "version": 1,
+        "title": "SO-V27D F1a Cut Evidence",
+        "description": "v2.7 live (D) fixture: a commitment quality the player has to say in their own words.",
+        "qualities": [
+          {
+            "key": "took_job",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the player accepted the guild's job?",
+            "commit_evidence": "\\b(?:take|takes|took|taken|accept|accepts|accepted)\\b"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "offer",
+            "name": "The offer",
+            "objective": "Hear the guild's offer.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "job",
+            "name": "On the job",
+            "objective": "Do the job.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "offer",
+            "to": "job",
+            "priority": 1,
+            "gate": {
+              "q": "took_job",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "ponticius",
+            "name": "Ponticius"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (!rt.getSnapshot().ready) throw new Error(`the story did not load: ${rt.getSnapshot().status}`); if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); return { cadence: 0, storyId: rt.getSnapshot().storyId };"
+    },
+    {
+      "send": "We should hear the terms before anything else."
+    },
+    {
+      "slash": "/sendas name=Ponticius The guild master spreads the contract across the table and taps each clause in turn. The pay is good, he says, half now and half when the caravan reaches the coast, and the guild covers the horses and the tolls. There are bandits on the old road and the rains have washed out the ford, so the job is not a safe one. If you take it, you leave at dawn, and the guild expects you to sign before the bell."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (ctx.chat.length !== 2 || !ctx.chat[0].is_user || ctx.chat[1].is_user) throw new Error(`expected [player line, Ponticius reply], got ${JSON.stringify(ctx.chat.map((m) => [m.name, m.is_user]))}`); const long = String(ctx.chat[1].mes); if (long.length <= 160) throw new Error(`the source reply is not longer than the 160-character cut: ${long.length}`); const audit = { id: 'v27d-f1a-typed', createdAt: new Date().toISOString(), priority: 0, reason: 'judge:typed', contractHash: 'h', scope: [], window: { from: 0, to: 1 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [{ delta: { q: 'took_job', v: true, source: 'extractor' }, evidence: long.slice(0, 160), judge: 0.91, messageId: 1, sourceChars: long.length }], rejected: [] }; await rt.applyExtractionAudit(audit, [], [], [], [], []); const want = `evidence cut to the first 160 of ${long.length} characters of message 1`; const held = await until(() => rt.getSessionJournal().find((event) => JSON.stringify(event).includes(want)), 5000, `a journal row naming \"${want}\"`); if (!JSON.stringify(held).includes('took_job')) throw new Error(`the cut row does not name the held quality: ${JSON.stringify(held)}`); await rt.commitBoundary(); if (rt.getEngineState().blackboard.values.took_job === true) throw new Error('the held reading was committed anyway'); return { held: held.summary, sourceChars: long.length };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; const audit = { id: 'v27d-f1a-llm', createdAt: new Date().toISOString(), priority: 0, reason: 'scenario', contractHash: 'h', scope: [], window: { from: 0, to: 1 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [{ delta: { q: 'took_job', v: true, source: 'extractor' }, evidence: 'We should hear the terms' }], rejected: [] }; await rt.applyExtractionAudit(audit, [], [], [], [], []); const rows = await until(() => { const value = rt.getSessionJournal().filter((event) => JSON.stringify(event).includes('commitment reading')); return value.length >= 2 ? value : null; }, 5000, 'the control hold beside the cut one in the journal'); const cut = rows.filter((event) => JSON.stringify(event).includes('evidence cut')); if (cut.length !== 1) throw new Error(`expected exactly the typed hold to name a cut, ${cut.length} of ${rows.length} held rows do: ${JSON.stringify(rows)}`); return { held: rows.length, cut: cut.length };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "eval": "const text = document.querySelector('#drawer-manager')?.textContent ?? ''; if (/evidence cut|took_job/.test(text)) throw new Error('player mode shows the held row\\'s author detail'); return { playerClean: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": true
+    }
+  ]
+}
