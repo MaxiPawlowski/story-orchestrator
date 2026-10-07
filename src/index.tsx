@@ -37,12 +37,12 @@ import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import { HelpButton } from "./components/help/HelpButton";
 import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
-import "./styles.css";
 import { log } from "@utils/log";
 
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
+await import("./styles.css" as string).catch((error) => log.warn("the extension stylesheet did not load", error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
