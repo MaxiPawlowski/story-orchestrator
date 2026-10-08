@@ -49,3 +49,26 @@ export const SwitchedOff: Story = {
     await expect(canvasElement.querySelector("#so-briefing")).toBeNull();
   },
 };
+
+const blocking = (boundary: number) => ({
+  ...snapshotWith(true, false), boundary,
+  requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
+  extraction: { settings: { enabled: true, profileId: null } },
+}) as unknown as RuntimeSnapshot;
+
+export const BlockBeforeFirstReplyOpensAndCloses: Story = {
+  args: { snapshot: blocking(0) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole("dialog", { name: BRIEFING_COPY.beforeYouStart });
+    await userEvent.click(canvas.getByRole("button", { name: BRIEFING_COPY.close }));
+    await expect(canvasElement.querySelector("#so-briefing")).toBeNull();
+  },
+};
+
+export const BlockMidSessionStaysClosed: Story = {
+  args: { snapshot: blocking(23) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-briefing")).toBeNull();
+  },
+};

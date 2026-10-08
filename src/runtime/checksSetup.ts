@@ -2,8 +2,8 @@ import type { PassRole } from "@extraction/passRole";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
-import { ROLE_PROBLEM_STATES } from "./roleHealth";
-import { mutedMembersText, REPAIR_PLAYER_COPY } from "./pipeline";
+import { ROLE_OUTAGE_STATES, ROLE_PROBLEM_STATES } from "./roleHealth";
+import { mutedMembersText, REPAIR_PLAYER_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
 
@@ -145,7 +145,42 @@ export const MODEL_ROLE_CHECK = story("model-role", "model-role", "player", (sna
   return { consequence: ROLE_CONSEQUENCES[route.role], detail: route.detail, target: { kind: "setting", id: roleProfileTargetId(route.role) }, player: ROLE_PLAYER_COPY[route.role] ?? null };
 }, "models-per-task");
 
-export const MODEL_CHECKS: readonly Check[] = [MEMORY_MODEL_CHECK, MODEL_ROLE_CHECK];
+export const ROLE_OUTAGE_CONSEQUENCES: Record<PassRole, string> = {
+  read: "The story is not advancing on its own while this model is not answering. It is retried on its own, and the chat stays playable.",
+  synthesis: "Scene summaries and the story so far pause until this model answers again.",
+  authoring: "The wizard, the driver's suggestions and the prepared road ahead pause until this model answers again.",
+  director: "Speaker direction falls back to ST's own choice until this model answers again.",
+  curator: "The World Info curator pauses until this model answers again.",
+  inner: "Characters skip their private intent until this model answers again.",
+};
+
+const ROLE_OUTAGE_PLAYER_COPY: Partial<Record<PassRole, string>> = {
+  read: TRANSPORT_PLAYER_TEXT,
+  synthesis: "The story so far pauses until the model answers again.",
+};
+
+const STAND_IN_PLAYER_TEXT = "A model the story uses is not answering, so another one is standing in until it is back.";
+
+export const MODEL_ROLE_OUTAGE_CHECK: Check = {
+  id: "model-role-outage", area: "model-role", scope: "story", audience: "player", severity: "degrades", feature: "models-per-task",
+  detect: (snapshot) => {
+    const route = (snapshot.roleRoutes ?? []).find((entry) => ROLE_OUTAGE_STATES.has(entry.state));
+    if (!route) return null;
+    return route.fallback ? {
+      consequence: `${route.label} is not answering, so ${route.fallback} stands in until it answers again.`,
+      detail: route.detail,
+      target: { kind: "setting", id: roleProfileTargetId(route.role) },
+      player: route.role === "read" || route.role === "synthesis" ? STAND_IN_PLAYER_TEXT : null,
+    } : {
+      consequence: ROLE_OUTAGE_CONSEQUENCES[route.role],
+      detail: route.detail,
+      target: { kind: "setting", id: roleProfileTargetId(route.role) },
+      player: ROLE_OUTAGE_PLAYER_COPY[route.role] ?? null,
+    };
+  },
+};
+
+export const MODEL_CHECKS: readonly Check[] = [MEMORY_MODEL_CHECK, MODEL_ROLE_CHECK, MODEL_ROLE_OUTAGE_CHECK];
 
 export const REQUIREMENT_CHECKS: readonly Check[] = [
   story("cast-absent", "cast", "player", fromRequirements(castAbsent), "stories"),

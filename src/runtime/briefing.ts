@@ -46,5 +46,7 @@ export const briefingState = ({ story, storyId, record, enabled, chatOpen }: Bri
   return { storyId, view: composeBriefing(story), pending: chatOpen && record?.seen === false, enabled };
 };
 
+export const activationOpen = (boundary: number | null | undefined): boolean => !boundary;
+
 export const briefingDue = (state: BriefingState | null | undefined, blocks: number): boolean =>
   Boolean(state?.pending) && activationPanes({ blocks, briefing: Boolean(state?.enabled && state.view) }).length > 0;

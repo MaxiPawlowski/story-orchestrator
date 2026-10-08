@@ -17,7 +17,10 @@ const quiet = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => ({
 
 const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => quiet({
   extraction: { settings: { enabled: true, profileId: null } },
-  roleRoutes: [{ role: "director", label: "director", profileId: "d", state: "failed", detail: "boom", effort: "default" }],
+  roleRoutes: [
+    { role: "director", label: "director", profileId: "d", state: "failed", detail: "boom", effort: "default" },
+    { role: "read", label: "Story reads", profileId: "r", state: "not-answering", detail: "Story reads: the profile is not answering (402)", effort: "default", fallback: "Backup" },
+  ],
   noGroup: { notice: "Stories play in group chats.", storyId: "s", storyTitle: "The Ruins" },
   requirements: {
     ready: false,
@@ -53,7 +56,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
 const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
-  "transcript-copiers", "model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
+  "model-role-outage", "transcript-copiers", "model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
 ];
 
@@ -183,8 +186,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 18 });
-    expect(hudSetupText(counts)).toBe("fix setup (32)");
+    expect(counts).toEqual({ blocks: 14, degrades: 19 });
+    expect(hudSetupText(counts)).toBe("fix setup (33)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });

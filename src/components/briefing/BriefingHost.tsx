@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { BriefingView } from "@engine/index";
-import { briefingDue } from "@runtime/briefing";
+import { activationOpen, briefingDue } from "@runtime/briefing";
 import { onBriefingRequest } from "@runtime/briefingRequest";
 import { beforeYouStart } from "@runtime/repair";
 import type { UiSettingsPatch } from "@runtime/settingsControl";
@@ -32,6 +32,9 @@ export const duePaneEmpty = (snapshot: RuntimeSnapshot, canChoose: boolean): boo
   return !briefing && !identity && blockingLines(snapshot).length === 0;
 };
 
+export const paneDue = (snapshot: RuntimeSnapshot): boolean =>
+  activationOpen(snapshot.boundary) && (briefingDue(snapshot.briefing ?? null, blockingLines(snapshot).length) || identityDue(snapshot));
+
 export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen, chooseIdentity }: BriefingHostProps) => {
   const [opened, setOpened] = useState<Opened | null>(null);
   const latest = useRef(snapshot);
@@ -40,7 +43,8 @@ export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSe
   const state = snapshot.briefing ?? null;
   const setup = snapshot.playerSetup ?? null;
   const blocks = blockingLines(snapshot);
-  const due = briefingDue(state, blocks.length) || identityDue(snapshot);
+  const due = paneDue(snapshot);
+  const activation = activationOpen(snapshot.boundary);
   const storyId = state?.storyId ?? setup?.storyId ?? null;
 
   useEffect(() => onBriefingRequest((request) => {
@@ -63,20 +67,23 @@ export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSe
 
   const empty = duePaneEmpty(snapshot, Boolean(chooseIdentity));
   useEffect(() => {
-    if (opened?.kind === "due" && empty) setOpened(null);
-  }, [opened, empty]);
+    if (opened?.kind === "due" && (empty || !activation)) setOpened(null);
+  }, [opened, empty, activation]);
 
   if (!opened) return null;
   if (opened.kind === "preview") return <BriefingModal briefing={opened.view} chapter={opened.chapter} onClose={() => setOpened(null)} />;
 
   const close = ({ dontShow }: { dontShow: boolean }) => {
     dismissed.current = opened.storyId;
-    if (opened.onboarding) markOnboardingSeen();
-    const pending = latest.current.playerSetup;
-    if (pending?.pending && chooseIdentity) void chooseIdentity({ choice: pending.record?.lockFailed ? "retry" : "skip" });
-    if (opened.kind !== "identity" && state?.pending) setUi({ briefingSeen: true, ...(dontShow ? { briefing: false } : {}) });
-    else if (dontShow) setUi({ briefing: false });
-    setOpened(null);
+    try {
+      if (opened.onboarding) markOnboardingSeen();
+      const pending = latest.current.playerSetup;
+      if (pending?.pending && chooseIdentity) void chooseIdentity({ choice: pending.record?.lockFailed ? "retry" : "skip" });
+      if (opened.kind !== "identity" && state?.pending) setUi({ briefingSeen: true, ...(dontShow ? { briefing: false } : {}) });
+      else if (dontShow) setUi({ briefing: false });
+    } finally {
+      setOpened(null);
+    }
   };
   const showBriefing = opened.kind === "story" || (opened.kind === "due" && Boolean(state?.enabled));
   const showIdentity = Boolean(setup && chooseIdentity && (opened.kind === "identity" || (opened.kind === "due" && (setup.needsPane || Boolean(setup.record?.lockFailed)) && setup.record)));

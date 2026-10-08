@@ -10,7 +10,9 @@ import { isHarnessKey } from "@utils/harness";
 
 export type RoleRouteState = "fallback" | "untested" | "ok" | "missing" | "not-configured" | "not-answering" | "failed" | "reasoning-exhausted" | "not-logged-in" | "quota";
 
-export const ROLE_PROBLEM_STATES: ReadonlySet<RoleRouteState> = new Set(["missing", "not-configured", "not-answering", "failed", "reasoning-exhausted", "not-logged-in", "quota"]);
+export const ROLE_PROBLEM_STATES: ReadonlySet<RoleRouteState> = new Set(["missing", "not-configured", "failed", "reasoning-exhausted", "not-logged-in"]);
+
+export const ROLE_OUTAGE_STATES: ReadonlySet<RoleRouteState> = new Set(["not-answering", "quota"]);
 
 export interface RoleRouteView {
   role: PassRole;
@@ -20,6 +22,7 @@ export interface RoleRouteView {
   detail: string;
   effort: ReasoningEffort;
   reasoning?: ReasoningMeter;
+  fallback?: string;
 }
 
 export interface RoleRouteInput {
@@ -57,6 +60,8 @@ const routeOf = (input: RoleRouteInput, role: PassRole): RoleRouteView => {
   const [state, detail] = stateOf(input, role, label, route, effort);
   const call = input.calls?.[role];
   const view: RoleRouteView = { role, label, profileId, state, detail, effort };
+  const health = profileId && route.source === "role" && ROLE_OUTAGE_STATES.has(state) ? input.health(profileId) : null;
+  if (health?.kind === "transport" && health.fallback) view.fallback = health.fallback;
   if (call?.outcome === "answered" && call.meter && call.profileId === profileId && call.effort === effort) view.reasoning = call.meter;
   return view;
 };
