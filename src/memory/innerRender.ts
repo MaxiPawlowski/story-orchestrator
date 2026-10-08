@@ -1,4 +1,8 @@
-import { activeEpistemic, attributedEpistemicLine, BEAT_RING_CAP, joinBlocks, type CastVoice } from "./index";
+import { castCardName } from "@engine/castNames";
+import { nameMatcher } from "@talk/aliases";
+import {
+  activeEpistemic, attributedEpistemicLine, BEAT_RING_CAP, estimateTokens, joinBlocks, NARRATOR_HOLDINGS_TOKEN_BUDGET, NARRATOR_HOLDINGS_WINDOW, type CastVoice,
+} from "./index";
 import type { EpistemicEntry, EpistemicTag, InnerBeat, ParsedEpistemicSignal } from "./types";
 
 export const NARRATOR_SUBJECT_CAP = 6;
@@ -99,12 +103,71 @@ const renderSelfVoiced = (voices: CastVoice[], self: string): string => {
   return names.length ? `${NARRATOR_SELF_VOICED} ${names.join(", ")}.\n${NARRATOR_NAMED_FIRST}` : "";
 };
 
-export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string): string =>
-  joinBlocks(renderSelfVoiced(voices, self), renderNarratorHoldings(entries, voices, self));
+export interface NarratorScope {
+  onStage: ReadonlySet<string>;
+  cast: ReadonlySet<string>;
+  lastNamed: ReadonlyMap<string, number>;
+  budget: number;
+}
 
-const renderNarratorHoldings = (entries: EpistemicEntry[], voices: CastVoice[], self: string): string => {
+interface ScopeStory {
+  roster: ReadonlyArray<{ id: string; name?: string; aliases?: string[] }>;
+  checkpointById: Record<string, { motives?: Record<string, string>; talk_control?: { speakers?: Array<{ member: string }>; lead?: string } } | undefined>;
+}
+
+type ScopeRow = { name?: unknown; mes?: unknown; is_system?: boolean } | null | undefined;
+
+export const checkpointCast = (story: ScopeStory, checkpointId: string | null, enabledIds: readonly string[]): string[] => {
+  const checkpoint = checkpointId ? story.checkpointById[checkpointId] : undefined;
+  const talk = checkpoint?.talk_control;
+  const refs = [...Object.keys(checkpoint?.motives ?? {}), ...(talk?.speakers ?? []).map((speaker) => speaker.member), ...(talk?.lead ? [talk.lead] : [])];
+  const resolved = refs.map((ref) => story.roster.find((member) => norm(member.id) === norm(ref) || norm(castCardName(member)) === norm(ref))?.id);
+  return [...new Set([...enabledIds, ...resolved.filter((id): id is string => Boolean(id))])];
+};
+
+export const narratorScope = (
+  story: ScopeStory, checkpointId: string | null, enabledIds: readonly string[], rows: unknown[],
+  window: number = NARRATOR_HOLDINGS_WINDOW, budget: number = NARRATOR_HOLDINGS_TOKEN_BUDGET,
+): NarratorScope => {
+  const named = nameMatcher(story.roster.map((member) => ({
+    rosterId: member.id, name: castCardName(member), weight: 1, ...(member.aliases?.length ? { aliases: member.aliases } : {}),
+  })));
+  const recent = (rows as ScopeRow[]).filter((row) => row && !row.is_system).slice(-Math.max(1, window));
+  const lastNamed = new Map<string, number>();
+  recent.forEach((row, index) => {
+    const text = [row?.name, row?.mes].filter((part): part is string => typeof part === "string").join("\n");
+    for (const id of named(text)) lastNamed.set(id, index);
+  });
+  return { onStage: new Set(enabledIds), cast: new Set(checkpointCast(story, checkpointId, enabledIds)), lastNamed, budget };
+};
+
+export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string, scope?: NarratorScope): string =>
+  joinBlocks(renderSelfVoiced(voices, self), renderNarratorHoldings(entries, voices, self, scope));
+
+interface Holding {
+  id: string;
+  order: number;
+  lines: string[];
+}
+
+const scopedHoldings = (holdings: Holding[], scope: NarratorScope): Holding[] => {
+  const recency = (holding: Holding) => scope.lastNamed.get(holding.id) ?? -1;
+  const inScope = holdings.filter((holding) => scope.cast.has(holding.id) || scope.lastNamed.has(holding.id))
+    .sort((a, b) => recency(b) - recency(a) || a.order - b.order);
+  const cost = (holding: Holding) => estimateTokens(holding.lines.join("\n"));
+  const admitted = new Set(inScope.filter((holding) => scope.onStage.has(holding.id)));
+  let used = 0;
+  for (const holding of inScope) {
+    if (admitted.has(holding) || used + cost(holding) > scope.budget) continue;
+    admitted.add(holding);
+    used += cost(holding);
+  }
+  return inScope.filter((holding) => admitted.has(holding));
+};
+
+const renderNarratorHoldings = (entries: EpistemicEntry[], voices: CastVoice[], self: string, scope?: NarratorScope): string => {
   const active = activeEpistemic(entries);
-  const lines = voices.filter((voice) => voice.id !== self).flatMap((voice) => {
+  const holdings = voices.filter((voice) => voice.id !== self).map((voice, order): Holding => {
     const subject = new Set([norm(voice.name), norm(voice.id)]);
     const rows = NARRATOR_TAGS.flatMap((tag) => active.filter((entry) => entry.tag === tag && subject.has(norm(entry.subject))))
       .map((entry) => attributedEpistemicLine(voice.name, entry));
@@ -113,8 +176,9 @@ const renderNarratorHoldings = (entries: EpistemicEntry[], voices: CastVoice[], 
       voice.motive ? `- ${voice.name}, right now: ${voice.motive}` : "",
       voice.beat ? `- ${voice.name} is about to: ${voice.beat}` : "",
     ].filter(Boolean);
-    return [...aims, ...rows].slice(0, NARRATOR_SUBJECT_CAP);
-  });
+    return { id: voice.id, order, lines: [...aims, ...rows].slice(0, NARRATOR_SUBJECT_CAP) };
+  }).filter((holding) => holding.lines.length);
+  const lines = (scope ? scopedHoldings(holdings, scope) : holdings).flatMap((holding) => holding.lines);
   return lines.length ? [NARRATOR_HEADER, ...lines].join("\n") : "";
 };
 
@@ -163,10 +227,10 @@ export const pushBeat = (beats: InnerBeat[] | undefined, beat: InnerBeat): Inner
   [...(beats ?? []).filter((entry) => !(entry.memberId === beat.memberId && entry.chatId === beat.chatId && entry.basedOnMessageId === beat.basedOnMessageId)), beat]
     .slice(-BEAT_RING_CAP);
 
-export const memberAimsBlock = (voices: CastVoice[], id: string, beat: string, known: EpistemicEntry[], privateBlock: string): string => {
+export const memberAimsBlock = (voices: CastVoice[], id: string, beat: string, known: EpistemicEntry[], privateBlock: string, scope?: NarratorScope): string => {
   const voice = voices.find((candidate) => candidate.id === id);
   const own = renderOwnAims(voice && beat ? { ...voice, beat } : voice);
-  return joinBlocks(own, voice?.omniscient ? renderNarratorBlock(known, voices, id) : privateBlock);
+  return joinBlocks(own, voice?.omniscient ? renderNarratorBlock(known, voices, id, scope) : privateBlock);
 };
 
 export interface BeatPorts {

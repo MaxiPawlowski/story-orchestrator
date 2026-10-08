@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { parseStoryV2, type NormalizedStoryV2, type RosterMember } from "@engine/index";
 import { buildCandidates, parseDirectorResponse, renderDirectorPrompt, type TalkCandidate } from "./index";
+import { nameMatcher } from "./aliases";
 
 const candidate = (rosterId: string, name: string, aliases?: string[]): TalkCandidate => ({ rosterId, name, weight: 1, ...(aliases ? { aliases } : {}) });
 
@@ -136,5 +137,28 @@ const aliases = labAt("aliases.json") as { roster: Array<{ id: string; ship?: st
     expect(rows.length).toBe(174);
     expect(after.right).toBeGreaterThan(before.right);
     expect(after.wrong).toBeLessThanOrEqual(before.wrong);
+  });
+});
+
+describe("nameMatcher (v2.7 41 P3: who a message names)", () => {
+  const named = nameMatcher([
+    candidate("a", "Kael Varro", ["the Hound"]),
+    candidate("b", "Kael Mirn"),
+    candidate("c", "Lady Sela", ["Hound"]),
+    candidate("d", "Oren", ["the Fence"]),
+  ]);
+
+  it("names by full name or a distinct alias, case-insensitively, at word edges, possessive included", () => {
+    expect(named("kael varro’s knife")).toEqual(["a"]);
+    expect(named("Ask the FENCE.")).toEqual(["d"]);
+    expect(named("Orenburg is far.")).toEqual([]);
+  });
+
+  it("a given name counts only when one member owns it and it is written as a name; a shared alias or a title never counts", () => {
+    expect(named("Kael waits.")).toEqual([]);
+    expect(named("Sela waits.")).toEqual(["c"]);
+    expect(named("sela waits.")).toEqual([]);
+    expect(named("The Lady waits.")).toEqual([]);
+    expect(named("The hound barks.")).toEqual([]);
   });
 });

@@ -1,0 +1,278 @@
+{
+  "baseline": {
+    "dir": "../../../../so-lanes/p41/p3/golden-full-before",
+    "label": "full-before",
+    "servedBundleSha256": "30ef2b6c16f490fe438bf4b5a20d5ed8c278a94fc84870e5f9b6e88248bebc3b"
+  },
+  "candidate": {
+    "dir": "../../../../so-lanes/p41/p3/golden-full-after",
+    "label": "full-after",
+    "servedBundleSha256": "c280ef030156b0a1b73c23d311c2d28da1dff2e7d5464bebce4f2e9c6e10a64d"
+  },
+  "declared": "test/measurements/v2.7/41-p3/declared.json",
+  "ok": true,
+  "identical": false,
+  "problems": [],
+  "cases": [
+    {
+      "case": "group-away-notice",
+      "captures": [
+        {
+          "label": "unaddressed-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "shared-alias-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "docks-addressed-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "addressed-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "addressed-dm",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "ooc-after-address-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "unique-alias-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "unaddressed-after-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        }
+      ]
+    },
+    {
+      "case": "group-memory",
+      "captures": [
+        {
+          "label": "memory-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "memory-dm",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "memory-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        }
+      ]
+    },
+    {
+      "case": "group-narrator-holdings",
+      "captures": [
+        {
+          "label": "holdings-dm",
+          "identical": false,
+          "firstDiffByte": 2578,
+          "hunks": [
+            {
+              "baselineLine": 22,
+              "removed": [],
+              "added": [
+                "- Ilse Varn wants: find out who forged the passes",
+                "- Brannoc Hale wants: collect the bridge toll from everyone"
+              ],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            },
+            {
+              "baselineLine": 24,
+              "removed": [
+                "- Brannoc Hale wants: collect the bridge toll from everyone",
+                "- Ilse Varn wants: find out who forged the passes"
+              ],
+              "added": [],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            },
+            {
+              "baselineLine": 28,
+              "removed": [
+                "- Selka Dun wants: leave the town before winter"
+              ],
+              "added": [],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            },
+            {
+              "baselineLine": 50,
+              "removed": [],
+              "added": [
+                "- Ilse Varn wants: find out who forged the passes",
+                "- Brannoc Hale wants: collect the bridge toll from everyone"
+              ],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            },
+            {
+              "baselineLine": 52,
+              "removed": [
+                "- Brannoc Hale wants: collect the bridge toll from everyone",
+                "- Ilse Varn wants: find out who forged the passes"
+              ],
+              "added": [],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            },
+            {
+              "baselineLine": 56,
+              "removed": [
+                "- Selka Dun wants: leave the town before winter"
+              ],
+              "added": [],
+              "declared": true,
+              "declaredBy": [
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "label": "holdings-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        }
+      ]
+    },
+    {
+      "case": "group-opening",
+      "captures": [
+        {
+          "label": "opening-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "opening-dm",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "opening-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "turn-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "turn-dm",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "turn-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "turn-ponticius",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        }
+      ]
+    },
+    {
+      "case": "group-relationships",
+      "captures": [
+        {
+          "label": "off-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "off-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "on-market-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "on-market-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "on-market-dm",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "on-docks-rest",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        },
+        {
+          "label": "on-docks-arin",
+          "identical": true,
+          "firstDiffByte": null,
+          "hunks": []
+        }
+      ]
+    }
+  ],
+  "undeclared": [],
+  "stale": []
+}
