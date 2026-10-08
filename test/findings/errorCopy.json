@@ -30,6 +30,8 @@
       "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "Our validator's message for a refused game tool call, shown to the agent and in the author's transcript." },
     { "site": "src/studio/components/GameFields.tsx#commit", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Unparseable JSON keeps the last good value and shows the json-problem line under the field." },
+    { "site": "src/services/stHost/voiceStart.ts#startVoice", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A chained voice that ST could not start becomes a typed refusal; the controller logs it and ends the chain, ST's own generation path already toasted any server error." },
     { "site": "src/services/stHost/stImage.ts#stImageReadiness", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Failed readiness probe returns a plain setup explanation and suppresses automation." },
     { "site": "src/sprites/faceFrames.ts#decodeFrames", "kind": 3, "template": "catch {} #1",

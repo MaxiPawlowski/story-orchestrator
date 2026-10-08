@@ -9,6 +9,7 @@ import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "
 import type { TalkDecisionAudit } from "./types";
 import { WITHHOLDING_TYPES } from "./generationLifecycle";
 import { log } from "@utils/log";
+import type { WriteResult } from "@utils/writeResult";
 
 export const DIRECTOR_TIMEOUT_MS = 20000;
 export const DIRECTOR_MAX_TOKENS = 96;
@@ -71,7 +72,7 @@ export interface TalkControlHost {
   breakerOpen?(): boolean;
   judgeDirector?(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
   getPlayerName?(): string;
-  triggerMember(name: string): Promise<void>;
+  triggerMember(name: string): Promise<WriteResult | void>;
   recordDecision(audit: TalkDecisionAudit): void;
   random?(): (() => number) | null;
   /** Install-wide chain defaults, read at each turn. */
@@ -155,13 +156,29 @@ export class TalkController {
     return work.finally(() => { this.inFlight -= 1; });
   }
 
-  private trigger(name: string): void {
-    void this.track(this.host.triggerMember(name)).catch((error) => log.warn("speaker direction: the chosen voice could not be triggered", error));
+  private trigger(name: string, chain: ChainState | null = null): void {
+    const started = this.host.triggerMember(name).then((result) => {
+      if (!result || result.ok) return;
+      log.info(`speaker direction: ${name} was not started: ${result.reason}`);
+      if (chain && this.chain === chain) this.endChain();
+    });
+    void this.track(started).catch((error) => log.warn("speaker direction: the chosen voice could not be triggered", error));
   }
 
-  onGenerationStarted(params: Record<string, unknown> | undefined) {
+  onGenerationStarted(params: Record<string, unknown> | undefined, type: string | null = null) {
     this.forcedChid = params && typeof params.force_chid === "number" ? params.force_chid : null;
     if (this.forcedChid !== null && this.pass) this.pass.forced = true;
+    if (type === LOUD_INTERCEPT_TYPE && this.forcedChid === null && !this.pass) this.yieldToPlayer();
+  }
+
+  onPlayerMessage() {
+    this.yieldToPlayer();
+  }
+
+  private yieldToPlayer() {
+    if (!this.chain) return;
+    this.chain.aborted = true;
+    this.endChain();
   }
 
   onGenerationEnded() {
@@ -256,12 +273,13 @@ export class TalkController {
     const next = config.mode === "scripted"
       ? this.scriptedSpeaker(config, chain.spokeCount)
       : await this.decideChainSpeaker(control, config, chain);
+    if (this.chain !== chain || chain.aborted) return;
     if (!next || !run.stillOwns() || this.sceneMoves(chain, config)) { this.endChain(); return; }
     if (!chain.hold && config.holdExtraction) {
       chain.hold = true;
       this.host.setExtractionHold?.(true);
     }
-    this.trigger(next);
+    this.trigger(next, chain);
   }
 
   private sceneMoves(chain: ChainState, config: TalkChainConfig): boolean {
@@ -302,7 +320,7 @@ export class TalkController {
     const startedAt = Date.now();
     const decision = await this.runJudge(control, pool, window, handBack)
       ?? (directorEnabled(control) ? await this.runDirector(control, pool, window, handBack) : null);
-    if (!run.stillOwns() || !decision || decision.kind === "pass") return null;
+    if (!run.stillOwns() || this.chain !== chain || chain.aborted || !decision || decision.kind === "pass") return null;
     if (decision.kind !== "member") {
       this.host.recordDecision({
         at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: null, chosenName: null,

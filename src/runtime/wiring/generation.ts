@@ -38,7 +38,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     runtimeManager.onGenerationStarted(intent.type);
     awayNotice.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
-    live.talk?.onGenerationStarted(intent.params);
+    live.talk?.onGenerationStarted(intent.params, intent.type);
   },
   nested: (intent: IntentOf<"nested">) => {
     if (intent.withholds) {
@@ -46,7 +46,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
       return;
     }
     runtimeManager.capturePayload();
-    live.talk?.onGenerationStarted(intent.params);
+    live.talk?.onGenerationStarted(intent.params, intent.type);
   },
   reapply: (intent: IntentOf<"reapply">) => {
     runtimeManager.clearPrivateInjection();
@@ -119,7 +119,7 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
       },
     },
     { eventName: "GENERATION_STARTED", handler: onStarted },
-    { eventName: "MESSAGE_SENT", handler: () => lore.onMessageSent() },
+    { eventName: "MESSAGE_SENT", handler: () => { live.talk?.onPlayerMessage(); return lore.onMessageSent(); } },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.loudGate.release(); live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },

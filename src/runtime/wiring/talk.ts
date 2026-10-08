@@ -1,10 +1,9 @@
 import { askText } from "@extraction/index";
-import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName } from "@services/STAPI";
+import { getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, startGroupVoice } from "@services/STAPI";
 import { log } from "@utils/log";
 import { gatedInterceptor } from "../loudGenerationGate";
 import { CHAT_SETTLE_TIMEOUT_MS, chatSettle } from "../chatSettle";
 import { spikeSeams } from "../spikeSeams";
-import { quoteSlashArg } from "@utils/string";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
@@ -32,7 +31,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
     .some((reply) => reply.trigger === "onEnter" && reply.enabled !== false && reply.new_chat_only !== true),
   callDirector: (prompt, signal) => askText(runtimeManager.model, prompt, { role: "director", pass: "director", maxTokens: DIRECTOR_MAX_TOKENS, signal }),
   breakerOpen: () => live.scheduler?.breakerOpen(routedProfileId("director")) ?? false,
-  triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
+  triggerMember: startGroupVoice,
   recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,

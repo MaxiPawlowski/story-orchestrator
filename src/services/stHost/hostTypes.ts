@@ -157,6 +157,10 @@ export interface HostStreamingProcessor {
 export interface ScriptHostModule {
   setGenerationParamsFromPreset: (preset: Record<string, unknown>) => void;
   isGenerating: () => boolean;
+  // script.js:4290 (`Generate(type, { force_chid })`) and :7164 (`setSendButtonState` writes `is_send_press`,
+  // the only flag `sendTextareaMessage` checks at :1739).
+  Generate: (type: string, params?: { force_chid?: number }) => Promise<unknown>;
+  setSendButtonState: (value: boolean) => void;
   stopGeneration: () => boolean;
   streamingProcessor: HostStreamingProcessor | null;
   chat: unknown[];
@@ -225,6 +229,8 @@ export interface RossModsHostModule {
 export interface GroupChatsHostModule {
   editGroup: (id: string, immediately: boolean, reload?: boolean) => Promise<void>;
   openGroupById: (groupId: string) => Promise<boolean>;
+  // group-chats.js:353, the fuzzy member lookup `/trigger` uses (slash-commands.js:5005).
+  findGroupMemberId?: (name: string) => number | undefined;
   [key: string]: unknown;
 }
 

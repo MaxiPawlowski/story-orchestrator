@@ -1,7 +1,8 @@
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
-import { scriptModule } from "./modules";
+import { groupChatsModule, scriptModule } from "./modules";
+import { startVoice } from "./voiceStart";
 import { guardStreamToChat, watchChatMove, type GuardedStream, type StreamGuard } from "./streamGuard";
 
 export function isHostGenerating(): boolean {
@@ -52,6 +53,15 @@ const inputBox = (): HTMLTextAreaElement | null => {
 };
 
 export const readChatInput = (): string | null => inputBox()?.value ?? null;
+
+export const startGroupVoice = (name: string): Promise<WriteResult> => startVoice({
+  generating: () => Boolean(scriptModule.isGenerating()),
+  draft: readChatInput,
+  memberId: (member) => groupChatsModule.findGroupMemberId?.(member),
+  lockSend: (locked) => scriptModule.setSendButtonState(locked),
+  onWrapperStarted: (listener) => subscribeToHostEvent("GROUP_WRAPPER_STARTED", listener),
+  generate: (chid) => scriptModule.Generate("normal", { force_chid: chid }),
+}, name);
 
 export function fillChatInput(text: string, expected: string): WriteResult {
   const box = inputBox();
