@@ -7,7 +7,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
-import { judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { firewalledServerEnv, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
@@ -162,6 +162,7 @@ async function swipesOnInLane(user: string) {
 const offlineRequested = () => process.env[OFFLINE_ENV] === '1';
 const OFFLINE_MARKER = 'offline-lane.json';
 const OFFLINE_SERVER_ENV = { SILLYTAVERN_ENABLESERVERPLUGINS: 'false' };
+const FIREWALL_PRELOAD = resolve(PROJECT_ROOT, 'scripts', 'debug', 'lib', 'laneFirewall.mjs');
 
 async function makeOffline(n: number) {
   const lane = lanePaths(n);
@@ -190,14 +191,18 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
   const wasUp = await isUp(lane.port);
-  if (!wasUp && existsSync(resolve(lane.root, OFFLINE_MARKER))) {
-    const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port);
+  const offline = existsSync(resolve(lane.root, OFFLINE_MARKER));
+  const podLane = offline ? readLanePod(lane.root) : null;
+  const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port } : null;
+  if (!wasUp && offline) {
+    const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port, firewall);
     if (problems.length) throw new Error(`lane ${n} is an offline lane but its settings.json no longer is (${problems.join('; ')}); re-seed it with ${OFFLINE_ENV}=1`);
   }
   if (!wasUp) {
     const log = await open(lane.log, 'a');
+    const serverEnv = !offline ? {} : firewall ? firewalledServerEnv(FIREWALL_PRELOAD, lane.port, firewall.podPort) : OFFLINE_SERVER_ENV;
     const server = spawn(process.execPath, ['server.js', '--port', String(lane.port), '--dataRoot', lane.data, '--browserLaunchEnabled', 'false', '--listen', 'false'], {
-      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...(existsSync(resolve(lane.root, OFFLINE_MARKER)) ? OFFLINE_SERVER_ENV : {}) },
+      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...serverEnv },
     });
     server.unref();
     await writeFile(lane.pid, String(server.pid ?? ''), 'utf-8');
