@@ -78,6 +78,7 @@ export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {
 }
 
 export const swipeEmptyReplies = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_SWIPE_EMPTY_REPLY === '1';
+export const swipeEmptyMax = (env: NodeJS.ProcessEnv = process.env): number => { const max = Number(env.SO_SWIPE_EMPTY_MAX); return Number.isInteger(max) && max > 0 ? max : 2; };
 
 export async function readEmptyReply(page) {
   return evaluateInST(page, () => {
@@ -177,7 +178,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
   // control allows it, so this is REPORTED by default and only fatal when the caller asks.
   let replied = !after.lastIsUser && after.lastText.length > 0;
   const emptyReplies: Array<Record<string, unknown>> = [];
-  for (let attempt = 1; !replied && expectReply && swipeEmptyReplies() && !after.lastIsUser && after.length > chatLenBefore && attempt <= 2; attempt += 1) {
+  for (let attempt = 1; !replied && expectReply && swipeEmptyReplies() && !after.lastIsUser && after.length > chatLenBefore && attempt <= swipeEmptyMax(); attempt += 1) {
     const info = await readEmptyReply(page);
     emptyReplies.push({ ...info, attempt });
     console.warn(`EMPTY-REPLY ${JSON.stringify({ ...info, attempt })}: swiping for a new reply, as a player would`);
