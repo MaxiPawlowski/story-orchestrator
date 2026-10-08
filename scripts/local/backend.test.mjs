@@ -51,3 +51,19 @@ test('a loading-mode experiment replaces the profile setting without changing co
     assert.equal(args[args.indexOf('--ctx-size') + 1], '98304');
     assert.equal(args[args.indexOf('--cache-type-k') + 1], 'q8_0');
 });
+
+test('a profile switch that cannot load puts the previous profile back and refuses only that request', async () => {
+    const backend = new Backend();
+    await backend.load('fast', { fitTarget: 11048 });
+    const start = backend.start.bind(backend);
+    backend.start = async (name, profile, fitTarget) => {
+        if (name === 'normal') { backend.calls.push({ name, fitTarget }); throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.'); }
+        return start(name, profile, fitTarget);
+    };
+    await assert.rejects(backend.forRequest({ messages: [{ role: 'user', content: 'read' }] }), /needs the normal profile, which could not load: Not enough free GPU.*fast is loaded again/);
+    assert.equal(backend.profile, 'fast');
+    assert.equal(backend.desiredProfile, 'fast');
+    assert.equal(backend.fitTarget, 11048);
+    await backend.ensure();
+    assert.equal(backend.profile, 'fast');
+});

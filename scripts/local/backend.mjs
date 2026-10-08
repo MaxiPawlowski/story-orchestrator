@@ -116,8 +116,7 @@ export class NativeBackend {
     async forRequest(body, signal) {
         await this.ensure(this.profile ?? this.config.defaultProfile);
         if (typeof body.prompt !== 'string') {
-            this.desiredProfile = 'normal';
-            await this.ensure('normal');
+            await this.switchFor('normal');
             return;
         }
         const response = await fetch(`${this.url}/tokenize`, {
@@ -131,7 +130,21 @@ export class NativeBackend {
         if (!Number.isInteger(output) || output < 0 || output > limit) throw new Error('Set a bounded output budget before generating.');
         const required = data.tokens.length + output + 256;
         if (required > limit) throw new Error(`Prompt and output exceed the preserved ${limit}-token limit; no text was truncated.`);
-        if (required > 32768 && this.profile === 'fast') { this.desiredProfile = 'normal'; await this.ensure('normal'); }
+        if (required > 32768 && this.profile === 'fast') await this.switchFor('normal', `${required} tokens`);
+    }
+
+    async switchFor(name, need = 'this request') {
+        if (this.profile === name) return this.ensure(name);
+        const previous = this.profile;
+        const previousFit = this.fitTarget;
+        const previousDesired = this.desiredProfile;
+        this.desiredProfile = name;
+        try { await this.ensure(name); }
+        catch (error) {
+            this.desiredProfile = previous ?? previousDesired;
+            if (previous) await this.load(previous, { fitTarget: previousFit }).catch((reload) => { this.lastError = `${error.message} Reloading ${previous} also failed: ${reload.message}`; });
+            throw new Error(`${need} needs the ${name} profile, which could not load: ${error.message}${previous ? ` ${previous} is loaded again.` : ''}`);
+        }
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError }; }
