@@ -59,11 +59,15 @@ export function offlineSettings(settings: unknown, lanePort: number): { next: Re
   return { next: wired, rewired: [...seen].sort() };
 }
 
-export type OfflinePodLane = { podPort: number | null };
+export type OfflinePodLane = { podPort: number | null; extraPorts?: number[] };
+
+export const MEMORY_POD_PORT_ENV = 'SO_LANE_MEMORY_PORT';
+
+export const memoryPodPorts = (env: NodeJS.ProcessEnv = process.env): number[] => String(env[MEMORY_POD_PORT_ENV] ?? '').split(',').map((part) => Number(part.trim())).filter((port) => Number.isInteger(port) && port > 0);
 
 export function offlineProblems(settings: unknown, lanePort: number, podLane: OfflinePodLane | null = null): string[] {
   const seen = new Set<string>();
-  rewire(settings, lanePort, seen, podLane?.podPort ? [podLane.podPort] : []);
+  rewire(settings, lanePort, seen, [...(podLane?.podPort ? [podLane.podPort] : []), ...(podLane?.extraPorts ?? [])]);
   const ours = isRecord(settings) && isRecord(settings.extension_settings) && isRecord(settings.extension_settings['story-orchestrator'])
     ? (settings.extension_settings['story-orchestrator'] as Record<string, any>).settings : null;
   const disabled = isRecord(settings) && isRecord(settings.extension_settings) ? settings.extension_settings.disabledExtensions : null;
@@ -79,8 +83,8 @@ export function offlineProblems(settings: unknown, lanePort: number, podLane: Of
 
 export const FIREWALL_ALLOW_ENV = 'SO_LANE_FIREWALL_ALLOW';
 
-export function firewalledServerEnv(preload: string, lanePort: number, podPort: number | null, parent: NodeJS.ProcessEnv = process.env): Record<string, string> {
+export function firewalledServerEnv(preload: string, lanePort: number, podPort: number | null, parent: NodeJS.ProcessEnv = process.env, extraPorts: number[] = []): Record<string, string> {
   const importFlag = `--import=${pathToFileURL(preload).href}`;
   const options = [parent.NODE_OPTIONS, importFlag].filter(Boolean).join(' ');
-  return { NODE_OPTIONS: options, [FIREWALL_ALLOW_ENV]: [lanePort, ...(podPort ? [podPort] : [])].join(',') };
+  return { NODE_OPTIONS: options, [FIREWALL_ALLOW_ENV]: [lanePort, ...(podPort ? [podPort] : []), ...extraPorts].join(',') };
 }

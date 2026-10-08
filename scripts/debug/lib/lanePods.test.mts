@@ -108,3 +108,13 @@ test('k judge lanes each get 1/k of the TypeSafe account, so together they ask f
   assert.ok(lanes * Number(judgeShareEnv(lanes).SO_JUDGE_ACCOUNT_RATE_PER_MIN) <= 1200);
   assert.deepEqual(judgeShareEnv(0), judgeShareEnv(1));
 });
+
+test('a memory pod port named in SO_LANE_MEMORY_PORT is allowed beside the lane pod, and only then', async () => {
+  const { memoryPodPorts, firewalledServerEnv } = await import('./laneModel.mts');
+  assert.deepEqual(memoryPodPorts({ SO_LANE_MEMORY_PORT: '18085' }), [18085]);
+  assert.deepEqual(memoryPodPorts({}), []);
+  const settings = { extension_settings: { connectionManager: { profiles: [{ 'api-url': 'http://127.0.0.1:18082' }, { 'api-url': 'http://127.0.0.1:18085' }] } } };
+  assert.ok(offlineProblems(settings, 8105, { podPort: 18082 }).some((problem) => problem.includes('18085')), 'control: without the memory port the profile is refused');
+  assert.ok(!offlineProblems(settings, 8105, { podPort: 18082, extraPorts: [18085] }).some((problem) => problem.includes('18085')));
+  assert.equal(firewalledServerEnv('x.mjs', 8105, 18082, {}, [18085]).SO_LANE_FIREWALL_ALLOW, '8105,18082,18085');
+});
