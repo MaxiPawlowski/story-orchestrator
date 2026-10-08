@@ -131,7 +131,7 @@
         "citation": "v2.7 35 §Gate record (K3)"
       },
       "evidence": [
-        null,
+        "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, 4 cells, provisional; carried check harness-INCOMPLETE)",
         null
       ]
     },
@@ -156,7 +156,7 @@
         "citation": "v2.7 35 §Gate record (K4)"
       },
       "evidence": [
-        null,
+        "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, provisional)",
         null
       ]
     },
@@ -182,7 +182,7 @@
         "citation": "v2.7 35 §Gate record (K5)"
       },
       "evidence": [
-        null,
+        "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, INCOMPLETE: pooled denominator < 20)",
         null
       ]
     },
