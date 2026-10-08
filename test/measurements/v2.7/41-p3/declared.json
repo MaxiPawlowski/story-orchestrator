@@ -1,0 +1,13 @@
+{
+  "declarations": [
+    {
+      "case": "group-narrator-holdings",
+      "label": "holdings-dm",
+      "plan": "v2.7 41 P3",
+      "owner": "v2.7 41",
+      "added": [{ "regex": "- (?:Ilse Varn|Brannoc Hale) wants: .+" }],
+      "removed": [{ "regex": "- (?:Ilse Varn|Brannoc Hale|Selka Dun) wants: .+" }],
+      "why": "the Narrator's cast holdings are scoped: the members enabled in the group stay, the additions (a motive holder, the two off-stage members named in the recent messages) share the ~1,000-token budget newest first, and the off-stage member nobody named and no motive names (Selka Dun) leaves the block. Every other line of every capture is byte-identical."
+    }
+  ]
+}

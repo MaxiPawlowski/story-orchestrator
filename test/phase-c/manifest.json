@@ -5364,6 +5364,35 @@
         null,
         null
       ]
+    },
+    {
+      "id": "B1-NARR",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 41",
+        "section": "§5 P3, §7 P3 as built"
+      },
+      "labels": [
+        "B1-NARR the Narrator's scoped cast holdings on the saga"
+      ],
+      "prerequisites": [
+        "the B1 pod and B1 args (the B1-PFX control arm); one adolion-fresh model lane, nothing else on the pod",
+        "the same 247-message SP6 saga chat as B1-PFX, continued for 20 real Narrator turns per arm: control = the bundle before v2.7 41 P3 (master bf1e0c77, every cast member's aims), arm = the P3 bundle (the members enabled in the group, never dropped, plus motive holders, talk speakers and members named in the last 20 messages within about 1,000 tokens); memory roles routed as in B1",
+        "each Narrator reply rated blind by Astra (delegated) for preference and for a stranger invented where a named cast member fits; runner owed by v2.7 41 (record test/phase-c/records/B1-NARR/run-<n>.json)"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm: Narrator loud prompt tokens (p50, p95), the private block's holdings tokens per Narrator request (SentencePiece, from the captured bodies), prompt ms p50, blind preference, invented strangers per 20 turns",
+      "floor": {
+        "text": "the P3 arm keeps the holdings at <= the enabled members' own holdings + 1,100 tokens on every Narrator request and its Narrator prompt p50 at least 2,500 tokens below control (measured -3,056 on the 256-message lane-8 capture); Astra prefers the P3 arm or ties on >= 50 % of the 20 pairs; invented strangers where a named cast member fits are not above control",
+        "citation": "v2.7 41 §5 P3 measure (predeclared 2026-10-08), §7 P3 as built"
+      },
+      "evidence": [
+        null,
+        null
+      ]
     }
   ]
 }

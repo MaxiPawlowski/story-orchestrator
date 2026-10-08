@@ -178,6 +178,7 @@
   "test/scenarios/live-v5b-adopt-imported.json#0": [],
   "test/scenarios/memory-mirror-file.json#0": [],
   "test/scenarios/payload/group-away-notice.json#0": [],
+  "test/scenarios/payload/group-narrator-holdings.json#0": [],
   "test/scenarios/payload/group-relationships.json#0": [],
   "test/scenarios/payload/group-relationships.json#1": [],
   "test/scenarios/plan02-runtime.json#0": [],

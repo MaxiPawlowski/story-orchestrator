@@ -249,6 +249,26 @@ describe("narrator view (v2.6 plan 06 D, block-scoped privacy)", () => {
     expect(block()).not.toContain("copied his key");
   });
 
+  it("v2.7 41 P3: the narrator holds an absent member's aims only once the chat names it, read at draft time; a member's own block never carries them", () => {
+    const chat = [...DEFAULT_CHAT];
+    const roster = [...DEFAULT_ROSTER, { id: "brannoc", name: "Brannoc Hale", drive: "collect the old debt" }];
+    const { coordinator } = harness({ roster, chat, disabled: ["brannoc hale.png"] });
+    coordinator.updateInjection();
+    coordinator.onMemberDrafted(2);
+    expect(block()).toContain("- Arin wants: win back her father's sword");
+    expect(block()).not.toContain("collect the old debt");
+    chat.push({ name: "Max", mes: "Has anyone seen Brannoc?", is_user: true });
+    coordinator.onMemberDrafted(2);
+    expect(block()).toContain("- Brannoc Hale wants: collect the old debt");
+    expect(block().indexOf("Brannoc Hale wants")).toBeLessThan(block().indexOf("Arin wants"));
+    coordinator.onMemberDrafted(0);
+    expect(block()).not.toContain("collect the old debt");
+    chat.pop();
+    coordinator.updateInjection();
+    coordinator.onMemberDrafted(2);
+    expect(block()).not.toContain("collect the old debt");
+  });
+
   it("T1-2: the narrator is told which enabled members voice themselves, and to use a named character before inventing one (msgs 22, 28)", () => {
     const { coordinator } = harness({ disabled: ["ponticius.png"] });
     coordinator.updateInjection();

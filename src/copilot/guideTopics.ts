@@ -50,7 +50,8 @@ export const GUIDE_TOPICS = {
     fields: "roster[].id, name, role, aliases, view",
     text: "Every character the story directs. id is the story's handle, name the card name, role one line of what they do in this story (speaker direction and the judge "
       + "director pick by it; the judge director runs only when every candidate has a role). aliases are other names players use (\"the captain\"); an alias two members "
-      + "share is ignored. view: omniscient makes a narrator see every character's private rows to foreshadow; own (default) sees only their own. Never put the player in the roster: "
+      + "share is ignored. view: omniscient makes a narrator see the private rows and aims of the members on stage, plus the beat's other cast and anyone named "
+      + "in the last 20 messages (about 1,000 tokens, most recently named first) to foreshadow; own (default) sees only their own. Never put the player in the roster: "
       + "if a greeting says \"you are the pawnbroker\", there is no Pawnbroker card.",
   },
   "drives-motives": {

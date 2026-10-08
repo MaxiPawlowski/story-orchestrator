@@ -118,7 +118,11 @@ export class MemoryInjector {
     const known = this.deps.capable() ? knowledge : [];
     const privateBlock = known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "";
     const render = innerRender();
-    const block = render ? render.memberAimsBlock(this.voices(story), id, beat, known, privateBlock) : privateBlock;
+    const voices = this.voices(story);
+    const scope = render && voices.find((voice) => voice.id === id)?.omniscient
+      ? render.narratorScope(story, this.deps.getState()?.activeCheckpointId ?? null, enabledCharacterIds(story, this.hosts.roster), this.hosts.chat.chatRows())
+      : undefined;
+    const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
     return [block, this.lifeLines(story, id)].filter(Boolean).join("\n\n");
   }
 
@@ -263,8 +267,9 @@ export class MemoryInjector {
     }
     const drafted = this.deps.beatFor(rosterId);
     const beat = drafted && keptFrom(drafted, this.secrets(story), namesForRosterId(story, rosterId)) ? "" : drafted;
-    const epistemic = beat ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
-    this.draft = beat ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
+    const narrates = story.roster.some((member) => member.id === rosterId && member.view === "omniscient");
+    const epistemic = beat || narrates ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
+    this.draft = epistemic !== staged.epistemic ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
     this.setPrivateBlocks(staged.shared, epistemic);
   }
 

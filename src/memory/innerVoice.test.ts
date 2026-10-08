@@ -4,8 +4,11 @@ import {
 } from "./innerVoice";
 import * as kRecipe from "../../test/measurements/v2.6-06/k-intent-lapse.json";
 import {
-  admitIntents, capIntents, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderNarratorBlock, renderOwnAims,
+  admitIntents, capIntents, checkpointCast, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP,
+  narratorScope, pushBeat, renderNarratorBlock, renderOwnAims,
 } from "./innerRender";
+import { estimateTokens } from "./budget";
+import { NARRATOR_HOLDINGS_TOKEN_BUDGET, NARRATOR_HOLDINGS_WINDOW } from "./stores";
 import { parseInnerBeat, renderInnerBeatPrompt } from "./innerBeat";
 import { parseEpistemicLine } from "./parse";
 import { provenance } from "./provenance";
@@ -166,6 +169,88 @@ describe("authored aims and the narrator view", () => {
     expect(text).not.toContain("a traitor");
     expect(text).not.toContain("the ending");
     expect(text.split("\n").filter((line) => line.startsWith("- Lyria"))).toHaveLength(NARRATOR_SUBJECT_CAP);
+  });
+});
+
+describe("the narrator's holdings, scoped to the scene (v2.7 41 P3)", () => {
+  const roster = [
+    { id: "kael", name: "Kael Varro", drive: "clear his brother's name" },
+    { id: "lyria", name: "Lyria", drive: "keep the map" },
+    { id: "oren", name: "Oren Dask", drive: "sell the map twice", aliases: ["the Fence"] },
+    { id: "tam", name: "Tam", drive: "find his sister" },
+    { id: "absent", name: "Absent One", drive: "stay forgotten" },
+    { id: "dm", name: "DM", view: "omniscient" as const },
+  ];
+  const story = {
+    roster,
+    checkpointById: { cp: { motives: { lyria: "hide the map" }, talk_control: { speakers: [{ member: "Kael Varro" }], lead: "dm" } } },
+  };
+  const row = (name: string, mes: string, extra: Record<string, unknown> = {}) => ({ name, mes, ...extra });
+  const render = (rows: unknown[], enabled: string[] = [], budget?: number) => {
+    const scope = narratorScope(story, "cp", enabled, rows, NARRATOR_HOLDINGS_WINDOW, budget);
+    return renderNarratorBlock([], castVoices(story, "cp"), "dm", scope);
+  };
+  const subjects = (text: string) => text.split("\n").filter((line) => line.startsWith("- ")).map((line) => line.slice(2).split(/ wants:|, right now:/)[0])
+    .filter((name, index, list) => list.indexOf(name) === index);
+
+  it("the window and budget are the named constants", () => {
+    expect(NARRATOR_HOLDINGS_WINDOW).toBe(20);
+    expect(NARRATOR_HOLDINGS_TOKEN_BUDGET).toBe(1000);
+  });
+
+  it("the checkpoint's cast is the enabled members, the motive holders and the talk speakers, resolved by id or card name", () => {
+    expect(checkpointCast(story, "cp", ["tam"])).toEqual(["tam", "lyria", "kael", "dm"]);
+    expect(checkpointCast(story, null, ["tam"])).toEqual(["tam"]);
+  });
+
+  it("keeps the checkpoint's cast with nothing said, and drops a member who is neither in it nor named", () => {
+    expect(subjects(render([]))).toEqual(["Kael Varro", "Lyria"]);
+    const text = render([row("Max", "I look around.", { is_user: true })], ["tam"]);
+    expect(subjects(text)).toEqual(["Kael Varro", "Lyria", "Tam"]);
+    expect(text).not.toContain("Oren Dask");
+    expect(text).not.toContain("stay forgotten");
+  });
+
+  it("adds a member named in the recent messages, by full name, unique given name or alias, newest first", () => {
+    expect(subjects(render([row("Max", "Where is Oren Dask?", { is_user: true })]))).toEqual(["Oren Dask", "Kael Varro", "Lyria"]);
+    expect(subjects(render([row("Max", "Oren's stall is shut.", { is_user: true })]))).toContain("Oren Dask");
+    expect(subjects(render([row("Max", "I ask the fence about it.", { is_user: true }), row("DM", "Tam waves.")]))).toEqual(["Tam", "Oren Dask", "Kael Varro", "Lyria"]);
+    expect(subjects(render([row("DM", "Tam waves."), row("Max", "Ask THE FENCE.", { is_user: true })]))).toEqual(["Oren Dask", "Tam", "Kael Varro", "Lyria"]);
+    expect(subjects(render([row("DM", "Lyria nods at Kael Varro.")]))).toEqual(["Kael Varro", "Lyria"]);
+  });
+
+  it("a name outside the window or in a hidden message does not count, and a lower-case word is not a given name", () => {
+    const old = [row("DM", "Oren Dask leaves."), ...Array.from({ length: NARRATOR_HOLDINGS_WINDOW }, () => row("DM", "Rain."))];
+    expect(render(old)).not.toContain("Oren Dask");
+    expect(render([row("DM", "Oren Dask leaves.", { is_system: true })])).not.toContain("Oren Dask");
+    expect(render([row("DM", "An oren tree and a dask of ale.")])).not.toContain("Oren Dask");
+  });
+
+  it("members enabled in the group are never dropped, whatever the budget", () => {
+    expect(subjects(render([], ["tam", "oren"], 0))).toEqual(["Oren Dask", "Tam"]);
+    expect(subjects(render([row("DM", "Lyria waits.")], ["tam"], 0))).toEqual(["Tam"]);
+  });
+
+  it("the budget binds only the additions (motive holders, speakers, named off stage): newest first, whole members, the next one tried", () => {
+    const rows = [row("DM", "Lyria waits."), row("DM", "Oren Dask grins.")];
+    const oren = estimateTokens("- Oren Dask wants: sell the map twice");
+    const lyria = estimateTokens("- Lyria wants: keep the map\n- Lyria, right now: hide the map");
+    const full = render(rows, ["tam"]);
+    const text = render(rows, ["tam"], oren + lyria);
+    expect(subjects(text)).toEqual(["Oren Dask", "Lyria", "Tam"]);
+    expect(text.split("\n").every((line) => full.split("\n").includes(line))).toBe(true);
+    expect(subjects(render(rows, ["tam"], oren + lyria - 1))).toEqual(["Oren Dask", "Kael Varro", "Tam"]);
+    expect(render(rows, [], 0)).toBe("");
+  });
+
+  it("is deterministic: the same chat and state render byte-identical text, ties in roster order", () => {
+    const rows = [row("DM", "Tam and Oren Dask argue.")];
+    expect(render(rows)).toBe(render(rows));
+    expect(subjects(render(rows))).toEqual(["Oren Dask", "Tam", "Kael Varro", "Lyria"]);
+  });
+
+  it("without a scope the block is unchanged (every cast member)", () => {
+    expect(subjects(renderNarratorBlock([], castVoices(story, "cp"), "dm"))).toEqual(["Kael Varro", "Lyria", "Oren Dask", "Tam", "Absent One"]);
   });
 });
 
