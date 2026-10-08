@@ -182,3 +182,18 @@ test('the runner output names the record and the failure dump', () => {
   assert.equal(recordPathsIn('Wrote JSON: /x/2026_journey-J3.json\n').record, '/x/2026_journey-J3.json');
   assert.deepEqual(recordPathsIn('nothing'), { record: null, failure: null });
 });
+
+test('B1b: a row whose server log shows a provider outage (DeepSeek 402 Insufficient Balance, 401/403) is INCOMPLETE; a 429 or a 500 alone is not', () => {
+  const root = mkdtempSync(join(tmpdir(), 'so-row-outage-'));
+  try {
+    const rowDir = join(root, 'row');
+    runnerRow(rowDir, { record: false });
+    writeFileSync(join(rowDir, ROW_FILES.runner), 'not-runnable: control\n');
+    writeFileSync(join(rowDir, ROW_FILES.server), 'DeepSeek API returned error: 429 Too Many Requests\nsomething 500\n');
+    assert.deepEqual(rowEvidenceProblems(rowDir, { record: false, page: true, pod: false }), [], 'control: transient errors are not an outage');
+    writeFileSync(join(rowDir, ROW_FILES.server), 'DeepSeek request: {}\nDeepSeek API returned error: 402 Payment Required {"error":{"message":"Insufficient Balance"}}\n');
+    assert.match(rowEvidenceProblems(rowDir, { record: false, page: true, pod: false }).join(' '), /provider outage/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -74,6 +74,13 @@ function gpuPeak(rows: any[]) {
   return { util: max('util'), memUsedMiB: max('memUsedMiB'), tempC: max('tempC') };
 }
 
+const ROLE_OUTAGE = /API returned error: 40[123]\b[^\r\n]*|Insufficient Balance|Payment Required/g;
+
+export function roleOutageIn(serverLog: string): { count: number; sample: string } | null {
+  const hits = serverLog.match(ROLE_OUTAGE);
+  return hits?.length ? { count: hits.length, sample: hits[0].slice(0, 120) } : null;
+}
+
 export function rowEvidenceProblems(rowDir: string, expect: RowExpect): string[] {
   const problems: string[] = [];
   const at = (name: string) => resolve(rowDir, name);
@@ -89,6 +96,10 @@ export function rowEvidenceProblems(rowDir: string, expect: RowExpect): string[]
     if (!existsSync(at(PAGE_SUMMARY_FILE))) problems.push(`${PAGE_SUMMARY_FILE} is missing: the runner ended without summarising its page capture`);
   }
   if (!existsSync(at(ROW_FILES.server))) problems.push(`${ROW_FILES.server} is missing: the lane server log slice was not taken`);
+  else {
+    const outage = roleOutageIn(readFileSync(at(ROW_FILES.server), 'utf-8'));
+    if (outage) problems.push(`a model role was unavailable during the row (${outage.count} x "${outage.sample}"): the row ran through a provider outage, so it is not evidence`);
+  }
   if (expect.pod) {
     if (!existsSync(at(ROW_FILES.tunnel))) problems.push(`${ROW_FILES.tunnel} is missing: the tunnel health for the row was not recorded`);
     if (!existsSync(at(ROW_FILES.pod))) problems.push(`${ROW_FILES.pod} is missing: the pod-side capture for the row was not recorded`);
