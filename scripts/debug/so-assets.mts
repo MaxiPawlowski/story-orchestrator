@@ -190,7 +190,7 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
     for (const character of targets.characters) {
       if (await post('/api/characters/delete', { avatar_url: character.avatar, delete_chats: true }, `character ${character.name}`)) report.characters.push(character.name);
     }
-    await ctx.getCharacters?.();
+    if (report.characters.length) await ctx.getCharacters?.();
     for (const persona of targets.personas ?? []) {
       const result = await ctx.executeSlashCommandsWithOptions(`/persona-delete persona="${persona.avatar}" silent=true`, { handleParserErrors: false, handleExecutionErrors: true });
       if (result?.pipe === 'true') report.personas.push(persona.name);
