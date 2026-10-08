@@ -74,7 +74,7 @@ export const RepairNamesADeadTaskModel: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Speaker direction falls back to ST's own choice.")).toBeInTheDocument();
+    await expect(canvas.getByText("Speaker direction falls back to ST's own choice until this model answers again.")).toBeInTheDocument();
     await expect(canvasElement.querySelector("[data-so='repair-step']")).toHaveAttribute("data-area", "model-role");
     await userEvent.click(canvas.getByRole("button", { name: "Show me the setting" }));
     await expect(args.onRevealSetting).toHaveBeenCalledWith("so-role-profile-director");
