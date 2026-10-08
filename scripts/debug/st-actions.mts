@@ -28,7 +28,8 @@ export async function getGenerationState(page) {
     const buttonsSayGenerating = stopVisible || (sendHidden && !stopHidden);
     // A stopped stream leaves the processor behind with isFinished === false; treating that as
     // "generating" makes every later step time out. Generating means running AND not stopped.
-    const isGenerating = buttonsSayGenerating || (sp
+    const chainPending = (globalThis as any).storyOrchestratorTalk?.chainPending?.() === true;
+    const isGenerating = buttonsSayGenerating || chainPending || (sp
       ? (sp.isFinished === false && sp.isStopped !== true)
       : sendButtonDisabled);
 
@@ -36,6 +37,7 @@ export async function getGenerationState(page) {
       isGenerating,
       sendButtonDisabled,
       buttonsSayGenerating,
+      chainPending,
       streamingProcessor: sp ? {
         isFinished: sp.isFinished ?? null,
         isStopped: sp.isStopped ?? null,
