@@ -298,3 +298,17 @@ green ×2 again on the new build. The fix-as-we-go loop above lives in stage B a
 3. 32 W8: stop each arm at 15 mentioning replies (S6) instead of a fixed N = 30?
 4. 3 pods available at once in the volume's data center? If not, 2 pods (≈ 16.6 h wall, same cost).
 5. C pod start gated on all of C2 green, or on C1/C1b/C3 only (C2 concurrent, risk of a paid re-run)?
+
+## Run plan default after B1 batch 3 (main, 2026-10-08)
+
+Learned in batch 3: a dedicated memory pod (Artemis, `LLM_PARALLEL` 4) serving 4–5 SP6 lanes saturates (about 10 tok/s
+per stream, every memory read about 50 s), and it, not the reply pods (25–31 tok/s, mostly idle), sets the turn time
+(p50 about 70 s, p95 up to 165 s); a 98-turn SP6 run takes about 2.5–3 h. RTX PRO 4500 stock in EU-RO-1 ran out
+mid-session (create refused at 15:41–15:51Z and 17:35Z). Default for the next round:
+
+| | |
+|---|---|
+| Memory roles | no dedicated memory pod: each reply pod runs its own lanes' memory roles on itself, `LLM_PARALLEL` 4 (two lanes' replies + their memory reads), the lane's role profiles pointed at its own pod's tunnel |
+| Local 3090 | takes the light rows (no latency floor, short prompts) through the controller on :18888 with `st-lanes start --allow-local`; profile `fast` (32K, 1 slot) is what fits, so a row that needs the product's 98K context or the pod GGUF stays on a pod |
+| Pod count | the minimum the queue needs; stock is checked (`get-capacity`) before a plan counts on a pod |
+| Balance | the RunPod account balance is checked before a session, not only the approved budget |
