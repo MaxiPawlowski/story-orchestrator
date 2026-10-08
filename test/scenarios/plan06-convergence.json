@@ -1,5 +1,9 @@
 {
-  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
   "steps": [
     {
       "import_story": {
@@ -78,6 +82,9 @@
       }
     },
     {
+      "send": "I wait a moment before the vault."
+    },
+    {
       "slash": "/cp set mood calm"
     },
     {
@@ -86,9 +93,8 @@
       }
     },
     {
-      "expand": {
-        "debugResponse": "{\"beats\":[{\"objective\":\"Open the vault\",\"guidance\":\"Open the vault.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"vault open\",\"gate\":{\"q\":\"vault_open\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"vault_open\",\"v\":true}],\"progress\":{\"anchor\":\"finale\",\"amount\":2}}]},{\"objective\":\"Confirm the ally\",\"guidance\":\"Confirm ally convinced once the mood settles.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"ally convinced\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"neutral\"},\"deltas\":[{\"q\":\"ally_convinced\",\"v\":true}]}]}]}"
-      }
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const key = 'midway->bridge_b->finale'; const entry = rt.getSnapshot().expansion?.entries?.[key]; if (entry && ['validated', 'inserted'].includes(entry.status)) return { generated: 'background', status: entry.status }; const ok = await rt.runExpansionNow(\"{\\\"beats\\\":[{\\\"objective\\\":\\\"Open the vault\\\",\\\"guidance\\\":\\\"Open the vault.\\\",\\\"tension_target\\\":\\\"tense\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"vault open\\\",\\\"gate\\\":{\\\"q\\\":\\\"vault_open\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":true},\\\"deltas\\\":[{\\\"q\\\":\\\"vault_open\\\",\\\"v\\\":true}],\\\"progress\\\":{\\\"anchor\\\":\\\"finale\\\",\\\"amount\\\":2}}]},{\\\"objective\\\":\\\"Confirm the ally\\\",\\\"guidance\\\":\\\"Confirm ally convinced once the mood settles.\\\",\\\"tension_target\\\":\\\"critical\\\",\\\"outcomes\\\":[{\\\"label\\\":\\\"ally convinced\\\",\\\"gate\\\":{\\\"q\\\":\\\"mood\\\",\\\"op\\\":\\\"==\\\",\\\"v\\\":\\\"neutral\\\"},\\\"deltas\\\":[{\\\"q\\\":\\\"ally_convinced\\\",\\\"v\\\":true}]}]}]}\"); if (!ok) throw new Error('runExpansionNow refused and no background generation produced the chain: ' + JSON.stringify(rt.getSnapshot().expansion?.entries?.[key]?.status ?? null)); return { generated: 'now' };",
+      "log": true
     },
     {
       "expect": {
@@ -116,6 +122,9 @@
       }
     },
     {
+      "send": "I try the vault door."
+    },
+    {
       "slash": "/cp set vault_open true"
     },
     {
@@ -125,6 +134,9 @@
           "progress_toward_finale": 2
         }
       }
+    },
+    {
+      "send": "I step through."
     },
     {
       "slash": "/cp set mood neutral"
