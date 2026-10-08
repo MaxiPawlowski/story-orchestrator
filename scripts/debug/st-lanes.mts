@@ -7,7 +7,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
-import { firewalledServerEnv, memoryPodPorts, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
@@ -27,7 +27,9 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                and ST's Image Generation extension off; start refuses it if that no longer holds and
                                starts its server without server plugins (the GPU plugin forwards to a controller
                                named in the shared plugin config, the media plugin to ComfyUI)
-  start <n...> [--headed] [--judge-lanes <k>]
+  start <n...> [--headed] [--judge-lanes <k>] [--allow-local]
+                               --allow-local (opt-in, this start only): the lane's firewall also lets it reach the local
+                               GPU controller on 127.0.0.1:18888 (its profiles must point there; images stay off)
                                start lane n's server (port ${'8100+n'}) and browser (CDP ${'9300+n'}); --judge-lanes
                                gives its judge plugin 1/k of the TypeSafe account (every lane's plugin limits
                                itself alone, so k judge lanes would otherwise ask for k accounts)
@@ -186,14 +188,14 @@ async function makeOffline(n: number) {
   return record;
 }
 
-async function start(n: number, headed: boolean, judgeLanes: number | null = null) {
+async function start(n: number, headed: boolean, judgeLanes: number | null = null, allowLocal = false) {
   const lane = lanePaths(n);
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
   const wasUp = await isUp(lane.port);
   const offline = existsSync(resolve(lane.root, OFFLINE_MARKER));
   const podLane = offline ? readLanePod(lane.root) : null;
-  const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port, extraPorts: podLane.pod === null ? [] : memoryPodPorts() } : null;
+  const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port, extraPorts: laneExtraPorts(podLane.pod, allowLocal) } : null;
   if (!wasUp && offline) {
     const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port, firewall);
     if (problems.length) throw new Error(`lane ${n} is an offline lane but its settings.json no longer is (${problems.join('; ')}); re-seed it with ${OFFLINE_ENV}=1`);
@@ -408,7 +410,7 @@ async function main() {
   if (command === 'seed') out = await Promise.all(laneNumbers(rest).map((n) => seed(n, rest.includes('--fresh'))));
   else if (command === 'start') {
     const judgeLanes = Number(argValue('--judge-lanes', '0')) || null;
-    out = await Promise.all(laneNumbers(rest.filter((arg, index) => rest[index - 1] !== '--judge-lanes')).map((n) => start(n, rest.includes('--headed'), judgeLanes)));
+    out = await Promise.all(laneNumbers(rest.filter((arg, index) => rest[index - 1] !== '--judge-lanes')).map((n) => start(n, rest.includes('--headed'), judgeLanes, rest.includes('--allow-local'))));
   }
   else if (command === 'stop') out = await Promise.all(laneNumbers(rest).map(stop));
   else if (command === 'status') out = await status();

@@ -63,6 +63,10 @@ export type OfflinePodLane = { podPort: number | null; extraPorts?: number[] };
 
 export const MEMORY_POD_PORT_ENV = 'SO_LANE_MEMORY_PORT';
 
+export const LOCAL_CONTROLLER_PORT = 18888;
+
+export const laneExtraPorts = (pod: number | null, allowLocal: boolean, env: NodeJS.ProcessEnv = process.env): number[] => [...(pod === null ? [] : memoryPodPorts(env)), ...(allowLocal ? [LOCAL_CONTROLLER_PORT] : [])];
+
 export const memoryPodPorts = (env: NodeJS.ProcessEnv = process.env): number[] => String(env[MEMORY_POD_PORT_ENV] ?? '').split(',').map((part) => Number(part.trim())).filter((port) => Number.isInteger(port) && port > 0);
 
 export function offlineProblems(settings: unknown, lanePort: number, podLane: OfflinePodLane | null = null): string[] {

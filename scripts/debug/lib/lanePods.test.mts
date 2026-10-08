@@ -118,3 +118,14 @@ test('a memory pod port named in SO_LANE_MEMORY_PORT is allowed beside the lane 
   assert.ok(!offlineProblems(settings, 8105, { podPort: 18082, extraPorts: [18085] }).some((problem) => problem.includes('18085')));
   assert.equal(firewalledServerEnv('x.mjs', 8105, 18082, {}, [18085]).SO_LANE_FIREWALL_ALLOW, '8105,18082,18085');
 });
+
+test('the local controller port is reachable only for a lane started with --allow-local', async () => {
+  const { laneExtraPorts, LOCAL_CONTROLLER_PORT } = await import('./laneModel.mts');
+  assert.deepEqual(laneExtraPorts(null, false, {}), []);
+  assert.deepEqual(laneExtraPorts(null, true, {}), [LOCAL_CONTROLLER_PORT]);
+  assert.deepEqual(laneExtraPorts(2, false, { SO_LANE_MEMORY_PORT: '18085' }), [18085]);
+  assert.deepEqual(laneExtraPorts(null, false, { SO_LANE_MEMORY_PORT: '18085' }), [], 'a cloud lane never inherits a memory pod port');
+  const settings = { extension_settings: { connectionManager: { profiles: [{ 'api-url': 'http://127.0.0.1:18888' }] } } };
+  assert.ok(offlineProblems(settings, 8110, { podPort: null }).some((problem) => problem.includes('18888')), 'control: without the opt-in the controller is refused');
+  assert.ok(!offlineProblems(settings, 8110, { podPort: null, extraPorts: laneExtraPorts(null, true, {}) }).some((problem) => problem.includes('18888')));
+});
