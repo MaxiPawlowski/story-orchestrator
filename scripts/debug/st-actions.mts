@@ -30,11 +30,12 @@ export async function getGenerationState(page) {
     // "generating" makes every later step time out. Generating means running AND not stopped.
     const chainPending = (globalThis as any).storyOrchestratorTalk?.chainPending?.() === true;
     const hostGenerating = (document as any).body?.dataset?.generating === 'true';
+    const productRecovery = (globalThis as any).storyOrchestratorSpikes?.emptyReply?.pending?.() === true;
     const last = (ctx.chat ?? [])[(ctx.chat ?? []).length - 1] ?? null;
     const startedAt = last?.gen_started ? new Date(last.gen_started).getTime() : NaN;
     const emptyReplyPending = Boolean(last && !last.is_user && !last.is_system && typeof last.mes === 'string' && !last.mes.trim()
       && !last.gen_finished && Number.isFinite(startedAt) && Date.now() - startedAt < 180000);
-    const isGenerating = buttonsSayGenerating || chainPending || hostGenerating || emptyReplyPending || (sp
+    const isGenerating = buttonsSayGenerating || chainPending || hostGenerating || emptyReplyPending || productRecovery || (sp
       ? (sp.isFinished === false && sp.isStopped !== true)
       : sendButtonDisabled);
 
@@ -45,6 +46,7 @@ export async function getGenerationState(page) {
       chainPending,
       hostGenerating,
       emptyReplyPending,
+      productRecovery,
       streamingProcessor: sp ? {
         isFinished: sp.isFinished ?? null,
         isStopped: sp.isStopped ?? null,
@@ -78,6 +80,13 @@ export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {
 }
 
 export const swipeEmptyReplies = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_SWIPE_EMPTY_REPLY === '1';
+
+export async function readProductRecoveries(page, since: number) {
+  return evaluateInST(page, (from) => {
+    const records = (globalThis as any).storyOrchestratorSpikes?.emptyReply?.records?.() ?? [];
+    return records.filter((record: any) => record.at >= from);
+  }, since);
+}
 
 export async function readEmptyReply(page) {
   return evaluateInST(page, () => {
@@ -130,6 +139,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   const chatLenBefore = await evaluateInST(page, () => {
     return SillyTavern.getContext().chat?.length ?? 0;
   });
+  const sentAt = await evaluateInST(page, () => Date.now());
 
   await textarea.fill(text);
   await textarea.dispatchEvent('input');
@@ -170,6 +180,8 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   // control allows it, so this is REPORTED by default and only fatal when the caller asks.
   let replied = !after.lastIsUser && after.lastText.length > 0;
   const emptyReplies: Array<Record<string, unknown>> = [];
+  const productRecoveries = await readProductRecoveries(page, sentAt);
+  for (const record of productRecoveries) console.warn(`PRODUCT-RECOVERY ${JSON.stringify(record)}: the extension handled an empty reply itself`);
   for (let attempt = 1; !replied && expectReply && swipeEmptyReplies() && !after.lastIsUser && after.length > chatLenBefore && attempt <= 2; attempt += 1) {
     const info = await readEmptyReply(page);
     emptyReplies.push({ ...info, attempt });
@@ -192,6 +204,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
     lastSpeaker: after.lastName,
     lastLength: after.lastText.length,
     ...(emptyReplies.length ? { emptyReplies } : {}),
+    ...(productRecoveries.length ? { productRecoveries } : {}),
     ...(expectReply && !replied ? { ok: false } : {}),
   };
 }

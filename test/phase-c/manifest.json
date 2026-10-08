@@ -591,6 +591,35 @@
       ]
     },
     {
+      "id": "B1-EMPTY",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 39",
+        "section": "§B1 rows; 2026-10-08 B1 empty-reply finding (runtime/emptyReply.ts)"
+      },
+      "labels": [
+        "B1-EMPTY empty visible replies, before and after the recovery"
+      ],
+      "prerequisites": [
+        "the B1 pod with Artemis 31B, Text Completion llama.cpp, Gemma 4 thinking, reply effort medium (400-token budget)",
+        "adolion-fresh model lanes playing group stories, the harness with SO_SWIPE_EMPTY_REPLY unset so only the product recovers",
+        "arm A = the build before v2.7-empty-reply (or the recovery seam unwired), arm B = this build; >= 200 group turns per arm at prompts >= 25K tokens (tokens_evaluated)"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm, counted from the chat files and storyOrchestratorSpikes.emptyReply.records(): empty-visible replies (non-user, no visible text, non-empty extra.reasoning) per turn at prompts >= 25K and below; automatic recoveries asked and how each ended; boundaries committed on an empty reply",
+      "floor": {
+        "text": "arm B: empty-visible replies left after recovery <= 1 per 200 turns at prompts >= 25K tokens; every asked-again recovery of a last-message reply ends with visible text (100%); 0 boundaries committed on an empty reply; arm A rate recorded as the baseline",
+        "citation": "v2.7 39 §B1 rows, B1-EMPTY (predeclared 2026-10-08)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
       "id": "C0-freeze",
       "stage": "C0",
       "source": {

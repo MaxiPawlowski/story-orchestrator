@@ -62,6 +62,18 @@ test("the B1 pod-sizing row is in the manifest and in plan 39, and dropping eith
   assert.match(parityProblems(manifest, unlisted).join("\n"), /manifest row B1-PAR is not named/);
 });
 
+test("the B1 empty-reply row is in the manifest and in plan 39 with its predeclared floor, and dropping either side is named", () => {
+  const empty = manifest.rows.find((entry) => entry.id === "B1-EMPTY");
+  assert.ok(empty, "the manifest has no B1-EMPTY row");
+  assert.equal(empty.stage, "B1");
+  assert.match(empty.floor.text, /<= 1 per 200 turns/);
+  assert.match(empty.floor.text, /100%/);
+  assert.ok(planRowTokens(plan).includes("B1-EMPTY"), "plan 39 never mentions B1-EMPTY");
+  assert.match(parityProblems({ ...manifest, rows: manifest.rows.filter((entry) => entry.id !== "B1-EMPTY") }, plan).join("\n"), /B1-EMPTY/);
+  const unlisted = plan.split(/\r?\n/).filter((line) => !line.startsWith("| B1-EMPTY")).join("\n");
+  assert.match(parityProblems(manifest, unlisted).join("\n"), /manifest row B1-EMPTY is not named/);
+});
+
 test("the predecessor is a full commit and the absent rows give a reason", () => {
   assert.match(manifest.predecessor.commit, /^[0-9a-f]{40}$/);
   assert.ok(plan.includes(manifest.predecessor.commit), "plan 39 does not record the pinned predecessor");

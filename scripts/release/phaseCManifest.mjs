@@ -68,7 +68,7 @@ export const planTableRows = (text) => {
 };
 
 const RANGE = /\b(O|S-)(\d+)\s*(?:–|-|\.\.)\s*(?:O|S-)?(\d+)\b/g;
-const TOKENS = [/\bO\d+b?\b/g, /\bS-\d+(?:-OOC)?\b/g, /\bS32-\d\b/g, /\bB1-(?:C\d+b?|R4|PAR)\b/g, /\bC4-(?:R6|J8)\b/g, /\bC14-b\b/g, /\bR4-live\b/g];
+const TOKENS = [/\bO\d+b?\b/g, /\bS-\d+(?:-OOC)?\b/g, /\bS32-\d\b/g, /\bB1-(?:C\d+b?|R4|PAR|EMPTY)\b/g, /\bC4-(?:R6|J8)\b/g, /\bC14-b\b/g, /\bR4-live\b/g];
 
 export const planRowTokens = (text) => {
   const found = new Set();

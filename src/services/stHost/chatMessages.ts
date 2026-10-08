@@ -29,6 +29,26 @@ export function rewriteReplyText(messageId: number, text: { mes: string; reasoni
   return wrote();
 }
 
+export const EMPTY_REPLY_SWIPE_SOURCE = "story-orchestrator-empty-reply";
+
+export function swipeForNewReply(messageId: number, row: unknown): Promise<WriteResult> {
+  const context = getContext();
+  const swipe = context?.swipe;
+  const chat = context?.chat;
+  if (typeof swipe?.right !== "function") return Promise.resolve(couldNot("this SillyTavern cannot swipe a reply from an extension"));
+  if (!Array.isArray(chat) || chat[messageId] !== row || messageId !== chat.length - 1) return Promise.resolve(couldNot("the reply is no longer the last message"));
+  if (swipe.isAllowed?.() === false) return Promise.resolve(couldNot("SillyTavern does not allow a swipe right now"));
+  return Promise.resolve()
+    .then(() => swipe.right?.(null, { source: EMPTY_REPLY_SWIPE_SOURCE, message: row }))
+    .then(() => wrote(), () => couldNot("SillyTavern could not swipe the reply"));
+}
+
+export function readReasoningTags(): string[] {
+  const reasoning = getContext()?.powerUserSettings?.reasoning;
+  if (!isRecord(reasoning)) return [];
+  return [reasoning.prefix, reasoning.suffix].filter((tag): tag is string => typeof tag === "string");
+}
+
 export function sendSystemChatMessage(text: string): WriteResult {
   const context = getContext() as unknown as {
     sendSystemMessage?: (type: string, text?: string, extra?: Record<string, unknown>) => void;

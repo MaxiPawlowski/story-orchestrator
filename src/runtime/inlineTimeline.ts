@@ -14,6 +14,7 @@ import { REFUSAL_PLAYER_TEXT } from "./agencyRecovery";
 import { effectiveInlineLevel, PLAYER_LEVEL_CAP, type InlineCategory, type InlineLevel, type InlineSettings } from "./settingsModel";
 import type { EffectLedgerRow, EffectLedgerStatus, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
 import type { JournalRecord } from "./journal";
+import { EMPTY_REPLY_PLAYER_TEXT } from "./emptyReply";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -72,6 +73,7 @@ export interface InlineSources {
   firstLines?: Record<string, number>;
   authorMoves?: JournalRecord[];
   resting?: (text: string) => string;
+  emptyReplies?: number[];
 }
 
 const RAW_LIMIT = 4000;
@@ -394,6 +396,7 @@ function healthItems(sources: InlineSources, newest: number): Draft[] {
   if (HEALTH_LIVE[sources.pipeline.state]) {
     drafts.push({ id: "health:pipeline", messageId: newest, category: "health", level: 2, state: "live", text: sources.pipeline.text, detail: sources.pipeline.detail ?? undefined });
   }
+  for (const messageId of sources.emptyReplies ?? []) drafts.push({ id: `health:empty:${messageId}`, messageId, category: "health", level: 1, state: "live", text: EMPTY_REPLY_PLAYER_TEXT });
   if (sources.saveNotice) drafts.push({ id: "health:save", messageId: newest, category: "health", level: 2, state: "live", text: sources.saveNotice });
   for (const row of sources.effects) {
     if (row.status !== "failed" && row.status !== "externally-changed" && row.status !== "revert-failed") continue;

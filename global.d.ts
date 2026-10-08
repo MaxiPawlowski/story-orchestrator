@@ -66,6 +66,7 @@ declare global {
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
     editReread?: { stats: () => import("./src/runtime/spikes/editReread").EditRereadStats & { holdP95Ms: number | null } };
     reasoningEffect?: import("./src/runtime/replyEffortHost").EffortDebug;
+    emptyReply?: import("./src/runtime/emptyReply").EmptyReplyDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorTalk: { chainPending: () => boolean } | undefined;
   var storyOrchestratorAgendaProposals: import("./src/runtime/coordinators/agendaProposalCoordinator").AgendaProposalCoordinator | undefined;

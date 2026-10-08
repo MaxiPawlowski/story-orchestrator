@@ -80,3 +80,22 @@ test('B1b H5b/H7: a FINISHED empty reply (gen_finished set) is not waited on; th
   assert.equal(swipeEmptyReplies({}), false);
   assert.equal(swipeEmptyReplies({ SO_SWIPE_EMPTY_REPLY: '1' }), true);
 });
+
+test('the extension asking an empty reply again reads as generating, so the harness never swipes on top of it', async () => {
+  const { readProductRecoveries } = await import('./st-actions.mts');
+  const page = idlePage();
+  let pending = true;
+  g.storyOrchestratorSpikes = { emptyReply: { pending: () => pending, records: () => [{ at: 5, outcome: 'asked-again' }, { at: 1, outcome: 'left' }] } };
+  try {
+    assert.equal((await getGenerationState(page)).isGenerating, true);
+    assert.equal((await getGenerationState(page)).productRecovery, true);
+    pending = false;
+    assert.equal((await getGenerationState(page)).isGenerating, false);
+    assert.deepEqual((await readProductRecoveries(page, 3)).map((record: any) => record.outcome), ['asked-again']);
+    delete g.storyOrchestratorSpikes;
+    assert.equal((await getGenerationState(page)).isGenerating, false, 'control: no handle (older build) reads idle');
+    assert.deepEqual(await readProductRecoveries(page, 0), []);
+  } finally {
+    delete g.storyOrchestratorSpikes;
+  }
+});

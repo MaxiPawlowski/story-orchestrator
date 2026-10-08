@@ -665,6 +665,14 @@
       "status": "delegate",
       "note": "v2.6 plan 14 T0 fixes: the dedupe runs before any await; the boundary is queued by awaits TurnBridge.enqueueBoundary, which owns the check."
     },
+    "src/runtime/emptyReply.ts#EmptyReplyRecovery.observe": {
+      "status": "local",
+      "note": "2026-10-08 empty reply: the only write after its await is the in-memory pending counter in finally; every chat write is in recover."
+    },
+    "src/runtime/emptyReply.ts#EmptyReplyRecovery.recover": {
+      "status": "checked",
+      "note": "2026-10-08 empty reply: mints a run over the empty message at entry and re-checks it after the idle wait, before the journal line and the swipe; a chat switch or a swipe/edit/delete at or before the message drops it with no journal or swipe (emptyReply.test.ts 'drops the recovery without a write when the chat switches while it waits'). After the swipe only the in-memory debug ring is written, and the journal only while the run still owns the world."
+    },
     "src/runtime/turnBridge.ts#TurnBridge.enqueueBoundary": {
       "status": "checked",
       "note": "v2.3 plan 03 (moved out of onRenderedReply in the T0 fixes, 2026-10-01): captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world. A swipe back to a stored version enqueues with afterSpeak off (turnBridgeSwipeBack.test.ts)."
