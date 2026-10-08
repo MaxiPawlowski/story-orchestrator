@@ -26,6 +26,8 @@
     "B1-C3": { "runMin": 60 },
     "B1-R4": { "runMin": 60 },
     "B1-PAR": { "runMin": 15 },
+    "B1-PFX": { "runMin": 170 },
+    "B1-HIST": { "runMin": 180 },
     "J1": { "runMin": 7 },
     "J2": { "runMin": 8 },
     "J3": { "runMin": 9 },

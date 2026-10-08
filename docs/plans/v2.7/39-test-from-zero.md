@@ -181,6 +181,17 @@ group turns, memory requests carry no budget key, one Chat Completion arm (`v2.6
 ≈0.5 lane-hour. C4's R4 latency leg is recorded in B1-C3. 39 C5 already names C14-b (an acceptance row, not a measurement), so it is
 not repeated here. v2.8 01 §A (O-rows) is C5; v2.8 01 §C (option A) is v2.7 33 W1.
 
+### Rows from v2.7 41 (prompt size and cache, 2026-10-08)
+
+Measurement only, no code (v2.7 41 §5 P1/P2). Each is a manifest row (rule 10), ×2 with the rule 11 reset, on the
+B1 pod with one model lane and nothing else on it. A result below a floor is recorded as a failed row (rule 8); the
+owner decides the change. Campaign rows report counts only (rule 7).
+
+| Id | Source | Prerequisites | Floor / what is recorded | Tier |
+|---|---|---|---|---|
+| B1-PFX prefix reuse on the pod | v2.7 41 §5 P2, §6 | llama-server per arm: the B1 args (control) vs `--swa-full`, `LLM_CTX` 98304 total, `LLM_PARALLEL` 2; one lane replaying the 247-message SP6 saga chat with scripted same-speaker and cross-member `/trigger` pairs, 40 per arm; `so-pod` request timings | the `--swa-full` arm reuses ≥ 50 % of prompt tokens on same-speaker pairs (p50 of 1 − tokens_evaluated / prompt tokens), keeps per-stream decode ≥ 25 tok/s p50 and logs 0 OOM, context-full or truncation events; control, cross-member reuse, prefill ms and VRAM peak recorded beside | RP |
+| B1-HIST bounded history on the saga | v2.7 41 §5 P1, §6 | the same chat continued 30 real turns per arm: `max_context` 98304 (control) vs 24576; 10 recall probes about events older than the window, written before the run, kept private, rated blind by Astra (delegated) | the 24576 arm keeps every loud request ≤ 24576 prompt tokens, prompt ms p50 ≤ 0.6 × control, ≥ 8 of 10 probes answered consistently with the transcript, and no more established-fact contradictions than control | RP |
+
 ### Rows added by the sprites review (2026-10-07)
 
 Plugin-side fixes for the talking-sprites review on `v2.7-sprites-fixes` (jest: `sprites/stage.test.ts`, `sprites/faceFrames.test.ts`,
@@ -562,6 +573,8 @@ evidence). `phaseCManifest.test.mjs` fails when this table and the manifest disa
 | B1-C12 | B1 | CL | v2.8 01 §B C12; 39 §B1 rows from v2.8 01 |
 | B1-R4 | B1 | RP | v2.8 01 §E (data only); 39 §B1 rows from v2.8 01 |
 | B1-PAR | B1 | RP | v2.7 39a §Hardware (B1 pod); 39 §B1 rows from v2.8 01 |
+| B1-PFX | B1 | RP | v2.7 41 §5 P2, §6 Rows |
+| B1-HIST | B1 | RP | v2.7 41 §5 P1, §6 Rows |
 | C0-freeze | C0 | D | v2.7 39 §Sequence C0; rule 2 |
 | C0-goldens | C0 | D | v2.7 39 §Sequence C0 |
 | C1-gates | C1 | D | v2.7 39 §Sequence C1; v2.7 31 §C |

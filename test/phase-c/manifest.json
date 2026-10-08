@@ -591,6 +591,64 @@
       ]
     },
     {
+      "id": "B1-PFX",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 41",
+        "section": "§5 P2, §6 Rows"
+      },
+      "labels": [
+        "B1-PFX prefix reuse on the pod"
+      ],
+      "prerequisites": [
+        "the B1 pod (RTX PRO 6000, 96 GB) with the Artemis GGUF; llama-server restarted per arm: control = the B1 args, arm = `--swa-full` with `LLM_CTX` 98304 total and `LLM_PARALLEL` 2, everything else unchanged",
+        "one adolion-fresh model lane, nothing else on the pod; a 247-message SP6 saga chat seeded into it (a private copy of the lane-3 B1 chat, kept outside the repo, rule 6) and replayed with scripted `/trigger await=true` pairs: the same speaker twice, then a member after the Narrator, 40 pairs per arm",
+        "`so-pod` requests.jsonl (prompt tokens, tokens_evaluated, predicted_per_second) and log-events.jsonl for the arm window; runner owed by v2.7 41 (record test/phase-c/records/B1-PFX/run-<n>.json)"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm: share of prompt tokens reused on same-speaker and on cross-member pairs (p50, p95 of 1 - tokens_evaluated / prompt tokens), prefill ms p50, per-stream decode tok/s p50, VRAM peak, OOM / context-full / truncation events; the prompt bodies are identical across arms",
+      "floor": {
+        "text": "the --swa-full arm reuses ≥ 50 % of prompt tokens on same-speaker pairs (p50), keeps per-stream decode ≥ 25 tok/s (p50), and logs 0 OOM, context-full or truncation events; the control arm is recorded beside it",
+        "citation": "v2.7 41 §6 Rows (B1-PFX); the 25 tok/s bar is B1-PAR's"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "B1-HIST",
+      "stage": "B1",
+      "source": {
+        "plan": "v2.7 41",
+        "section": "§5 P1, §6 Rows"
+      },
+      "labels": [
+        "B1-HIST bounded history on the saga"
+      ],
+      "prerequisites": [
+        "the B1 pod and B1 args; one adolion-fresh model lane",
+        "the same 247-message SP6 saga chat as B1-PFX, continued for 30 real player turns per arm: control = preset max_length / max_context 98304 (today), arm = 24576; memory roles routed as in B1",
+        "10 recall probes about events older than the arm's window, written before the run from the transcript and kept private (rule 7); answers rated blind by Astra (delegated); runner owed by v2.7 41 (record test/phase-c/records/B1-HIST/run-<n>.json)"
+      ],
+      "reset": "adolion",
+      "tier": [
+        "RP"
+      ],
+      "assertion": "per arm: loud prompt tokens (p50, p95, max), prompt ms p50 / p95, recall probes answered consistently with the transcript, established-fact contradictions held by the memory conflict ring over the 30 turns",
+      "floor": {
+        "text": "the 24576 arm keeps every loud request ≤ 24576 prompt tokens, has prompt ms p50 ≤ 0.6 × control, answers ≥ 8 of 10 recall probes consistently with the transcript, and records no more established-fact contradictions than control",
+        "citation": "v2.7 41 §6 Rows (B1-HIST)"
+      },
+      "evidence": [
+        null,
+        null
+      ]
+    },
+    {
       "id": "C0-freeze",
       "stage": "C0",
       "source": {
