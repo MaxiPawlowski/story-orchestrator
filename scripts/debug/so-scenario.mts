@@ -972,6 +972,18 @@ function uiFailures(selector, text, spec) {
 // `storyOrchestratorDebug*` responses stand in for the model until the page reloads, so one run's
 // mock answered the next run's first real pass (plan07-memory, second run) and would answer a real
 // player's in the shared browser. A sandbox run starts and ends without any.
+async function closeLeftBreaker(page) {
+  return evaluateInST(page, () => {
+    const rt = (globalThis as any).storyOrchestratorRuntime;
+    const scheduler = rt?.scheduler;
+    const health = scheduler?.health?.() ?? null;
+    if (health?.kind !== 'transport') return { open: false };
+    const profileId = rt.getGlobalSettings?.()?.extraction?.profileId ?? null;
+    if (profileId) scheduler.noteAnswered?.(profileId, 0);
+    return { open: true, detail: health.detail ?? null, closed: !scheduler.breakerOpen?.(profileId) };
+  });
+}
+
 async function clearDebugResponses(page) {
   return evaluateInST(page, () => {
     const keys = Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'));
@@ -1032,6 +1044,8 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
   if (guard && !generation.idle) cleaned.notDeleted = [...guard.owned];
   if (guard && generation.idle) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
+    cleaned.memoryBreaker = await closeLeftBreaker(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
+    if ((cleaned.memoryBreaker as { open?: boolean })?.open) console.log(`memory-model breaker left open by this fixture, closed for the next run: ${JSON.stringify(cleaned.memoryBreaker)}`);
     await recordSandboxStory(page, guard);
     if (guard.foreignChats?.length) {
       try { cleaned.foreignChats = await cleanupForeignChats(page, guard); } catch (err) { cleaned.foreignChats = { error: err instanceof Error ? err.message : String(err), leaked: guard.foreignChats.map((entry) => entry.chatId) }; }
