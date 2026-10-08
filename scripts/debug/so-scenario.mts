@@ -544,11 +544,16 @@ async function waitForSchedulerIdle(page, timeoutMs, quietMs) {
   throw new Error(`Timed out waiting for the extraction scheduler to drain: ${JSON.stringify(last)}`);
 }
 
+export const schedulerWaitMs = (requested: number, env: NodeJS.ProcessEnv = process.env): number => {
+  const floor = Number(env.SO_WAIT_TIMEOUT_FLOOR_MS);
+  return Number.isFinite(floor) && floor > requested ? floor : requested;
+};
+
 async function waitForCondition(page, spec) {
   const timeout = spec.timeoutMs ?? 10000;
   const deadline = Date.now() + timeout;
   let last = null;
-  if (spec.schedulerIdle) return waitForSchedulerIdle(page, timeout, spec.quietMs ?? 3000);
+  if (spec.schedulerIdle) return waitForSchedulerIdle(page, schedulerWaitMs(timeout), spec.quietMs ?? 3000);
   while (Date.now() < deadline) {
     if (spec.idle) return waitForIdle(page, timeout);
     last = await dumpCurrentChatState(page);
