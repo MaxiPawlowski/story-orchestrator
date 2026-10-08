@@ -97,6 +97,20 @@ export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000
   return { before, after: await readBriefingModal(page) };
 }
 
+export async function closeStartDialog(page, when: string, { settleMs = 3000, timeoutMs = 5000 } = {}) {
+  const deadline = Date.now() + settleMs;
+  let state = await readBriefingModal(page);
+  while (!state.open && Date.now() < deadline) {
+    await page.waitForTimeout(250);
+    state = await readBriefingModal(page);
+  }
+  if (!state.open) return { open: false, when };
+  await page.locator('#so-briefing-start').click();
+  await page.waitForFunction(() => !(document.querySelector('dialog#so-briefing') as HTMLDialogElement | null)?.open, null, { timeout: timeoutMs });
+  console.log(`setup closed the story-start dialog ${when} (${state.identity ? 'identity step' : state.blocks.length ? 'before you start' : 'briefing'}: ${state.title ?? ''})`);
+  return { open: true, when, closed: true, identity: Boolean(state.identity), blocks: state.blocks.length, title: state.title };
+}
+
 export interface PlayerSetupPaneState {
   open: boolean;
   role: string | null;
