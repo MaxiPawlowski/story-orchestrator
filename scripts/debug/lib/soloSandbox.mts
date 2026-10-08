@@ -85,6 +85,18 @@ async function waitForChat(page: Page, predicate: (state: { groupId: string | nu
   throw new Error(`solo_chat: timed out waiting for the chat to settle (now ${JSON.stringify(state)})`);
 }
 
+async function settleChatSave(page: Page, module: string) {
+  await evaluateInST(page, async (path: string) => {
+    const st = await import(/* webpackIgnore: true */ path) as { isChatSaving?: boolean; saveChatConditional?: () => Promise<void> };
+    const idle = async () => { for (let i = 0; i < 100 && st.isChatSaving; i += 1) await new Promise((resolve) => setTimeout(resolve, 100)); };
+    await idle();
+    await st.saveChatConditional?.();
+    await idle();
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await idle();
+  }, module);
+}
+
 async function openSolo(page: Page, guard: SoloGuard, character: string, module: string) {
   const from = await evaluateInST(page, () => {
     const ctx = (globalThis as any).SillyTavern.getContext();
@@ -107,6 +119,7 @@ async function openSolo(page: Page, guard: SoloGuard, character: string, module:
   if (!target.chats) throw new Error(`solo_chat: the chats of "${target.name}" could not be read, so the run could not tell its own chat from one that existed`);
   guard.activeEntityBefore = guard.activeEntityBefore ?? await readActiveEntity(page, module);
   guard.soloReturn = guard.soloReturn ?? from.chatId;
+  await settleChatSave(page, module);
   const went = await evaluateInST(page, async (avatar: string) => {
     try {
       await (globalThis as any).SillyTavern.getContext().executeSlashCommandsWithOptions(`/go ${avatar}`);
