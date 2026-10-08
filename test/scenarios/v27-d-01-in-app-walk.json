@@ -81,6 +81,21 @@
       "log": true
     },
     {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const button = document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'); if (!button) throw new Error('the memory-model Repair row has no Show me'); button.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 400)); return { scrolled: true };"
+    },
+    {
+      "ui": {
+        "action": "hit-test",
+        "selector": "#so-entry-repair [data-so=\"repair-reveal\"]"
+      },
+      "log": true
+    },
+    {
       "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const visible = (selector) => { const node = document.querySelector(selector); if (!node || node.offsetParent === null) return false; const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }; const reveal = document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'); if (!reveal) throw new Error('the memory-model Repair row has no Show me'); reveal.click(); await until(() => visible('#so-extraction-profile'), 5000, 'Repair Show me to land on #so-extraction-profile'); document.querySelector('#so-help-toggle')?.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 300)); if (document.querySelector('#so-help')) throw new Error('the Help panel is already open before the toggle was pressed'); return { landed: '#so-extraction-profile' };",
       "log": true
     },
