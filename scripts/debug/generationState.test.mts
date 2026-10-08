@@ -90,9 +90,9 @@ test('B1b H8: SO_SEND_TIMEOUT_FLOOR_MS raises a send timeout to the floor, never
   assert.equal(sendTimeoutMs(300000, { SO_SEND_TIMEOUT_FLOOR_MS: 'x' }), 300000);
 });
 
-test('B1b H7b: SO_SWIPE_EMPTY_MAX sets the empty-reply swipe limit, default 2', async () => {
+test('B1b H7b: SO_SWIPE_EMPTY_MAX sets the empty-reply swipe limit, default 4', async () => {
   const { swipeEmptyMax } = await import('./st-actions.mts');
-  assert.equal(swipeEmptyMax({}), 2);
+  assert.equal(swipeEmptyMax({}), 4);
   assert.equal(swipeEmptyMax({ SO_SWIPE_EMPTY_MAX: '4' }), 4);
-  assert.equal(swipeEmptyMax({ SO_SWIPE_EMPTY_MAX: '0' }), 2);
+  assert.equal(swipeEmptyMax({ SO_SWIPE_EMPTY_MAX: '0' }), 4);
 });

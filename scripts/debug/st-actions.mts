@@ -78,7 +78,7 @@ export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {
 }
 
 export const swipeEmptyReplies = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_SWIPE_EMPTY_REPLY === '1';
-export const swipeEmptyMax = (env: NodeJS.ProcessEnv = process.env): number => { const max = Number(env.SO_SWIPE_EMPTY_MAX); return Number.isInteger(max) && max > 0 ? max : 2; };
+export const swipeEmptyMax = (env: NodeJS.ProcessEnv = process.env): number => { const max = Number(env.SO_SWIPE_EMPTY_MAX); return Number.isInteger(max) && max > 0 ? max : 4; };
 
 export async function readEmptyReply(page) {
   return evaluateInST(page, () => {
