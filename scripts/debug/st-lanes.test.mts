@@ -81,3 +81,10 @@ test('st-lanes run enforces evidence for B1 model runs, integration plays and --
   assert.equal(runEvidenceRequired(['scripts/debug/st-session.mts', 'reload'], []), false);
   assert.equal(runEvidenceRequired(['scripts/debug/st-session.mts', 'reload'], ['--evidence']), true);
 });
+
+test('B1b H6: batch reloads the lane page before every repeat after the first (rule 11: clears the judge cache), never before run 1', async () => {
+  const { betweenRunsArgs } = await import('./st-lanes.mts');
+  assert.equal(betweenRunsArgs(1), null);
+  assert.deepEqual(betweenRunsArgs(2), ['scripts/debug/st-session.mts', 'reload']);
+  assert.deepEqual(betweenRunsArgs(3), ['scripts/debug/st-session.mts', 'reload']);
+});
