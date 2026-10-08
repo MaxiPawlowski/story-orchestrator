@@ -106,10 +106,20 @@ async function openSolo(page: Page, guard: SoloGuard, character: string, module:
   if (!target) throw new Error(`solo_chat: no character named "${character}" on this install`);
   if (!target.chats) throw new Error(`solo_chat: the chats of "${target.name}" could not be read, so the run could not tell its own chat from one that existed`);
   guard.activeEntityBefore = guard.activeEntityBefore ?? await readActiveEntity(page, module);
-  await evaluateInST(page, async (avatar: string) => {
-    await (globalThis as any).SillyTavern.getContext().executeSlashCommandsWithOptions(`/go ${avatar}`);
+  guard.soloReturn = guard.soloReturn ?? from.chatId;
+  const went = await evaluateInST(page, async (avatar: string) => {
+    try {
+      await (globalThis as any).SillyTavern.getContext().executeSlashCommandsWithOptions(`/go ${avatar}`);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    }
   }, target.avatar);
-  await waitForChat(page, (state) => !state.groupId);
+  try {
+    await waitForChat(page, (state) => !state.groupId && Boolean(state.chatId));
+  } catch (error) {
+    throw new Error(`solo_chat: /go ${target.name} did not open a solo chat${went ? ` (it answered: ${went})` : ''}: ${error instanceof Error ? error.message : String(error)}`);
+  }
   const opened = await evaluateInST(page, () => (globalThis as any).SillyTavern.getContext().chatId ?? null);
   await evaluateInST(page, async () => {
     await (globalThis as any).SillyTavern.getContext().executeSlashCommandsWithOptions('/newchat');
@@ -119,7 +129,6 @@ async function openSolo(page: Page, guard: SoloGuard, character: string, module:
   guard.soloChats = guard.soloChats ?? [];
   guard.soloChats.push({ chatId: now.chatId, avatar: target.avatar, name: target.name });
   if (!guard.owned.includes(now.chatId)) guard.owned.push(now.chatId);
-  guard.soloReturn = guard.soloReturn ?? from.chatId;
   guard.current = now.chatId;
   return { solo: now.chatId, character: target.name, returnTo: guard.soloReturn };
 }
