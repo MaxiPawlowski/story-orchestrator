@@ -4,9 +4,10 @@ import { readCopiersWith } from "../transcriptCopiers";
 import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
 import { readExtensionConflictsWith } from "../extensionConflicts";
 import { LoreSelector } from "../loreSelect";
+import { loreSelectTiming, type LoreSelectTrigger } from "../loreSelectTiming";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
-import { isQuietType, withholds, type GenerationLifecycle } from "../generationLifecycle";
+import { withholds, type GenerationLifecycle } from "../generationLifecycle";
 import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
@@ -107,29 +108,10 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     selection: () => lore.completeSelection(),
   });
 
-  let awaitsMessage = false;
-  let awaitsIntercept = false;
-  const select = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger)
+  const select = (trigger: LoreSelectTrigger) => lore.select(trigger)
     .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
     .catch((error) => log.warn("lore-select failed", error));
-  const onGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
-    awaitsMessage = false;
-    if (dryRun || isQuietType(type) || params?.quiet_prompt) return;
-    awaitsIntercept = false;
-    if (!lore.active()) return;
-    if (willAddUserMessage(type, params, dryRun)) awaitsMessage = true;
-    else awaitsIntercept = true;
-  };
-  const onIntercept = async (type: string, aborted: boolean) => {
-    if (isQuietType(type) || !awaitsIntercept) return;
-    awaitsIntercept = false;
-    if (!aborted) await select("GENERATION_STARTED");
-  };
-  const onMessageSent = async () => {
-    if (!awaitsMessage) return;
-    awaitsMessage = false;
-    await select("MESSAGE_SENT");
-  };
+  const { onGenerationStarted, onIntercept, onMessageSent } = loreSelectTiming({ active: () => lore.active(), willAddUserMessage, select });
   return { loreWatch, scanGating, storyLore, onGenerationStarted, onIntercept, onMessageSent };
 };
 
