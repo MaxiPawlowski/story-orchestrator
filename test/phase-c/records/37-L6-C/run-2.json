@@ -1,0 +1,161 @@
+{
+  "row": "37-L6-C",
+  "run": 2,
+  "writtenAt": "2026-10-08T04:39:32.459Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "use": "wardenVoice",
+  "source": "v2.7 37 §L6 Calibration row L6-C",
+  "provider": "typesafe",
+  "requestedModel": null,
+  "model": "jev-1.13.0",
+  "modelVerdict": "matched",
+  "p50LatencyMs": 227,
+  "floor": "**OOC recall ≥ 0.80** (≥ 8 of 10 OOC replies noted), **false-note rate ≤ 0.10** (≤ 1 of 10 in-character replies noted), **0 notes that propose a rewrite or narrate a player action**, fallback rate (timeout / too-large / error) ≤ 1 in 20. Run ×2 offline replay; both runs must pass.",
+  "verdict": "FAIL",
+  "incomplete": [],
+  "checks": {
+    "oocRecall": {
+      "value": 0.5,
+      "min": 0.8,
+      "ok": false
+    },
+    "falseNoteRate": {
+      "value": 0,
+      "max": 0.1,
+      "ok": true
+    },
+    "rewriteOrPlayerNarrationNotes": {
+      "value": 0,
+      "max": 0,
+      "ok": true
+    },
+    "fallbacks": {
+      "value": 0,
+      "max": 1,
+      "of": 20,
+      "ok": true
+    }
+  },
+  "rows": [
+    {
+      "row": 1,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 2,
+      "label": "ooc",
+      "noted": true,
+      "fallback": null
+    },
+    {
+      "row": 3,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 4,
+      "label": "ooc",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 5,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 6,
+      "label": "ooc",
+      "noted": true,
+      "fallback": null
+    },
+    {
+      "row": 7,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 8,
+      "label": "ooc",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 9,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 10,
+      "label": "ooc",
+      "noted": true,
+      "fallback": null
+    },
+    {
+      "row": 11,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 12,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 13,
+      "label": "ooc",
+      "noted": true,
+      "fallback": null
+    },
+    {
+      "row": 14,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 15,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 16,
+      "label": "ooc",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 17,
+      "label": "ooc",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 18,
+      "label": "in",
+      "noted": false,
+      "fallback": null
+    },
+    {
+      "row": 19,
+      "label": "ooc",
+      "noted": true,
+      "fallback": null
+    },
+    {
+      "row": 20,
+      "label": "ooc",
+      "noted": false,
+      "fallback": null
+    }
+  ]
+}
