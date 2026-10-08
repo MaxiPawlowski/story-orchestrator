@@ -180,7 +180,9 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
   // never moved (J3.1, twice in three runs, 2026-09-23). The visible wait above still holds, and
   // the click is still a real pointer event at the button's centre.
   await sendBtn.click({ force: true });
-  await waitForSendTaken(page, chatLenBefore, postSendWaitMs());
+  const clickedAt = Date.now();
+  const taken = await waitForSendTaken(page, chatLenBefore, postSendWaitMs());
+  console.log(`SEND-TAKEN ${JSON.stringify({ ms: Date.now() - clickedAt, taken, messagesBefore: chatLenBefore })}`);
 
   await waitForIdle(page, idleTimeoutMs);
 
