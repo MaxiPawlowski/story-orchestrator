@@ -973,14 +973,18 @@ function uiFailures(selector, text, spec) {
 // mock answered the next run's first real pass (plan07-memory, second run) and would answer a real
 // player's in the shared browser. A sandbox run starts and ends without any.
 async function closeLeftBreaker(page) {
-  return evaluateInST(page, () => {
+  return evaluateInST(page, async () => {
     const rt = (globalThis as any).storyOrchestratorRuntime;
     const scheduler = rt?.scheduler;
-    const health = scheduler?.health?.() ?? null;
-    if (health?.kind !== 'transport') return { open: false };
-    const profileId = rt.getGlobalSettings?.()?.extraction?.profileId ?? null;
-    if (profileId) scheduler.noteAnswered?.(profileId, 0);
-    return { open: true, detail: health.detail ?? null, closed: !scheduler.breakerOpen?.(profileId) };
+    const profileId = rt?.getGlobalSettings?.()?.extraction?.profileId ?? null;
+    const first = scheduler?.health?.() ?? null;
+    if (first?.kind !== 'transport') return { open: false };
+    let closes = 0;
+    for (; closes < 6 && scheduler.health?.()?.kind === 'transport'; closes += 1) {
+      if (profileId) scheduler.noteAnswered?.(profileId, 0);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    return { open: true, detail: first.detail ?? null, closes, closed: scheduler.health?.()?.kind !== 'transport' };
   });
 }
 
@@ -1044,8 +1048,6 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
   if (guard && !generation.idle) cleaned.notDeleted = [...guard.owned];
   if (guard && generation.idle) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
-    cleaned.memoryBreaker = await closeLeftBreaker(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
-    if ((cleaned.memoryBreaker as { open?: boolean })?.open) console.log(`memory-model breaker left open by this fixture, closed for the next run: ${JSON.stringify(cleaned.memoryBreaker)}`);
     await recordSandboxStory(page, guard);
     if (guard.foreignChats?.length) {
       try { cleaned.foreignChats = await cleanupForeignChats(page, guard); } catch (err) { cleaned.foreignChats = { error: err instanceof Error ? err.message : String(err), leaked: guard.foreignChats.map((entry) => entry.chatId) }; }
@@ -1058,6 +1060,8 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
     try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]); } catch (err) { cleaned.reapPrompts = { error: err instanceof Error ? err.message : String(err) }; }
+    cleaned.memoryBreaker = await closeLeftBreaker(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
+    if ((cleaned.memoryBreaker as { open?: boolean })?.open) console.log(`memory-model breaker left open by this fixture, closed for the next run: ${JSON.stringify(cleaned.memoryBreaker)}`);
     // The chat the page was on before this run is none of the run's business. Read it back from the
     // server and say so loudly if it shrank: a silent loss here is the user's story, and nothing else
     // in the harness can see it (2026-09-21).
