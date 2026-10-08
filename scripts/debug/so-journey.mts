@@ -569,7 +569,11 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
+      const briefingPre = await suppressBriefing(page);
+      const playerSetupPre = await suppressPlayerSetup(page);
       await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating, into: setupApplied });
+      if (briefingPre.before !== null) setupApplied.briefingBefore = briefingPre.before;
+      if (playerSetupPre.before !== null) setupApplied.playerSetupBefore = playerSetupPre.before;
       await suppressBriefing(page);
       await suppressPlayerSetup(page);
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
