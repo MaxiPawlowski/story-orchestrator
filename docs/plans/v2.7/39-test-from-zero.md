@@ -1023,3 +1023,73 @@ sessions:archive` not run.
 **What remains.** 35-K3/K4/K5 and B1-C3/C12 from scratch (needs DeepSeek credit; ~7–8 h on 3 pods, ~$15; one long-chat lane per pod,
 or accept pod 1's rate; the flags and floors above on); 36-Q1-M1 re-decided by its owner (one PASS, one FAIL); the B2 decisions the
 reds above feed (36 Q1 M2, 37 M1, S-17/37-S17 token growth); fixes for F-B1b-1 and F-B1b-3; the 35-M2 driver; B1-R4 pairs.
+
+## B1 record, batch 3 (2026-10-08, branch `v2.7-39-b1c-fixes`, RunPod + local 3090)
+
+Pre-freeze stage B1 (rule 1: not Phase C evidence). Served build: CANDIDATE master `2e9ae27b`, bundle `a52734d6326e…`, staged only into a
+private ST code copy (`C:\dev\so-lanes\agent-st-b1c-cand`, data junctioned read-only to the real install for seeds); the real ST slot,
+lane 0 and :8000 were never touched. Private copies were also built for PRE-EMPTY `57c9401f` (= `bf1e0c77^1`, bundle `cf8cf5847f75`)
+and PRE-P3 `d33a75a8` (= `2e9ae27b^1`, differs only by P3, bundle `8a71ef276e84`); neither was used (their rows did not run). The next
+round's candidate also carries master `43a16f4a` (lore select no longer delays the player's line). Evidence (private):
+`so-sessions:evidence/phase-c/b1c-2026-10-08/` (1,834 files, 1.38 GB, plus `local/`: notes, drivers, run logs, superseded runs).
+Adolion rows report counts only (rule 7).
+
+**Scope as run (main, during the batch).** Planned: 35-K3/K4/K5 and B1-C3/C12 ×2, then B1-EMPTY, B1-NARR, B1-HIST, B1-PFX. DeepSeek
+balance was $4.99 at the start; main moved every memory role to a dedicated Artemis memory pod. RTX PRO 4500 stock ran out in EU-RO-1
+(pods 3/4 refused 15:41–15:51Z and 17:35Z). At 17:42Z the RunPod account balance turned out to be about $5 (the $35 was an approval,
+not credit): clean shutdown at 18:00Z; then the owner topped up $15 and main cut the scope to **run 1 only** of the four K3 cells and
+C3, and moved C3 to the local 3090 as a diagnostic. Every row below is a single-run read: **provisional for B2, no ×2 verdict**.
+
+**Hardware and cost.** Pods (Secure, EU-RO-1, RTX PRO 4500, $0.72/h, volume `x9gi6f1rig`, 22/tcp only, `so-pod up` tunnels):
+pod 1 `cewhps2kvv3rzj` 15:31–23:17Z and pod 2 `074pfv5qwoxtgf` 15:31–23:22Z (reply pods, `LLM_PARALLEL` 2, ctx 196,608), pod 5
+`zvlobugbmesfz5` 15:52–23:22Z (memory pod, `LLM_PARALLEL` 4, ctx 98,304), pod 3 `p5pk5ong1gvldz` 17:06–18:04Z (C3, ended by the
+balance shutdown). Flags as attempt 2 (`--kv-unified --log-timestamps --log-prefix --cache-ram 16384 --ctx-checkpoints 32
+--checkpoint-min-step 1024`, q8_0, `LLM_DEBUG_LOG=1`); no llama restart, no `update-pod`. All four released (pull + teardown-check
+ok) and **terminated**. ≈ 24.1 pod-h ≈ **$17.4** (billed $15.43 at 23:25Z with an hour of lag). The memory pod saturated (about 10
+tok/s per stream, about 50 s per memory read) while the reply pods ran 25–31 tok/s mostly idle; it set the turn time.
+
+**Rows.**
+
+| B1 item | Run 1 (provisional) | Detail |
+|---|---|---|
+| 35-K3 | **PASS (run 1 only)** | agency flags: release judge-on 0 ≤ control mean 0 + 1. Releases: on/release 25, off/release 21, on/control 24, off/control **12** (< 20: the control arm's own size check failed). The journey check "the release arm carried the block on every release" read 15/25 and 18/21, a measurement artifact rather than a product red: the check reads only the turn's last payload capture, and a release inside a multi-voice chain carries the block on a mid-chain voice. off/release: exactly the 3 releases inside multi-voice chains (2, 2 and 4 boundaries in that turn) are the 3 not carried. on/release: 15 of 25 releases sat in multi-voice turns and 15 carried, at least the 10 single-voice ones, consistent with the artifact but not provable per release from the saved data. Recorded harness-INCOMPLETE; lab fix owed: a release counts as carried when ANY loud generation since the send held the block |
+| 35-K4 | **PASS (run 1 only)** | 0 restatements in 46 measured release replies |
+| 35-K5 | **INCOMPLETE** | pooled measured releases 7 (release) / 8 (control), below the ≥ 20 pooled denominator; as read: release 1/7 (14 %, floor ≥ 60 %), control 3/8 (37.5 %, floor ≤ 30 %) |
+| B1-C3, B1-C12 | **INCOMPLETE** (owed to the next pod round) | pod run 1 killed at turn 30 by the balance shutdown. Local-variant diagnostic, not evidence (3090 controller `fast`, 32K, 1 slot; GGUF `Artemis-31B-v1m-Q4_K_M` 18,687,063,072 B vs the pod's v1.1 19,598,490,016 B; ST `max_context` 32768 vs 98304), 80 of 98 turns: warden 118 calls / **7 timeouts** (> 1 per 50; queue 1, unattributed 6; provider p50 1,086 / p95 2,454 ms), wardenLore 114 / 2 (≤ 1 per 50); C12 lore-select requests per loud turn p50 7, p95 16, max 18; 13 judge-plugin 429s 18:39–18:41Z |
+| B1-EMPTY, B1-NARR | **NOT RUN** | balance and scope cut; saga driver built and dry-checked |
+| B1-HIST, B1-PFX | **NOT RUN** | budget after adding the memory pod (main) |
+
+Per-run turn data (98 turns each; `local/logs/agg-at-stop.jsonl` has the killed runs): on/release turn p50 75 s, p95 137 s; off/release
+88 / 131 s; on/control 83 / 154 s; off/control 78 / 153 s. The product's empty-reply recovery fired 3, 3, 1 and 7 times; the harness
+saw 2 empty replies left after it (off/control, swiped). Send-to-line latency (H15b, the two re-runs): p50 60 / 57 ms, p95 361 / 358 ms,
+max 4,536 / 1,638 ms, every line taken; by turn decile (p50/p95 ms) on/release 32/40, 42/77, 39/46, 47/53, 61/75, 60/89, 63/460,
+70/4536, 70/73, 81/361; off/control 30/37, 40/533, 43/49, 48/286, 50/1638, 57/272, 64/75, 74/363, 286/358, 79/1512 (rises with chat
+length; feeds v2.8 01 H).
+
+**Runs that do not count.** 15:43Z starts failed at import (a git-excluded story file was missing in the new worktree). At 16:30Z
+off/release timed out on a 300 s `schedulerIdle` wait with the memory queue still working (H13); all four restarted. The 18:00Z
+balance shutdown killed four K3 runs at turns 32–39 and C3 at 30. Two pre-H15 run-1s failed with SEND-NOT-POSTED at turns 64–66 (lane
+4 at 20:15Z, lane 1 at 20:24Z): the line reached the chat after the idle window. Recorded INCOMPLETE (harness, pre-H15) and re-run with
+H15/H15b.
+
+**Findings.**
+
+| # | Finding | Bucket | Status |
+|---|---|---|---|
+| F-B1c-1 | The player's line can reach the chat seconds after Send (up to 4.5 s measured on the pods, longer on the 1-slot 3090), growing with chat length | product, player-facing | master `43a16f4a` (lore select no longer delays the line); latency series above |
+| F-B1c-2 | Warden judge timeouts above the floor again (7 in 118 on the 3090 diagnostic; 7 in 114 in attempt 2), mostly unattributed | product / judge plugin | open, for B1-C3 on a pod |
+| F-B1c-3 | The SP6 "carried" check reads only the last capture of a turn | lab journey (harness) | open, fix before the next K3 run |
+| F-B1c-4 | A dedicated 4-slot memory pod for 4–5 SP6 lanes saturates and sets the turn time | measurement | 39a §Run plan default after B1 batch 3 |
+| F-B1c-5 | K3 off/control had 12 release points (< 20), like attempt 2's 11 | measurement | B2 (35 owner): control-arm size |
+| H11–H15b | harness: saga driver `so-b1-saga.mts` (H11 `d6432e89`); memory pod port through the lane firewall (H12 `f5f2dcb3`); `SO_WAIT_TIMEOUT_FLOOR_MS` floors a `schedulerIdle` wait (H13 `2492025e`); `st-lanes start --allow-local` reaches :18888, opt-in per start (H14 `df1fdd60`); a send waits up to 120 s for the host to take the line (H15 `f672de96`) and logs `SEND-TAKEN` (H15b `a20bc11f`) | harness | fixed, each with a test |
+| O | orchestration slips (mine): the first seeds resolved the lanes root to `so-lanes/so-lanes` (ST_ROOT = the private copy, SO_LANES_ROOT unset; deleted, real lanes untouched); two `Stop-Process` patterns matched my own shells | — | nothing counted |
+
+No `src/` change on the branch.
+
+**Evidence.** `node scripts/debug/so-evidence.mts check --lanes 1,2,3,4,5,6,10 --pods 1,2,3,5`: exit 0 (332 rows, 0 incomplete, 4
+pods released). `archive --label b1c-2026-10-08 --since 2026-10-08T15:20:00Z`: 1,834 files, 1.38 GB, `problems: []`. `npm run
+sessions:archive` not run.
+
+**What remains.** 35-K3/K4/K5 run 2 (and run 1 again under the fixed carried check) and B1-C3/C12 ×2 on a pod; B1-EMPTY, B1-NARR,
+B1-HIST, B1-PFX; the next round follows 39a's new default (memory on each reply pod at `LLM_PARALLEL` 4, the 3090 for light rows,
+the balance checked first).
