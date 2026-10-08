@@ -54,4 +54,7 @@ test('37 L3 labels: strict lines, the prompt carries the goal and the proposal',
   assert.deepEqual(parseProposalLabel('IN_GOAL: yes\nNARRATES_PLAYER: no'), { inGoal: true, narratesPlayer: false });
   assert.deepEqual(parseProposalLabel('in goal'), { inGoal: null, narratesPlayer: null });
   assert.match(proposalLabelPrompt('pay the debt', { memberId: 'arin', text: 'Arin sold a ring.' }), /pay the debt[\s\S]*Arin sold a ring/);
+  const prompt = proposalLabelPrompt('pay the debt', { memberId: 'arin', text: 'She sold a ring.' });
+  assert.match(prompt, /arin is not the player character/, 'B1b H4: the labeller is told whose event it is');
+  assert.doesNotMatch(prompt, /yes\|no/, 'B1b H4: no yes|no template whose first option a model echoes (Artemis answered yes/yes on 39 of 40)');
 });
