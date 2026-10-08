@@ -25,28 +25,31 @@ export interface RelationshipWindow {
   start: number;
   messages: Array<{ speaker: string; text: string }>;
   label: 'up' | 'down' | 'none';
-  expected: { q: string; v: number };
+  expected: { q: string; v: number } | null;
 }
+
+export const relationshipKeyOf = (window: RelationshipWindow): string => window.expected?.q ?? `rel_${window.holder}_${window.toward}_${window.axis}`;
 
 export function windowSpec(story: unknown, window: RelationshipWindow, isPlayer: (speaker: string) => boolean, arm: LifeArm | null, caps: Record<string, number | null> = { relationship: null }, present: string[] | null = null) {
   return {
     story,
     transcript: window.messages.map((message, index) => ({ index, speaker: message.speaker, text: message.text, ...(isPlayer(message.speaker) ? { is_user: true } : {}) })),
     ...(window.checkpoint ? { activeCheckpointId: window.checkpoint } : {}),
-    blackboard: { values: { [window.expected.q]: window.start }, versions: {}, latched: {} },
+    blackboard: { values: { [relationshipKeyOf(window)]: window.start }, versions: {}, latched: {} },
     scopeCaps: caps,
     scopeContext: { present: present ?? window.present, drafted: window.holder },
     ...(arm === 'b' ? { showValues: true } : {}),
   };
 }
 
-export const stepOf = (window: RelationshipWindow): number => (window.label === 'none' ? 1 : Math.max(1, Math.abs(window.expected.v - window.start)));
+export const stepOf = (window: RelationshipWindow): number => (window.label === 'none' || !window.expected ? 1 : Math.max(1, Math.abs(window.expected.v - window.start)));
 
 export const directionOf = (value: unknown, start: number): 'up' | 'down' | 'none' => (typeof value !== 'number' || value === start ? 'none' : value > start ? 'up' : 'down');
 
 export function windowOutcome(index: number, window: RelationshipWindow, read: LiveRead) {
-  const guarded = [...read.guarded].reverse().find((delta) => delta.q === window.expected.q);
-  const raw = [...read.deltas].reverse().find((delta) => delta.q === window.expected.q);
+  const key = relationshipKeyOf(window);
+  const guarded = [...read.guarded].reverse().find((delta) => delta.q === key);
+  const raw = [...read.deltas].reverse().find((delta) => delta.q === key);
   const observed = directionOf(guarded?.v, window.start);
   const moved = typeof guarded?.v === 'number' ? Math.abs(guarded.v - window.start) : 0;
   return {
@@ -57,8 +60,8 @@ export function windowOutcome(index: number, window: RelationshipWindow, read: L
     stuck: window.label !== 'none' && observed === 'none',
     clampViolation: moved > stepOf(window),
     rawOverStep: typeof raw?.v === 'number' && Math.abs(raw.v - window.start) > stepOf(window),
-    inScope: read.scope.includes(window.expected.q),
-    judgeAnswered: read.judged ? read.judged.answered.includes(window.expected.q) : null,
+    inScope: read.scope.includes(key),
+    judgeAnswered: read.judged ? read.judged.answered.includes(key) : null,
     error: Boolean(read.error),
   };
 }

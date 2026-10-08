@@ -5,7 +5,7 @@ import { hasHelpFlag, runCli } from './lib/cli.mts';
 import {
   argValue, b1Problems, labDirOf, labProblems, liveRead, readB1Facts, readJsonFile, recordRef, refuse, runNumber, withReadProfile, writeB1Record, type LiveRead, type RunNumber,
 } from './lib/b1Runs.mts';
-import { AXES_ARMS, LIFE_ARMS, scoreLifeM1, scoreLifeM2, windowSpec, type LifeArm, type RelationshipWindow } from './lib/lifeReads.mts';
+import { AXES_ARMS, LIFE_ARMS, scoreLifeM1, scoreLifeM2, relationshipKeyOf, windowSpec, type LifeArm, type RelationshipWindow } from './lib/lifeReads.mts';
 
 const USAGE = `Usage: node scripts/debug/so-b1-life-reads.mts m1|m2 --lab <campaign lab/life dir> --profile <read profile> --run 1|2
        node scripts/debug/so-b1-life-reads.mts score-m1|score-m2 --raw <run-n.raw.json>
@@ -36,7 +36,7 @@ const playerTest = (story: any) => {
 async function blockTokens(page, story: unknown, windows: RelationshipWindow[]): Promise<number[]> {
   const out: number[] = [];
   for (const window of windows) {
-    const reading = await evaluateInST(page, ({ story, values, member }) => globalThis.storyOrchestratorLiveSuite.lifeBlock(story, values, member), { story, values: { [window.expected.q]: window.start }, member: window.holder });
+    const reading = await evaluateInST(page, ({ story, values, member }) => globalThis.storyOrchestratorLiveSuite.lifeBlock(story, values, member), { story, values: { [relationshipKeyOf(window)]: window.start }, member: window.holder });
     out.push(reading.tokens);
   }
   return out;
