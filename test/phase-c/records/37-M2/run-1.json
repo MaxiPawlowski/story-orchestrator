@@ -1,0 +1,127 @@
+{
+  "row": "37-M2",
+  "run": 1,
+  "writtenAt": "2026-10-08T08:01:59.869Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 37 §M2 + §Floors (2026-10-07)",
+  "readProfile": "deepseek 4.1 flash",
+  "windows": 20,
+  "labelledBy": "recorded in the lab file (second-model check owed before B1, lab/life README)",
+  "floor": "the relationship + mood + agenda blocks together add ≤ 350 prompt tokens per drafted member at p95 and ≤ 600 at max over the 20 lab windows; extraction prompt growth ≤ +12 % tokens with p50 latency ≤ +15 %.",
+  "verdict": "PASS",
+  "incomplete": [],
+  "baseline": {
+    "axes": 0,
+    "reads": 20,
+    "errors": 0,
+    "tokensMean": 2853.2,
+    "latencyP50": 1994,
+    "axesMax": 0
+  },
+  "arms": [
+    {
+      "axes": 2,
+      "reads": 20,
+      "errors": 0,
+      "tokensMean": 2952.4,
+      "latencyP50": 2068,
+      "axesMax": 2
+    },
+    {
+      "axes": 4,
+      "reads": 20,
+      "errors": 0,
+      "tokensMean": 3055.9,
+      "latencyP50": 2028,
+      "axesMax": 4
+    },
+    {
+      "axes": 8,
+      "reads": 20,
+      "errors": 0,
+      "tokensMean": 3265.2,
+      "latencyP50": 1973,
+      "axesMax": 8
+    },
+    {
+      "axes": 16,
+      "reads": 20,
+      "errors": 0,
+      "tokensMean": 3672.8,
+      "latencyP50": 2003,
+      "axesMax": 16
+    }
+  ],
+  "judged": [
+    {
+      "axes": 2,
+      "axesMax": 2,
+      "reached": true,
+      "tokens": {
+        "growth": 0.0348,
+        "max": 0.12,
+        "ok": true
+      },
+      "latencyP50": {
+        "growth": 0.0371,
+        "max": 0.15,
+        "ok": true
+      }
+    },
+    {
+      "axes": 4,
+      "axesMax": 4,
+      "reached": true,
+      "tokens": {
+        "growth": 0.071,
+        "max": 0.12,
+        "ok": true
+      },
+      "latencyP50": {
+        "growth": 0.0171,
+        "max": 0.15,
+        "ok": true
+      }
+    },
+    {
+      "axes": 8,
+      "axesMax": 8,
+      "reached": true,
+      "tokens": {
+        "growth": 0.1444,
+        "max": 0.12,
+        "ok": false
+      },
+      "latencyP50": {
+        "growth": -0.0105,
+        "max": 0.15,
+        "ok": true
+      }
+    },
+    {
+      "axes": 16,
+      "axesMax": 16,
+      "reached": true,
+      "tokens": {
+        "growth": 0.2873,
+        "max": 0.12,
+        "ok": false
+      },
+      "latencyP50": {
+        "growth": 0.0045,
+        "max": 0.15,
+        "ok": true
+      }
+    }
+  ],
+  "block": {
+    "p95": 129,
+    "max": 129,
+    "p95Max": 350,
+    "maxMax": 600,
+    "windows": 20,
+    "ok": true
+  },
+  "relAxesPerRead": 4,
+  "decision": "REL_AXES_PER_READ = 4 (the largest N under the ceiling)"
+}

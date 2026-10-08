@@ -103,8 +103,8 @@
         "citation": "v2.7 35 §Gate record (K2)"
       },
       "evidence": [
-        null,
-        null
+        "so-sessions:evidence/phase-c/b1b-2026-10-08/lane-4/debug/batch/2026-10-08T08-14-59-572Z/live-v25-09-sp6-k2-run1",
+        "so-sessions:evidence/phase-c/b1b-2026-10-08/lane-4/debug/batch/2026-10-08T08-14-59-572Z/live-v25-09-sp6-k2-run2"
       ]
     },
     {
@@ -262,8 +262,8 @@
         "citation": "v2.7 36 §Q1 Floors"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/36-Q1-M1/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/36-Q1-M1/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -288,8 +288,8 @@
         "citation": "v2.7 36 §Q1 Floors"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/36-Q1-M2/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/36-Q1-M2/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -318,8 +318,8 @@
         "citation": "v2.7 37 §M1"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/37-M1/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/37-M1/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -347,8 +347,8 @@
         "citation": "v2.7 37 §Floors"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/37-M2/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/37-M2/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -376,8 +376,8 @@
         "citation": "39 §Rows added (S-17); v2.7 37 §Combined scope budget"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/S-17/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/S-17/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -404,8 +404,8 @@
         "citation": "v2.7 37 §Combined scope budget"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/37-S17/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/37-S17/run-2.json (b1b-2026-10-08)"
       ]
     },
     {
@@ -434,8 +434,8 @@
         "citation": "v2.7 37 §L3"
       },
       "evidence": [
-        null,
-        null
+        "test/phase-c/records/37-L3/run-1.json (b1b-2026-10-08)",
+        "test/phase-c/records/37-L3/run-2.json (b1b-2026-10-08)"
       ]
     },
     {

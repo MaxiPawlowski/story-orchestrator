@@ -939,3 +939,85 @@ ST serves master's staged build again (`5f3e9ee6`, bundle `09556eb3…`).
 
 **Blocks B1.** Nothing from the no-model side: every row round 1 left red is green ×2 or fixed by design (F9), and the
 fixes are on this branch, unmerged. Merging needs the owner, then a restage, then B1 starts on that build.
+
+## B1 record, attempt 2 (2026-10-08, branch `v2.7-39-b1b-fixes`, RunPod)
+
+Pre-freeze stage B1 (rule 1: not Phase C evidence). Served build: the staged slot, bundle `dba22d29a860…` (`dist/manifest.json` and
+the ST slot verified, never restaged). Harness ran from the side-branch worktree `C:\dev\so-b1b` (master `ff4025d9` + the commits
+below). Evidence (private): `so-sessions:evidence/phase-c/b1b-2026-10-08/` (1,713 files, plus `local/`: run notes, drivers, empties
+table, superseded runs). Adolion rows report counts only (rule 7).
+
+**Hardware and cost.** Three RTX PRO 4500 Blackwell pods (Secure, EU-RO-1, $0.72/h, CUDA 13.0, network volume `x9gi6f1rig` mounted
+on all three at once, 22/tcp only, SSH tunnels 18081–18083, `so-pod up` per pod): pod 1 `bkpbz5eed8fnah` and pod 2
+`mstr665uv64phw` 07:36–13:30Z (~5.9 h each), pod 3 `ez6ipgmi7dpcyh` 12:13–13:30Z (~1.3 h, owner-approved third pod). llama b11046,
+`LLM_PARALLEL=2`, ctx 196,608, KV q8_0, `--kv-unified --log-timestamps --log-prefix --cache-ram 16384 --ctx-checkpoints 32
+--checkpoint-min-step 1024` (pods 1/2: llama-server restarted in the pod to add `-cms`, never `update-pod`; their in-pod watchdogs
+were replaced in place to move the 12 h cap, no container restart). All three released (`so-pod release`; pod 2 needed a second
+full pull, H10) and **terminated**; teardown-check ok ×3. Cost ≈ 13.1 pod-h ≈ **$9.4** for this attempt (billed $11.09 for the day
+at 13:35Z with billing lag; ≈ $13.3 expected including attempt 1's $3.84), under the $29 stop.
+
+Per-stream speed (llama `predicted_per_second`, before 12:55Z): pod 1 p50 **21.4** tok/s (two SP6 lanes, prompt p50 14.9K / p95
+26.8K), pod 2 p50 28.5 (prompt p95 34.3K), pod 3 p50 30.1 (one lane). Pod 1 sat under 39a's 25 tok/s floor with two long SP6
+chats. Prompt-cache reuse stayed ~0 with the cache flags (`promptEvalTokens` = `promptTokens` on 932 of 1,035 pod-1/2 requests):
+the P2 gotcha is a prompt-structure fact, and `--cache-ram`/`--ctx-checkpoints`/`-cms 1024` do not change it.
+
+**Deviations (owner, 2026-10-08, via main).** (1) 35-K3's `samePod` relaxed to "same pod type + same llama build and flags": each
+K3 cell (judge on/off × release/control) runs ×2 consecutively on ONE lane, with cells on lanes of different pods (lane + pod
+recorded per run, for a pod-effect check); applies to 39a §Slicing S4 for this B1 only. (2) `SO_SWIPE_EMPTY_REPLY=1`: an expected
+reply whose visible text is empty is logged (EMPTY-REPLY) and swiped, as a player would, up to 4 times; each swipe is counted.
+
+**Rows** (manifest B1 + the model scenarios B0-live deferred).
+
+| B1 item | Result ×2 | Detail |
+|---|---|---|
+| B1-PAR | done in attempt 1 | not re-run |
+| 35-K2 | **GREEN ×2** | `live-v25-09-sp6-k2`, lane 4 |
+| 35-K3 | **INCOMPLETE** | no valid run. Before the flags, runs died on empty-visible replies (5 runs) and one 300 s turn timeout; the flagged restarts ran into the DeepSeek outage (F-B1b-2) and were stopped at 13:25Z. Lanes 4/6's control runs "finished" 98/98 but 75 of 98 turns were no-ops after the outage (and only 11 release points, < 20): invalid |
+| 35-K4, 35-K5 | **INCOMPLETE** | scored from 35-K3's runs |
+| B1-C3, B1-C12 | **INCOMPLETE** | run 1 (all before the outage, 08:19–10:13Z) ended at turn 69 on an empty reply; scored for context only: warden 114 calls, 7 timeouts (> 1 per 50; causes queue 3, provider 1, unattributed 3; provider p50 1,231 ms / p95 2,752 ms); lore-select requests per loud turn p50 7, p95 14, max 15. Its flagged restart was stopped by the outage |
+| 36-Q1-M1 | **red** (PASS, FAIL) | run 1 PASS, `QUEST_SCOPE_CAP` = 5; run 2 FAIL (arm 5 facts drop 0.0667); arms 10/20 fail tokens (+15.7 %, +31 % > 15 %) |
+| 36-Q1-M2 | **FAIL ×2** | recall 0.4615 (6 of 13) < 0.80; false latches 0/20 (run 1 in attempt 1) |
+| 37-M1 | **FAIL ×2** | direction arm (a) 0.70 / 0.75, (b) 0.90 / 0.95, (c) 0.70 / 0.80; stuck (a) 0.375 / 0.31; anchoring gap 0.20 > 0.05; no default path decided |
+| 37-M2 | **PASS ×2** | `REL_AXES_PER_READ` = 4 (8 axes: +14.4 % tokens > 12 %); life block p95/max 129 tokens |
+| S-17 | **FAIL ×2** | tokens +17.1 % (> 15 % / 12 %); latency, block (129) and quest fairness ok; needed `--values` (private) seeding 3 active quests |
+| 37-S17 | **FAIL ×2** | as S-17, plus relationship pair fairness fails |
+| 37-L3 | **PASS ×2** | in-goal 20/20, narrated 0, unreached 0 (after H4); caveat: the 20-case fixture has no out-of-goal or narrating case, so the labeller has no negative control |
+| 37-L6-C | FAIL ×2 (attempt 1) | not re-run |
+| B1-R4 | not runnable | placeholders (rating pairs, rater) |
+| 35-M2 | not runnable | no driver |
+| 35-M1 | not run | offline evidence walk, no script |
+| deferred model scenarios | **GREEN ×2** (10) | `v24-acc-A-reload-blocks` (+ `-control`), `plan03a-llm-npc-reply`, `v24-pf-AE04-scene-refused`, `v24-acc-I3`, `v27-33-v3-postprocessor`, `v24-pf-AE04-lore-cancel`, `v24-pf-curator-same-chat`, `v24-pf-curator-switch`, `plan08-hygiene` (after the fixture fixes) |
+| deferred, not runnable | — | `v27-c6-test-cast`, `v27-card-art-base`, `v27-existing-expression-reference` (ComfyUI + SOIMG cast), `v27-local-card-reply` (SOIMG group, local route) |
+
+**Empty-visible replies** (owner ask; the player-facing problem to fix next). 16 replies over 14 turns had empty visible text: the
+whole output was inside the thought block and ST shows a finished, empty message. 4 came before the flag (each failed a 98-turn
+run; evidence lost with the chat), 11 were logged with the flag, and one second swipe came back empty again and failed the run
+(Belle, 12:24Z). Every flagged one ran with reply thinking "medium" (install-wide) applied: 787–1,667 reasoning chars, 205–387
+predicted tokens (under the 400-token budget, so the model closed the turn itself), prompts 19K–28K tokens. Only the two long chats
+hit them (lane 2 K3 off-release: 6; lane 3 C3: 5) once their prompts passed ~19K tokens; lanes on early turns had none. One swipe
+recovered 9 of the 11 flagged. Table: `local/empties.md` and `local/empties.js`.
+
+**Findings.**
+
+| # | Finding | Bucket | Status |
+|---|---|---|---|
+| F-B1b-1 | Empty-visible replies (above), rising with chat length; a player sees an empty message and has to swipe | product, player-facing | open (next fix) |
+| F-B1b-2 | DeepSeek account out of credit at ~12:55Z (`402 Insufficient Balance` on every lane): every CL role failed over to the pod "Memory RunPod" profile | external | owner tops up; rows after 12:55Z invalid |
+| F-B1b-3 | During that outage the blocks-only "Before you start" pane (`#so-briefing`: "The story will not advance on its own until this is fixed", Close) reopened mid-session on a chat 45 messages in, over `#send_but`, and every send then hit the dialog. Lane 2, 13:21Z: `elementFromPoint` at the send button = `so-briefing`, `briefing.pending: true`, pipeline detail "Memory model unreachable, using Story Orchestrator Memory RunPod" | product, player-facing | open |
+| F-B1b-4 | Pod 1 below the 25 tok/s floor with two long SP6 lanes (21.4 p50) | measurement | recorded; one long-chat lane per pod, or re-size |
+| F-B1b-5 | Prompt-cache reuse ~0 with the cache flags | measurement | recorded (P2) |
+| H1–H9 | harness: pod retarget echoes (H1 `9fb49f09`); journey closes a start dialog left open (H2 `eeb49c1f`); null-expected lab windows (H3 `0066c4c6`); labeller echoed its "yes or no" template (H4 `af500876`); generation state reads `dataset.generating` and an unfinished empty reply (H5 `e20559ee`, H5b in `1917c237`); batch reloads between repeats (H6 `050b1e20`, 10 s settle H6b `fd844b8f`); empty-reply swipe (H7 `1917c237`, limit H7b `8602918f`, default 4 H7c `748872c7`); send timeout floor (H8 `ca52148d`); a reply needs the chat to grow (H9 `e70b7671`, the 3 s no-op turns) | harness | fixed, each with a test |
+| H-ev | row evidence check: a provider outage (401/402/403, Insufficient Balance) in the row's server-log slice makes the row INCOMPLETE (`4ce5f2da`) | harness | fixed, test |
+| H10 | `so-pod` incremental log copy: same size, different sha (pod 2) | harness | open; a full `pull` repairs it |
+| FX | fixtures: curator entries carry `{{// so:auto}}` (C13 tiers, `95879e4a`); `plan08-hygiene` requires judge off (memoryVerify drops unsupported seeds, `f6880cd7`) and asserts the duplicate is stored once (insert dedupe, `10c639bd`) | fixture | fixed |
+| O | orchestration slips (mine): kills that matched their own command line, overlapping lane-1 relaunches; every affected run superseded, none counted | — | — |
+
+No `src/` change on the branch.
+
+**Evidence.** `node scripts/debug/so-evidence.mts check --lanes 1,2,3,4,5,6 --pods 1,2,3`: exit 0 (332 rows, 0 incomplete, 3 pods
+released). `archive --label b1b-2026-10-08 --since 2026-10-08T07:25:00Z`: 1,713 files, 1.2 GB, `problems: []`. `npm run
+sessions:archive` not run.
+
+**What remains.** 35-K3/K4/K5 and B1-C3/C12 from scratch (needs DeepSeek credit; ~7–8 h on 3 pods, ~$15; one long-chat lane per pod,
+or accept pod 1's rate; the flags and floors above on); 36-Q1-M1 re-decided by its owner (one PASS, one FAIL); the B2 decisions the
+reds above feed (36 Q1 M2, 37 M1, S-17/37-S17 token growth); fixes for F-B1b-1 and F-B1b-3; the 35-M2 driver; B1-R4 pairs.

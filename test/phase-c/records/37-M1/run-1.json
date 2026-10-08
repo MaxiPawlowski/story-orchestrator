@@ -1,0 +1,817 @@
+{
+  "row": "37-M1",
+  "run": 1,
+  "writtenAt": "2026-10-08T07:56:11.993Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 37 §Measurement M1",
+  "readProfile": "deepseek 4.1 flash",
+  "windows": 20,
+  "labelledBy": "recorded in the lab file (second-model check owed before B1, lab/life README)",
+  "floor": "direction accuracy ≥ 0.80; stuck rate (no move where the label moves) ≤ 0.10; step-clamp violations 0 (code); arm (a) not more than 5 points below arm (b) on direction accuracy (else the anchoring guard is reconsidered, not the floor). The arm that passes decides the read path's default (judge first only if (c) passes).",
+  "verdict": "FAIL",
+  "incomplete": [],
+  "rule": "the row passes when the arm that decides the default (c if it passes, else a) meets every floor and arm (a) is within 5 points of arm (b)",
+  "defaultPath": "none: neither arm (a) nor arm (c) passed",
+  "anchoring": {
+    "aBelowB": 0.2,
+    "max": 0.05,
+    "ok": false
+  },
+  "arms": {
+    "a": {
+      "verdict": "FAIL",
+      "floors": {
+        "direction": {
+          "value": 0.7,
+          "min": 0.8,
+          "ok": false
+        },
+        "stuck": {
+          "value": 0.375,
+          "max": 0.1,
+          "moving": 16,
+          "ok": false
+        },
+        "clampViolations": {
+          "value": 0,
+          "max": 0,
+          "ok": true,
+          "rawOverStep": 9
+        }
+      },
+      "judgeAnswered": null,
+      "windows": [
+        {
+          "window": 1,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 2,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 3,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 4,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 5,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 6,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 7,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 8,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 9,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 10,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 11,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 12,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 13,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 14,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 15,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 16,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 17,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 18,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 19,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 20,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        }
+      ]
+    },
+    "b": {
+      "verdict": "FAIL",
+      "floors": {
+        "direction": {
+          "value": 0.9,
+          "min": 0.8,
+          "ok": true
+        },
+        "stuck": {
+          "value": 0.125,
+          "max": 0.1,
+          "moving": 16,
+          "ok": false
+        },
+        "clampViolations": {
+          "value": 0,
+          "max": 0,
+          "ok": true,
+          "rawOverStep": 8
+        }
+      },
+      "judgeAnswered": null,
+      "windows": [
+        {
+          "window": 1,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 2,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 3,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 4,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 5,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 6,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 7,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 8,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 9,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 10,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 11,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 12,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 13,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 14,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 15,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 16,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 17,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 18,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 19,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        },
+        {
+          "window": 20,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": null,
+          "error": false
+        }
+      ]
+    },
+    "c": {
+      "verdict": "FAIL",
+      "floors": {
+        "direction": {
+          "value": 0.7,
+          "min": 0.8,
+          "ok": false
+        },
+        "stuck": {
+          "value": 0.375,
+          "max": 0.1,
+          "moving": 16,
+          "ok": false
+        },
+        "clampViolations": {
+          "value": 0,
+          "max": 0,
+          "ok": true,
+          "rawOverStep": 9
+        }
+      },
+      "judgeAnswered": 0,
+      "windows": [
+        {
+          "window": 1,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 2,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 3,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 4,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 5,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 6,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 7,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 8,
+          "label": "up",
+          "observed": "up",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 9,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 10,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 11,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 12,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 13,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 14,
+          "label": "down",
+          "observed": "down",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": true,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 15,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 16,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 17,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 18,
+          "label": "up",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 19,
+          "label": "down",
+          "observed": "none",
+          "right": false,
+          "stuck": true,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        },
+        {
+          "window": 20,
+          "label": "none",
+          "observed": "none",
+          "right": true,
+          "stuck": false,
+          "clampViolation": false,
+          "rawOverStep": false,
+          "inScope": true,
+          "judgeAnswered": false,
+          "error": false
+        }
+      ]
+    }
+  }
+}
