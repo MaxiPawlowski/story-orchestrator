@@ -127,6 +127,19 @@ export const sendTimeoutMs = (requested: number | undefined, env: NodeJS.Process
   return Number.isFinite(floor) && floor > base ? floor : base;
 };
 
+export const postSendWaitMs = (env: NodeJS.ProcessEnv = process.env): number => { const ms = Number(env.SO_POST_SEND_WAIT_MS); return Number.isFinite(ms) && ms >= 0 ? ms : 120000; };
+
+export async function waitForSendTaken(page, before: number, timeoutMs: number) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const length = await evaluateInST(page, () => SillyTavern.getContext().chat?.length ?? 0);
+    if (length > before) return true;
+    if ((await getGenerationState(page)).isGenerating) return true;
+    await page.waitForTimeout(500);
+  }
+  return false;
+}
+
 export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTimeoutMs = 300000, preSendIdleTimeoutMs = undefined, expectReply = false } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
@@ -167,6 +180,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
   // never moved (J3.1, twice in three runs, 2026-09-23). The visible wait above still holds, and
   // the click is still a real pointer event at the button's centre.
   await sendBtn.click({ force: true });
+  await waitForSendTaken(page, chatLenBefore, postSendWaitMs());
 
   await waitForIdle(page, idleTimeoutMs);
 
