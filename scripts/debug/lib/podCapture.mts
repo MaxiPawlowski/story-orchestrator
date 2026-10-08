@@ -187,6 +187,13 @@ export function createLlamaLogParser(segment = 0) {
         const ctx = /n_ctx_slot\s*=\s*(\d+)/.exec(text);
         if (ctx) row.nCtxSlot = Number(ctx[1]);
         if (/print_timing/.test(text)) timingTask = task;
+        const after = ids ? text.slice((ids.index ?? 0) + ids[0].length).replace(/^\s*\|/, '') : '';
+        const promptInline = PROMPT_TIMING.exec(after);
+        const evalInline = promptInline ? null : EVAL_TIMING.exec(after);
+        const totalInline = promptInline || evalInline ? null : TOTAL_TIMING.exec(after);
+        if (promptInline) { row.promptMs = Number(promptInline[1]); row.promptEvalTokens = Number(promptInline[2]); row.promptTps = promptInline[3] ? Number(promptInline[3]) : null; }
+        if (evalInline) { row.predictedMs = Number(evalInline[1]); row.predictedTokens = Number(evalInline[2]); row.predictedTps = evalInline[3] ? Number(evalInline[3]) : null; }
+        if (totalInline) row.totalMs = Number(totalInline[1]);
         const truncated = /truncated\s*=\s*(\d+|true|false)/.exec(text);
         if (truncated) row.truncated = truncated[1] === '1' || truncated[1] === 'true';
         if (CONTEXT_SHIFT.test(text)) { row.contextShift = true; event('context-shift'); }
@@ -194,6 +201,8 @@ export function createLlamaLogParser(segment = 0) {
         else if (TRUNCATED.test(text)) event('truncated');
         else if (ERROR.test(text) && !/truncated\s*=/.test(text)) event('error');
         if (/stop processing|slot\s+release/i.test(text)) {
+          const held = /stop processing:\s*n_tokens\s*=\s*(\d+)/.exec(text);
+          if (held && row.promptTokens === null) row.promptTokens = Math.max(0, Number(held[1]) - (row.predictedTokens ?? 0));
           row.finishedAt = at;
           open.delete(task);
           if (timingTask === task) timingTask = null;
@@ -257,11 +266,13 @@ export function requestStats(rows: RequestRow[]) {
   const tps = pick('predictedTps');
   const prompt = pick('promptTokens');
   const promptMs = pick('promptMs');
+  const evaluated = pick('promptEvalTokens');
   return {
     requests: rows.length,
     predictedTps: { p50: percentile(tps, 50), min: tps.length ? Math.min(...tps) : null, p95: percentile(tps, 95) },
     promptTokens: { p50: percentile(prompt, 50), p95: percentile(prompt, 95), max: prompt.length ? Math.max(...prompt) : null },
     promptMs: { p50: percentile(promptMs, 50), p95: percentile(promptMs, 95) },
+    promptEvalTokens: { p50: percentile(evaluated, 50), p95: percentile(evaluated, 95), max: evaluated.length ? Math.max(...evaluated) : null },
     truncated: rows.filter((row) => row.truncated).length,
     contextShift: rows.filter((row) => row.contextShift).length,
     contextFull: rows.filter((row) => row.contextFull).length,

@@ -207,3 +207,23 @@ test('teardown is refused without a final pull, and when ssh never answered', as
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('b11046 with --log-timestamps --log-prefix puts the timings on the slot line itself; the prompt size comes from the release line', () => {
+  const parser = createLlamaLogParser(0);
+  const rows: any[] = [];
+  for (const line of [
+    '27.10.899.978 I slot launch_slot_: id  1 | task 2504 | processing task, is_child = 0',
+    '27.17.786.907 I slot print_timing: id  1 | task 2504 | n_gen =    154, tg =  50.94 t/s, tg_3s =  51.27 t/s',
+    '27.27.476.261 I slot print_timing: id  1 | task 2504 | prompt eval time =    3004.25 ms /  9434 tokens (    0.32 ms per token,  3140.22 tokens per second)',
+    '27.27.476.265 I slot print_timing: id  1 | task 2504 |        eval time =   12693.13 ms /   648 tokens (   19.62 ms per token,    50.97 tokens per second)',
+    '27.27.476.265 I slot print_timing: id  1 | task 2504 |       total time =   15697.38 ms / 10082 tokens',
+    '27.27.476.266 I slot print_timing: id  1 | task 2504 |    graphs reused =       2977',
+    '27.27.477.273 I slot      release: id  1 | task 2504 | stop processing: n_tokens = 10081, truncated = 0',
+  ]) rows.push(...parser.push(line, '2026-10-08T03:00:00.000Z').rows);
+  assert.equal(rows.length, 1);
+  const [row] = rows;
+  assert.deepEqual({ promptEvalTokens: row.promptEvalTokens, promptMs: row.promptMs, predictedTokens: row.predictedTokens, predictedTps: row.predictedTps, totalMs: row.totalMs, promptTokens: row.promptTokens, truncated: row.truncated }, { promptEvalTokens: 9434, promptMs: 3004.25, predictedTokens: 648, predictedTps: 50.97, totalMs: 15697.38, promptTokens: 9433, truncated: false });
+  const stats = requestStats(rows);
+  assert.equal(stats.predictedTps.p50, 50.97);
+  assert.equal(stats.promptEvalTokens.p50, 9434);
+});
