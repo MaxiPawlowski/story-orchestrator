@@ -321,6 +321,7 @@ export const itemArgs = (item: string, strict: boolean, group: string | null, wi
   ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : [])]
   : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : [])]);
 
+export const BETWEEN_RUNS_SETTLE_MS = 10_000;
 export const betweenRunsArgs = (run: number): string[] | null => (run > 1 ? ['scripts/debug/st-session.mts', 'reload'] : null);
 
 async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null) {
@@ -338,6 +339,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const reloadArgs = betweenRunsArgs(run);
         const reload = reloadArgs ? await runNode(reloadArgs, laneEnv(n), { logPath: resolve(rowDir, 'reload.log') }) : null;
         if (reload) console.log(`lane ${n} ${item} run ${run}: page reloaded before the run (rule 11, clears the judge cache): code ${reload.code}`);
+        if (reload) await sleep(BETWEEN_RUNS_SETTLE_MS);
         const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
         const began = Date.now();
