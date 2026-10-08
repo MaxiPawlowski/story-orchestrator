@@ -175,6 +175,15 @@ decision 5, verbatim: "i'll play it, but add a tesst case so that claude also pl
   and, separately, against the user's.
 - It does not decide D6/T22. It produces the evidence v2.9 04 decides on. Tier: RP (replies) + CL (judge).
 
+## H. Send latency: vector queries on ST's server (deferred from v2.7, owner 2026-10-08)
+
+Speed only, no correctness issue: the player's line always posts, in order, and nothing is lost. Measured on lane 10 (C3 local run, 4 turns): 1.6-3.6 s from Send to the player's line. 0.4-0.9 s of that was lore select awaiting its judge call inside `MESSAGE_SENT`, fixed in v2.7 (`43a16f4a`, `runtime/loreSelectTiming.ts`). The remaining 1.2-2.7 s is ST's own pings and saves before `sendMessageAsUser`, slow because ST's Node server is busy running our `/api/vector/query` calls (transformers on its CPU, bursts of three) during the send.
+
+| # | Work | Gate |
+|---|---|---|
+| H1 | Attribute every `/api/vector/query` burst during a send to its caller (consolidation bands, held-claim detection, others) | recorder run, per caller |
+| H2 | Keep those calls out of the send window: defer while a loud generation is opening, or batch | click-to-line p50 and p95 before and after, same lane, x2; no change in memory outcomes (jest goldens) |
+
 ## Gates (plan close)
 
 - Every row still owned here (§B C3 fix, C12, C11-F2/F7/F1, C13-b; §D–§G) carries its own gate above; the plan
