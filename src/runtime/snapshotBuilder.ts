@@ -12,6 +12,7 @@ import { buildNarrativeStatus, PLAYER_COPY, playerLocation, type NarrativeTransi
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import { firstLines } from "./castInPlay";
+import { thoughtOnlyMessageIds } from "./emptyReply";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { playerSaveNotice } from "./saveHealth";
@@ -199,6 +200,11 @@ const activeOf = (story: NormalizedStoryV2 | null, state: EngineState | null) =>
   return { active, lost: state && story && !active ? state.activeCheckpointId : null };
 };
 
+const recentEmptyReplies = (chat: readonly unknown[], window: number): number[] => {
+  const from = Math.max(0, chat.length - Math.max(1, window));
+  return thoughtOnlyMessageIds(chat.slice(from)).map((index) => index + from);
+};
+
 const authorMoves = (extras: RuntimeExtras) => extras.journal.filter((record) => record.kind === "author");
 
 const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
@@ -219,6 +225,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
+    emptyReplies: recentEmptyReplies(sources.chat, settings.window),
   });
 };
 

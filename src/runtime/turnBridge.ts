@@ -5,6 +5,7 @@ import { beginRun, type RunGuard } from "./runToken";
 import { ChatIdentity, describeDecode, type DecodeJournal } from "./messageIdentity";
 import type { ChatSave } from "./chatSave";
 import { currentChat, readChatChange, unbindBranchMirror, type LoadedChat } from "./chatIdentity";
+import { isThoughtOnlyReply, REASONING_RESIDUE_TAGS } from "./emptyReply";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -42,6 +43,11 @@ const continueStamp = (messageId: number): string => {
 
 export type MutationKind = "swipe" | "edit" | "delete" | "update";
 
+export interface EmptyReplySeam {
+  tags: () => readonly string[];
+  observe: (messageId: number, type: unknown) => void;
+}
+
 export type MutationSeam = (kind: MutationKind, messageId: number, entered?: boolean) => (() => Promise<void>) | null;
 
 interface PendingBoundary {
@@ -65,6 +71,7 @@ export class TurnBridge {
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
   private seam: MutationSeam | null = null;
+  private emptyReply: EmptyReplySeam | null = null;
 
   constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
@@ -97,6 +104,15 @@ export class TurnBridge {
     this.seam = seam;
   }
 
+  setEmptyReplySeam(seam: EmptyReplySeam | null) {
+    this.emptyReply = seam;
+  }
+
+  private thoughtOnly(messageId: number): boolean {
+    const chat = getContext().chat as unknown[] | undefined;
+    return isThoughtOnlyReply(chat?.[messageId], this.emptyReply?.tags() ?? REASONING_RESIDUE_TAGS);
+  }
+
   /** A load made outside CHAT_CHANGED (the page's first) names the chat it loaded. */
   noteLoaded(chat: LoadedChat | null) {
     this.loadedChat = chat;
@@ -120,6 +136,11 @@ export class TurnBridge {
     if (!isTurnMessageType(type)) return;
     const now = Date.now();
     const id = hostMessageId(messageId);
+
+    if (id !== null && this.thoughtOnly(id)) {
+      this.emptyReply?.observe(id, type);
+      return;
+    }
 
     if (id !== null) {
       const continued = typeof type === "string" && CONTINUE_MESSAGE_TYPES.has(type);
@@ -254,7 +275,7 @@ export class TurnBridge {
       const reread = this.seam?.(kind, messageId, true) ?? null;
       if (reread) return reread();
     }
-    if (!recommit || !run.stillOwns()) return;
+    if (!recommit || !run.stillOwns() || this.thoughtOnly(messageId)) return;
     this.turnKeys.add(String(messageId));
     await this.enqueueBoundary(messageId, false);
   }

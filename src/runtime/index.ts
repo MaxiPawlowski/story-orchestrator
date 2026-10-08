@@ -10,6 +10,7 @@ import { startPlaysIndex } from "./playsIndexHost";
 import { startStoryScenario } from "./storyScenarioHost";
 import { installPersonaHost } from "./playerSetupPort";
 import { livePersonaHost } from "./personaHostLive";
+import { startEmptyReplyRecovery } from "./emptyReplyHost";
 import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
@@ -114,6 +115,7 @@ const registerHostSurfaces = () => {
 const startWatches = () => {
   bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
+  runtimeDisposers.push(startEmptyReplyRecovery(bridge, () => live.talk?.chainPending() ?? false));
   void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited]);
   requirementsWatch.start();

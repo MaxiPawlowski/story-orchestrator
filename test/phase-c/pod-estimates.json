@@ -28,6 +28,7 @@
     "B1-PAR": { "runMin": 15 },
     "B1-PFX": { "runMin": 170 },
     "B1-HIST": { "runMin": 180 },
+    "B1-EMPTY": { "runMin": 150, "units": 2, "samePod": true },
     "J1": { "runMin": 7 },
     "J2": { "runMin": 8 },
     "J3": { "runMin": 9 },

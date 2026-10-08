@@ -117,6 +117,9 @@ export interface SillyTavernContext {
   getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
   // Re-renders one message from its chat row, text and reasoning (script.js:2033, st-context.js:238).
   updateMessageBlock?: (messageId: number, message: unknown) => void;
+  // swipe_right(event, {source, message}) swipes that row, generating a new reply past the last swipe (script.js:10451, 9954-9998);
+  // a source outside SWIPE_SOURCE keeps every check: not generating, swiping allowed, last message (script.js:9971-9986, 9162-9200).
+  swipe?: { right?: (event: null, options: { source?: string; message?: unknown }) => Promise<void> | void; isAllowed?: () => boolean };
   // Opens a chat the group lists; silent for any other id (group-chats.js:2195-2210, st-context.js:157).
   openGroupChat?: (groupId: string, chatId: string) => Promise<void>;
   // A loaded extension's manifest by folder ("vectors", "third-party/<repo>"), null when absent (extensions.js:524-530, st-context.js:300).
