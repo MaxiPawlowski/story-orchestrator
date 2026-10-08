@@ -787,8 +787,8 @@
         "citation": "v2.7 16 §Regression across v2.7"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/batches/batch-2026-10-07T20-42-09-161Z.json",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/b0-live-final.json"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/batches/batch-2026-10-08T01-52-26-610Z.json",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/corpus2.log"
       ]
     },
     {
@@ -862,8 +862,8 @@
         "citation": "v2.7 16 §Step 0"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/adolion-seed-r1.log",
-        null
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/seed2-r1.log",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/seed2-r2.log"
       ]
     },
     {
@@ -890,8 +890,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-46-42-082Z/v27-d-01-in-app-walk-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-46-42-082Z/v27-d-01-in-app-walk-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-01-in-app-walk-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-01-in-app-walk-run2"
       ]
     },
     {
@@ -915,8 +915,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-57-02-192Z/effects-story-scenario-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-57-02-192Z/effects-story-scenario-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/effects-story-scenario-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/effects-story-scenario-run2"
       ]
     },
     {
@@ -943,8 +943,8 @@
         "citation": "v2.7 16 §Step 0 K1"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-49-13-998Z/v27-d-02-c2-k1-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-49-13-998Z/v27-d-02-c2-k1-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T00-07-50-956Z/v27-d-02-c2-k1-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T00-07-50-956Z/v27-d-02-c2-k1-run2"
       ]
     },
     {
@@ -999,8 +999,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-48-54-449Z/v27-d-02-c13-curator-tiers-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-48-54-449Z/v27-d-02-c13-curator-tiers-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-02-c13-curator-tiers-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-02-c13-curator-tiers-run2"
       ]
     },
     {
@@ -1052,8 +1052,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-56-37-360Z/v27-03-no-group-solo-blob-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-56-37-360Z/v27-03-no-group-solo-blob-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-03-no-group-solo-blob-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-03-no-group-solo-blob-run2"
       ]
     },
     {
@@ -1080,8 +1080,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-51-31-114Z/v27-d-04-health-center-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-51-31-114Z/v27-d-04-health-center-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-27-58-201Z/v27-d-04-health-center-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-27-58-201Z/v27-d-04-health-center-run2"
       ]
     },
     {
@@ -1160,8 +1160,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        null,
-        null
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/badges2-r1.observed.json",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/badges2-r2.log"
       ]
     },
     {
@@ -1244,8 +1244,8 @@
         "citation": "v2.7 16 §Per plan"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-50-37-584Z/v27-d-10-edit-catch-up-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-50-37-584Z/v27-d-10-edit-catch-up-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T02-40-53-492Z/v27-d-10-edit-catch-up-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T02-40-53-492Z/v27-d-10-edit-catch-up-run2"
       ]
     },
     {
@@ -1486,8 +1486,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
       ]
     },
     {
@@ -1510,8 +1510,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
       ]
     },
     {
@@ -1534,8 +1534,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
       ]
     },
     {
@@ -1558,8 +1558,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
       ]
     },
     {
@@ -1582,8 +1582,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-36-32-857Z/v27-34-persona-switch-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
       ]
     },
     {
@@ -1606,8 +1606,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/v27-34-fixed-name-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/v27-34-fixed-name-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-fixed-name-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-fixed-name-run2"
       ]
     },
     {
@@ -1630,8 +1630,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-39-00-724Z/v27-34-player-setup-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
       ]
     },
     {
@@ -1654,8 +1654,8 @@
         "citation": "v2.7 34 §Gates"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T21-52-10-609Z/v27-34-solo-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T21-52-10-609Z/v27-34-solo-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-solo-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-solo-run2"
       ]
     },
     {
@@ -1730,8 +1730,8 @@
         "citation": "39 §Rows for Sol findings 4–10 (S-04)"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-36-35-090Z/v27-34-lock-refused-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-36-35-090Z/v27-34-lock-refused-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-lock-refused-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-lock-refused-run2"
       ]
     },
     {
@@ -1811,8 +1811,8 @@
         "citation": "v2.7 35 §Phase 2"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-40-49-138Z/v27-35-open-stretch-curve-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-40-49-138Z/v27-35-open-stretch-curve-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-35-open-stretch-curve-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-35-open-stretch-curve-run2"
       ]
     },
     {
@@ -1860,8 +1860,8 @@
         "citation": "v2.7 36 §Q5"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-42-10-622Z/v27-36-quests-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-42-10-622Z/v27-36-quests-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-36-quests-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-36-quests-run2"
       ]
     },
     {
@@ -1936,8 +1936,8 @@
         "citation": "39 §Rows owed by v2.7 37"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-44-36-101Z/v27-37-character-life-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-44-36-101Z/v27-37-character-life-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-37-character-life-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-37-character-life-run2"
       ]
     },
     {
@@ -1993,8 +1993,8 @@
         "citation": "39 §Rows owed by v2.7 37"
       },
       "evidence": [
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-44-50-999Z/v27-37-agenda-effect-run1",
-        "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-44-50-999Z/v27-37-agenda-effect-run2"
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-37-agenda-effect-run1",
+        "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-37-agenda-effect-run2"
       ]
     },
     {

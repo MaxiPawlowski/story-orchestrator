@@ -836,3 +836,91 @@ worktree). `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storyboo
 typecheck:test, debug:typecheck, lint, build, test 600 suites / 6,966 passed / 1 skipped, test:debug 1,202 / 1,202,
 test:release 128 / 114 pass / 14 skipped, test:plugin 114 / 111 pass / 3 skipped, test:replay 32 of 32 killed);
 test-storybook:ci SKIPPED. Lanes 1 and 2 stopped at the end.
+
+## B0-live round 2 record (2026-10-07/08, branch `v2.7-39-b0-live-r2`, local no-model shakedown)
+
+Pre-freeze shakedown, not Phase C evidence (rule 1). Evidence: `so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/`.
+
+**Setup.** Side-branch worktree `C:\dev\so-b0-r2` off master `5f3e9ee6`, `node_modules` junctioned. Two lanes (1, 2), every
+seed offline (`SO_LANE_OFFLINE=1`, round 1's F1 seed), RAM gate `SO_MIN_FREE_RAM_GIB=8` (no pause needed; 14 GiB free at
+start). No ComfyUI, 3090 controller or model call: every lane server log after a seed shows only the closed port 18079.
+Served build: master's staged slot (bundle `09556eb3…`) for the Adolion rows; then the side branch's own build, staged
+twice because the branch changes product code (first `79f96b98`, then `39d0c593`: every product fix below; later commits
+are harness and fixtures only). Master's build is staged back at the end. Per-row pairs ran on a freshly re-seeded lane
+per item (`stop; seed --fresh; start; run-header capture; st-lanes batch --lanes <n> --repeat 2 --strict <item>`).
+
+**Pin bump.** `adolion-fresh.pin.json` -> campaign master `3bc72e3` (`a1bfaccd`); `so-session index` rebuilt
+`adolion-stories.json` + `14-cards.md`; `charters.json`, `runs.json` pins moved; the pin drift tests green (58 node / 52 jest).
+
+**Rows ×2** (run 1 / run 2; every pair on one install).
+
+| Manifest row | Runner | Result |
+|---|---|---|
+| 16-07-A3A8 | `adolion-fresh seed 2` + `check 2` (pin `3bc72e3`) | green / green (seed: 147 cards, 16 books, 201 sprite folders / 2,889 files, 9 groups, no problems; check drift 0; run 2 `sameAsPrevious: true`) |
+| 16-07-A6 | new `adolion-fresh badges 2` (counts only) | green / green (9 bound, 9 listed, 9 badges: 1 saga, 8 story) |
+| 16-02-C2-K1 | `v27-d-02-c2-k1` (Summarize enabled on the lane, its prerequisite) | green / green (F7 verified on the staged build) |
+| 36-Q5-scn | `v27-36-quests` | green / green |
+| 34-L-flow, 34-L-F11, 34-L-brief-off | `v27-34-player-setup` | green / green |
+| 34-L-switch, 34-L-reopen, 34-L-restart | `v27-34-persona-switch` | green / green |
+| S-04 | `v27-34-lock-refused` | green / green |
+| 34-L-fixed | `v27-34-fixed-name` | green / green |
+| 34-L-solo | `v27-34-solo` | green / green (after the solo_chat fix) |
+| 16-02-C1 | `effects-story-scenario` (assertion reworded, F9) | green / green |
+| 16-01-in-app-walk | `v27-d-01-in-app-walk` | green / green |
+| 16-02-C13 | `v27-d-02-c13-curator-tiers` | green / green |
+| 16-03-group-only | `v27-03-no-group-solo-blob` | green / green |
+| 16-10-catch-up | `v27-d-10-edit-catch-up` | green / green |
+| 35-P2-curve | `v27-35-open-stretch-curve` | green / green |
+| 37-D1 | `v27-37-character-life` | green / green |
+| 37-D3, S-15 scenario half | `v27-37-agenda-effect` | green / green |
+| 36-Q5-scn-b | `v27-36-quest-rewards` | green / green |
+| 16-04-health-center | `v27-d-04-health-center` (Summarize enabled) | green / green |
+| C2-corpus | `st-lanes batch --lanes 1,2 --repeat 2 --strict`, the 87 batchable items of round 1's 89 (C2-K1 and 16-04 need Summarize on the lane and ran as their own pairs above), batch `2026-10-08T01-52-26-610Z`, fresh offline seeds | 84 green ×2; `v27-card-rollback` not runnable; `v27-s12d` red ×2 (R10) and `v27-d-10` red / green (R11), both fixed and green ×2 after (s12d batched behind `v27-ooc-read` ×2 on one install, the order that broke it). An earlier full batch this round (`2026-10-08T00-36-33-172Z`, before R9) is superseded: its lane-2 tail of 20 rows never ran |
+
+Round 1's other undetermined reds, green ×2 per row on a re-seeded lane: `plan02-runtime`, `plan06-convergence`,
+`plan07-memory`, `v27-s12d-held-secret-chapters`, `v24-02-persona-change`.
+
+**Findings** (round 1's F1–F16 carried forward; new ones R1–R11).
+
+| # | Finding | Bucket | Status |
+|---|---|---|---|
+| F7 | Empty "Before you start" dialog held the page | product, small | fixed `3be94ddd` (round 1), verified live on the staged build: C2-K1 and 36-Q5-scn green ×2 |
+| F8 | Start-dialog buttons broke one letter per line: ST's `.menu_button { width: min-content }` under the panel's `overflow-wrap: anywhere` | product, cosmetic | fixed `cd28c5aa` (`#so-briefing .menu_button` fit-content + break-word), story guard `CloseButtonOnOneLine` (applies the host rule; not run: Storybook does not run from a worktree), live: Close 50 × 28 px on one line (screenshot) |
+| F9 | 16-02-C1 expected removal to restore the pre-story scenario | fixture (by design) | fixed `79f96b98`: the running chat keeps its pinned copy after the library record goes, and a jump still swaps the scenario; manifest assertion and 16-test-plan line reworded |
+| F10 | v27-03 cleanup deleted the made group while the page was on it | harness | fixed `c84f3568` (cleanup returns to the sandbox chat first) |
+| F11 | Rows leaked state across one install | harness | root causes fixed: an unmocked short-term pass opened the in-page memory-model breaker, which held the next run's reads (`bdc5e182` mock, `8d19e1ec` cleanup closes and names a breaker a fixture left open); an unrecorded solo chat wedged every later row on its lane (`e344fc32`, `3020ed7e`, R9) |
+| F12 | Keep recorded as skip; continue unlocked left the record pending | product, small | fixed `967937ce`: the start page's Close read a stale (pre-render) pending record and sent `skip`/`retry`, which re-recorded the settled step; a skip or retry on a settled record is now refused (`ALREADY_SETTLED`), jest ×3 (two fail without the fix); live: all 34-L rows and S-04 green ×2 |
+| F13 | Ten undetermined reds | split | see R1–R8 |
+| F14 | `adolion-fresh seed` sprite upload refused every card | harness | fixed `833b5d03`: round 1's reading (cards under other avatars) was wrong, 0 such cards on the install; the sprite installer runs from the LFS worktree and read that worktree's own empty ledger, so every card the export installer had just installed counted as "unrelated". The seed now hands it the export's ledger and takes it back. 16-07-A3A8 + A6 green ×2 |
+| F16 | Incomplete row folders | harness | `so-evidence check --lanes 1,2` exit 0 (300 rows); round 1's batch folders (archived in round 1) moved to `debug/batch-pre-r2`, the first corpus batch of this round (its lane-2 tail wedged by R9) to `debug/batch-superseded-r2`, both copied under `local/` |
+| R1 | Lane copies kept ST swipes off (the install's setting), so ST refused every scenario swipe (`v27-35`, `v27-d-02-c13`) | harness | fixed `0112bb76` (`st-lanes seed` switches swipes on, as adolion-fresh did) |
+| R2 | HUD read "stepped back" while the edit's re-read was pending; the guide says the edit chip shows then | product, small | fixed `a22f44d8` (`hudChipLabel`: catching-up outranks stepped back), jest |
+| R3 | `plan02-runtime` required persona "Max", unrelated to its opener check, never ready on a fresh lane | fixture | fixed `34f278f1` (+ `live-plan02-runtime` `8291dec6`) |
+| R4 | `v27-36-quests`: the journal panel stayed open over the drawer tabs and its persisted open state shut it on run 2 | fixture | fixed `27eccdb1` |
+| R5 | quest-rewards / agenda-effect expected world_info ledger rows; plan 36: world info is never ledgered | fixture | fixed `1499dc17` |
+| R6 | character-life: OOC wait literal 0 could never hold; d-10: audit slice by count; c13: lastRollback cleared by the swipe's own re-commit (ef5394a2); d-01: scripted click into a closed Extensions drawer; plan06: generated beats wait for the player (T2-1) and the background job validated chain 2 first; s12d: the seal closes the scene first (unmocked scene summary); persona-change: name1 vs a fresh lane's default persona | fixture | fixed `39d0c593`, `c35c8c30`, `961640bc`, `716cea8b`, `3a07c279`, `a22f44d8` (s12d), `18f9e3fe` -> `7643c028` |
+| R7 | `so-assets remove` called `getCharacters()` with nothing deleted, which in a group chat moved the page to the stale `this_chid`'s solo chat (player-setup cleanup escape) | harness | fixed `7d96c46e` |
+| R8 | plan07-memory green then red | harness (= F11) | fixed, green ×2 on one install |
+| R9 | `solo_chat`: the group's debounced save ran after `/go` and posted the group's integrity slug under the solo chat (400), the integrity wait then timed out `/newchat` on every second run, the solo chat went unrecorded and the lane wedged | harness | fixed `e344fc32` + `3020ed7e` (save settled before `/go`, return target recorded first, a late `/go` error no longer aborts) |
+| R10 | Closing a left-open breaker pumped the held jobs, whose failures re-opened it for the next row (s12d red only behind `v27-ooc-read`) | harness | fixed `0dc5bcc8` (close after the run's chats are gone, re-check until it stays closed) |
+| R11 | d-10 read the HUD chip a render before it updated | fixture | fixed `0eb3699e` |
+| F15 | 17 D rows have no runner | plan | open, except 16-07-A6 (runner added) |
+| — | `v27-card-rollback` needs group "SOIMG Test cast", not on this install | — | not runnable (unchanged) |
+
+**Evidence.** `node scripts/debug/so-evidence.mts archive --label b0-live-r2-2026-10-07 --lanes 1,2 --since
+2026-10-07T23:20:00Z` (no `--allow-incomplete`): 3,502 files, 618 MB, `problems: []`, `verify` ok; `local/` adds the seed,
+check, badge, per-row, corpus and gates logs and the superseded first corpus batch. `npm run sessions:archive` not run.
+
+**What remains.** F15 (16 D rows without a runner), B0-base and every frozen-candidate row (not runnable before the
+freeze), the 14 model rows deferred to B1, `v27-card-rollback` (not runnable here). Storybook did not run (worktree), so
+the F8 story guard is unexercised until the main-checkout gates.
+
+**Gates** (worktree, Storybook skipped: the runner finds no stories from a worktree).
+`ST_ROOT=C:/dev/SillyTavern-MainBranch npm run gates -- --no-storybook` on `0eb3699e`: all green in 81.5 s (typecheck,
+typecheck:test, debug:typecheck, lint, build, test 600 suites / 6,970 passed / 1 skipped, test:debug 1,203 / 1,203, test:release
+128 / 114 pass / 14 skipped, test:plugin 114 / 111 pass / 3 skipped, test:replay 32 of 32 killed); test-storybook:ci SKIPPED.
+Manifest evidence slots of the rows above now name this round's archive (`phaseCManifest.test.mjs` green). Lanes 1 and 2 stopped;
+ST serves master's staged build again (`5f3e9ee6`, bundle `09556eb3…`).
+
+**Blocks B1.** Nothing from the no-model side: every row round 1 left red is green ×2 or fixed by design (F9), and the
+fixes are on this branch, unmerged. Merging needs the owner, then a restage, then B1 starts on that build.
