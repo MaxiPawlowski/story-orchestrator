@@ -1,0 +1,177 @@
+{
+  "row": "37-L3",
+  "run": 2,
+  "writtenAt": "2026-10-08T08:14:19.660Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 37 §L3 curator proposals gate",
+  "curatorProfile": "deepseek 4.1 flash",
+  "labeller": "Artemis RunPod",
+  "floor": "in-goal rate ≥ 0.85, 0 narrated player actions, 0 references to unreached content in a spoiler subset",
+  "verdict": "PASS",
+  "incomplete": [],
+  "floors": {
+    "inGoal": {
+      "value": 1,
+      "proposals": 20,
+      "inGoal": 20,
+      "min": 0.85,
+      "ok": true
+    },
+    "narratedPlayer": {
+      "value": 0,
+      "max": 0,
+      "ok": true,
+      "refusedByParser": 0
+    },
+    "unreached": {
+      "value": 0,
+      "max": 0,
+      "spoilerProposals": 5,
+      "ok": true
+    }
+  },
+  "casesWithProposal": 20,
+  "refused": 0,
+  "cases": [
+    {
+      "case": 1,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 2,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 3,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 4,
+      "spoiler": true,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 5,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 6,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 7,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 8,
+      "spoiler": true,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 9,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 10,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 11,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 12,
+      "spoiler": true,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 13,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 14,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 15,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 16,
+      "spoiler": true,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 17,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 18,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 19,
+      "spoiler": false,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    },
+    {
+      "case": 20,
+      "spoiler": true,
+      "proposals": 1,
+      "refused": 0,
+      "error": false
+    }
+  ]
+}

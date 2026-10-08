@@ -1,0 +1,210 @@
+{
+  "row": "36-Q1-M1",
+  "run": 2,
+  "writtenAt": "2026-10-08T07:41:40.447Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 36 §Q1 Floors (M1)",
+  "readProfile": "deepseek 4.1 flash",
+  "labelledBy": "recorded in the lab file",
+  "floor": "no tier (`plotDeltaAccuracy`, facts, rejected) drops more than **3 points** vs arm 0; prompt tokens per read **≤ +15 %**, p50 read latency **≤ +20 %**; the highest passing arm sets `QUEST_SCOPE_CAP` (floor 5; if arm 5 fails, Q1 ships without side quests discovered by extraction)",
+  "verdict": "FAIL",
+  "incomplete": [],
+  "arms": [
+    {
+      "arm": 0,
+      "cases": 20,
+      "reads": 24,
+      "errors": 0,
+      "tiers": {
+        "deltas": {
+          "scored": 20,
+          "passed": 13,
+          "accuracy": 0.65
+        },
+        "facts": {
+          "scored": 15,
+          "passed": 7,
+          "accuracy": 0.4667
+        },
+        "rejected": {
+          "scored": 20,
+          "passed": 20,
+          "accuracy": 1
+        }
+      },
+      "tokensMean": 3765.9,
+      "latencyP50": 1724,
+      "questKeysMax": 3,
+      "questDroppedMax": 0
+    },
+    {
+      "arm": 5,
+      "cases": 20,
+      "reads": 24,
+      "errors": 0,
+      "tiers": {
+        "deltas": {
+          "scored": 20,
+          "passed": 13,
+          "accuracy": 0.65
+        },
+        "facts": {
+          "scored": 15,
+          "passed": 6,
+          "accuracy": 0.4
+        },
+        "rejected": {
+          "scored": 20,
+          "passed": 20,
+          "accuracy": 1
+        }
+      },
+      "tokensMean": 4064.9,
+      "latencyP50": 1716,
+      "questKeysMax": 8,
+      "questDroppedMax": 0
+    },
+    {
+      "arm": 10,
+      "cases": 20,
+      "reads": 24,
+      "errors": 0,
+      "tiers": {
+        "deltas": {
+          "scored": 20,
+          "passed": 13,
+          "accuracy": 0.65
+        },
+        "facts": {
+          "scored": 15,
+          "passed": 8,
+          "accuracy": 0.5333
+        },
+        "rejected": {
+          "scored": 20,
+          "passed": 20,
+          "accuracy": 1
+        }
+      },
+      "tokensMean": 4357.9,
+      "latencyP50": 1731,
+      "questKeysMax": 13,
+      "questDroppedMax": 0
+    },
+    {
+      "arm": 20,
+      "cases": 20,
+      "reads": 24,
+      "errors": 0,
+      "tiers": {
+        "deltas": {
+          "scored": 20,
+          "passed": 13,
+          "accuracy": 0.65
+        },
+        "facts": {
+          "scored": 15,
+          "passed": 9,
+          "accuracy": 0.6
+        },
+        "rejected": {
+          "scored": 20,
+          "passed": 20,
+          "accuracy": 1
+        }
+      },
+      "tokensMean": 4935.3,
+      "latencyP50": 1722,
+      "questKeysMax": 23,
+      "questDroppedMax": 0
+    }
+  ],
+  "judged": [
+    {
+      "arm": 5,
+      "passes": false,
+      "tiers": {
+        "deltas": {
+          "drop": 0,
+          "ok": true
+        },
+        "facts": {
+          "drop": 0.0667,
+          "ok": false
+        },
+        "rejected": {
+          "drop": 0,
+          "ok": true
+        }
+      },
+      "tokens": {
+        "growth": 0.0794,
+        "max": 0.15,
+        "ok": true
+      },
+      "latencyP50": {
+        "growth": -0.0046,
+        "max": 0.2,
+        "ok": true
+      }
+    },
+    {
+      "arm": 10,
+      "passes": false,
+      "tiers": {
+        "deltas": {
+          "drop": 0,
+          "ok": true
+        },
+        "facts": {
+          "drop": -0.0666,
+          "ok": true
+        },
+        "rejected": {
+          "drop": 0,
+          "ok": true
+        }
+      },
+      "tokens": {
+        "growth": 0.1572,
+        "max": 0.15,
+        "ok": false
+      },
+      "latencyP50": {
+        "growth": 0.0041,
+        "max": 0.2,
+        "ok": true
+      }
+    },
+    {
+      "arm": 20,
+      "passes": false,
+      "tiers": {
+        "deltas": {
+          "drop": 0,
+          "ok": true
+        },
+        "facts": {
+          "drop": -0.1333,
+          "ok": true
+        },
+        "rejected": {
+          "drop": 0,
+          "ok": true
+        }
+      },
+      "tokens": {
+        "growth": 0.3105,
+        "max": 0.15,
+        "ok": false
+      },
+      "latencyP50": {
+        "growth": -0.0012,
+        "max": 0.2,
+        "ok": true
+      }
+    }
+  ],
+  "questScopeCap": null,
+  "decision": "arm 5 failed: Q1 ships without side quests discovered by extraction"
+}

@@ -1,0 +1,169 @@
+{
+  "row": "36-Q1-M2",
+  "run": 2,
+  "writtenAt": "2026-10-08T07:34:34.056Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 36 §Q1 Floors (M2)",
+  "readProfile": "deepseek 4.1 flash",
+  "labelledBy": "recorded in the lab file",
+  "floor": "`done_when` latched within **N = 3 player turns** of the act in **≥ 0.80** of cases, false latches **≤ 1 of 20**",
+  "verdict": "FAIL",
+  "incomplete": [],
+  "floors": {
+    "recall": {
+      "value": 0.4615,
+      "latching": 13,
+      "recalled": 6,
+      "min": 0.8,
+      "ok": false
+    },
+    "falseLatches": {
+      "value": 0,
+      "of": 20,
+      "max": 1,
+      "ok": true
+    }
+  },
+  "cases": [
+    {
+      "case": 1,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 2,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 3,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 4,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 5,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 6,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 7,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 8,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 9,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 10,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 11,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 12,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 13,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 14,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 15,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 16,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 17,
+      "latches": true,
+      "latched": false,
+      "falseLatch": false,
+      "pass": false
+    },
+    {
+      "case": 18,
+      "latches": false,
+      "latched": false,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 19,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    },
+    {
+      "case": 20,
+      "latches": true,
+      "latched": true,
+      "falseLatch": false,
+      "pass": true
+    }
+  ]
+}

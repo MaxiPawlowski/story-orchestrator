@@ -1,0 +1,189 @@
+{
+  "row": "37-S17",
+  "run": 1,
+  "writtenAt": "2026-10-08T08:09:56.147Z",
+  "raw": "private (SO_DEBUG_DIR/b1); archive with npm run sessions:archive",
+  "source": "v2.7 37 §Combined scope budget",
+  "readProfile": "deepseek 4.1 flash",
+  "floor": "36's M1 token/latency floors and this plan's M2 ceiling must hold at once … no active quest or present pair waits more than 3 consecutive reads. Each cap passing alone does not accept the combined feature.",
+  "verdict": "FAIL",
+  "incomplete": [],
+  "reads": 20,
+  "baseline": {
+    "tokensMean": 2760.9,
+    "latencyP50": 1947
+  },
+  "combined": {
+    "tokensMean": 3233.4,
+    "latencyP50": 2002
+  },
+  "exercised": {
+    "members": 7,
+    "activeQuestKeys": 4,
+    "cardPulls": 6,
+    "relationshipPulls": 8
+  },
+  "floors": {
+    "tokens36": {
+      "growth": 0.1711,
+      "max": 0.15,
+      "ok": false,
+      "from": "36 §Q1 M1"
+    },
+    "latency36": {
+      "growth": 0.0282,
+      "max": 0.2,
+      "ok": true,
+      "from": "36 §Q1 M1"
+    },
+    "tokens37": {
+      "growth": 0.1711,
+      "max": 0.12,
+      "ok": false,
+      "from": "37 §Floors"
+    },
+    "latency37": {
+      "growth": 0.0282,
+      "max": 0.15,
+      "ok": true,
+      "from": "37 §Floors"
+    },
+    "block37": {
+      "p95": 129,
+      "max": 129,
+      "p95Max": 350,
+      "maxMax": 600,
+      "ok": true,
+      "from": "37 §Floors"
+    },
+    "questFairness": {
+      "candidates": 4,
+      "maxWait": 0,
+      "over": 0,
+      "maxAllowed": 3,
+      "ok": true,
+      "unit": "per quest scope key (a quest with one key kept counts as waiting on its other keys: stricter than per quest)"
+    },
+    "pairFairness": {
+      "candidates": 22,
+      "maxWait": 10,
+      "over": 13,
+      "maxAllowed": 3,
+      "ok": false,
+      "unit": "per relationship axis key (stricter than per pair)"
+    }
+  },
+  "overflowOrder": {
+    "decidedIn": "B2 (record only here)",
+    "reads": [
+      {
+        "read": 1,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 2,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 3,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 4,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 5,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 6,
+        "dropped": {
+          "relationship": 6
+        }
+      },
+      {
+        "read": 7,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 8,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 9,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 10,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 11,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 12,
+        "dropped": {
+          "relationship": 4
+        }
+      },
+      {
+        "read": 13,
+        "dropped": {
+          "relationship": 4
+        }
+      },
+      {
+        "read": 14,
+        "dropped": {
+          "relationship": 4
+        }
+      },
+      {
+        "read": 16,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 17,
+        "dropped": {
+          "relationship": 12
+        }
+      },
+      {
+        "read": 18,
+        "dropped": {
+          "relationship": 14
+        }
+      },
+      {
+        "read": 19,
+        "dropped": {
+          "relationship": 14
+        }
+      }
+    ]
+  }
+}
