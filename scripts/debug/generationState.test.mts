@@ -96,3 +96,11 @@ test('B1b H7b: SO_SWIPE_EMPTY_MAX sets the empty-reply swipe limit, default 4', 
   assert.equal(swipeEmptyMax({ SO_SWIPE_EMPTY_MAX: '4' }), 4);
   assert.equal(swipeEmptyMax({ SO_SWIPE_EMPTY_MAX: '0' }), 4);
 });
+
+test('B1b H9: a reply counts only when the chat grew by the player line and an answer; a send that never posted is not a reply', async () => {
+  const { repliedAfter } = await import('./st-actions.mts');
+  assert.equal(repliedAfter({ length: 45, lastIsUser: false, lastText: 'the previous reply' }, 45), false, 'the 13:21Z case: nothing posted, the last message is the previous reply');
+  assert.equal(repliedAfter({ length: 46, lastIsUser: true, lastText: 'my line' }, 45), false);
+  assert.equal(repliedAfter({ length: 47, lastIsUser: false, lastText: 'an answer' }, 45), true);
+  assert.equal(repliedAfter({ length: 47, lastIsUser: false, lastText: '' }, 45), false);
+});

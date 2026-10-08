@@ -77,6 +77,8 @@ export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {
   throw new Error(`Generation still active after ${timeout}ms timeout.`);
 }
 
+export const repliedAfter = (after: { length: number; lastIsUser: boolean; lastText: string }, before: number): boolean => after.length >= before + 2 && !after.lastIsUser && after.lastText.length > 0;
+
 export const swipeEmptyReplies = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_SWIPE_EMPTY_REPLY === '1';
 export const swipeEmptyMax = (env: NodeJS.ProcessEnv = process.env): number => { const max = Number(env.SO_SWIPE_EMPTY_MAX); return Number.isInteger(max) && max > 0 ? max : 4; };
 
@@ -176,7 +178,8 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
 
   // A reply is a non-user message with text in it. Silence is legitimate in a group whose talk
   // control allows it, so this is REPORTED by default and only fatal when the caller asks.
-  let replied = !after.lastIsUser && after.lastText.length > 0;
+  let replied = repliedAfter(after, chatLenBefore);
+  if (after.length <= chatLenBefore) console.warn(`WARNING: SEND-NOT-POSTED: the chat did not grow (${chatLenBefore} -> ${after.length}); the player line never reached the chat (a dialog over #send_but, or the send was refused)`);
   const emptyReplies: Array<Record<string, unknown>> = [];
   for (let attempt = 1; !replied && expectReply && swipeEmptyReplies() && !after.lastIsUser && after.length > chatLenBefore && attempt <= swipeEmptyMax(); attempt += 1) {
     const info = await readEmptyReply(page);
@@ -185,7 +188,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
     await evaluateInST(page, async () => { await SillyTavern.getContext().swipe.to(null, 'right', { source: 'so-harness-empty-reply' }); return true; });
     await waitForIdle(page, idleTimeoutMs);
     after = await readAfter();
-    replied = !after.lastIsUser && after.lastText.length > 0;
+    replied = repliedAfter(after, chatLenBefore);
   }
   if (!replied) {
     console.warn(`WARNING: send produced no reply (last message ${after.lastIsUser ? 'is the user\'s own' : `is "${after.lastName}" with ${after.lastText.length} characters`}). Silence is valid under talk control; an unreachable backend looks identical here.`);
