@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CLOUD_SINK_PORT, judgeShareEnv, laneHeaderField, parsePodArg, podLoadProblem, podPortOf, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lanePods.mts';
+import { CLOUD_SINK_PORT, judgeShareEnv, laneHeaderField, parsePodArg, podLoadProblem, podPortOf, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lanePods.mts';
+import { offlineProblems } from './laneModel.mts';
 import { laneLoadProblem } from '../st-lanes.mts';
 
 const settings = (urls: Array<string | undefined>) => ({
@@ -49,6 +50,19 @@ test('retargeting back to pod 0 and to cloud round-trips; a second retarget to t
   assert.deepEqual(podPortsIn(cloud), [CLOUD_SINK_PORT]);
   assert.deepEqual(podPortsIn(retargetProfiles(cloud, 18080).next), [18080]);
   assert.throws(() => retargetProfiles(null, 18080), /not an object/);
+});
+
+test('B1b H1: a lane moved to another pod also moves ST own echoes of the old pod url (textgen server_urls, connection history), and nothing else', () => {
+  const echoed = { ...settings(['http://127.0.0.1:18080/']), textgenerationwebui_settings: { server_urls: { llamacpp: 'http://127.0.0.1:18080', ollama: 'http://127.0.0.1:18079', ooba: 'https://api.example.test' } }, history: [{ label: 'llamacpp', url: 'http://127.0.0.1:18080/' }, { label: 'x', url: 'http://127.0.0.1:8105/' }] };
+  const { next, changed } = retargetPodUrls(retargetProfiles(echoed, podTunnelPort(null)).next, podTunnelPort(null));
+  assert.deepEqual(changed, ['http://127.0.0.1:18080', 'http://127.0.0.1:18080']);
+  assert.deepEqual((next as any).textgenerationwebui_settings.server_urls, { llamacpp: 'http://127.0.0.1:18079', ollama: 'http://127.0.0.1:18079', ooba: 'https://api.example.test' });
+  assert.deepEqual((next as any).history.map((row: any) => row.url), ['http://127.0.0.1:18079/', 'http://127.0.0.1:8105/']);
+  const onPod2 = retargetPodUrls(next, 18082).next;
+  assert.equal((onPod2 as any).textgenerationwebui_settings.server_urls.llamacpp, 'http://127.0.0.1:18082');
+  assert.equal((onPod2 as any).textgenerationwebui_settings.server_urls.ooba, 'https://api.example.test');
+  assert.deepEqual(offlineProblems(onPod2, 8105, { podPort: 18082 }).filter((problem) => problem.includes('names')), [], 'the offline check accepts the moved lane');
+  assert.ok(offlineProblems(echoed, 8105, { podPort: 18082 }).some((problem) => problem.includes('18080')), 'control: the unmoved echo is refused');
 });
 
 test('lane load counts model lanes per pod: two per pod pass on any number of pods, a third on one pod refuses and names it', () => {

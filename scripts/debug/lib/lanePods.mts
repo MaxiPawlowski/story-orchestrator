@@ -55,6 +55,25 @@ export function retargetProfiles(settings: unknown, port: number): { next: Recor
   return { next: { ...settings, extension_settings: { ...extensions, connectionManager: { ...manager, profiles: next } } }, changed };
 }
 
+const POD_URL = /https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):(\d+)/gi;
+
+const retargetStrings = (value: unknown, port: number, changed: string[]): unknown => {
+  if (typeof value === 'string') return value.replace(POD_URL, (url, found: string) => {
+    if (podPortOf(url) === null || Number(found) === port) return url;
+    changed.push(url);
+    return url.slice(0, url.length - found.length) + String(port);
+  });
+  if (Array.isArray(value)) return value.map((item) => retargetStrings(item, port, changed));
+  if (isRecord(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, retargetStrings(item, port, changed)]));
+  return value;
+};
+
+export function retargetPodUrls(settings: unknown, port: number): { next: Record<string, unknown>; changed: string[] } {
+  if (!isRecord(settings)) throw new Error('settings.json is not an object');
+  const changed: string[] = [];
+  return { next: retargetStrings(settings, port, changed) as Record<string, unknown>, changed };
+}
+
 export function podPortsIn(settings: unknown): number[] {
   const extensions = isRecord(settings) && isRecord(settings.extension_settings) ? settings.extension_settings : {};
   const manager = isRecord(extensions.connectionManager) ? extensions.connectionManager : {};

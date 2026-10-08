@@ -8,7 +8,7 @@ import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
 import { firewalledServerEnv, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
-import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetProfiles } from './lib/lanePods.mts';
+import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
@@ -307,12 +307,13 @@ async function assignPod(n: number, pod: number | null, podId: string | null) {
   const settingsPath = resolve(lane.data, 'default-user', 'settings.json');
   if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
   const port = podTunnelPort(pod);
-  const { next, changed } = retargetProfiles(JSON.parse(await readFile(settingsPath, 'utf-8')), port);
+  const { next: profiled, changed } = retargetProfiles(JSON.parse(await readFile(settingsPath, 'utf-8')), port);
+  const { next, changed: echoes } = retargetPodUrls(profiled, port);
   await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
   const ports = podPortsIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
   if (ports.some((found) => found !== port)) throw new Error(`lane ${n}: pod-tunnel profiles read ${ports.join(', ')} after writing ${port}`);
   await writeFile(resolve(lane.root, LANE_POD_FILE), JSON.stringify({ pod, port, podId, at: new Date().toISOString() }, null, 2), 'utf-8');
-  return { lane: n, pod: pod ?? 'cloud', port, podId, changed };
+  return { lane: n, pod: pod ?? 'cloud', port, podId, changed, echoes };
 }
 
 // v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
