@@ -2,7 +2,7 @@
   "_note": "plan 07 memory foundation, mocked plumbing (no model). 2026-10-03 refresh: the sceneBreak line carries maxTriggers 3, and repeats of an afterSpeak/sceneBreak line need 8 messages since the last post (npcReplyMayFire, 01a11e07, v2.6 plan 14 T3-4/T3-6; story-guide: give sceneBreak a maxTriggers). So the second break, 1-2 messages after the first line, is HELD (exactly one line), and a third break after nine filler lines fires it again (exactly two).",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Arin","DM Narrator"],"judge":"off","why":"facts are planted through applyExtractionAudit with no supporting transcript; judge memoryVerify (on by default since v2.6 rule 5) drops them on a judge-on lane (facts 0, T7 SUITE); the subject is the memory tiers, not the judge. Arin and DM Narrator are the cast the story enables and speaks as"},
   "steps": [
-    { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
+    { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugShortTermResponse = 'They gathered in the hall and moved on to the vault.'; return true;" },
     {
       "import_story": {
         "format": 2,
