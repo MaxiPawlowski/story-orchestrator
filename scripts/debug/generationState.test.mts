@@ -68,3 +68,15 @@ test('B1b H5: a trailing empty reply that started under 180 s ago, or ST own bod
     g.document = doc;
   }
 });
+
+test('B1b H5b/H7: a FINISHED empty reply (gen_finished set) is not waited on; the empty-reply swipe is opt-in', async () => {
+  const { swipeEmptyReplies } = await import('./st-actions.mts');
+  const page = idlePage();
+  const chat: any[] = [{ is_user: true, mes: 'hello' }, { is_user: false, name: 'Zariah', mes: '', gen_started: new Date(Date.now() - 5000).toISOString(), gen_finished: new Date().toISOString() }];
+  g.SillyTavern = { getContext: () => ({ streamingProcessor: null, chat }) };
+  assert.equal((await getGenerationState(page)).emptyReplyPending, false);
+  delete chat[1].gen_finished;
+  assert.equal((await getGenerationState(page)).emptyReplyPending, true, 'control: the same reply still streaming is waited on');
+  assert.equal(swipeEmptyReplies({}), false);
+  assert.equal(swipeEmptyReplies({ SO_SWIPE_EMPTY_REPLY: '1' }), true);
+});

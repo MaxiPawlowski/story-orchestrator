@@ -33,7 +33,7 @@ export async function getGenerationState(page) {
     const last = (ctx.chat ?? [])[(ctx.chat ?? []).length - 1] ?? null;
     const startedAt = last?.gen_started ? new Date(last.gen_started).getTime() : NaN;
     const emptyReplyPending = Boolean(last && !last.is_user && !last.is_system && typeof last.mes === 'string' && !last.mes.trim()
-      && Number.isFinite(startedAt) && Date.now() - startedAt < 180000);
+      && !last.gen_finished && Number.isFinite(startedAt) && Date.now() - startedAt < 180000);
     const isGenerating = buttonsSayGenerating || chainPending || hostGenerating || emptyReplyPending || (sp
       ? (sp.isFinished === false && sp.isStopped !== true)
       : sendButtonDisabled);
@@ -75,6 +75,31 @@ export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {
   const finalState = await getGenerationState(page);
   if (!finalState.isGenerating) return finalState;
   throw new Error(`Generation still active after ${timeout}ms timeout.`);
+}
+
+export const swipeEmptyReplies = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_SWIPE_EMPTY_REPLY === '1';
+
+export async function readEmptyReply(page) {
+  return evaluateInST(page, () => {
+    const ctx = SillyTavern.getContext();
+    const chat = ctx.chat ?? [];
+    const last = chat[chat.length - 1] ?? null;
+    const reasoning = typeof last?.extra?.reasoning === 'string' ? last.extra.reasoning : '';
+    const journal = (globalThis as any).storyOrchestratorRuntime?.getSessionJournal?.();
+    const events = Array.isArray(journal?.events) ? journal.events : Array.isArray(journal) ? journal : [];
+    const effort = events.filter((event: any) => /effort|thinking budget|reasoning/i.test(JSON.stringify(event ?? {}))).slice(-2).map((event: any) => String(event?.summary ?? event?.text ?? event?.kind ?? '').slice(0, 160));
+    return {
+      chatId: ctx.chatId ?? null,
+      messageId: chat.length - 1,
+      member: last?.name ?? null,
+      reasoningChars: reasoning.length,
+      tokenCount: last?.extra?.token_count ?? null,
+      genStarted: last?.gen_started ?? null,
+      genFinished: last?.gen_finished ?? null,
+      swipes: Array.isArray(last?.swipes) ? last.swipes.length : null,
+      effort,
+    };
+  });
 }
 
 export async function sendCompactMessage(page, text) {
@@ -129,7 +154,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   // message, the generation ends immediately and the send reported `ok` — three of them in a row
   // inside J1.6, which then failed 300 s later on a checkpoint that could never move (2026-09-20).
   // A step that says "send and generate" should be able to say whether anything answered.
-  const after = await evaluateInST(page, () => {
+  const readAfter = () => evaluateInST(page, () => {
     const chat = SillyTavern.getContext().chat ?? [];
     const last = chat[chat.length - 1] ?? null;
     return {
@@ -139,10 +164,21 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
       lastName: last?.name ?? null,
     };
   });
+  let after = await readAfter();
 
   // A reply is a non-user message with text in it. Silence is legitimate in a group whose talk
   // control allows it, so this is REPORTED by default and only fatal when the caller asks.
-  const replied = !after.lastIsUser && after.lastText.length > 0;
+  let replied = !after.lastIsUser && after.lastText.length > 0;
+  const emptyReplies: Array<Record<string, unknown>> = [];
+  for (let attempt = 1; !replied && expectReply && swipeEmptyReplies() && !after.lastIsUser && after.length > chatLenBefore && attempt <= 2; attempt += 1) {
+    const info = await readEmptyReply(page);
+    emptyReplies.push({ ...info, attempt });
+    console.warn(`EMPTY-REPLY ${JSON.stringify({ ...info, attempt })}: swiping for a new reply, as a player would`);
+    await evaluateInST(page, async () => { await SillyTavern.getContext().swipe.to(null, 'right', { source: 'so-harness-empty-reply' }); return true; });
+    await waitForIdle(page, idleTimeoutMs);
+    after = await readAfter();
+    replied = !after.lastIsUser && after.lastText.length > 0;
+  }
   if (!replied) {
     console.warn(`WARNING: send produced no reply (last message ${after.lastIsUser ? 'is the user\'s own' : `is "${after.lastName}" with ${after.lastText.length} characters`}). Silence is valid under talk control; an unreachable backend looks identical here.`);
   }
@@ -155,6 +191,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
     replied,
     lastSpeaker: after.lastName,
     lastLength: after.lastText.length,
+    ...(emptyReplies.length ? { emptyReplies } : {}),
     ...(expectReply && !replied ? { ok: false } : {}),
   };
 }
