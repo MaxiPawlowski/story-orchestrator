@@ -29,7 +29,12 @@ export async function getGenerationState(page) {
     // A stopped stream leaves the processor behind with isFinished === false; treating that as
     // "generating" makes every later step time out. Generating means running AND not stopped.
     const chainPending = (globalThis as any).storyOrchestratorTalk?.chainPending?.() === true;
-    const isGenerating = buttonsSayGenerating || chainPending || (sp
+    const hostGenerating = (document as any).body?.dataset?.generating === 'true';
+    const last = (ctx.chat ?? [])[(ctx.chat ?? []).length - 1] ?? null;
+    const startedAt = last?.gen_started ? new Date(last.gen_started).getTime() : NaN;
+    const emptyReplyPending = Boolean(last && !last.is_user && !last.is_system && typeof last.mes === 'string' && !last.mes.trim()
+      && Number.isFinite(startedAt) && Date.now() - startedAt < 180000);
+    const isGenerating = buttonsSayGenerating || chainPending || hostGenerating || emptyReplyPending || (sp
       ? (sp.isFinished === false && sp.isStopped !== true)
       : sendButtonDisabled);
 
@@ -38,6 +43,8 @@ export async function getGenerationState(page) {
       sendButtonDisabled,
       buttonsSayGenerating,
       chainPending,
+      hostGenerating,
+      emptyReplyPending,
       streamingProcessor: sp ? {
         isFinished: sp.isFinished ?? null,
         isStopped: sp.isStopped ?? null,

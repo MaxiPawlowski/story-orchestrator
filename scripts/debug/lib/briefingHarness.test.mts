@@ -86,3 +86,25 @@ test('the transition note is pinned off for a run unless the fixture drives anno
   assert.equal((await restoreTransitionNote(page, suppressed.before) as { ok?: boolean }).ok, true);
   assert.equal(settings.display.announceTransitions, true);
 });
+
+test('B1b H2: journey setup closes a story-start dialog left open on its chat, and leaves a closed page alone', async () => {
+  const { closeStartDialog } = await import('./briefingHarness.mts');
+  const dialog = { open: true, querySelector: (selector: string) => (selector === '#so-player-setup' ? {} : selector === '#so-briefing-title' ? { textContent: 'Who you are in this story' } : null), querySelectorAll: () => [] };
+  (globalThis as Record<string, unknown>).document = { querySelector: (selector: string) => (selector === 'dialog#so-briefing' ? dialog : null) };
+  (globalThis as Record<string, unknown>).storyOrchestratorRuntime = { getSnapshot: () => ({ briefing: { pending: true } }) };
+  const clicks: string[] = [];
+  const page = {
+    evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => fn(arg),
+    waitForTimeout: async () => undefined,
+    waitForFunction: async (fn: () => boolean) => { if (!fn()) throw new Error('still open'); },
+    locator: (selector: string) => ({ click: async () => { clicks.push(selector); dialog.open = false; } }),
+  };
+  const closed = await closeStartDialog(page, 'after the chat opened', { settleMs: 0 });
+  assert.deepEqual(clicks, ['#so-briefing-start']);
+  assert.equal(closed.closed, true);
+  assert.equal(closed.identity, true);
+  const again = await closeStartDialog(page, 'after the chat opened', { settleMs: 0 });
+  assert.deepEqual(again, { open: false, when: 'after the chat opened' });
+  assert.deepEqual(clicks, ['#so-briefing-start'], 'control: nothing is clicked when no dialog is open');
+  delete (globalThis as Record<string, unknown>).document;
+});

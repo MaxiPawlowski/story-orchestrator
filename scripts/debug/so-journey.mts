@@ -13,7 +13,7 @@ import { journeyStoryRefs, splitJourneyLorebooks, storyListedBooks } from './lib
 import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
-import { readBriefingSetting, readDisplaySetting, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
+import { closeStartDialog, fixtureDrivesBriefing, readBriefingSetting, readDisplaySetting, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
 import { computeTallies, firstAttemptOf, gateFailures, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
 import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
@@ -294,7 +294,7 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-export type SetupApplied = { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; briefingBefore?: boolean | null; playerSetupBefore?: boolean | null; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown };
+export type SetupApplied = { configSnapshot: unknown; chat: unknown; startDialogs?: unknown; groupDialogs?: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; briefingBefore?: boolean | null; playerSetupBefore?: boolean | null; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown };
 
 export const emptySetup = (): SetupApplied => ({ configSnapshot: null, chat: null, guard: null });
 
@@ -356,6 +356,7 @@ export async function applySetup(page, setup, { allowConfig, journey = null, gro
   // A group chat already open is the group we want; going via the welcome screen only risks
   // getting stuck there when a previous run died mid-journey.
   else if (!active?.groupId) await openMostRecentGroupChat(page);
+  if (!fixtureDrivesBriefing(JSON.stringify(journey ?? {}))) applied.groupDialogs = await closeStartDialog(page, 'after the group opened', { settleMs: 0 });
   // The judgment model is install-wide, so a journey that asserts "off by default" has to put it
   // back to the shipped defaults first — otherwise an earlier session's opt-in leaks into the run.
   if (setup.resetJudge) {
@@ -394,6 +395,7 @@ export async function applySetup(page, setup, { allowConfig, journey = null, gro
       return true;
     });
   }
+  if (!fixtureDrivesBriefing(JSON.stringify(journey ?? {}))) applied.startDialogs = await closeStartDialog(page, 'after the chat opened');
   if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
   if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks, journey);
   if (Array.isArray(setup.extensionSettings)) {

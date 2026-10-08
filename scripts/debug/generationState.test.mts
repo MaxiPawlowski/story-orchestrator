@@ -43,3 +43,28 @@ test('waitForIdle does not return while the chain is pending between two voices'
     delete g.storyOrchestratorTalk;
   }
 });
+
+test('B1b H5: a trailing empty reply that started under 180 s ago, or ST own body.dataset.generating, reads as generating; an old empty reply does not', async () => {
+  const page = idlePage();
+  const chat: any[] = [{ is_user: true, mes: 'hello' }];
+  g.SillyTavern = { getContext: () => ({ streamingProcessor: null, chat }) };
+  const body = { dataset: {} as Record<string, string> };
+  const doc = g.document;
+  g.document = { ...doc, body };
+  try {
+    assert.equal((await getGenerationState(page)).isGenerating, false, 'control: the player line alone is idle');
+    chat.push({ is_user: false, name: 'Dalan', mes: '', gen_started: new Date(Date.now() - 5000).toISOString() });
+    const placeholder = await getGenerationState(page);
+    assert.equal(placeholder.isGenerating, true);
+    assert.equal(placeholder.emptyReplyPending, true);
+    chat[1].gen_started = new Date(Date.now() - 600000).toISOString();
+    assert.equal((await getGenerationState(page)).isGenerating, false, 'an empty reply older than the grace is not waited on forever');
+    body.dataset.generating = 'true';
+    assert.equal((await getGenerationState(page)).hostGenerating, true);
+    chat[1].mes = 'Dalan answers.';
+    delete body.dataset.generating;
+    assert.equal((await getGenerationState(page)).isGenerating, false);
+  } finally {
+    g.document = doc;
+  }
+});

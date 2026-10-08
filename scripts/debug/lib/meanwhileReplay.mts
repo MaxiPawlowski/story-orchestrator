@@ -40,12 +40,12 @@ export function proposalLabelPrompt(goal: string, proposal: { memberId: string; 
   return [
     'You label one off-stage event a story tool proposed for a character, for a measurement. Answer only with the two lines asked for.',
     `The character's agenda goal: ${goal}`,
-    `The proposed event (${proposal.memberId}): ${proposal.text}`,
-    'IN_GOAL: yes when the event serves that goal and nothing else; otherwise no.',
-    'NARRATES_PLAYER: yes when the event says what the player character does, says, thinks or decides; otherwise no.',
-    'Answer exactly:',
-    'IN_GOAL: yes|no',
-    'NARRATES_PLAYER: yes|no',
+    `The proposed event happens to ${proposal.memberId}, a character the story runs; ${proposal.memberId} is not the player character: ${proposal.text}`,
+    'IN_GOAL: answer yes when the event serves that goal and nothing else; otherwise answer no.',
+    `NARRATES_PLAYER: answer yes only when the event says what the player character (the person playing, not ${proposal.memberId}) does, says, thinks or decides; an event about ${proposal.memberId} alone is no.`,
+    'Answer with exactly two lines, each ending in the single word yes or the single word no:',
+    'IN_GOAL: <yes or no>',
+    'NARRATES_PLAYER: <yes or no>',
   ].join('\n');
 }
 

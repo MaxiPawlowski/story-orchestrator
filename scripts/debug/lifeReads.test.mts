@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { LiveRead } from './lib/b1Runs.mts';
-import { AXES_ARMS, directionOf, scoreLifeM1, scoreLifeM2, windowSpec, type LifeArm, type RelationshipWindow } from './lib/lifeReads.mts';
+import { AXES_ARMS, directionOf, scoreLifeM1, scoreLifeM2, relationshipKeyOf, windowSpec, type LifeArm, type RelationshipWindow } from './lib/lifeReads.mts';
 import { scoreCombined, waits } from './lib/combinedScope.mts';
 import { combinedSpec } from './so-b1-combined-scope.mts';
 
@@ -121,4 +121,16 @@ test('S-17 specs: shipped caps in the combined arm, quests and relationships off
   assert.deepEqual(combined.scopeContext, { present: ['a', 'b'], drafted: 'a', cursor: 4 });
   assert.deepEqual(combinedSpec(story, windows[0], 0, {}, { quest: 0, relationship: 0 }).scopeCaps, { quest: 0, relationship: 0 });
   assert.deepEqual(combined.transcript.map((row) => row.is_user === true), [true, false]);
+});
+
+test('B1b H3: a none-labelled lab window carries expected null; its key is compiled from holder, toward and axis, in scope and scored', () => {
+  const lab: RelationshipWindow[] = windows.map((window) => (window.label === 'none' ? { ...window, axis: 'warmth', expected: null } : window));
+  const keyOf = (window: RelationshipWindow) => window.expected?.q ?? `rel_${window.holder}_${window.toward}_${window.axis}`;
+  assert.equal(relationshipKeyOf(lab[19]), 'rel_a_player_warmth');
+  assert.deepEqual(windowSpec({}, lab[19], () => false, 'a').blackboard.values, { rel_a_player_warmth: 0 });
+  const still = lab.map((window) => read({ scope: [keyOf(window)], guarded: window.label === 'none' ? [] : [{ q: keyOf(window), v: window.label === 'up' ? 1 : -1 }] }));
+  const scored = scoreLifeM1(lab, { a: still, b: still, c: still });
+  assert.equal(scored.verdict, 'PASS', JSON.stringify(scored.incomplete));
+  const moved = still.map((entry, index) => (lab[index].label === 'none' ? read({ scope: [keyOf(lab[index])], guarded: [{ q: keyOf(lab[index]), v: 1 }] }) : entry));
+  assert.equal(scoreLifeM1(lab, { a: moved, b: moved, c: moved }).arms.a?.floors.direction.value, 0.85, 'control: a move on a none window is a wrong direction');
 });
