@@ -109,10 +109,17 @@ export async function sendCompactMessage(page, text) {
   return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
-export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = undefined, expectReply = false } = {}) {
+export const sendTimeoutMs = (requested: number | undefined, env: NodeJS.ProcessEnv = process.env): number => {
+  const floor = Number(env.SO_SEND_TIMEOUT_FLOOR_MS);
+  const base = requested ?? 300000;
+  return Number.isFinite(floor) && floor > base ? floor : base;
+};
+
+export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTimeoutMs = 300000, preSendIdleTimeoutMs = undefined, expectReply = false } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
   }
+  const idleTimeoutMs = sendTimeoutMs(requestedTimeoutMs);
 
   // A prior turn must finish before we type, but this wait is not the caller's generation budget:
   // hard-coded at 15s it blew up as soon as the pod moved to a slower card and ordinary turns ran

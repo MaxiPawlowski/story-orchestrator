@@ -80,3 +80,12 @@ test('B1b H5b/H7: a FINISHED empty reply (gen_finished set) is not waited on; th
   assert.equal(swipeEmptyReplies({}), false);
   assert.equal(swipeEmptyReplies({ SO_SWIPE_EMPTY_REPLY: '1' }), true);
 });
+
+test('B1b H8: SO_SEND_TIMEOUT_FLOOR_MS raises a send timeout to the floor, never lowers it', async () => {
+  const { sendTimeoutMs } = await import('./st-actions.mts');
+  assert.equal(sendTimeoutMs(300000, {}), 300000);
+  assert.equal(sendTimeoutMs(undefined, {}), 300000);
+  assert.equal(sendTimeoutMs(300000, { SO_SEND_TIMEOUT_FLOOR_MS: '600000' }), 600000);
+  assert.equal(sendTimeoutMs(900000, { SO_SEND_TIMEOUT_FLOOR_MS: '600000' }), 900000);
+  assert.equal(sendTimeoutMs(300000, { SO_SEND_TIMEOUT_FLOOR_MS: 'x' }), 300000);
+});
