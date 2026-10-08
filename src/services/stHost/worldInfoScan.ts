@@ -3,6 +3,7 @@ import { getContext } from "./context";
 import { getScannableEntries } from "./worldInfoActivate";
 import { LOADED_ARRAYS, observeWorldInfoScans } from "./worldInfoEvidence";
 import { log } from "@utils/log";
+import { vectorsWorldInfoOn } from "./extensionConflicts";
 
 export interface ScanGatingHandle {
   reassert: () => void;
@@ -49,8 +50,7 @@ export function installStoryLoreScan(append: (arrays: HostScannableEntry[][]) =>
 }
 
 export function vectorsScanWorldInfo(): boolean {
-  const vectors = (getContext().extensionSettings as Record<string, unknown> | undefined)?.vectors;
-  return typeof vectors === "object" && vectors !== null && (vectors as { enabled_world_info?: unknown }).enabled_world_info === true;
+  return vectorsWorldInfoOn(getContext().extensionSettings);
 }
 
 // The `wiScanGating` capability (in CAPABILITY_IDS): `present` only when the handler was

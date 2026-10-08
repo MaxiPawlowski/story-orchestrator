@@ -128,7 +128,7 @@ const showSetupTarget = (target: ShowMe) => {
   if (target.kind === "group-members") return openGroup();
   if (target.kind === "st-extensions") {
     openExtensionsDrawer();
-    window.setTimeout(() => document.querySelector(".expression_settings")?.scrollIntoView({ block: "center", behavior: "smooth" }), 250);
+    window.setTimeout(() => openInlinePanel(document.querySelector<HTMLElement>(target.selector), "center"), 250);
     return;
   }
   openStorySettings();
@@ -375,13 +375,16 @@ const openExtensionsDrawer = () => {
   if (navToggle && navContent && !navContent.classList.contains("openDrawer")) toggleNavbarDrawer(navToggle);
 };
 
-const openStorySettings = () => {
-  openExtensionsDrawer();
-  const panel = document.getElementById("story-orchestrator-settings");
+const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition) => {
   const inlineToggle = panel?.querySelector<HTMLElement>(".inline-drawer-toggle");
   const inlineContent = panel?.querySelector<HTMLElement>(".inline-drawer-content");
   if (inlineToggle && inlineContent && inlineContent.offsetParent === null) inlineToggle.click();
-  window.setTimeout(() => panel?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
+  window.setTimeout(() => panel?.scrollIntoView({ block, behavior: "smooth" }), 100);
+};
+
+const openStorySettings = () => {
+  openExtensionsDrawer();
+  openInlinePanel(document.getElementById("story-orchestrator-settings"), "start");
 };
 
 // Repair names a step; this is how it lands on it. A control that is already in the panel is pointed

@@ -1,6 +1,8 @@
 import { forceActivateEntries, getContext, getScannableEntries, settingsReady, willAddUserMessage } from "@services/STAPI";
 import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
+import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
+import { readExtensionConflictsWith } from "../extensionConflicts";
 import { LoreSelector } from "../loreSelect";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
@@ -90,6 +92,14 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   const storyLore = startStoryLore({ chatId, ownedChat: () => runtimeManager.getLoadedChatId(), story: () => runtimeManager.getStory() });
   disposers.push(storyLore.dispose);
   disposers.push(readCopiersWith(() => transcriptCopiersOn(getContext().extensionSettings)));
+  disposers.push(readExtensionConflictsWith(() => {
+    const context = getContext();
+    return extensionConflictsWith({
+      settings: context.extensionSettings,
+      manifest: context.getExtensionManifest,
+      storage: (key) => globalThis.localStorage?.getItem(key) ?? null,
+    });
+  }));
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),
     messageId: chatLastId,

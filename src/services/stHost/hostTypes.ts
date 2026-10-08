@@ -119,6 +119,8 @@ export interface SillyTavernContext {
   updateMessageBlock?: (messageId: number, message: unknown) => void;
   // Opens a chat the group lists; silent for any other id (group-chats.js:2195-2210, st-context.js:157).
   openGroupChat?: (groupId: string, chatId: string) => Promise<void>;
+  // A loaded extension's manifest by folder ("vectors", "third-party/<repo>"), null when absent (extensions.js:524-530, st-context.js:300).
+  getExtensionManifest?: (name: string) => unknown;
   [key: string]: unknown;
 }
 

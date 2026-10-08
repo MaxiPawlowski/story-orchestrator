@@ -78,8 +78,8 @@ export const InfoFinding: Story = {
     findings: {
       blocks: [], degrades: [], dismissed: [],
       info: [{
-        check: "whats-new", area: "lore", severity: "info", consequence: "Stories now play in group chats.", detail: "Stories now play in group chats.",
-        targetId: null, target: null, provisionable: false, player: "Stories now play in group chats.", action: null, opensGroup: false, dismissable: true,
+        check: "sample-info", area: "lore", severity: "info", consequence: "An optional helper is not set up.", detail: "An optional helper is not set up.",
+        targetId: null, target: null, provisionable: false, player: "An optional helper is not set up.", action: null, opensGroup: false, dismissable: true,
       }],
     },
   },
@@ -87,6 +87,19 @@ export const InfoFinding: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(SETUP_COPY.info)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: SETUP_COPY.dismiss })).toBeInTheDocument();
+  },
+};
+
+export const AnotherExtensionWorksAgainstTheStory: Story = {
+  args: { findings: setupFindings(snapshot({ extensionConflicts: ["prompt-inspector", "stepped-thinking-separated", "presence"] })) },
+  play: async ({ canvasElement, args }) => {
+    const rows = [...canvasElement.querySelectorAll('[data-so="setup-row"]')].map((row) => row.getAttribute("data-check"));
+    await expect(rows).toEqual(["stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on"]);
+    const stepped = canvasElement.querySelector<HTMLElement>('[data-so="setup-row"][data-check="stepped-thinking-separated"]');
+    await userEvent.click(within(stepped as HTMLElement).getByRole("button", { name: SETUP_COPY.showMe }));
+    await expect(args.onShowMe).toHaveBeenCalledWith({ kind: "st-extensions", selector: "#stepthink_settings" });
+    const inspector = canvasElement.querySelector('[data-so="setup-row"][data-check="prompt-inspector-on"]');
+    await expect(inspector?.textContent).toContain("Stop Inspecting");
   },
 };
 

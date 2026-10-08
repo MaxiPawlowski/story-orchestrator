@@ -28,6 +28,7 @@ const READS: Record<string, string> = {
   willAddUserMessage: "a question about what ST will do with this generation",
   executeSlashCommands: "the command interface itself: its boolean IS the answer, and every write seam turns it into a typed result",
   findTextGenPreset: "a lookup, not a write",
+  vectorsWorldInfoOn: "a question about Vector Storage's own World Info setting",
   personaCrudAvailable: "a question about the install's slash commands (is /persona-create registered)",
   personaDescriptionSent: "a question about a persona placement value: does ST put the description in the prompt",
   getContext: "the host context accessor itself, not a write",

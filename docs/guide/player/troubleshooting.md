@@ -35,6 +35,11 @@ downloaded can tell you; Author view adds the technical detail.
 |---|---|---|
 | "Characters' private intentions are not being tracked, because the model is not thinking before it replies. Turn on reasoning (thinking) in your model's settings to play this as intended." | The last 5 replies in this chat carried no reasoning, so the inner voice has nothing to read. | Turn on reasoning for your model connection (or its preset or instruct template). It clears once a reply carries reasoning. |
 | "Summarize shares the whole chat with every character, …" (or Vector Storage) | Another extension puts the whole chat into every character's prompt, so a character can learn what was kept from them. | Switch that extension off while the story plays. |
+| "Stepped Thinking posts characters' thoughts as chat messages, so the story treats a thought as something that happened. …" | Stepped Thinking is in its old "Separated" mode, which posts every thought into the chat. The story reads each one as a reply: it remembers it and can move on because of it. | In Stepped Thinking's settings set **Mode** to "Embedded", or switch it off while the story plays. **Show me** opens its settings. |
+| "Presence hides parts of the chat from each character, and the story's memory can read the chat while it is hidden, …" | Presence hides what a character did not witness while that character is about to speak, and a memory read in that moment sees only that view. | Untick **Enable Presence** while the story plays; the story already keeps track of who knows what. **Show me** opens its settings. |
+| "Prompt Inspector is on, so every reply waits for you to confirm its prompt in a popup. …" | Prompt Inspector's inspect toggle is on (it is kept in this browser), so it stops before every reply, once per character in a group turn. | Choose **Stop Inspecting** in SillyTavern's extensions menu (the magic wand). |
+
+Author view also lists one note that never raises the HUD count: **Vector Storage can switch on lorebook entries by itself** shows for a story that uses exclusive lore select (`lore_select.exclusive`) while Vector Storage's **Enable for World Info** is on, because exclusive lore stays off then. Untick it under Vector Storage's World Info settings (**Show me** opens them), or dismiss the note.
 
 ## "changes not saved yet"
 

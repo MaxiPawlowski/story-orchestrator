@@ -28,7 +28,7 @@ export const SPRITE_INFO_CHECKS: readonly Check[] = [
         + "they come back when the stage is not showing. Nothing in SillyTavern's settings is changed. To keep only one, switch Character Expressions off under "
         + "Extensions › Manage extensions, or switch the sprite stage off.",
       player: BUILT_IN_EXPRESSIONS_PLAYER,
-      target: { kind: "st-extensions" },
+      target: { kind: "st-extensions", selector: ".expression_settings" },
     } : null),
   },
 ];

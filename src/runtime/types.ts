@@ -29,6 +29,7 @@ import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook, ReapDecision } from "./mirrorReaper";
+import type { ExtensionConflict } from "./extensionConflicts";
 import type { ImageHealthView } from "./imageHealth";
 import type { SpriteLookIssue } from "./spriteLookHealth";
 import type { SpriteStageHealth } from "./spriteStageHealth";
@@ -481,6 +482,8 @@ export interface RuntimeSnapshot {
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
   stylesMissing?: boolean;
+  /** Other extensions switched on in a way that works against the playing story (empty with no story). */
+  extensionConflicts?: ExtensionConflict[];
   /** Transcript copiers switched on while a group plays a story, held secret or not: the player alert must not reveal that one is held. */
   secretLeaks?: string[];
   /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */

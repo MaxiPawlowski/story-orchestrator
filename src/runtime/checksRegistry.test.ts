@@ -42,6 +42,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   globalStoryLore: ["Ruins Lore"],
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,
+  extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info"],
   playerSetup: {
     storyId: "s", pending: false, needsPane: true, switched: true, record: { pending: false, avatarId: "mara.png", name: "Mara", lockFailed: "the chat did not take the persona lock" }, lockedName: "Mara",
     current: { avatarId: "belle.png", name: "Belle" }, castClash: "Belle", descriptionEmpty: true, injectOff: true, beforeFirstMessage: true,
@@ -52,7 +53,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
 const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
-  "transcript-copiers", "model-not-thinking", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
+  "transcript-copiers", "model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
 ];
 
@@ -147,11 +148,11 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
   });
 
   it("info never enters Repair and never raises the HUD count; it shows in the Setup list", () => {
-    const info: Check = { id: "whats-new", area: "lore", scope: "install", audience: "player", severity: "info", detect: () => ({ consequence: "Something new.", detail: "New." }) };
+    const info: Check = { id: "planted-info", area: "lore", scope: "install", audience: "player", severity: "info", detect: () => ({ consequence: "Something new.", detail: "New." }) };
     const snapshot = quiet();
     expect(repairSteps(snapshot, [info])).toEqual([]);
     expect(setupCounts(snapshot, [info])).toEqual({ blocks: 0, degrades: 0 });
-    expect(setupFindings(snapshot, [info]).info.map((step) => step.check)).toEqual(["whats-new"]);
+    expect(setupFindings(snapshot, [info]).info.map((step) => step.check)).toEqual(["planted-info"]);
   });
 });
 
@@ -182,8 +183,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 15 });
-    expect(hudSetupText(counts)).toBe("fix setup (29)");
+    expect(counts).toEqual({ blocks: 14, degrades: 18 });
+    expect(hudSetupText(counts)).toBe("fix setup (32)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });
