@@ -1,4 +1,6 @@
-import { JUDGE_PROVIDER_IDS, JudgeBusyError, JudgePluginError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import {
+  budgetTimer, JUDGE_PROVIDER_IDS, JudgeBusyError, JudgePluginError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport,
+} from "@judge/index";
 import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
@@ -72,7 +74,7 @@ async function postToPlugin(path: string, body: unknown, signal?: AbortSignal, u
 
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), options.timeoutMs);
+  const stop = budgetTimer(options.timeoutMs, () => controller.abort());
   // The caller's epoch signal aborts the same controller, so a story load, restart or
   // chat change cancels the request in flight instead of paying for an answer nobody will use.
   const onEpochAbort = () => controller.abort();
@@ -81,7 +83,7 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   try {
     return await postToPlugin("/systemone", request, controller.signal, options.use) as JudgeResponse;
   } finally {
-    clearTimeout(timer);
+    stop();
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };

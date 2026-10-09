@@ -1,6 +1,6 @@
 import { judgeShapeIssues, judgeSizeIssues } from "./questions";
 import { isJudgeBusy, JudgeBusyError, pluginFallback, type JudgeGate } from "./gate";
-import { JUDGE_BUSY_RETRIES, JUDGE_BUSY_RETRY_MS } from "./policy";
+import { JUDGE_BUSY_RETRIES, JUDGE_BUSY_RETRY_MS, JUDGE_STALL_GRACE_MS, JUDGE_STALL_SLACK_MS } from "./policy";
 import type { JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
 
 export const JUDGE_CACHE_LIMIT = 100;
@@ -22,11 +22,27 @@ export interface AskJudgeOptions {
   use?: string;
 }
 
+export function budgetTimer(ms: number, expire: () => void, now: () => number = Date.now): () => void {
+  const startedAt = now();
+  let extended = false;
+  let timer: ReturnType<typeof setTimeout>;
+  const fire = () => {
+    if (!extended && now() - startedAt - ms > JUDGE_STALL_SLACK_MS) {
+      extended = true;
+      timer = setTimeout(fire, JUDGE_STALL_GRACE_MS);
+      return;
+    }
+    expire();
+  };
+  timer = setTimeout(fire, ms);
+  return () => clearTimeout(timer);
+}
+
 const raceTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Promise((resolve, reject) => {
-  const timer = setTimeout(() => reject(new JudgeTimeoutError()), ms);
+  const stop = budgetTimer(ms, () => reject(new JudgeTimeoutError()));
   promise.then(
-    (value) => { clearTimeout(timer); resolve(value); },
-    (error) => { clearTimeout(timer); reject(error); },
+    (value) => { stop(); resolve(value); },
+    (error) => { stop(); reject(error); },
   );
 });
 
