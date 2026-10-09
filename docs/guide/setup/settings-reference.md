@@ -74,7 +74,7 @@ How a story's lorebooks are switched on, and the lorebook helper. [More](../auth
 
 | Setting | Where | What it does | Default | Key |
 |---|---|---|---|---|
-| **How story lorebook entries switch on** | Settings › World › Lorebooks | File writes: entries are switched on and off in their lorebook files as a chat moves. Per chat: entries rest off and each chat sees its own story's entries. Per chat is safer when several stories share an install. | `file` | `worldInfo.gatingMode` |
+| **How story lorebook entries switch on** | Settings › World › Lorebooks | Per chat (the default): entries rest off in their lorebook files and each chat sees its own story's entries switched on. File writes: entries are switched on and off in their lorebook files as a chat moves. | `scan` | `worldInfo.gatingMode` |
 | **Memory text can trigger lore** | Settings › World › Lorebooks | Established facts, scene history and the current guidance join every lorebook scan, so an entry whose keys they mention can activate. What characters privately know never joins it. | On | `worldInfo.scanMemory` |
 | **Lorebook curator** | Settings › World › Background helpers | A background helper that reads what has happened and proposes changes to the story's own lorebook. It only touches the lorebooks the story lists, proposes rather than writes, and never changes story progress or memory. | On | `stagecraft.curatorEnabled` |
 | **Curator changes** | Settings › World › Background helpers | Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. Never apply: only show what it would do. | `review` | `stagecraft.acceptMode` |

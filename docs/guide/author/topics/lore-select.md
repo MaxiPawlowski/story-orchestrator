@@ -6,7 +6,7 @@ Guide topic `lore-select` (the Studio's "How to write this" and the wizard's `re
 
 Fields: `lore_select.lorebooks`, `top_k` (1 to 12), `min_p` (0 to 1), `exclusive` (`schema.ts` `StoryLoreSelect`, `validate/storyOptions.ts` `readLoreSelect`).
 
-- **What it does.** The judge picks the entries of these books that matter for the next reply and forces them in, even without their keywords. `top_k` caps the picks; `min_p` is the confidence a pick needs. `exclusive: true` also switches off, for that one reply, the entries of these books it did not pick (only with per-chat gating, and never for constant, gated or timed entries).
+- **What it does.** The judge picks the entries of these books that matter for the next reply and forces them in, even without their keywords. `top_k` caps the picks; `min_p` is the confidence a pick needs. The judge is not asked about an entry SillyTavern's own keyword scan is certain to switch on for that reply, nor about an entry keyed by the drafted member's own name or alias; those are left to the scan. `exclusive: true` also switches off, for that one reply, the entries of these books it did not pick (only with per-chat gating, the default, and never for constant, gated or timed entries, or an entry left to the scan).
 - **Good.** `{ "lorebooks": ["Adolion World"], "top_k": 6, "min_p": 0.7, "exclusive": true }`; raise `min_p` for a big book.
 - **Bad.** A book that is not required.
 - **If wrong.** Lore select only reaches books SillyTavern scans, so a book not under requirements may never be in play (`lore-select-inactive`); `exclusive` with no book excludes nothing (`lore-select-exclusive-empty`).

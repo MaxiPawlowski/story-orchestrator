@@ -6,8 +6,7 @@ import { gatedIndex, ledgerCounts, restorePlan, verifyLedger, type RestoreBook, 
 import type { WiGatingStatus } from "./worldInfoMode";
 import { normalizeGatedEntries, type NormalizeOutcome } from "./worldInfoNormalize";
 
-// A/B/C, host-free. The author's confirm is the switch to scan mode, and the only way
-// the first lorebook write can happen: a sync in file mode writes nothing. In scan mode it verifies the
+// A/B/C, host-free. Scan mode is the default; a sync in file mode writes nothing. In scan mode it verifies the
 // ledger, normalises, and only then activates the scan view (W2), so a scan before that runs the file
 // path. A mode change takes effect at the next sync, which every settings write triggers: no reload.
 // Its writes are install-wide (lorebook files, the ledger, the mode), so its run is the gating's own
@@ -51,6 +50,11 @@ export interface WiGating {
   active: () => boolean;
   dispose: () => void;
 }
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+
+const restingCount = (flipped: GatedEntryRef[]) => plural(flipped.length, "story lorebook entry now rests", "story lorebook entries now rest");
+const bookCount = (flipped: GatedEntryRef[]) => plural(new Set(flipped.map((ref) => ref.lorebook.toLowerCase())).size, "lorebook", "lorebooks");
 
 const refKey = (ref: GatedEntryRef) => `${ref.lorebook.toLowerCase()}|${ref.comment}`;
 const refText = (refs: GatedEntryRef[]) => refs.map((ref) => `${ref.lorebook}: ${ref.comment}`).join("; ");
@@ -171,7 +175,7 @@ class WiGatingRuntime implements WiGating {
     const flipped = flippedRefs(outcome.flipped);
     if (flipped.length) {
       this.deps.journal("lorebook entries now rest off", refText(flipped));
-      if (phase === "growth") this.deps.toast(`Story lorebook entries now rest off: ${refText(flipped)}`);
+      if (phase !== "repair") this.deps.toast(`${restingCount(flipped)} off in ${bookCount(flipped)}; each chat switches on its own story's entries.`);
     }
     return outcome;
   };
@@ -230,13 +234,13 @@ class WiGatingRuntime implements WiGating {
     const preview = await previewOf(this.deps);
     const run = beginRun(this.alive);
     if (!(await this.deps.confirm(preview)) || !run.stillOwns()) return false;
-    if (this.deps.settings().gatingMode !== "scan") this.deps.write({ gatingMode: "scan" });
+    this.deps.write({ gatingMode: "scan", gatingChosen: true });
     await this.sync();
     return this.live;
   };
 
   requestFile = async () => {
-    this.deps.write({ gatingMode: "file" });
+    this.deps.write({ gatingMode: "file", gatingChosen: true });
     await this.sync();
   };
 

@@ -2,9 +2,8 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { releasePlan, worldInfoPlan } from "./worldInfoGates";
 import { bookKey, entryComment } from "./worldInfoMatch";
 
-// SPIKE (behind `worldInfo.gatingMode: "scan"`, default "file", never flipped by a
-// plan). The file path writes checkpoint world info into shared lorebook files; this computes the
-// same end state as a per-scan VIEW instead: every gated entry of every library story is off unless
+// `worldInfo.gatingMode: "scan"`, the default. The file path writes checkpoint world info into shared
+// lorebook files; this computes the same end state as a per-scan VIEW instead: every gated entry of every library story is off unless
 // the story this chat plays, replayed along its path, switches it on.
 export interface ScanGateBook {
   lorebook: string;

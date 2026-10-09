@@ -26,13 +26,13 @@ export default meta;
 
 type Story = StoryObj<typeof WorldInfoGatingGroup>;
 
-export const FileWritesByDefault: Story = {
+export const PerChatByDefault: Story = {
   play: async ({ canvasElement, args }) => {
     const select = canvasElement.querySelector("#so-wi-gating-mode") as HTMLSelectElement;
-    await expect(select.value).toBe("file");
+    await expect(select.value).toBe("scan");
     await expect(canvasElement.querySelector('[data-so="wi-ledger"]')).toBeNull();
-    await userEvent.selectOptions(select, "scan");
-    await expect(args.onChoose).toHaveBeenCalledWith("scan");
+    await userEvent.selectOptions(select, "file");
+    await expect(args.onChoose).toHaveBeenCalledWith("file");
   },
 };
 

@@ -163,7 +163,8 @@
       }
     },
     "worldInfo": {
-      "gatingMode": "file",
+      "gatingMode": "scan",
+      "gatingChosen": false,
       "scanMemory": true
     },
     "image": {

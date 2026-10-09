@@ -113,8 +113,7 @@ export const sanitizeSpikeSettings = (value: unknown): SpikeSettings =>
 
 export const defaultSpikeSettings = (): SpikeSettings => sanitizeSpikeSettings(null);
 
-// `scan` is written only by the author's confirm (an install that never opens the setting stays
-// `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`
+// `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`
 // is what each entry was before, and is all a restore may undo.
 export type WorldInfoGatingMode = "file" | "scan";
 
@@ -125,6 +124,7 @@ export interface NormalizedFrom {
 
 export interface WorldInfoSettings {
   gatingMode: WorldInfoGatingMode;
+  gatingChosen: boolean;
   normalized: Record<string, string[]>;
   normalizedFrom: Record<string, NormalizedFrom[]>;
   /** Facts, scene history and checkpoint guidance join the World Info scan buffer. Off unless the author switches it on. */
@@ -132,7 +132,7 @@ export interface WorldInfoSettings {
   keptGlobal: string[];
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "scan", gatingChosen: false, normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -158,8 +158,10 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
       ])
       .filter(([, comments]) => comments.length > 0))
     : {};
+  const gatingChosen = value.gatingChosen === true;
   return {
-    gatingMode: value.gatingMode === "scan" ? "scan" : "file",
+    gatingMode: gatingChosen && value.gatingMode === "file" ? "file" : "scan",
+    gatingChosen,
     normalized,
     normalizedFrom: sanitizeProvenance(value.normalizedFrom),
     scanMemory: typeof value.scanMemory === "boolean" ? value.scanMemory : defaultWorldInfoSettings().scanMemory,
