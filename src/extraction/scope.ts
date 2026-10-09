@@ -1,6 +1,6 @@
 import { TENSION_CURRENT_KEY, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
-import { readScopeSource, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
+import { readScopeSources, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext, type ScopeSourceResult } from "./scopeSources";
 
 const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
   if ("q" in gate) {
@@ -20,6 +20,11 @@ const hintApplies = (quality: Quality, activeCheckpointId: string, story: Normal
   return true;
 };
 
+export interface ScopeWithSources {
+  scope: ScopedQualityExplained[];
+  sources: ScopeSourceResult[];
+}
+
 export function deriveScopeExplained(
   story: NormalizedStoryV2,
   activeCheckpointId: string,
@@ -28,6 +33,17 @@ export function deriveScopeExplained(
   context: ScopeSourceContext = {},
   sources: readonly ScopeSource[] = SCOPE_SOURCES,
 ): ScopedQualityExplained[] {
+  return deriveScopeWithSources(story, activeCheckpointId, blackboard, extraGateSources, context, sources).scope;
+}
+
+export function deriveScopeWithSources(
+  story: NormalizedStoryV2,
+  activeCheckpointId: string,
+  blackboard: BlackboardSnapshot,
+  extraGateSources: ExtraGateSource[] = [],
+  context: ScopeSourceContext = {},
+  sources: readonly ScopeSource[] = SCOPE_SOURCES,
+): ScopeWithSources {
   const checkpointIds = new Set([activeCheckpointId, ...(story.reachableByCheckpoint[activeCheckpointId] ?? [])]);
   const keys = new Set<string>();
   const hints = new Map<string, Set<string>>();
@@ -76,14 +92,15 @@ export function deriveScopeExplained(
     });
   });
 
-  for (const source of sources) {
-    for (const key of readScopeSource(source, story, blackboard, context).keys) {
+  const reads = readScopeSources(sources, story, blackboard, context, new Set(keys));
+  reads.forEach((read, at) => {
+    for (const key of read.keys) {
       keys.add(key);
-      addPull(key, { kind: source.kind, checkpointId: activeCheckpointId, detail: source.detail });
+      addPull(key, { kind: read.kind, checkpointId: activeCheckpointId, detail: sources[at].detail });
     }
-  }
+  });
 
-  return [...keys]
+  const scope = [...keys]
     .map((key) => story.qualityByKey[key])
     .filter((quality): quality is Quality => Boolean(quality))
     .filter((quality) => quality.source === "extractor")
@@ -91,6 +108,7 @@ export function deriveScopeExplained(
     .filter((quality) => hintApplies(quality, activeCheckpointId, story))
     .sort((left, right) => left.key.localeCompare(right.key))
     .map((quality) => ({ key: quality.key, quality, hints: [...(hints.get(quality.key) ?? [])], pulledBy: pulls.get(quality.key) ?? [] }));
+  return { scope, sources: reads };
 }
 
 export function deriveScope(

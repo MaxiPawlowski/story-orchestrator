@@ -94,7 +94,7 @@ export class ExtractionCoordinator {
     const owners = cardScopeOwners(story, this.deps.hosts.roster);
     const cursor = this.state.cardScopeCursor ?? 0;
     if (Object.keys(story?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = cursor + 4;
-    return { owners, cursor, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster) };
+    return { owners, cursor, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster), rotation: this.deps.getState()?.boundary ?? 0 };
   }
 
   private async save() {

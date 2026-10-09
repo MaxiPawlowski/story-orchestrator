@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { readContext, renderSharedReadPrompt } from "./contract";
-import { deriveScopeExplained } from "./scope";
-import { readScopeSource, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
+import { deriveScopeWithSources } from "./scope";
+import { SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
 import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
 import type { ScopedQuality } from "./types";
 
@@ -68,10 +68,11 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
   const blackboard = spec.blackboard ?? emptyBlackboard();
   const context = spec.scopeContext ?? {};
   const sourceList = fixtureSources(spec.scopeCaps);
-  const scope = deriveScopeExplained(story, activeCheckpointId, blackboard, [], context, sourceList)
+  const derived = deriveScopeWithSources(story, activeCheckpointId, blackboard, [], context, sourceList);
+  const scope = derived.scope
     .map(({ key, quality, hints }) => ({ key, quality, hints }))
     .filter((entry) => !spec.excludeKeys?.includes(entry.key));
-  const sources = sourceList.map((source) => ({ kind: source.kind, cap: source.cap, ...readScopeSource(source, story, blackboard, context) }));
+  const sources = derived.sources;
   const from = spec.window?.from ?? spec.transcript[0]?.index ?? 0;
   const to = spec.window?.to ?? spec.transcript[spec.transcript.length - 1]?.index ?? 0;
   const messages = spec.transcript.flatMap((entry) => {
