@@ -53,6 +53,8 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F12 | 3090 cannot hold the "normal" profile with the v1m GGUF, and the pods run v1.1; decide model-file parity for local rows | C3 local-variant |
 | F13 | Campaign sprite fixes | v2.7 38 |
 | F14 | Whatever the owner flags while playing with every feature on | owner sessions |
+| F15 | The settings reader writes its full sanitized result back, so a changed default never reaches an existing install (judge uses, `spikes.*`, `cardOverlay`, `onDemand` stay at a stored `false`; R7 needed a `gatingChosen` marker). Persist only what the user changed, then drop the marker | features-on and R7 tasks 2026-10-09 |
+| F16 | Lore selection still costs about 5 judge calls per reply (263 candidates in chunks of 64); R12 saved about 0.1. Needs larger chunks or narrower book lists | R12 measurement |
 
 ## Develop
 
