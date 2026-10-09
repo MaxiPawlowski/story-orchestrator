@@ -18,7 +18,7 @@ spike `.b` builds are deferred. Adolion adaptation plan: `C:\dev\adolion-campaig
 - Commit on master is fine; **never push**. Stage explicit paths, never `git add -A`. Never commit
   `.claude/settings.local.json` or `docs/story-orchestrator-explained.html`.
 - Never claim a gate green without the command output. Predeclared floors and the bundle budget
-  (1,250,000 B) are never retuned. Judge uses (`judge.uses.*`) stay off by default; only the user flips them.
+  (1,250,000 B) are never retuned. Every built feature, judge uses included, is on by default (owner decision 2026-10-09); only the user flips one off.
 - Never print, copy or move secrets (ST `secrets.json`, API keys, CLI login files).
 - Nothing is deleted from the user's ST data; moves go to `C:\dev\backups\story-orchestrator\`.
 - ST stays pinned at `7c3994196`: do not run the launcher's `git pull`.
