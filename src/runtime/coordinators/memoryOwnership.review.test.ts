@@ -294,8 +294,8 @@ control("the in-flight flag is released even when the world moved", async () => 
 
 // --- runConsolidation: the destructive pass ---
 //
-// Consolidation DROPS and supersedes memory entries, which the other passes never do. Three awaits
-// run per tier group (two embedding passes and a judge pass), so a run that outlives its chat would
+// Consolidation DROPS and supersedes memory entries, which the other passes never do. Two awaits
+// run per tier group (one embedding pass and a judge pass), so a run that outlives its chat would
 // delete another chat's memory. The check is inside the loop because each group is its own write.
 
 jest.mock("../consolidationMatches", () => ({
@@ -305,6 +305,14 @@ jest.mock("../consolidationMatches", () => ({
       dup: group.map((_, index) => new Set<number>(index === 0 ? [] : [0])),
       sameTopic: group.map(() => new Set<number>()),
     };
+  },
+  buildConsolidationMatches: async (_host: unknown, group: Array<unknown>) => {
+    matchGate.onBuild?.();
+    const matches = {
+      dup: group.map((_, index) => new Set<number>(index === 0 ? [] : [0])),
+      sameTopic: group.map(() => new Set<number>()),
+    };
+    return { matches, wider: matches };
   },
   judgePairRelations: async () => [],
 }));

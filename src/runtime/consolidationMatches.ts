@@ -7,10 +7,21 @@ import { log } from "@utils/log";
 // Candidate generation for consolidation: ST vectors when available, Jaccard otherwise. Moved out of
 // the memory coordinator so the judged path fits its line budget.
 export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thresholds: DedupThresholds = DEFAULT_DEDUP_THRESHOLDS): Promise<MatchSets> {
+  return (await vectorMatchSets(host, group, thresholds)) ?? buildJaccardMatchSets(group, thresholds);
+}
+
+export async function buildConsolidationMatches(host: VectorHost, group: MemoryEntry[], widerJaccardSameTopic: number | null): Promise<{ matches: MatchSets; wider: MatchSets }> {
+  const vectors = await vectorMatchSets(host, group, DEFAULT_DEDUP_THRESHOLDS);
+  if (vectors) return { matches: vectors, wider: vectors };
+  const matches = buildJaccardMatchSets(group, DEFAULT_DEDUP_THRESHOLDS);
+  return { matches, wider: widerJaccardSameTopic === null ? matches : buildJaccardMatchSets(group, { ...DEFAULT_DEDUP_THRESHOLDS, jaccardSameTopic: widerJaccardSameTopic }) };
+}
+
+async function vectorMatchSets(host: VectorHost, group: MemoryEntry[], thresholds: DedupThresholds): Promise<MatchSets | null> {
   // Absence is a fact about the install, not a failure: asking the vectors API anyway
   // costs a probe, an insert and N queries before the same fallback, and logs a warning that reads
   // like a defect. An `error` still goes down that path, because a fault may not repeat.
-  if ((await host.capabilityState("vectors")) === "absent") return buildJaccardMatchSets(group, thresholds);
+  if ((await host.capabilityState("vectors")) === "absent") return null;
   const collectionId = `so_consol_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
   try {
     await host.vectorInsert(collectionId, group.map((entry, index) => ({ hash: index, text: entry.text, index })), host.source);
@@ -18,11 +29,9 @@ export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thr
     const dup: Set<number>[] = [];
     const sameTopic: Set<number>[] = [];
     for (let i = 0; i < group.length; i += 1) {
-      const [dupSameIdx, dupCrossIdx, sameIdx] = await Promise.all([
-        queryAt(group[i].text, thresholds.cosineDup),
-        queryAt(group[i].text, thresholds.cosineCrossDup),
-        queryAt(group[i].text, thresholds.cosineSameTopic),
-      ]);
+      const dupSameIdx = await queryAt(group[i].text, thresholds.cosineDup);
+      const dupCrossIdx = await queryAt(group[i].text, thresholds.cosineCrossDup);
+      const sameIdx = await queryAt(group[i].text, thresholds.cosineSameTopic);
       const dupSet = new Set<number>();
       const sameSet = new Set<number>();
       for (let j = 0; j < group.length; j += 1) {
@@ -37,7 +46,7 @@ export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thr
     return { dup, sameTopic };
   } catch (error) {
     log.warn("memory: vector consolidation unavailable, using keyword overlap", error);
-    return buildJaccardMatchSets(group, thresholds);
+    return null;
   } finally {
     try {
       await host.vectorPurge(collectionId);
