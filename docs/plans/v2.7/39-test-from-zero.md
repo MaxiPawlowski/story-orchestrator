@@ -1078,7 +1078,7 @@ H15/H15b.
 |---|---|---|---|
 | F-B1c-1 | The player's line can reach the chat seconds after Send (up to 4.5 s measured on the pods, longer on the 1-slot 3090), growing with chat length | product, player-facing | master `43a16f4a` (lore select no longer delays the line); latency series above |
 | F-B1c-2 | Warden judge timeouts above the floor again (7 in 118 on the 3090 diagnostic; 7 in 114 in attempt 2), mostly unattributed | product / judge plugin | open, for B1-C3 on a pod |
-| F-B1c-3 | The SP6 "carried" check reads only the last capture of a turn | lab journey (harness) | open, fix before the next K3 run |
+| F-B1c-3 | The SP6 "carried" check reads only the last capture of a turn | lab journey (harness) | fixed 2026-10-09 (§B2 record): any loud generation since the send counts; campaign `c5f513bf`, pin bumped |
 | F-B1c-4 | A dedicated 4-slot memory pod for 4–5 SP6 lanes saturates and sets the turn time | measurement | 39a §Run plan default after B1 batch 3 |
 | F-B1c-5 | K3 off/control had 12 release points (< 20), like attempt 2's 11 | measurement | B2 (35 owner): control-arm size |
 | H11–H15b | harness: saga driver `so-b1-saga.mts` (H11 `d6432e89`); memory pod port through the lane firewall (H12 `f5f2dcb3`); `SO_WAIT_TIMEOUT_FLOOR_MS` floors a `schedulerIdle` wait (H13 `2492025e`); `st-lanes start --allow-local` reaches :18888, opt-in per start (H14 `df1fdd60`); a send waits up to 120 s for the host to take the line (H15 `f672de96`) and logs `SEND-TAKEN` (H15b `a20bc11f`) | harness | fixed, each with a test |
@@ -1093,3 +1093,37 @@ sessions:archive` not run.
 **What remains.** 35-K3/K4/K5 run 2 (and run 1 again under the fixed carried check) and B1-C3/C12 ×2 on a pod; B1-EMPTY, B1-NARR,
 B1-HIST, B1-PFX; the next round follows 39a's new default (memory on each reply pod at `LLM_PARALLEL` 4, the 3090 for light rows,
 the balance checked first).
+
+## B2 record (2026-10-09, branch `v2.8-k3-s17`)
+
+**S-17 / 37-S17 combined overflow priority: decided 2026-10-09 (owner: features on; priority per plan order).** Quests,
+relationships and card pulls stay on. One read carries at most `SCOPE_EXTRA_BUDGET` = **5** keys beyond what its card pulls
+alone would cost (`src/extraction/scopeBudget.ts`, pure; applied by `readScopeSources` in `scopeSources.ts`, used by the shared
+read and the live-suite fixture runner). Slots are filled in the plans' order: gate, snapshot and built-in keys (free, never cut;
+a sourced key that is also one of them costs nothing), active quest keys, the drafted member's axes and mood, other present
+members' axes and moods, then card pulls with whatever is left. Size: the S-17 raw reads (run 1, 20 windows) cost about 57
+prompt tokens per added scope key over a 2,761-token baseline mean, so 5 keys is about +10 %, inside 37 M2's +12 % and 36 M1's
++15 %; 6 would be about +12.4 %. Per-source caps stay (`QUEST_SCOPE_CAP` 5 ≤ the budget, so the budget never cuts a quest key the
+quest source kept; `REL_AXES_PER_READ` unchanged at 8, its B2 value from 37-M2 is a separate record). Fairness: active quest keys
+rotate inside the quest cap when more are active than it holds, and other members' axes rotate inside what is left, by the engine
+boundary (`ScopeSourceContext.rotation`, so a rollback replays the same scope); the drafted member's own axes are not rotated. A
+story with no quests and no relationships reads exactly what it read before. Gate: `scopeBudget.test.ts` (7-member cast, 4 active
+quests, relationships and card pulls in one read; at most +5 keys over the baseline arm with a per-source-caps control that
+overruns it; no active quest left out; 8 active quests rotate with every key read within 3 reads; others' axes within 3 reads).
+Not re-measured: S-17 and 37-S17 stay FAIL until a CL re-run on this build; card pulls lose slots in a crowded read (the jest
+fixture keeps 1 of 7), which the re-run should report.
+
+**F-B1c-3 (SP6 carried check) fixed.** The per-turn eval in both journeys (`test/journeys/spikes/sp6-complications.journey.json`
+and the campaign lab journey, `adolion-campaign` `c5f513bf`, pinned in `adolion-fresh.pin.json`) read `captures[length - 1]`,
+which is the OLDEST capture of the newest-first ring of 5, not the turn's last. It now takes every capture whose `messageId` is past
+the previous turn's chat length, counts each held release boundary once (a release on a chain's last voice is carried by the next
+turn's first voice and counted there), and reports `generations`, `holding` and `ringFull` per turn. Run 1 of 35-K3 is owed again
+under the fixed check.
+
+**F-B1c-5 (K3 control-arm size) is not a harness window.** Both arms derive release points the same way (`view.releases` over the
+whole boundary log; logs held 139 to 156 boundaries, under the 200 cap, so the `spent` map never applied). The floor is reachable at
+98 turns: on/release 25, off/release 21 and on/control 24 cleared it; the pool total is 29. Off/control's 12 came from five of its
+ten segments (critical targets included) never holding two consecutive `escalate` boundaries: its quiet turns did not read quiet
+enough. That is the measurement's variance, not a shorter window. No floor retuned; the 35 owner decides in B2 whether the
+control-arm size stays a per-run INCOMPLETE condition. Note for that decision: the lab check simulates one boundary per turn, and
+these runs had 1.4 to 1.6 (multi-voice turns), which moves every streak.

@@ -54,7 +54,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -64,7 +64,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -74,7 +74,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -84,7 +84,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -94,7 +94,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -104,7 +104,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -114,7 +114,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -124,7 +124,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -134,7 +134,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -144,7 +144,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -154,7 +154,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -164,7 +164,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -174,7 +174,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -184,7 +184,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -194,7 +194,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -204,7 +204,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -214,7 +214,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -224,7 +224,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -234,7 +234,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -244,7 +244,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -254,7 +254,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -264,7 +264,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -274,7 +274,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -284,7 +284,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -294,7 +294,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -304,7 +304,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -314,7 +314,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -324,7 +324,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -334,7 +334,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -344,7 +344,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -354,7 +354,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -364,7 +364,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -374,7 +374,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -384,7 +384,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -394,7 +394,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -404,7 +404,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -414,7 +414,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -424,7 +424,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -434,7 +434,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -444,7 +444,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -454,7 +454,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -464,7 +464,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -474,7 +474,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -484,7 +484,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -494,7 +494,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -504,7 +504,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -514,7 +514,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -524,7 +524,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -534,7 +534,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -544,7 +544,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -554,7 +554,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -564,7 +564,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -574,7 +574,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -584,7 +584,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -594,7 +594,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -604,7 +604,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -614,7 +614,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -624,7 +624,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -634,7 +634,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -644,7 +644,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -654,7 +654,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -664,7 +664,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -674,7 +674,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -684,7 +684,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -694,7 +694,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -704,7 +704,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -714,7 +714,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -724,7 +724,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -734,7 +734,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -744,7 +744,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -754,7 +754,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "send_generate": {
@@ -764,7 +764,7 @@
           }
         },
         {
-          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+          "eval": "const state = globalThis.__soSp6; const key = 'story_orchestrator_complication'; const chat = SillyTavern.getContext().chat ?? []; const mark = typeof state.mark === 'number' ? state.mark : state.started; const ring = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const turn = ring.filter((capture) => typeof capture.messageId === 'number' && capture.messageId > mark); const held = turn.filter((capture) => (capture.blocks ?? []).some((entry) => entry.key === key)).reverse(); const fresh = held.filter((capture, index) => held.findIndex((other) => other.boundary === capture.boundary) === index && !state.carried.some((entry) => entry.boundary === capture.boundary)); for (const capture of fresh) state.carried.push({ capturedAt: capture.at ?? null, boundary: capture.boundary, messageId: capture.messageId, value: capture.blocks.find((entry) => entry.key === key).value }); state.mark = chat.length; return { carried: fresh.length > 0, generations: turn.length, holding: held.length, ringFull: ring.length >= 5 && turn.length === ring.length };"
         },
         {
           "wait": {

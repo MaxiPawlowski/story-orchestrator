@@ -46,17 +46,27 @@ export interface LifeScopeContext {
   drafted?: string | null;
 }
 
-export const lifeScopeKeys = (story: NormalizedStoryV2, values: Values, context: LifeScopeContext): string[] => {
+export interface LifeScopeTiers {
+  drafted: string[];
+  others: string[];
+}
+
+export const lifeScopeTiers = (story: NormalizedStoryV2, values: Values, context: LifeScopeContext): LifeScopeTiers => {
   const members = story.life?.members ?? [];
-  if (!members.length) return [];
+  if (!members.length) return { drafted: [], others: [] };
   const away = new Set(awayMembers(story, values));
   const present = new Set((context.present ?? members.map((member) => member.id)).filter((id) => !away.has(id)));
   const here = members.filter((member) => present.has(member.id));
-  const drafted = here.filter((member) => member.id === context.drafted);
+  const drafted = [...new Set(here.filter((member) => member.id === context.drafted).flatMap((member) => [...axisKeys(member, present), ...moodKeys(member, values)]))];
   const others = here.filter((member) => member.id !== context.drafted);
-  return [...new Set([
-    ...drafted.flatMap((member) => [...axisKeys(member, present), ...moodKeys(member, values)]),
-    ...others.flatMap((member) => axisKeys(member, present)),
-    ...others.flatMap((member) => moodKeys(member, values)),
-  ])];
+  const lead = new Set(drafted);
+  return {
+    drafted,
+    others: [...new Set([...others.flatMap((member) => axisKeys(member, present)), ...others.flatMap((member) => moodKeys(member, values))])].filter((key) => !lead.has(key)),
+  };
+};
+
+export const lifeScopeKeys = (story: NormalizedStoryV2, values: Values, context: LifeScopeContext): string[] => {
+  const tiers = lifeScopeTiers(story, values, context);
+  return [...tiers.drafted, ...tiers.others];
 };

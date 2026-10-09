@@ -53,11 +53,14 @@ const roundRobin = (lists: string[][]): string[] => {
   return Array.from({ length: longest }, (_, at) => lists.flatMap((list) => (at < list.length ? [list[at]] : []))).flat();
 };
 
-export const questScopeKeys = (quests: readonly Quest[] | undefined, reader: GateReader): string[] => {
+const scopeKeysOf = (quests: readonly Quest[] | undefined, reader: GateReader, wanted: readonly QuestStatus[]): string[] => {
   const statuses = (quests ?? []).map((quest) => ({ quest, status: questStatus(quest, reader) }));
-  const keys = SCOPE_ORDER.flatMap((wanted) => roundRobin(statuses.filter(({ status }) => status === wanted).map(({ quest, status }) => [...new Set(keysFor(quest, status, reader))])));
-  return [...new Set(keys)];
+  return [...new Set(wanted.flatMap((status) => roundRobin(statuses.filter((entry) => entry.status === status).map(({ quest }) => [...new Set(keysFor(quest, status, reader))]))))];
 };
+
+export const questScopeKeys = (quests: readonly Quest[] | undefined, reader: GateReader): string[] => scopeKeysOf(quests, reader, SCOPE_ORDER);
+
+export const activeQuestScopeKeys = (quests: readonly Quest[] | undefined, reader: GateReader): string[] => scopeKeysOf(quests, reader, ["active"]);
 
 export const visibleQuestTitles = (quests: readonly Quest[] | undefined, reader: GateReader): string[] =>
   (quests ?? []).filter((quest) => questStatus(quest, reader) === "active").map((quest) => quest.title);
