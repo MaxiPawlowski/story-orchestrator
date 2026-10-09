@@ -375,3 +375,30 @@ Live re-runs owed (lane 3, after `npm run build` and `node scripts/debug/st-lane
 - G1(a/b), G2, G5, G8 and the G1(c)/G5 extension-disabled half: need a model (the vehicle plays real turns); v2.6 final suite row 01-v25-01. The inv-14 rewording stays unapplied until they pass.
 
 Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.
+
+## Gate record (R7: scan is the default, 2026-10-09, branch `v2.8-lore-extension`)
+
+Owner decision 2026-10-09 (private plugin, features on by default): Q2 is overturned. `worldInfo.gatingMode` defaults to `scan`.
+Also on the branch: R12 (lore-select leaves keyword-certain and drafted-member entries to ST's scan) and R13 (file-mode writes batched per book).
+
+- **What changed.** Default `scan`; file mode holds only as the author's own choice (`worldInfo.gatingChosen`, written by `requestFile`/`requestScan`),
+  so a stored `file` nobody chose (every install, through the read-back write) reads as the default and the install switches on its next start.
+  The first normalisation runs without the confirm and toasts counts only (growth too; names stay in the journal, inv 9). The explicit
+  file-to-scan switch keeps the confirm. Invariant 14 reworded in `.claude/rules/architecture.md` (this plan's proposed text, plus the default).
+- **Parity checked** (nothing missing): release plan (`scanGatePlan` = plan ∪ release, unchanged), mirror (L1 scan append), requirements (L2),
+  normaliser (production since `a4509af`, no marker filter), missingKey (normalisation writes the key), P01-L1 hold before activation.
+- **Not done.** W4 (a ledger save lost after a book write loses that entry's `wasOn`) is unchanged. The G1-G8 live rows of this plan were not re-run.
+- **Machine gates** on the branch head: `npm run gates -- --no-storybook` all green in 159.2 s (typecheck, typecheck:test, debug:typecheck,
+  lint, build, test 7108 passed + 1 skipped / 609 suites, test:debug, test:plugin, test:release, test:replay 32 of 32 killed). Storybook skipped:
+  `Settings/WorldInfoGatingGroup` (`PerChatByDefault`, renamed from `FileWritesByDefault`) needs a run.
+- **Live, no model** (lane 6, adolion-fresh seed, no-model, images and sprites off; served from a private ST code copy, never the real ST slot;
+  bundle `68b5f3b94e90` read in-page; lane data backed up before and mirrored back after):
+  - First start on the stored `gatingMode: "file"`, no `gatingChosen`: scan, active, capability present, ledger 14 books / 323 entries
+    (5 were on, 318 already off from file-mode releases), drift 0, missingKey 0, no confirm. Book diff against the backup: 5 entries changed,
+    each only `disable` false -> true and each in the ledger; 22 of 24 book files byte-identical; nothing outside a gated set written.
+  - Second start (reload): every book file hash unchanged.
+  - A story chat at its first checkpoint: scan view owner `story`, 2 rows on whose files rest off, 0 `/api/worldinfo/edit`. No-story chat:
+    owner `no-story`, 0 rows on, 0 edits. Book hashes unchanged across the switches.
+  - R13, after `requestFile()` (mode `file`, chosen): switch 0 writes; open story chat 1 write (one book); open no-story chat 1 write (the release);
+    reopen 1 write; re-apply with the same state 0 writes.
+
