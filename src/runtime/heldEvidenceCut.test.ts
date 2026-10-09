@@ -30,7 +30,7 @@ const judge = { active: () => true, ask: async () => ({ answers: RANK_ANSWERS, m
 const judgedRank = async (text: string): Promise<ParsedDelta[]> => {
   const read = await createTypedJudge(() => judge)({
     story: { title: story.title, checkpointById: { hall: { name: story.checkpointName, objective: story.objective } } },
-    state: { activeCheckpointId: "hall" },
+    state: { activeCheckpointId: "hall", blackboard: { values: {}, versions: {}, latched: {} } },
     qualities: [rating.party_rank],
     window: { messages: [{ index: 7, speaker: "Narrator", text, isUser: false }] },
   } as never);

@@ -1,4 +1,4 @@
-import type { Quality, QualityRatingLevel } from "./schema";
+import type { PrimitiveValue, Quality, QualityRatingLevel, QualityStepRule } from "./schema";
 
 export const QUALITY_READ_AS = ["choice", "stated", "rating"] as const;
 
@@ -22,3 +22,22 @@ export function ratingLevels(quality: Pick<Quality, "rubric" | "criteria">): Qua
     return { value, label: value === min ? `${value}: ${match[2]}` : value === max ? `${value}: ${match[4]}` : String(value) };
   });
 }
+
+export const STEP_WORDS = { up: 1, down: -1 } as const;
+
+export type StepWord = keyof typeof STEP_WORDS;
+
+export const readsByStep = (quality: Pick<Quality, "type" | "step_rule">): quality is Pick<Quality, "type"> & { step_rule: QualityStepRule } =>
+  quality.type === "int" && Boolean(quality.step_rule) && !quality.step_rule?.cycle && (quality.step_rule?.step ?? 0) > 0;
+
+export const stepWord = (value: PrimitiveValue | undefined): StepWord | null => {
+  if (typeof value !== "string") return null;
+  const word = value.trim().toLowerCase();
+  return word === "up" || word === "down" ? word : null;
+};
+
+export const resolveStep = (rule: QualityStepRule, word: StepWord, current: PrimitiveValue | undefined): number => {
+  const from = typeof current === "number" ? current : rule.start ?? 0;
+  const moved = from + STEP_WORDS[word] * rule.step;
+  return Math.max(rule.min ?? moved, Math.min(rule.max ?? moved, moved));
+};

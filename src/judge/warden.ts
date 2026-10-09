@@ -1,7 +1,7 @@
 import { PLAYER_ACTION_CLAUSE, PLAYER_REF } from "@engine/index";
 import { buildContinuityRequest, continuityNote } from "./curators";
 import {
-  AGENCY_SCORE, ATTENTION_SCORE, VOICE_MAX_FEELINGS, VOICE_SCORE,
+  AGENCY_SCORE, ATTENTION_SCORE, VOICE_DRIVE_P, VOICE_MAX_FEELINGS, VOICE_SCORE,
   CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_GROUP, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_MESSAGE_CHARS, HOUSE_RULE_P, HOUSE_RULE_ROLE_CHARS, LORE_CONTENT_CHARS,
   WARDEN_ARM, WARDEN_LORE_MAX_NOTE, WARDEN_LORE_P, WARDEN_MAX_LORE, WARDEN_MAX_RULES, type WardenArm,
 } from "./policy";
@@ -79,14 +79,19 @@ export const ATTENTION_LEVELS = [
 ] as const;
 
 export const VOICE_QUESTION =
-  "Does `reply` sound like `voice.speaker`, the character who speaks it, given their `voice.role`, `voice.drive` and `voice.feelings`? " +
-  "A character may change their mind or hide a feeling; only speech or behaviour that no version of them would show counts against it.";
+  "Does `reply` sound like `voice.speaker`, the character who speaks it? Check it against `voice.role`, `voice.drive` and `voice.feelings`: " +
+  "speech or behaviour that goes against their role, wants the opposite of their drive, or treats someone against their feelings toward them " +
+  "is out of character, unless `reply` itself shows why they changed.";
 
 export const VOICE_LEVELS = [
-  "out of character: the speaker talks or acts like someone else, against their role, drive or feelings",
-  "drifting: mostly them, with a line or two that does not fit",
-  "in character: it sounds like them, including a change of heart the scene explains",
+  "out of character: the speaker talks, wants or acts against their role, drive or feelings",
+  "drifting: their manner, but one line goes against their role, drive or feelings",
+  "in character: their manner and their wants, including a change of heart the reply explains",
 ] as const;
+
+export const VOICE_DRIVE_QUESTION = "Does `reply` show `voice.speaker` giving up, refusing or turning away from what `voice.drive` says they want?";
+
+export const VOICE_DRIVE_ID = "voice:drive";
 
 export const voiceNoteText = (speaker: string): string =>
   `Voice: the last reply did not sound like ${speaker.trim() || "its speaker"}. Let the next one come back to their own way of speaking and wanting.`;
@@ -192,8 +197,19 @@ const attentionPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questi
 
 const voicePart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"> | null =>
   input.voice
-    ? { state: { voice: { ...input.voice, feelings: input.voice.feelings.slice(0, VOICE_MAX_FEELINGS) } }, questions: { voice: score(VOICE_QUESTION, [...VOICE_LEVELS]) } }
+    ? {
+      state: { voice: { ...input.voice, feelings: input.voice.feelings.slice(0, VOICE_MAX_FEELINGS) } },
+      questions: { voice: score(VOICE_QUESTION, [...VOICE_LEVELS]), ...(input.voice.drive ? { [VOICE_DRIVE_ID]: noul(VOICE_DRIVE_QUESTION) } : {}) },
+    }
     : null;
+
+const voiceOff = (answers: Record<string, JudgeAnswer>, input: WardenInput): { score: number } | null => {
+  if (!input.voice) return null;
+  const voice = scoreAnswer(answers, "voice");
+  const drive = input.voice.drive ? noulAnswer(answers, VOICE_DRIVE_ID) : null;
+  if (voice && voice.score < VOICE_SCORE) return { score: voice.score };
+  return drive !== null && drive >= VOICE_DRIVE_P ? { score: voice?.score ?? 0 } : null;
+};
 
 const rulesPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"> | null => {
   const asked = keptRules(input.houseRules).map((rule, index) => ({ rule, index })).filter((entry) => !paragraphBreak(entry.rule, input.reply.text));
@@ -241,8 +257,8 @@ export function readWarden(answers: Record<string, JudgeAnswer>, input: WardenIn
   if (input.agency && agency && agency.score > AGENCY_SCORE) findings.push({ family: "agency", text: agencyNoteText(input.agency.player), facts: [], score: agency.score });
   const attention = input.attention ? scoreAnswer(answers, "attention") : null;
   if (input.attention && attention && attention.score < ATTENTION_SCORE) findings.push({ family: "attention", text: attentionNoteText(input.attention.player), facts: [], score: attention.score });
-  const voice = input.voice ? scoreAnswer(answers, "voice") : null;
-  if (input.voice && voice && voice.score < VOICE_SCORE) findings.push({ family: "voice", text: voiceNoteText(input.voice.speaker), facts: [], score: voice.score });
+  const voice = voiceOff(answers, input);
+  if (input.voice && voice) findings.push({ family: "voice", text: voiceNoteText(input.voice.speaker), facts: [], score: voice.score });
   const broken = keptRules(input.houseRules)
     .map((rule, index) => ({ rule, p: houseRuleP(answers, input, index) ?? 0 }))
     .filter((entry) => entry.p >= HOUSE_RULE_P)
@@ -280,6 +296,7 @@ export const wardenRecordP = (answers: Record<string, JudgeAnswer> | null, input
     ...(input.agency ? { agency: agency ? Number(agency.score.toFixed(3)) : -1 } : {}),
     ...(input.attention ? { attention: answers ? Number((scoreAnswer(answers, "attention")?.score ?? -1).toFixed(3)) : -1 } : {}),
     ...(input.voice ? { voice: answers ? Number((scoreAnswer(answers, "voice")?.score ?? -1).toFixed(3)) : -1 } : {}),
+    ...(input.voice?.drive ? { voiceDrive: answers ? Number((noulAnswer(answers, VOICE_DRIVE_ID) ?? -1).toFixed(3)) : -1 } : {}),
     ...(keptRules(input.houseRules).length ? { rules: keptRules(input.houseRules).length, broken: findings.find((finding) => finding.family === "house-rule")?.rules?.length ?? 0 } : {}),
     ...(keptLore(input.lore).length ? { lore: keptLore(input.lore).length, contradicted: answers ? readWardenLore(answers, input)?.lore.length ?? 0 : 0 } : {}),
   };

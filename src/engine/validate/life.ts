@@ -163,24 +163,27 @@ export const readLife = (json: Record<string, unknown>, errors: ValidationError[
   const ids = new Set(roster.map((member) => (typeof member.id === "string" ? member.id : "")));
   const members = roster.flatMap((member, index) => readMember(member, `roster.${index}`, ids, errors) ?? []);
   const clock = readClock(json.clock, errors);
-  return members.length || clock ? { members, ...(clock ? { clock } : {}) } : undefined;
+  const names = Object.fromEntries(roster.flatMap((member) => (typeof member.id === "string" && typeof member.name === "string" && member.name.trim() ? [[member.id, member.name.trim()]] : [])));
+  return members.length || clock ? { members, ...(clock ? { clock } : {}), ...(Object.keys(names).length ? { names } : {}) } : undefined;
 };
 
 const code = (key: string, type: Quality["type"], rubric: string, extra: Partial<Quality> = {}): Quality => ({ key, type, source: "code", rubric, ...extra });
 
-const relationshipQualities = (member: LifeMember): Quality[] => member.relationships.flatMap((relationship) => relationship.axes.map((axis): Quality => {
+const nameOf = (life: StoryLife, id: string): string => life.names?.[id] ?? id;
+
+const relationshipQualities = (member: LifeMember, life: StoryLife): Quality[] => member.relationships.flatMap((relationship) => relationship.axes.map((axis): Quality => {
   const [min, max] = relationship.range;
-  const toward = relationship.toward === RELATIONSHIP_TOWARD_PLAYER ? "the player" : relationship.toward;
+  const toward = relationship.toward === RELATIONSHIP_TOWARD_PLAYER ? "the player" : nameOf(life, relationship.toward);
   return {
     key: relationshipKey(member.id, relationship.toward, axis), type: "int", source: "extractor", read_as: "rating",
-    rubric: `How much ${member.id} feels ${axis} toward ${toward}, as the window shows it: from ${min} (the opposite) to ${max} (completely)`,
+    rubric: `How much ${nameOf(life, member.id)} feels ${axis} toward ${toward}, as the window shows it: from ${min} (the opposite) to ${max} (completely)`,
     criteria: { levels: Array.from({ length: max - min + 1 }, (_, index) => min + index).map((value) => ({ value, label: `${value}` })) },
     step_rule: { step: relationship.step, min, max, start: relationship.start },
   };
 }));
 
-const moodQualities = (member: LifeMember): Quality[] => (member.mood ? [
-  { key: moodKey(member.id), type: "enum", values: member.mood.values, source: "extractor", rubric: `${member.id}'s mood in this scene, as the window shows it` },
+const moodQualities = (member: LifeMember, life: StoryLife): Quality[] => (member.mood ? [
+  { key: moodKey(member.id), type: "enum", values: member.mood.values, source: "extractor", rubric: `${nameOf(life, member.id)}'s mood in this scene, as the window shows it` },
   code(moodAgeKey(member.id), "int", "Boundaries since this mood was last read"),
   code(moodWasKey(member.id), "int", "The read of this mood last seen"),
   code(moodSceneKey(member.id), "string", "The scene this mood was read in"),
@@ -206,7 +209,7 @@ const clockQualities = (clock: StoryClock): Quality[] => [
 export const addLifeQualities = (qualities: Quality[], life: StoryLife | undefined, errors: ValidationError[]): Quality[] => {
   if (!life) return qualities;
   const ticks = life.members.some((member) => member.agenda.length) ? [code(TURN_OOC_KEY, "bool", "Whether this boundary's player line was out of character")] : [];
-  const members = life.members.flatMap((member) => [...relationshipQualities(member), ...moodQualities(member), ...agendaQualities(member)]);
+  const members = life.members.flatMap((member) => [...relationshipQualities(member, life), ...moodQualities(member, life), ...agendaQualities(member)]);
   const added = [...members, ...(life.clock ? clockQualities(life.clock) : []), ...ticks];
   const existing = new Set(qualities.map((quality) => quality.key));
   added.filter((quality) => existing.has(quality.key)).forEach((quality) => addError(errors, `qualities.${quality.key}`, "this key is kept for character life or the story clock"));

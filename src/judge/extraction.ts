@@ -1,12 +1,17 @@
-import { qualityAccepts, ratingLevels, readsWorldEvidence, type PrimitiveValue, type Quality, type QualityCriterion } from "@engine/index";
+import {
+  qualityAccepts, ratingLevels, readsByStep, readsWorldEvidence, resolveStep,
+  type PrimitiveValue, type Quality, type QualityCriterion, type QualityRatingLevel, type QualityStepRule,
+} from "@engine/index";
 import { findNumbers, findStringCandidates } from "./numbers";
 import { EXTRACTION_CONFIDENCE, EXTRACTION_LATCHING_BUMP, STALL_DIRECT_P, STALL_GENUINE_P } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer, scoreAnswer, score } from "./questions";
-import type { JudgeAnswer, JudgeOption, JudgeRequest } from "./types";
+import type { JudgeAnswer, JudgeOption, JudgeQuestion, JudgeRequest } from "./types";
 
 export const TYPED_NOT_SHOWN = "not shown";
 export const TYPED_NONE = "none";
 const JUDGE_FROM_TRANSCRIPT = "Judge only from what `transcript` shows.";
+export const TYPED_STEP_LEVELS = ["down: the transcript lowers it", "unchanged: the transcript does not move it", "up: the transcript raises it"] as const;
+export const TYPED_MAX_SCORE_LEVELS = 10;
 const MAX_CANDIDATES = 250;
 
 export interface TypedWindowMessage {
@@ -82,9 +87,41 @@ const boundChoiceCriteria = (quality: Quality, window: TypedWindowMessage[]) => 
   return { criteria, options };
 };
 
+const stepDecoder = (id: string, rule: QualityStepRule, current: PrimitiveValue | undefined): Decoder => (answers) => {
+  const answer = scoreAnswer(answers, id);
+  if (!answer) return null;
+  const step = Math.round(answer.score);
+  return { value: step === 1 ? undefined : resolveStep(rule, step < 1 ? "down" : "up", current), confidence: answer.confidence };
+};
+
+const levelDecoder = (id: string, presence: string, levels: QualityRatingLevel[]): Decoder => (answers) => {
+  const shown = noulAnswer(answers, presence);
+  const answer = scoreAnswer(answers, id);
+  if (shown === null || !answer) return null;
+  const level = levels[Math.max(0, Math.min(levels.length - 1, Math.round(answer.score)))];
+  return { value: shown < 0.5 ? undefined : level.value, confidence: Math.min(answer.confidence, Math.abs(shown - 0.5) * 2) };
+};
+
+const ratingAsk = (quality: Quality, id: string, current: PrimitiveValue | undefined): { questions: Record<string, JudgeQuestion>; decode: Decoder } | null => {
+  if (readsByStep(quality)) {
+    const question = score(`${quality.rubric}\nHow does \`transcript\` move it? ${JUDGE_FROM_TRANSCRIPT}`, [...TYPED_STEP_LEVELS]);
+    return { questions: { [id]: question }, decode: stepDecoder(id, quality.step_rule, current) };
+  }
+  const levels = ratingLevels(quality);
+  if (!levels || levels.length > TYPED_MAX_SCORE_LEVELS) return null;
+  const presence = `presence:${quality.key}`;
+  return {
+    questions: {
+      [presence]: noul(`Does \`transcript\` show anything that reveals or changes the answer to this question: ${quality.rubric}`),
+      [id]: score(`${quality.rubric}\n${JUDGE_FROM_TRANSCRIPT}`, levels.map((level) => level.label)),
+    },
+    decode: levelDecoder(id, presence, levels),
+  };
+};
+
 // The spike's strategies (experiments/extraction.mts planCase), one request for every hinted quality
 // in scope plus one evidence choice each. Only qualities with a `read_as` hint are ever asked.
-export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[], story: TypedStoryContext): TypedPlan | null {
+export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[], story: TypedStoryContext, values: Readonly<Record<string, PrimitiveValue>> = {}): TypedPlan | null {
   const plan: TypedPlan = { request: { state: {}, questions: {} }, decoders: [], messageIds: Object.fromEntries(window.map((message) => [msgKey(message), message.id])) };
   const texts = window.map((message) => ({ id: msgKey(message), text: message.text }));
   for (const quality of qualities) {
@@ -101,18 +138,10 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
         return { value: picked.value, confidence: answer.confidence, ...(picked.messageKey ? { messageKey: picked.messageKey } : {}) };
       } });
     } else if (quality.read_as === "rating") {
-      const levels = ratingLevels(quality);
-      if (!levels) continue;
-      const presence = `presence:${quality.key}`;
-      plan.request.questions[presence] = noul(`Does \`transcript\` show anything that reveals or changes the answer to this question: ${quality.rubric}`);
-      plan.request.questions[id] = score(`${quality.rubric}\n${JUDGE_FROM_TRANSCRIPT}`, levels.map((level) => level.label));
-      plan.decoders.push({ key: quality.key, decode: (answers) => {
-        const shown = noulAnswer(answers, presence);
-        const answer = scoreAnswer(answers, id);
-        if (shown === null || !answer) return null;
-        const level = levels[Math.max(0, Math.min(levels.length - 1, Math.round(answer.score)))];
-        return { value: shown < 0.5 ? undefined : level.value, confidence: Math.min(answer.confidence, Math.abs(shown - 0.5) * 2) };
-      } });
+      const asked = ratingAsk(quality, id, values[quality.key]);
+      if (!asked) continue;
+      Object.assign(plan.request.questions, asked.questions);
+      plan.decoders.push({ key: quality.key, decode: asked.decode });
     } else {
       const numeric = quality.type === "int" || quality.type === "float";
       const found = numeric

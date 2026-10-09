@@ -75,6 +75,7 @@ export const CONTINUITY_TIMEOUT_MS = 4000;
 export const AGENCY_SCORE = 2.5;
 export const ATTENTION_SCORE = 0.75;
 export const VOICE_SCORE = 0.75;
+export const VOICE_DRIVE_P = 0.5;
 export const VOICE_MAX_FEELINGS = 6;
 export const HOUSE_RULE_P = 0.7;
 export const HOUSE_RULE_MAX_NOTE = 2;
