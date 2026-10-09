@@ -4,7 +4,9 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { InnerVoiceControls } from "./InnerVoiceControls";
 
-const snapshot = (settings: Record<string, unknown> = {}): RuntimeSnapshot => ({ memory: { settings: { epistemicLedgerCapable: true, ...settings } } }) as unknown as RuntimeSnapshot;
+const DEFAULTS = { epistemicLedgerCapable: true, innerBeat: true, harvestReasoning: true };
+
+const snapshot = (settings: Record<string, unknown> = {}): RuntimeSnapshot => ({ memory: { settings: { ...DEFAULTS, ...settings } } }) as unknown as RuntimeSnapshot;
 
 const fakeManager = () => ({ setMemorySettings: fn() }) as unknown as RuntimeManager;
 
@@ -18,25 +20,34 @@ export default meta;
 
 type Story = StoryObj<typeof InnerVoiceControls>;
 
-export const OffByDefault: Story = {
+export const OnByDefault: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText(/Read characters' reasoning/)).not.toBeChecked();
-    await expect(canvas.getByLabelText(/Prepare a private inner beat/)).not.toBeChecked();
-    await expect(canvas.getByLabelText("Inner beats for")).toBeDisabled();
+    await expect(canvas.getByLabelText(/Read characters' reasoning/)).toBeChecked();
+    await expect(canvas.getByLabelText(/Prepare a private inner beat/)).toBeChecked();
+    await expect(canvas.getByLabelText("Inner beats for")).toBeEnabled();
     await expect(canvasElement.querySelector("#so-inner-harvest-idle")).toBeNull();
   },
 };
 
-export const SwitchOn: Story = {
+export const SwitchOff: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByLabelText(/Read characters' reasoning/));
-    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ harvestReasoning: true });
+    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ harvestReasoning: false });
     await userEvent.click(canvas.getByLabelText(/Prepare a private inner beat/));
-    await expect(args.manager.setMemorySettings).toHaveBeenLastCalledWith({ innerBeat: true });
+    await expect(args.manager.setMemorySettings).toHaveBeenLastCalledWith({ innerBeat: false });
+  },
+};
+
+export const OffWhenSwitchedOff: Story = {
+  args: { manager: fakeManager(), snapshot: snapshot({ innerBeat: false, harvestReasoning: false }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText(/Prepare a private inner beat/)).not.toBeChecked();
+    await expect(canvas.getByLabelText("Inner beats for")).toBeDisabled();
   },
 };
 

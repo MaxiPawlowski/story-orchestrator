@@ -74,8 +74,9 @@ describe("plan 32 W7: a finished look refreshes the actor's frame map", () => {
 });
 
 describe("plan 32 W6 defaults: two-frame mouth, 1024/25 with an opt-in fast preset", () => {
-  it("ships the simple mouth, the standard preset and on-demand looks off", () => {
-    expect(defaultSpriteSettings()).toMatchObject({ mouth: "simple", renderPreset: "standard", onDemand: false, cardOverlay: false });
+  it("ships the simple mouth, the standard preset and on-demand looks on (owner decision 2026-10-09)", () => {
+    expect(defaultSpriteSettings()).toMatchObject({ mouth: "simple", renderPreset: "standard", onDemand: true, cardOverlay: true });
+    expect(sanitizeSpriteSettings({ onDemand: false, cardOverlay: false })).toMatchObject({ onDemand: false, cardOverlay: false });
     expect(RENDER_PRESETS).toEqual({ standard: { resolution: 1024, steps: 25 }, fast: { resolution: 512, steps: 20 } });
     expect(sanitizeSpriteSettings({ renderPreset: "fast" }).renderPreset).toBe("fast");
     expect(sanitizeSpriteSettings({ renderPreset: "turbo" }).renderPreset).toBe("standard");

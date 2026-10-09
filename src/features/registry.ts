@@ -188,8 +188,8 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "For stories that declare chapters, a finished chapter becomes one written record. The record can stand in for its "
       + "messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
     where: settingsAt("#so-chapter-recap", "Memory › Chapters"),
-    settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "off-by-default", needs: ["story", "memory-profile"],
-    isOn: (settings) => settings.memory.chapters?.recap === true || settings.memory.chapters?.seal === true,
+    settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "shipped", needs: ["story", "memory-profile"],
+    isOn: (settings) => settings.memory.chapters?.recap !== false || settings.memory.chapters?.seal !== false,
   },
   {
     id: "continuity-warden", name: "Continuity warden", area: "memory", audience: "author",
@@ -231,7 +231,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
       + "character. It can also read a reply's reasoning for what the character intends.",
     where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
-    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: "author/topics/drives-motives.md", status: "off-by-default",
+    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: "author/topics/drives-motives.md", status: "shipped",
     needs: ["memory-profile", "author-view"],
     isOn: (settings) => settings.memory.innerBeat === true || settings.memory.harvestReasoning === true,
   },
@@ -430,8 +430,8 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "experiments", name: "Experiments", area: "setup", audience: "author",
-    oneLine: "Unmeasured trials, only in development builds.",
-    what: "Each experiment sits behind its own switch, off by default, and is not offered in the published build.",
+    oneLine: "Unmeasured trials.",
+    what: "Each experiment sits behind its own switch, on by default so it is seen in play.",
     where: settingsAt("#so-area-setup", "Setup"),
     settings: ["spikes"], doc: "setup/settings-reference.md", status: "experimental",
   },

@@ -40,8 +40,8 @@ const said = { player: "Max", message: "Where is the ferry?" };
 const reply = { speaker: "Guard", text: "The guard polishes his helmet and talks about the weather." };
 
 describe("v2.7 33 W3 N1: the attention question rides the warden's call", () => {
-  it("is its own default-off key, and joins the families only while it is on", () => {
-    expect(defaultJudgeSettings().uses.attentionCheck).toBe(false);
+  it("is its own key, on by default (owner decision 2026-10-09), and joins the families only while it is on", () => {
+    expect(defaultJudgeSettings().uses.attentionCheck).toBe(true);
     expect(wardenFamilies(() => judgeWith({ agencyCheck: true }).judge, view)()).toEqual({ agency: true, houseRules: [], lore: false });
     expect(wardenFamilies(() => judgeWith({ attentionCheck: true }).judge, view)()).toEqual({ agency: false, houseRules: [], lore: false, attention: true });
   });

@@ -6,7 +6,7 @@ Guide topic `experimental-effects` (the Studio's "How to write this" and the wiz
 
 Fields: `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
 
-- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `complications` are lines released into a beat that has stalled. Both are research spikes behind a switch that is off by default. The parser accepts `reasoning`; the spike reads `complications` from the authored record.
+- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `complications` are lines released into a beat that has stalled. Both are research spikes behind a switch that is on by default (`spikes.*`). The parser accepts `reasoning`; the spike reads `complications` from the authored record.
 - **Good.** A story that plays the same with both switches off; a spike only adds to it.
 - **Bad.** A story that only works when a spike is on.
 - **If wrong.** Where the switch is off nothing happens, so a story that depends on these does not play as written.

@@ -109,7 +109,7 @@ export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
 export type SpikeSettings = Record<SpikeFlag, boolean>;
 
 export const sanitizeSpikeSettings = (value: unknown): SpikeSettings =>
-  Object.fromEntries(SPIKE_FLAGS.map((flag) => [flag, isRecord(value) && value[flag] === true])) as SpikeSettings;
+  Object.fromEntries(SPIKE_FLAGS.map((flag) => [flag, !(isRecord(value) && value[flag] === false)])) as SpikeSettings;
 
 export const defaultSpikeSettings = (): SpikeSettings => sanitizeSpikeSettings(null);
 
@@ -183,6 +183,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
   tierBudgets: { ...DEFAULT_TIER_BUDGETS },
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
+  innerBeat: true,
+  harvestReasoning: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" });
@@ -203,10 +205,10 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   help: defaultHelpSettings(),
 });
 
-const sanitizeInnerVoice = (memory: MemoryRuntimeSettings): MemoryRuntimeSettings => {
-  if (memory.innerBeat !== true) delete memory.innerBeat;
+const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRuntimeSettings): MemoryRuntimeSettings => {
+  if (typeof memory.innerBeat !== "boolean") memory.innerBeat = defaults.innerBeat;
   if (memory.innerFanOut !== "top2") delete memory.innerFanOut;
-  if (memory.harvestReasoning !== true) delete memory.harvestReasoning;
+  if (typeof memory.harvestReasoning !== "boolean") memory.harvestReasoning = defaults.harvestReasoning;
   return memory;
 };
 
@@ -264,7 +266,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: sanitizeInnerVoice({
       ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },
-    } as MemoryRuntimeSettings),
+    } as MemoryRuntimeSettings, defaults.memory),
     talk: sanitizeTalkSettings(value.talk),
     stagecraft: {
        curatorEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.curatorEnabled === "boolean" ? value.stagecraft.curatorEnabled : defaults.stagecraft.curatorEnabled,

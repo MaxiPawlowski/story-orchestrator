@@ -32,12 +32,12 @@ const judgeWith = (uses: Partial<JudgeSettings["uses"]>, voiceScore = 0.2) => {
 const reply = { speaker: "Arin", text: "Arin beams and tells the stranger everything about her debts, delighted to trust anyone at all." };
 
 describe("v2.7 plan 37 L6: the out-of-character family rides the warden's call, dark", () => {
-  it("is an ordinary setting, off by default, and kept on once switched on", () => {
-    expect(defaultJudgeSettings().uses.wardenVoice).toBe(false);
-    expect(sanitizeGlobalSettings(undefined).judge.uses.wardenVoice).toBe(false);
-    const on = defaultGlobalSettings();
-    on.judge.uses.wardenVoice = true;
-    expect(sanitizeGlobalSettings(on).judge.uses.wardenVoice).toBe(true);
+  it("is an ordinary setting, on by default (owner decision 2026-10-09), and kept off once switched off", () => {
+    expect(defaultJudgeSettings().uses.wardenVoice).toBe(true);
+    expect(sanitizeGlobalSettings(undefined).judge.uses.wardenVoice).toBe(true);
+    const off = defaultGlobalSettings();
+    off.judge.uses.wardenVoice = false;
+    expect(sanitizeGlobalSettings(off).judge.uses.wardenVoice).toBe(false);
   });
 
   it("joins the families only while its use is on and the story has character life", () => {

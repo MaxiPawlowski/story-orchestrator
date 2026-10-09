@@ -81,18 +81,18 @@ describe("v2.7 plan 29 fixed defaults", () => {
   });
 });
 
-describe("one build (2026-10-07): the settings the release build used to strip are ordinary settings, off by default", () => {
+describe("one build (2026-10-07): the settings the release build used to strip are ordinary settings, on by default (owner decision 2026-10-09)", () => {
   const FORMERLY_STRIPPED_USES = ["loreExclusive", "expressions", "wardenVoice"] as const;
 
-  it("a fresh install reads every one of them off", () => {
+  it("a fresh install reads every one of them on", () => {
     const fresh = sanitizeGlobalSettings(undefined);
-    expect(fresh.memory.innerBeat).toBeUndefined();
+    expect(fresh.memory.innerBeat).toBe(true);
     expect(fresh.memory.innerFanOut).toBeUndefined();
-    expect(fresh.memory.harvestReasoning).toBeUndefined();
+    expect(fresh.memory.harvestReasoning).toBe(true);
     const chapters = chapterSettings(fresh.memory.chapters);
-    expect([chapters.seal, chapters.storySoFar, chapters.fold]).toEqual([false, false, false]);
-    expect(FORMERLY_STRIPPED_USES.map((use) => fresh.judge.uses[use])).toEqual([false, false, false]);
-    expect(FORMERLY_STRIPPED_USES.filter((use) => !JUDGE_USES_OFF_BY_DEFAULT.includes(use))).toEqual([]);
+    expect([chapters.seal, chapters.storySoFar, chapters.fold]).toEqual([true, true, true]);
+    expect(FORMERLY_STRIPPED_USES.map((use) => fresh.judge.uses[use])).toEqual([true, true, true]);
+    expect(FORMERLY_STRIPPED_USES.filter((use) => JUDGE_USES_OFF_BY_DEFAULT.includes(use))).toEqual([]);
   });
 
   it("control: a measured use keeps its default on", () => {

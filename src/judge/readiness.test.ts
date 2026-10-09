@@ -34,6 +34,8 @@ const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<Ju
   ...patch,
 });
 
+const BELOW_FLOOR_OFF = { houseRules: false, loreExclusive: false, expressions: false, attentionCheck: false, wardenVoice: false };
+
 describe("judge readiness (v2.3 plan 09)", () => {
   it("has a fact for every use the settings declare, and no orphan rows", () => {
     // The table is the acceptance report's; a new usage without a row would render an empty line.
@@ -55,10 +57,10 @@ describe("judge readiness (v2.3 plan 09)", () => {
     });
   });
 
-  it("reports shipped uses enabled by default, except house rules (below floor on Adolion, 2026-10-01) and the unmeasured uses (v2.7 33, one build 2026-10-07)", () => {
+  it("reports every built use enabled by default, below its floor or unmeasured (owner decision 2026-10-09)", () => {
     const rows = judgeReadiness(defaultJudgeSettings());
     expect(rows).toHaveLength(JUDGE_USE_KEYS.length);
-    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"]);
+    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual([]);
   });
 
   // v2.4 plan 07 (X22): sceneOoc and memoryRerank are removed, so every declared use is built,
@@ -73,17 +75,17 @@ describe("judge readiness (v2.3 plan 09)", () => {
 
   // v2.4 plan 07 Phase A, 2026-09-25: both warden families cleared their predeclared floors on jev-1.13.0
   // (test/goldens/judge/agency.calibration.json, house-rules.calibration.json); measured, still author-only and off.
-  it("reports agency measured and house rules failed on the Adolion re-measure, off by default", () => {
+  it("reports agency measured and house rules failed on the Adolion re-measure, both on by default", () => {
     expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 241, measuredOn: "jev-1.13.0" });
     expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.965, latencyP50Ms: 235, measuredOn: "jev-1.13.0", passed: false });
     expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key))).toBe(true);
-    expect([defaultJudgeSettings().uses.agencyCheck, defaultJudgeSettings().uses.houseRules]).toEqual([true, false]);
+    expect([defaultJudgeSettings().uses.agencyCheck, defaultJudgeSettings().uses.houseRules]).toEqual([true, true]);
     expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => [row.verdict, row.calibrationProblem])).toEqual([["measured", undefined], ["unproven", "failed"]]);
     expect(remeasured(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
   });
 
-  it("L5: exclusive lore selection is author-only, off, blocked without lore selection and unproven with it until X1/X2 run", () => {
-    expect(AUTHOR_JUDGE_USES.includes("loreExclusive") && defaultJudgeSettings().uses.loreExclusive === false).toBe(true);
+  it("L5: exclusive lore selection is author-only, on by default, blocked without lore selection and unproven with it until X1/X2 run", () => {
+    expect(AUTHOR_JUDGE_USES.includes("loreExclusive") && defaultJudgeSettings().uses.loreExclusive === true).toBe(true);
     expect(judgeReadiness(settings({ loreExclusive: true, loreSelect: false }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")).toMatchObject({ verdict: "blocked", blockedBy: "loreSelect" });
     expect(judgeReadiness(settings({ loreExclusive: true, loreSelect: true }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")?.verdict).toBe("unproven");
   });
@@ -93,10 +95,10 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect(rows.find((row) => row.key === "expansionLookahead")).toMatchObject({ enabled: true, verdict: "blocked", blockedBy: "lookahead" });
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("expansionLookahead");
 
-    const both = remeasured(settings({ expansionLookahead: true, lookahead: true }), JUDGE_USE_DEPENDENCIES);
+    const both = remeasured(settings({ ...BELOW_FLOOR_OFF, expansionLookahead: true, lookahead: true }), JUDGE_USE_DEPENDENCIES);
     expect(both.find((row) => row.key === "expansionLookahead")?.verdict).toBe("measured");
     expect(judgeReadinessConcerns(both).map((row) => row.key)).toEqual([]);
-    const unmeasuredOn = remeasured(settings({ expansionLookahead: true, lookahead: true, loreExclusive: true, expressions: true }), JUDGE_USE_DEPENDENCIES);
+    const unmeasuredOn = remeasured(settings({ ...BELOW_FLOOR_OFF, expansionLookahead: true, lookahead: true, loreExclusive: true, expressions: true }), JUDGE_USE_DEPENDENCIES);
     expect(judgeReadinessConcerns(unmeasuredOn).map((row) => row.key)).toEqual(["loreExclusive", "expressions"]);
   });
 

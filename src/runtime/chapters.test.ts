@@ -45,9 +45,9 @@ describe("seal target on the chapters-mini graph", () => {
     expect(chapterNumber(story, "camp")).toBe(0);
   });
 
-  it("defaults every feature off except the recap, with the 700-token arm", () => {
+  it("defaults every feature on (owner decision 2026-10-09), with the 700-token arm", () => {
     expect(chapterSettings(undefined)).toEqual(DEFAULT_CHAPTER_SETTINGS);
-    expect(DEFAULT_CHAPTER_SETTINGS).toMatchObject({ seal: false, storySoFar: false, fold: false, recap: true, chronicleTokens: 700 });
+    expect(DEFAULT_CHAPTER_SETTINGS).toMatchObject({ seal: true, storySoFar: true, fold: true, recap: true, archiveRecall: true, eraSeals: true, foldEras: true, chronicleTokens: 700 });
   });
 
   it("views the current chapter and the sealed records", () => {

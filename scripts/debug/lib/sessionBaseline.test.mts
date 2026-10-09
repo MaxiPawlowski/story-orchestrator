@@ -15,9 +15,9 @@ test('AS-26: a "defaults" card is the baseline, not whatever the copied install 
   const [baseline, doc] = await Promise.all([loadBaseline(), loadCards()]);
   const card = findCard(doc, 'T0-1');
   const effective = effectiveSettings(baseline, overrideChain(doc, card), mediaPlan(card.setup.settings ?? {}, 'off'));
-  const install = { spikes: { sp6Complications: true }, stagecraft: { curatorEnabled: false }, judge: { enabled: false, noticesSeen: ['typesafe'] }, extraction: { profileId: 'p-1', cadence: 1, routes: { read: 'x' } } };
+  const install = { spikes: { sp6Complications: false }, stagecraft: { curatorEnabled: false }, judge: { enabled: false, noticesSeen: ['typesafe'] }, extraction: { profileId: 'p-1', cadence: 1, routes: { read: 'x' } } };
   const written = applyOverBaseline(install, effective, baseline.installOwned);
-  assert.equal(written.spikes.sp6Complications, false);
+  assert.equal(written.spikes.sp6Complications, true);
   assert.equal(written.stagecraft.curatorEnabled, true);
   assert.equal(written.judge.enabled, true);
   assert.equal(written.extraction.cadence, 3);

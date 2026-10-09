@@ -536,9 +536,9 @@ describe("v2.7 33 W1: the host read", () => {
 });
 
 describe("v2.7 33 W1: the install-wide flag", () => {
-  it("is off by default and on only for a literal true", () => {
-    expect(defaultGlobalSettings().spikes.editReread).toBe(false);
-    expect(sanitizeGlobalSettings({ spikes: { editReread: "yes" } }).spikes.editReread).toBe(false);
-    expect(sanitizeGlobalSettings({ spikes: { editReread: true } }).spikes.editReread).toBe(true);
+  it("is on by default (owner decision 2026-10-09) and off only for a literal false", () => {
+    expect(defaultGlobalSettings().spikes.editReread).toBe(true);
+    expect(sanitizeGlobalSettings({ spikes: { editReread: "no" } }).spikes.editReread).toBe(true);
+    expect(sanitizeGlobalSettings({ spikes: { editReread: false } }).spikes.editReread).toBe(false);
   });
 });

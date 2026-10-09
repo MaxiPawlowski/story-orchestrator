@@ -250,7 +250,8 @@ describe("plan 12 Phase B: the recorded llama-logprob rows (2026-10-03)", () => 
     try {
     expect(providerCleared("llama-logprob", "memoryPairs", SERVED)).toBe(true);
     expect(judgeRoute(routed({ memoryPairs: "llama-logprob" }), "memoryPairs", SERVED)).toEqual({ provider: "llama-logprob", keys: ["memoryPairs"] });
-    expect(judgeRoute(routed({ warden: "llama-logprob", agencyCheck: "llama-logprob" }), "warden", SERVED)).toEqual({ provider: "llama-logprob", keys: ["warden", "agencyCheck"] });
+    const wardenRouted = routed({ warden: "llama-logprob", agencyCheck: "llama-logprob" });
+    expect(judgeRoute({ ...wardenRouted, uses: { ...wardenRouted.uses, houseRules: false } }, "warden", SERVED)).toEqual({ provider: "llama-logprob", keys: ["warden", "agencyCheck"] });
     const { runtime, llama, typesafe, records } = setup(routed({ memoryPairs: "llama-logprob" }));
     llama.mockImplementation(async () => ({ model: SERVED["llama-logprob"], answers: { q: { type: "noul", noul: 0.9 } } }));
     const result = await runtime.ask("memoryPairs", { state: { a: 1 }, questions: { q: { type: "noul", instructions: "q?" } } });

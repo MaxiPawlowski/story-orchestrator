@@ -79,15 +79,17 @@ describe("inner voice mutations (the typed contract plan 11 proposes through)", 
   });
 });
 
-describe("inner voice switches (v2.6 plan 06 Resolved: B2 and C off by default)", () => {
-  it("the beat, its top-2 arm and the reasoning harvest are off unless switched on, and only true/top2 survive sanitizing", () => {
+describe("inner voice switches (on by default, owner decision 2026-10-09)", () => {
+  it("the beat and the reasoning harvest are on and the top-2 arm off unless switched, and a stray value falls back to the default", () => {
     const defaults = sanitizeGlobalSettings({}).memory;
-    expect(defaults.innerBeat).toBeUndefined();
-    expect(defaults.harvestReasoning).toBeUndefined();
+    expect(defaults.innerBeat).toBe(true);
+    expect(defaults.harvestReasoning).toBe(true);
     expect(defaults.innerFanOut).toBeUndefined();
+    const off = sanitizeGlobalSettings({ memory: { innerBeat: false, harvestReasoning: false } }).memory;
+    expect([off.innerBeat, off.harvestReasoning]).toEqual([false, false]);
     const on = sanitizeGlobalSettings({ memory: { innerBeat: true, innerFanOut: "top2", harvestReasoning: true } }).memory;
     expect(on).toMatchObject({ innerBeat: true, innerFanOut: "top2", harvestReasoning: true });
     const junk = sanitizeGlobalSettings({ memory: { innerBeat: "yes", innerFanOut: "all", harvestReasoning: 1 } }).memory;
-    expect([junk.innerBeat, junk.innerFanOut, junk.harvestReasoning]).toEqual([undefined, undefined, undefined]);
+    expect([junk.innerBeat, junk.innerFanOut, junk.harvestReasoning]).toEqual([true, undefined, true]);
   });
 });

@@ -126,7 +126,7 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     passed: false,
     recommendation:
       "Below its floor on the re-measure with the scene and the fired world-book entries " +
-      "(2026-10-02, the Adolion saga's 8 house rules: broken 18/18, kept 10/10, untouched 165/172 vs 0.966): off by default. " +
+      "(2026-10-02, the Adolion saga's 8 house rules: broken 18/18, kept 10/10, untouched 165/172 vs 0.966): on by default all the same (owner decision 2026-10-09). " +
       "Every broken rule is now caught; the false alarms sit on judgement rules that overlap " +
       "(the player's action read as a group member's, a spent mystery read as a spent secret); objective rules alone cleared every floor (0.9875).",
   },
@@ -150,7 +150,7 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: "Not measured yet: its recall and noise floors have not run live, so keep it off.",
+    recommendation: "Not measured yet: its recall and noise floors have not run live. On by default all the same (owner decision 2026-10-09).",
   },
   expressions: {
     calibration: null,
@@ -164,14 +164,14 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: "Not measured yet, so off by default. Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
+    recommendation: "Not measured yet; on by default (owner decision 2026-10-09). Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
   },
   wardenVoice: {
     calibration: null,
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: "Not measured yet, so off by default. Rides the warden's call.",
+    recommendation: "Not measured yet; on by default (owner decision 2026-10-09). Rides the warden's call.",
   },
 };
 

@@ -92,14 +92,14 @@ enum quality. A checkpoint may apply `effects.card: {"member_id": {"hair": "red"
 edit wins; undoing a boundary restores the earlier value and its writer. A fresh chat has no applied change.
 
 Illustrations read the applied public visual fields. Pre-rendered sprite rules may select a set using
-`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate default-off switch, under
+`when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate switch, on by default, under
 Characters › Added to the reply prompt.
 Private knowledge belongs in the knowledge system, never in a public card field.
-The local Artemis comparison kept this switch off by default: both tested placements agreed with every changed colour,
-but the memory-only baseline was equally good in one of the two runs, so the repeatable-benefit condition was not met.
+The local Artemis comparison did not show a repeatable benefit: both tested placements agreed with every changed colour,
+but the memory-only baseline was equally good in one of the two runs. It is on by default all the same (2026-10-09).
 
-**Generate changed looks when needed** is off by default; turn it on per install when your stories change how people
-look. It requires a saved or reused reference pack, ComfyUI and the media plugin, and it renders on your GPU without
+**Generate changed looks when needed** is on by default; it does nothing until a reference pack is set up for a
+character, and you can turn it off per install. It requires a saved or reused reference pack, ComfyUI and the media plugin, and it renders on your GPU without
 asking. It renders the current expression first and keeps the old sprite visible while working, then builds that
 look's blink and mouth frames from the new image, one at a time, letting a waiting reply go first between frames.
 When they are done the stage animates the new look; a look built earlier is reused from its cache. A result that

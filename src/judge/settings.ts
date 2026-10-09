@@ -69,7 +69,7 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules", "loreExclusive", "expressions", "attentionCheck", "wardenVoice"];
+export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = [];
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, !JUDGE_USES_OFF_BY_DEFAULT.includes(key)])) as JudgeUses;
 
@@ -252,25 +252,25 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   loreExclusive: {
     label: "Exclusive lore selection",
     description: "For a story marked exclusive, switches off, for that one reply, the entries of its lore-select books the judge did not pick. Only with per-chat gating; " +
-      "a timeout, a refused pick or a timed entry keeps the keyword scan as it is. Off by default.",
+      "a timeout, a refused pick or a timed entry keeps the keyword scan as it is.",
     sends: "nothing beyond Lore selection: it acts on the same request",
   },
   expressions: {
     label: "Sprite expressions",
     description: "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. " +
-      "Otherwise the sprite model, then the local classifier, decide. Off by default.",
+      "Otherwise the sprite model, then the local classifier, decide.",
     sends: "each reply's passages, the on-stage character names and the expression labels with their descriptions",
   },
   attentionCheck: {
     label: "Answers the player (warden)",
     description: "After a character reply, asks whether it answered what you just said or did; a reply that passed over it gets a one-line reminder in the next reply's prompt. " +
-      "A refusal or an in-character dodge counts as an answer. Not measured yet, so off by default.",
+      "A refusal or an in-character dodge counts as an answer. Not measured yet.",
     sends: "nothing beyond the warden's call: the character reply, your latest message and your persona name",
   },
   wardenVoice: {
     label: "In character (warden)",
     description: "After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note "
-      + "in the next reply's prompt, never a rewrite. Not measured yet, so off by default.",
+      + "in the next reply's prompt, never a rewrite. Not measured yet.",
     sends: "the character reply, the speaker's name, roster role and drive, and their feelings toward the others in the scene",
   },
 };

@@ -94,7 +94,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills or a board of quests. |  |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
-| Memory | Chapters | Long stories write up each finished chapter and recap it when you return. | Off by default |
+| Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |
 | Memory | Continuity warden | Catches a reply that breaks an established fact and restates the fact for the next reply. |  |
 | Memory | Memory model test | Runs fixed scenes through the memory model and reports what it can do. |  |
 | Memory | Reply thinking | Limits how long the chat model thinks before each reply. |  |
@@ -102,7 +102,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
-| Characters | Inner voice | Characters prepare a private intent before they speak. | Off by default |
+| Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
@@ -129,7 +129,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
 | Setup | Help | This list: every feature, whether it is on, and where to find it. |  |
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
-| Setup | Experiments | Unmeasured trials, only in development builds. | Experimental |
+| Setup | Experiments | Unmeasured trials. | Experimental |
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |
 <!-- features:end -->
 

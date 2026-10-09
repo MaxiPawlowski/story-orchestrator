@@ -147,12 +147,12 @@ export const SETTING_COPY = {
   ),
   "memory.harvestReasoning": copy(
     "Read characters' reasoning for what they intend",
-    "When a reply carries the character's reasoning, it is also read for what that character means to do. Needs knowledge tracking. Off until it is measured.",
+    "When a reply carries the character's reasoning, it is also read for what that character means to do. Needs knowledge tracking. Not measured yet.",
   ),
   "memory.innerBeat": copy(
     "Prepare a private inner beat for the next speaker",
     "After a reply, the memory model writes a short private note of what the likely next speaker wants, handed only to that character. "
-      + "At most two extra calls per turn, never while you wait for a reply. Off until it is measured.",
+      + "At most two extra calls per turn, never while you wait for a reply. Not measured yet.",
   ),
   "memory.innerFanOut": copy(
     "Inner beats for",
@@ -290,7 +290,7 @@ export const SETTING_COPY = {
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
   "sprites.cardOverlay": copy("Current character state in replies",
-    "Adds this story’s applied public changes to the next reply prompt. Optional and off by default. Character cards and personas stay unchanged."),
+    "Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged."),
   "sprites.onDemand": copy("Generate changed looks when needed",
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
   "sprites.mouth": copy("Mouth movement",

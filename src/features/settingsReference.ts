@@ -13,8 +13,6 @@ const ABSENT_DEFAULTS: Record<string, string> = {
   "extraction.fallbackProfileId": "None",
   "extraction.replyEffort": "Medium",
   "extraction.profiles": "Same as memory model",
-  "memory.harvestReasoning": "Off",
-  "memory.innerBeat": "Off",
   "memory.innerFanOut": "Next speaker only",
 };
 

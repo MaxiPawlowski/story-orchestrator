@@ -259,7 +259,7 @@ const resolved = (count: number) => Array.from({ length: count }, (_, index): Ar
 const sceneSummary = (to: number): DerivedRecord => ({ id: `ss${to}`, kind: "scene_summary", boundary: to, messageId: to, inputs: [], range: { from: 0, to } });
 
 describe("AS-14 D11: chapterless era seals", () => {
-  const settings = chapterSettings({ eraSeals: true });
+  const settings = chapterSettings({ eraSeals: true, foldEras: false });
   const sources = { entries: scenes(25), arcs: resolved(21), derived: [sceneSummary(305)], storyStart: 0 };
   const path = ["gate", "market", "fire", "walls"];
 
@@ -275,7 +275,7 @@ describe("AS-14 D11: chapterless era seals", () => {
     expect(eraTarget(chapterless, [], { ...sources, entries: scenes(30, { pinned: true }) }, 320, path, settings)).toBeNull();
     expect(eraTarget(chapterless, [], { ...sources, arcs: resolved(20) }, 320, path, settings)).toBeNull();
     expect(eraTarget(chapterless, [], { ...sources, derived: [sceneSummary(299)] }, 320, path, settings)).toBeNull();
-    expect(eraTarget(chapterless, [], sources, 320, path, chapterSettings({}))).toBeNull();
+    expect(eraTarget(chapterless, [], sources, 320, path, chapterSettings({ eraSeals: false }))).toBeNull();
     expect(eraTarget(castStory, [], sources, 320, path, settings)).toBeNull();
   });
 
@@ -291,7 +291,7 @@ describe("AS-14 D11: chapterless era seals", () => {
       memory: () => ({ ...sources, chapters: [], settings: { chapters } }),
     }) as unknown as ChapterHost;
     expect(due(host(chapterless, { eraSeals: true }))?.chapter.id).toBe("era-1");
-    expect(due(host(chapterless, { seal: true }))).toBeNull();
+    expect(due(host(chapterless, { seal: true, eraSeals: false }))).toBeNull();
     expect(due(host(castStory, { seal: true, eraSeals: true }))?.chapter.id).toBe("arrival");
   });
 
@@ -364,8 +364,9 @@ const recallPort = (options: RecallOptions = {}) => {
 const turn = (mes: string) => [{ is_user: false, mes: "The guild hall is quiet." }, { is_user: true, mes }];
 
 describe("AS-14 D10: archive recall rides the scene-history block for one generation", () => {
-  it("is off by default", async () => {
-    const r = recallPort({ chapters: {} });
+  it("is on by default (owner decision 2026-10-09), and recalls nothing with recall and fold switched off", async () => {
+    expect(chapterSettings({}).archiveRecall).toBe(true);
+    const r = recallPort({ chapters: { archiveRecall: false, fold: false } });
     expect(await recall(r.port, turn("Where is Ronan?"), "normal")).toBe(0);
     expect(r.prompt.setStoryExtensionPrompt).not.toHaveBeenCalled();
   });

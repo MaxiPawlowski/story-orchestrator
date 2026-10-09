@@ -232,10 +232,10 @@ describe("v2.5 plan 09 SP1 S2: no stale hit", () => {
 });
 
 describe("v2.5 plan 09 SP1: the install-wide flag and the seam", () => {
-  it("is off by default and on only for a literal true", () => {
-    expect(defaultGlobalSettings().spikes.swipeBackCache).toBe(false);
-    expect(sanitizeGlobalSettings({ spikes: { swipeBackCache: 1 } }).spikes.swipeBackCache).toBe(false);
-    expect(sanitizeGlobalSettings({ spikes: { swipeBackCache: true } }).spikes.swipeBackCache).toBe(true);
+  it("is on by default (owner decision 2026-10-09) and off only for a literal false", () => {
+    expect(defaultGlobalSettings().spikes.swipeBackCache).toBe(true);
+    expect(sanitizeGlobalSettings({ spikes: { swipeBackCache: 0 } }).spikes.swipeBackCache).toBe(true);
+    expect(sanitizeGlobalSettings({ spikes: { swipeBackCache: false } }).spikes.swipeBackCache).toBe(false);
   });
 
   it("only a swipe is looked up; with the flag off nothing is captured or hit", async () => {

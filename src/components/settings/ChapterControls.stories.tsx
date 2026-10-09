@@ -31,13 +31,13 @@ export const PreviouslyIsOnByDefault: Story = {
   },
 };
 
-export const AuthorViewShowsChapterRecordsOffByDefault: Story = {
+export const AuthorViewShowsChapterRecordsOnByDefault: Story = {
   args: { manager: fakeManager() },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-chapter-recap")).not.toBeNull();
     await waitFor(() => expect(canvasElement.querySelector("#so-chapter-advanced")).not.toBeNull());
     for (const id of RECORD_IDS) await expect(canvasElement.querySelector(`#${id}`)).not.toBeNull();
-    for (const id of RECORD_IDS.filter((id) => id !== "so-chapter-budget")) await expect(canvasElement.querySelector<HTMLInputElement>(`#${id}`)?.checked).toBe(false);
+    for (const id of RECORD_IDS.filter((id) => id !== "so-chapter-budget")) await expect(canvasElement.querySelector<HTMLInputElement>(`#${id}`)?.checked).toBe(true);
   },
 };
 

@@ -7,7 +7,7 @@ test("changed-look readiness reports missing references and backend failures, bu
     roster: [{ id: "arin", name: "Arin", card: { fields: { hair: { quality: "hair", visual: true } } } }],
     qualities: [{ key: "hair", type: "string", source: "extractor", rubric: "Current hair colour." }],
     checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }], transitions: [] });
-  const settings = defaultSpriteSettings();
+  const settings = { ...defaultSpriteSettings(), onDemand: false };
   const actor: LookActor = { name: "Arin", muted: false, profile: { folder: "Arin" }, rules: [] };
   expect(changedLookIssues(story, { hair: "red" }, settings, true, [])).toHaveLength(1);
   expect(changedLookIssues(story, { hair: "red" }, settings, true, [actor])[0].reason).toContain("off");

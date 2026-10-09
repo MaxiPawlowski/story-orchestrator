@@ -89,8 +89,8 @@ export interface ChapterSettings {
 }
 
 export const DEFAULT_CHAPTER_SETTINGS: ChapterSettings = {
-  seal: false, storySoFar: false, fold: false, chronicleTokens: DEFAULT_CHRONICLE_TOKENS, chapterTokens: 500, threadTokens: 150, recap: true, dossierWindow: 12,
-  archiveRecall: false, recallTokens: DEFAULT_RECALL_TOKENS, eraSeals: false, foldEras: false, eraMessages: 300,
+  seal: true, storySoFar: true, fold: true, chronicleTokens: DEFAULT_CHRONICLE_TOKENS, chapterTokens: 500, threadTokens: 150, recap: true, dossierWindow: 12,
+  archiveRecall: true, recallTokens: DEFAULT_RECALL_TOKENS, eraSeals: true, foldEras: true, eraMessages: 300,
 };
 
 export const chapterSettings = (stored: Partial<ChapterSettings> | undefined): ChapterSettings => {

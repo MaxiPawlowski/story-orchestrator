@@ -48,8 +48,8 @@ Every use is on by default except **House rules**. The ones marked *author* show
 | Expansion review (*author*) | Reviews generated scenes instead of a second model call. | up to 40 established facts, the target scene, cast names, the tension trajectory, the generated scenes |
 | Prepare ahead (*author*) | Writes generated scenes one step ahead, where play is heading. Needs Heading toward. | nothing beyond Heading toward and the expansion |
 | Agency check (*author*, warden) | Asks whether a reply wrote what only you do, say or decide; if so the next prompt leaves your part to you. | the character reply, your latest message and your persona name |
-| Answers the player (*author*, warden, **off**) | Asks whether a reply answered what you just said or did; if not, the next prompt asks for an answer. A refusal or a dodge in character counts as an answer. Not measured yet, so off. | nothing beyond the warden's call |
-| House rules (*author*, warden, **off**) | Checks a reply against the story's house rules. Below its measured floor, so off by default. | the character reply and the house rules |
+| Answers the player (*author*, warden) | Asks whether a reply answered what you just said or did; if not, the next prompt asks for an answer. A refusal or a dodge in character counts as an answer. Not measured yet. | nothing beyond the warden's call |
+| House rules (*author*, warden) | Checks a reply against the story's house rules. Below its measured floor, on all the same. | the character reply and the house rules |
 | Lore check (*author*, warden) | Checks a reply against the story's own lore entries that fired for it. Needs the continuity warden on. | the reply and up to 8 fired story lore entries (600 characters each) |
 | Exclusive lore selection (*author*) | For a story marked exclusive, switches off for one reply the lore-select entries the judge did not pick. Needs Lore selection and per-chat lore gating. | nothing beyond Lore selection |
 | Sprite expressions | Picks who each passage of a reply is about and their expression, for the sprite stage. | each reply's passages, on-stage names, expression labels |
@@ -57,9 +57,9 @@ Every use is on by default except **House rules**. The ones marked *author* show
 ### How the defaults were chosen
 
 Every use was measured in English on 2026-10-01 against `jev-1.13.0`, each against a floor fixed before the run.
-Every use met its floor except House rules, which stays off: on the Adolion saga's 8 rules it caught every broken
+Every use met its floor except House rules: on the Adolion saga's 8 rules it caught every broken
 rule (18/18) and kept every kept one (10/10), but left untouched replies alone 165 of 172 times against a floor of
-0.966 (2026-10-02). If you turn it on, prefer objective rules with one demand each; judgement rules that overlap (who
+0.966 (2026-10-02). Every use is on by default all the same, the unmeasured ones too (2026-10-09), so you see them in play; switch one off here. For house rules, prefer objective rules with one demand each; judgement rules that overlap (who
 voices whom, mystery vs secret) raise false alarms. A paragraph-count rule is checked in code instead. On any other
 model, or after the measurement set changes, the panel marks a use as unproven.
 

@@ -46,8 +46,8 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   breathing: true,
   blink: true,
   mouth: "simple",
-  cardOverlay: false,
-  onDemand: false,
+  cardOverlay: true,
+  onDemand: true,
   renderPreset: "standard",
   builders: {},
 });
@@ -70,8 +70,8 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     breathing: typeof value.breathing === "boolean" ? value.breathing : d.breathing,
     blink: typeof value.blink === "boolean" ? value.blink : d.blink,
     mouth: value.mouth === "off" || value.mouth === "smooth" || value.mouth === "simple" ? value.mouth : d.mouth,
-    cardOverlay: value.cardOverlay === true,
-    onDemand: value.onDemand === true,
+    cardOverlay: value.cardOverlay !== false,
+    onDemand: value.onDemand !== false,
     renderPreset: value.renderPreset === "fast" ? "fast" : d.renderPreset,
     builders: Object.fromEntries(Object.entries(isRecord(value.builders) ? value.builders : {}).flatMap(([folder, entry]) => {
       if (!isRecord(entry) || typeof entry.baseSet !== "string" || (entry.baseSet !== "" && !/^[a-z0-9_]+$/.test(entry.baseSet)) || !isRecord(entry.box) || !isRecord(entry.models)) return [];
