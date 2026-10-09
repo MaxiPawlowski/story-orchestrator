@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.6.0';
+export const PLUGIN_VERSION = '1.7.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -265,11 +265,25 @@ export function createAdaptiveRate({ now = Date.now, factor: backoff = BACKOFF_F
     };
 }
 
-async function callUpstream(key, payload, fetchImpl, url = apiUrl(), { onBusy = () => undefined, now = Date.now } = {}) {
+const CANCELLED = Object.freeze({ status: 499, text: JSON.stringify({ error: 'the page closed the request' }), cancelled: true });
+
+export function clientGone(response) {
+    const controller = new AbortController();
+    const onClose = () => {
+        if (!response.writableFinished) controller.abort();
+    };
+    if (typeof response?.on === 'function') response.on('close', onClose);
+    return { signal: controller.signal, dispose: () => response?.off?.('close', onClose) };
+}
+
+async function callUpstream(key, payload, fetchImpl, url = apiUrl(), { onBusy = () => undefined, now = Date.now, signal } = {}) {
     let last = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
+        if (signal?.aborted) return CANCELLED;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+        const cancel = () => controller.abort();
+        signal?.addEventListener('abort', cancel, { once: true });
         try {
             const response = await fetchImpl(url, {
                 method: 'POST',
@@ -287,10 +301,12 @@ async function callUpstream(key, payload, fetchImpl, url = apiUrl(), { onBusy = 
             onBusy(waitMs);
             if (waitMs !== null && waitMs > RETRY_DELAY_MS) return last;
         } catch (error) {
+            if (signal?.aborted) return CANCELLED;
             if (error?.name === 'AbortError') return { status: 504, text: JSON.stringify({ error: 'upstream timeout' }) };
             last = { status: 502, text: JSON.stringify({ error: 'upstream unreachable' }) };
         } finally {
             clearTimeout(timer);
+            signal?.removeEventListener('abort', cancel);
         }
         if (attempt === 0) await sleep(RETRY_DELAY_MS);
     }
@@ -410,7 +426,8 @@ export function createLimiter({
             user.waiting.shift()?.();
         };
     };
-    return async (handle, cost = 0) => {
+    return async (handle, cost = 0, signal = undefined) => {
+        if (signal?.aborted) return null;
         const user = users.get(handle) ?? { inFlight: 0, stamps: [], spent: [], waiting: [] };
         users.set(handle, user);
         if (user.inFlight < maxInFlight && !user.waiting.length) return take(user, cost);
@@ -419,16 +436,20 @@ export function createLimiter({
             return null;
         }
         const slot = await new Promise((resolve) => {
-            const wake = () => { clearTimeout(timer); resolve(true); };
-            const timer = setTimeout(() => {
+            const leave = () => {
+                clearTimeout(timer);
+                signal?.removeEventListener('abort', leave);
                 const index = user.waiting.indexOf(wake);
                 if (index >= 0) user.waiting.splice(index, 1);
                 resolve(false);
-            }, queueWaitMs);
+            };
+            const wake = () => { clearTimeout(timer); signal?.removeEventListener('abort', leave); resolve(true); };
+            const timer = setTimeout(leave, queueWaitMs);
+            signal?.addEventListener('abort', leave, { once: true });
             user.waiting.push(wake);
         });
         if (!slot) {
-            onRefuse(1);
+            if (!signal?.aborted) onRefuse(1);
             return null;
         }
         const release = take(user, cost);
@@ -453,7 +474,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     const limits = limitsFromEnv(env);
     let retryAfter = 1;
     const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
-    const served = { since: refusals.since, total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} };
+    const served = { since: refusals.since, total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 };
     const countServed = (provider, request) => {
         const use = judgeUseOf(request);
         served.total += 1;
@@ -466,7 +487,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
         typesafe: createLimiter({ ...limits, now, onRefuse, adaptive: adaptive.typesafe }),
         'llama-logprob': createLimiter({ ...limits, now, onRefuse, adaptive: adaptive['llama-logprob'] }),
     };
-    const upstreamOptions = (provider) => ({ now, onBusy: (waitMs) => adaptive[provider].busy(waitMs) });
+    const upstreamOptions = (provider, signal) => ({ now, onBusy: (waitMs) => adaptive[provider].busy(waitMs), ...(signal ? { signal } : {}) });
     const countUpstream = (provider, upstream) => {
         refusals.upstreamBusyAnswers += upstream?.busyAnswers ?? 0;
         if (!RETRY_STATUSES.has(upstream?.status)) return;
@@ -479,19 +500,35 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     const guarded = async (request, response, run, provider) => {
         const blocked = guardRequest(request);
         if (blocked) return response.status(blocked.status).json({ error: blocked.error });
-        const read = await readTextBody(request);
-        if (read.error) return response.status(read.status).json({ error: read.error });
-        const release = await acquire[provider](request?.user?.profile?.handle ?? 'default-user', estimateInputTokens(read.body));
-        if (!release) {
-            refusals.local += 1;
-            response.set?.('Retry-After', String(retryAfter));
-            return response.status(429).json({ error: 'too many judge calls for this user; retry shortly', retryAfterSeconds: retryAfter });
-        }
+        const gone = clientGone(response);
         try {
-            return await run({ ...request, headers: request.headers, user: request.user, body: read.body }, response);
+            const read = await readTextBody(request);
+            if (read.error) return response.status(read.status).json({ error: read.error });
+            const release = await acquire[provider](request?.user?.profile?.handle ?? 'default-user', estimateInputTokens(read.body), gone.signal);
+            if (!release && gone.signal.aborted) {
+                served.cancelled += 1;
+                return undefined;
+            }
+            if (!release) {
+                refusals.local += 1;
+                response.set?.('Retry-After', String(retryAfter));
+                return response.status(429).json({ error: 'too many judge calls for this user; retry shortly', retryAfterSeconds: retryAfter });
+            }
+            try {
+                return await run({ ...request, headers: request.headers, user: request.user, body: read.body, cancel: gone.signal }, response);
+            } finally {
+                release();
+            }
         } finally {
-            release();
+            gone.dispose();
         }
+    };
+    const answer = (response, upstream) => {
+        if (upstream.cancelled) {
+            served.cancelled += 1;
+            return;
+        }
+        sendUpstream(response, upstream);
     };
     const handlers = {
         async status(request, response) {
@@ -517,9 +554,9 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
             countServed('llama-logprob', request);
-            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`, upstreamOptions('llama-logprob'));
+            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`, upstreamOptions('llama-logprob', request.cancel));
             countUpstream('llama-logprob', upstream);
-            sendUpstream(response, upstream);
+            answer(response, upstream);
         },
         async systemone(request, response) {
             const issues = shapeIssues(request.body);
@@ -532,9 +569,9 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
             const payload = { state: request.body.state, questions: request.body.questions, model };
             countServed('typesafe', request);
-            const upstream = await callUpstream(resolved.key, payload, fetchImpl, apiUrl(), upstreamOptions('typesafe'));
+            const upstream = await callUpstream(resolved.key, payload, fetchImpl, apiUrl(), upstreamOptions('typesafe', request.cancel));
             countUpstream('typesafe', upstream);
-            sendUpstream(response, upstream);
+            answer(response, upstream);
         },
         receive(request, response) {
             return guarded(request, response, handlers.systemone, 'typesafe');

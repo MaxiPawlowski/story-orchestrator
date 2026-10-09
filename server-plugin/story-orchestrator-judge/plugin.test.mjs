@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { EventEmitter } from 'node:events';
 import { Readable } from 'node:stream';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -86,7 +87,7 @@ test('status reports the key source, never the key', async () => {
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 480, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 },
         adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
         refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
-        served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} },
+        served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 },
         providers: {
             typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
             'llama-logprob': { configured: false, keySource: null, contract: 'logprob', local: false, host: null },
@@ -603,7 +604,7 @@ test('T6-4: /status counts every call forwarded to a provider, per provider and 
     const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: () => undefined });
     const idle = fakeResponse();
     await handlers.status({}, idle.res);
-    assert.deepEqual(idle.out.body.served, { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} });
+    assert.deepEqual(idle.out.body.served, { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 });
     for (const use of ['director', 'director', 'warden']) await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': use } }), fakeResponse().res);
     await handlers.receive(pageRequest(question), fakeResponse().res);
     await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': 'bad use!' } }), fakeResponse().res);
@@ -613,6 +614,108 @@ test('T6-4: /status counts every call forwarded to a provider, per provider and 
     const status = fakeResponse();
     await handlers.status({}, status.res);
     assert.deepEqual(status.out.body.served, {
-        since: '1970-01-01T00:00:00.000Z', total: 5, byProvider: { typesafe: 5, 'llama-logprob': 0 }, byUse: { director: 2, warden: 1, unlabelled: 2 },
+        since: '1970-01-01T00:00:00.000Z', total: 5, byProvider: { typesafe: 5, 'llama-logprob': 0 }, byUse: { director: 2, warden: 1, unlabelled: 2 }, cancelled: 0,
     });
+});
+
+const closableResponse = () => {
+    const { res, out } = fakeResponse();
+    const emitter = new EventEmitter();
+    const send = res.send;
+    Object.assign(res, { writableFinished: false, on: emitter.on.bind(emitter), off: emitter.off.bind(emitter) });
+    res.send = (value) => { res.writableFinished = true; return send(value); };
+    return { res, out, close: () => emitter.emit('close') };
+};
+
+const slowFetch = (answerMs = 300) => {
+    const calls = { started: 0, aborted: 0, answered: 0 };
+    const fetchImpl = (url, init) => new Promise((resolve, reject) => {
+        calls.started += 1;
+        const timer = setTimeout(() => { calls.answered += 1; resolve(new Response('{"model":"jev-1.13.0","answers":{}}', { status: 200 })); }, answerMs);
+        init.signal.addEventListener('abort', () => {
+            clearTimeout(timer);
+            calls.aborted += 1;
+            reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+        }, { once: true });
+    });
+    return { calls, fetchImpl };
+};
+
+const until = async (check, ms = 2000) => {
+    const end = Date.now() + ms;
+    while (!check()) {
+        if (Date.now() > end) throw new Error('condition not met in time');
+        await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+};
+
+const sendFor = (handlers, use) => {
+    const response = closableResponse();
+    const done = handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': use } }), response.res);
+    return { ...response, done };
+};
+
+test('F-B1c-2: a call the page gave up on releases its slot and cancels the upstream, so the next call is not queued behind a ghost', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-ghost';
+    const { calls, fetchImpl } = slowFetch(300);
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, env: {} });
+    const scene = sendFor(handlers, 'scene');
+    const warden = sendFor(handlers, 'warden');
+    await until(() => calls.started === 2);
+    scene.close();
+    await scene.done;
+    assert.equal(calls.aborted, 1, 'the upstream call of the closed request is cancelled');
+    assert.equal(scene.out.body, undefined, 'nothing is written to a closed request');
+    const lore = sendFor(handlers, 'wardenLore');
+    await until(() => calls.started === 3, 100);
+    await Promise.all([warden.done, lore.done]);
+    assert.equal(warden.out.statusCode, 200);
+    assert.equal(lore.out.statusCode, 200);
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.equal(status.out.body.served.cancelled, 1);
+    assert.equal(status.out.body.refusals.local, 0);
+});
+
+test('F-B1c-2 control: while both slots are taken by calls the page still waits for, a third call queues in the plugin', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-ghost';
+    const { calls, fetchImpl } = slowFetch(300);
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, env: {} });
+    const scene = sendFor(handlers, 'scene');
+    const warden = sendFor(handlers, 'warden');
+    await until(() => calls.started === 2);
+    const lore = sendFor(handlers, 'wardenLore');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    assert.equal(calls.started, 2, 'the third call waits for a slot');
+    await Promise.all([scene.done, warden.done, lore.done]);
+    assert.equal(calls.started, 3);
+    assert.equal(calls.aborted, 0);
+    assert.equal(lore.out.statusCode, 200);
+});
+
+test('F-B1c-2: a call waiting in the plugin queue whose page closes leaves the queue without a slot and without counting a refusal', async () => {
+    let refused = 0;
+    const acquire = plugin.createLimiter({ maxInFlight: 1, perMinute: 60, maxQueued: 4, queueWaitMs: 1000, now: () => 0, onRefuse: () => { refused += 1; } });
+    const first = await acquire('u');
+    const controller = new AbortController();
+    const gone = acquire('u', 0, controller.signal);
+    const next = acquire('u');
+    controller.abort();
+    assert.equal(await gone, null);
+    assert.equal(refused, 0);
+    first();
+    assert.equal(typeof (await next), 'function', 'the freed slot goes to the call still waiting');
+    assert.equal(await acquire('u', 0, controller.signal), null, 'an already closed request never takes a slot');
+});
+
+test('F-B1c-2: a page that closes during the 600 ms busy retry gets no second upstream call', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-ghost';
+    let upstream = 0;
+    const handlers = plugin.createHandlers({ accountsEnabled: false, env: {}, fetchImpl: async () => { upstream += 1; return new Response('{"error":"busy"}', { status: 429 }); }, log: () => undefined });
+    const call = sendFor(handlers, 'warden');
+    await until(() => upstream === 1);
+    call.close();
+    await call.done;
+    assert.equal(upstream, 1);
+    assert.equal(call.out.body, undefined);
 });

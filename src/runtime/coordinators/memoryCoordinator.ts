@@ -10,7 +10,7 @@ import {
   ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capEpistemic, capLedger,
   highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived,
   reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
-  DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
+  editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
@@ -23,7 +23,7 @@ import { MirrorSync, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonSynthesis } from "../canonSynthesis";
 import { ChapterPort, chapterKit } from "../chapterPort";
-import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
+import { buildConsolidationMatches, buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
@@ -431,10 +431,9 @@ export class MemoryCoordinator {
       const judged = judge?.active("memoryPairs") ? judge : null;
       for (const group of groupOf().values()) {
         if (group.length < CONSOLIDATION_MIN_GROUP) continue;
-        const matches = await buildMatchSets(this.deps.hosts.vectors, group);
-        const wider = judged ? await buildMatchSets(this.deps.hosts.vectors, group, { ...DEFAULT_DEDUP_THRESHOLDS, jaccardSameTopic: PAIR_JACCARD_FLOOR }) : matches;
+        const { matches, wider } = await buildConsolidationMatches(this.deps.hosts.vectors, group, judged ? PAIR_JACCARD_FLOOR : null);
         const judgedResult = judged ? consolidateTierJudged(group, wider, await judgePairRelations(judged, group, wider, matches)) : null;
-        // Three awaits per group (two embedding passes and a judge pass), then writes that DROP and
+        // Two awaits per group (one embedding pass and a judge pass), then writes that DROP and
         // supersede entries: destructive, so a run outliving its chat would delete another chat's
         // memory. The check is inside the loop because each group is its own write.
         if (!run.stillOwns()) break;

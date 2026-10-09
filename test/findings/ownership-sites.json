@@ -125,9 +125,9 @@
       "status": "local",
       "note": "v2.3 replan V3 (2026-09-23): `record` is a local builder for the returned variants summary; nothing is written outside the return value. The expansion coordinator owns the write edge (ExpansionCoordinator.generate is checked)."
     },
-    "src/runtime/consolidationMatches.ts#buildMatchSets": {
+    "src/runtime/consolidationMatches.ts#vectorMatchSets": {
       "status": "local",
-      "note": "writes only function-local sets and a scratch vector collection named uniquely per call (so_consol_<time>_<rand>), so its purge can never reach another chat"
+      "note": "writes only function-local sets and a scratch vector collection named uniquely per call (so_consol_<time>_<rand>), so its purge can never reach another chat F-B1c-2 (2026-10-09): the vector half moved here unchanged; buildMatchSets and buildConsolidationMatches only choose between it and Jaccard."
     },
     "src/runtime/consolidationMatches.ts#judgePairRelations>map": {
       "status": "local",
@@ -453,9 +453,9 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): the plan spans several books and each is two host writes; the caller's run is now asked before EVERY write (it used to be checked once, after the whole loop). Callers: applyCheckpoint and releaseWorldInfo pass their run."
     },
-    "src/runtime/judge.ts#JudgeRuntime.ask": {
+    "src/runtime/judge.ts#JudgeRuntime.askOnce": {
       "status": "checked",
-      "note": "C1, closed 2026-09-20: mints before the await, stamps the asked boundary, refuses to record a call whose world moved. v2.4 plan 07 (T24/X23): a discarded call is still METERED, never ringed: charge() writes a {discarded} record (meter only) through deps.record when the chat that asked is still the open one (story/version/epoch discards), and otherwise parks it in the in-memory unbilled map keyed by the asking chat, settled on that chat's next recorded call (settleUnbilled, called only after the token check passed). Both are synchronous and write after the same check; cases: judgeMeter.review.test.ts. A reload before the asking chat's next call loses a parked charge (recorded deviation)."
+      "note": "C1, closed 2026-09-20: mints before the await, stamps the asked boundary, refuses to record a call whose world moved. v2.4 plan 07 (T24/X23): a discarded call is still METERED, never ringed: charge() writes a {discarded} record (meter only) through deps.record when the chat that asked is still the open one (story/version/epoch discards), and otherwise parks it in the in-memory unbilled map keyed by the asking chat, settled on that chat's next recorded call (settleUnbilled, called only after the token check passed). Both are synchronous and write after the same check; cases: judgeMeter.review.test.ts. A reload before the asking chat's next call loses a parked charge (recorded deviation). F-B1c-2 (2026-10-09): the body moved to askOnce unchanged; ask() now wraps it in tracked() so whenIdle can see an open call."
     },
     "src/runtime/judge.ts#JudgeRuntime.currentStatus": {
       "status": "local",
@@ -499,7 +499,7 @@
     },
     "src/runtime/requirementsWatch.ts#refreshRequirementsNow": {
       "status": "checked",
-      "note": "v2.4 plan 02 \u00a78 (2026-09-24). The between-turns requirements refresh the watch runs 250 ms after PERSONA_CHANGED / GROUP_UPDATED / WORLDINFO_SETTINGS_UPDATED. Its RunGuard is minted when the host event arrives (RequirementsWatch.schedule), so a chat left inside the debounce refreshes nothing; checked again after the hydrate apply (before persist) and after the persist (before notify). The hydrate apply itself is EffectsApplier.applyCheckpoint, which checks its own token before each host step. Ready -> not-ready writes nothing but the in-memory requirements and a notify. Cases: requirementsWatch.test.ts \"a chat left while the checkpoint was applied is not saved into\", \"a chat left inside the debounce refreshes nothing for it\"."
+      "note": "v2.4 plan 02 §8 (2026-09-24). The between-turns requirements refresh the watch runs 250 ms after PERSONA_CHANGED / GROUP_UPDATED / WORLDINFO_SETTINGS_UPDATED. Its RunGuard is minted when the host event arrives (RequirementsWatch.schedule), so a chat left inside the debounce refreshes nothing; checked again after the hydrate apply (before persist) and after the persist (before notify). The hydrate apply itself is EffectsApplier.applyCheckpoint, which checks its own token before each host step. Ready -> not-ready writes nothing but the in-memory requirements and a notify. Cases: requirementsWatch.test.ts \"a chat left while the checkpoint was applied is not saved into\", \"a chat left inside the debounce refreshes nothing for it\"."
     },
     "src/runtime/rollback.ts#runRollback": {
       "status": "local",
@@ -820,6 +820,18 @@
     "src/runtime/playerSetupControl.ts#PlayerSetupControl.switchBack": {
       "status": "checked",
       "note": "v2.7 34: the persona-switch finding's Switch back. Re-checked after the select and after the lock, and both host calls receive the guard; it writes only the journal line and a notify."
+    },
+    "src/runtime/judge.ts#JudgeRuntime.tracked": {
+      "status": "local",
+      "note": "F-B1c-2 (2026-10-09): writes only the page-session count of open judge calls and wakes whenIdle waiters; no chat, story or extras state."
+    },
+    "src/runtime/vectorYield.ts#yieldingVectorHost.vectorInsert": {
+      "status": "local",
+      "note": "F-B1c-2 (2026-10-09): waits for the judge to go quiet, then forwards one chunk to the host insert into the caller's own scratch collection; holds no state."
+    },
+    "src/runtime/vectorYield.ts#yieldingVectorHost.vectorQuery": {
+      "status": "local",
+      "note": "F-B1c-2 (2026-10-09): waits for the judge to go quiet, then forwards the read to the host query; holds no state."
     }
   }
 }

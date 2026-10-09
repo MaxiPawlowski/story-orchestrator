@@ -4,6 +4,8 @@ import { clearStoryExtensionPrompt, getPlayerName, judgeLlamaComplete, judgeStat
 import type { JudgeTransport } from "@judge/index";
 import { SceneCoordinator } from "../coordinators/sceneCoordinator";
 import { JudgeRuntime } from "../judge";
+import { quietVectorsFor } from "../coordinatorHosts";
+import { VECTOR_YIELD_MAX_MS } from "../vectorYield";
 import { createTypedJudge } from "../typedRead";
 import { getGlobalSettings } from "../settingsStore";
 import { runtimeManager } from "../runtimeManager";
@@ -21,6 +23,7 @@ export const startJudge = (live: LiveParts, { chatLastId }: WindowAccess) => {
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
     ownership: runtimeManager.getOwnership(),
   });
+  quietVectorsFor(() => judgeRuntime.whenIdle(VECTOR_YIELD_MAX_MS));
   live.typedJudge = createTypedJudge(() => judgeRuntime);
   runtimeManager.attachJudge(judgeRuntime);
   return judgeRuntime;

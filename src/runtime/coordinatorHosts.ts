@@ -10,6 +10,7 @@ import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
 import { scanningPromptHost } from "./scanMemory";
 import { getGlobalSettings } from "./settingsStore";
 import { scanGatingActive } from "./worldInfoMode";
+import { yieldingVectorHost, type VectorQuiet } from "./vectorYield";
 import type {
   ChatHost, CuratorWiHost, InjectionHost, MirrorHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost, TokenHost, VectorHost,
 } from "./hostPorts";
@@ -38,7 +39,13 @@ const provisioningHost: ProvisioningHost = {
 
 const injectionHost: InjectionHost = { readInjectedPromptBlocks, getCharacterNameById };
 
-const vectorHost: VectorHost = { vectorQuery, vectorInsert, vectorPurge, capabilityState, source: DEFAULT_VECTOR_SOURCE };
+let vectorQuiet: VectorQuiet | null = null;
+
+export const quietVectorsFor = (quiet: VectorQuiet | null) => {
+  vectorQuiet = quiet;
+};
+
+const vectorHost: VectorHost = yieldingVectorHost({ vectorQuery, vectorInsert, vectorPurge, capabilityState, source: DEFAULT_VECTOR_SOURCE }, () => vectorQuiet);
 
 const tokenHost: TokenHost = { countTokens };
 

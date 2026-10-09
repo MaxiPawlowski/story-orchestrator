@@ -42,6 +42,8 @@ export class JudgeRuntime {
   private availability: { key: string; at: number; status: JudgeStatusLike | null } | null = null;
   private readonly served: JudgeServedModels = {};
   private readonly gate: JudgeGate;
+  private asking = 0;
+  private readonly idleWaiters = new Set<() => void>();
 
   constructor(private readonly deps: JudgeRuntimeDeps) {
     this.gate = deps.gate ?? createJudgeGate();
@@ -111,7 +113,31 @@ export class JudgeRuntime {
       return Promise.resolve({ ...sizes, answers: null, model: null, latencyMs: 0, fallback: "unavailable", cached: false });
     }
     const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model } : request;
-    return askJudge(transport, outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate, use: "probe" });
+    return this.tracked(() => askJudge(transport, outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate, use: "probe" }));
+  }
+
+  whenIdle(maxWaitMs: number): Promise<boolean> {
+    if (this.asking === 0) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const done = (idle: boolean) => {
+        clearTimeout(timer);
+        this.idleWaiters.delete(onIdle);
+        resolve(idle);
+      };
+      const onIdle = () => done(true);
+      const timer = setTimeout(() => done(false), maxWaitMs);
+      this.idleWaiters.add(onIdle);
+    });
+  }
+
+  private async tracked<T>(call: () => Promise<T>): Promise<T> {
+    this.asking += 1;
+    try {
+      return await call();
+    } finally {
+      this.asking -= 1;
+      if (this.asking === 0) [...this.idleWaiters].forEach((wake) => wake());
+    }
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
@@ -141,7 +167,11 @@ export class JudgeRuntime {
     this.deps.record(this.fallbackRecord(use, fallback, request, context));
   }
 
-  async ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
+  ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
+    return this.tracked(() => this.askOnce(use, request, options));
+  }
+
+  private async askOnce(use: string, request: JudgeRequest, options: JudgeAskOptions): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
     // The call belongs to the world it was ASKED in. Both the numbers it is stamped with and
     // the ring it lands in used to be read after the await, so a call started in one chat could be

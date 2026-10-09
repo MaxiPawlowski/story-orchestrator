@@ -130,7 +130,7 @@ describe("write-edge ownership census", () => {
   test("the census still finds the sites plan 03 was written against", () => {
     // A heuristic that silently stops matching turns this guard into a green light over nothing.
     expect(sites.length).toBeGreaterThanOrEqual(60);
-    expect(byKey.get("src/runtime/judge.ts#JudgeRuntime.ask")?.hasTokenCheck).toBe(true);
+    expect(byKey.get("src/runtime/judge.ts#JudgeRuntime.askOnce")?.hasTokenCheck).toBe(true);
   });
 });
 
