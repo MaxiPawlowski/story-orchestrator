@@ -66,6 +66,88 @@ The v2.7 close-out walks its gate records and adds any row missing here before v
 | C13-b | **SP8 digest or prompt changes — build** | exact promotion of the measured tiers/spans is v2.7 02 C13 (deterministic). **The W4 (b) digest measurement moved to v2.7 39 B1-C13b** (2026-10-07). Here: build the digest or prompt change only after B1-C13b passes ×2 | D impl; CL | the SP8 floors from `v2.6/03-sp8-restated.md`, re-run on the built change, never retuned |
 | ~~C14-b~~ | **Enlarged extraction inputs — moved** | already a v2.7 39 C5 acceptance row (acceptance, not a measurement); not repeated in B1 | — | v2.7 39 C5 |
 
+### C3 fix: Gate record (2026-10-09, branch `v2.8-warden-timeouts`)
+
+Finding F-B1c-2 (v2.7 39). The floor stays 1 timeout in 50 per use and the warden budget stays 4000 ms
+(`CONTINUITY_TIMEOUT_MS`). Neither was changed.
+
+**Cause per timeout.** These are the warden and lore-check (`wardenLore`) timeouts of the three B1 C3 plays: the 3090
+local variant (2026-10-08), B1 attempt 2 run 1 on the pods, and the restarted pod run. The calls come from
+`so-b1-judge-causes` (`calls.jsonl`) and the journal tail. Consolidation windows come from the `so_consol_<ms>`
+collection names in each lane's ST `server.log`.
+
+| Run | warden | wardenLore | ST busy with our consolidation embeddings | page stall after the answer arrived | queued behind a page-aborted call, or TypeSafe 429 retries |
+|---|---|---|---|---|---|
+| 3090 local variant | 7 / 118 | 2 / 114 | 9 | 0 | 0 |
+| attempt 2 run 1 (pods) | 7 / 114 | 3 / 108 | 8 | 2 | 0 |
+| pod restart | 11 / 151 | 3 / 141 | 10 | 0 | 4 |
+
+Each timeout falls into one of these three classes:
+
+1. **ST busy with our consolidation embeddings (27 of 33).** The call started 6–3,782 ms after a consolidation pass
+   opened its scratch collection. ST computes `transformers` embeddings on its own Node thread: `src/transformers.js`
+   sets the wasm backend to `numThreads = 1`, and the work ran at about 130 ms per text. A pass embedded the whole group
+   in one insert, then ran three parallel band queries per entry. The judged walk then did the same work a second time
+   for `wider`, which differs only in a Jaccard threshold. So the plugin did not get to serve the request: in the
+   samples its served count did not move for 4 s.
+   - On the 3090, warden calls that started inside a consolidation window timed out 7 times in 14. Calls outside one
+     timed out 0 times in 104.
+   - A probe on an idle lane (`probe.js`) measured the stall directly. A judge call with nothing else running took
+     about 250 ms. During a 40-text insert it took 5,336 ms, and ST did not answer a `/status` ping for 5,225 ms.
+     During three parallel queries a judge call took 1.1–1.8 s.
+2. **Page stall after the answer arrived (2).** The plugin answered in 2.6–2.9 s, but the page did not get to read the
+   answer until after 5 s. The page's budget timer then fired late and won the race.
+3. **Queued behind a page-aborted call, or TypeSafe 429 retries (4).** A call the page had given up on still held one
+   of the plugin's two per-user slots until TypeSafe answered (up to 10 s), so the next warden call queued behind it.
+   During the same stretch TypeSafe returned 429s (5–15 busy answers), and one call was retried.
+
+None was caused by request size: the warden request was 0.6–6.8 K state chars, far under the TypeSafe limits. None
+was the provider's latency tail either: on the scored runs provider p95 was 2.45 s (3090) and 2.75 s (attempt 2), inside
+the 4000 ms budget.
+
+**Fixes** (each with a deterministic test):
+
+| Commit | Fix | Test |
+|---|---|---|
+| `dca285e5` | Judge plugin 1.7.0. When the page closes a call, the plugin cancels the upstream request and frees the slot. A closed request also leaves the plugin queue (counted in `served.cancelled`, not as a refusal) and skips the 600 ms retry. The page now expects plugin 1.7.0. | `plugin.test.mjs`: four F-B1c-2 cases plus a control; three of them fail on the old plugin. |
+| `8b46324f` | Consolidation's vector requests wait while any judge call is open (`JudgeRuntime.whenIdle`, at most 15 s per wait, `runtime/vectorYield.ts`). Inserts go 4 texts per request, the three band queries run one at a time, and the judged walk reuses the single embedding pass (`buildConsolidationMatches`). | `runtime/wardenVectorCollision.review.test.ts`, with a control in which the same pass reaches the server while a warden call is open. Ownership census rows updated. |
+| `44bade38` | A judge budget timer that fires more than 250 ms late, because the page itself was blocked, waits once more for 1000 ms. This applies to both `askJudge`'s race and the transport's abort (`budgetTimer`). A timer that fires on time still times out at the budget. | `judge/stallGrace.test.ts`, with an on-time control. |
+
+**Live (owner's RTX 3090).** Controller `:18888` profile `fast` (32K, 1 slot, GGUF v1m), lane 10 seeded fresh with
+`adolion-fresh` (images and sprites off), ST `max_context` 32768, judge share 3. The play is the C3 journey from
+2026-10-08: SP6 saga, control arm, the shipped judge uses, warden `auto`. The scripts are `c3-run.sh` and
+`prep-local.sh`, copies of the b1c ones. These runs are diagnostic and never fill a manifest slot.
+
+| Run | Build | Turns | warden calls / timeouts | wardenLore calls / timeouts | `so-b1-judge-causes score --row B1-C3` |
+|---|---|---|---|---|---|
+| before: 3090 local variant, 2026-10-08 | `2e9ae27b` (bundle `a52734d6326e`) | 80 | 118 / 7 | 114 / 2 | FAIL |
+| after fixes 1 and 2 | `8b46324f` (bundle `d618f1c430c1`) | 75 | 118 / 1 | 112 / 1 | PASS |
+| after all three fixes | `44bade38` (bundle `a6be919c6438`) | 71 | 114 / 0 | 111 / 0 | PASS |
+
+- **Inside consolidation windows:** warden timed out 7 / 14 before, then 0 / 9 and 0 / 9 after.
+- **Residual timeouts in the middle run:**
+  - Warden timed out at 5,475 ms although its answer had arrived at 2,869 ms (page-stall class). Fix 3 covers this.
+  - wardenLore was never served within 4 s while nothing else was in flight and no consolidation was running. The
+    data cannot attribute this one, because the samples carry no server-side timing.
+- **Final run:** three answers arrived past the budget and were kept: warden 4,920 ms, wardenLore 5,520 ms and scene
+  5,272 ms.
+- **Not touched here:** director timeouts (36 of 155 in the middle run; budget 1500 ms against a p50 of about 960 ms).
+  This is a separate use and outside this item.
+- **Second ×2 leg:** still owed. The C3 gate (`so-judge timeouts` ×2) is two runs on one build; this record has one
+  run on each of two builds.
+
+Private evidence is in `test/sessions/evidence/phase-c/c3fix-2026-10-09/`, ready for `npm run sessions:archive`: the
+calls, journal, score records, lane server logs, probe results and the attribution scripts and output.
+
+**Gates.**
+
+- `npm run gates -- --no-storybook` on `44bade38`: all green in 362.6 s. The steps were build, typecheck,
+  typecheck:test, test:debug, debug:typecheck, lint, test:plugin, test:release, test:replay and test. jest ran 609
+  suites, 7,062 passed and 1 skipped. Storybook was skipped (`test-storybook:ci`).
+- `npm run typecheck:test`: clean.
+- The first gates run, on `8b46324f` before the version pin was bumped, was red at `pluginVersionCheck.test.ts`: the
+  page still expected judge plugin 1.6.0. `src/utils/pluginVersions.ts` now expects 1.7.0 (in `dca285e5`).
+
 ## C. SP2 re-commit after edit, v2 — option A (approved)
 
 **Absorbed (2026-10-07): built as v2.7 33 W1 (floors V0–V8 verbatim there); its live rows run in v2.7 39 (C4 J6 with W1
