@@ -92,7 +92,7 @@ describe("runtime/index.ts lore force point (v2.4 plan 05 T12c)", () => {
     expect(select).not.toHaveBeenCalled();
     await intercept("normal");
     expect(select).toHaveBeenCalledTimes(1);
-    expect(select).toHaveBeenCalledWith("GENERATION_STARTED");
+    expect(select).toHaveBeenCalledWith("GENERATION_STARTED", "normal");
   });
 
   it("the send path is unchanged: MESSAGE_SENT forces, the interceptor does not force again", async () => {
@@ -100,7 +100,7 @@ describe("runtime/index.ts lore force point (v2.4 plan 05 T12c)", () => {
     await emit("GENERATION_STARTED", "normal", {}, false);
     await emit("MESSAGE_SENT", 5);
     expect(select).toHaveBeenCalledTimes(1);
-    expect(select).toHaveBeenCalledWith("MESSAGE_SENT");
+    expect(select).toHaveBeenCalledWith("MESSAGE_SENT", undefined);
     await intercept("normal");
     expect(select).toHaveBeenCalledTimes(1);
   });
@@ -137,7 +137,7 @@ describe("runtime/index.ts lore force point (v2.4 plan 05 T12c)", () => {
     await emit("MESSAGE_SENT", 5);
     await intercept("normal");
     expect(select).toHaveBeenCalledTimes(1);
-    expect(select).toHaveBeenCalledWith("MESSAGE_SENT");
+    expect(select).toHaveBeenCalledWith("MESSAGE_SENT", undefined);
   });
 
   it("control: a dry run arms nothing, so its interceptor-free path never forces", async () => {

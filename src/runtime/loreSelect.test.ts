@@ -7,6 +7,7 @@ import { settledWindowAccess } from "./settledWindow";
 import { windowOf } from "@extraction/chatRows";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import { testOwnership } from "../../test/findings/testOwnership";
+import type { ScanBufferView } from "./loreKeyMatch";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -14,7 +15,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,}));
 
-const story = (loreSelect: Record<string, unknown> | undefined) => parseStoryV2OrThrow({
+const story = (loreSelect: Record<string, unknown> | undefined, roster: unknown[] = []) => parseStoryV2OrThrow({
   format: 2,
   id: "lore-fixture",
   title: "Lore",
@@ -22,7 +23,7 @@ const story = (loreSelect: Record<string, unknown> | undefined) => parseStoryV2O
   qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
   checkpoints: [{ id: "guild", name: "The Guild", objective: "Sign up.", type: "anchor", start: true }],
   transitions: [],
-  roster: [],
+  roster,
   ...(loreSelect ? { lore_select: loreSelect } : {}),
 });
 
@@ -30,7 +31,17 @@ const entry = (world: string, uid: number, patch: Partial<HostScannableEntry> = 
 const scannable = [entry("Story Lore", 1), entry("Story Lore", 2), entry("Story Lore", 3, { disable: true }), entry("Story Lore", 4, { constant: true }), entry("Other Lore", 5), entry("story lore", 6)];
 const P: Record<string, number> = { "Story Lore 1": 0.9, "Story Lore 2": 0.4, "Story Lore 3": 0.99, "story lore 6": 0.8 };
 
-const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Record<string, unknown>; fail?: boolean; forceFails?: boolean; window?: () => Array<{ speaker: string; text: string }> } = {}) => {
+const setup = (options: {
+  uses?: Partial<JudgeSettings["uses"]>;
+  loreSelect?: Record<string, unknown>;
+  fail?: boolean;
+  forceFails?: boolean;
+  window?: () => Array<{ speaker: string; text: string }>;
+  entries?: HostScannableEntry[];
+  buffer?: (type?: string) => ScanBufferView | null;
+  drafted?: () => string | null;
+  roster?: unknown[];
+} = {}) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, loreSelect: true, ...options.uses } };
   let lastMessageId = 4;
   const requests: JudgeRequest[] = [];
@@ -54,14 +65,16 @@ const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Re
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const selector = new LoreSelector({
     judge: () => judge,
-    getStory: () => ({ ...story("loreSelect" in options ? options.loreSelect : { lorebooks: ["Story Lore"] }), id: storyId }),
+    getStory: () => ({ ...story("loreSelect" in options ? options.loreSelect : { lorebooks: ["Story Lore"] }, options.roster), id: storyId }),
     getState: () => ({ activeCheckpointId: "guild" }) as unknown as EngineState,
     getWindow: options.window ?? (() => [{ speaker: "Max", text: `Who runs this place? (${lastMessageId})` }]),
     getChatId: () => "chat-1",
     getLastMessageId: () => lastMessageId,
-    getEntries: async () => scannable,
+    getEntries: async () => options.entries ?? scannable,
     force: async (entries) => { forced.push(entries); return options.forceFails ? { ok: false as const, reason: "the scan was refused" } : { ok: true as const, entries: entries.length }; },
     ownership,
+    ...(options.buffer ? { getScanBuffer: options.buffer } : {}),
+    ...(options.drafted ? { getDrafted: options.drafted } : {}),
   });
   return {
     selector, requests, records, forced, context,
@@ -84,7 +97,7 @@ describe("LoreSelector (v2.2 plan 04)", () => {
     const selection = await env.selector.select("MESSAGE_SENT");
     const asked = Object.values(env.requests[0].questions).map((question) => question.instructions.match(/Entry "([^"]+)"/)?.[1]);
     expect(asked).toEqual(["Story Lore 1", "Story Lore 2", "story lore 6"]);
-    expect(selection).toEqual({ trigger: "MESSAGE_SENT", cached: false, picks: [{ world: "Story Lore", uid: 1, comment: "Story Lore 1", p: 0.9 }, { world: "story lore", uid: 6, comment: "story lore 6", p: 0.8 }] });
+    expect(selection).toEqual({ trigger: "MESSAGE_SENT", cached: false, picks: [{ world: "Story Lore", uid: 1, comment: "Story Lore 1", p: 0.9 }, { world: "story lore", uid: 6, comment: "story lore 6", p: 0.8 }], left: [] });
     expect(env.forced).toEqual([[scannable[0], scannable[5]]]);
     expect(env.records).toEqual([{ use: "lore", p: { trigger: "MESSAGE_SENT", "Story Lore 1": 0.9, "story lore 6": 0.8 } }]);
   });
@@ -147,7 +160,7 @@ describe("L5: the complete selection exclusive mode may act on", () => {
   it("records this generation's picks only when every chunk answered and the force landed", async () => {
     const env = setup();
     await env.selector.select("MESSAGE_SENT");
-    expect(env.selector.completeSelection()).toEqual({ chatId: "chat-1", storyKey: expect.stringMatching(/^lore-fixture@[0-9a-f]{8}$/), messageId: 4, picks: [{ world: "Story Lore", uid: 1 }, { world: "story lore", uid: 6 }] });
+    expect(env.selector.completeSelection()).toEqual({ chatId: "chat-1", storyKey: expect.stringMatching(/^lore-fixture@[0-9a-f]{8}$/), messageId: 4, picks: [{ world: "Story Lore", uid: 1 }, { world: "story lore", uid: 6 }], left: [] });
   });
 
   it("X3: a judge that did not answer leaves no selection, so the keyword scan stands", async () => {
@@ -193,5 +206,78 @@ describe("Sol finding 10: a discarded swipe cannot steer lore selection", () => 
     const raw = setup({ window: () => swiping.map((row) => ({ speaker: row.name, text: row.mes })) });
     await raw.selector.select("GENERATION_STARTED");
     expect(JSON.stringify(raw.requests)).toContain("cellar key");
+  });
+});
+
+const buffer = (messages: string[], patch: Partial<ScanBufferView> = {}): ScanBufferView => ({ messages, depth: 2, caseSensitive: false, matchWholeWords: true, ...patch });
+const keyed = (uid: number, key: string[], patch: Partial<HostScannableEntry> = {}) => entry("Story Lore", uid, { key, ...patch });
+
+describe("R12: entries ST's own scan already settles never reach the judge", () => {
+  const asked = (env: ReturnType<typeof setup>) => env.requests.flatMap((request) => Object.values(request.questions).map((question) => question.instructions.match(/Entry "([^"]+)"/)?.[1]));
+  const entries = [keyed(1, ["harbour"]), keyed(2, ["lighthouse"]), keyed(3, ["Arin"]), keyed(4, ["the Warden"])];
+
+  it("drops an entry whose keyword is in this generation's scan buffer, and records it as left to the scan", async () => {
+    const env = setup({ entries, buffer: () => buffer(["Max: we sail from the harbour at dawn", "Mara: welcome aboard"]) });
+    const selection = await env.selector.select("MESSAGE_SENT");
+    expect(asked(env)).toEqual(["Story Lore 2", "Story Lore 3", "Story Lore 4"]);
+    expect(selection?.left).toEqual([{ world: "Story Lore", uid: 1, comment: "Story Lore 1", reason: "keyword" }]);
+    expect(env.selector.completeSelection()?.left).toEqual([{ world: "Story Lore", uid: 1 }]);
+  });
+
+  it("drops an entry about the drafted member, by card name or roster alias", async () => {
+    const roster = [{ id: "arin", name: "Arin", role: "guide" }, { id: "keeper", name: "Old Keeper", aliases: ["the Warden"], role: "keeper" }];
+    const arin = setup({ entries, roster, drafted: () => "Arin" });
+    await arin.selector.select("GENERATION_STARTED");
+    expect(asked(arin)).toEqual(["Story Lore 1", "Story Lore 2", "Story Lore 4"]);
+    const keeper = setup({ entries, roster, drafted: () => "Old Keeper" });
+    await keeper.selector.select("GENERATION_STARTED");
+    expect(asked(keeper)).toEqual(["Story Lore 1", "Story Lore 2", "Story Lore 3"]);
+  });
+
+  it("control: with no scan buffer and no drafted member every candidate is asked about", async () => {
+    const env = setup({ entries });
+    await env.selector.select("MESSAGE_SENT");
+    expect(asked(env)).toEqual(["Story Lore 1", "Story Lore 2", "Story Lore 3", "Story Lore 4"]);
+  });
+
+  it("keeps the picks of the entries it still asks about", async () => {
+    const all = setup({ entries: [...entries, keyed(5, ["unrelated"], { comment: "Story Lore 2" })] });
+    const filtered = setup({ entries: [...entries, keyed(5, ["unrelated"], { comment: "Story Lore 2" })], buffer: () => buffer(["Max: the harbour"]) });
+    const before = (await all.selector.select("MESSAGE_SENT"))?.picks.filter((pick) => pick.uid !== 1);
+    const after = (await filtered.selector.select("MESSAGE_SENT"))?.picks;
+    expect(after).toEqual(before);
+  });
+
+  it("a different drafted member at the same message is a different selection, never a cached one", async () => {
+    let drafted = "Arin";
+    const env = setup({ entries, roster: [{ id: "arin", name: "Arin" }, { id: "mara", name: "Mara" }], drafted: () => drafted });
+    await env.selector.select("GENERATION_STARTED");
+    drafted = "Mara";
+    expect((await env.selector.select("GENERATION_STARTED"))?.cached).toBe(false);
+  });
+
+  it("a swipe reads the buffer without the reply it replaces", async () => {
+    const types: Array<string | undefined> = [];
+    const env = setup({ entries, buffer: (type) => { types.push(type); return null; } });
+    await env.selector.select("GENERATION_STARTED", "swipe");
+    expect(types).toEqual(["swipe"]);
+  });
+
+  it("measured: calls per reply on a 263-candidate library, before and after", async () => {
+    const library = Array.from({ length: 263 }, (_, index) => keyed(index + 1, [`topic${index + 1}`]));
+    const cast = ["Arin", "Mara", "Old Keeper", "Max"];
+    library.push(...cast.map((name, index) => keyed(300 + index, [name])));
+    const mentioned = Array.from({ length: 24 }, (_, index) => `topic${index * 10 + 1}`);
+    const scan = () => buffer([`Mara: about ${mentioned.slice(0, 12).join(", ")}`, `Max: and ${mentioned.slice(12).join(", ")}`, "Arin: earlier"]);
+    const roster = cast.map((name) => ({ id: name.toLowerCase().replace(/\s+/g, "-"), name }));
+    const before = setup({ entries: library, roster });
+    await before.selector.select("GENERATION_STARTED");
+    const after = setup({ entries: library, roster, buffer: scan, drafted: () => "Arin" });
+    const selection = await after.selector.select("GENERATION_STARTED");
+    const rated = (env: ReturnType<typeof setup>) => env.requests.reduce((sum, request) => sum + Object.keys(request.questions).length, 0);
+    expect({ before: { candidates: rated(before), calls: before.requests.length }, after: { candidates: rated(after), calls: after.requests.length } })
+      .toEqual({ before: { candidates: 267, calls: 5 }, after: { candidates: 240, calls: 4 } });
+    expect(selection?.left.filter((item) => item.reason === "keyword")).toHaveLength(26);
+    expect(selection?.left.filter((item) => item.reason === "self")).toHaveLength(1);
   });
 });

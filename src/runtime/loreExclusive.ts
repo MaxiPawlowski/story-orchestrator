@@ -51,7 +51,7 @@ export function loreExclusiveFor(sources: LoreExclusiveSources): LoreExclusivePl
   return {
     refusal: null,
     books: new Set(story.lore_select.lorebooks.map(bookKey)),
-    picks: new Set(selection.picks.map((pick) => entryKey(pick.world, pick.uid))),
+    picks: new Set([...selection.picks, ...selection.left].map((pick) => entryKey(pick.world, pick.uid))),
     gated,
   };
 }

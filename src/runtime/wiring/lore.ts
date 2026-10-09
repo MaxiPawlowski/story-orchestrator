@@ -1,4 +1,4 @@
-import { forceActivateEntries, getContext, getScannableEntries, settingsReady, willAddUserMessage } from "@services/STAPI";
+import { draftedCardName, forceActivateEntries, getContext, getScannableEntries, readScanBuffer, settingsReady, willAddUserMessage } from "@services/STAPI";
 import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
 import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
@@ -71,6 +71,8 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     getLastMessageId: chatLastId,
     getEntries: getScannableEntries,
     force: forceActivateEntries,
+    getScanBuffer: readScanBuffer,
+    getDrafted: draftedCardName,
     ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
@@ -108,7 +110,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     selection: () => lore.completeSelection(),
   });
 
-  const select = (trigger: LoreSelectTrigger) => lore.select(trigger)
+  const select = (trigger: LoreSelectTrigger, generationType?: string) => lore.select(trigger, generationType)
     .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
     .catch((error) => log.warn("lore-select failed", error));
   const { onGenerationStarted, onIntercept, onMessageSent } = loreSelectTiming({ active: () => lore.active(), willAddUserMessage, select });

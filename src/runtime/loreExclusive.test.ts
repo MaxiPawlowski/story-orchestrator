@@ -39,7 +39,7 @@ const sources = (patch: Partial<LoreExclusiveSources> = {}): LoreExclusiveSource
   messageId: () => 4,
   loud: () => true,
   vectorsScanWorldInfo: () => false,
-  selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 4, picks: [{ world: "story lore", uid: 1 }] }),
+  selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 4, picks: [{ world: "story lore", uid: 1 }], left: [] }),
   ...patch,
 });
 
@@ -71,6 +71,18 @@ describe("L5: exclusive lore-select on the scan copies", () => {
     expect(stats).toEqual({ suppressed: 1, picked: 1, constant: 1, gated: 1, timed: 3, missingKey: 1 });
   });
 
+  it("R12: an entry the selection left to ST's own scan (keyword or the drafted member) is never suppressed", () => {
+    const scan = arrays();
+    applyLoreExclusive(scan, loreExclusiveFor(sources({ selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 4, picks: [{ world: "story lore", uid: 1 }], left: [{ world: "Story Lore", uid: 2 }] }) })));
+    expect(scan[0][1]).toMatchObject({ comment: "not picked", disable: false });
+  });
+
+  it("control (R12): the same entry, not left, is suppressed", () => {
+    const scan = arrays();
+    applyLoreExclusive(scan, loreExclusiveFor(sources()));
+    expect(scan[0][1]).toMatchObject({ comment: "not picked", disable: true });
+  });
+
   it("X4: a gated-on entry the judge did not pick stays active", () => {
     const scan = arrays();
     applyLoreExclusive(scan, loreExclusiveFor(sources()));
@@ -91,9 +103,9 @@ describe("L5: exclusive lore-select on the scan copies", () => {
     ["not-loud", { loud: () => false }],
     ["vectors-wi", { vectorsScanWorldInfo: () => true }],
     ["no-selection", { selection: () => null }],
-    ["no-selection", { selection: () => ({ chatId: "chat-2", storyKey: LX_KEY, messageId: 4, picks: [] }) }],
-    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: "other@0", messageId: 4, picks: [] }) }],
-    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 3, picks: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-2", storyKey: LX_KEY, messageId: 4, picks: [], left: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: "other@0", messageId: 4, picks: [], left: [] }) }],
+    ["no-selection", { selection: () => ({ chatId: "chat-1", storyKey: LX_KEY, messageId: 3, picks: [], left: [] }) }],
   ] as Array<[string, Partial<LoreExclusiveSources>]>)("X3/X5: refused (%s) leaves the keyword scan exactly as loaded", (reason, patch) => {
     const scan = arrays();
     const before = JSON.stringify(scan);
