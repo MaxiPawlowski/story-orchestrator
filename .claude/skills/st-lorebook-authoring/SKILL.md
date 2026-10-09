@@ -66,9 +66,32 @@ dry-run scan on 2026-09-18.
 10. **Macros resolve in keys and in content** (`world-info.js:4915`, `5058`). `{{char}}`,
     `{{getvar::x}}` and our `{{story_*}}` macros all work. A key that resolves to empty never matches.
 11. **Author's Note positions (↑AN/↓AN)** are inserted only on turns where the Author's Note itself is
-    inserted, so an interval above 1 skips them (`authors-note.js:351-362`, `world-info.js:5268`).
-12. **Timed effects are matched by a hash of the whole entry.** Any edit or toggle of an entry clears
-    its running sticky or cooldown (`world-info.js:624`, `4631-4633`).
+    inserted. They are dropped outside a chat, when the interval is 0, on every turn the interval skips,
+    and before the first user message unless the interval is exactly 1 (`authors-note.js:324-362`,
+    `world-info.js:5268`; lorebook-mechanics.md §5).
+12. **Timed effects are matched by a hash of the whole entry.** An edit or toggle of an entry
+    **suspends** its running sticky or cooldown, it does not clear it: the old record stops matching,
+    still sits under `world.uid`, and blocks a new one from being armed until its old `end` passes and
+    it is swept (`world-info.js:624-637`, `718`, `4630-4633`; lorebook-mechanics.md §7).
+13. **Outlets run in descending `order`.** Every other slot is ascending (entries are sorted
+    descending and `unshift`ed), but outlet text is `push`ed, so the higher `order` comes first inside
+    `{{outlet::name}}` (`world-info.js:5203`, `5248-5256`; lorebook-mechanics.md §5).
+14. **The "group already won" block compares the whole `group` string.** If an entry whose `group`
+    equals a label activated in an earlier loop, every member of that label is dropped; an earlier
+    winner labelled `a,b` does not block label `a` (`world-info.js:5431-5435`; lorebook-mechanics.md §6).
+    Use one label per entry when that blocking matters.
+15. **Card books default `selective: false`.** "Import Card Lore" converts an embedded
+    `character_book` with `selective: entry.selective || false`, so a card entry without the flag
+    silently drops its secondary keys; the editor template default is `true`
+    (`world-info.js:4089`, `5634`). An embedded `character_book` is never scanned until it is imported
+    and linked (`5731-5770`).
+16. **Depth 0 blanks the whole buffer**, including match sources, the inject buffer (Author's Note,
+    our scanned blocks) and recursion (`world-info.js:281-283`). See fact 2.
+17. **Sort and strategy default.** `getSortedEntries` orders chat lore, then persona lore, then
+    character and global lore by `world_info_character_strategy` (code fallback and fresh install:
+    `1`, character first, not "Sorted Evenly"), each by descending `order` (`world-info.js:80`,
+    `4606-4625`, `default/content/settings.json:21`). That list position, after sticky, is the budget
+    priority (`4994-5003`).
 
 ## Workflow: writing an entry
 
@@ -102,8 +125,12 @@ dry-run scan on 2026-09-18.
 
 ## Checklist before handing off a lorebook
 
-- [ ] The book is **active** where it's needed. `requirements.lorebooks` accepts only **globally
-      selected** books (`src/runtime/requirements.ts:16-20`).
+- [ ] The book is **scanned** where it's needed. A `requirements.lorebooks` entry is met by any book
+      ST scans for the chat: globally selected, the chat's own slot (not the chat's mirror book in file
+      mode), the persona's book, a book bound on every enabled member, or, when the host orders scan
+      listeners, any book the story lists, which the runtime appends to that story's own chats
+      (`src/runtime/requirementsRead.ts:28-40`, `src/runtime/storyLore.ts`; lorebook-mechanics.md §14.1,
+      §14.8). Never select a story book globally: it then leaks into every other story's chats.
 - [ ] Every entry has every template field, a unique non-empty `comment`, an explicit `position`, and
       an object key equal to `String(uid)`.
 - [ ] Keys cover the forms that will actually appear in the last `scanDepth` messages. Regex keys
@@ -138,13 +165,17 @@ Details: scripting-and-api.md.
 ## Project hooks
 
 - **Host seams**: `src/services/stHost/worldInfo.ts` provides `listAllLorebooks`, `lorebookExists`,
-  `listSelectedLorebooks`, `createLorebook`, `activateGlobalLorebook`, `loadLorebook`,
-  `enableWIEntry`/`disableWIEntry`, and `upsertWIEntry`. `stHost/selectors.ts` provides
-  `listGlobalLorebooks`, which intersects the selection with the books that exist. The only import
-  path is `src/services/STAPI.ts:34`.
-- **Story effects**: `effects.world_info: {enable|disable: [{lorebook, comments}]}` flips `disable` on
-  entries matched by trimmed `comment` (`src/runtime/effectsApplier.ts:63-78`). **No effects run at all
-  while the requirements aren't ready** (`effectsApplier.ts:110`). Working example:
+  `listSelectedLorebooks`, `createLorebook` (creates only, never selects), `ensureLorebook`,
+  `deactivateGlobalLorebook`, `loadLorebook`, `setWIEntriesState` (one batched, read-back write per
+  book; `enableWIEntry`/`disableWIEntry` wrap it), `updateWIEntryByUid` and `upsertWIEntry`. There is
+  no `activateGlobalLorebook`: the product never selects a story book globally (2026-10-02, T5-2-2).
+  `stHost/selectors.ts` provides `listGlobalLorebooks`. The only import path is `src/services/STAPI.ts`.
+- **Story effects**: `effects.world_info: {enable|disable: [{lorebook, comments}]}` names entries by
+  trimmed `comment`; every entry any checkpoint names is the story's gated set, rebuilt from the chat's
+  path. **Per chat (scan mode) is the default since 2026-10-09**: the set rests off in its files and
+  each scan's own copy is switched on along the path, with no file write; file mode (the author's
+  explicit choice) writes the flags instead (lorebook-mechanics.md §14.2-14.3). **No world info is
+  applied while the requirements aren't ready.** Working example:
   `examples/sun-ruins/Xentar Checkpoints.json`.
 - **Wizard provisioning**: `upsertLorebookEntry {lorebook, comment, keys, content, constant?}` is
   allowed only into the story's own lorebooks (`src/wizard/provisioning.ts:34-39`). It can't set
@@ -153,18 +184,28 @@ Details: scripting-and-api.md.
   When writing the wizard prompt (`src/copilot/prompts.ts:47-52`), ask for self-contained content
   and keys that cover the forms that will actually appear.
 - **Curator**: it only sees and writes entries with a non-empty `comment` in the books listed under
-  `stagecraft.lorebooks` (`src/stagecraft/scope.ts:7-28`). Its prompt's closed vocabulary is those
-  titles (`src/stagecraft/prompt.ts`). `upsertWIEntry` re-enables what it writes, so the coordinator
-  disables again afterwards (`stagecraftCoordinator.ts:215-221`).
+  `stagecraft.lorebooks`, minus checkpoint-gated entries and `stagecraft.exclude`
+  (`src/stagecraft/scope.ts:7-49`). Its prompt's closed vocabulary is those titles
+  (`src/stagecraft/prompt.ts`). It writes through `updateWIEntryByUid`, which touches only `content`
+  and `disable` by uid; a text op keeps the entry's current `disable` state, and the pre-write content
+  and flag are recorded so a rollback restores them (`src/runtime/curatorWriter.ts:47-87`, `110-140`;
+  lorebook-mechanics.md §14.6). It never upserts and never re-enables.
 - **Memory mirror**: one book per chat, `Story Orchestrator - <title> - <chatId>`, with comments
   `so_<id>` and keys set to the entities (`src/runtime/memoryMirror.ts`). It is created through
-  `ensureLorebook` and bound to that chat's lorebook slot (never activated globally), unless the user
-  already bound a book of their own there. Scene summaries carry no keys, so only relationships fire.
-- **What our code never scans**: our injected blocks use `scan: false`
-  (`src/services/stHost/extensionPrompts.ts:24`), so memory and steering text never trigger entries.
-  Our LLM passes use Connection Manager `sendRequest`, which runs no World Info
-  (`public/scripts/extensions/shared.js:423-482`). `/comment` transition notes are `is_system`, so
-  they aren't scanned either.
+  `ensureLorebook` and never activated globally. In scan mode (the default) it is not bound: its
+  enabled `so_` entries are appended to the owning chat's `chatLore` at scan time; in file mode it is
+  bound to that chat's lorebook slot unless the user already bound a book there (`src/runtime/mirrorScan.ts`;
+  lorebook-mechanics.md §14.5). Only live relationship rows are mirrored.
+- **What our scan sees**: with `worldInfo.scanMemory` on (the default) three of our blocks are
+  registered with `scan: true`: established facts, scene history and checkpoint guidance
+  (`src/constants/injectionRegistry.ts:16`, `19`, `25`, `src/runtime/scanMemory.ts`,
+  `src/services/stHost/extensionPrompts.ts:44-51`), so their text can key-match entries. Private
+  per-member knowledge is never scannable. Our LLM passes use Connection Manager `sendRequest`, which
+  runs no World Info (`public/scripts/extensions/shared.js:423-482`). `/comment` transition notes are
+  `is_system`, so they aren't scanned.
+- **Lore select** (`lore_select`): the judge rates entries of the listed books and forces its picks;
+  an entry ST's keyword scan is certain to activate, or one keyed by the drafted member's own name or
+  alias, is left to the scan and never rated (`src/runtime/loreKeyMatch.ts`; lorebook-mechanics.md §14.4).
 - **Macros in content**: story macros such as `{{story_player_name}}` expand inside entries, as the
   Xentar book does.
 - **Debug**: `node scripts/debug/st-actions.mts wi-status <book> <comment>`, `st-payload.mts arm|last`,
@@ -179,6 +220,9 @@ Details: scripting-and-api.md.
 - `references/activation-internals.md`: the scan step by step, with line references (buffer, gate
   order, groups, budget, recursion, placement, timed effects, events). Open it when behaviour surprises
   you.
+- `docs/authoring/lorebook-mechanics.md`: the source-verified capability reference (ST 1.19.0) and how
+  Story Orchestrator layers on top (story-scoped lore, gating modes, lore select, mirror, curator). It
+  wins over this skill and the vendored docs where they disagree (its §16).
 - `references/troubleshooting.md`: the console log dictionary, a dry-run recipe, and tables for
   "doesn't fire", "fires when it shouldn't" and "ignored by the model", plus project-specific failures.
 - `references/patterns.md`: recipes for keyword lore, constant steering, checkpoint gating, groups, a

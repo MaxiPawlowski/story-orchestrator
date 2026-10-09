@@ -54,8 +54,10 @@ was unknown. Each entry also gets a hash of its whole JSON (`4631-4633`), which 
   which includes the quiet prompt of a quiet generation (`script.js:4623`), the Author's Note when
   "allow WI scan" is on, and Data Bank injections set to "Include in World Info Scanning"; and the
   recursion buffer, except during min-activations sweeps (`322-325`).
-- **Our injected blocks are registered with `scan: false`** (`src/services/stHost/extensionPrompts.ts:24`),
-  so memory, canon and steering text never trigger an entry.
+- **Three of our blocks are registered with `scan: true`** while `worldInfo.scanMemory` is on (the
+  default): established facts, scene history and checkpoint guidance (`src/constants/injectionRegistry.ts:16`,
+  `19`, `25`, `src/services/stHost/extensionPrompts.ts:44-51`), so their text can trigger an entry.
+  Every other block, and private per-member knowledge, is `scan: false` (lorebook-mechanics.md §14.8).
 
 ## 3. Per-entry gate, in order (`4796-4989`)
 
@@ -123,15 +125,17 @@ was unknown. Each entry also gets a hash of its whole JSON (`4631-4633`), which 
 
 - Activated entries are sorted by `order` descending, and each one is `unshift`ed into its slot. The
   result is **ascending order within a slot**: order 10 comes before order 200. The dry run confirmed
-  this.
+  this. **Outlets are the exception**: their text is `push`ed, so the higher `order` comes first
+  (`5248-5256`).
 - **World Info regex scripts** (placement 5, `extensions/regex/engine.js:290`) run now, with `depth`
   set for @D entries (`5204-5205`). That's *after* activation, so recursion saw the un-regexed text.
 - Empty content is dropped. @D entries are grouped by `(depth, role)` (`5235-5246`) and injected in
   the chat as extension prompts (`script.js:4668-4672`). Outlets are stored under
   `{{outlet::name}}` (`script.js:4674-4677`).
 - The Author's Note positions (2/3) are spliced into the Author's Note **only when `shouldWIAddPrompt`
-  is true** (`5268-5272`). That flag is false when the Author's Note interval is 0, and false on
-  off-interval turns (`authors-note.js:351-362`).
+  is true** (`5268-5272`). That flag is false outside a chat, when the Author's Note interval is 0, on
+  off-interval turns, and before the first user message unless the interval is exactly 1
+  (`authors-note.js:324-362`).
 - Chat Completion puts the ↑Char/↓Char text at the Prompt Manager markers `worldInfoBefore` and
   `worldInfoAfter`, wherever you've dragged them (`openai.js:1376-1377`), and wraps it in the World
   Info format template `{0}` (`openai.js:789-801`). Text Completion uses `{{wiBefore}}` and
@@ -142,8 +146,11 @@ was unknown. Each entry also gets a hash of its whole JSON (`4631-4633`), which 
 - State lives in `chat_metadata.timedWorldInfo.{sticky,cooldown}[`${world}.${uid}`] = {hash, start, end, protected}`.
   `start` is the scan-chat length at activation. `end` is `start + N` (`604-611`).
 - **An effect is matched to its entry by hash** (`624`), and the hash covers the whole entry JSON
-  (`4631-4633`). Any save that changes the entry drops its running sticky or cooldown. That includes
-  our `enableWIEntry`/`disableWIEntry` toggles and `upsertWIEntry` rewrites.
+  (`4631-4633`). Any save that changes the entry **suspends** its running sticky or cooldown: the old
+  record stops matching but still sits under `world.uid`, so a new one cannot be armed (`718`) until the
+  old `end` passes and it is swept (`632-637`). That includes file-mode gate toggles, curator writes and
+  `upsertWIEntry` rewrites; scan-mode gating changes only the scan copy's hash (lorebook-mechanics.md §7,
+  §14.3).
 - An effect is removed when the chat hasn't advanced past `start`, for example after a swipe or a
   delete (`626-629`).
 - When sticky ends, cooldown starts immediately (`518-529`).
