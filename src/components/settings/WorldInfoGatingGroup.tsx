@@ -33,7 +33,7 @@ const WiGatingAuthorDetail = ({ status, unavailable }: { status: WiGatingStatus 
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
 // re-normalise button is its one action.
 export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize, scanMemory, onScanMemory }: WorldInfoGatingGroupProps) {
-  const mode = status?.mode ?? "file";
+  const mode = status?.mode ?? "scan";
   const busy = status?.busy ?? false;
   const unavailable = mode === "scan" && status?.capability && status.capability.state !== "present" ? status.capability : null;
   const fixable = [...(status?.drift ?? []), ...(status?.missingKey ?? [])];

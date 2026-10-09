@@ -94,10 +94,22 @@ function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
   return matched;
 }
 
-async function setWIEntryDisabledState(lorebook: string, comments: string | string[], disabled: boolean): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {
+export interface WIEntrySwitches {
+  enable?: string | string[];
+  disable?: string | string[];
+}
+
+const listOf = (value: string | string[] | undefined) => trimStringList(value === undefined ? [] : Array.isArray(value) ? value : [value]);
+
+const restsOff = (entry: LoreEntry) => entry.disable === true;
+
+export async function setWIEntriesState(lorebook: string, switches: WIEntrySwitches): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {
   if (!lorebook) return couldNot("no lorebook was named");
-  const commentList = trimStringList(Array.isArray(comments) ? comments : [comments]);
-  if (!commentList.length) return couldNot("no entry was named");
+  const wanted = [
+    ...listOf(switches.disable).map((comment) => ({ comment, disabled: true })),
+    ...listOf(switches.enable).map((comment) => ({ comment, disabled: false })),
+  ];
+  if (!wanted.length) return couldNot("no entry was named");
 
   const book = await loadExisting(lorebook);
   if (!book) {
@@ -105,19 +117,22 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
     return couldNot(`there is no lorebook "${lorebook}"`);
   }
 
-  const matched = findMatchedLoreEntries(book.data, commentList);
-  for (const comment of commentList) {
-    if (!matched.some((entry) => entry.comment === comment)) {
-      log.warn("world info: no matching world info entry found", { lorebook, comment });
-    }
+  const target = new Map<number, { comment: string; disabled: boolean }>();
+  const unmatched: string[] = [];
+  for (const { comment, disabled } of wanted) {
+    const [found] = findMatchedLoreEntries(book.data, [comment]);
+    if (!found) unmatched.push(comment);
+    else target.set(found.uid, { comment, disabled });
   }
-  if (!matched.length) return couldNot(`"${commentList.join("\", \"")}" is not in "${lorebook}"`);
+  unmatched.forEach((comment) => log.warn("world info: no matching world info entry found", { lorebook, comment }));
+  if (!target.size) return couldNot(`"${unmatched.join("\", \"")}" is not in "${lorebook}"`);
 
   let changed = false;
-  for (const entry of matched) {
-    const target = book.data.entries[entry.uid];
-    if (!target || target.disable === disabled) continue;
-    target.disable = disabled;
+  for (const [uid, { disabled }] of target) {
+    const entry = book.data.entries[uid];
+    if (!entry) continue;
+    if (disabled ? entry.disable === true : !restsOff(entry)) continue;
+    entry.disable = disabled;
     changed = true;
   }
   if (!changed) return wrote({ changed: false });
@@ -128,20 +143,20 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
   }
   const onServer = await readServerLorebook(book.name);
   if (!onServer) return wrote({ changed: true, confirmed: false });
-  const lost = matched.filter((entry) => onServer.entries[entry.uid] && onServer.entries[entry.uid].disable !== disabled);
+  const lost = [...target].filter(([uid, { disabled }]) => onServer.entries[uid] && restsOff(onServer.entries[uid]) !== disabled);
   if (lost.length) {
     worldInfoModule.worldInfoCache.delete(book.name);
-    return couldNot(`"${lorebook}" was saved, but the server still holds the old flag on "${lost.map((entry) => entry.comment).join("\", \"")}", so the write was lost`);
+    return couldNot(`"${lorebook}" was saved, but the server still holds the old flag on "${lost.map(([, entry]) => entry.comment).join("\", \"")}", so the write was lost`);
   }
   return wrote({ changed: true, confirmed: true });
 }
 
 export async function enableWIEntry(lorebook: string, comments: string | string[]) {
-  return setWIEntryDisabledState(lorebook, comments, false);
+  return setWIEntriesState(lorebook, { enable: comments });
 }
 
 export async function disableWIEntry(lorebook: string, comments: string | string[]) {
-  return setWIEntryDisabledState(lorebook, comments, true);
+  return setWIEntriesState(lorebook, { disable: comments });
 }
 
 export type WIUpsertResult = "created" | "updated" | "unchanged" | "failed";

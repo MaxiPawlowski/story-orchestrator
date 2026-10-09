@@ -11,10 +11,10 @@ const deferred = () => {
   return { promise, release };
 };
 
-const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capability?: "present" | "absent"; library?: unknown[]; ledger?: Record<string, string[]> } = {}) => {
-  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [] };
+const harness = (options: { mode?: "file" | "scan"; chosen?: boolean; confirm?: boolean; capability?: "present" | "absent"; library?: unknown[]; ledger?: Record<string, string[]> } = {}) => {
+  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", gatingChosen: options.chosen ?? true, normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [] };
   const disk = new Map<string, Map<string, boolean | null>>([
-    ["Ruins", new Map<string, boolean | null>([["CP1", false], ["CP2", false], ["Other", false]])],
+    ["Ruins", new Map<string, boolean | null>([["CP1", false], ["CP2", false], ["Other", false], ["Off by hand", true], ["No key", null]])],
   ]);
   const events: string[] = [];
   const toasts: string[] = [];
@@ -157,12 +157,12 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
   it("a gated set grown by the author's own save is normalised without a second confirm, with a toast and a journal line", async () => {
     const h = harness();
     await h.gating.requestScan();
-    expect(h.toasts).toEqual([]);
+    h.toasts.length = 0;
     h.library.value = [story({ Ruins: ["CP1", "CP2"] })];
     await h.gating.sync();
     expect(h.events.filter((event) => event.startsWith("confirm"))).toHaveLength(1);
     expect(h.events).toContain("disable:Ruins:CP2");
-    expect(h.toasts).toEqual(["Story lorebook entries now rest off: Ruins: CP2"]);
+    expect(h.toasts).toEqual(["1 story lorebook entry now rests off in 1 lorebook; each chat switches on its own story's entries."]);
     expect(h.journal).toContainEqual(["lorebook entries now rest off", "Ruins: CP2"]);
   });
 
@@ -171,7 +171,7 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     await h.gating.requestScan();
     const confirms = h.events.filter((event) => event.startsWith("confirm")).length;
     await h.gating.requestFile();
-    expect(h.settings.gatingMode).toBe("file");
+    expect({ mode: h.settings.gatingMode, chosen: h.settings.gatingChosen }).toEqual({ mode: "file", chosen: true });
     expect(h.active()).toBe(false);
     expect(h.events.slice(-4)).toEqual(["settle:false", "active:false", "dispose", "replay"]);
     expect(h.events.filter((event) => event.startsWith("confirm")).length).toBe(confirms);
@@ -202,6 +202,44 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     await h.gating.sync();
     expect(h.active()).toBe(false);
     expect(h.events).toContain("replay");
+  });
+});
+
+describe("R7: scan mode is the default; the first run needs no confirm and touches only gated entries", () => {
+  it("an install that never chose: the first sync normalises without a confirm, toasts counts only, then activates", async () => {
+    const h = harness({ mode: "scan", chosen: false, library: [story({ Ruins: ["CP1", "CP2"] })] });
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("confirm"))).toEqual([]);
+    expect(h.active()).toBe(true);
+    expect(h.settings.normalized).toEqual({ Ruins: ["CP1", "CP2"] });
+    expect(h.settings.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: true }] });
+    expect(h.toasts).toEqual(["2 story lorebook entries now rest off in 1 lorebook; each chat switches on its own story's entries."]);
+    expect(h.toasts.join(" ")).not.toMatch(/CP1|CP2/);
+  });
+
+  it("the first run never writes an entry outside a gated set, whatever its state, and keeps what each gated entry was", async () => {
+    const h = harness({ mode: "scan", chosen: false, library: [story({ Ruins: ["CP1", "Off by hand"] })] });
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("disable") || event.startsWith("enable"))).toEqual(["disable:Ruins:CP1"]);
+    expect(Object.fromEntries(h.disk.get("Ruins")!)).toEqual({ CP1: true, CP2: false, Other: false, "Off by hand": true, "No key": null });
+    expect(h.settings.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }, { comment: "Off by hand", wasOn: false }] });
+  });
+
+  it("a second start writes nothing", async () => {
+    const h = harness({ mode: "scan", chosen: false });
+    await h.gating.sync();
+    h.events.length = 0;
+    h.toasts.length = 0;
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("disable"))).toEqual([]);
+    expect(h.toasts).toEqual([]);
+  });
+
+  it("a restore offers back exactly what the first run switched off", async () => {
+    const removed = { ...story({ Ruins: ["CP1", "Off by hand"] }), id: "gone" };
+    const h = harness({ mode: "scan", chosen: false, library: [removed] });
+    await h.gating.sync();
+    expect(h.gating.restorable(removed)).toEqual([{ lorebook: "Ruins", comments: ["CP1"] }]);
   });
 });
 

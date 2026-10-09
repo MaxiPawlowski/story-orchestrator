@@ -47,7 +47,7 @@ export {
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {
-  getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
+  getWorldInfoSettings, enableWIEntry, disableWIEntry, setWIEntriesState, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
   updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
   deactivateGlobalLorebook, loadLorebook, loadScanLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
 } from "@services/stHost/worldInfo";
@@ -77,7 +77,7 @@ export {
 } from "@services/stHost/groups";
 export { fillChatInput, guardHostStream, readChatInput, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { startGroupVoice } from "@services/stHost/generation";
-export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
+export { draftedCardName, forceActivateEntries, getScannableEntries, readScanBuffer, type HostScanBuffer, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";

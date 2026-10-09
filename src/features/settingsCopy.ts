@@ -181,8 +181,8 @@ export const SETTING_COPY = {
   ),
   "worldInfo.gatingMode": copy(
     "How story lorebook entries switch on",
-    "File writes: entries are switched on and off in their lorebook files as a chat moves. Per chat: entries rest off and each chat sees its own story's entries. "
-      + "Per chat is safer when several stories share an install.",
+    "Per chat (the default): entries rest off in their lorebook files and each chat sees its own story's entries switched on. "
+      + "File writes: entries are switched on and off in their lorebook files as a chat moves.",
   ),
   "worldInfo.scanMemory": copy(
     "Memory text can trigger lore",

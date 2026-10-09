@@ -211,10 +211,10 @@ Field: `effects.author_note`: text, `null`, or `{ text, role, position, depth, i
 
 Field: `effects.world_info`: `{ "enable": [{ "lorebook": "<book>", "comments": ["<entry title>", …] }], "disable": [ … ] }` (`engine/worldInfoEffects.ts` `readWorldInfoEffect`).
 
-- **What it does.** Switches lorebook entries on and off along the story's path. Every entry any beat names belongs to the story (its gated set). The set rests off, and on every apply (a new beat, a reopened chat, a rollback, a story swap) it is rebuilt by replaying the chat's path from the start, so a reopened chat ends in the same state as a continuous one. Entries outside the set are never touched.
+- **What it does.** Switches lorebook entries on and off along the story's path. Every entry any beat names belongs to the story (its gated set). The set rests off, and on every apply (a new beat, a reopened chat, a rollback, a story swap) it is rebuilt by replaying the chat's path from the start, so a reopened chat ends in the same state as a continuous one. With per-chat gating (the default) that rebuild happens on each scan's own copy of the entries, never in the lorebook file. Entries outside the set are never touched.
 - **Good.** `{ "disable": [{ "lorebook": "Adolion Adventurer Checkpoints", "comments": ["CP guild-hall - Scene"] }], "enable": [{ "lorebook": "Adolion Adventurer Checkpoints", "comments": ["CP the-sheridan-steward - Scene"] }] }`, with the book generated from the same source as the story so a title can never name a missing entry (`INTEGRATION.md`).
 - **Bad.** A secret in a constant entry with no character filter, which every drafted member reads: Erevan named the plant in T3-1 (`14-findings.md`, T3-1 fix wave). The effect only toggles entries; it has no per-member target, so make a secret narrator-only or keyed.
-- **If wrong.** With per-chat gating these entries stay off in their files, show as off in SillyTavern's lorebook editor and stay off with the extension disabled (`world-info-rests-off`). An entry named by a misspelt title is simply not found. Require the book under `requirements.lorebooks`.
+- **If wrong.** With per-chat gating (the default) these entries stay off in their files, show as off in SillyTavern's lorebook editor and stay off with the extension disabled (`world-info-rests-off`). An entry named by a misspelt title is simply not found. Require the book under `requirements.lorebooks`.
 
 ### Preset
 <!-- topic: preset -->
@@ -351,7 +351,7 @@ Fields: `stagecraft.lorebooks`, `stagecraft.exclude` (`schema.ts` `StoryStagecra
 
 Fields: `lore_select.lorebooks`, `top_k` (1 to 12), `min_p` (0 to 1), `exclusive` (`schema.ts` `StoryLoreSelect`, `validate/storyOptions.ts` `readLoreSelect`).
 
-- **What it does.** The judge picks the entries of these books that matter for the next reply and forces them in, even without their keywords. `top_k` caps the picks; `min_p` is the confidence a pick needs. `exclusive: true` also switches off, for that one reply, the entries of these books it did not pick (only with per-chat gating, and never for constant, gated or timed entries).
+- **What it does.** The judge picks the entries of these books that matter for the next reply and forces them in, even without their keywords. `top_k` caps the picks; `min_p` is the confidence a pick needs. The judge is not asked about an entry SillyTavern's own keyword scan is certain to switch on for that reply, nor about an entry keyed by the drafted member's own name or alias; those are left to the scan. `exclusive: true` also switches off, for that one reply, the entries of these books it did not pick (only with per-chat gating, the default, and never for constant, gated or timed entries, or an entry left to the scan).
 - **Good.** `{ "lorebooks": ["Adolion World"], "top_k": 6, "min_p": 0.7, "exclusive": true }`; raise `min_p` for a big book.
 - **Bad.** A book that is not required.
 - **If wrong.** Lore select only reaches books SillyTavern scans, so a book not under requirements may never be in play (`lore-select-inactive`); `exclusive` with no book excludes nothing (`lore-select-exclusive-empty`).

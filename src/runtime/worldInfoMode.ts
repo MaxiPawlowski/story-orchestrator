@@ -1,7 +1,7 @@
 import type { ScanGateRow } from "./scanGatePlan";
 import type { GatedEntryRef } from "./worldInfoLedger";
 
-// Spike. True only while `worldInfo.gatingMode` is "scan" AND the scan handler was
+// True only while `worldInfo.gatingMode` is "scan" AND the scan handler was
 // seen running on a probe scan (the `wiScanGating` capability). Otherwise the file path (per-chat
 // writes plus release) runs exactly as before, which is also the fallback.
 export interface ScanGateView {

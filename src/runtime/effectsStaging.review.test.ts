@@ -16,8 +16,11 @@ jest.mock("@services/STAPI", () => ({
   clearCharacterAN: async () => { host.calls.push("an:"); host.an = ""; return { ok: true, text: "" }; },
   samplerApi: () => "chat",
   readSamplerPreset: (name: string) => (name === "Cool" ? { temp_openai: 0.5 } : null),
-  disableWIEntry: async (book: string, comments: string[]) => { host.calls.push(`wi-off:${book}:${comments.join(",")}`); return { ok: true, changed: true }; },
-  enableWIEntry: async (book: string, comments: string[]) => { host.calls.push(`wi-on:${book}:${comments.join(",")}`); return { ok: true, changed: true }; },
+  setWIEntriesState: async (book: string, plan: { enable: string[]; disable: string[] }) => {
+    if (plan.disable.length) host.calls.push(`wi-off:${book}:${plan.disable.join(",")}`);
+    if (plan.enable.length) host.calls.push(`wi-on:${book}:${plan.enable.join(",")}`);
+    return { ok: true, changed: true };
+  },
   lorebookExists: () => true,
   executeSlashCommands: async (command: string) => { host.calls.push(`slash:${command}`); return { pipe: "" }; },
   getActiveGroup: () => ({ id: "g1", disabled_members: [] }),

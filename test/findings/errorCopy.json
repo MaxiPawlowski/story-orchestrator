@@ -38,6 +38,8 @@
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Failed readiness probe returns a plain setup explanation and suppresses automation." },
     { "site": "src/sprites/faceFrames.ts#decodeFrames", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Frame decode is a capability probe; a missing frame keeps the static sprite." },
+    { "site": "src/runtime/loreKeyMatch.ts#parseKeyRegex", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A regex key that does not compile is plaintext, as ST's parseRegexFromString reads it (world-info.js:2921-2925); nothing fails." },
     { "site": "src/sprites/profile.ts#spriteFileName", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A sprite path that is not valid percent-encoding is compared by its raw file name; nothing fails." },
     { "site": "src/studio/components/SpriteBuilder.tsx#discover", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
@@ -429,12 +431,12 @@
     {
       "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.normalize",
       "kind": 1,
-      "template": "`Story lorebook entries now rest off: ${refText(flipped)}`",
+      "template": "`${restingCount(flipped)} off in ${bookCount(flipped)}; each chat switches on its own story's entries.`",
       "surface": "player",
       "rawError": false,
       "silentCatch": null,
       "verdict": "pass",
-      "reason": "toast names entries, no error text"
+      "reason": "counts only, never entry names (checkpoint names are spoilers); no error text"
     },
     {
       "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.serial",
@@ -687,7 +689,7 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
-      "site": "src/services/stHost/worldInfo.ts#setWIEntryDisabledState",
+      "site": "src/services/stHost/worldInfo.ts#setWIEntriesState",
       "kind": 2,
       "template": "`\"${lorebook}\" could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
       "surface": "author",

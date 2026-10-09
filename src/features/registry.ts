@@ -240,7 +240,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Story lorebook entries switch on and off as the story moves.",
     what: "A story can switch lorebook entries on at a turning point. Per chat keeps each chat's entries separate; file writes change the lorebook files themselves.",
     where: settingsAt("#so-wi-gating-mode", "World › Lorebooks"),
-    settings: ["worldInfo.gatingMode", "worldInfo.normalized", "worldInfo.normalizedFrom"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped",
+    settings: ["worldInfo.gatingMode", "worldInfo.gatingChosen", "worldInfo.normalized", "worldInfo.normalizedFrom"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped",
   },
   {
     id: "story-lorebooks", name: "Story lorebooks", area: "world", audience: "author",

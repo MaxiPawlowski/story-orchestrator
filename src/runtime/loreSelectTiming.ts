@@ -5,7 +5,7 @@ export type LoreSelectTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
 export interface LoreSelectTimingDeps {
   active: () => boolean;
   willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean;
-  select: (trigger: LoreSelectTrigger) => Promise<void>;
+  select: (trigger: LoreSelectTrigger, generationType?: string) => Promise<void>;
 }
 
 export const loreSelectTiming = (deps: LoreSelectTimingDeps) => {
@@ -28,7 +28,7 @@ export const loreSelectTiming = (deps: LoreSelectTimingDeps) => {
     }
     if (isQuietType(type) || !awaitsIntercept) return;
     awaitsIntercept = false;
-    if (!aborted) await deps.select("GENERATION_STARTED");
+    if (!aborted) await deps.select("GENERATION_STARTED", type);
   };
   const onMessageSent = async () => {
     if (!awaitsMessage) return;
