@@ -143,7 +143,8 @@ export function registerLiveSuite(manager: RuntimeManager) {
         const qualities = first.scope.map((entry) => entry.quality).filter((quality) => quality.read_as && quality.source === "extractor");
         const checkpoint = first.story.checkpointById[first.activeCheckpointId];
         const window = spec.transcript.map((entry) => ({ id: entry.index, speaker: entry.speaker, text: entry.text }));
-        const plan = qualities.length && checkpoint ? buildTypedPlan(qualities, window, { title: first.story.title, checkpointName: checkpoint.name, objective: checkpoint.objective }) : null;
+        const context = checkpoint ? { title: first.story.title, checkpointName: checkpoint.name, objective: checkpoint.objective } : null;
+        const plan = qualities.length && context ? buildTypedPlan(qualities, window, context, spec.blackboard?.values ?? {}) : null;
         if (plan) {
           const result = await judge.probe(plan.request);
           const read = result.answers ? readTypedDeltas(result.answers, plan, qualities, window) : { deltas: [], answered: [] };
@@ -154,7 +155,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const answered = judged?.answered ?? [];
       const { story, prompt, sources } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
       const rawResponse = await askText(model, prompt, { role: "read", pass: "read", maxTokens: 512 });
-      const parsed = parseSharedReadResponse(rawResponse, story);
+      const parsed = parseSharedReadResponse(rawResponse, story, spec.blackboard?.values ?? {});
       const llmDeltas = parsed.deltas.filter((entry) => !answered.includes(entry.delta.q));
       const judgedParsed = judgedDeltas.map((delta) => ({ delta: { q: delta.q, v: delta.v as PrimitiveValue }, evidence: delta.evidence }));
       const guarded = applyRatingGrounding(story.qualityByKey, spec.blackboard?.values ?? {}, [...judgedParsed, ...llmDeltas]).accepted.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }));

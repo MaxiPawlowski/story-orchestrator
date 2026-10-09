@@ -1,6 +1,7 @@
-import { readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
+import { STEP_READ_REMINDER, STEP_READ_RULE } from "./stepRead";
 import type { ScopedQuality, SharedReadContract } from "./types";
 
 const TENSION_SCALE: Record<TensionLevel, string> = {
@@ -31,7 +32,10 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   const world = quality.evidence_from === "party" ? ` ${PARTY_EVIDENCE_RULE}` : quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
   const counted = contract.counted?.[quality.key];
-  return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}${world}${typeof counted === "number" ? ` ${runningTotalRule(counted)}` : ""}`;
+  const stepped = readsByStep(quality);
+  const type = stepped ? "direction" : quality.type;
+  const total = typeof counted === "number" ? ` ${runningTotalRule(counted)}` : "";
+  return `- ${quality.key}: type=${type}; ${quality.rubric}${allowed}${hintText}${world}${stepped ? ` ${STEP_READ_RULE}` : ""}${total}`;
 }).join("\n");
 
 export const runningTotalRule = (counted: number): string =>
@@ -102,6 +106,7 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "Transcript:",
     renderTranscript(contract) || "(empty)",
     "",
+    ...(contract.qualities.some(({ quality }) => readsByStep(quality)) ? [STEP_READ_REMINDER] : []),
     "Output:",
   ].join("\n");
 }

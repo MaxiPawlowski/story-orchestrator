@@ -71,6 +71,7 @@ export interface LifeMember {
 export interface StoryLife {
   members: LifeMember[];
   clock?: StoryClock;
+  names?: Record<string, string>;
 }
 
 export interface QualityStepRule {

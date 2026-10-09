@@ -10,7 +10,7 @@ export const createTypedJudge = (getJudge: () => JudgeRuntime | null): TypedJudg
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   if (!judge?.active("typedExtraction") || !checkpoint || onlyOutOfCharacter(window)) return null;
   const messages = window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text, isUser: message.isUser }));
-  const plan = buildTypedPlan(qualities, messages, { title: story.title, checkpointName: checkpoint.name, objective: checkpoint.objective });
+  const plan = buildTypedPlan(qualities, messages, { title: story.title, checkpointName: checkpoint.name, objective: checkpoint.objective }, state.blackboard.values);
   if (!plan) return null;
   const result = await judge.ask("typed", plan.request, { timeoutMs: TYPED_TIMEOUT_MS });
   if (!result.answers) return { deltas: [], answered: [], model: result.model, confidences: {}, ...(result.fallback ? { fallback: result.fallback } : {}) };

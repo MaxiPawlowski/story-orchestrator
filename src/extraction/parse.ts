@@ -1,4 +1,4 @@
-import { qualityAccepts, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { qualityAccepts, readsByStep, resolveStep, stepWord, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
 import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
@@ -102,7 +102,14 @@ const trimStatedName = (quality: Quality, value: PrimitiveValue | undefined): Pr
   return body;
 };
 
-export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">): ParsedSharedRead {
+const restatedPattern = /^(\S+)\s+value=(\S+)$/;
+
+const restatedValue = (raw: string): string => {
+  const twice = raw.match(restatedPattern);
+  return twice && twice[1] === twice[2] ? twice[1] : raw;
+};
+
+export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">, values: Readonly<Record<string, PrimitiveValue>> = {}): ParsedSharedRead {
   const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], epistemic: [], ledger: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
 
@@ -128,7 +135,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.rejected.push({ line, reason: "missing evidence" });
         continue;
       }
-      const rawValue = delta[2].trim();
+      const rawValue = restatedValue(delta[2].trim());
       const value = trimStatedName(quality, parseJsonLiteral(rawValue) ?? parseBareWord(rawValue));
       if (q === TENSION_CURRENT_KEY) {
         if (!isTensionLevel(value)) {
@@ -136,6 +143,11 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
           continue;
         }
         result.deltas.push({ delta: { q, v: levelToNumeric(value), source: "extractor" }, evidence: delta[3], rawLevel: value, line });
+        continue;
+      }
+      const word = stepWord(value);
+      if (word && readsByStep(quality)) {
+        result.deltas.push({ delta: { q, v: resolveStep(quality.step_rule, word, values[q]), source: "extractor" }, evidence: delta[3], line });
         continue;
       }
       if (value === undefined || !qualityAccepts(quality, value)) {

@@ -208,7 +208,7 @@ async function reaskPlayerOnly(
   const qualities = residual.filter((entry) => keys.includes(entry.key));
   const prompt = renderPlayerOnlyReask({ ...contract, qualities }, pending.map((entry) => entry.line));
   const reply = await options.model(prompt, { ...options.ask, maxTokens });
-  const parsed = parseSharedReadResponse(reply.text, options.story);
+  const parsed = parseSharedReadResponse(reply.text, options.story, options.state.blackboard.values);
   const refused = refusal(reply, parsed, maxTokens);
   if (refused) return { keys, rawResponse: reply.text, accepted: [], rejected: [{ line: reply.text.slice(0, 500), reason: refused }] };
   const screened = screenDeltas(parsed, qualities, answered, contract.window);
@@ -244,13 +244,13 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
   let responseTokens = options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS;
   let reply = await ask(responseTokens);
-  let parsed = parseSharedReadResponse(reply.text, options.story);
+  let parsed = parseSharedReadResponse(reply.text, options.story, options.state.blackboard.values);
   if (refusal(reply, parsed, responseTokens)) {
     const larger = Math.max(responseTokens * 2, 1024);
     const fits = !fitted.record || fitted.record.tokens <= inputBudget(fitted.record.contextLimit, larger).input;
     if (reply.finish === "length" && fits) responseTokens = larger;
     reply = await ask(responseTokens);
-    parsed = parseSharedReadResponse(reply.text, options.story);
+    parsed = parseSharedReadResponse(reply.text, options.story, options.state.blackboard.values);
   }
   const rawResponse = reply.text;
   const refused = refusal(reply, parsed, responseTokens);
