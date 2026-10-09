@@ -1,5 +1,5 @@
 import { type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect } from "@engine/index";
-import { applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, lorebookExists, readSamplerPreset } from "@services/STAPI";
+import { applyCharacterAN, clearCharacterAN, executeSlashCommands, lorebookExists, readSamplerPreset, setWIEntriesState } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import type { SamplerApi } from "@utils/samplerKeys";
 import type { WriteResult } from "@utils/writeResult";
@@ -43,20 +43,13 @@ export function resolvePreset(value: unknown, story: NormalizedStoryV2, api: Sam
   return { name, settings: inline ?? (api && typeof value.name === "string" ? readSamplerPreset(value.name, api) : null) };
 }
 
-// Each book is two host writes and the plan spans several books, so the world is asked before
-// every one of them, not once around the loop.
-// Each toggle answers what the host did, and a refusal is returned so the caller can journal
-// it; before, both answers were discarded and a lost write read as an applied checkpoint.
 export const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promise<string[]> => {
   const refused: string[] = [];
   for (const plan of plans) {
-    if (!lorebookExists(plan.lorebook)) continue;
+    if (!lorebookExists(plan.lorebook) || (!plan.enable.length && !plan.disable.length)) continue;
     if (run && !run.stillOwns()) return refused;
-    const off = plan.disable.length ? await disableWIEntry(plan.lorebook, plan.disable) : null;
-    if (off && !off.ok) refused.push(off.reason);
-    if (run && !run.stillOwns()) return refused;
-    const on = plan.enable.length ? await enableWIEntry(plan.lorebook, plan.enable) : null;
-    if (on && !on.ok) refused.push(on.reason);
+    const result = await setWIEntriesState(plan.lorebook, { enable: plan.enable, disable: plan.disable });
+    if (!result.ok) refused.push(result.reason);
   }
   return refused;
 };

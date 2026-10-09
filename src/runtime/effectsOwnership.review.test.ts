@@ -41,8 +41,7 @@ jest.mock("@services/STAPI", () => ({
   clearCharacterAN: async () => hostWrite("authorNote"),
   samplerApi: () => "textgen",
   readSamplerPreset: () => null,
-  disableWIEntry: async () => hostWrite("worldInfo"),
-  enableWIEntry: async () => hostWrite("worldInfo"),
+  setWIEntriesState: async () => hostWrite("worldInfo"),
   lorebookExists: async () => true,
   executeSlashCommands: async () => { hostWrite("slash"); return { pipe: "" }; },
   getActiveGroup: () => ({ id: "g1", disabled_members: [] }),
@@ -235,8 +234,8 @@ describe("V3: World Info is asked about before EVERY book, not once around the l
     expect(books()).toBe(2);
   });
 
-  // Each book both disables (an entry a checkpoint off the path gates) and enables, so every one of
-  // the four writes has its own check to be reached by: A.disable, A.enable, B.disable, B.enable.
+  // Each book both disables (an entry a checkpoint off the path gates) and enables, in ONE write (R13),
+  // so each of the two books has its own check to be reached by.
   const onPath = { id: "cp-1", effects: { world_info: { enable: [{ lorebook: "Book A", comments: ["a"] }, { lorebook: "Book B", comments: ["b"] }] } } };
   const offPath = { id: "cp-9", effects: { world_info: { enable: [{ lorebook: "Book A", comments: ["a2"] }, { lorebook: "Book B", comments: ["b2"] }] } } };
   const fourWrites = { title: "S", checkpoints: [onPath, offPath], checkpointById: { "cp-1": onPath, "cp-9": offPath }, qualityByKey: {}, roster: [] } as never;
@@ -248,15 +247,11 @@ describe("V3: World Info is asked about before EVERY book, not once around the l
     return books();
   };
 
-  it("a switch during a book's disable stops before that book's enable", async () => {
+  it("a switch during the first book's write stops before the second book", async () => {
     expect(await rebuildSwitchingAt(1)).toBe(1);
   });
 
-  it("a switch during a book's enable stops before the next book's disable", async () => {
-    expect(await rebuildSwitchingAt(2)).toBe(2);
-  });
-
-  it("control: an unmoved rebuild makes all four writes", async () => {
-    expect(await rebuildSwitchingAt(99)).toBe(4);
+  it("control: an unmoved rebuild writes each book once, its enables and disables together", async () => {
+    expect(await rebuildSwitchingAt(99)).toBe(2);
   });
 });

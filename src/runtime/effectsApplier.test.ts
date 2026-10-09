@@ -1,6 +1,6 @@
 import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
-import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
+import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, setGroupMembersDisabled, setWIEntriesState } from "@services/STAPI";
 import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "./effectsApplier";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
@@ -23,8 +23,7 @@ jest.mock("@services/STAPI", () => ({
   clearCharacterAN: jest.fn(async () => ({ ok: true, text: "" })),
   applyTextGenPresetRuntime: jest.fn(),
   findTextGenPreset: jest.fn(() => null),
-  disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
-  enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
+  setWIEntriesState: jest.fn(async () => ({ ok: true, changed: true })),
   lorebookExists: jest.fn((name: string) => name !== "Missing Book"),
   applyBackground: jest.fn(async () => ({ ok: true, changed: true, from: "old.jpg", to: "tavern day.jpg" })),
   getActiveGroup: jest.fn(() => ({ id: "g1", disabled_members: [] })),
@@ -322,8 +321,7 @@ describe("background effect", () => {
     }
     expect(applyBackground).not.toHaveBeenCalled();
     expect(applyCharacterAN).not.toHaveBeenCalled();
-    expect(enableWIEntry).not.toHaveBeenCalled();
-    expect(disableWIEntry).not.toHaveBeenCalled();
+    expect(setWIEntriesState).not.toHaveBeenCalled();
     expect(extras.effects.ledger).toEqual([]);
     expect(journal).toHaveBeenCalledWith("checkpoint effects were not applied", NO_OPEN_CHAT);
   });
@@ -341,7 +339,7 @@ describe("background effect", () => {
     }
     expect(applyBackground).not.toHaveBeenCalled();
     expect(applyCharacterAN).not.toHaveBeenCalled();
-    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(setWIEntriesState).not.toHaveBeenCalled();
     expect(extras.effects.ledger).toEqual([]);
     expect(journal).toHaveBeenCalledWith("checkpoint effects were not applied", NO_OPEN_GROUP);
   });
@@ -410,34 +408,39 @@ describe("world_info effect", () => {
   const other = { checkpoints: [{ effects: { world_info: { enable: [{ lorebook: "Other", comments: ["Theirs"] }, { lorebook: "Checkpoints", comments: ["Two"] }] } } }] };
   const snapshot = {} as unknown as RuntimeSnapshot;
   const extras = (ready: boolean) => ({ ...makeExtras(), requirements: { ready } } as unknown as RuntimeExtras);
-  const calls = (mock: unknown) => (mock as jest.Mock).mock.calls;
+  const switches = () => (setWIEntriesState as jest.Mock).mock.calls as Array<[string, { enable: string[]; disable: string[] }]>;
+  const off = () => switches().filter(([, plan]) => plan.disable.length).map(([book, plan]) => [book, plan.disable]);
+  const on = () => switches().filter(([, plan]) => plan.enable.length).map(([book, plan]) => [book, plan.enable]);
 
   beforeEach(() => {
-    (disableWIEntry as jest.Mock).mockClear();
-    (enableWIEntry as jest.Mock).mockClear();
+    (setWIEntriesState as jest.Mock).mockClear();
+  });
+
+  it("R13: one write per book, carrying the book's enables and disables together", async () => {
+    await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    expect(switches()).toEqual([["Checkpoints", { enable: ["Two"], disable: ["One"] }]]);
   });
 
   it("rebuilds the whole gated set from the path, not just the active checkpoint's own switches", async () => {
     await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
-    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
-    expect(calls(enableWIEntry)).toEqual([["Checkpoints", ["Two"]]]);
+    expect(off()).toEqual([["Checkpoints", ["One"]]]);
+    expect(on()).toEqual([["Checkpoints", ["Two"]]]);
   });
 
   it("turns off entries a later checkpoint on the path has not reached yet, whatever the book says now", async () => {
     await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.one, extras(true), snapshot, "activate", ["one"]);
-    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["Two"]]]);
-    expect(calls(enableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
+    expect(off()).toEqual([["Checkpoints", ["Two"]]]);
+    expect(on()).toEqual([["Checkpoints", ["One"]]]);
   });
 
   it("never writes to a lorebook that does not exist, and leaves world info alone while requirements are unmet", async () => {
     const applier = new EffectsApplier(testOwnership());
     await applier.applyCheckpoint(story, story.checkpointById.one, extras(true), snapshot, "activate", ["one"]);
-    expect([...calls(disableWIEntry), ...calls(enableWIEntry)].some(([lorebook]) => lorebook === "Missing Book")).toBe(false);
-    (disableWIEntry as jest.Mock).mockClear();
-    (enableWIEntry as jest.Mock).mockClear();
+    expect([...off(), ...on()].some(([lorebook]) => lorebook === "Missing Book")).toBe(false);
+    (setWIEntriesState as jest.Mock).mockClear();
     await applier.applyCheckpoint(story, story.checkpointById.two, extras(false), snapshot, "activate", ["one", "two"]);
-    expect(disableWIEntry).not.toHaveBeenCalled();
-    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(off()).toEqual([]);
+    expect(on()).toEqual([]);
   });
 
   it("marks a checkpoint without effects as applied, so its world info is not rebuilt at every boundary", async () => {
@@ -448,17 +451,17 @@ describe("world_info effect", () => {
 
   it("releases what leaving stories gate, minus what the incoming story gates, and only ever disables", async () => {
     await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-    expect(calls(disableWIEntry)).toEqual([["Other", ["Theirs"]]]);
-    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(off()).toEqual([["Other", ["Theirs"]]]);
+    expect(on()).toEqual([]);
   });
 
   // V17: both toggles' answers were discarded, so a lost lorebook write read as an applied checkpoint.
   it("journals a toggle the host refused, carries on with the rest, and journals nothing when both land", async () => {
     const journalled: Array<[string, string | undefined]> = [];
     const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { journalled.push([summary, note]); } });
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
+    (setWIEntriesState as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
-    expect(calls(enableWIEntry)).toEqual([["Checkpoints", ["Two"]]]);
+    expect(on()).toEqual([["Checkpoints", ["Two"]]]);
     expect(journalled).toEqual([["world_info effect could not be applied", "the server still holds the old flag"]]);
     journalled.length = 0;
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
@@ -467,18 +470,18 @@ describe("world_info effect", () => {
 
   it("journals a refused enable as surely as a refused disable (v2.4 plan 05)", async () => {
     const journalled: Array<[string, string | undefined]> = [];
-    (enableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "\"Checkpoints\" could not be saved" });
+    (setWIEntriesState as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "\"Checkpoints\" could not be saved" });
     await new EffectsApplier(testOwnership(), { journal: (summary, note) => { journalled.push([summary, note]); } }).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
     expect(journalled).toEqual([["world_info effect could not be applied", "\"Checkpoints\" could not be saved"]]);
   });
 
   it("retries a refused flip at the next apply, because every apply rebuilds the whole gated set (v2.4 plan 05)", async () => {
     const applier = new EffectsApplier(testOwnership(), { journal: () => undefined });
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
+    (setWIEntriesState as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
-    (disableWIEntry as jest.Mock).mockClear();
+    (setWIEntriesState as jest.Mock).mockClear();
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "activate", ["one", "two", "three"]);
-    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
+    expect(off()).toEqual([["Checkpoints", ["One"]]]);
   });
 
   it("under scan-time gating (T13 spike) neither the path replay nor the release writes a lorebook; off again, both do", async () => {
@@ -486,14 +489,14 @@ describe("world_info effect", () => {
     try {
       await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
       await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-      expect(disableWIEntry).not.toHaveBeenCalled();
-      expect(enableWIEntry).not.toHaveBeenCalled();
+      expect(off()).toEqual([]);
+      expect(on()).toEqual([]);
     } finally {
       setScanGatingActive(false);
     }
     await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
     await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+    expect(off()).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
   });
 
   it("v2.5 P01-L1: in scan mode, before the gating activates or settles, neither the path replay nor the release writes a lorebook", async () => {
@@ -501,7 +504,7 @@ describe("world_info effect", () => {
     try {
       await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
       await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-      expect({ off: calls(disableWIEntry), on: calls(enableWIEntry) }).toEqual({ off: [], on: [] });
+      expect({ off: off(), on: on() }).toEqual({ off: [], on: [] });
     } finally {
       stop();
     }
@@ -513,7 +516,7 @@ describe("world_info effect", () => {
     try {
       await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
       await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-      expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+      expect(off()).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
     } finally {
       setScanGatingSettled(false);
       stop();
@@ -525,7 +528,7 @@ describe("world_info effect", () => {
     try {
       await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
       await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
-      expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+      expect(off()).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
     } finally {
       stop();
     }
@@ -533,7 +536,7 @@ describe("world_info effect", () => {
 
   it("journals a release the host refused", async () => {
     const journalled: string[] = [];
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "refused" });
+    (setWIEntriesState as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "refused" });
     await new EffectsApplier(testOwnership(), { journal: (summary) => { journalled.push(summary); } }).releaseWorldInfo([other, story], story);
     expect(journalled).toEqual(["world_info could not be released"]);
   });

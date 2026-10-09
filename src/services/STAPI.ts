@@ -47,7 +47,7 @@ export {
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {
-  getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
+  getWorldInfoSettings, enableWIEntry, disableWIEntry, setWIEntriesState, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
   updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
   deactivateGlobalLorebook, loadLorebook, loadScanLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
 } from "@services/stHost/worldInfo";

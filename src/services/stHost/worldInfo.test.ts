@@ -97,7 +97,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, deactivateGlobalLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, deactivateGlobalLorebook, deleteLorebook, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -242,6 +242,65 @@ describe("writes resolve the listed name", () => {
     putOnDisk("Lore", [entry(0, "The bridge")]);
     st.worldNames = ["Lore"];
     expect(await disableWIEntry("Lore", "The ferry")).toMatchObject({ ok: false, reason: expect.stringContaining("The ferry") });
+  });
+});
+
+describe("setWIEntriesState: one write per book (R13)", () => {
+  const book = () => st.disk.get("Lore")!.entries;
+  beforeEach(() => {
+    putOnDisk("Lore", [entry(0, "One"), { ...entry(1, "Two"), disable: true }, entry(2, "Three")]);
+    st.worldNames = ["Lore"];
+    st.cache.clear();
+    saveWorldInfo.mockClear();
+  });
+
+  it("applies a book's enables and disables in one save and one read-back", async () => {
+    (globalThis.fetch as jest.Mock).mockClear();
+    expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(saveWorldInfo).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect({ one: book()[0].disable, two: book()[1].disable, three: book()[2].disable }).toEqual({ one: true, two: false, three: false });
+  });
+
+  it("writes nothing when every entry already holds the state asked for", async () => {
+    expect(await setWIEntriesState("Lore", { enable: ["One", "Three"], disable: ["Two"] })).toEqual({ ok: true, changed: false });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("an entry without a disable key is already on: enabling it writes nothing", async () => {
+    const bare = entry(0, "Bare") as Partial<Entry>;
+    delete bare.disable;
+    putOnDisk("Lore", [bare as Entry]);
+    st.cache.clear();
+    expect(await setWIEntriesState("Lore", { enable: ["Bare"] })).toEqual({ ok: true, changed: false });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("control: disabling an entry without a disable key writes the key", async () => {
+    const bare = entry(0, "Bare") as Partial<Entry>;
+    delete bare.disable;
+    putOnDisk("Lore", [bare as Entry]);
+    st.cache.clear();
+    expect(await setWIEntriesState("Lore", { disable: ["Bare"] })).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(book()[0].disable).toBe(true);
+  });
+
+  it("a second identical apply writes nothing", async () => {
+    await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] });
+    saveWorldInfo.mockClear();
+    expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toEqual({ ok: true, changed: false });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("a lost save names the entry it lost, whichever side it was on", async () => {
+    server.lose = true;
+    expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toMatchObject({ ok: false, reason: expect.stringMatching(/One.*Two|Two.*One/) });
+  });
+
+  it("enable and disable still answer through the same write", async () => {
+    expect(await disableWIEntry("Lore", "One")).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(await enableWIEntry("Lore", ["One"])).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(saveWorldInfo).toHaveBeenCalledTimes(2);
   });
 });
 

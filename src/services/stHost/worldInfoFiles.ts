@@ -22,7 +22,7 @@ export async function readLorebookEntries(name: string): Promise<Map<string, boo
 }
 
 // A. The normaliser, its re-normalise and the removal restore read the SERVER's file first, so the
-// write must start from it too: `setWIEntryDisabledState` edits the cached copy, and a copy older than an API
+// write must start from it too: `setWIEntriesState` edits the cached copy, and a copy older than an API
 // write would answer "already off" and write nothing. Evicting one book makes the next `loadWorldInfo` fetch it
 // (world-info.js:2041-2055); the write is then the usual typed, read-back one.
 export async function setLorebookEntriesDisabled(name: string, comments: string[], disabled: boolean): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {

@@ -687,7 +687,7 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
-      "site": "src/services/stHost/worldInfo.ts#setWIEntryDisabledState",
+      "site": "src/services/stHost/worldInfo.ts#setWIEntriesState",
       "kind": 2,
       "template": "`\"${lorebook}\" could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
       "surface": "author",

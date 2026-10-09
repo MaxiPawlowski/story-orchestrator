@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
-import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
+import { executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
@@ -15,6 +15,14 @@ const mockLorebooks: Record<string, Record<string, boolean>> = {};
 const mockSwitchEntries = (lorebook: string, comments: string | string[], enabled: boolean) => {
   [comments].flat().forEach((comment) => { if (mockLorebooks[lorebook] && comment in mockLorebooks[lorebook]) mockLorebooks[lorebook][comment] = enabled; });
   return true;
+};
+const mockSwitchHook: { side: "enable" | "disable"; run: () => void } [] = [];
+const mockSwitchPlan = (lorebook: string, plan: { enable?: string[]; disable?: string[] }) => {
+  const hook = mockSwitchHook.findIndex((entry) => plan[entry.side]?.length);
+  if (hook >= 0) mockSwitchHook.splice(hook, 1)[0].run();
+  mockSwitchEntries(lorebook, plan.disable ?? [], false);
+  mockSwitchEntries(lorebook, plan.enable ?? [], true);
+  return { ok: true, changed: true };
 };
 const mockPopupCloses = { count: 0 };
 const mockContext = {
@@ -51,8 +59,7 @@ jest.mock("@services/STAPI", () => {
     clearCharacterAN: jest.fn(async () => undefined),
     applyTextGenPresetRuntime: jest.fn(),
     findTextGenPreset: jest.fn(() => null),
-    disableWIEntry: jest.fn(async (lorebook: string, comments: string | string[]) => mockSwitchEntries(lorebook, comments, false)),
-    enableWIEntry: jest.fn(async (lorebook: string, comments: string | string[]) => mockSwitchEntries(lorebook, comments, true)),
+    setWIEntriesState: jest.fn(async (lorebook: string, plan: { enable?: string[]; disable?: string[] }) => mockSwitchPlan(lorebook, plan)),
     lorebookExists: (name: string) => Boolean(mockLorebooks[name]),
     upsertWIEntry: jest.fn(async () => "created"),
     ensureLorebook: jest.fn(async (name: string) => ({ name, created: false })),
@@ -118,6 +125,7 @@ const tensionAudit = (level: "stirring" | "critical", value: number, messageId =
 });
 
 const resetHost = () => {
+  mockSwitchHook.length = 0;
   mockContext.chat = [];
   mockContext.chatMetadata = {};
   mockContext.extensionSettings = {};
@@ -1834,10 +1842,7 @@ describe("V3: a superseded load or activation stops before its tail", () => {
   it("an activation overtaken mid-staging reports nothing and stamps nothing", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(storyA));
-    (disableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
-      (manager as unknown as { invalidateRuns: () => void }).invalidateRuns();
-      return mockSwitchEntries(lorebook, comments, false);
-    });
+    mockSwitchHook.push({ side: "disable", run: () => (manager as unknown as { invalidateRuns: () => void }).invalidateRuns() });
     expect(await manager.activateCheckpoint("next")).toBe(false);
     expect(manager.getSnapshot().status).not.toBe("Now at Next");
   });
@@ -1846,10 +1851,7 @@ describe("V3: a superseded load or activation stops before its tail", () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(storyA));
     expect(mockLorebooks.Shared["A start"]).toBe(true);
-    (enableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
-      (manager as unknown as { invalidateRuns: () => void }).invalidateRuns();
-      return mockSwitchEntries(lorebook, comments, true);
-    });
+    mockSwitchHook.push({ side: "enable", run: () => (manager as unknown as { invalidateRuns: () => void }).invalidateRuns() });
     await manager.importStory(JSON.stringify(storyB));
     expect(mockLorebooks.Shared["A start"]).toBe(true);
     expect(manager.getSnapshot().status).not.toBe("Started wi-b");
@@ -1860,10 +1862,7 @@ describe("V3: a superseded load or activation stops before its tail", () => {
     await manager.importStory(JSON.stringify(storyA));
     const internals = manager as unknown as { loaded: unknown; swapStory: (loaded: unknown, state: null, reanchored: boolean) => Promise<void>; invalidateRuns: () => void };
     const before = manager.getSnapshot().status;
-    (disableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
-      internals.invalidateRuns();
-      return mockSwitchEntries(lorebook, comments, false);
-    });
+    mockSwitchHook.push({ side: "disable", run: () => internals.invalidateRuns() });
     await internals.swapStory(internals.loaded, null, false);
     expect(manager.getSnapshot().status).toBe(before);
   });
