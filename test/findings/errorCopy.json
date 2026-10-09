@@ -1389,14 +1389,14 @@
       "reason": "draft-time deadline race; a failed beat call only means this draft has no beat"
     },
     {
-      "site": "src/runtime/wiring/generation.ts#handler",
+      "site": "src/runtime/draftedBeat.ts#DraftedBeat.drafted",
       "kind": 3,
-      "template": ".catch(() => undefined)",
+      "template": ".catch(() => false)",
       "surface": "console",
       "rawError": false,
       "silentCatch": "probe",
       "verdict": "pass",
-      "reason": "a draft-time beat must never block ST's draft; the reply generates without one"
+      "reason": "a draft-time beat must never block ST's draft or the reply; a failed beat only means this draft has no beat"
     },
     {
       "site": "src/runtime/makeGroupHost.ts#safe",

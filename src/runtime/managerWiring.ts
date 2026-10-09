@@ -87,7 +87,11 @@ export function wireCoordinators(port: ManagerPort) {
   const inner = {
     due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
     run: async () => (await loadInner()).run(),
-    prepare: async (rosterId: string) => { if (inner.due()) await (await loadInner()).prepare(rosterId); },
+    prepare: async (rosterId: string) => {
+      if (!inner.due()) return false;
+      await (await loadInner()).prepare(rosterId);
+      return true;
+    },
     beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
   };
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({

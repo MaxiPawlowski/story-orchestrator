@@ -112,10 +112,9 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
   const entries: HostSubscriptionEntry[] = [
     {
       eventName: "GROUP_MEMBER_DRAFTED",
-      handler: async (characterId) => {
+      handler: (characterId) => {
         generation.drafted(characterId);
-        if (!withholds(wrapper.type)) await runtimeManager.prepareDraftedBeat(characterId as number | [number]).catch(() => undefined);
-        runtimeManager.onMemberDrafted(characterId as number | [number]);
+        live.draftedBeat.drafted(characterId as number | [number], !withholds(wrapper.type));
       },
     },
     { eventName: "GENERATION_STARTED", handler: onStarted },

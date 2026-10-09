@@ -36,6 +36,7 @@ import { getGlobalSettings } from "./settingsStore";
 import { CHAT_LOADING_STATUS, loadInlineComposer } from "./snapshotBuilder";
 import { loadGameComposer } from "./gameSnapshot";
 import { loadChapterKit } from "./chapterPort";
+import { DraftedBeat } from "./draftedBeat";
 
 export const FEATURE_FAILED_TEXT = (feature: string) => `${feature} could not load — reload SillyTavern.`;
 
@@ -49,7 +50,8 @@ let mediaLoaded = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let privateInjectionUnsub: (() => void) | null = null;
-const live: LiveParts = { scheduler: null, scene: null, talk: null, typedJudge: null, loudGate: new LoudGenerationGate() };
+const live: LiveParts = { scheduler: null, scene: null, talk: null, typedJudge: null, loudGate: new LoudGenerationGate(),
+  draftedBeat: new DraftedBeat({ prepare: (id) => runtimeManager.prepareDraftedBeat(id), apply: (id) => runtimeManager.onMemberDrafted(id) }) };
 // Every subscription startRuntime makes, so stopRuntime can undo it. Without this a
 // stop/start cycle left the previous run listening, and each boundary dispatched twice — once into
 // live wiring and once into a scheduler and scene coordinator that had already been torn down.

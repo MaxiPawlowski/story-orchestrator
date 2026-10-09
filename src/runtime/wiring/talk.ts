@@ -59,6 +59,7 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
+    await live.draftedBeat.settle();
     await onLoreIntercept(type, aborted);
     if (!aborted && Array.isArray(chat)) await runtimeManager.chapters.recall(chat, type);
     const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
