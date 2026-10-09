@@ -102,7 +102,7 @@ export const voiceProfile = (story: NormalizedStoryV2 | null, state: EngineState
   const id = rosterIdForName(story, speaker);
   const member = story?.roster.find((entry) => entry.id === id);
   if (!story || !member) return null;
-  const feelings = gameLayer()?.life.relationshipFeelings(story, state?.blackboard.values ?? {}, member.id) ?? [];
+  const feelings = (gameLayer()?.life.relationshipFeelings(story, state?.blackboard.values ?? {}, member.id) ?? []).map((line) => line.replace(/\{\{user\}\}/gi, "the player"));
   return { speaker: rosterMemberName(member), ...(member.role ? { role: member.role } : {}), ...(member.drive ? { drive: member.drive } : {}), feelings };
 };
 

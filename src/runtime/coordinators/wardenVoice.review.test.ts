@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { agendaStepKey, parseStoryV2OrThrow, type EngineState } from "@engine/index";
-import { VOICE_QUESTION, buildWardenRequests, defaultJudgeSettings, readWarden, wardenRecordP, type JudgeRequest, type JudgeSettings, type WardenInput } from "@judge/index";
+import { VOICE_DRIVE_ID, VOICE_DRIVE_QUESTION, VOICE_QUESTION, buildWardenRequests, defaultJudgeSettings, readWarden, wardenRecordP, type JudgeRequest, type JudgeSettings, type WardenInput } from "@judge/index";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "../settingsModel";
 import { createWarden, voiceProfile, wardenFamilies } from "../continuity";
 import { JudgeRuntime } from "../judge";
@@ -49,11 +49,24 @@ describe("v2.7 plan 37 L6: the out-of-character family rides the warden's call, 
 
   it("sends the speaker's role, drive and own feelings, nothing else of the story", () => {
     const profile = voiceProfile(story, state, "Arin");
-    expect(profile).toEqual({ speaker: "Arin", role: "a guide with a debt", feelings: expect.arrayContaining(["trust toward {{user}} (the newcomer): -2 on a scale from -3 to 3."]) });
+    expect(profile).toEqual({ speaker: "Arin", role: "a guide with a debt", feelings: expect.arrayContaining(["trust toward the player (the newcomer): -2 on a scale from -3 to 3."]) });
+    expect(JSON.stringify(profile)).not.toContain("{{user}}");
     const [request] = buildWardenRequests({ reply, facts: [], agency: null, houseRules: [], voice: profile ?? undefined });
     expect(Object.keys(request.questions)).toEqual(["voice"]);
     expect((request.questions.voice as { instructions: string }).instructions).toBe(VOICE_QUESTION);
     expect(JSON.stringify(request)).not.toContain("smuggler");
+  });
+
+  it("asks whether the reply turns from the speaker's drive, and notes it when that is more likely than not (v2.8 31 F7)", () => {
+    const driven: WardenInput = { reply, facts: [], agency: null, houseRules: [], voice: { speaker: "Arin", drive: "pay back the debt", feelings: [] } };
+    const [request] = buildWardenRequests(driven);
+    expect(Object.keys(request.questions)).toEqual(["voice", VOICE_DRIVE_ID]);
+    expect((request.questions[VOICE_DRIVE_ID] as { instructions: string }).instructions).toBe(VOICE_DRIVE_QUESTION);
+    const inCharacter = { voice: { type: "score" as const, score: 1.8, confidence: 0.9, probabilities: {} } };
+    expect(readWarden({ ...inCharacter, [VOICE_DRIVE_ID]: { type: "noul", noul: 0.7 } }, driven)).toMatchObject([{ family: "voice" }]);
+    expect(readWarden({ ...inCharacter, [VOICE_DRIVE_ID]: { type: "noul", noul: 0.3 } }, driven)).toEqual([]);
+    expect(wardenRecordP({ ...inCharacter, [VOICE_DRIVE_ID]: { type: "noul", noul: 0.7 } }, driven)).toMatchObject({ voice: 1.8, voiceDrive: 0.7 });
+    expect(Object.keys(buildWardenRequests({ ...driven, voice: { speaker: "Arin", feelings: [] } })[0].questions)).toEqual(["voice"]);
   });
 
   it("payload invariance: with the family off the request carries no voice", () => {
