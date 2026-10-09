@@ -145,3 +145,21 @@ no read errors, no timeouts (read p50 8.4–9.8 s, max 13.9 s per arm; the conte
 **PASS** (run 1 PASS 2026-10-09, so 37-M1 is PASS ×2 locally). Gap (a) below (b): 5 points, at the 5-point limit (ok). Default
 path: judge first (arm c passed). The one (a) miss is a stuck window (label down, no move); the one (c) miss moved on a window
 labelled no change.
+
+### 2. Scan mode (the default since R7) live, v2.5 01 G1–G8 equivalents
+
+`live-v25-01-real-books.json` cannot run as written under R7: it requires a lane still in file mode with an empty ledger and switches
+through the confirm, while a fresh lane now normalises by itself at its first start. Its gates were taken over the same assertions on
+fresh adolion-fresh lanes (library = the nine Adolion stories plus the install's own; gated set 323 entries in 14 books, recomputed
+from the authored effects, independently of `src/runtime`).
+
+| Gate | Result | How |
+|---|---|---|
+| G2 | **exact** ×2 (lanes 12, 13) | At rest after the first start: mode `scan` (not chosen), ledger 14 books / 323 entries; against the campaign's exported books: 323 / 323 present gated entries off and in the ledger, 0 gated entries changed beyond `disable`, 0 non-gated entries changed, 0 added or removed. The campaign ships every gated entry off, so the normalisation wrote nothing here (R7's no-model run covered the flip). Second start (reload, lane 13): every book file byte-identical (sha256) |
+| G3 | **GREEN ×2** strict | J7 (sun-ruins) `--wi-gating scan`, lane 12: 8 pass / 0 fail each (1,520 s, 1,678 s), 8 of 8 first try, cleanup clean |
+| G4 | **GREEN** | J3 `--wi-gating scan` ×2 (8 pass / 0 fail, 164 s, 150 s, first try) and J7 `--wi-gating file` ×1 (8 pass / 0 fail, 1,404 s); the lane came back in `scan` (not chosen) after the file run; header diffs only the open chat |
+| G5 | **PASS ×2** (lane 13, no model) | One normalised entry hand-enabled through ST's API, page reloaded: the start-up verify reports it (drift 1, the only one), the author's Repair row "switched on outside the story" shows, the file still has it on (not switched off silently); re-normalise: file off, drift 0, row gone, 1 book write. Book hashes after both runs identical to before. The extension-disabled half and G1 (c) (manual, extension off) not run |
+| G1, G8 | from C3 run 1 below | measured in the Adolion story chat the C3 play leaves open (`g-post.js`): scan view vs the authored path, foreign gated entries in the T12 ring, 40 + 10 dry scans timed |
+| G7 | not run | clean host per README ST version; unchanged, owed |
+
+M10 and M11 are measured on C3 run 1 (a fresh Adolion lane in scan mode, lore select judge on, 70+ real turns), item 3.
