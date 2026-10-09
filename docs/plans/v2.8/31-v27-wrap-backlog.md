@@ -28,8 +28,8 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M7 | S-17 / 37-S17 on the new scope budget (`extraction/scopeBudget.ts`) | FAIL ×2 at +17 % before the budget; pair fairness may count per axis, not per pair | pod |
 | M8 | 36-Q1-M2 quest completion recall, 36-Q1-M1 scope, 37-M1 relationship direction, 37-L6-C voice warden OOC recall | 0.46, split, 0.20, 0.5. **2026-10-09 local variant (3090, ×2, §Gate record): M2 PASS 1.00 / 0.92 (was 0.46 ×2); 37-M1 PASS 0.95 (judge first) / run 2 PASS 2026-10-10 on an uncontended controller (§3090 measurements 2026-10-10); L6-C PASS 0.8 / 0.9 (was 0.5 ×2); Q1-M1 not decided (arm 20 can no longer carry 20 keys under B2's scope budget)**. Pod re-measure still owed (local-variant numbers) | pod |
 | M9 | Lorebook R5: Cast and place sheets "after character definitions" vs depth 4 | needs a real-model A/B on prefix stability and quality; the first same-member diff is earlier (Vector Storage, depth-10 player role) | pod |
-| M10 | Lore selection after R12: calls per reply, exclusive-mode effect under scan mode | before: ~5 judge calls per reply, exclusive refused in file mode | 3090 |
-| M11 | Send-to-line latency by turn decile after `43a16f4a` and F1 | batch 3 max 4.5 s, mostly 25–40 ms | 3090 |
+| M10 | Lore selection after R12: calls per reply, exclusive-mode effect under scan mode | before: ~5 judge calls per reply, exclusive refused in file mode. **2026-10-10 (3090)**: still ~5 per reply (p50 7 / p95 15 / max 17 per turn); exclusive never applied (`no-selection`, F21) | 3090 |
+| M11 | Send-to-line latency by turn decile after `43a16f4a` and F1 | batch 3 max 4.5 s, mostly 25–40 ms. **2026-10-10 (3090)**: p50 323 ms, p95 8.5 s, max 14.2 s (F19) | 3090 |
 | M12 | Warden timeouts after the warden fix | see the warden task's record | 3090 |
 | M13 | Keyword-scan recall on the lore lab after the campaign key tightening | 0.25 → 0.26 | none |
 | M14 | Phase C ×2 from zero on one build | symbolic now; runs when there is budget | pod |
@@ -56,7 +56,10 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F15 | The settings reader writes its full sanitized result back, so a changed default never reaches an existing install (judge uses, `spikes.*`, `cardOverlay`, `onDemand` stay at a stored `false`; R7 needed a `gatingChosen` marker). Persist only what the user changed, then drop the marker | features-on and R7 tasks 2026-10-09 |
 | F16 | Lore selection still costs about 5 judge calls per reply (263 candidates in chunks of 64); R12 saved about 0.1. Needs larger chunks or narrower book lists | R12 measurement |
 | F17 | Director timeouts: 36 of 155 calls over the 1500 ms budget (p50 about 960 ms) on the 3090 C3 run | warden fix record, v2.8 01 §B |
-| F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09 |
+| F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09. **2026-10-10 (3090, §3090 measurements M11)**: still p95 8.5 s / max 14.2 s locally, and 12 of 14 slow sends were not near a consolidation pass; see F19 |
+| F19 | On the 1-slot controller the player's line is taken only after the drafted member's inner-voice call returns, and that call queues behind extraction reads (3 slowest sends: 10–14 s). Check by trace whether the inner beat runs before ST posts the line; if so, post first | §3090 measurements 2026-10-10, M11 |
+| F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal`. Every local C3 run so far stopped at 71–81 of 98 turns. Find whether ST's count or a late injection overshoots; locally, leave margin (`max_context` below 32K) | §3090 measurements 2026-10-10, item 3 |
+| F21 | Exclusive lore select never applies: with every signal on, each loud generation refuses `no-selection`, because about 45 % of lore-select chunk calls fall back `busy` (judge-plugin 429/503) and the selection is never complete. Fewer, larger chunks (F16) or a retry for the missing chunks | §3090 measurements 2026-10-10, M10 |
 
 ## Develop
 
@@ -159,7 +162,52 @@ from the authored effects, independently of `src/runtime`).
 | G3 | **GREEN ×2** strict | J7 (sun-ruins) `--wi-gating scan`, lane 12: 8 pass / 0 fail each (1,520 s, 1,678 s), 8 of 8 first try, cleanup clean |
 | G4 | **GREEN** | J3 `--wi-gating scan` ×2 (8 pass / 0 fail, 164 s, 150 s, first try) and J7 `--wi-gating file` ×1 (8 pass / 0 fail, 1,404 s); the lane came back in `scan` (not chosen) after the file run; header diffs only the open chat |
 | G5 | **PASS ×2** (lane 13, no model) | One normalised entry hand-enabled through ST's API, page reloaded: the start-up verify reports it (drift 1, the only one), the author's Repair row "switched on outside the story" shows, the file still has it on (not switched off silently); re-normalise: file off, drift 0, row gone, 1 book write. Book hashes after both runs identical to before. The extension-disabled half and G1 (c) (manual, extension off) not run |
-| G1, G8 | from C3 run 1 below | measured in the Adolion story chat the C3 play leaves open (`g-post.js`): scan view vs the authored path, foreign gated entries in the T12 ring, 40 + 10 dry scans timed |
+| G1 | **PASS** (×1, C3 run 1 chat) | Adolion saga chat after 71 real turns over a 9-checkpoint path: scan view 323 / 323 gated entries as the path says (0 wrong, 0 unseen), owner `story`, drift 0, missingKey 0; T12 ring 20 loud-generation slots, 0 entries from another story's gated set, 0 flags |
+| G8 | **PASS** ×2 (same chat) | 40 + 10 dry scans over the 14 ledger books: p50 3.1 / 3.0 ms, p95 4.1 / 3.7 ms (≤ 5), max 5.4 / 7.1 ms |
 | G7 | not run | clean host per README ST version; unchanged, owed |
 
-M10 and M11 are measured on C3 run 1 (a fresh Adolion lane in scan mode, lore select judge on, 70+ real turns), item 3.
+**M10 (lore selection under scan mode)**, C3 run 1 (fresh Adolion lane, loreSelect on, 71 turns, 108 replies): lore-select requests per
+loud turn p50 7, p95 15, max 17 (546 requests, `so-b1-judge-causes score --row B1-C12`), about 5 per reply: unchanged from before
+R12 (p50 7, p95 16, max 18). 174 of 382 sent lore calls came back `busy` (plugin 429/503 after the client's retries), 9 timed out.
+**Exclusive mode never applied.** During the C3 play it was off by the harness (`--judge-uses` lists the C3 uses and not
+`loreExclusive`: refusal `use-off`). In 3 extra turns in the same chat with the install default (`loreExclusive` on, story
+`lore_select.exclusive: true`, scan mode, vectors WI off) every loud generation refused it with `no-selection`: the selection is
+never complete for a message while chunks fall back `busy`. New row F21.
+
+**M11 (send-to-line latency, H15b `SEND-TAKEN`)**, C3 run 1: 71 sends, all taken; p50 323 ms, p95 8,475 ms, max 14,202 ms, 14 over
+1 s; by decile (p50/p95 ms) 31/34, 1895/5072, 221/12558, 46/8475, 140/10202, 323/2910, 264/414, 367/14202, 414/7503, 421/528. The
+c3fix final run (same vector-yield build line) read p50 329, p95 9,870, max 21,063, 25 over 1 s. **Not the consolidation cause
+here**: 2 of the 14 slow sends started within 20 s of a consolidation pass (7 of 57 fast ones did). In the three slowest (14.2,
+12.6, 10.2 s) the line was taken 0.2–0.5 s after a memory-model call (`inner`, an extraction read) finished on the 1-slot
+controller (in all three an inner-voice call, itself queued behind an extraction read): the player's line appears to wait for the
+drafted member's inner-voice call. New row F19 (a local 1-slot shape so far; the pods' multi-slot runs read p50 ~60 ms; not proven
+by a trace).
+
+### 3. B1-C3 ×2 on one build (`ddf021bd`, bundle `1149a1ce5a07`)
+
+Same play as the warden task (`c3-run.sh`, a copy of c3fix's): SP6 saga lab journey at the campaign pin, control arm, the C3 judge
+uses (`director,memoryVerify,memoryPairs,sceneTrigger,sceneTracker,lookahead,loreSelect,curatorFilter,typedExtraction,stallCheck,
+expansionCritic,expansionLookahead,agencyCheck,wardenLore,warden`), warden `auto`, judge share 3, each run on a freshly seeded lane.
+Diagnostic, never a manifest slot.
+
+| Run | Lane | Turns | warden calls / timeouts | wardenLore calls / timeouts | `score --row B1-C3` | director calls / timeouts (answered > 1,500 ms) |
+|---|---|---|---|---|---|---|
+| 1 | 13, 20:08–23:14Z | 71 | 103 / 1 (queue) | 99 / 4 (queue 3, unattributed 1) | INCOMPLETE (wardenLore 99 < 100) | 147 / 0 (40) |
+
+Run 1 other uses (calls / timeouts / `busy`): lore 382 / 9 / 174, scene 102 / 1, typed 150 / 0 / 13, memoryVerify 102 / 0 / 3,
+memoryPairs 72 / 0, stall 19 / 0. Warden provider p50 1,114 / p95 2,608 ms; wardenLore 501 / 3,353 ms. `so-judge timeouts`: warden
+closed (1 per 103), scene not closed (J11.25 not run here). Reply round p50 99.8 s, p95 192 s.
+
+- **wardenLore 4 timeouts in 99** (> 1 per 50 as read, though under the 100-call minimum): 3 are `queue` (the plugin had not passed
+  the call on at the budget) inside stretches with judge-plugin 429s; the c3fix final run read 0 / 111.
+- **F17 director**: 0 timeouts in 147 (the c3fix middle run had 36 / 163, its final run 8 / 156); 40 answers arrived past 1,500 ms
+  and were kept (the stall grace of `44bade38`). Recorded, not fixed.
+- **Why runs stop near turn 71 on the 3090** (this run, and the three earlier local C3 runs at 71–81): the prompt outgrows the 32K
+  profile. At turn 72 the reply request carried 32,848 tokens (ST `max_context` 32768; ST also logged "Error counting tokens"); the
+  controller answered 409 `local_residency` ("needs the normal profile, which could not load … fast is loaded again"), twice, so the
+  round produced no reply and the journey's `send_generate` failed. The controller tried to load `normal` on its own and fell back to
+  `fast`; nothing here asked for it. Row F20.
+- **Harness: a 43-minute stall at the first cross-chapter `/cp activate`.** Chapter sealing is on by default since features-on
+  (2026-10-09), so a scripted jump raises the seal/skip prompt and the slash step waited on it. Run 1 was unblocked by an in-page
+  watcher that chose "Jump without sealing" (the same outcome the c3fix runs had with sealing off; 2 prompts in the run); the slash
+  helper now does this itself (`73c2279f`, test pins the product's text and label). No judge call was in flight during the stall.
