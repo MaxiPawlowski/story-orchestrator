@@ -26,7 +26,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M5 | B1-NARR plus its rating pack | P3 Narrator holdings scoping, unmeasured | pod |
 | M6 | B1-PFX (prompt-cache reuse) and B1-HIST (32K vs 98K history) | dropped for budget twice; decides the group cache layout (P4) and the history window (P1) | pod |
 | M7 | S-17 / 37-S17 on the new scope budget (`extraction/scopeBudget.ts`) | FAIL ×2 at +17 % before the budget; pair fairness may count per axis, not per pair | pod |
-| M8 | 36-Q1-M2 quest completion recall, 36-Q1-M1 scope, 37-M1 relationship direction, 37-L6-C voice warden OOC recall | 0.46, split, 0.20, 0.5. **2026-10-09 local variant (3090, ×2, §Gate record): M2 PASS 1.00 / 0.92 (was 0.46 ×2); 37-M1 PASS 0.95 (judge first) / see record; L6-C PASS 0.8 / 0.9 (was 0.5 ×2); Q1-M1 not decided (arm 20 can no longer carry 20 keys under B2's scope budget)**. Pod re-measure still owed (local-variant numbers) | pod |
+| M8 | 36-Q1-M2 quest completion recall, 36-Q1-M1 scope, 37-M1 relationship direction, 37-L6-C voice warden OOC recall | 0.46, split, 0.20, 0.5. **2026-10-09 local variant (3090, ×2, §Gate record): M2 PASS 1.00 / 0.92 (was 0.46 ×2); 37-M1 PASS 0.95 (judge first) / run 2 PASS 2026-10-10 on an uncontended controller (§3090 measurements 2026-10-10); L6-C PASS 0.8 / 0.9 (was 0.5 ×2); Q1-M1 not decided (arm 20 can no longer carry 20 keys under B2's scope budget)**. Pod re-measure still owed (local-variant numbers) | pod |
 | M9 | Lorebook R5: Cast and place sheets "after character definitions" vs depth 4 | needs a real-model A/B on prefix stability and quality; the first same-member diff is earlier (Vector Storage, depth-10 player role) | pod |
 | M10 | Lore selection after R12: calls per reply, exclusive-mode effect under scan mode | before: ~5 judge calls per reply, exclusive refused in file mode | 3090 |
 | M11 | Send-to-line latency by turn decile after `43a16f4a` and F1 | batch 3 max 4.5 s, mostly 25–40 ms | 3090 |
@@ -119,3 +119,29 @@ test 611 suites / 7,083 passed / 1 skipped, test:plugin 111 / 114 (3 skipped), t
 **What remains.** Pod re-measure of M8 (these are local-variant numbers); 37-M1 run 2 on an uncontended controller; the 36-Q1-M1 runner
 vs the B2 budget; whether the judge-first default for relationships changes any `judge.uses` setting (it is the existing typed path,
 on by default).
+
+## 3090 measurements 2026-10-10 (branch `v2.8-3090-measure`)
+
+**Local variant, not pod evidence.** Every number in this section comes from the owner's RTX 3090: controller `:18888` profile `fast`
+(32K, 1 slot, GGUF `Artemis-31B-v1m-Q4_K_M`, not the pods' v1.1), its config untouched, one model lane at a time and nothing else on
+the controller (`activeText` checked before each run). Lanes 12 (model) and 13 (no model) on a private ST code copy
+(`C:\dev\so-lanes\agent-st-3090m`, data junctioned read-only to the real install for the seed; the real ST slot, lane 0 and :8000
+untouched), each seeded by `adolion-fresh seed <n>` (campaign pin `6709a3a6`), every profile and role on the controller, ST
+`max_context` 32768, images and sprites off, judge TypeSafe (plugin 1.7.0, judge share 3). Build master `ddf021bd` (bundle
+`1149a1ce5a07`) unless a row says otherwise. Private evidence: `test/sessions/evidence/phase-c/3090-2026-10-10/` (`sessions:archive`
+not run).
+
+### 1. 37-M1 run 2 (uncontended)
+
+`so-b1-life-reads.mts m1 --lab <campaign lab/life> --profile "Story Orchestrator Memory RunPod" --run 2`, 18:28–18:37Z, 20 windows,
+no read errors, no timeouts (read p50 8.4–9.8 s, max 13.9 s per arm; the contended run 2 attempts of 2026-10-09 had p90 45–57 s).
+
+| Arm | Direction | Stuck (of 16 moving) | Clamp violations | Judge answered |
+|---|---|---|---|---|
+| (a) value hidden, shipped prompt | 0.95 | 0.0625 (1) | 0 | — |
+| (b) value shown | 1.00 | 0 | 0 | — |
+| (c) typed judge | 0.95 | 0 | 0 | 16 / 20 |
+
+**PASS** (run 1 PASS 2026-10-09, so 37-M1 is PASS ×2 locally). Gap (a) below (b): 5 points, at the 5-point limit (ok). Default
+path: judge first (arm c passed). The one (a) miss is a stuck window (label down, no move); the one (c) miss moved on a window
+labelled no change.
