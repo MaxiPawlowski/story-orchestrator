@@ -116,3 +116,18 @@ describe("T0 finding 7: a stated name loses the sentence's full stop, a sentence
     expect(value('DELTA mood value="calm." evidence="x"')).toBe("calm.");
   });
 });
+
+describe("a value written twice in the bare form (v2.8 31 F5, seen on the local model)", () => {
+  const story = { qualityByKey: { clues: { key: "clues", type: "int" as const, source: "extractor" as const, monotonic: true, rubric: "How many clues?" } } };
+
+  it("reads `clues=3 value=3` as the one value it states", () => {
+    const parsed = parseSharedReadResponse('DELTA clues=3 value=3 evidence="The ledger lies open on the desk."', story);
+    expect(parsed.deltas.map((entry) => entry.delta.v)).toEqual([3]);
+    expect(parsed.rejected).toEqual([]);
+  });
+
+  it("control: two different values stay refused, and a quoted number stays a string (A36)", () => {
+    expect(parseSharedReadResponse('DELTA clues=2 value=3 evidence="x"', story).rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
+    expect(parseSharedReadResponse('DELTA clues="3" evidence="x"', story).rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
+  });
+});

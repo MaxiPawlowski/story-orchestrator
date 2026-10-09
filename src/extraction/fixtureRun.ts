@@ -1,5 +1,5 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
-import { readContext, renderSharedReadPrompt } from "./contract";
+import { readContext, renderSharedReadPrompt, runningTotals } from "./contract";
 import { deriveScopeWithSources } from "./scope";
 import { SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
 import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
@@ -90,6 +90,7 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     ...(spec.epistemicLedgerCapable ? { epistemicLedgerCapable: true } : {}),
     ...(spec.entities ? { entities: spec.entities } : {}),
     ...readContext(story, activeCheckpointId),
+    counted: runningTotals(scope, blackboard.values),
   });
   return { story, activeCheckpointId, scope, prompt: spec.showValues ? withCurrentValues(prompt, scope, blackboard.values) : prompt, sources };
 }
