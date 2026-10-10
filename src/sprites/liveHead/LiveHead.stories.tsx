@@ -11,13 +11,13 @@ const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, laps
 function Preview() {
   const [activity] = useState(() => new StreamActivity());
   const [motion, setMotion] = useState(true), [label, setLabel] = useState("neutral");
-  return <div>
+  return <div style={{ pointerEvents: "auto" }}>
     <label>Expression <select value={label} onChange={(event) => setLabel(event.target.value)}>
       <option>neutral</option><option>joy</option><option>anger</option><option>sadness</option><option>surprise</option>
     </select></label>
     <label><input type="checkbox" checked={motion} onChange={(event) => setMotion(event.target.checked)} />Motion</label>
-    <button type="button" onClick={() => activity.pulse("Shape")}>Stream reply</button>
-    <button type="button" onClick={() => activity.stop()}>Stop reply</button>
+    <button type="button" className="menu_button" onClick={() => activity.pulse("Shape")}>Stream reply</button>
+    <button type="button" className="menu_button" onClick={() => activity.stop()}>Stop reply</button>
     <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
       <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">
         <img src={syntheticHead.source} alt="Synthetic shape bust" />
