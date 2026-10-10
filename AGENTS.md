@@ -4,7 +4,7 @@ Entry point for any coding agent (Codex, Claude Code, others). Claude Code loads
 (`@../AGENTS.md`), so the rules below are shared; Claude-specific detail stays in `.claude/`.
 
 Read before working:
-1. `.claude/CLAUDE.md`: what the extension is, sources of truth, status table, validation gates.
+1. `.claude/CLAUDE.md`: what the extension is, sources of truth, status table, validation gates, UI entry points.
 2. `.claude/rules/architecture.md`: layout and invariants. A failing `architecture.test.ts` is a failing build.
 3. `.claude/rules/working-style.md`: terse commits and docs, no code comments, a gate record per plan.
 4. `.claude/rules/gotchas.md` and `.claude/rules/debug-scripts.md`: before any live or browser work.

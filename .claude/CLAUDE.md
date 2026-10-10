@@ -1,6 +1,8 @@
+@../AGENTS.md
+
 # Story Orchestrator
 
-SillyTavern extension running format-2 authored stories as deterministic checkpoint graphs over an active group chat. Shared rules for every agent (owner, privacy, models, machine, merge policy): `AGENTS.md` at the repo root.
+SillyTavern extension running format-2 authored stories as deterministic checkpoint graphs over an active group chat.
 
 ## Sources of truth (read before implementing)
 
