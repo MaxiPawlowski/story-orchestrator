@@ -10,6 +10,7 @@ import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
 import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSettings } from "./displayToggles";
+import { deltaFrom, overDefaults } from "./settingsDelta";
 
 // The system default for answering one player message with several voices. A checkpoint's own
 // `talk_control.chain` overrides each field; absent fields fall back here.
@@ -124,7 +125,6 @@ export interface NormalizedFrom {
 
 export interface WorldInfoSettings {
   gatingMode: WorldInfoGatingMode;
-  gatingChosen: boolean;
   normalized: Record<string, string[]>;
   normalizedFrom: Record<string, NormalizedFrom[]>;
   /** Facts, scene history and checkpoint guidance join the World Info scan buffer. Off unless the author switches it on. */
@@ -132,7 +132,7 @@ export interface WorldInfoSettings {
   keptGlobal: string[];
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "scan", gatingChosen: false, normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -158,10 +158,8 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
       ])
       .filter(([, comments]) => comments.length > 0))
     : {};
-  const gatingChosen = value.gatingChosen === true;
   return {
-    gatingMode: gatingChosen && value.gatingMode === "file" ? "file" : "scan",
-    gatingChosen,
+    gatingMode: value.gatingMode === "file" ? "file" : "scan",
     normalized,
     normalizedFrom: sanitizeProvenance(value.normalizedFrom),
     scanMemory: typeof value.scanMemory === "boolean" ? value.scanMemory : defaultWorldInfoSettings().scanMemory,
@@ -291,3 +289,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     help: sanitizeHelpSettings(value.help),
   };
 };
+
+export const readGlobalSettings = (stored: unknown, defaults: GlobalSettings = defaultGlobalSettings()): GlobalSettings =>
+  sanitizeGlobalSettings(overDefaults(defaults, isRecord(stored) ? stored : {}));
+
+export const globalSettingsDelta = (settings: GlobalSettings, defaults: GlobalSettings = defaultGlobalSettings()): Record<string, unknown> =>
+  (deltaFrom(defaults, sanitizeGlobalSettings(settings)) as Record<string, unknown> | undefined) ?? {};

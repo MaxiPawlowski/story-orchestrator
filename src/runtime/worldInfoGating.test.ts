@@ -11,8 +11,8 @@ const deferred = () => {
   return { promise, release };
 };
 
-const harness = (options: { mode?: "file" | "scan"; chosen?: boolean; confirm?: boolean; capability?: "present" | "absent"; library?: unknown[]; ledger?: Record<string, string[]> } = {}) => {
-  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", gatingChosen: options.chosen ?? true, normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [] };
+const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capability?: "present" | "absent"; library?: unknown[]; ledger?: Record<string, string[]> } = {}) => {
+  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [] };
   const disk = new Map<string, Map<string, boolean | null>>([
     ["Ruins", new Map<string, boolean | null>([["CP1", false], ["CP2", false], ["Other", false], ["Off by hand", true], ["No key", null]])],
   ]);
@@ -171,7 +171,7 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     await h.gating.requestScan();
     const confirms = h.events.filter((event) => event.startsWith("confirm")).length;
     await h.gating.requestFile();
-    expect({ mode: h.settings.gatingMode, chosen: h.settings.gatingChosen }).toEqual({ mode: "file", chosen: true });
+    expect(h.settings.gatingMode).toBe("file");
     expect(h.active()).toBe(false);
     expect(h.events.slice(-4)).toEqual(["settle:false", "active:false", "dispose", "replay"]);
     expect(h.events.filter((event) => event.startsWith("confirm")).length).toBe(confirms);
@@ -207,7 +207,7 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
 
 describe("R7: scan mode is the default; the first run needs no confirm and touches only gated entries", () => {
   it("an install that never chose: the first sync normalises without a confirm, toasts counts only, then activates", async () => {
-    const h = harness({ mode: "scan", chosen: false, library: [story({ Ruins: ["CP1", "CP2"] })] });
+    const h = harness({ mode: "scan", library: [story({ Ruins: ["CP1", "CP2"] })] });
     await h.gating.sync();
     expect(h.events.filter((event) => event.startsWith("confirm"))).toEqual([]);
     expect(h.active()).toBe(true);
@@ -218,7 +218,7 @@ describe("R7: scan mode is the default; the first run needs no confirm and touch
   });
 
   it("the first run never writes an entry outside a gated set, whatever its state, and keeps what each gated entry was", async () => {
-    const h = harness({ mode: "scan", chosen: false, library: [story({ Ruins: ["CP1", "Off by hand"] })] });
+    const h = harness({ mode: "scan", library: [story({ Ruins: ["CP1", "Off by hand"] })] });
     await h.gating.sync();
     expect(h.events.filter((event) => event.startsWith("disable") || event.startsWith("enable"))).toEqual(["disable:Ruins:CP1"]);
     expect(Object.fromEntries(h.disk.get("Ruins")!)).toEqual({ CP1: true, CP2: false, Other: false, "Off by hand": true, "No key": null });
@@ -226,7 +226,7 @@ describe("R7: scan mode is the default; the first run needs no confirm and touch
   });
 
   it("a second start writes nothing", async () => {
-    const h = harness({ mode: "scan", chosen: false });
+    const h = harness({ mode: "scan" });
     await h.gating.sync();
     h.events.length = 0;
     h.toasts.length = 0;
@@ -237,7 +237,7 @@ describe("R7: scan mode is the default; the first run needs no confirm and touch
 
   it("a restore offers back exactly what the first run switched off", async () => {
     const removed = { ...story({ Ruins: ["CP1", "Off by hand"] }), id: "gone" };
-    const h = harness({ mode: "scan", chosen: false, library: [removed] });
+    const h = harness({ mode: "scan", library: [removed] });
     await h.gating.sync();
     expect(h.gating.restorable(removed)).toEqual([{ lorebook: "Ruins", comments: ["CP1"] }]);
   });

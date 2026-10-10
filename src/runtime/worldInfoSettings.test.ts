@@ -6,25 +6,24 @@ jest.mock("@services/STAPI", () => ({
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
-  it("R7: defaults to per-chat (scan) gating with nothing chosen, an empty ledger and no provenance", () => {
-    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "scan", gatingChosen: false, normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
-    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "scan", gatingChosen: false, normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+  it("R7: defaults to per-chat (scan) gating with an empty ledger and no provenance", () => {
+    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
   });
 
   it("keeps an explicit scan mode and a clean ledger, and drops anything else", () => {
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
-      .toEqual({ gatingMode: "scan", gatingChosen: false, normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
-    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "FILE", gatingChosen: true } }).worldInfo.gatingMode).toBe("scan");
+      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "FILE" } }).worldInfo.gatingMode).toBe("scan");
   });
 
-  it("R7: file mode holds only as the author's own choice; a stored file mode nobody chose reads as the scan default", () => {
-    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "file" } }).worldInfo).toMatchObject({ gatingMode: "scan", gatingChosen: false });
-    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "file", gatingChosen: true } }).worldInfo).toMatchObject({ gatingMode: "file", gatingChosen: true });
-    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", gatingChosen: true } }).worldInfo).toMatchObject({ gatingMode: "scan", gatingChosen: true });
+  it("F15: a stored file mode is the author's own choice, since only a write stores it", () => {
+    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "file" } }).worldInfo.gatingMode).toBe("file");
+    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "file", gatingChosen: true } }).worldInfo).not.toHaveProperty("gatingChosen");
   });
 
   it("round-trips the provenance of each normalised entry (W1: a new key beside the unchanged ledger)", () => {
-    const worldInfo = { gatingMode: "scan", gatingChosen: false, normalized: { Ruins: ["CP1", "CP2"] }, normalizedFrom: { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] }, scanMemory: false, keptGlobal: [] };
+    const worldInfo = { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP2"] }, normalizedFrom: { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] }, scanMemory: false, keptGlobal: [] };
     const once = sanitizeGlobalSettings({ worldInfo }).worldInfo;
     expect(once).toEqual(worldInfo);
     expect(sanitizeGlobalSettings({ worldInfo: once }).worldInfo).toEqual(worldInfo);
