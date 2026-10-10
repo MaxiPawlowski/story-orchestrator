@@ -1,13 +1,20 @@
 import { evaluateInST } from './evaluate.mts';
 
+export type WizardRoute = 'local' | 'harness' | 'native';
+
 export interface WizardDriveInput {
   goal: string;
   title: string;
   mode: string;
-  route: 'local' | 'harness';
+  route: WizardRoute;
   maxSteps: number;
   provision: 'reject' | 'apply';
+  profileId?: string;
+  seed?: Record<string, unknown>;
 }
+
+export const NATIVE_TIMEOUT_MS = 180000;
+export const NATIVE_MAX_TOKENS = 1536;
 
 export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; sessionId: string | null; ok?: boolean; kind?: string | null; tool?: string | null; callId?: string | null; delivered?: boolean; tools?: number }
 export interface BridgeEvidence { transport: 'none' | 'refusal' | 'bridge' | 'text'; refusal: string | null; events: BridgeEvent[] }
@@ -15,7 +22,7 @@ export interface BridgeEvidence { transport: 'none' | 'refusal' | 'bridge' | 'te
 export const UI_RUNNER_HANDLES = ['newAgentSession', 'approvePlan', 'pendingStep', 'decideStep', 'resolveProvisioning', 'applyDraftOp', 'applyProvisioningFollowUps', 'validationErrorCount', 'createAgentRunner', 'driveAgent', 'resolveAgentHarness'] as const;
 
 export function driveWizardAgent(page: any, input: WizardDriveInput) {
-  return evaluateInST(page, async ({ input, handles }: { input: WizardDriveInput; handles: readonly string[] }) => {
+  return evaluateInST(page, async ({ input, handles }: { input: WizardDriveInput & { maxTokens?: number; timeoutMs?: number }; handles: readonly string[] }) => {
     const rt = (globalThis as any).storyOrchestratorRuntime;
     const agent = (globalThis as any).storyOrchestratorWizardAgent;
     const store = (globalThis as any).storyOrchestratorStudioDraft;
@@ -45,7 +52,53 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
         return closed;
       },
     });
+    const profileBridge = (profileId: string) => {
+      const service = (globalThis as any).SillyTavern.getContext().ConnectionManagerRequestService;
+      const sessions = new Map<string, { messages: any[]; tools: any[]; queue: any[] }>();
+      let seq = 0;
+      const schemaTools = (schemas: any[]) => schemas.map((schema) => ({ type: 'function', function: { name: schema.name, description: schema.description, parameters: schema.inputSchema } }));
+      const parseArgs = (text: string) => { try { const parsed = JSON.parse(text || '{}'); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch { return {}; } };
+      return {
+        open: async (request: any) => {
+          const sessionId = `native-${++seq}`;
+          sessions.set(sessionId, { messages: [{ role: 'system', content: request.system }, { role: 'user', content: request.prompt }], tools: schemaTools(request.tools ?? []), queue: [] });
+          return { ok: true, sessionId };
+        },
+        nextCall: async (sessionId: string) => {
+          const state = sessions.get(sessionId);
+          if (!state) return { kind: 'ended', errorKind: 'transport', message: 'no such session' };
+          if (state.queue.length) return state.queue.shift();
+          let reply: any;
+          try {
+            reply = await service.sendRequest(profileId, state.messages, input.maxTokens ?? 1536, { extractData: false, includePreset: false, includeInstruct: false, stream: false }, { tools: state.tools, tool_choice: 'auto' });
+          } catch (error) {
+            return { kind: 'ended', errorKind: 'transport', message: String((error as Error)?.message ?? error) };
+          }
+          const message = reply?.choices?.[0]?.message;
+          if (!message) return { kind: 'ended', errorKind: 'transport', message: 'the profile returned no message' };
+          const calls = Array.isArray(message.tool_calls) ? message.tool_calls : [];
+          state.messages.push({ role: 'assistant', content: message.content ?? '', ...(calls.length ? { tool_calls: calls } : {}) });
+          if (!calls.length) return { kind: 'done', text: String(message.content ?? '') };
+          const events = calls.map((call: any) => ({ kind: 'call', callId: String(call.id), tool: String(call.function?.name ?? ''), args: parseArgs(String(call.function?.arguments ?? '{}')) }));
+          state.queue.push(...events.slice(1));
+          return events[0];
+        },
+        answer: async (sessionId: string, callId: string, result: { ok: boolean; text: string }) => {
+          const state = sessions.get(sessionId);
+          if (!state) return false;
+          state.messages.push({ role: 'tool', tool_call_id: callId, content: result.text });
+          return true;
+        },
+        close: async (sessionId: string) => { sessions.delete(sessionId); },
+      };
+    };
     const harness = async () => {
+      if (input.route === 'native') {
+        if (!input.profileId) throw new Error('--route native needs --profile <Connection Manager profile id>');
+        bridge.transport = 'bridge';
+        return { bridge: recording(profileBridge(input.profileId)), target: { harness: 'profile', model: input.profileId, timeoutMs: input.timeoutMs ?? 180000 } };
+      }
+      if (input.route === 'local') { bridge.transport = 'none'; return null; }
       const transport = await agent.resolveAgentHarness();
       if (!transport) { bridge.transport = 'none'; return null; }
       if (transport.refusal) { bridge.transport = 'refusal'; bridge.refusal = String(transport.refusal); return transport; }
@@ -55,6 +108,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
     const runner = agent.createAgentRunner({ model: rt.model, environment: (draft: unknown) => rt.getProvisioningEnvironment(draft), harness });
     const ownership = { mint: () => ({}), check: () => ({ ok: true }) };
     store.getState().newDraft();
+    if (input.seed) store.getState().mutate(() => input.seed);
     store.getState().mutate((draft: any) => ({ ...draft, title: input.title }));
     let session = agent.newAgentSession(input.goal, input.mode, { maxSteps: input.maxSteps });
     const accepted: unknown[] = [];
@@ -88,10 +142,10 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
     const draft = store.getState().draft;
     const replay = accepted.reduce((current, op) => agent.applyDraftOp(current, op), start);
     return { session, draft, lapsed, validationErrors: agent.validationErrorCount(draft), replayMatches: JSON.stringify(replay) === JSON.stringify(draft), bridge };
-  }, { input, handles: UI_RUNNER_HANDLES });
+  }, { input: { ...input, maxTokens: NATIVE_MAX_TOKENS, timeoutMs: NATIVE_TIMEOUT_MS }, handles: UI_RUNNER_HANDLES });
 }
 
-export function bridgeEvidenceProblems(route: 'local' | 'harness', bridge: BridgeEvidence | null | undefined): string[] {
+export function bridgeEvidenceProblems(route: WizardRoute, bridge: BridgeEvidence | null | undefined): string[] {
   if (!bridge) return ['no bridge evidence was recorded'];
   if (route === 'local') {
     if (bridge.transport === 'refusal') return [`the Studio resolver refused the harness route: ${bridge.refusal}`];
@@ -99,7 +153,7 @@ export function bridgeEvidenceProblems(route: 'local' | 'harness', bridge: Bridg
     return bridge.events.length ? ['--route local recorded bridge traffic'] : [];
   }
   if (bridge.transport === 'refusal') return [`the Studio resolver refused the harness route: ${bridge.refusal}`];
-  if (bridge.transport !== 'bridge') return [`--route harness needs the native tool bridge, the Studio resolver gave ${bridge.transport === 'none' ? 'no harness (route "Wizard and road ahead" to harness:opencode:<model>)' : 'the text protocol'}`];
+  if (bridge.transport !== 'bridge') return [`--route ${route} needs the native tool bridge, the Studio resolver gave ${bridge.transport === 'none' ? 'no harness (route "Wizard and road ahead" to harness:opencode:<model>)' : 'the text protocol'}`];
   const problems: string[] = [];
   const opened = bridge.events.filter((event) => event.op === 'open' && event.ok && event.sessionId);
   if (!opened.length) problems.push('no bridge session opened');

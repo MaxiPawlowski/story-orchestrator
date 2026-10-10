@@ -39,7 +39,7 @@ export const SETTING_COPY = {
   "extraction.profiles": copy(
     "Model for this task",
     "Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. "
-      + "Left on \"Same as memory model\", it uses the memory model.",
+      + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses a DeepSeek profile when there is one.",
   ),
   "extraction.routes.*.route.options.effort": copy(
     "Thinking for this task",
@@ -183,6 +183,10 @@ export const SETTING_COPY = {
   "copilot.enabled": copy(
     "Enable the wizard",
     "Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it.",
+  ),
+  "copilot.ask": copy(
+    "Ask questions",
+    "Ask in Help, the wizard or /story ask. It only reads; while you play it knows only what you have seen. A few model calls per question.",
   ),
   "worldInfo.gatingMode": copy(
     "How story lorebook entries switch on",

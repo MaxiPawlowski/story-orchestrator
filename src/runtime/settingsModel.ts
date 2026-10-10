@@ -197,7 +197,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true },
   display: { announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
-  copilot: { enabled: true },
+  copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT } },
   stagecraft: defaultStagecraftSettings(),
@@ -267,7 +267,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),
     },
-    copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
+    copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true, ask: isRecord(value.copilot) ? value.copilot.ask !== false : true },
     memory: sanitizeInnerVoice({
       ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },
     } as MemoryRuntimeSettings, defaults.memory),

@@ -86,6 +86,15 @@ put in the box where you type; nothing is sent until you send it, and it never r
 typing. **Other ideas** asks again. It calls the model only when you open it. A story can switch the button off, and
 so can you under Display.
 
+## Asking a question
+
+The **Ask** box at the top of Help (the "?" button) answers questions about Story Orchestrator and about the story
+you are playing: "how do I pin a memory?", "what is still open?". `/story ask <question>` does the same from the chat
+box. While you play it knows only what you have already seen: the scenes you reached, the drawer's Overview and the
+recent messages. Ask it about something you have not reached and it says it can only talk about what you have
+played. When the answer names a setting, **Show me** takes you there. It only reads; it never changes anything. It
+uses the authoring model, one or a few calls per question, and can be switched off under **Setup → Ask questions**.
+
 ## Branches
 
 A branch made from a chat that plays a story does not pick the story up on its own. The story bar shows
@@ -144,6 +153,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story quests` | The quests you have found and where each stands. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
+| `/story ask <question>` | Answers a question about the plugin or the story, from what you have already played. |
 
 `/so-mem list`, `/so-mem pin <n> on|off` and `/so-mem exclude <n>` manage memories from the chat box (see
 [Memory](memory.md)). `/cp` is an author tool and works only in Author view.

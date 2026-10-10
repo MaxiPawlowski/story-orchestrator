@@ -1,4 +1,5 @@
-import type { Milestone, QualityDisplay, Quest, StoryCheck, StoryWidget } from "@engine/index";
+import type { Milestone, QualityDisplay, Quest, RosterMember, StoryCheck, StoryWidget } from "@engine/index";
+import type { StoryClock } from "@engine/lifeSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
@@ -72,3 +73,23 @@ export const setCheckpointChecks = (draft: StoryDraft, id: string, checks: Story
 export const setTransitionCheck = (draft: StoryDraft, index: number, check: StoryCheck | undefined): StoryDraft => (check
   ? updateTransition(draft, index, { check })
   : { ...draft, transitions: draft.transitions.map((transition, at) => (at === index ? without(transition, "check") : transition)) });
+
+export const CHARACTER_LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule"] as const;
+
+export type CharacterLife = Pick<RosterMember, (typeof CHARACTER_LIFE_FIELDS)[number]>;
+
+export const setCharacterLife = (draft: StoryDraft, id: string, life: CharacterLife): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== id) return member;
+    const rest: RosterMember = { ...member };
+    CHARACTER_LIFE_FIELDS.forEach((field) => { delete rest[field]; });
+    const kept = Object.fromEntries(CHARACTER_LIFE_FIELDS.flatMap((field) => {
+      const value = life[field];
+      return value === undefined || (Array.isArray(value) && !value.length) ? [] : [[field, value]];
+    }));
+    return { ...rest, ...kept };
+  }),
+});
+
+export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(draft, "clock"));

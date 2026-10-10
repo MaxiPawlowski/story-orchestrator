@@ -459,6 +459,16 @@ Fields: `roster[].relationships` (`toward`, `axes`, `range`, `step`, `start`, `l
 - **Bad.** `display` on a `rel_*` quality (refused: feelings are never public); an agenda step with `cast_changes` (refused: use a checkpoint); `pace: "per_chapter"` in a story without `chapters` (refused, `agenda-pace-no-chapters`: it would move once and never again; use `per_n_boundaries` with `every`, or add chapters); a relationship toward the member itself or toward an id not in the roster (refused); an authored quality named like a compiled one (refused).
 - **If wrong.** Too many axes in one scene: the rest are left out of that read and Author view's setup list names them (`relationship-scope-overflow`).
 
+### Living cards
+<!-- topic: living-cards -->
+
+Fields: `roster[].card` and `player.card` (`fields`, each `{quality, visual}`), and `checkpoints[].effects.card` (`{owner: {field: value}}`) (`engine/cardFields.ts`, `runtime/cardLedger.ts`).
+
+- **What it does.** A card field is a part of a character's look or description that can change in one chat without touching the card itself: `"card": {"fields": {"hair": {"quality": "arin_hair", "visual": true}}}`. Each field binds one quality, which must be a non-latching, non-monotonic extractor `string` or `enum` (a quality binds to one field at most, a card declares at most 64, a field id is a lowercase word). The reader keeps the quality current from the chat like any other ("Arin dyes her hair red" moves it), so the change stays in this chat's story state, a swipe takes it back, and a new chat starts from the card as written. `visual: true` sends the field to pictures and sprites as part of the look. A checkpoint can set a field when it starts: `"effects": {"card": {"arin": {"hair": "red"}}}` names an owner (a roster id, or `player`), a declared field and a short value the quality allows (240 characters at most). Author view lists the current values and who wrote each (the reader, the checkpoint, or the author).
+- **Good.** One field per thing that really changes in the story (hair, a scar, a uniform), each with a rubric that says what to look for; `visual` only on what a picture should show.
+- **Bad.** A field bound to a latching or code quality (refused: the reader could never move it); two fields on one quality (refused); a checkpoint card value the quality does not allow (refused); a field that restates the whole description.
+- **If wrong.** A field whose quality is never read keeps its first value; give the quality a rubric the reader can answer from the chat.
+
 ## Part 2: good practices and traps
 
 Each item names where it was learned: a test session, the bundled campaign, or a diagnostic.

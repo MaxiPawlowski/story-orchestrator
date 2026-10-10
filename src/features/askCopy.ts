@@ -1,0 +1,15 @@
+export const ASK_TEXT = {
+  heading: "Ask",
+  question: "Your question",
+  placeholderPlayer: "How do I pin a memory? What is still open?",
+  placeholderAuthor: "How do I make a lorebook entry always on? Why didn't the story move on?",
+  submit: "Ask",
+  busy: "Thinking…",
+  playerNote: "Answers use only what you have already seen in the story.",
+  authorNote: "Answers can read the whole story. It only reads; it never changes anything.",
+  from: "From",
+  showMe: "Show me",
+  readMore: "Read more",
+  answer: "Answer",
+  failed: "The question could not be asked. Try again in a moment.",
+} as const;

@@ -1,4 +1,5 @@
 import { useSyncExternalStore, type ReactNode } from "react";
+import { askHost } from "@runtime/askEntry";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
@@ -127,7 +128,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       <>
         {panels.includes("help") && (
           <Panel id="help" title={HELP_COPY.heading}>
-            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} /></Lazy>
+            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)}
+              ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>
           </Panel>
         )}
         {panels.includes("guide") && (

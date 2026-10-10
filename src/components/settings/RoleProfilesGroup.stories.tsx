@@ -46,6 +46,25 @@ export const SameAsMemoryModel: Story = {
 
 // v2.8 11: the Lore creation row defaults to the curator's route and says whether that model
 // was measured for new entries.
+export const WizardDefaultsToDeepSeek: Story = {
+  args: {
+    profiles: [...profiles, { id: "ds", name: "deepseek 4.1 flash", model: "deepseek-v4-flash", kind: "chat", source: "deepseek" }],
+    routes: allFallback.map((entry) => (entry.role === "authoring"
+      ? { ...route("authoring", "Wizard and road ahead", "untested", "ds", "Wizard and road ahead: not tested yet"), defaulted: true }
+      : entry)),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Models per task/));
+    const select = canvasElement.querySelector("#so-role-profile-authoring") as HTMLSelectElement;
+    await expect(select.value).toBe("");
+    await expect(select.options[select.selectedIndex].textContent).toBe("Default: deepseek 4.1 flash");
+    await expect((canvasElement.querySelector("#so-role-profile-read") as HTMLSelectElement).options[0].textContent).toBe("Same as memory model");
+    await userEvent.selectOptions(select, "memory");
+    await expect(args.onAssign).toHaveBeenCalledWith("authoring", "memory");
+  },
+};
+
 export const LoreCreationNotMeasured: Story = {
   args: {
     routes: [...allFallback, route("lore", "Lore creation", "fallback", "memory", "Same as World Info curator")],

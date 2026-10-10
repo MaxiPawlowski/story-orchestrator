@@ -18,6 +18,9 @@ import {
 import { SETTINGS_AREA_COPY, SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
 import { BRIEFING_COPY, HELP_COPY, ONBOARDING_LINES } from "./helpCopy";
+import { ASK_TEXT } from "./askCopy";
+import { ASK_COPY, PLAYER_REFUSAL } from "@copilot/agent/ask";
+import { ASK_HOST_COPY } from "@runtime/askLiveState";
 import { INLINE_CATEGORY_HELP, INLINE_LEGEND_COPY, INLINE_LEVEL_HELP, INLINE_LEVEL_LABELS, INLINE_STATE_LABELS } from "./inlineCopy";
 
 const ROOT = resolve(__dirname, "../..");
@@ -81,7 +84,7 @@ const copyItems = (): CopyItem[] => [
   ...Object.entries(JUDGE_USE_COPY).flatMap(([key, copy]) => [copy.label, copy.description, copy.sends].map((text) => ({ source: `judge use ${key}`, audience: "setup" as const, text }))),
   ...Object.entries(JUDGE_READINESS_BY_PROVIDER).flatMap(([provider, facts]) => Object.entries(facts)
     .map(([key, fact]) => ({ source: `readiness ${provider}.${key}`, audience: "setup" as const, text: fact?.recommendation ?? "" }))),
-  ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP]
+  ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP, ASK_TEXT, ASK_COPY, ASK_HOST_COPY, { refusal: PLAYER_REFUSAL }]
     .flatMap((table, index) => Object.values(table).map((text) => ({ source: `player copy table ${index}`, audience: "player" as const, text: String(text) }))),
   ...Object.values(INLINE_LEVEL_LABELS).map((text) => ({ source: "inline level", audience: "player" as const, text })),
   ...[...Object.values(BRIEFING_COPY), ...ONBOARDING_LINES.map((line) => line.text)].map((text) => ({ source: "briefing copy", audience: "player" as const, text })),
@@ -224,7 +227,7 @@ describe("v2.7 plan 01 UI copy", () => {
 
 describe("v2.7 plan 01 slash help", () => {
   it("lists every /story verb, help included", () => {
-    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "intro", "who", "quests", "chapters", "chapter", "chronicle", "flag", "guide", "help"]);
+    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "intro", "who", "quests", "chapters", "chapter", "chronicle", "flag", "guide", "ask", "help"]);
     for (const entry of STORY_VERBS) expect(STORY_HELP_STRING).toContain(entry.what);
     expect(SO_MEM_HELP_STRING).not.toMatch(/\bv2\b/);
   });

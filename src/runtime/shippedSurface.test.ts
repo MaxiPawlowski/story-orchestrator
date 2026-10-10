@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 jest.mock("@services/STAPI", () => ({
+  listConnectionProfiles: () => [],
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),

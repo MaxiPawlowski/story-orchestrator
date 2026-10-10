@@ -24,6 +24,9 @@ import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolba
 import { GateReplayContext } from "./replayContext";
 import type { GateReplaySource } from "./gateReplay";
 import { resolveAgentHarness } from "./agentHost";
+import { studioAssist, studioTopicTarget } from "./studioAssist";
+import type { KnowledgeShowMe } from "@copilot/knowledge/types";
+import type { StudioAskRunner } from "./components/StudioAsk";
 
 export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "game" | "sprites" | "diagnostics" | "copilot";
 
@@ -75,6 +78,7 @@ type Props = {
   copilotEnabled?: boolean;
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
   agentModel?: ModelCall;
+  askEnabled?: boolean;
   onSaved?: StudioSaveHandler;
   hostOptions?: StudioHostOptions;
   wizardHost?: WizardHost;
@@ -204,6 +208,9 @@ interface TabContentProps {
   onSelect: (tab: StudioTab) => void;
   wizardMode: WizardMode;
   onWizardMode: (mode: WizardMode) => void;
+  ask?: StudioAskRunner;
+  draftTutorialStep?: (prompt: string) => Promise<string>;
+  onShowTopic?: (target: KnowledgeShowMe) => void;
 }
 
 const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSelect: (tab: StudioTab) => void }) => {
@@ -227,7 +234,9 @@ const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSel
   );
 };
 
-const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode }: TabContentProps) => {
+const StudioTabContent = ({
+  activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode, ask, draftTutorialStep, onShowTopic,
+}: TabContentProps) => {
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
   if (activeTab === "story") {
     return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
@@ -250,6 +259,9 @@ const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage,
         host={wizardHost}
         initialStage={intent?.stage}
         seedMissing={intent?.missing}
+        ask={ask}
+        draftTutorialStep={draftTutorialStep}
+        onShowTopic={onShowTopic}
       />
     );
   }
@@ -270,7 +282,7 @@ const StudioFooter = ({ onSaved, onRekeySession }: { onSaved?: StudioSaveHandler
   );
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, askEnabled = true, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const [wizardMode, setWizardMode] = useState<WizardMode>("staged");
   const [guideDoc, setGuideDoc] = useState<string | null>(null);
@@ -301,6 +313,12 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
 
   const handleKeyDown = focusTrapHandler(panelRef, requestClose);
   const agentRunner = useMemo(() => agentTurnRunner(agentModel, wizardHost), [agentModel, wizardHost]);
+  const assist = useMemo(() => (agentModel && wizardHost ? studioAssist(agentModel, wizardHost, () => readHostOptions().backgroundNames) : null), [agentModel, wizardHost]);
+  const showTopic = (target: KnowledgeShowMe) => {
+    const resolved = studioTopicTarget(target);
+    if (resolved && "tab" in resolved) setTab(resolved.tab);
+    else if (resolved) setGuideDoc(resolved.doc);
+  };
 
   return createPortal(
     <dialog
@@ -331,6 +349,9 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
               onSelect={setTab}
               wizardMode={wizardMode}
               onWizardMode={setWizardMode}
+              ask={askEnabled ? assist?.ask : undefined}
+              draftTutorialStep={assist?.draftStep}
+              onShowTopic={showTopic}
             />
           </GateReplayContext.Provider>
         </div>

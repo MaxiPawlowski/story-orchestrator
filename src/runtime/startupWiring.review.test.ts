@@ -27,6 +27,7 @@ const mockHost = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  listConnectionProfiles: () => [],
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,

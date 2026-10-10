@@ -2,6 +2,7 @@ import {
   clearStoryExtensionPrompt,
   countTokens,
   getContext,
+  listConnectionProfiles,
   noteHostSettingsLoaded,
   profileExists,
   readExtensionPromptBlocks,
@@ -19,6 +20,7 @@ import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
 import { roleHealth } from "../roleHealth";
+import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
@@ -80,6 +82,8 @@ const dispatch = (handlers: ReturnType<typeof intentHandlers>, intent: Generatio
 
 export const attachGenerationObservers = (live: LiveParts, disposers: Disposers, generation: GenerationLifecycle) => {
   disposers.push(generationWatch.attach(() => generation.snapshot().openedCount));
+  setRoleDefault((role) => roleDefaultFrom(listConnectionProfiles())(role));
+  disposers.push(() => setRoleDefault(null));
   disposers.push(roleHealth.attach({
     settings: () => runtimeManager.getExtractionSettings(),
     exists: profileExists,

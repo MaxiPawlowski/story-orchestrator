@@ -55,7 +55,8 @@
       }
     },
     "copilot": {
-      "enabled": true
+      "enabled": true,
+      "ask": true
     },
     "memory": {
       "enabled": true,

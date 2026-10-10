@@ -25,11 +25,11 @@ export const UNKNOWN_USAGE: CallUsage = Object.freeze({ input: null, output: nul
 
 export const usageKnown = (usage: CallUsage | undefined): usage is CallUsage => usage !== undefined && (usage.input !== null || usage.output !== null || usage.costUsd !== null);
 
-export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "fallback" } | { ok: false; profileId: string; reason: string };
+export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "default" | "fallback" } | { ok: false; profileId: string; reason: string };
 
 export const MODEL_PASSES = [
   "read", "sceneSummary", "shortTerm", "epistemic", "ledger", "arcSummary", "canon", "chapterSeal", "supersession", "curator", "generation", "critic", "copilot",
-  "director", "inner", "suggestions", "loreCreate",
+  "director", "inner", "suggestions", "loreCreate", "ask",
 ] as const;
 
 export type ModelPass = typeof MODEL_PASSES[number];

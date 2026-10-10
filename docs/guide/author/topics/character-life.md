@@ -13,4 +13,4 @@ Fields: `roster[].relationships` (`toward`, `axes`, `range`, `step`, `start`, `l
 
 ---
 
-[Author's guide](../README.md) · previous: [Story-made HTML panels](html-panels.md) · next: [Good practices and traps](../good-practices.md)
+[Author's guide](../README.md) · previous: [Story-made HTML panels](html-panels.md) · next: [Living cards](living-cards.md)

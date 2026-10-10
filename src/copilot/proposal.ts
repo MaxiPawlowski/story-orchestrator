@@ -51,6 +51,8 @@ export const isProvisioningOp = (op: ProposalOp): op is ProvisioningOp => isProv
 
 // A provisioning op acts on the ST install, so applying it to the draft is a no-op; what it leaves
 // behind in the story is its requirement, added through the ordinary mutation path.
+export const cardRosterId = (name: string): string => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_");
+
 export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): ProposalOp[] => {
   const wanted = provisioningRequirements(op);
   const current = draft.requirements ?? {};
@@ -73,7 +75,7 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
     ops.push({ kind: "setLoreSelect", loreSelect: { ...draft.lore_select, lorebooks: merge(draft.lore_select?.lorebooks, [op.name]) } });
   }
   if (op.kind === "createCharacterCard" && !draft.roster.some((member) => (member.name ?? member.id).trim().toLowerCase() === op.name.trim().toLowerCase())) {
-    ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name, ...(op.role ? { role: op.role } : {}) } });
+    ops.push({ kind: "addRosterMember", member: { id: cardRosterId(op.name), name: op.name, ...(op.role ? { role: op.role } : {}) } });
   }
   return ops;
 };

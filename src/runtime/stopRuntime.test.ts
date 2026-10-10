@@ -6,6 +6,7 @@ const surface = { started: 0, stopped: 0 };
 const hostSubscriptions = { open: 0 };
 
 jest.mock("@services/STAPI", () => ({
+  listConnectionProfiles: () => [],
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
