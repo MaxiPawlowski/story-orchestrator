@@ -38,7 +38,7 @@ In order:
 | `SO_JUDGE_LLAMA_KEY` | | llama-server key fallback |
 | `SO_JUDGE_ACCOUNT_RATE_PER_MIN` | 1200 | the provider account's request ceiling |
 | `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC` | 250000 | the account's input-token ceiling |
-| `SO_JUDGE_RATE_PER_MIN` | 2 × account / 5 (480) | each SillyTavern user's share |
+| `SO_JUDGE_RATE_PER_MIN` | the account (1200) with user accounts off; 2 × account / 5 (480) with them on | each SillyTavern user's share (input tokens per second follow the same rule) |
 | `SO_JUDGE_MAX_IN_FLIGHT` | 2 | concurrent calls per user |
 
 ## Limits and behaviour
@@ -46,7 +46,8 @@ In order:
 - **Size**: a request whose estimate (3.488 characters per token) passes 32,000 tokens for the state plus the longest
   question, or 64,000 for the whole request, each minus 10%, is refused with 413 and never truncated. The extension
   reads that as "too large" and takes its fallback.
-- **Rate**: per user 2 in flight, 16 queued, 2 s queue wait. A provider 429 halves the effective rate (floor 10%); a
+- **Rate**: per user 2 in flight, 16 queued, 2 s wait. A call over the per-minute or per-second window waits for it inside
+  those 2 s and is refused 429 only when the window frees later. A provider 429 halves the effective rate (floor 10%); a
   `Retry-After` holds every call that long (capped at 5 minutes); the rate recovers over 120 s after a 30 s hold.
   `GET /status` reports the adaptive state.
 - **Timeout**: 10 s upstream.

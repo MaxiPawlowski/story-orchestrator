@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.7.0';
+export const PLUGIN_VERSION = '1.8.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -33,7 +33,7 @@ export const ACCOUNT_RATE_PER_MIN = 1_200;
 export const ACCOUNT_TOKENS_PER_SECOND = 250_000;
 export const EXPECTED_USERS = 5;
 export const USER_BURST = 2;
-export const userShare = (account) => Math.max(1, Math.floor((account * USER_BURST) / EXPECTED_USERS));
+export const userShare = (account, users = EXPECTED_USERS) => Math.max(1, Math.min(account, Math.floor((account * USER_BURST) / users)));
 export const MAX_CALLS_PER_MINUTE_PER_USER = userShare(ACCOUNT_RATE_PER_MIN);
 export const MAX_TOKENS_PER_SECOND_PER_USER = userShare(ACCOUNT_TOKENS_PER_SECOND);
 export const RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
@@ -355,14 +355,16 @@ export async function readTextBody(request, limit = MAX_BODY_BYTES) {
 
 const positiveInteger = (raw, fallback) => (typeof raw === 'string' && /^\d+$/.test(raw.trim()) && Number(raw) >= 1 ? Number(raw) : fallback);
 
-export function limitsFromEnv(env = process.env) {
+export const usersFor = (accountsEnabled) => (accountsEnabled === false ? 1 : EXPECTED_USERS);
+
+export function limitsFromEnv(env = process.env, { users = EXPECTED_USERS } = {}) {
     const accountPerMinute = positiveInteger(env?.[ACCOUNT_RATE_ENV], ACCOUNT_RATE_PER_MIN);
     const accountTokensPerSecond = positiveInteger(env?.[ACCOUNT_TOKENS_ENV], ACCOUNT_TOKENS_PER_SECOND);
     return {
         maxInFlight: positiveInteger(env?.[IN_FLIGHT_ENV], MAX_IN_FLIGHT_PER_USER),
-        perMinute: positiveInteger(env?.[RATE_ENV], userShare(accountPerMinute)),
+        perMinute: positiveInteger(env?.[RATE_ENV], userShare(accountPerMinute, users)),
         accountPerMinute,
-        tokensPerSecond: userShare(accountTokensPerSecond),
+        tokensPerSecond: userShare(accountTokensPerSecond, users),
         accountTokensPerSecond,
     };
 }
@@ -387,33 +389,48 @@ const prune = (bucket, at) => {
     bucket.spent = bucket.spent.filter((entry) => at - entry.at < TOKEN_WINDOW_MS);
 };
 
+const pause = (ms, signal) => new Promise((resolve) => {
+    if (signal?.aborted) {
+        resolve();
+        return;
+    }
+    const done = () => {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', done);
+        resolve();
+    };
+    const timer = setTimeout(done, ms);
+    signal?.addEventListener('abort', done, { once: true });
+});
+
 export function createLimiter({
     maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, accountPerMinute = ACCOUNT_RATE_PER_MIN,
     tokensPerSecond = MAX_TOKENS_PER_SECOND_PER_USER, accountTokensPerSecond = ACCOUNT_TOKENS_PER_SECOND,
     maxQueued = MAX_QUEUED_PER_USER, queueWaitMs = QUEUE_WAIT_MS, now = Date.now, onRefuse = () => undefined, adaptive = createAdaptiveRate({ now }),
+    sleep = pause,
 } = {}) {
     const users = new Map();
     const account = { stamps: [], spent: [] };
-    const take = (user, cost) => {
+    const rateWait = (user, cost) => {
         const at = now();
-        const cooling = adaptive.coolingMs();
-        if (cooling > 0) {
-            onRefuse(Math.max(1, Math.ceil(cooling / 1000)));
-            return null;
-        }
         const factor = adaptive.factor();
         const scaled = (limit) => Math.max(1, Math.floor(limit * factor));
         prune(user, at);
         prune(account, at);
-        const wait = Math.max(
+        return Math.max(
             callWait(user.stamps, scaled(perMinute), at), callWait(account.stamps, scaled(accountPerMinute), at),
             tokenWait(user.spent, scaled(tokensPerSecond), cost, at), tokenWait(account.spent, scaled(accountTokensPerSecond), cost, at),
         );
-        if (wait > 0) {
-            onRefuse(Math.max(1, Math.ceil(wait / 1000)));
-            return null;
-        }
+    };
+    const free = (user) => {
+        user.inFlight -= 1;
+        const next = user.waiting.shift();
+        if (!next) return;
         user.inFlight += 1;
+        next();
+    };
+    const commit = (user, cost) => {
+        const at = now();
         for (const bucket of [user, account]) {
             bucket.stamps.push(at);
             bucket.spent.push({ at, cost });
@@ -422,15 +439,40 @@ export function createLimiter({
         return () => {
             if (released) return;
             released = true;
-            user.inFlight -= 1;
-            user.waiting.shift()?.();
+            free(user);
         };
+    };
+    const paced = async (user, cost, deadline, signal) => {
+        for (;;) {
+            const cooling = adaptive.coolingMs();
+            if (cooling > 0) {
+                onRefuse(Math.max(1, Math.ceil(cooling / 1000)));
+                free(user);
+                return null;
+            }
+            const wait = rateWait(user, cost);
+            if (wait <= 0) return commit(user, cost);
+            if (now() + wait > deadline) {
+                onRefuse(Math.max(1, Math.ceil(wait / 1000)));
+                free(user);
+                return null;
+            }
+            await sleep(wait, signal);
+            if (signal?.aborted) {
+                free(user);
+                return null;
+            }
+        }
     };
     return async (handle, cost = 0, signal = undefined) => {
         if (signal?.aborted) return null;
         const user = users.get(handle) ?? { inFlight: 0, stamps: [], spent: [], waiting: [] };
         users.set(handle, user);
-        if (user.inFlight < maxInFlight && !user.waiting.length) return take(user, cost);
+        const deadline = now() + queueWaitMs;
+        if (user.inFlight < maxInFlight && !user.waiting.length) {
+            user.inFlight += 1;
+            return paced(user, cost, deadline, signal);
+        }
         if (user.waiting.length >= maxQueued) {
             onRefuse(1);
             return null;
@@ -452,9 +494,7 @@ export function createLimiter({
             if (!signal?.aborted) onRefuse(1);
             return null;
         }
-        const release = take(user, cost);
-        if (!release) user.waiting.shift()?.();
-        return release;
+        return paced(user, cost, deadline, signal);
     };
 }
 
@@ -470,8 +510,8 @@ const sendUpstream = (response, upstream) => {
     response.status(upstream.status).type('application/json').send(upstream.text);
 };
 
-export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, env = process.env, log = (line) => console.warn(`[story-orchestrator-judge] ${line}`) } = {}) {
-    const limits = limitsFromEnv(env);
+export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, users = usersFor(accountsEnabled), env = process.env, log = (line) => console.warn(`[story-orchestrator-judge] ${line}`) } = {}) {
+    const limits = limitsFromEnv(env, { users });
     let retryAfter = 1;
     const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
     const served = { since: refusals.since, total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 };
@@ -604,12 +644,13 @@ export function guardRoute(handler, log = (line) => console.error(`[story-orches
 }
 
 export async function init(router) {
-    const handlers = createHandlers();
+    const users = usersFor(await userAccountsEnabled());
+    const handlers = createHandlers({ users });
     router.get('/status', guardRoute(handlers.status));
     router.post('/systemone', guardRoute(handlers.receive));
     router.post('/providers/llama-logprob/completion', guardRoute(handlers.receiveLlama));
     const resolved = await resolveKey(null);
-    const limits = limitsFromEnv();
+    const limits = limitsFromEnv(process.env, { users });
     console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}; per user ${limits.perMinute}/min, ${limits.maxInFlight} in flight (${RATE_ENV}, ${IN_FLIGHT_ENV}); account ${limits.accountPerMinute}/min, ${limits.accountTokensPerSecond} input tokens/s (${ACCOUNT_RATE_ENV}, ${ACCOUNT_TOKENS_ENV}), per user ${limits.tokensPerSecond} tokens/s; lowered on a TypeSafe 429`);
 }
 
