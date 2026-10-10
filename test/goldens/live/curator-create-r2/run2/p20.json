@@ -1,0 +1,21 @@
+{
+  "id": "p20",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae and beans under violet lamps. || The air is wet and warm. || Racks of beans ready for harvest and algae under violet lamps. The air is wet and warm.\n[why] The story established the beans are ready to harvest, so the deck description now notes the crop's ripe state rather than leaving it implied.",
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae and beans under violet lamps. || The air is wet and warm. || Racks of algae and beans under violet lamps, still running. The air is wet and warm; the beans are ready to harvest.\n[why] The deck is confirmed operational and the beans' harvest-readiness now matters to the story.",
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae and beans || The air is wet and warm. || Racks of algae and beans under violet lamps. The air is wet and warm. The beans are ripe and ready to harvest.\n[why] The beans have been established as ready to harvest, so the deck's entry should note that."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "n26",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"Hydroponics Deck\"\n[why] The story has moved to the hydroponics deck, making its entry relevant now.",
+    "[enable] #0 \"Hydroponics Deck\"\n[why] The story has moved to the hydroponics deck, so its entry now matters.",
+    "[why] The established facts about Velloc sealing the lower decks and keeping the override key are new lore about a person the existing entries do not cover, so a Station Nine Lore entry is needed; no listed entry requires enabling, disabling, or correction."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

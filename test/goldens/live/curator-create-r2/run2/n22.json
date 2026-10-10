@@ -1,0 +1,21 @@
+{
+  "id": "n22",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] Edda's oil purchase adds no new lore and does not invalidate, activate, or deactivate anything already established.",
+    "[patch] #1 \"Tamsin\" || sells oil by the cup || sells oil by the cup || — though the customs men still get none.\n[why] Edda successfully bought oil from Tamsin, so Tamsin's refusal is now specific to the customs men rather than a blanket refusal to sell oil.",
+    "[disable] #1\n[why] Tamsin and her shop no longer matter now that Edda has bought the oil and left the shop behind."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

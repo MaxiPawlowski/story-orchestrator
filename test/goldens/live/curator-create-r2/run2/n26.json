@@ -1,0 +1,21 @@
+{
+  "id": "n26",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"Hydroponics Deck\"\n[why] The story has moved to the hydroponics deck, so its lore entry now matters.",
+    "[patch] Hydroponics Deck || Racks of algae and beans || violet lamps. || Racks of algae and beans under violet lamps. The deck's far hatch, like every passage below, has been sealed from the other side.\n[why] The story has moved onto the hydroponics deck and the sealed lower decks are now directly relevant there, so the entry should reflect that condition.",
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae and beans || violet lamps. || Racks of algae and beans under violet lamps. The deck has gone quiet since Velloc sealed the lower levels; the hum of the grow-fans sounds more like a held breath.\n[why] The story has moved onto the hydroponics deck and the sealing of the lower decks, so the deck's entry should reflect that tense new context."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

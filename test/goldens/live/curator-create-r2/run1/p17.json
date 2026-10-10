@@ -1,0 +1,21 @@
+{
+  "id": "p17",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "NONE",
+    "[enable] #0 \"The River Road\"\n[why] The pair has moved onto the river road, so the entry describing it now matters to the story.",
+    "[create] Lantern Coast Lore || Greywater Mill || Greywater Mill, miller, flour sacks || A river mill grinding grain for every village on the river. Beneath its flour sacks, smuggled salt is hidden.\n[why] The pair traveling up the river road brings Greywater Mill and its smuggling into relevance, and no existing entry covers it."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    true
+  ]
+}

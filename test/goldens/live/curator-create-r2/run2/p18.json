@@ -1,0 +1,21 @@
+{
+  "id": "p18",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Ashfall Lore || Orrin || Orrin, healer, poultices || Orrin is the ember camp's only healer. He trades poultices for news. He lost his left hand in the first ashfall.\n[enable] #0 \"The Ember Camp\"\n[why] Orrin is now an established person at the ember camp and needs his own entry, and the camp entry is now directly relevant as the current scene.",
+    "[patch] #0 \"The Ember Camp\" || Refugees shelter in tents || burning ridge. || Refugees shelter in tents downwind of the burning ridge, among them a lone healer who trades poultices for news.\n[create] Ashfall Lore || Orrin the Healer || Orrin, healer || Orrin is the ember camp's only healer, trading poultices for news. He lost his left hand in the first ashfall.\n[why] The party reached the ember camp and met its healer, so the camp entry now needs to name Orrin and Orrin needs his own entry.",
+    "[enable] #0 \"The Ember Camp\"\n[why] The story has moved to the ember camp, so its lore entry now matters and should be switched on."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    false
+  ]
+}

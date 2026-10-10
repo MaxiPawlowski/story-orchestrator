@@ -1,0 +1,21 @@
+{
+  "id": "p25",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[rewrite] #0 \"Printers' Quarter\" || Narrow streets loud with presses day and night. The Blue Press hides a crate of type Fitch stowed, and prints the pamphlets the magistrate wants burned. Ink stains every doorstep.\n[why] The story has entered the quarter and established The Blue Press's role and Fitch's hidden crate, so the entry must now carry those facts.",
+    "[patch] #0 \"Printers' Quarter\" || Narrow streets loud with presses day and night. || Narrow streets loud with presses day and night. || {{// keep}}Narrow streets loud with presses day and night, ink staining every doorstep. The Blue Press here prints the pamphlets the magistrate wants burned.{{// so:end}}\n[why] The established facts tie The Blue Press and its illegal pamphlets to this quarter, so the entry should now cover that and the ink-stained doorsteps.",
+    "[create] Inkwell Lore || The Blue Press || The Blue Press, Blue Press || A print shop in the printers' quarter that prints the pamphlets the magistrate wants burned.\n[create] Inkwell Lore || Fitch's Type Crate || Fitch's crate, crate of type || A crate of type Fitch hid at The Blue Press.\n[why] The established facts name The Blue Press and Fitch's hidden crate of type twice, and no existing entry covers either."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    true
+  ]
+}

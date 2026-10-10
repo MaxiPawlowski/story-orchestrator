@@ -1,0 +1,21 @@
+{
+  "id": "n21",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Inkwell Lore || Dorran || courier, Dorran || A courier working the printers' quarter who delivered a sealed letter to Fitch.\n[why] The established facts introduce Dorran as a courier tied to Fitch, and no listed entry covers him, though only one mention appears so I am flagging it carefully.",
+    "[create] Inkwell Lore || Dorran || Dorran, courier, sealed letter || A courier in the printers' quarter who handed Fitch a sealed letter.\n\n[why] Dorran appears twice in the established facts (as a courier and as the one who handed Fitch the letter) and no existing entry covers him.",
+    "[create] Inkwell Lore || Dorran || courier, Dorran || A courier called Dorran handed Fitch a sealed letter in the printers' quarter.\n[why] Dorran is named as a courier and delivers a sealed letter to Fitch, a fact stated twice (courier role plus the action), and no listed entry covers him."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

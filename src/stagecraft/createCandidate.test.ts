@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCuratorResponse } from "./parse";
 import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, factsNaming, CREATE_MIN_FACTS, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
-import { CREATE_CONTRACT_ID, CREATE_FIXTURE_REVISION, CREATE_FLOORS } from "./createEligibility";
+import { CREATE_CONTRACT_ID, CREATE_FIXTURE_REVISION, CREATE_FLOORS, createEligibility } from "./createEligibility";
 
 const ROOT = join(__dirname, "../..");
 const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/curator-create/cases.json"), "utf-8")) as { frozenAt: string; floors: { propose: number; none: number }; samples: number; cases: Array<CreateCase & { lang: string; why: string }> };
@@ -73,6 +73,24 @@ describe("v2.8 11 fixture revision 2 (contract B, frozen 2026-10-09 before any m
     }
     for (const entry of r2.cases.filter((row) => row.why.startsWith("named-once"))) expect(factsNaming(entry.facts, { comment: entry.entity as string, keys: [] })).toBe(1);
     for (const entry of r2.cases.filter((row) => row.why.startsWith("roster"))) expect(entry.roster).toContain(entry.entity);
+  });
+
+  it("replays the two recorded offline runs (DeepSeek flash, thinking off): none 1.00 both runs, propose below floor, and the shipped row reads below-floor", () => {
+    const dir = join(ROOT, "test/goldens/live/curator-create-r2");
+    for (const run of ["run1", "run2"]) {
+      const summary = JSON.parse(readFileSync(join(dir, run, "summary.json"), "utf-8")) as { endToEnd: { propose: number; none: number }; ok: boolean };
+      const rows = r2.cases.map((entry) => {
+        const golden = JSON.parse(readFileSync(join(dir, run, `${entry.id}.json`), "utf-8")) as { responses: string[]; passes: boolean[] };
+        const passes = golden.responses.map((answer) => scoreCreateSample(entry, answer).pass);
+        expect({ run, id: entry.id, passes }).toEqual({ run, id: entry.id, passes: golden.passes });
+        return { label: entry.label, passes };
+      });
+      const verdict = createSuiteVerdict(rows, r2.floors);
+      expect(Math.round(verdict.propose * 10000) / 10000).toBe(summary.endToEnd.propose);
+      expect(verdict.none).toBe(1);
+      expect(verdict.ok).toBe(false);
+    }
+    expect(createEligibility("deepseek:deepseek-flash").state).toBe("below-floor");
   });
 
   it("the shipped guards refuse a card that recreates a hidden entry, by title or through its keys", () => {

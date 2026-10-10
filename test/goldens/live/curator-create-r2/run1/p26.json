@@ -1,0 +1,21 @@
+{
+  "id": "p26",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Saltmarsh Lore || The Marrow Ferry || Marrow Ferry, ferry, pilot || A flat raft poled across the saltmarsh at low tide. Its pilot accepts dried eels as payment.\n[create] Saltmarsh Lore || The Reed Banks || reed banks, reeds || A stretch of saltmarsh reeds reached from the Marrow Ferry. Fog lies on the reeds every morning.\n[why] The story moved to new ground and introduced two recurring places, the Marrow Ferry and the reed banks, neither yet covered by an entry.",
+    "[create] Saltmarsh Lore || The Marrow Ferry || Marrow Ferry, ferry, raft, pilot || A flat raft poled across the saltmarsh at low tide. Its pilot accepts dried eels as payment.\n[create] Saltmarsh Lore || The Reed Banks || reed banks, reeds || A stretch of saltmarsh reeds where fog lies every morning.\n[why] Odo and Lisbet reached the reed banks, and the established facts give lasting setting details about the Marrow Ferry and the reed banks that no entry yet covers.",
+    "[create] Saltmarsh Lore || The Reed Banks || reed banks, reeds || The reed banks are dense stands of saltgrass and reeds at the marsh's edge, where fog lies every morning. Channels through them are passable by small craft at low tide.\n[why] Odo and Lisbet have entered the reed banks, a location mentioned twice in the established facts that no existing entry covered."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    false
+  ]
+}

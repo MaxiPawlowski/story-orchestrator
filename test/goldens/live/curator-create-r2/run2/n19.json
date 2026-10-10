@@ -1,0 +1,21 @@
+{
+  "id": "n19",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] No established fact changes what the Hydroponics Deck entry needs to say, and no entry qualifies for enabling, disabling, rewriting, patching, or creation.",
+    "[enable] #0 \"Hydroponics Deck\"\n[why] The story has moved to the hydroponics deck, so its lore entry is now relevant and should be on.",
+    "NONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

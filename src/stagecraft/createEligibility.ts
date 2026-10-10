@@ -12,7 +12,13 @@ export interface CreateEligibilityRow {
   measuredAt: string;
 }
 
-export const CREATE_ELIGIBILITY: readonly CreateEligibilityRow[] = [];
+export const CREATE_ELIGIBILITY: readonly CreateEligibilityRow[] = [
+  {
+    model: "deepseek:deepseek-flash", contract: CREATE_CONTRACT_ID, revision: CREATE_FIXTURE_REVISION,
+    runs: ["test/goldens/live/curator-create-r2/run1", "test/goldens/live/curator-create-r2/run2"],
+    propose: [0.4444, 0.6944], none: [1, 1], measuredAt: "2026-10-10",
+  },
+];
 
 export type CreateEligibilityState = "measured" | "below-floor" | "not-measured" | "unknown-model";
 

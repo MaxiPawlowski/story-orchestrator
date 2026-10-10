@@ -1,5 +1,6 @@
 import { stripChannelNoise } from "@extraction/parse";
 import { buildWiCuratorPrompt } from "./prompt";
+import { protectedRefusal } from "./curatorTiers";
 import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorScope } from "./types";
 
 export const CREATE_NEAR_DUP_THRESHOLD = 0.85;
@@ -117,6 +118,8 @@ export function validateCreate(op: CreateCandidateOp, context: CreateCandidateCo
   if (!naming) return refuse(`no live fact names "${op.comment}"`);
   if (naming < CREATE_MIN_FACTS) return refuse(`only one live fact names "${op.comment}"; a new entry needs ${String(CREATE_MIN_FACTS)}`);
   if (!op.content) return refuse(`"${op.comment}" has no content`);
+  const marked = protectedRefusal({ kind: "create", lorebook: op.lorebook, comment: op.comment, keys: op.keys, text: op.content }, "");
+  if (marked) return refuse(marked);
   return { op, ok: true, nearDups };
 }
 

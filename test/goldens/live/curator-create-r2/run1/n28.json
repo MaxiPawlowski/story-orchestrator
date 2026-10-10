@@ -1,0 +1,21 @@
+{
+  "id": "n28",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Lantern Coast Lore || Sefa || Sefa, fish bones, tides || Sefa reads the tides from fish bones, and warned Edda not to sail at dawn.\n[why] Sefa has been established twice in the facts (as tide-reader and warner) and no existing entry covers her.",
+    "[create] Lantern Coast Lore || Sefa || Sefa, fish bones, tides || Sefa reads the tides from fish bones. She warned Edda not to sail at dawn.\n[why] Sefa now has two established facts and no entry covers her, so she needs a lorebook entry.",
+    "[disable] #0 \"The Harbour\"\n[why] The story has moved from the harbour's general description to the specific dusk scene; the entry's keys (harbour, quay) may still matter, but no listed fact requires it to be off, so this is likely wrong — reconsider: nothing in the established facts overtakes the harbour entry, so no change is needed.\nNONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

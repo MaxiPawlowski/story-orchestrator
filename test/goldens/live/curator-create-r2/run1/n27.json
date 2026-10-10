@@ -1,0 +1,21 @@
+{
+  "id": "n27",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"The Ember Camp\"\n[why] The story has moved to the burning ridge where the Vault of Cinders is located, making the Ember Camp entry relevant to the current scene.",
+    "[why] The established facts confirm the Vault of Cinders as a significant location with two mentions, and no existing entry covers it; the Ember Camp entry remains relevant as the refugees' base downwind of the ridge.",
+    "[why] No listed entry has been contradicted or made newly relevant by the climb toward the burning ridge; the Ember Camp remains valid context, and the Vault of Cinders is not covered by any entry I may touch."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

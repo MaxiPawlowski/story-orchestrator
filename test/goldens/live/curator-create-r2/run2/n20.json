@@ -1,0 +1,21 @@
+{
+  "id": "n20",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "NONE",
+    "NONE",
+    "[create] Thornwood Lore || The Woodcutter's Clearing || clearing, woodcutter || A break in the Thornwood where a woodcutter once worked; open to the sky, it is a landmark Alder and Brisa have reached.\n[why] The story has moved to the woodcutter's clearing, a named place in the Thornwood not yet covered by any entry."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

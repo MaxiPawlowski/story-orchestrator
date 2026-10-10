@@ -1,0 +1,21 @@
+{
+  "id": "p24",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"The Courthouse\"\n[why] The story has moved to the courthouse steps, so the courthouse location entry now matters and should be active.",
+    "[enable] #0 \"The Courthouse\"\n[why] The story has moved to the courthouse steps, so the courthouse entry is now relevant.",
+    "[create] Inkwell Lore || Magistrate Hollis || magistrate hollis, hollis || A magistrate who signs warrants without reading them. He owes the printers' guild a large debt.{{// so:protect}}Nell keeps a list of every warrant served this month.{{// so:end}}\n[why] The established facts introduce Magistrate Hollis as a distinct person with two defining traits not covered by any existing entry, so a lorebook entry is needed to track him."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

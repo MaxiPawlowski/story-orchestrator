@@ -1,0 +1,21 @@
+{
+  "id": "p18",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[disable] #0\n[why] The scout has been delivered to the ember camp, so the camp entry no longer needs to be active for this scene.",
+    "[patch] #0 \"The Ember Camp\" || Refugees shelter || burning ridge. || Refugees shelter in tents downwind of the burning ridge. Orrin, the camp's only healer, trades poultices for news; he lost his left hand in the first ashfall. The ridge has burned for nine days.\n[why] The established facts about Orrin and the ridge's nine-day burn now matter at the ember camp, so the camp entry was updated to carry them rather than leaving them unanchored.",
+    "[patch] #0 \"The Ember Camp\" || Refugees shelter in tents || burning ridge. || Refugees shelter in tents downwind of the burning ridge, among them a healer named Orrin who trades poultices for news. The ridge has burned for nine days.\n[why] The camp is now an active scene, and Orrin plus the nine-day burn are established facts the entry should carry."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

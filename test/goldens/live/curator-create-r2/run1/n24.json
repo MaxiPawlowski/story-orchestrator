@@ -1,0 +1,21 @@
+{
+  "id": "n24",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"Orrin, Camp Healer\"\n[why] The wounded scout has been brought to Orrin, so the healer entry now matters to the scene.",
+    "NONE",
+    "NONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

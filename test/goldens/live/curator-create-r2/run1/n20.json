@@ -1,0 +1,21 @@
+{
+  "id": "n20",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Thornwood Lore || The Woodcutter's Clearing || woodcutter's clearing, clearing || A break in the Thornwood where a woodcutter works. Rowan is cut and stacked here, and cutters' paths lead off from it.\n[why] The story has entered the woodcutter's clearing, establishing it as a place in the Thornwood, and Brisa's rowan sprig ties the clearing's rowan to the established facts.",
+    "[why] Nothing in the established facts changes what the Thornwood entry needs to say; no enable, disable, rewrite, or creation is warranted.",
+    "[create] Thornwood Lore || The Woodcutter's Clearing || woodcutter's clearing, clearing || A break in the Thornwood where a woodcutter felled trees, leaving stumps and open sky. The moving paths are said to lose their way here.\n[why] Alder and Brisa have arrived at the woodcutter's clearing, a named location the story now needs tracked."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

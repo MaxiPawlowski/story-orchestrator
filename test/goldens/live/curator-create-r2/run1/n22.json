@@ -1,0 +1,21 @@
+{
+  "id": "n22",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #1 \"Tamsin\" || Tamsin runs the lantern shop on the quay || sells oil by the cup. || Tamsin runs the lantern shop on the quay, selling oil by the cup — though she refuses the customs men.\n[why] The story now establishes that Tamsin both sells oil (Edda bought some) and refused the customs men, so her entry should reflect both facts.",
+    "[patch] #1 \"Tamsin\" || Tamsin runs the lantern shop on the quay || sells oil by the cup. || Tamsin runs the lantern shop on the quay, sells oil by the cup, and has refused to sell oil to the customs men.\n[why] The established fact that Tamsin refused the customs men now belongs in her entry, as Edda's oil purchase makes the shop and its dealings with customs relevant at the harbour.",
+    "[why] Nothing in the story has overtaken the existing entries or made new ones necessary; Edda buying oil is consistent with Tamsin's shop already selling oil by the cup."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "p20",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae || wet and warm. || Racks of algae and beans under violet lamps. The air is wet and warm. The beans are ready to harvest.\n[why] The story established the beans are ready to harvest, so the lorebook entry should reflect that current state of the deck.",
+    "[patch] #0 \"Hydroponics Deck\" || The air is wet and warm. || The air is wet and warm. || The air is wet and warm. The bean racks are ready to harvest.\n\n[why] The story established the beans are ready to harvest while the crew is on the hydroponics deck, so the entry now needs to note the crop's readiness.",
+    "[enable] #0 \"Hydroponics Deck\"\n[why] The story has moved to the hydroponics deck, so its lore entry now matters and should be active."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

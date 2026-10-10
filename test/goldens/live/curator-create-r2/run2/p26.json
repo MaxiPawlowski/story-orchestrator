@@ -1,0 +1,21 @@
+{
+  "id": "p26",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Saltmarsh Lore || The Marrow Ferry || Marrow Ferry, ferry, raft, pilot || A flat raft poled across the saltmarsh at low tide. Its pilot accepts dried eels as payment.\n[create] Saltmarsh Lore || The Reed Banks || reed banks, reeds || Fog lies on the reeds every morning.\n[why] Odo and Lisbet reached the reed banks, and the Marrow Ferry and its eel payment were established twice, so both now warrant lorebook entries.",
+    "[create] Saltmarsh Lore || Marrow Ferry || Marrow Ferry, ferry, pilot || A flat raft poled across the saltmarsh at low tide. Its pilot accepts dried eels as payment.\n[create] Saltmarsh Lore || Reed Banks || reed banks, reeds || Marshland thick with reeds, veiled in fog every morning.\n[why] The story moved to the reed banks and the Marrow Ferry and its payment were established, so these now-relevant places warrant lorebook entries.",
+    "[create] Saltmarsh Lore || The Marrow Ferry || Marrow Ferry, ferry, pilot || A flat raft poled across the saltmarsh at low tide.\n[create] Saltmarsh Lore || Morning Fog || fog, reeds, morning || Fog lies on the reeds every morning.\n[why] The story has moved to the reed banks and established the Marrow Ferry and morning fog as recurring facts, so they now warrant lorebook entries."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

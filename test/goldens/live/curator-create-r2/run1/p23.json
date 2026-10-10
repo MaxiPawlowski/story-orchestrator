@@ -1,0 +1,21 @@
+{
+  "id": "p23",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Thornwood Lore || The Hollow Bell || Hollow Bell, bell || A bell that rings by itself when the paths of the Thornwood shift. Alder found it hanging from a dead oak.\n[why] The established facts introduce the Hollow Bell as a recurring, significant object that no existing entry covers.",
+    "[enable] #0 \"The Old Chapel\"\n[why] The story has moved to the old chapel, which was previously off and now matters.",
+    "[disable] #0 The Old Chapel\n[why] The story has moved inside the old chapel, so the entry describing its exterior no longer matches where the story is."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    false,
+    false
+  ]
+}

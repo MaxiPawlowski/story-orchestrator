@@ -1,0 +1,21 @@
+{
+  "id": "p19",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"The Ember Camp\"\n[why] The story is now at the ember camp, so the entry covering it should be active.",
+    "[create] Ashfall Lore || Sable Company || Sable Company, mercenary band || A mercenary band hired to hold the pass, taking payment only in silver.\n[why] Established facts name the Sable Company twice, and no existing entry covers it.",
+    "NONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    true,
+    false
+  ]
+}
