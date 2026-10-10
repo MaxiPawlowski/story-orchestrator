@@ -182,7 +182,16 @@ export const MODEL_ROLE_OUTAGE_CHECK: Check = {
   },
 };
 
-export const MODEL_CHECKS: readonly Check[] = [MEMORY_MODEL_CHECK, MODEL_ROLE_CHECK, MODEL_ROLE_OUTAGE_CHECK];
+const CONTEXT_OVER_SERVER_CHECK: Check = {
+  id: "context-over-server", area: "model-role", scope: "install", audience: "player", severity: "degrades", feature: "models-per-task",
+  detect: ({ contextOverServer: over }) => (over ? {
+    consequence: `Replies stop past ${over.served} tokens: the connection asks for ${over.set}.`,
+    detail: `${over.url} serves ${over.served}. Set the preset's context to that.`,
+    player: "Long chats will stop getting replies: lower the context size.",
+  } : null),
+};
+
+export const MODEL_CHECKS: readonly Check[] = [MEMORY_MODEL_CHECK, MODEL_ROLE_CHECK, MODEL_ROLE_OUTAGE_CHECK, CONTEXT_OVER_SERVER_CHECK];
 
 export const REQUIREMENT_CHECKS: readonly Check[] = [
   story("cast-absent", "cast", "player", fromRequirements(castAbsent), "stories"),

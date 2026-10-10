@@ -31,6 +31,7 @@ import { extensionConflicts } from "./extensionConflicts";
 import { copierWarning, switchedOnCopiers } from "./transcriptCopiers";
 import { competingScenarios, scenarioFrame, type ScenarioFrame } from "./storyScenario";
 import { harvestWaitsOnThought, repliesCarryNoThought } from "./thinkingSilence";
+import { replyContextNow, type ContextOverServer } from "./replyContext";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
@@ -102,6 +103,7 @@ export interface SnapshotSources {
   extractionHealth?: ExtractionHealth | null;
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   copiersOn?: readonly string[];
+  contextOverServer?: ContextOverServer | null;
   scenarioFrame?: ScenarioFrame | null;
   chatId?: string | null;
   plays?: PlaysIndex;
@@ -152,6 +154,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   fingerprints: port.fingerprints,
   characters: port.characters ?? [],
   copiersOn: switchedOnCopiers(),
+  contextOverServer: replyContextNow(),
   scenarioFrame: scenarioFrame(),
   chatId: port.loaded ? port.chatId ?? null : null,
   plays: readPlaysIndex(),
@@ -262,12 +265,13 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "competingScenarios" | "extensionConflicts" | "briefing" | "playerSetup";
+type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "contextOverServer" | "competingScenarios" | "extensionConflicts" | "briefing" | "playerSetup";
 
 const playerSpoke = (chat: readonly unknown[]) => chat.some((row) => isRecord(row) && row.is_user === true && row.is_system !== true);
 
 export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, SetupSlices> => ({
   ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
+  contextOverServer: sources.contextOverServer ?? null,
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
   extensionConflicts: extensionConflicts(sources.loaded?.story ?? null),

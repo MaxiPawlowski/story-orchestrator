@@ -4,7 +4,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { NativeBackend } from './backend.mjs';
+import { ContextRefusal, NativeBackend } from './backend.mjs';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { memorySnapshot } from './telemetry.mjs';
 import { ImageCache } from './imageCache.mjs';
@@ -152,10 +152,14 @@ const server = http.createServer(async (req, res) => {
             answer(res, 200, scheduler.status()); return;
         }
         if (req.method === 'GET' && route === '/v1/models') {
-            answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: config.maxContext } }] }); return;
+            answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: backend.servedContext() } }] }); return;
         }
         if (req.method === 'GET' && route === '/props') {
-            answer(res, 200, { default_generation_settings: { n_ctx: config.maxContext }, total_slots: 1 }); return;
+            let props = {};
+            if (backend.status().pid && !backend.status().loading) {
+                try { const reply = await fetch(`${backend.url}/props`, { signal: AbortSignal.timeout(2000) }); if (reply.ok) props = await reply.json(); } catch {}
+            }
+            answer(res, 200, { chat_template: '', ...props, default_generation_settings: { ...(props.default_generation_settings ?? {}), n_ctx: backend.servedContext() }, total_slots: 1 }); return;
         }
         if (!['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots'].includes(route)) { answer(res, 404, { error: 'Unknown route.' }); return; }
         if (closing) throw new Error('Controller is stopping.');
@@ -174,7 +178,10 @@ const server = http.createServer(async (req, res) => {
                 if (response.ok && timing.timings) await scheduler.recordTiming({ timings: timing.timings }).catch((error) => { scheduler.lastError = error.message; });
             } else res.end();
         }, abort.signal, ['/completion', '/v1/completions', '/v1/chat/completions'].includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
-    } catch (error) { answer(res, 409, { error: { message: error.message, type: 'local_residency' } }); }
+    } catch (error) {
+        if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });
+        else answer(res, 409, { error: { message: error.message, type: 'local_residency' } });
+    }
 });
 const timer = setInterval(() => { void scheduler.sampleLease(); void scheduler.restoreIfIdle(); if (!closing) void scheduler.keepResident(); }, 2500);
 process.on('SIGTERM', () => { void backend.unload().finally(() => { if (comfyChild) comfyChild.kill(); fast.stop(); server.close(); clearInterval(timer); process.exit(0); }); });

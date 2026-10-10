@@ -4,11 +4,27 @@
 ComfyUI process it starts; an already running ComfyUI is reused. Existing jobs are never interrupted.
 
 Config: `SO_LOCAL_CONFIG`, default `C:/dev/tools/story-orchestrator-local/config.json`. Config keys with defaults:
-`maxContext` (98304: the context the gateway advertises on `/status`, `/props`, `/v1/models` and enforces before
-generating), `comfyUrl` (`http://127.0.0.1:8188`; the owned ComfyUI is started on this URL's port). `reserves` is
+`maxContext` (the default profile's `--ctx-size`, else 98304: the most the gateway will serve; profiles above it are
+manual only), `fitMarginMiB` (0: added to the `--fit-target` llama-server plans for, never to the reserve it is checked
+against; 512 on this install, where `--fit` left 1.8–2.0 GiB free against the 2 GiB reserve), `contextRetryMs`
+(600000: how long a profile that failed to load is skipped for context), `comfyUrl` (`http://127.0.0.1:8188`; the owned ComfyUI is started on this URL's port). `reserves` is
 required and is reported verbatim on `/status`. Start/stop/load/unload/automatic/
 restore/free-images/start-comfy are available through `node scripts/local/cli.mjs <action>` and the tray. Every text
 and lifecycle operation shares the lease queue; a manual hold requires Automatic or Load text to resume.
+
+## Context
+
+Each profile's context is its `--ctx-size`. The gateway counts every completion request with the backend's own
+`/tokenize` (a chat request is rendered with `/apply-template` first) and needs prompt + output (`n_predict` or
+`max_tokens`) to stay under the context, one position short of it, as llama-server stops there. It takes the loaded
+profile when it fits, else the smallest enabled profile that fits within `maxContext` and has not failed to load in
+the last `contextRetryMs`. When none fits it answers **400 `exceed_context_size_error`** (`n_prompt_tokens`, `n_ctx`, the
+message names the context to set) and loads nothing. There is no extra gateway margin: SillyTavern already keeps the
+prompt `token_padding` (64) under `max_context - amount_gen`. `/props` and `/v1/models` report the served context (the
+largest usable profile within `maxContext`) and forward the backend's own `/props` (chat template) while text is
+loaded, so SillyTavern's "Derive context size from backend" and Story Orchestrator's memory-model budget read it.
+Set the SillyTavern preset's context to the served context (32768 on the 3090) or tick "Derive context size from
+backend"; with more, long chats get the 400 instead of a reply, and Story Orchestrator names it (`context-over-server`).
 
 ## Memory and wait policy
 

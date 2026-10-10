@@ -60,6 +60,9 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
   void import("../cardOverlayHost").then(({ startCardOverlay }) => {
     if (!disposed) disposers.push(startCardOverlay(runtimeManager));
   });
+  void import("../replyContextHost").then(({ startReplyContext }) => {
+    if (!disposed) disposers.push(startReplyContext());
+  });
 };
 
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {

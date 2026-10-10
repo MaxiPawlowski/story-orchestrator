@@ -55,7 +55,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F9 | Judge-plugin 429 bursts (13 in 2 min) | C3 local-variant. **Fixed 2026-10-10** (`v2.8-judge-throughput`, §Judge throughput): every 429 in the 3090 C3 run was the plugin's own (169 local, 0 from TypeSafe), its per-user token second (33,333/s under judge share 3) refusing lore chunks. Plugin 1.8.0 paces a call inside its 2 s wait instead of refusing, and with ST user accounts off the one user gets the whole account share. Lane 14 stress (share 3): lore busy 100 % -> 0 %, other uses 9/100 busy -> 0 |
 | F10 | D rows with no runner | F15 |
 | F11 | `sessions:archive` gzips files over 90 MB before pushing | task chip 2026-10-08. **Fixed 2026-10-09** (`v2.8-small-fixes`): `scripts/lib/sessionsArchive.mjs` gzips (-9, only the `.gz` kept) every new or modified file over 90 MB in the so-sessions work tree before `add -A`, and refuses (nothing staged) when a changed file is still over 95 MB; node:test on a temp repo, never run against the real one |
-| F12 | 3090 cannot hold the "normal" profile with the v1m GGUF, and the pods run v1.1; decide model-file parity for local rows | C3 local-variant |
+| F12 | 3090 cannot hold the "normal" profile with the v1m GGUF, and the pods run v1.1; decide model-file parity for local rows | C3 local-variant. **Settled 2026-10-10** (`v2.8-local-3090`, §Local controller 2026-10-10): not a version difference. The 3090's `Artemis-31B-v1m-Q4_K_M.gguf` is TheDrummer's own v1.1 repo (`TheDrummer/Artemis-31B-v1.1-GGUF` names its files `v1m`, 18.7 GB); the pods run bartowski's imatrix Q4_K_M of the same weights (19.6 GB). Kept TheDrummer's quant on the 3090 (owner); local-vs-pod comparisons carry a quantizer caveat. Fit on 24 GB (q8_0 KV, 2 GiB reserve): 32768 all on GPU (2.1-2.6 GiB left, 15-22 tok/s at full context); 36864 dips to 1.85 GiB in prefill; 65536 / 98304 load only by spilling layers (`--fit`) at 0.7 / 0.5 tok/s, so `maxContext` 32768 and `normal`/`sharing` are manual only |
 | F13 | Campaign sprite fixes | v2.7 38 |
 | F14 | Whatever the owner flags while playing with every feature on | owner sessions |
 | F15 | The settings reader writes its full sanitized result back, so a changed default never reaches an existing install (judge uses, `spikes.*`, `cardOverlay`, `onDemand` stay at a stored `false`; R7 needed a `gatingChosen` marker). Persist only what the user changed, then drop the marker | features-on and R7 tasks 2026-10-09. **Fixed 2026-10-09** (`v2.8-settings-delta`): the store holds a delta over the defaults (`runtime/settingsDelta.ts`, `readGlobalSettings`/`globalSettingsDelta`), a read never writes, a value written back to its default leaves the store; `gatingChosen` and the Image Director settings import removed; harness raw reads/restores made delta-safe. jest `settingsDelta.test.ts` (flip reaches an untouched install, a set value survives, a read never writes) |
@@ -63,7 +63,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F17 | Director timeouts: 36 of 155 calls over the 1500 ms budget (p50 about 960 ms) on the 3090 C3 run | warden fix record, v2.8 01 §B. **Cause found, fixed 2026-10-10**: not queueing behind lore (no director call overlapped one), not request size (4–6 K state chars), not the provider (network p50 ~600 ms in that run, all 36 answers arrived in 0.4–1.9 s): the page held each answer past its budget while the main thread rebuilt the runtime snapshot (the sprite stage built one per actor per streamed token). Hot readers take the cached snapshot; one-turn profile getSnapshot 3.5 s -> 0.5 s. Budget unchanged (shown right) |
 | F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09. **2026-10-10 (3090, §3090 measurements M11)**: still p95 8.5 s / max 14.2 s locally, and 12 of 14 slow sends were not near a consolidation pass; see F19 |
 | F19 | On the 1-slot controller the player's line is taken only after the drafted member's inner-voice call returns, and that call queues behind extraction reads (3 slowest sends: 10–14 s). Check by trace whether the inner beat runs before ST posts the line; if so, post first | §3090 measurements 2026-10-10, M11. **Fixed 2026-10-10** (`cb371721`): the beat starts at GROUP_MEMBER_DRAFTED and is awaited in the generate interceptor (`runtime/draftedBeat.ts`), so ST posts the line first; the 3090 M11 run was on `ddf021bd`, before it |
-| F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal` | §3090 measurements 2026-10-10, item 3 (branch `v2.8-3090-measure`). **Investigated 2026-10-09** (`v2.8-small-fixes`): not ours. 32,848 is the controller's `prompt + n_predict + 256` (`backend.mjs` `forRequest`), so ST's own fill (≤ `max_context - amount_gen`) was 176 under 32768 and the 256-token gateway margin made it overflow; every story block is set before ST's budget pass and counted (ST source lines and a no-model lane 5 dry-run probe: prompt 165 / 168 tokens under budget). "Error counting tokens" is ST's `/tokenize` hitting the same 409. Margin rule in the debug skill: local `max_context` ≤ 32000. Owner option instead: drop the +256 from the controller's fast/normal decision |
+| F20 | **Fixed 2026-10-10** (`v2.8-local-3090`): the gateway's +256 margin dropped (prompt + output under the profile's `--ctx-size`, llama-server's own limit), profiles chosen by their `--ctx-size` within `maxContext` (32768 here), a request no usable profile holds answered 400 `exceed_context_size_error` with nothing loaded, a profile that failed to load skipped for 10 min, chat requests counted through `/apply-template` (they used to always move to `normal`); `/props` forwards the backend's and reports the served n_ctx; the extension clamps the memory model's budget to it and raises `context-over-server` when ST's context is larger. Repro `live-f20-long-chat` ×2 PASS (§Local controller 2026-10-10). Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal` | §3090 measurements 2026-10-10, item 3 (branch `v2.8-3090-measure`). **Investigated 2026-10-09** (`v2.8-small-fixes`): not ours. 32,848 is the controller's `prompt + n_predict + 256` (`backend.mjs` `forRequest`), so ST's own fill (≤ `max_context - amount_gen`) was 176 under 32768 and the 256-token gateway margin made it overflow; every story block is set before ST's budget pass and counted (ST source lines and a no-model lane 5 dry-run probe: prompt 165 / 168 tokens under budget). "Error counting tokens" is ST's `/tokenize` hitting the same 409. Margin rule in the debug skill: local `max_context` ≤ 32000. Owner option instead: drop the +256 from the controller's fast/normal decision |
 | F22 | C3 ×2 not met on `ddf021bd` (3090): warden 1 / 103 then 6 / 114, wardenLore 4 / 99 then 7 / 109. No timeout near a consolidation pass; run 2's come in 2-minute bursts across every judge use, mostly `queue`. Attribute the bursts (plugin `/status` served counts and TypeSafe latency per minute), then decide plugin capacity, lore-select chunking (F16/F21) or judge share | §3090 measurements 2026-10-10, item 3 |
 | F21 | Exclusive lore select never applies: with every signal on, each loud generation refuses `no-selection`, because about 45 % of lore-select chunk calls fall back `busy` (judge-plugin 429/503) and the selection is never complete. Fewer, larger chunks (F16) or a retry for the missing chunks | §3090 measurements 2026-10-10, M10. **Fixed 2026-10-10** with F9 + F16 + one retry of a `busy`/`timeout` chunk after a cool-down of at most 1 s: lane 14 (share 3) exclusive applied 1/18 -> 16/16 loud generations, stress 0/20 -> 20/20 complete selections |
 
@@ -345,3 +345,42 @@ write and no effect-ledger row. Review: Accept / Reject in Author view (`Charact
   (mode restored to scan both times); `v28-meanwhile-proposals`, `v27-37-character-life`, `v27-36-quest-lifecycle` green on the
   same build. Both legs end with a residue sweep of the untitled wizard session `applyProvisioning` records (pre-existing).
 - After the scan-gate fix: `npm run gates -- --no-storybook` all green in 156.8 s (test:replay 32 of 32 killed); Storybook SKIPPED.
+
+
+## Local controller 2026-10-10 (branch `v2.8-local-3090`, queue X3 / X1)
+
+**X3 / F12 (model file).** No download needed for parity: the 3090's file is TheDrummer's own v1.1 GGUF (`TheDrummer/Artemis-31B-v1.1-GGUF`, files named
+`v1m`); the pods run bartowski's imatrix Q4_K_M of the same weights. Owner: keep TheDrummer's quant on the 3090 (fast disk), caveat local-vs-pod
+comparisons as a quantizer difference. Fit probes (llama-server b11388, q8_0 KV, flash attention, 1 slot, 32K-filled prompt, 64-token reply):
+
+| ctx | placement | GPU free after load / min in prefill (MiB) | prefill / decode |
+|---|---|---|---|
+| 32768 | all layers (`--fit off`) | 2186 / 2118; 2200 / 2149 (×2, no ComfyUI) | 40.8 s / 17.9 tok/s; 40.4 s / 18.5 |
+| 36864 | all layers | 2149 / 1851 (below the 2048 reserve) | 47.7 s / 15.1 |
+| 65536 | `--fit` spill | 1127 | 128 s / 0.7 tok/s |
+| 98304 | `--fit` spill | 1152 | 299 s / 0.5 tok/s |
+
+`fast` at 32768 is the largest usable context; `normal`/`sharing` load but are not servable, so `maxContext` 32768 and they stay manual. Two config
+corrections from the same runs: `fast`'s RAM estimate 5500 -> 3000 MiB (measured 2.5 GiB, 8448 -> 5983 MiB free; the 5500 refused every load while
+other lanes held 23 GB of RAM), and `fitMarginMiB` 512 (new key): `--fit-target 2048` left 1.8–2.0 GiB free once an idle ComfyUI or a busy desktop
+took its share, so every reload broke the reserve and retried. Install config backed up as `config.before-x1-2026-10-10.json`.
+
+**X1 / F20 (fix).** Controller: no +256 margin (prompt + output under the profile's `--ctx-size`, one position short, as measured: an exact fit got
+367 of 368 tokens, `stop: limit`); the profile chosen by `--ctx-size` within `maxContext`; past it a 400 `exceed_context_size_error` and nothing
+loaded; a profile that failed to load skipped for `contextRetryMs`; chat requests counted through `/apply-template` (they always switched to `normal`
+before); `/props` forwards the backend's (ST's `/props` proxy answered 500 on the gateway's, it hashes `chat_template`) with the served n_ctx.
+Extension: the memory model's budget is clamped to the server's n_ctx (`stHost/servedContext.ts`, lazy chunk), and `context-over-server`
+(degrades, player) names a reply connection whose context is above it. Main bundle 1,249,990 B of the 1,250,000 budget.
+
+Repro `test/scenarios/live-f20-long-chat.json` on lane 40 (private ST copy, `--allow-local`), sun-ruins in "Group: Arin, DM Narrator", 30 padded
+history rows (~80 K tokens), controller loads read around each run:
+
+| Run | Arm A (ST context 98304) | Arm B (ST context 32768) | memory read budget | controller |
+|---|---|---|---|---|
+| 1 | 400 `exceed_context_size_error`, prompt 80,474 + 400; check fired (98304 vs 32768) | 200, prompt 30,816 + 400 = 31,216 | 32768, source `source` | fast, loads 1 -> 1 |
+| 2 | 400, prompt 80,462 + 400; check fired | 200, prompt 30,813 + 400 = 31,213 | 32768 | fast, loads 1 -> 1 |
+
+Before the fix (F20 rows above): 409 `local_residency` and a `normal` load attempt. Both arm B replies first came back thought-only once and the
+product's empty-reply recovery re-asked (B1-EMPTY, not F20). Gates: `npm run gates -- --no-storybook --jobs 2` exit 0, `npm run typecheck:test` exit 0
+(one earlier gates run failed `so-r4-spike` p95 ratio 2.07x vs 2x and a GPU plugin test on `listen EACCES 127.0.0.1:23994`, both environment
+under load; green on the rerun).
