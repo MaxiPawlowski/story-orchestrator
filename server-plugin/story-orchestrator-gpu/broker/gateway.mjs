@@ -6,6 +6,7 @@ import { ContextRefusal } from './backend.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
 const GENERATION_ROUTES = ['/completion', '/v1/completions', '/v1/chat/completions'];
+const COUNTING_ROUTES = ['/tokenize', '/detokenize'];
 
 export async function readBody(req, limit = 8 * 1024 * 1024) {
     const chunks = [];
@@ -66,9 +67,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const abort = new AbortController();
             res.once('close', () => { if (!res.writableEnded) abort.abort(); });
             const backend = arbiter.backend;
-            await arbiter.text(async () => {
-                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal);
-                else await backend.ensure(backend.profile ?? config.defaultProfile);
+            const forward = async () => {
                 const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
                 if (res.destroyed) return;
                 res.writeHead(response.status, { 'content-type': response.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store' });
@@ -77,6 +76,13 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     await pipeline(Readable.fromWeb(response.body), timing, res);
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
+            };
+            const state = backend.status();
+            if (COUNTING_ROUTES.includes(route) && state.pid && !state.loading && state.profile) { await forward(); return; }
+            await arbiter.text(async () => {
+                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal);
+                else await backend.ensure(backend.profile ?? config.defaultProfile);
+                await forward();
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });

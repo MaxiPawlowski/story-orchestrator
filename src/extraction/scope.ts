@@ -92,7 +92,11 @@ export function deriveScopeWithSources(
     });
   });
 
-  const reads = readScopeSources(sources, story, blackboard, context, new Set(keys));
+  const admits = (key: string) => {
+    const quality = story.qualityByKey[key];
+    return Boolean(quality) && quality.source === "extractor" && !blackboard.latched[key] && hintApplies(quality, activeCheckpointId, story);
+  };
+  const reads = readScopeSources(sources, story, blackboard, context, new Set(keys), admits);
   reads.forEach((read, at) => {
     for (const key of read.keys) {
       keys.add(key);

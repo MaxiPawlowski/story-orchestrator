@@ -26,6 +26,10 @@ loaded, so SillyTavern's "Derive context size from backend" and Story Orchestrat
 Set the SillyTavern preset's context to the served context (32768 on the 3090) or tick "Derive context size from
 backend"; with more, long chats get the 400 instead of a reply, and Story Orchestrator names it (`context-over-server`).
 
+`/tokenize` and `/detokenize` skip the text queue while text is loaded (llama-server answers them beside a running
+generation); SillyTavern counts tokens through them, and queued counts used to hold the browser's six connections to
+SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
+
 ## Memory and wait policy
 
 - `reserves.gpuMiB` / `ramMiB`: fixed desktop headroom (2048/4096 on this install). Admission checks fresh GPU,

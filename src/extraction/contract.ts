@@ -1,4 +1,4 @@
-import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type Quality, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { STEP_READ_REMINDER, STEP_READ_RULE } from "./stepRead";
@@ -19,7 +19,9 @@ export const PLAYER_ONLY_REASK = "Each reading below quoted only the player's ow
   + "that the world changed. Answer again for these qualities only: write the DELTA with evidence copied word for word from a line not marked (player) that "
   + "shows it happened. If no such line shows it, output NO_DELTA.";
 
-const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
+export const STEP_READ_HEADER = `Every type=direction quality: ${STEP_READ_RULE}`;
+
+export const renderQuestion = (quality: Quality, hints: readonly string[] = [], counted?: number): string => {
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
     return [
@@ -31,12 +33,17 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   }
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   const world = quality.evidence_from === "party" ? ` ${PARTY_EVIDENCE_RULE}` : quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
-  const counted = contract.counted?.[quality.key];
-  const stepped = readsByStep(quality);
-  const type = stepped ? "direction" : quality.type;
+  const type = readsByStep(quality) ? "direction" : quality.type;
   const total = typeof counted === "number" ? ` ${runningTotalRule(counted)}` : "";
-  return `- ${quality.key}: type=${type}; ${quality.rubric}${allowed}${hintText}${world}${stepped ? ` ${STEP_READ_RULE}` : ""}${total}`;
-}).join("\n");
+  return `- ${quality.key}: type=${type}; ${quality.rubric}${allowed}${hintText}${world}${total}`;
+};
+
+const readsAnyStep = (contract: Pick<SharedReadContract, "qualities">) => contract.qualities.some(({ quality }) => readsByStep(quality));
+
+const renderType = (contract: SharedReadContract) => [
+  ...(readsAnyStep(contract) ? [STEP_READ_HEADER] : []),
+  ...contract.qualities.map(({ quality, hints }) => renderQuestion(quality, hints, contract.counted?.[quality.key])),
+].join("\n");
 
 export const runningTotalRule = (counted: number): string =>
   `Current value: ${counted}, a running total for the whole story that already counts what earlier messages showed. ` +
@@ -106,7 +113,7 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "Transcript:",
     renderTranscript(contract) || "(empty)",
     "",
-    ...(contract.qualities.some(({ quality }) => readsByStep(quality)) ? [STEP_READ_REMINDER] : []),
+    ...(readsAnyStep(contract) ? [STEP_READ_REMINDER] : []),
     "Output:",
   ].join("\n");
 }

@@ -318,6 +318,7 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
     reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
     ...(typeof existing.cardScopeCursor === "number" && Number.isSafeInteger(existing.cardScopeCursor) && existing.cardScopeCursor >= 0 ? { cardScopeCursor: existing.cardScopeCursor } : {}),
+    ...(typeof existing.scopeReads === "number" && Number.isSafeInteger(existing.scopeReads) && existing.scopeReads >= 0 ? { scopeReads: existing.scopeReads } : {}),
     scheduler: idleScheduler(),
     judgedReads: Array.isArray(existing.judgedReads) ? existing.judgedReads.slice(-JUDGED_READ_LIMIT) : [],
   };
