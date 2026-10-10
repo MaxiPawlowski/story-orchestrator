@@ -5,6 +5,9 @@ export const LIVING_CHAPTER_CAP_WITHOUT_SEALS = 3;
 export const LIVING_PROPOSAL_LIMIT = 12;
 export const LIVING_OP_CAP = 400;
 export const LIVING_STUB_SUFFIX = "_way";
+export const LIVING_PACE_TURNS = 3;
+export const LIVING_STUB_TURNS = 1;
+export const LIVING_BEAT_TURNS = 2;
 export const LIVING_CHAPTER_PREFIX = "liv_ch_";
 export const LIVING_BRANCH_PREFIX = "liv_b";
 export interface DivergenceState {

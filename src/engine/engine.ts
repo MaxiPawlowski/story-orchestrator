@@ -248,7 +248,7 @@ export class StoryEngine {
     const normalizedContext = this.normalizeContext(context);
     this.lastMessageId = normalizedContext.lastMessageId;
     this.chatLength = normalizedContext.chatLength;
-    blackboard.setWriteBoundary(this.boundary + 1);
+    blackboard.setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
     const queue = this.queue.drainAtBoundary(blackboard);
     this.refreshMechanicalQualities();
 
@@ -309,7 +309,7 @@ export class StoryEngine {
     const normalizedContext = this.normalizeContext(context);
     this.lastMessageId = normalizedContext.lastMessageId;
     this.chatLength = normalizedContext.chatLength;
-    this.requireBlackboard().setWriteBoundary(this.boundary + 1);
+    this.requireBlackboard().setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
     const queue = this.queue.drainAtBoundary(this.requireBlackboard());
     this.activeCheckpointId = id;
     this.checkpointStartedBoundary = this.boundary + 1;

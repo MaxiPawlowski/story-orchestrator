@@ -3,6 +3,7 @@ import {
 } from "@engine/index";
 import { composeGame } from "@runtime/widgets";
 import type { IntentView, WidgetBody, WidgetView } from "@runtime/gameTypes";
+import { authoredBind, clueKeys } from "./widgetKeys";
 
 export interface WidgetSample {
   values: Readonly<Record<string, PrimitiveValue>>;
@@ -18,7 +19,7 @@ export const PREVIEW_HIDDEN = "Not shown in this sample: its visible when does n
 export const PREVIEW_INVALID = "Fix the story's validation errors to preview this panel.";
 
 const bindKeys = (widget: StoryWidget, draft: StoryV2): string[] => {
-  const bind = widget.bind;
+  const bind = authoredBind(widget);
   if (!bind) return [];
   if ("quality" in bind) return [bind.quality];
   if ("qualities" in bind) return bind.qualities;
@@ -29,7 +30,7 @@ const bindKeys = (widget: StoryWidget, draft: StoryV2): string[] => {
 export const previewKeys = (widget: StoryWidget, draft: StoryV2): string[] => [...new Set([
   ...(widget.visible_when ? gateKeys(widget.visible_when) : []),
   ...bindKeys(widget, draft),
-  ...(widget.clues ?? []).flatMap((clue) => gateKeys(clue.when)),
+  ...(widget.clues ?? []).flatMap(clueKeys),
   ...(widget.pins ?? []).flatMap((pin) => (pin.when ? gateKeys(pin.when) : [])),
   ...(widget.rows ?? []).flatMap((row) => [row.quality, ...(row.when ? gateKeys(row.when) : [])]),
 ])].filter((key) => draft.qualities.some((quality) => quality.key === key));

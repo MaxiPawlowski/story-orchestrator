@@ -7,6 +7,7 @@ import { isRecord } from "@utils/guards";
 import { addError, isOneOf, rejectUnknownKeys } from "./common";
 import { readText } from "./briefing";
 import { readGate, validateGate } from "./gates";
+import { PLAYER_TURNS_KEY } from "../stretch";
 
 const LIVING_KEYS = ["premise", "tone", "cast", "horizon", "chapter_size", "ending", "autonomy", "authored_until", "opening"] as const;
 
@@ -71,6 +72,11 @@ const isDirectorOrBridge = (id: string): boolean => isLivingId(id) || id.startsW
 
 export const needsLivingOpening = (living: StoryLiving | undefined, checkpoints: readonly Checkpoint[]): boolean =>
   Boolean(living) && !checkpoints.some((checkpoint) => checkpoint.id === LIVING_OPENING_ID) && checkpoints.every((checkpoint) => isDirectorOrBridge(checkpoint.id));
+
+export const addLivingQualities = (living: StoryLiving | undefined, qualities: Quality[]): Quality[] =>
+  (living && !qualities.some((quality) => quality.key === PLAYER_TURNS_KEY)
+    ? [...qualities, { key: PLAYER_TURNS_KEY, type: "int" as const, source: "code" as const, rubric: "Player turns since the current checkpoint began (counted by the runtime)." }]
+    : qualities);
 
 export const LIVING_FIRST_CHAPTER_ID = "liv_ch_1";
 

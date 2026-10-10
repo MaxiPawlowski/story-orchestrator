@@ -10,7 +10,7 @@ import { findFrontier, livingAutonomy } from "./frontier";
 import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import { renderDirectorPrompt, type DirectorInput } from "./prompt";
 import { runDirector } from "./direct";
-import { createLivingState, type DirectorDraft, type LivingOp, type LivingOpPayload, type LivingRuntimeState } from "./types";
+import { createLivingState, LIVING_PACE_TURNS, LIVING_STUB_TURNS, type DirectorDraft, type LivingOp, type LivingOpPayload, type LivingRuntimeState } from "./types";
 
 const fixture = (name: string): Record<string, unknown> => JSON.parse(readFileSync(join(__dirname, "../../../test/fixtures", `${name}.story.json`), "utf8"));
 
@@ -101,7 +101,12 @@ describe("director ops", () => {
     expect(checked.issues).toEqual([]);
     expect(checked.story?.checkpointById.liv_open.chapter).toBe("liv_ch_1");
     expect(checked.story?.qualityByKey.liv_1_lantern_failed).toMatchObject({ type: "bool", source: "extractor", latching: true });
-    expect(checked.story?.outgoingByCheckpoint.liv_open[0]).toMatchObject({ to: "liv_1_way", gate: { q: "liv_1_lantern_failed", op: "==", v: true } });
+    expect(checked.story?.outgoingByCheckpoint.liv_open[0]).toMatchObject({
+      to: "liv_1_way", gate: { any: [{ q: "liv_1_lantern_failed", op: "==", v: true }, { q: "player_turns_in_checkpoint", op: ">=", v: LIVING_PACE_TURNS }] },
+    });
+    expect(checked.story?.outgoingByCheckpoint.liv_1_way[0].gate).toEqual({ any: [
+      { q: "progress_toward_liv_1", op: ">=", v: 1 }, { q: "liv_1_lantern_failed", op: "==", v: true }, { q: "player_turns_in_checkpoint", op: ">=", v: LIVING_STUB_TURNS },
+    ] });
   });
 
   it("refuses a way in that is already open on arrival", () => {

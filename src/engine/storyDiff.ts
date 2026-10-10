@@ -412,7 +412,8 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
       : visitedAnchors,
     visitedPath: visitedPath.at(-1) !== activeCheckpointId ? [...visitedPath, activeCheckpointId] : visitedPath,
     blackboard: { values: keep(state.blackboard.values), versions: keep(state.blackboard.versions), latched,
-      ...(state.blackboard.writerOf ? { writerOf: Object.fromEntries(Object.entries(keep(state.blackboard.writerOf)).filter(([key]) => next.cardFieldByQuality?.[key])) } : {}) },
+      ...(state.blackboard.writerOf ? { writerOf: Object.fromEntries(Object.entries(keep(state.blackboard.writerOf)).filter(([key]) => next.cardFieldByQuality?.[key])) } : {}),
+      ...(state.blackboard.authoredAt ? { authoredAt: keep(state.blackboard.authoredAt) } : {}) },
   };
 }
 

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { gateLeaves, parseStoryV2OrThrow, PLAYER_TURNS_KEY, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
 import { diffStories } from "@engine/storyDiff";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import { compactOps, graphEpoch, livingRaw } from "@generation/living/fold";
@@ -197,7 +197,7 @@ describe("v2.8 22 living director at runtime", () => {
           const state = rigged.engine.serialize();
           const out = (rigged.loaded.story.outgoingByCheckpoint[state.activeCheckpointId] ?? [])[0];
           if (out && roll > 0.3) {
-            const leaf = "q" in out.gate ? out.gate : null;
+            const leaf = gateLeaves(out.gate).find((entry) => entry.q !== PLAYER_TURNS_KEY && !entry.q.startsWith("progress_toward_")) ?? null;
             if (leaf && typeof leaf.v !== "object") rigged.set(leaf.q, leaf.v, rigged.loaded.story.qualityByKey[leaf.q]?.source === "code" ? "mechanical" : "extractor");
           }
           await rigged.commit();
