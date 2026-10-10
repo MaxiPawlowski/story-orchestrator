@@ -35,7 +35,8 @@ test('v2.8 14: setup creates the venv, installs, then downloads into the root; n
     const config = judgeConfig({}, { platform: 'win32' });
     const steps = setupSteps(config);
     assert.deepEqual(steps.map((step) => step.command[0]), ['uv', 'uv', config.hf]);
-    assert.deepEqual(steps[2].command, [config.hf, 'download', 'Mapika/decider-4b-GGUF', 'decider-4b-v2.1-Q4_K_M.gguf', '--local-dir', 'C:/dev/models/so-judge/models/decider-4b']);
+    assert.deepEqual(steps[2].command, [config.hf, 'download', 'Mapika/decider-4b-GGUF', 'decider-4b-v2.1-Q4_K_M.gguf', 'tokenizer.json', 'tokenizer_config.json', 'decider_config.json', '--local-dir', 'C:/dev/models/so-judge/models/decider-4b']);
+    assert.deepEqual(config.companionPaths, ['tokenizer.json', 'tokenizer_config.json', 'decider_config.json'].map((name) => `C:/dev/models/so-judge/models/decider-4b/${name}`), 'decider loads its HF tokenizer from the GGUF folder: without these the server fails at start (pod 2, 2026-10-10)');
     const plumb = setupSteps(judgeConfig({}, { model: 'plumb-4b', platform: 'win32' }));
     assert.ok(plumb[2].command.includes('--revision') && plumb[2].command.includes(JUDGE_MODELS['plumb-4b'].revision));
     const indexed = setupSteps(judgeConfig({ SO_JUDGE_PIP_EXTRA_INDEX: 'https://abetlen.github.io/llama-cpp-python/whl/cu124' }));

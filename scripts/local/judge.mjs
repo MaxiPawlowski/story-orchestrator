@@ -25,7 +25,7 @@ const model = modelIndex >= 0 ? args[modelIndex + 1] : DEFAULT_JUDGE_MODEL;
 const config = judgeConfig(process.env, { model });
 
 const exists = (file) => fs.existsSync(file);
-const weightsPresent = () => (config.model.file ? exists(config.modelPath) : exists(path.join(config.modelDir, 'config.json')));
+const weightsPresent = () => (config.model.file ? exists(config.modelPath) && config.companionPaths.every(exists) : exists(path.join(config.modelDir, 'config.json')));
 
 function freeGB(dir) {
     let probe = dir;

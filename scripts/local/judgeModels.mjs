@@ -17,6 +17,7 @@ export const JUDGE_MODELS = Object.freeze({
         id: 'decider-4b-v2.1-Q4_K_M',
         repo: 'Mapika/decider-4b-GGUF',
         file: 'decider-4b-v2.1-Q4_K_M.gguf',
+        companions: Object.freeze(['tokenizer.json', 'tokenizer_config.json', 'decider_config.json']),
         revision: null,
         licence: 'Apache-2.0',
         weightsGB: 2.7,
@@ -30,6 +31,7 @@ export const JUDGE_MODELS = Object.freeze({
         id: 'plumb-4b-55de0378',
         repo: 'crh225/plumb-4b',
         file: null,
+        companions: Object.freeze([]),
         revision: '55de037801a8a9b9de3db5c0e16cef86210c2186',
         licence: 'Apache-2.0',
         weightsGB: 8.4,
@@ -66,6 +68,7 @@ export function judgeConfig(env = process.env, { model = DEFAULT_JUDGE_MODEL, pl
         jevk5Serve: `${bin}/jevk5-serve${exe}`,
         modelDir,
         modelPath: entry.file ? `${modelDir}/${entry.file}` : modelDir,
+        companionPaths: entry.companions.map((name) => `${modelDir}/${name}`),
         cache: { HF_HOME: `${root}/hf`, HF_HUB_CACHE: `${root}/hf/hub`, UV_CACHE_DIR: `${root}/uv-cache`, PIP_CACHE_DIR: `${root}/pip-cache` },
         logDir: `${root}/logs`,
         pidFile: `${root}/server-${entry.key}.json`,
@@ -78,7 +81,7 @@ export const requiredGB = (config, { venvPresent = false, weightsPresent = false
 export function setupSteps(config) {
     const entry = config.model;
     const download = entry.file
-        ? [config.hf, 'download', entry.repo, entry.file, '--local-dir', config.modelDir]
+        ? [config.hf, 'download', entry.repo, entry.file, ...entry.companions, '--local-dir', config.modelDir]
         : [config.hf, 'download', entry.repo, '--revision', entry.revision, '--local-dir', config.modelDir];
     return [
         { label: `create the Python ${PYTHON_VERSION} environment in ${config.venv}`, command: ['uv', 'venv', '--python', PYTHON_VERSION, config.venv], skipIf: 'venv' },
