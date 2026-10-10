@@ -4,6 +4,8 @@ Owner request 2026-10-10: every open feature, fix and measurement queued in one 
 starts only when the rows above it are done or blocked. Row detail lives in the linked plan or in the backlog
 (`31-v27-wrap-backlog.md`, ids F/M/D). Mark a row done here with the commit, and in its source row.
 
+Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instructions for every open sprite/pose/live-head item (part A, first) and every branch stopped on the 2026-10-10 quota stop (part B).
+
 ## Now (running)
 
 | # | Item | Source | State |
