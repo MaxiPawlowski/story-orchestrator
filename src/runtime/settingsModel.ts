@@ -189,7 +189,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
-  curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, createEnabled: true, createRequireMeasured: false,
+  curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({

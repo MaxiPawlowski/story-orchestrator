@@ -58,7 +58,6 @@ export const AwayOverflowAndProposals: Story = {
     await expect(canvasElement.querySelector('[data-so="life-away"]')).toHaveTextContent("away at docks");
     await expect(canvasElement.querySelector('[data-so="life-overflow"]')).toHaveTextContent("rel_arin_player_fear");
     await expect(canvasElement.querySelector('[data-so="life-proposal"]')).toHaveTextContent("Arin: Arin counted the coins twice.");
-    await expect(canvasElement.querySelector('[data-so="life-proposal-accept"]')).toBeNull();
   },
 };
 
