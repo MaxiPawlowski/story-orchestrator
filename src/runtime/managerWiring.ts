@@ -12,6 +12,7 @@ import { createWarden, establishedFacts } from "./continuity";
 import { enabledCharacterIds, rosterMemberName } from "./roster";
 import { createCuratorFilter } from "./curatorFilter";
 import { loreEligibility } from "./loreRoute";
+import { createNearDups } from "./createNearDups";
 import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
@@ -24,7 +25,7 @@ import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type { InnerBeatHost } from "./innerBeatHost";
 import { loadInnerRender, shownRows } from "@memory/index";
-import { getPlayerName } from "@services/STAPI";
+import { currentChatOwner, getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
@@ -163,8 +164,13 @@ export function wireCoordinators(port: ManagerPort) {
       facts: () => restingTexts(memory, memory.getFacts()).map((fact) => fact.text),
       roster: () => (view.getStory()?.roster ?? []).map(rosterMemberName),
       eligibility: () => loreEligibility(),
+      nearDups: (subjects, entries) => createNearDups(view.hosts.vectors, subjects, entries),
     },
     journal: (summary, note) => port.journal("stagecraft", summary, note),
+    chatOwner: () => {
+      const owner = currentChatOwner();
+      return owner ? { chatId: owner.chatId, groupId: owner.groupId } : null;
+    },
     ...lifecycle,
   });
   const copilot: CopilotCoordinator = new CopilotCoordinator({

@@ -219,6 +219,22 @@ export const CreateCardNearDup: Story = {
   },
 };
 
+export const CreateCardPatchInstead: Story = {
+  args: {
+    snapshot: loreSnapshot([{ ...createOp(), nearDups: [
+      { comment: "The Warden", score: 0.82, band: "duplicate", via: "vectors" },
+      { comment: "Greyfen Prison", score: 0.55, band: "same-topic", via: "vectors" },
+    ] }]),
+    manager: fakeManager(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Looks like “The Warden” \(same meaning\)\. Patch “The Warden” instead\?/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Close to “Greyfen Prison” \(same topic\)/)).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Create it" })).toBeEnabled();
+  },
+};
+
 export const CreateCardNeedsKeys: Story = {
   args: { snapshot: loreSnapshot([createOp()]), manager: fakeManager() },
   play: async ({ canvasElement }) => {

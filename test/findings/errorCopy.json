@@ -347,6 +347,16 @@
       "reason": "queue tail; the returned promise carries the error"
     },
     {
+      "site": "src/runtime/loreCreator.ts#LoreCreator.withMeaning",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "a failed vector read keeps the wording near-duplicates already on the card; createNearDups logs its own failure"
+    },
+    {
       "site": "src/runtime/curatorWriter.ts#CuratorWriter.restoreBefore",
       "kind": 3,
       "template": "catch {} #1",
@@ -387,7 +397,7 @@
       "reason": "host count failure: no token count"
     },
     {
-      "site": "src/runtime/mirrorReaper.ts#MirrorReaper.onChatDeleted",
+      "site": "src/runtime/serialQueue.ts#serialQueue>callback",
       "kind": 3,
       "template": ".catch(() => undefined)",
       "surface": "console",

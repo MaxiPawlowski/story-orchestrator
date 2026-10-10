@@ -479,6 +479,28 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
 - L5 after L1 (graph rollback + reopen), unchanged expectations.
 - Open: a branch stub (`liv_b<n>_way`) keeps the progress-only exit by design (it converges "in its own time"), so a failed branch chain still traps; not seen live yet.
 
+## Living pace 2 and F25 (2026-10-10, branch `v2.8-living-pace2`, from master `51cdebe5`)
+
+Fixes the L1 re-run on master `f031637b` (lane 13, `podsw/13/debug/batch/2026-10-10T15-08-37-412Z/l1-l5-run1`) and F25 (widgets glance, `podsw/22/debug/batch/2026-10-10T12-47-32-812Z`, `T12-56-46-366Z`, `T13-00-51-256Z`).
+
+| Finding | Cause (from the records) | Fix |
+|---|---|---|
+| L1: wrote 1, grew 1, stayed on `liv_open` all 12 turns; no `liv_1_way`, no `gen_` beat | The director wrote `liv_1` at once, with a new way-in value about a scene the opening never plays (the watch coming to the lodging, while the party was already at the shop and then followed the tracks to the docks and the market). All 19 reads in the run, cadence and one reconcile, read it `false`, so the one exit out of `liv_open` never opened, and nothing else could open it. The bridge toward `liv_1_way` failed its code check 3 of 3 times: its beats were gated on the same value, which the entry gate pins true ("already holds when the beat starts"). (c) on `v2.8-living-pace` only steers the director; one bad way-in is still a dead end. | **Pace fallback in code** (`buildDirectorOps`): the way in is `any [opens_when, player_turns_in_checkpoint >= 3]` (`LIVING_PACE_TURNS`); the stub arrives on `any [progress, opens_when, player_turns_in_checkpoint >= 1]` (`LIVING_STUB_TURNS`); every beat of a bridge toward a `liv_` stub in a living story gets a lowest-priority hand-over to the anchor at 2 player turns (`LIVING_BEAT_TURNS`, `mergeExpansions`). A living story declares `player_turns_in_checkpoint` (int, code) at parse (`addLivingQualities`), counted by the runtime's existing derive, so a group round of several replies is one turn. `checkDirectorOps` judges "already open on arrival" and "can never open" on the gate without the pace leaf (`withoutPace`), so a pass written late is not refused. With the way in an `any`, the entry gate pins nothing, so the bridge's code check no longer fails on it. Branch stubs keep their progress-only exit (authored stories, no turn count). |
+| F25: after `/cp set found_ledger true` and a real reply, `found_ledger` reads `false`, clue wall never shown (×3) | Not the slash, the gate or the projection. Every run: the author write landed (true), then cadence reads created after it, over windows ending at messages 2–4 and quoting message 1 as evidence for `false`, applied at the next boundary and put it back. The read that did see the page (`found_ledger=true`) was still pending at the check: a reading lands at the next boundary, by design, so in play the clue shows one reply later. Authoring side: `widget-item-never-read` threw (`'q' in undefined`) on any clue written with the `quality` shorthand, and the Studio preview threw on a string `bind`, so the diagnostic could not have caught a never-read clue in such a story. | A manual write records the message it was made at (`Blackboard.authoredAt`, part of the snapshot, so rollback and reopen replay it; pruned like `writerOf`). At the boundary an extractor or reconciliation delta whose evidence message (`evidenceAt`, carried from the parsed line, else the read's window end) is at or before that message is discarded (`readBeforeAuthor`); evidence from a later message still applies. `resetQuality` clears the mark. `studio/widgetKeys.ts` reads the `quality` shorthand and the `"quality:<key>"` bind for the diagnostic and the preview. Guide: `living-director` (pace) and `clues-and-maps` (a found clue shows at the next reply, the author hold, the shorthand checked). |
+
+Tests (jest, deterministic):
+- `runtime/livingPaceL1.review.test.ts`: the L1 shape replayed (premise only, a group of 2 replies per player line, every bool read `false`, the director writing the next turning point on arrival and applied at the next boundary): bare stub reaches `liv_1` at turn 4 and `liv_2` at turn 8; with a merged bridge whose beats wait on the same never-true value, `liv_1` at turn 5 and `liv_2` at turn 9; `checkDirectorOps` clean on every pass. Control: the f031637b ops (pace leaves removed) stay on `liv_open` for all 12 turns, bare and bridged, as on the pod.
+- `engine/authorHold.test.ts`: the widgets shape; a stale read (evidence message 1, window to 4) after `/cp set` is discarded; a window ending at the write is held; controls: evidence from a later message applies, the same read with no author write applies, a rollback past the write takes the hold back.
+- `studio/widgetDiagnostics.test.ts`: a `quality`-shorthand clue on an unread quality is named (threw before), a string bind previews its key.
+- `living.test.ts` and the living `rollback ≡ replay` property updated for the `any` gates.
+
+Expected live effect (L1, 12 turns, the same premise): even if the way-in value never reads true, `liv_1_way` (or the bridge's first beat) on turn 3, `liv_1` on turn 4–5, `liv_2` on turn 8–9, `liv_3` near turn 12; a way-in value that does read true opens earlier, as before. The floor ≥ 2 `liv_<n>` now depends only on the director writing the next turning point within about 3 turns of arriving (refusals and critic stalls still delay it). Widgets glance: with `/cp set found_ledger true` the wall (and the `board` HTML panel) shows from the next boundary on and stays; without the slash, a found clue shows one reply after the reply that found it.
+
+Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek authoring, judge on, curator off):
+- L1 ×2 premise start (`l1-l5.json`): expect `liv_<n>` reached ≥ 2, `visited` with `liv_1_way` or `gen_liv_1_way_1` by turn 3, every `liv_` chain `inserted` or retried.
+- L5 after L1, unchanged expectations.
+- The widgets glance ×2 (`live-v28-23-widgets.json`): expect `found_ledger` true and `board` up after the reply following the slash; its eval should read `getSnapshot().pendingDeltas`, not `pendingWrites`.
+
 ## Decisions for the owner (2026-10-10)
 
 1. **Bundle budget.** Plan 22 adds ~18 KB to the main entry after moving the director, its unit, the judge code and the
@@ -495,6 +517,14 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
    `living` block. Should authored stories' branches wait in Author view (suggest)?
 5. Divergence thresholds: answered by L3 (§Director tune: 0.8 ×2 / 0.97, committed turns only); still not a calibration, M22 owed.
 6. The critic errs strict (spike). Keep it, soften it further, or let a stalled frontier fall back to `suggest`?
+
+**Owner answers 2026-10-10** (no code change; this is what is built):
+- Question 2: **keep.** A prepared way forward (prefetch) uses the checkpoint's one branch, so a prefetched checkpoint
+  does not branch again on divergence.
+- Question 3: **no per-story off switch for now.** Branching stays install-wide (`stagecraft.branchingEnabled`); no
+  `living.branching` key.
+- Question 4: **branches apply on their own** (`auto`) for authored stories too; nothing waits in Author view.
+- Questions 1, 5 and 6 stay open.
 
 ## Gate record (2026-10-10, branch `v2.8-living-director`, merged with master `84c23335`)
 
@@ -541,3 +571,10 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
 - `npm run typecheck:test`: green (also run separately).
 - New jest: `runtime/livingPace.review.test.ts` (6 cases, two controls; the merge case fails on the old `needsLivingOpening`, checked by restoring it), 2 cases in `runtime/coordinators/livingCoordinator.review.test.ts` (F24(d) + control).
 - No live gate here (nothing staged into ST); the pod rows are listed in §Living pace.
+
+## Gate record (2026-10-10, living pace 2 + F25, branch `v2.8-living-pace2` from master `51cdebe5`)
+
+- `npm run gates -- --no-storybook --jobs=2`: **all green** in 209.1 s, first run: test (jest 653 suites, 7618 passed, 1 skipped), test:replay, build (main entry 1,274,401 B, +968 B over master, budget 1,300,000), typecheck, typecheck:test, debug:typecheck, lint, test:debug, test:plugin, test:release. Storybook skipped (`--no-storybook`): no component changed.
+- `npm run typecheck:test`: exit 0 (also run separately).
+- New jest: `runtime/livingPaceL1.review.test.ts` (3 cases, the control replays the f031637b ops), `engine/authorHold.test.ts` (5 cases, 3 controls), 1 case in `studio/widgetDiagnostics.test.ts`.
+- No live gate here (nothing staged into ST); the pod rows are listed in §Living pace 2 and F25.

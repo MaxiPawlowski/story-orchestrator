@@ -4,7 +4,7 @@ import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import {
   buildCreateCandidatePrompt, capProposalRing, createCapFor, curatorHasScope, curatorLorebooks, entriesForScope, isCreateOp, isCuratorHidden, newEntriesText, planCreateProposal,
-  type CreateEligibility, type CuratorEntryView, type CuratorPassOutcome, type CuratorProposalRecord,
+  type CreateEligibility, type CuratorEntryView, type CuratorOpRecord, type CuratorPassOutcome, type CuratorProposalRecord, type NearDup, type NearDupSubject,
 } from "@stagecraft/index";
 import type { CuratorWiHost } from "./hostPorts";
 import type { RunOwnership, RunToken } from "./runToken";
@@ -36,6 +36,7 @@ export interface LoreCreatorDeps {
     facts: () => string[];
     roster: () => string[];
     eligibility: () => CreateEligibility;
+    nearDups?: (subjects: NearDupSubject[], entries: CuratorEntryView[]) => Promise<NearDup[][] | null>;
   };
 }
 
@@ -77,6 +78,19 @@ export class LoreCreator {
       .flatMap((record) => record.ops.flatMap((entry) => (entry.status === "rejected" && isCreateOp(entry.op) ? [entry.op] : [])));
   }
 
+  private async withMeaning(records: CuratorOpRecord[], entries: CuratorEntryView[]): Promise<CuratorOpRecord[]> {
+    const subjects = records.flatMap((entry) => (isCreateOp(entry.op) ? [{ comment: entry.op.comment, keys: entry.op.keys, content: entry.op.text }] : []));
+    const found = this.deps.lore?.nearDups && subjects.length ? await this.deps.lore.nearDups(subjects, entries).catch(() => null) : null;
+    if (!found) return records;
+    let at = 0;
+    return records.map((entry) => {
+      if (!isCreateOp(entry.op)) return entry;
+      const meaning = found[at] ?? [];
+      at += 1;
+      return { ...entry, nearDups: meaning };
+    });
+  }
+
   async run(reason = "curator", debugResponse?: string): Promise<LoreCreateOutcome> {
     const skipped = this.skip();
     const story = this.deps.getStory();
@@ -106,13 +120,19 @@ export class LoreCreator {
         role: "lore", pass: "loreCreate", maxTokens: maxTokensForInput("curator", prompt),
         ...(ownership.signal ? { signal: ownership.signal() } : {}), debugResponse: debugResponse ?? null,
       });
+      const answered = ownership.check(hold.token);
+      if (answered.ok === false) {
+        this.deps.journal(`Lore creation result discarded (${answered.reason})`, answered.detail);
+        return { ran: true, record: null, discarded: answered.reason };
+      }
+      const used = (this.deps.state().created ?? []).length + this.pendingCreates();
+      const planned = planCreateProposal(response, context, { story, cap: createCapFor(story), used, declined: this.declined(state) });
+      const plan = { ...planned, records: await this.withMeaning(planned.records, scoped) };
       const owned = ownership.check(hold.token);
       if (owned.ok === false) {
         this.deps.journal(`Lore creation result discarded (${owned.reason})`, owned.detail);
         return { ran: true, record: null, discarded: owned.reason };
       }
-      const used = (this.deps.state().created ?? []).length + this.pendingCreates();
-      const plan = planCreateProposal(response, context, { story, cap: createCapFor(story), used, declined: this.declined(state) });
       const audit = { at: new Date().toISOString(), reason, prompt, rawResponse: response, proposed: plan.records.length, dropped: plan.dropped };
       this.deps.patch({ lastCreateBoundary: state.boundary, lastCreatePass: audit });
       if (!plan.records.length && !plan.dropped.length) {

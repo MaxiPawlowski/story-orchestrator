@@ -447,8 +447,9 @@ export class RuntimeManager extends CoordinatorDelegates {
     const { accepted, levels: tensionLevels } = this.pacing.applyExtractorTension(guarded.accepted, window.to);
     if (!accepted.length) return;
     const versions = this.engine.serialize().blackboard.versions;
+    const deltas = accepted.map((entry) => (typeof entry.messageId === "number" ? { ...entry.delta, evidenceAt: entry.messageId } : entry.delta));
     this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum,
-        version) => sum + version, 0), turnRange: window, deltas: accepted.map((entry) => entry.delta),
+        version) => sum + version, 0), turnRange: window, deltas,
         ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 

@@ -59,7 +59,7 @@ export { mountStoryWand, type WandEntry, type WandHandle } from "@services/stHos
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";
-export { createCharacterCard, createGroup, listGroupNames } from "@services/stHost/provisioning";
+export { createCharacterCard, createGroup, listGroupCasts, listGroupNames } from "@services/stHost/provisioning";
 export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {
   listActiveWorldInfoComments,
@@ -89,7 +89,7 @@ export {
   getSelectedConnectionProfileId, listConnectionProfiles, openProfileToolBridge, profileExists, sendConnectionProfileRequest,
 } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
-export { harnessContextLimit, harnessListed, harnessStatusCached, openAgentBridge, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";
+export { harnessContextLimit, harnessListed, harnessOffersAgent, harnessStatusCached, openAgentBridge, refreshHarnessStatus, rowOffersAgent, sendHarness } from "@services/stHost/harnessCache";
 export type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch, tokenizerIdentity } from "@services/stHost/tokenizer";

@@ -145,7 +145,16 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
   }, { input: { ...input, maxTokens: NATIVE_MAX_TOKENS, timeoutMs: NATIVE_TIMEOUT_MS }, handles: UI_RUNNER_HANDLES });
 }
 
-export function bridgeEvidenceProblems(route: WizardRoute, bridge: BridgeEvidence | null | undefined): string[] {
+export interface BridgeEvidenceOptions { textRefusalSafe?: boolean }
+
+export const textOnlyRefusal = (bridge: BridgeEvidence): boolean => {
+  const opened = bridge.events.filter((event) => event.op === 'open' && event.ok && event.sessionId);
+  return opened.length > 0
+    && !bridge.events.some((event) => event.op === 'next' && event.kind === 'call')
+    && opened.every((session) => bridge.events.some((event) => event.sessionId === session.sessionId && event.op === 'next' && event.kind === 'done'));
+};
+
+export function bridgeEvidenceProblems(route: WizardRoute, bridge: BridgeEvidence | null | undefined, options: BridgeEvidenceOptions = {}): string[] {
   if (!bridge) return ['no bridge evidence was recorded'];
   if (route === 'local') {
     if (bridge.transport === 'refusal') return [`the Studio resolver refused the harness route: ${bridge.refusal}`];
@@ -154,6 +163,7 @@ export function bridgeEvidenceProblems(route: WizardRoute, bridge: BridgeEvidenc
   }
   if (bridge.transport === 'refusal') return [`the Studio resolver refused the harness route: ${bridge.refusal}`];
   if (bridge.transport !== 'bridge') return [`--route ${route} needs the native tool bridge, the Studio resolver gave ${bridge.transport === 'none' ? 'no harness (route "Wizard and road ahead" to harness:opencode:<model>)' : 'the text protocol'}`];
+  if (options.textRefusalSafe && textOnlyRefusal(bridge)) return [];
   const problems: string[] = [];
   const opened = bridge.events.filter((event) => event.op === 'open' && event.ok && event.sessionId);
   if (!opened.length) problems.push('no bridge session opened');

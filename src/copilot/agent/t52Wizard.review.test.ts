@@ -104,9 +104,9 @@ describe("T5-2 MEDIUM: Continue after Out of budget grants a fresh slice", () =>
   });
 
   it("a step budget spent the same way gets more steps too", () => {
-    const steps = Array.from({ length: 40 }, (_, index) => ({ ...provisioned(index + 1, undefined), family: "read" as const, status: "observed" as const, call: { tool: "readStory", args: {} } }));
+    const steps = Array.from({ length: DEFAULT_AGENT_BUDGET.maxSteps }, (_, index) => ({ ...provisioned(index + 1, undefined), family: "read" as const, status: "observed" as const, call: { tool: "readStory", args: {} } }));
     const resumed = resumeAgent({ ...spent(), steps, budget: { ...DEFAULT_AGENT_BUDGET, usedTokens: 1000 } });
-    expect(resumed.budget.maxSteps).toBe(80);
+    expect(resumed.budget.maxSteps).toBe(2 * DEFAULT_AGENT_BUDGET.maxSteps);
     expect(budgetSpent(resumed)).toBe(false);
   });
 });

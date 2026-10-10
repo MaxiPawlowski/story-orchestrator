@@ -1,6 +1,6 @@
 import type { HarnessId } from "@utils/harness";
 import type { ModelReply } from "./modelReply";
-import type { HarnessModel, HarnessRequest, HarnessStatus } from "./harness";
+import type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "./harness";
 
 let last: HarnessStatus | null = null;
 
@@ -31,3 +31,8 @@ export const harnessContextLimit = (harness: HarnessId, model: string): number |
   const found = modelOf(harness, model);
   return found ? found.context : null;
 };
+
+export const rowOffersAgent = (row: HarnessRow | undefined, model: string): boolean =>
+  Boolean(row && row.installed && row.offered && !row.blocked && row.loggedIn !== false && row.agentBridge === true && row.models.some((entry) => entry.id === model));
+
+export const harnessOffersAgent = (harness: HarnessId, model: string): boolean => rowOffersAgent(last?.harnesses[harness], model);

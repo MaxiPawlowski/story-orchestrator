@@ -198,7 +198,7 @@ export function startRuntime() {
     }
     void Promise.all([import("./pluginVersionCheck"), import("./pluginVersionCheckHost")]).then(([check, host]) => (started
       ? check.checkPluginVersions(host.pluginVersionHostDeps((summary, detail) => runtimeManager.noteRecap(summary, detail, "status")))
-      : [])).catch((error: unknown) => log.warn("plugin version check failed", error));
+      : [])).then(() => { if (started) runtimeManager.notify(); }).catch((error: unknown) => log.warn("plugin version check failed", error));
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
     void startupLoad();

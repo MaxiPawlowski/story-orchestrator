@@ -2,7 +2,9 @@ import { applyCuratorPatch } from "./proposal";
 import { viewForOp } from "./scope";
 import type { CuratorEntryView, CuratorOpRecord, CuratorPlan, StagecraftAcceptMode, WiCuratorOp } from "./types";
 
-const MARKER = /\{\{\/\/\s*so:(auto|protect|end)\s*\}\}/gi;
+const MARKER = /\{\{\/\/\s*so:(?:(auto|protect|end)\s*|(created)\b[^}]*)\}\}/gi;
+
+const kindOf = (match: RegExpMatchArray) => (match[1] ?? match[2] ?? "").toLowerCase();
 
 export type CuratorTier = "auto" | "review";
 
@@ -26,7 +28,7 @@ export function entryMarks(content: string): EntryMarks {
   const kinds: string[] = [];
   let open: number | null = null;
   for (const match of markersIn(content)) {
-    const kind = match[1].toLowerCase();
+    const kind = kindOf(match);
     const start = match.index ?? 0;
     const end = start + match[0].length;
     markers.push({ start, end });
@@ -67,7 +69,7 @@ export function protectedRefusal(op: WiCuratorOp, content: string): string | nul
   const marks = entryMarks(content);
   if (op.kind === "disable") return marks.spans.length ? `"${op.comment}" ${PROTECTED_REFUSAL}, so it may not be switched off` : null;
   if (op.kind === "rewrite") {
-    if (addsMarker(marks.kinds, markersIn(op.text).map((match) => match[1].toLowerCase()))) return `"${op.comment}": the rewrite ${MARKER_REFUSAL}`;
+    if (addsMarker(marks.kinds, markersIn(op.text).map(kindOf))) return `"${op.comment}": the rewrite ${MARKER_REFUSAL}`;
     return marks.spans.every((span) => op.text.includes(span.text)) ? null : `"${op.comment}": the rewrite ${PROTECTED_REFUSAL}`;
   }
   if (markersIn(op.replace).length) return `"${op.comment}": the patch ${MARKER_REFUSAL}`;

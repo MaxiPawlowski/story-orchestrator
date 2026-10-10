@@ -29,10 +29,11 @@ Choose its mode:
 It reads this guide (`readGuide`) and can check reachability and walk the story before it finishes. **Note to the
 agent** steers its next step; **Continue** resumes after it finishes.
 
-The agent runs on the model chosen for **Wizard and road ahead** under **Models per task** (by default, the memory
-model). That task can also be routed to opencode on the SillyTavern server, through the
-[harness plugin](../setup/harness.md); then the agent calls its tools natively, and it does not fall back to the
-local profile when the harness is unavailable.
+The agent runs on the model chosen for **Wizard and road ahead** under **Models per task**. Left on its default it
+takes opencode `openai/gpt-6.1-sol` through the [harness plugin](../setup/harness.md) when the plugin offers it (for
+subscription users), else the first DeepSeek profile (the pay-per-token fallback), else the memory model; see
+[Choosing models](../setup/models.md). On the harness, and on a DeepSeek profile, the agent calls its tools natively.
+A harness you pick yourself never falls back to a local profile when it is unavailable; the default does.
 
 ## Ask
 

@@ -1,6 +1,6 @@
-import { listConnectionProfiles, openAgentBridge, openProfileToolBridge, refreshHarnessStatus, type HarnessRow } from "@services/STAPI";
+import { listConnectionProfiles, openAgentBridge, openProfileToolBridge, refreshHarnessStatus, rowOffersAgent, type HarnessRow } from "@services/STAPI";
 import type { AgentToolBridge, HarnessTransport } from "@copilot/agent/index";
-import { isAuthoringDefaultSource, resolveRoute, roleHarness, type ProfileSourceRow, type RouteSettings } from "@runtime/passProfiles";
+import { AUTHORING_DEFAULT_HARNESS, isAuthoringDefaultSource, resolveRoute, roleDefaultFrom, roleHarness, type ProfileSourceRow, type RouteSettings } from "@runtime/passProfiles";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { useDraftStore } from "./draft";
@@ -37,10 +37,18 @@ const hostDeps: AgentHarnessDeps = {
 const nativeProfileRoute = async (deps: AgentHarnessDeps, settings: RouteSettings): Promise<HarnessTransport | null> => {
   if (!deps.profiles || !deps.profileBridge || deps.planted?.()) return null;
   const profiles = deps.profiles();
-  const resolved = resolveRoute(settings, "authoring", (id) => profiles.some((profile) => profile.id === id));
+  const resolved = resolveRoute(settings, "authoring", (id) => profiles.some((profile) => profile.id === id), undefined, roleDefaultFrom(profiles));
   const route = resolved.ok ? resolved.route : null;
   if (route?.kind !== "profile" || !isAuthoringDefaultSource(profiles.find((profile) => profile.id === route.profileId))) return null;
   return { bridge: await deps.profileBridge(route.profileId), target: { harness: "profile", model: route.profileId, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS }, fallback: true };
+};
+
+const defaultHarnessRoute = async (deps: AgentHarnessDeps, settings: RouteSettings): Promise<HarnessTransport | null> => {
+  if (settings.profiles?.authoring || deps.planted?.()) return null;
+  const { harness, model } = AUTHORING_DEFAULT_HARNESS;
+  const status = await deps.status();
+  if (!rowOffersAgent(status?.harnesses[harness], model)) return null;
+  return { bridge: await deps.bridge(), target: { harness, model, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS }, fallback: true };
 };
 
 export const agentHarnessRefusal = (harness: string, model: string, reason: string): string =>
@@ -60,7 +68,7 @@ const reasonFor = (harness: string, model: string, row: HarnessRow | undefined):
 export async function resolveAgentHarness(deps: AgentHarnessDeps = hostDeps): Promise<HarnessTransport | null> {
   const settings = deps.settings();
   const routed = roleHarness(settings, "authoring");
-  if (!routed) return nativeProfileRoute(deps, settings);
+  if (!routed) return (await defaultHarnessRoute(deps, settings)) ?? nativeProfileRoute(deps, settings);
   const fallback = Boolean(settings.routes?.authoring?.onFailure?.profileId);
   const status = await deps.status();
   const reason = status ? reasonFor(routed.harness, routed.model, status.harnesses[routed.harness]) : NO_STATUS;

@@ -73,6 +73,16 @@ export function listGroupNames(): string[] {
     .filter((name) => name.length > 0);
 }
 
+export function listGroupCasts(): Array<{ name: string; members: string[] }> {
+  const characters = (getContext().characters ?? []) as HostCharacter[];
+  const nameOf = (avatar: string) => characters.find((character) => character.avatar === avatar)?.name?.trim() ?? "";
+  return (getContext().groups ?? []).flatMap((group) => {
+    const name = typeof group.name === "string" ? group.name.trim() : "";
+    const members = (Array.isArray(group.members) ? group.members : []).filter((avatar): avatar is string => typeof avatar === "string").map(nameOf).filter(Boolean);
+    return name ? [{ name, members }] : [];
+  });
+}
+
 const avatarForName = (name: string): string | null => {
   const search = name.trim().toLowerCase();
   const characters = (getContext().characters ?? []) as HostCharacter[];

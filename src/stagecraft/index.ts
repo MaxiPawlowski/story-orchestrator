@@ -12,3 +12,5 @@ export * from "./repetition";
 export * from "./createCandidate";
 export * from "./createPlan";
 export * from "./createEligibility";
+export * from "./createNearDup";
+export * from "./createdStamp";

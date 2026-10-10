@@ -226,11 +226,11 @@ export const GUIDE_TOPICS = {
   stagecraft: {
     title: "Curator scope",
     fields: "stagecraft.lorebooks, stagecraft.exclude, stagecraft.createCap",
-    text: "The only lorebooks the World Info curator may edit. It edits existing entries and proposes a new one only for what two live facts name "
-      + "(each waits for the author; createCap 0-20, default 5, per chat). It never touches an entry a beat's world_info gates. An empty list means no curator writes. "
-      + "exclude [{lorebook, comments}] names entries in those books it is never shown and never writes, such as a house-style entry. "
-      + "In an entry, {{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; {{// so:auto}} lets its changes apply without review in auto mode. "
-      + "SillyTavern drops these markers before the prompt.",
+    text: "The only lorebooks the World Info curator may edit. It edits entries and proposes a new one only for what two live facts name "
+      + "(each waits for the author; createCap 0-20, default 5, per chat; the card names a likely duplicate to patch instead). It never touches an entry a beat's world_info gates. "
+      + "Empty list: no curator writes. exclude [{lorebook, comments}] names entries it is never shown or writes. "
+      + "{{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; {{// so:auto}} lets its changes apply unreviewed in auto mode. "
+      + "A new entry carries {{// so:created <chat>}}; deleting that chat asks whether to delete it. SillyTavern drops these markers before the prompt.",
   },
   "lore-select": {
     title: "Lore select",
@@ -292,7 +292,8 @@ export const GUIDE_TOPICS = {
     fields: "clues[], links[], image, pins[], action",
     text: "kind clues: clues [{id, text, quality (bool) | when (gate), action?}], links [{from, to, label?}]; a clue shows once found, a link once both ends show. "
       + "kind map: image (a SillyTavern background file name), pins [{id, label, x, y (0-100 %), checkpoint | when, action?}]; a checkpoint pin shows once reached and marks you-are-here. "
-      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads.",
+      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads. "
+      + "A clue read in a reply shows at the next reply; an author /cp set holds against a reading of the messages it already saw.",
   },
   "html-panels": {
     title: "Story-made HTML panels",
@@ -316,7 +317,7 @@ export const GUIDE_TOPICS = {
     text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
       + "when play reaches the last written anchor (authored_until in a hybrid), the story director writes the next one (liv_<n>, a stub before it, at most 2 new qualities, "
       + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
-      + "Limits: name 60 chars, objective 400 (over-long is cut at a sentence, else asked again). Save as story keeps reached turning points only.",
+      + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
   branching: {
     title: "Branches that follow the player",

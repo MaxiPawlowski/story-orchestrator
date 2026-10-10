@@ -27,11 +27,16 @@ const missingBooks = (draft: StoryV2, environment: ProvisioningEnvironment, decl
     .map((name) => `no lorebook "${name}"`);
 };
 
+const castGroupExists = (draft: StoryV2, environment: ProvisioningEnvironment): boolean => {
+  const cast = draftCastNames(draft);
+  return cast.length > 0 && (environment.groupCasts ?? []).some((group) => cast.every((name) => has(group.members, name)));
+};
+
 const wantsGroup = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): boolean => {
   const created = provisioned(session, "applied");
   const declined = provisioned(session, "rejected");
   const decided = [...created, ...declined].some((op) => op.kind === "createGroup");
-  return draft.roster.length > 0 && !decided && !has(environment.groupNames, draft.title);
+  return draft.roster.length > 0 && !decided && !has(environment.groupNames, draft.title) && !castGroupExists(draft, environment);
 };
 
 const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provisioned(session, "applied").flatMap((op) => {
