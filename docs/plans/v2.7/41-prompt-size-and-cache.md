@@ -252,3 +252,22 @@ leaves, and the two named members move ahead, newest first. Report: `test/measur
 - Parity both ways by hand: dropping B1-NARR from the manifest or from plan 39 is named by `parityProblems`.
 - Amended the same day for Main's budget rule (enabled members never dropped, the budget on additions only): code, jest, declaration text, B1-NARR floor (enabled members' holdings + 1 100; p50 saving ≥ 2 500, from the −3 056 measured at 256 messages), guide line. Saga re-measured twice (identical), payload goldens re-captured twice (identical) and re-diffed against the same before: the same six hunks, all declared. `npm run gates -- --no-storybook`: all green in 87.4 s (test 7039 passed + 1 skipped, test:replay 32 of 32 killed), Storybook skipped.
 - Live: lane 8 only (private ST copy `agent-st-p41`, this branch and `bf1e0c77` staged there in turn, never the real ST slot), fake llama-server on 18088, `st-session reload` before each capture after a restage. Numbers in §7. Lane 8 settings, the saga group and the two saga chat files restored from backup afterwards. Note: a lane browser started over a restaged copy served the previous lazy chunk until reloaded; the first "before" of the new case was taken that way and discarded.
+
+## Gate record — B1-PFX / B1-HIST on pod 2 (2026-10-10, branch `v2.8-pod2`, master `84c23335`)
+
+- Measurement only, no code. Pod `27f66m9327okh8` (RTX PRO 4500 32 GB), lanes 30/31 on a private ST copy; full record and tables
+  in `docs/plans/v2.8/31-v27-wrap-backlog.md` §Pod 2 measurements 2026-10-10.
+- **B1-PFX: FAIL ×2.** Deviation, forced by the card: the row's swa arm (`--swa-full`, `LLM_CTX` 98304, P2) does not fit 32 GB
+  (24576 already uses 30.7 GB); both arms ran at 24576, P2, with the B1 flags, on the saga chat cut to 80 messages (13.4–15.9K-token
+  prompts), 40 pairs per arm-run, a quiet lane (loud requests only). Reuse p50 = 0 on same-speaker and member-after-Narrator pairs in
+  all four arm-runs; `--swa-full` decode p50 24.3 / 24.2 tok/s (< 25), prompt ms p50 +23 % over control; 0 truncation. A synthetic
+  probe on the same server shows `--swa-full` restores a prefix up to a mid-prompt change (8,557 of 17,120) and control does not, so
+  the zero comes from the prompt: World Info in the story string changes with each new message about 1.1K tokens in (§4's
+  depth-10 player role is no longer the first difference). Consequence for §5: P2 and P5 buy nothing until that World Info leaves
+  the story string (M9, lorebook R5); P4 stays moot.
+- **B1-HIST: INCOMPLETE.** Run 1 only, both arms at the same time from the same seeded data, stopped after 3 of 30 turns per arm
+  (6–9 min per turn on the shared pod; the row needs ~8 h). As far as it ran: the 24576 arm stayed ≤ 24,576 prompt tokens (max
+  23,108; control max 41,000) and prompt ms p50 0.49 × control (39.8 s vs 81.6 s). Recall probes (written before the run, private)
+  not asked; no verdict.
+- Evidence (private): `so-sessions:evidence/phase-c/pod2-2026-10-10/` (`rows/pfx/run{1,2}-{control,swa}/rec.json`, `rows/pfx/synthetic.md`,
+  `rows/hist/`, `pods/2/`).

@@ -64,11 +64,11 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | # | Item | Source |
 |---|---|---|
 | R1 | Director false-off-script rate on test windows | 22 |
-| R2 | Prompt-cache reuse (B1-PFX) and history window 32K vs 98K (B1-HIST) | M6. PFX fix built 2026-10-10 (`v2.8-lore-placement`, late lore placement, unmerged); re-measure with `pod2/place-all.sh` (31 §Late lore placement) |
+| R2 | Prompt-cache reuse (B1-PFX) and history window 32K vs 98K (B1-HIST). **2026-10-10 (pod 2): B1-PFX FAIL ×2 (done), B1-HIST INCOMPLETE (3 turns per arm, run 1 only); record 31 §Pod 2 measurements** | M6. PFX fix built 2026-10-10 (`v2.8-lore-placement`, merged `c5d1c9c6`); re-measure running on pod 2 with `pod2/place-all.sh` (31 §Late lore placement) |
 | R3 | K5 with ≥ 20 pooled releases | M2 |
 | R4 | B1-EMPTY formal arms | M4 |
-| R5 | B1-NARR + rating pack | M5 |
-| R6 | S-17 on the scope budget | M7 |
+| R5 | B1-NARR + rating pack. **2026-10-10 (pod 2): B1-NARR PASS run 1 (run 2 owed), rating pack rated blind; record 31 §Pod 2 measurements** | M5 |
+| R6 | S-17 on the scope budget. **2026-10-10 (pod 2): S-17 FAIL ×2, 37-S17 FAIL ×2 (F27); after the F27 fix (master `83403197`) PASS ×2 both, 37-M1 PASS ×2** | M7 |
 | R7 | Lorebook R5: sheets after character definitions vs depth 4 | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
 | R8 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, thinking A/B | M15 |
 | R9 | J6d shadow record, offline replay (option C) | 12 |
