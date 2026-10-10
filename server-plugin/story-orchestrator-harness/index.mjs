@@ -36,7 +36,7 @@ export const PHASE0 = Object.freeze({
 export const DEFAULT_MODELS = Object.freeze({
     claude: Object.freeze([{ id: 'haiku', context: 200_000 }, { id: 'sonnet', context: 200_000 }, { id: 'opus', context: 200_000 }]),
     codex: Object.freeze([{ id: 'default', context: 200_000 }]),
-    opencode: Object.freeze([{ id: 'openai/gpt-6-astra-fast', context: 200_000 }, { id: 'openai/gpt-6-astra', context: 200_000 }]),
+    opencode: Object.freeze([{ id: 'openai/gpt-6.1-sol', context: 200_000 }, { id: 'openai/gpt-6.1-sol-fast', context: 200_000 }, { id: 'openai/gpt-6-luna', context: 200_000 }, { id: 'openai/gpt-6-luna-fast', context: 200_000 }]),
 });
 export const CODEX_TOOL_FEATURES = Object.freeze(['shell_tool', 'browser_use', 'computer_use', 'image_generation', 'apps', 'plugins', 'hooks']);
 export const OPENCODE_QUIET = Object.freeze({
