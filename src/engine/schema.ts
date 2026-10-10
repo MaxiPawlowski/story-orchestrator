@@ -386,9 +386,13 @@ export interface StoryRequirements {
 // The explicit allowlist a background curator may write into (user decision). No
 // inference from requirements or effects: an absent or empty list means the curator has nothing to
 // write, full stop.
+export const STAGECRAFT_CREATE_CAP_DEFAULT = 5;
+export const STAGECRAFT_CREATE_CAP_MAX = 20;
+
 export interface StoryStagecraft {
   lorebooks: string[];
   exclude?: StagecraftExclusion[];
+  createCap?: number;
 }
 
 export interface StagecraftExclusion {

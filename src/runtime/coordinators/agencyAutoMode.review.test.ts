@@ -29,7 +29,7 @@ const continuity: WardenCheckFinding = { family: "continuity", text: "Continuity
 const harness = (modes: { warden: StagecraftAcceptMode; agency?: StagecraftAcceptMode }, findings: WardenCheckFinding[], families = { agency: true, houseRules: [] as string[] }) => {
   let state: StagecraftRuntimeState = {
     ...createStagecraft(),
-    settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: modes.warden, ...(modes.agency ? { agencyAcceptMode: modes.agency } : {}) },
+    settings: { createEnabled: false, createRequireMeasured: false, curatorEnabled: false, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: modes.warden, ...(modes.agency ? { agencyAcceptMode: modes.agency } : {}) },
   };
   const asked: unknown[] = [];
   const coordinator = new StagecraftCoordinator({
@@ -51,7 +51,7 @@ describe("v2.7 33 W2: the agency family has its own accept mode", () => {
   it("defaults to auto, and an install that never stored the key reads auto beside its stored shared mode", () => {
     expect(defaultGlobalSettings().stagecraft.agencyAcceptMode).toBe("auto");
     const migrated = sanitizeGlobalSettings({ stagecraft: { curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" } }).stagecraft;
-    expect(migrated).toEqual({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" });
+    expect(migrated).toEqual({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", createEnabled: true, createRequireMeasured: false });
     expect(sanitizeGlobalSettings({ stagecraft: { agencyAcceptMode: "review" } }).stagecraft.agencyAcceptMode).toBe("review");
     expect(sanitizeGlobalSettings({ stagecraft: { agencyAcceptMode: "sometimes" } }).stagecraft.agencyAcceptMode).toBe("auto");
   });

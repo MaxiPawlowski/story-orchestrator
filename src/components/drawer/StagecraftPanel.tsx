@@ -60,6 +60,7 @@ const describe = (op: CuratorOp): string => {
   if (op.kind === "enable") return `switch on "${op.comment}"`;
   if (op.kind === "disable") return `switch off "${op.comment}"`;
   if (op.kind === "rewrite") return `rewrite "${op.comment}"`;
+  if (op.kind === "create") return `new entry "${op.comment}" in ${op.lorebook}`;
   return `patch "${op.comment}" at “${op.anchor}”`;
 };
 

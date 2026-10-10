@@ -176,7 +176,7 @@ describe("warden-lore: the warden pass (stagecraftCoordinator)", () => {
   const LORE = [{ comment: "Arryn", text: "Arryn has never used a bow." }];
   const loreFinding: WardenCheckFinding = { family: "lore", text: 'Lore: "Arryn" says Arryn has never used a bow. — keep the next reply consistent with it.', facts: [], lore: ["Arryn"] };
   const harness = (options: { continuity: boolean; lore: boolean; findings?: WardenCheckFinding[] | null; mode?: "auto" | "review" }) => {
-    let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity, wardenAcceptMode: options.mode ?? "auto" } };
+    let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { createEnabled: false, createRequireMeasured: false, curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity, wardenAcceptMode: options.mode ?? "auto" } };
     const inputs: WardenCheckInput[] = [];
     const asked: number[] = [];
     const families = { agency: false, houseRules: [] as string[], lore: options.lore };

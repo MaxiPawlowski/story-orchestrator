@@ -20,6 +20,7 @@ export const ROLE_CONSEQUENCES: Record<PassRole, string> = {
   director: "Speaker direction falls back to ST's own choice.",
   curator: "The World Info curator stops proposing changes.",
   inner: "Characters stop preparing a private intent before they speak.",
+  lore: "The curator stops proposing new lorebook entries.",
 };
 
 const ROLE_PLAYER_COPY: Partial<Record<PassRole, string>> = {
@@ -152,6 +153,7 @@ export const ROLE_OUTAGE_CONSEQUENCES: Record<PassRole, string> = {
   director: "Speaker direction falls back to ST's own choice until this model answers again.",
   curator: "The World Info curator pauses until this model answers again.",
   inner: "Characters skip their private intent until this model answers again.",
+  lore: "The curator stops proposing new lorebook entries until this model answers again.",
 };
 
 const ROLE_OUTAGE_PLAYER_COPY: Partial<Record<PassRole, string>> = {

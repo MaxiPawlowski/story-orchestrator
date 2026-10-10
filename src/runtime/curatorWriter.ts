@@ -1,7 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
-  CURATOR_OP_REVERTED, isCheckpointGated, isCuratorExcluded, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
-  type CuratorOpRecord, type CuratorProposalRecord, type WriteAheadCounts, type WriteAheadLive,
+  CURATOR_OP_REVERTED, hiddenTitleRefusal, isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
+  type CreatedEntry, type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
 import type { CuratorWiHost, WIEntryTarget } from "./hostPorts";
@@ -19,7 +19,21 @@ const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
 const reopened = (entry: CuratorOpRecord): CuratorOpRecord => ({
   op: entry.op, status: "pending", message: CURATOR_OP_REVERTED,
   ...(entry.before ? { before: entry.before } : {}), ...(entry.fuzzy ? { fuzzy: entry.fuzzy } : {}),
+  ...(entry.nearDups ? { nearDups: entry.nearDups } : {}), ...(entry.created ? { created: entry.created } : {}),
 });
+
+const scopeRefusal = (story: NormalizedStoryV2, op: WiCuratorOp): string =>
+  hiddenTitleRefusal(story, op.lorebook, op.comment) ?? `"${op.lorebook}" is not on this story's stagecraft allowlist`;
+
+const sameKeys = (left: string[], right: string[]) => left.length === right.length && left.every((key, index) => key === right[index]);
+
+export const createdEntryOf = (record: CuratorProposalRecord, entry: CuratorOpRecord, at: string): CreatedEntry | null =>
+  isCreateOp(entry.op) && entry.status === "applied" && entry.target?.uid !== undefined
+    ? {
+        lorebook: entry.op.lorebook, lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid, comment: entry.op.comment,
+        proposalId: record.id, messageId: entry.writeAhead?.messageId ?? record.messageId, at,
+      }
+    : null;
 
 export interface CuratorWriterDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -49,14 +63,8 @@ export class CuratorWriter {
   ): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
-    if (!isCuratorWritable(story, op.lorebook, op.comment)) {
-      const message = isCheckpointGated(story, op.lorebook, op.comment)
-        ? `"${op.comment}" is switched by checkpoint effects, which alone decide it`
-        : isCuratorExcluded(story, op.lorebook, op.comment)
-          ? `"${op.comment}" is excluded from the curator by this story`
-          : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
-      return { ok: false, record: { ...entry, status: "failed", message } };
-    }
+    if (!isCuratorWritable(story, op.lorebook, op.comment)) return { ok: false, record: { ...entry, status: "failed", message: scopeRefusal(story, op) } };
+    if (isCreateOp(op)) return this.writeCreate(entry, run, messageId, beforeHostWrite);
     // The before-image is read at the write edge. by uid, and
     // an entry that is gone is a failed op, never a created one.
     const fileId = lorebookFileId(op.lorebook);
@@ -85,18 +93,58 @@ export class CuratorWriter {
     }
   }
 
+  private async writeCreate(
+    entry: CuratorOpRecord, run: RunGuard, messageId: number, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>,
+  ): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
+    const op = entry.op;
+    if (!isCreateOp(op)) return { ok: false, record: entry };
+    const preview = previewCuratorOp(op, undefined);
+    if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
+    const marked = protectedRefusal(op, "");
+    if (marked) return { ok: false, record: { ...entry, status: "failed", message: marked } };
+    const host = this.deps.host();
+    const existing = await host.readWIEntry(op.lorebook, op.comment);
+    if (run.lapsed()) return { ok: false, record: entry, lapsed: true };
+    if (existing) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" already exists in ${op.lorebook}; a new entry never edits one` } };
+    const after = { content: op.text, disabled: false };
+    const writeAhead = { status: "pending" as const, at: new Date().toISOString(), messageId };
+    const pending: CuratorOpRecord = { ...entry, after, created: { keys: [...op.keys] }, target: { lorebookFileId: lorebookFileId(op.lorebook) }, writeAhead };
+    await beforeHostWrite(pending);
+    if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
+    try {
+      const written = await host.createWIEntry(op.lorebook, { comment: op.comment, keys: op.keys, content: op.text });
+      if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
+      return { ok: true, record: { ...pending, status: "applied", message: preview.message, target: { lorebookFileId: written.lorebookFileId, uid: written.uid }, writeAhead: undefined } };
+    } catch (error) {
+      return { ok: false, record: { ...pending, status: "failed", message: error instanceof Error ? error.message : "write failed", writeAhead: undefined } };
+    }
+  }
+
+  private async readPending(entry: CuratorOpRecord): Promise<WriteAheadLive | null> {
+    const op = entry.op;
+    if (isCreateOp(op)) {
+      const live = await this.deps.host().readWIEntry(op.lorebook, op.comment);
+      return live ? { content: live.content, disabled: live.disabled, ...(live.uid !== undefined ? { uid: live.uid } : {}) } : null;
+    }
+    const at = uidTarget(entry);
+    return at ? this.deps.host().readWIEntryAt(at) : null;
+  }
+
   async reconcileWriteAhead(): Promise<WriteAheadCounts> {
     const pending = pendingWriteAheads(this.deps.state().proposals);
     if (!pending.length) return noWriteAheads();
     const run = beginRun(this.deps.ownership());
     const live = new Map<string, WriteAheadLive | null>();
     for (const { key, entry } of pending) {
-      const at = uidTarget(entry);
-      live.set(key, at ? await this.deps.host().readWIEntryAt(at) : null);
+      live.set(key, await this.readPending(entry));
       if (run.lapsed()) return noWriteAheads();
     }
-    const { proposals, counts } = settleWriteAheads(this.deps.state().proposals, live, new Date().toISOString());
-    this.deps.patch({ proposals });
+    const now = new Date().toISOString();
+    const { proposals, counts } = settleWriteAheads(this.deps.state().proposals, live, now);
+    const before = new Set(this.deps.state().proposals.flatMap((record) => record.ops.filter((entry) => entry.status === "applied")));
+    const landed = proposals.flatMap((record) => record.ops.filter((entry) => !before.has(entry)).map((entry) => createdEntryOf(record, entry, now)))
+      .filter((row): row is CreatedEntry => row !== null);
+    this.deps.patch({ proposals, ...(landed.length ? { created: [...(this.deps.state().created ?? []), ...landed] } : {}) });
     this.deps.journal(`World Info curator writes reconciled on reload: ${counts.applied} landed, ${counts.retry} to rewrite, ${counts.left} left alone`);
     return counts;
   }
@@ -117,6 +165,7 @@ export class CuratorWriter {
     }
     let reverted = 0;
     let reviewed = 0;
+    const deleted = new Set<string>();
     const settled = new Set<string>();
     const updates: Array<{ id: string; ops: CuratorOpRecord[]; source?: number }> = [];
     for (const record of affected) {
@@ -125,8 +174,16 @@ export class CuratorWriter {
       const ops: CuratorOpRecord[] = [];
       for (const entry of [...record.ops].reverse()) {
         if (run.lapsed()) { ops.unshift(entry); continue; }
-        if (isNoteOp(entry.op) || entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) {
+        if (isNoteOp(entry.op) || entry.status !== "applied" || (!entry.before && !isCreateOp(entry.op)) || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) {
           ops.unshift(entry);
+          continue;
+        }
+        if (isCreateOp(entry.op)) {
+          const step = await this.revertCreateStep(entry, run, kept);
+          ops.unshift(...step.ops);
+          reverted += step.reverted;
+          reviewed += step.reviewed;
+          step.deleted.forEach((key) => deleted.add(key));
           continue;
         }
         // Compare-and-set: the entry has to still hold what this op wrote. If it does not, someone
@@ -157,14 +214,43 @@ export class CuratorWriter {
     }
     if (run.lapsed()) return reverted;
     const byId = new Map(updates.map((update) => [update.id, update]));
+    if (deleted.size) this.deps.patch({ created: (this.deps.state().created ?? []).filter((row) => !deleted.has(`${row.lorebookFileId}#${String(row.uid)}`)) });
     this.deps.patch({ proposals: this.deps.state().proposals.filter((record) => !settled.has(record.id)).map((record) => {
       const update = byId.get(record.id);
       if (!update) return record;
       return update.source === undefined ? { ...record, ops: update.ops } : { ...record, ops: update.ops, messageId: update.source, appliedAt: undefined };
     }) });
-    if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})${reviewed ? `; ${reviewed} back to review` : ""}`);
+    const removed = deleted.size ? `, ${newEntriesText(deleted.size)} deleted` : "";
+    if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})${removed}${reviewed ? `; ${reviewed} back to review` : ""}`);
     await this.deps.save();
     return reverted;
+  }
+
+  private async revertCreateStep(entry: CuratorOpRecord, run: RunGuard, kept: boolean): Promise<{ ops: CuratorOpRecord[]; reverted: number; reviewed: number; deleted: string[] }> {
+    const undone = await this.revertCreate(entry, run);
+    if (undone === "lapsed") return { ops: [entry], reverted: 0, reviewed: 0, deleted: [] };
+    if (undone !== "deleted") return { ops: [undone], reverted: 0, reviewed: 0, deleted: [] };
+    const key = entry.target?.uid !== undefined ? [`${entry.target.lorebookFileId}#${String(entry.target.uid)}`] : [];
+    return { ops: kept ? [reopened(entry)] : [], reverted: 1, reviewed: kept ? 1 : 0, deleted: key };
+  }
+
+  private async revertCreate(entry: CuratorOpRecord, run: RunGuard): Promise<CuratorOpRecord | "deleted" | "lapsed"> {
+    const op = entry.op;
+    if (!isCreateOp(op)) return entry;
+    const at = uidTarget(entry);
+    if (!at) return { ...entry, status: "revert-failed", message: `"${op.comment}" was recorded without a uid; not deleted` };
+    const current = await this.deps.host().readWIEntryAt(at);
+    if (run.lapsed()) return "lapsed";
+    if (!current) return "deleted";
+    const keys = entry.created?.keys ?? op.keys;
+    const untouched = current.comment === op.comment && current.content === entry.after?.content && current.disabled === entry.after?.disabled && sameKeys(current.keys, keys);
+    if (!untouched) return { ...entry, status: "externally-edited", message: `"${op.comment}" changed after it was created, so the rollback kept it` };
+    try {
+      const removed = await this.deps.host().deleteWIEntryAt(at);
+      return removed.ok ? "deleted" : { ...entry, status: "revert-failed", message: `could not delete "${op.comment}": ${removed.reason}` };
+    } catch (error) {
+      return { ...entry, status: "revert-failed", message: `could not delete "${op.comment}": ${error instanceof Error ? error.message : "the host refused"}` };
+    }
   }
 
   private withdrawOrphaned(messageId: number): number {

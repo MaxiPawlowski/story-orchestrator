@@ -63,6 +63,7 @@ export const MARKER_REFUSAL = "adds a curator marker";
 
 export function protectedRefusal(op: WiCuratorOp, content: string): string | null {
   if (op.kind === "enable") return null;
+  if (op.kind === "create") return markersIn(op.text).length ? `"${op.comment}": the new entry ${MARKER_REFUSAL}` : null;
   const marks = entryMarks(content);
   if (op.kind === "disable") return marks.spans.length ? `"${op.comment}" ${PROTECTED_REFUSAL}, so it may not be switched off` : null;
   if (op.kind === "rewrite") {

@@ -1,4 +1,4 @@
-import { PASS_ROLES, PASS_ROLE_LABELS, type PassRole } from "@extraction/passRole";
+import { PASS_ROLES, PASS_ROLE_LABELS, roleDefaultLabel, type PassRole } from "@extraction/passRole";
 import type { ExtractionHealth } from "@extraction/breaker";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { ReasoningMeter } from "@services/STAPI";
@@ -45,7 +45,7 @@ const stateOf = (input: RoleRouteInput, role: PassRole, label: string, route: Ro
   if (call?.outcome === "quota" && call.profileId === profileId) return ["quota", `${label}: ${call.detail}`];
   if (health?.kind === "transport") return ["not-answering", `${label}: ${isHarnessKey(profileId) ? "the harness" : "the profile"} is not answering (${health.detail})`];
   if (call?.outcome === "reasoning-exhausted" && call.profileId === profileId && call.effort === effort) return ["reasoning-exhausted", reasoningExhaustedDetail(label)];
-  if (route.source === "fallback") return ["fallback", "Same as memory model"];
+  if (route.source === "fallback") return ["fallback", roleDefaultLabel(role)];
   const selfTest = input.selfTests[role];
   if (!selfTest || selfTest.profileId !== profileId) return ["untested", `${label}: not tested yet`];
   return selfTest.status === "fail" ? ["failed", `${label} failed its self-test: ${selfTest.detail}`] : ["ok", `${label}: ${selfTest.detail}`];

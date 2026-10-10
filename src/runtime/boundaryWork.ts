@@ -163,7 +163,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     order: 65,
     when: ({ result, manager }) => Boolean(result.fired) && manager.curatorDueForRun(),
     run: ({ manager, scheduler }) => {
-      scheduler.schedule({ priority: 4, reason: "wi-curator:checkpoint", run: async () => { await manager.runWiCuratorPass("checkpoint"); } });
+      scheduler.schedule({ priority: 4, reason: "wi-curator:checkpoint", run: async () => { await manager.runWiCuratorPass("checkpoint"); await manager.runLoreCreatePass("checkpoint"); } });
     },
   },
   {

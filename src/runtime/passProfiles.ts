@@ -1,4 +1,4 @@
-import { isPassRole, PASS_ROLES, PASS_ROLE_LABELS, type PassRole } from "@extraction/passRole";
+import { isPassRole, PASS_ROLES, PASS_ROLE_LABELS, ROLE_INHERITS, type PassRole } from "@extraction/passRole";
 import { isRecord } from "@utils/guards";
 import { routeKey, type ModelRoute, type RouteResolution } from "@extraction/modelRoute";
 import { harnessKey, isHarnessId, type HarnessId } from "@utils/harness";
@@ -86,6 +86,11 @@ export function resolveRoute(settings: RouteSettings, role: PassRole, exists: (p
   }
   const assigned = settings.profiles?.[role];
   const route = (profileId: string): ModelRoute => withEffort({ kind: "profile", profileId });
+  const inherits = ROLE_INHERITS[role];
+  if (!assigned && inherits) {
+    const inherited = resolveRoute(settings, inherits, exists, listed);
+    return inherited.ok ? { ...inherited, source: "fallback" } : inherited;
+  }
   if (!assigned) return { ok: true, route: settings.profileId ? route(settings.profileId) : null, source: "fallback" };
   if (!exists(assigned)) return { ok: false, profileId: assigned, reason: `The profile chosen for ${PASS_ROLE_LABELS[role]} no longer exists (ID: ${assigned})` };
   return { ok: true, route: route(assigned), source: "role" };

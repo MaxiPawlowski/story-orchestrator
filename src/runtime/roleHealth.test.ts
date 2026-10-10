@@ -10,8 +10,15 @@ describe("role routes (v2.4 plan 08 T18)", () => {
     const routes = buildRoleRoutes({ settings: { profileId: "memory" }, exists: exists(["memory"]), health: healthy, selfTests: {} });
     expect(routes.map((route) => [route.role, route.state, route.profileId])).toEqual([
       ["read", "fallback", "memory"], ["synthesis", "fallback", "memory"], ["authoring", "fallback", "memory"], ["director", "fallback", "memory"], ["curator", "fallback", "memory"],
-      ["inner", "fallback", "memory"],
+      ["inner", "fallback", "memory"], ["lore", "fallback", "memory"],
     ]);
+  });
+
+  it("v2.8 11: lore creation left unset takes the curator's route and says so; set, it is its own", () => {
+    const inherited = buildRoleRoutes({ settings: { profileId: "memory", profiles: { curator: "cloud" } }, exists: exists(["memory", "cloud"]), health: healthy, selfTests: {} });
+    expect(inherited.find((route) => route.role === "lore")).toMatchObject({ state: "fallback", profileId: "cloud", detail: "Same as World Info curator" });
+    const own = buildRoleRoutes({ settings: { profileId: "memory", profiles: { curator: "cloud", lore: "other" } }, exists: exists(["memory", "cloud", "other"]), health: healthy, selfTests: {} });
+    expect(own.find((route) => route.role === "lore")).toMatchObject({ state: "untested", profileId: "other" });
   });
 
   it("a set role whose profile was deleted is missing and names the dangling id", () => {

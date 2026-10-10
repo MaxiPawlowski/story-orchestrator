@@ -3,7 +3,6 @@ import { buildWiCuratorPrompt } from "./prompt";
 import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorScope } from "./types";
 
 export const CREATE_NEAR_DUP_THRESHOLD = 0.85;
-export const CREATE_CONTRACT = "create-B";
 export const CREATE_MIN_FACTS = 2;
 
 export interface CreateCandidateOp {

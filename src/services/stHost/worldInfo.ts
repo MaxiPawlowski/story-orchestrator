@@ -358,3 +358,60 @@ export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content
 }
 
 export const restoreWIEntryAt = (target: WIEntryTarget, image: { content: string; disabled: boolean }): Promise<WriteResult<{ confirmed: boolean }>> => updateWIEntryByUid(target, image);
+
+export interface WINewEntry {
+  comment: string;
+  keys: string[];
+  content: string;
+}
+
+const lostWrite = (name: string, what: string) => {
+  worldInfoModule.worldInfoCache.delete(name);
+  return couldNot(`"${name}" was saved, but the server ${what}, so the write was lost`);
+};
+
+const saveRefused = (name: string, error: unknown) =>
+  couldNot(`"${name}" could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
+
+export async function createWIEntry(lorebook: string, entry: WINewEntry): Promise<WriteResult<{ uid: number; lorebookFileId: string; confirmed: boolean }>> {
+  const comment = entry.comment.trim();
+  if (!comment) return couldNot("a new entry needs a title");
+  const book = await loadExisting(lorebook);
+  if (!book) return couldNot(`there is no lorebook "${lorebook}"`);
+  if (Object.values(book.data.entries).some((existing) => String(existing.comment ?? "").trim().toLowerCase() === comment.toLowerCase())) {
+    return couldNot(`"${comment}" already exists in "${book.name}"`);
+  }
+  const target = worldInfoModule.createWorldInfoEntry(book.name, book.data) as LoreEntry | undefined;
+  if (!target || typeof target.uid !== "number") return couldNot(`"${book.name}" could not assign the new entry an id`);
+  target.comment = comment;
+  target.content = entry.content;
+  target.key = [...entry.keys];
+  target.disable = false;
+  try {
+    await saveLorebook(book.name, book.data);
+  } catch (error) {
+    return saveRefused(book.name, error);
+  }
+  const onServer = await readServerLorebook(book.name);
+  if (!onServer) return wrote({ uid: target.uid, lorebookFileId: book.name, confirmed: false });
+  const kept = onServer.entries[target.uid];
+  if (!kept || String(kept.content ?? "") !== entry.content || String(kept.comment ?? "").trim() !== comment) return lostWrite(book.name, `does not hold the new entry ${target.uid}`);
+  return wrote({ uid: target.uid, lorebookFileId: book.name, confirmed: true });
+}
+
+export async function deleteWIEntryAt(target: WIEntryTarget): Promise<WriteResult<{ confirmed: boolean }>> {
+  const book = await loadExisting(target.lorebookFileId);
+  if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
+  if (!book.data.entries[target.uid]) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
+  delete book.data.entries[target.uid];
+  const original = (book.data as { originalData?: { entries?: Array<{ uid?: unknown }> } }).originalData;
+  if (original && Array.isArray(original.entries)) original.entries = original.entries.filter((row) => row.uid !== target.uid);
+  try {
+    await saveLorebook(book.name, book.data);
+  } catch (error) {
+    return saveRefused(book.name, error);
+  }
+  const onServer = await readServerLorebook(book.name);
+  if (!onServer) return wrote({ confirmed: false });
+  return onServer.entries[target.uid] ? lostWrite(book.name, `still holds entry ${target.uid}`) : wrote({ confirmed: true });
+}

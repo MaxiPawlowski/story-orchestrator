@@ -4,7 +4,7 @@ import {
 } from "@memory/index";
 import type { SealSkip } from "@memory/reverse";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
-import { capProposalRing, sanitizeDeclines } from "@stagecraft/index";
+import { capProposalRing, sanitizeCreated, sanitizeDeclines } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
@@ -195,7 +195,9 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
 export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings() });
-export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null });
+export const createStagecraft = (): StagecraftRuntimeState => ({
+  settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null, created: [], lastCreatePass: null, lastCreateBoundary: -1,
+});
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
   const existing = value?.stagecraft;
@@ -209,6 +211,9 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,
+    created: sanitizeCreated(existing.created),
+    lastCreatePass: existing.lastCreatePass && typeof existing.lastCreatePass === "object" ? existing.lastCreatePass : null,
+    lastCreateBoundary: typeof existing.lastCreateBoundary === "number" ? existing.lastCreateBoundary : -1,
   };
 };
 
@@ -383,6 +388,9 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
     lastPass: extras.stagecraft.lastPass,
     lastRunBoundary: extras.stagecraft.lastRunBoundary,
     lastError: extras.stagecraft.lastError,
+    created: extras.stagecraft.created ?? [],
+    lastCreatePass: extras.stagecraft.lastCreatePass ?? null,
+    lastCreateBoundary: extras.stagecraft.lastCreateBoundary ?? -1,
   } as RuntimeExtras["stagecraft"],
 });
 

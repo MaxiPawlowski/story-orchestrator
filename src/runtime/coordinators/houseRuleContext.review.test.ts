@@ -71,7 +71,7 @@ const pass = async (uses: Partial<JudgeSettings["uses"]>, options: { scene?: boo
   const env = judgeWith(uses);
   const evidence = evidenceFor(1);
   const loreReads: number[] = [];
-  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" } };
+  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { createEnabled: false, createRequireMeasured: false, curatorEnabled: false, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" } };
   const warden = createWarden(() => env.judge, view, {
     facts: () => [{ id: "f", text: "The hall is open." }],
     nudgeActive: () => false,

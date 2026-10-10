@@ -25,6 +25,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   director: () => globalThis.storyOrchestratorDebugDirectorResponse,
   inner: () => globalThis.storyOrchestratorDebugInnerResponse,
   suggestions: () => globalThis.storyOrchestratorDebugSuggestionsResponse,
+  loreCreate: () => globalThis.storyOrchestratorDebugLoreResponse,
 };
 
 export const debugResponseFor = (pass: ModelPass): string | null => DEBUG_RESPONSES[pass]() ?? null;

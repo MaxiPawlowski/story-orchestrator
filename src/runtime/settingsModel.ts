@@ -189,7 +189,9 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   harvestReasoning: true,
 });
 
-export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" });
+export const defaultStagecraftSettings = (): StagecraftSettings => ({
+  curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", createEnabled: true, createRequireMeasured: false,
+});
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
@@ -282,6 +284,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       agencyAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.agencyAcceptMode,
+      createEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.createEnabled === "boolean" ? value.stagecraft.createEnabled : defaults.stagecraft.createEnabled,
+      createRequireMeasured: isRecord(value.stagecraft) && typeof value.stagecraft.createRequireMeasured === "boolean"
+        ? value.stagecraft.createRequireMeasured : defaults.stagecraft.createRequireMeasured,
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),

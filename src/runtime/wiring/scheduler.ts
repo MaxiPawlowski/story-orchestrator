@@ -55,7 +55,10 @@ const scheduleSceneBreak = (live: LiveParts) => runtimeManager.onSceneBreakConfi
     place({ priority: 2, reason: `epistemic-ledger:${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runEpistemicLedgerPass(audit); } });
   }
   if (runtimeManager.curatorDueForRun()) {
-    place({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
+    place({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => {
+      await runtimeManager.runWiCuratorPass("scene-break");
+      await runtimeManager.runLoreCreatePass("scene-break");
+    } });
   }
 });
 

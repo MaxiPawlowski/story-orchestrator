@@ -97,7 +97,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, deactivateGlobalLorebook, deleteLorebook, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, createWIEntry, deactivateGlobalLorebook, deleteLorebook, deleteWIEntryAt, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -507,5 +507,48 @@ describe("updateWIEntryByUid (v2.4 plan 06 T17.2)", () => {
   it("reports a save the server lost", async () => {
     server.lose = true;
     await expect(updateWIEntryByUid({ lorebookFileId: "Story Lore", uid: 3 }, { content: "Lost." })).resolves.toMatchObject({ ok: false });
+  });
+});
+
+describe("createWIEntry / deleteWIEntryAt (v2.8 11, curator create op)", () => {
+  beforeEach(() => {
+    putOnDisk("Story Lore", [entry(3, "The bridge", "The bridge stands."), entry(5, "The ferry", "Gone.")]);
+    st.worldNames = ["Story Lore"];
+  });
+
+  it("creates a keyed, enabled entry in a listed book, returns its uid and confirms from the server", async () => {
+    const result = await createWIEntry("Story Lore", { comment: "Old Marn", keys: ["Marn", "map-seller"], content: "Sells the tunnel map." });
+    expect(result).toMatchObject({ ok: true, confirmed: true, lorebookFileId: "Story Lore" });
+    const uid = result.ok ? result.uid : -1;
+    expect(st.disk.get("Story Lore")?.entries[uid]).toMatchObject({ comment: "Old Marn", key: ["Marn", "map-seller"], content: "Sells the tunnel map.", disable: false });
+  });
+
+  it("never creates a book: an unlisted name is refused and nothing is saved", async () => {
+    await expect(createWIEntry("Missing", { comment: "X", keys: ["x"], content: "x" })).resolves.toMatchObject({ ok: false });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+    expect(createNewWorldInfo).not.toHaveBeenCalled();
+    expect(st.disk.has("Missing")).toBe(false);
+  });
+
+  it("never converts to an edit: an existing title is refused and the entry is untouched", async () => {
+    await expect(createWIEntry("Story Lore", { comment: "the bridge", keys: ["bridge"], content: "Fallen." })).resolves.toMatchObject({ ok: false });
+    expect(st.disk.get("Story Lore")?.entries[3]).toMatchObject({ content: "The bridge stands." });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("reports a create the server lost", async () => {
+    server.lose = true;
+    await expect(createWIEntry("Story Lore", { comment: "Old Marn", keys: ["Marn"], content: "x" })).resolves.toMatchObject({ ok: false });
+  });
+
+  it("deletes by uid and confirms the server no longer holds it; a missing uid is a refusal", async () => {
+    await expect(deleteWIEntryAt({ lorebookFileId: "Story Lore", uid: 5 })).resolves.toEqual({ ok: true, confirmed: true });
+    expect(Object.keys(st.disk.get("Story Lore")?.entries ?? {})).toEqual(["3"]);
+    await expect(deleteWIEntryAt({ lorebookFileId: "Story Lore", uid: 5 })).resolves.toMatchObject({ ok: false });
+  });
+
+  it("reports a delete the server lost", async () => {
+    server.lose = true;
+    await expect(deleteWIEntryAt({ lorebookFileId: "Story Lore", uid: 3 })).resolves.toMatchObject({ ok: false });
   });
 });

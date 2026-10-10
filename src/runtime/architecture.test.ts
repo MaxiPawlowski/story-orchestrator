@@ -18,7 +18,7 @@ const SRC = join(__dirname, "..");
 // edge into delegated units, so both budgets come down to the design values with headroom below them.
 const MANAGER_LINE_BUDGET = 700;
 const COORDINATOR_LINE_BUDGET = 560;
-const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts"];
+const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
 const COORDINATOR_SPECIFIER = /(^|\/)coordinators\/|^\.\/\w+Coordinator$/;
 const valueImportsOf = (source: string) => [...source.matchAll(/^import\s+(?!type\s)([\s\S]+?)\s+from\s+"([^"]+)"/gm)]
   .filter((match) => !/^\{[^}]*\}$/.test(match[1].trim()) || match[1].replace(/\btype\s+\w+(\s+as\s+\w+)?/g, "").replace(/[{},\s]/g, "") !== "")
@@ -39,7 +39,7 @@ const walk = (dir: string): string[] =>
 export const effectiveLines = (text: string) => text.split("\n").reduce((sum, line) => sum + Math.max(1, Math.ceil(line.replace(/\r$/, "").length / EFFECTIVE_WIDTH)), 0);
 const lineCount = (path: string) => effectiveLines(readFileSync(path, "utf8"));
 const importsOf = (path: string) => [...readFileSync(path, "utf8").matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]);
-const STAGECRAFT_ISOLATED = ["runtime/coordinators/stagecraftCoordinator.ts", "runtime/curatorWriter.ts"];
+const STAGECRAFT_ISOLATED = ["runtime/coordinators/stagecraftCoordinator.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
 const stagecraftLeaks = (source: string) => ({
   offenders: [...source.matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]).filter((specifier) => /@memory|@generation|@pacing/.test(specifier)),
   writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]),

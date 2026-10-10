@@ -48,10 +48,10 @@ export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {
   getWorldInfoSettings, enableWIEntry, disableWIEntry, setWIEntriesState, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
-  updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
+  updateWIEntryByUid, createWIEntry, deleteWIEntryAt, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
   deactivateGlobalLorebook, loadLorebook, loadScanLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
 } from "@services/stHost/worldInfo";
-export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
+export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget, WINewEntry } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
 export { isHostGeneratingFlag, listGroupChats, openStoryGroupChat, readGroupChatMetadata, type HostGroupChats } from "@services/stHost/groupChatFiles";
 export { BADGE_REFRESH_EVENTS, mountStoryBadges, type StoryBadge, type StoryBadgeHandle, type StoryBadgeSource } from "@services/stHost/charListBadges";

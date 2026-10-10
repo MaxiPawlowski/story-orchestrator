@@ -7,7 +7,7 @@ export type ProvisioningHost = Pick<typeof Stapi,
   "listGlobalLorebooks" | "listGroupNames" | "listPersonas" | "readWIEntry" | "upsertWIEntry">;
 
 export type CuratorWiHost = Pick<typeof Stapi,
-  "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook">;
+  "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook" | "createWIEntry" | "deleteWIEntryAt">;
 
 export type WIEntryTarget = Parameters<CuratorWiHost["readWIEntryAt"]>[0];
 
