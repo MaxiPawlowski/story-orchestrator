@@ -1,0 +1,893 @@
+{
+  "source": "ideas.mts adversity run 2 over test/fixtures/judge/spike-n3.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:44:53.312Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "9535ec1a0789",
+  "run": 2,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "withinOne": 1,
+      "confusedLowHigh": 0
+    },
+    "floors": [
+      {
+        "name": "level within 1",
+        "value": 1,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "0-1 vs 3-4 confusions",
+        "value": 0,
+        "floor": 0,
+        "op": "<=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 231,
+  "calls": [
+    {
+      "id": "l0-tavern",
+      "state": {
+        "player": "Max",
+        "reply": "The innkeeper sets down two mugs of cider and asks how the road was. A fire crackles in the hearth."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 434,
+      "inputTokens": 429
+    },
+    {
+      "id": "l0-market",
+      "state": {
+        "player": "Max",
+        "reply": "The market is busy and cheerful. A baker offers Max a free roll to try, smiling."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 435,
+      "inputTokens": 420
+    },
+    {
+      "id": "l0-friend",
+      "state": {
+        "player": "Max",
+        "reply": "Arin laughs at the joke and hands Max the map. 'You lead, then,' she says."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 0.04,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0.97,
+            "1": 0.03,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 249,
+      "inputTokens": 422
+    },
+    {
+      "id": "l0-view",
+      "state": {
+        "player": "Max",
+        "reply": "From the ridge the valley spreads out green and quiet under a clear sky."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 223,
+      "inputTokens": 416
+    },
+    {
+      "id": "l1-rain",
+      "state": {
+        "player": "Max",
+        "reply": "A light rain starts. Max's cloak is damp by the time they reach the bridge, nothing worse."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 0.98,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.98,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 221,
+      "inputTokens": 422
+    },
+    {
+      "id": "l1-price",
+      "state": {
+        "player": "Max",
+        "reply": "The ferryman wants a silver more than last week. 'Prices went up,' he shrugs."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 1.26,
+          "confidence": 0.77,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.73,
+            "2": 0.26,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 253,
+      "inputTokens": 422
+    },
+    {
+      "id": "l1-strap",
+      "state": {
+        "player": "Max",
+        "reply": "A strap on Max's pack snaps; it takes a few minutes to knot it back together."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 1.01,
+          "confidence": 0.99,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.99,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 237,
+      "inputTokens": 420
+    },
+    {
+      "id": "l1-rude",
+      "state": {
+        "player": "Max",
+        "reply": "The clerk is curt with Max and makes him wait at the back of the line."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 1.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.98,
+            "2": 0.02,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 253,
+      "inputTokens": 418
+    },
+    {
+      "id": "l2-lost",
+      "state": {
+        "player": "Max",
+        "reply": "The trail they followed ends at a washed-out gully. They will lose half a day going around."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 1.18,
+          "confidence": 0.53,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0.19,
+            "1": 0.44,
+            "2": 0.36,
+            "3": 0.01,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 225,
+      "inputTokens": 422
+    },
+    {
+      "id": "l2-thief",
+      "state": {
+        "player": "Max",
+        "reply": "When Max reaches for his purse it is gone; a boy is already disappearing into the crowd."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 2.59,
+          "confidence": 0.67,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.4,
+            "3": 0.6,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 226,
+      "inputTokens": 420
+    },
+    {
+      "id": "l2-refused",
+      "state": {
+        "player": "Max",
+        "reply": "The captain refuses Max passage outright. 'No papers, no ship.' The door shuts."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 2.04,
+          "confidence": 0.96,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.95,
+            "3": 0.04,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 241,
+      "inputTokens": 419
+    },
+    {
+      "id": "l2-sprain",
+      "state": {
+        "player": "Max",
+        "reply": "Max lands badly jumping the ditch and his ankle swells; walking will be slow for days."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 2.61,
+          "confidence": 0.67,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.02,
+            "2": 0.36,
+            "3": 0.62,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 215,
+      "inputTokens": 420
+    },
+    {
+      "id": "l3-ambush",
+      "state": {
+        "player": "Max",
+        "reply": "Arrows hiss out of the trees. One takes Max's horse in the neck and it goes down screaming."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 2.83,
+          "confidence": 0.85,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.17,
+            "3": 0.82,
+            "4": 0.01
+          }
+        }
+      },
+      "latencyMs": 261,
+      "inputTokens": 423
+    },
+    {
+      "id": "l3-burned",
+      "state": {
+        "player": "Max",
+        "reply": "They return to find the safehouse burning. Every supply and letter they left there is ash."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.35,
+          "confidence": 0.67,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.02,
+            "3": 0.6,
+            "4": 0.38
+          }
+        }
+      },
+      "latencyMs": 202,
+      "inputTokens": 421
+    },
+    {
+      "id": "l3-captured",
+      "state": {
+        "player": "Max",
+        "reply": "Guards close in from both ends of the alley. Arin is seized and dragged away before Max can reach her."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.05,
+          "confidence": 0.91,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.03,
+            "3": 0.89,
+            "4": 0.08
+          }
+        }
+      },
+      "latencyMs": 208,
+      "inputTokens": 425
+    },
+    {
+      "id": "l3-wound",
+      "state": {
+        "player": "Max",
+        "reply": "The blade opens Max's side. Blood soaks his shirt and the world tilts as he staggers."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.03,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.96,
+            "4": 0.04
+          }
+        }
+      },
+      "latencyMs": 231,
+      "inputTokens": 423
+    },
+    {
+      "id": "l4-death",
+      "state": {
+        "player": "Max",
+        "reply": "Old Bren falls and does not get up. The man who raised Max is dead on the cobbles."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.83,
+          "confidence": 0.88,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.15,
+            "4": 0.85
+          }
+        }
+      },
+      "latencyMs": 208,
+      "inputTokens": 422
+    },
+    {
+      "id": "l4-betrayal",
+      "state": {
+        "player": "Max",
+        "reply": "The council hears the forged letters and brands Max a traitor. His name, lands and rank are stripped before nightfall."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.93,
+          "confidence": 0.94,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.07,
+            "4": 0.93
+          }
+        }
+      },
+      "latencyMs": 385,
+      "inputTokens": 428
+    },
+    {
+      "id": "l4-city",
+      "state": {
+        "player": "Max",
+        "reply": "The gates break. Smoke rises over the whole city Max swore to defend, and the defenders run."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.98,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.98
+          }
+        }
+      },
+      "latencyMs": 209,
+      "inputTokens": 422
+    },
+    {
+      "id": "l4-curse",
+      "state": {
+        "player": "Max",
+        "reply": "The ritual completes. Max feels the curse settle into his bones; the healer says it cannot be lifted."
+      },
+      "questions": {
+        "adversity": {
+          "type": "score",
+          "instructions": "How badly do things go for `player` and their side in `reply`?",
+          "criteria": [
+            "nothing: nothing in the reply costs or threatens the player's side",
+            "a minor snag: a small inconvenience, delay or annoyance",
+            "a real setback: something goes wrong that the player's side must deal with",
+            "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          ]
+        }
+      },
+      "answers": {
+        "adversity": {
+          "type": "score",
+          "score": 3.14,
+          "confidence": 0.82,
+          "legend": {
+            "0": "nothing: nothing in the reply costs or threatens the player's side",
+            "1": "a minor snag: a small inconvenience, delay or annoyance",
+            "2": "a real setback: something goes wrong that the player's side must deal with",
+            "3": "a serious loss or danger: a real loss, injury or threat to the player's side",
+            "4": "a heavy blow: a grave loss, defeat or catastrophe for the player's side"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.78,
+            "4": 0.18
+          }
+        }
+      },
+      "latencyMs": 241,
+      "inputTokens": 422
+    }
+  ]
+}

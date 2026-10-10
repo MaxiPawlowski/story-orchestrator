@@ -485,3 +485,7 @@ N4, N6; J7.3/J7.5/J7.6 fixtures in parallel; N7, J7.4 last.
 - **v2.8 rule 9:** fixture, offline replay, dev-only until floor ×2, then an off-by-default switch (constraints, step 3).
 - **B10:** shipped consumers carry the registry + Help gate (Gates).
 - Not changed: the research tables (Jeved sensors, costs) are kept as recorded.
+
+## Phase A record
+
+- 2026-10-10 WIP (stopped on owner quota, 214 TypeSafe calls): done J7.2/J7.7 PASS x2, N1 PASS x2, N2 PASS x2, N3 PASS x2, N5 PASS x2 (extractor column owed), J7.3 PASS x2, J7.1 FAIL run 1 (held-out break 0.83, whole 0.92), N4 FAIL run 1 (accuracy 1.0, p95 4208 ms); goldens test/goldens/judge/spike-*.runN.json, runner scripts/spike/typesafe/ideas.mts, scorers src/judge/ideaSpikes.ts. Next: J7.4/J7.5 fixtures + runs, J7.6/N6/N7/N8 verdicts, ring census replay, jest golden replay test, J7.2 consumer (canonVerify.ts) behind judge.uses, readiness rows, gates.

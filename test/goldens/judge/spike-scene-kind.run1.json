@@ -1,0 +1,766 @@
+{
+  "source": "ideas.mts sceneKind run 1 over test/fixtures/judge/spike-scene-kind.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:47:35.746Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "0d53cac64a03",
+  "run": 1,
+  "verdict": {
+    "passed": false,
+    "metrics": {
+      "accuracy": 1,
+      "combat": 1,
+      "conversation": 1,
+      "travel": 1,
+      "intimate": 1,
+      "downtime": 1,
+      "lowestClass": 1,
+      "p95LatencyMs": 4208
+    },
+    "floors": [
+      {
+        "name": "accuracy",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "lowest class",
+        "value": 1,
+        "floor": 0.75,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "p95 latency ms",
+        "value": 4208,
+        "floor": 1500,
+        "op": "<=",
+        "ok": false
+      }
+    ]
+  },
+  "latencyP50Ms": 238,
+  "calls": [
+    {
+      "id": "c-charge",
+      "state": {
+        "player": "Max",
+        "player_message": "I draw my sword and charge the nearest bandit before he can nock another arrow."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "combat",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 1,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 4208,
+      "inputTokens": 443
+    },
+    {
+      "id": "c-block",
+      "state": {
+        "player": "Max",
+        "player_message": "I raise my shield against the troll's club and try to drive my spear into its knee."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "combat",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 1,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 4210,
+      "inputTokens": 444
+    },
+    {
+      "id": "c-ambush-talk",
+      "state": {
+        "player": "Max",
+        "player_message": "\"Enough talk,\" I snarl, and throw my dagger at the cultist's throat."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "combat",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 1,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 264,
+      "inputTokens": 445
+    },
+    {
+      "id": "c-flee",
+      "state": {
+        "player": "Max",
+        "player_message": "I parry the guard's blade, kick him back into his friend, and shout for Arin to run for the door while I hold them off."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "combat",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 1,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 248,
+      "inputTokens": 456
+    },
+    {
+      "id": "t-ask-price",
+      "state": {
+        "player": "Max",
+        "player_message": "I ask the innkeeper what he knows about the missing caravan and how much his silence costs."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "conversation",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 1,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 250,
+      "inputTokens": 445
+    },
+    {
+      "id": "t-persuade",
+      "state": {
+        "player": "Max",
+        "player_message": "\"Captain, you know as well as I do that the duke will hang us both. Help me, and we both live.\""
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "conversation",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 1,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 217,
+      "inputTokens": 452
+    },
+    {
+      "id": "t-walk-talk",
+      "state": {
+        "player": "Max",
+        "player_message": "As we walk along the quay I ask Mira, quietly, why she really left Saltmouth."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "conversation",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 1,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 252,
+      "inputTokens": 445
+    },
+    {
+      "id": "t-question-guard",
+      "state": {
+        "player": "Max",
+        "player_message": "I show the gate guard my papers and ask him who passed through last night."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "conversation",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 1,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 238,
+      "inputTokens": 441
+    },
+    {
+      "id": "j-ride",
+      "state": {
+        "player": "Max",
+        "player_message": "We saddle up and ride north along the river road toward Halden Pass."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "travel",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 1,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 208,
+      "inputTokens": 440
+    },
+    {
+      "id": "j-sail",
+      "state": {
+        "player": "Max",
+        "player_message": "I tell Kell to cast off; we're sailing for the Teeth before the tide turns."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "travel",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 1,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 443
+    },
+    {
+      "id": "j-climb",
+      "state": {
+        "player": "Max",
+        "player_message": "We start the long climb up the switchbacks to the monastery."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "travel",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 1,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 213,
+      "inputTokens": 440
+    },
+    {
+      "id": "j-leave-chat",
+      "state": {
+        "player": "Max",
+        "player_message": "\"Talk on the way,\" I say, shouldering my pack. \"We need to be across the marsh by nightfall.\""
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "travel",
+          "confidence": 0.99,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0.01,
+            "travel": 0.99,
+            "intimate": 0,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 243,
+      "inputTokens": 453
+    },
+    {
+      "id": "i-hand",
+      "state": {
+        "player": "Max",
+        "player_message": "I take Arin's hand by the fire and tell her I'm glad she's the one beside me."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "intimate",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 1,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 447
+    },
+    {
+      "id": "i-kiss",
+      "state": {
+        "player": "Max",
+        "player_message": "I brush the hair from Sela's face and lean in to kiss her."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "intimate",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 1,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 196,
+      "inputTokens": 441
+    },
+    {
+      "id": "i-comfort",
+      "state": {
+        "player": "Max",
+        "player_message": "I sit beside Orla on the cold stairs and hold her while she cries for her brother."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "intimate",
+          "confidence": 0.96,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0.03,
+            "travel": 0,
+            "intimate": 0.97,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 444
+    },
+    {
+      "id": "i-dance",
+      "state": {
+        "player": "Max",
+        "player_message": "When the music slows I ask the queen's handmaid to dance, and hold her close."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "intimate",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 1,
+            "downtime": 0
+          }
+        }
+      },
+      "latencyMs": 221,
+      "inputTokens": 444
+    },
+    {
+      "id": "r-sleep",
+      "state": {
+        "player": "Max",
+        "player_message": "I bank the fire, roll out my blanket and get some sleep."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "downtime",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 1
+          }
+        }
+      },
+      "latencyMs": 275,
+      "inputTokens": 439
+    },
+    {
+      "id": "r-cook",
+      "state": {
+        "player": "Max",
+        "player_message": "I spend the afternoon mending my boots and cooking a proper stew for everyone."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "downtime",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 1
+          }
+        }
+      },
+      "latencyMs": 205,
+      "inputTokens": 441
+    },
+    {
+      "id": "r-shop",
+      "state": {
+        "player": "Max",
+        "player_message": "I browse the market stalls for a new cloak and some arrows."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "downtime",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 1
+          }
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 438
+    },
+    {
+      "id": "r-bath",
+      "state": {
+        "player": "Max",
+        "player_message": "I pay for a hot bath at the inn and soak until the water goes cold."
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "What kind of scene does `player_message` ask for next? Pick the main thing the player wants to do.",
+          "criteria": {
+            "combat": "Fighting, attacking, defending or escaping a fight",
+            "conversation": "Talking with someone: asking, persuading, bargaining or confiding",
+            "travel": "Moving to another place or journeying",
+            "intimate": "A close, tender or romantic moment between characters",
+            "downtime": "Resting, eating, crafting, shopping or another quiet activity"
+          }
+        }
+      },
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "downtime",
+          "confidence": 1,
+          "probabilities": {
+            "combat": 0,
+            "conversation": 0,
+            "travel": 0,
+            "intimate": 0,
+            "downtime": 1
+          }
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 442
+    }
+  ]
+}

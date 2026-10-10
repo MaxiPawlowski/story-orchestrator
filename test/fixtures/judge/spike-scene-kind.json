@@ -1,0 +1,27 @@
+{
+  "$comment": "v2.8 13 N4 Phase A fixture: 20 synthetic English player messages, 4 per kind (combat, conversation, travel, intimate, downtime), 5 of them mixed and labelled by the dominant ask, authored and labelled by Claude 2026-10-10 before any judge answer was read; not mined from sessions, not second-model checked. The state is the player's message alone, read before the reply (the pre-reply seam). Floors: accuracy >= 0.85, no class below 0.75, p95 latency inside the 1500 ms reply-path budget. Judge-off column: no shaping line.",
+  "revision": 1,
+  "player": "Max",
+  "rows": [
+    { "id": "c-charge", "label": "combat", "mixed": false, "playerMessage": "I draw my sword and charge the nearest bandit before he can nock another arrow." },
+    { "id": "c-block", "label": "combat", "mixed": false, "playerMessage": "I raise my shield against the troll's club and try to drive my spear into its knee." },
+    { "id": "c-ambush-talk", "label": "combat", "mixed": true, "playerMessage": "\"Enough talk,\" I snarl, and throw my dagger at the cultist's throat." },
+    { "id": "c-flee", "label": "combat", "mixed": true, "playerMessage": "I parry the guard's blade, kick him back into his friend, and shout for Arin to run for the door while I hold them off." },
+    { "id": "t-ask-price", "label": "conversation", "mixed": false, "playerMessage": "I ask the innkeeper what he knows about the missing caravan and how much his silence costs." },
+    { "id": "t-persuade", "label": "conversation", "mixed": false, "playerMessage": "\"Captain, you know as well as I do that the duke will hang us both. Help me, and we both live.\"" },
+    { "id": "t-walk-talk", "label": "conversation", "mixed": true, "playerMessage": "As we walk along the quay I ask Mira, quietly, why she really left Saltmouth." },
+    { "id": "t-question-guard", "label": "conversation", "mixed": false, "playerMessage": "I show the gate guard my papers and ask him who passed through last night." },
+    { "id": "j-ride", "label": "travel", "mixed": false, "playerMessage": "We saddle up and ride north along the river road toward Halden Pass." },
+    { "id": "j-sail", "label": "travel", "mixed": false, "playerMessage": "I tell Kell to cast off; we're sailing for the Teeth before the tide turns." },
+    { "id": "j-climb", "label": "travel", "mixed": false, "playerMessage": "We start the long climb up the switchbacks to the monastery." },
+    { "id": "j-leave-chat", "label": "travel", "mixed": true, "playerMessage": "\"Talk on the way,\" I say, shouldering my pack. \"We need to be across the marsh by nightfall.\"" },
+    { "id": "i-hand", "label": "intimate", "mixed": false, "playerMessage": "I take Arin's hand by the fire and tell her I'm glad she's the one beside me." },
+    { "id": "i-kiss", "label": "intimate", "mixed": false, "playerMessage": "I brush the hair from Sela's face and lean in to kiss her." },
+    { "id": "i-comfort", "label": "intimate", "mixed": false, "playerMessage": "I sit beside Orla on the cold stairs and hold her while she cries for her brother." },
+    { "id": "i-dance", "label": "intimate", "mixed": true, "playerMessage": "When the music slows I ask the queen's handmaid to dance, and hold her close." },
+    { "id": "r-sleep", "label": "downtime", "mixed": false, "playerMessage": "I bank the fire, roll out my blanket and get some sleep." },
+    { "id": "r-cook", "label": "downtime", "mixed": false, "playerMessage": "I spend the afternoon mending my boots and cooking a proper stew for everyone." },
+    { "id": "r-shop", "label": "downtime", "mixed": false, "playerMessage": "I browse the market stalls for a new cloak and some arrows." },
+    { "id": "r-bath", "label": "downtime", "mixed": false, "playerMessage": "I pay for a hot bath at the inn and soak until the water goes cold." }
+  ]
+}

@@ -1,0 +1,1473 @@
+{
+  "source": "ideas.mts idle run 1 over test/fixtures/judge/spike-n5.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:44:38.752Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "2b8052f53149",
+  "run": 1,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "changeWithinOne": 1,
+      "tensionWithinOne": 0.95
+    },
+    "floors": [
+      {
+        "name": "change within 1",
+        "value": 1,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "tension within 1",
+        "value": 0.95,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 219,
+  "calls": [
+    {
+      "id": "idle-weather",
+      "state": {
+        "reply": "The afternoon is warm. Birds sing. The party rests in the shade and nobody says much."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 0.42,
+          "confidence": 0.66,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.59,
+            "1": 0.41,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0.2,
+          "confidence": 0.84,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.81,
+            "1": 0.19,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 421,
+      "inputTokens": 464
+    },
+    {
+      "id": "idle-meal",
+      "state": {
+        "reply": "Arin stirs the stew and tastes it. 'Needs salt,' she says, and stirs it again."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 0.94,
+          "confidence": 0.93,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.07,
+            "1": 0.92,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 424,
+      "inputTokens": 468
+    },
+    {
+      "id": "idle-road",
+      "state": {
+        "reply": "The road goes on through the fields, the same as it has all morning."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.98,
+            "1": 0.02,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 219,
+      "inputTokens": 461
+    },
+    {
+      "id": "idle-chat",
+      "state": {
+        "reply": "They talk about the harvest and the price of wool. The fire burns low."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 0.75,
+          "confidence": 0.79,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.25,
+            "1": 0.75,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0.2,
+          "confidence": 0.83,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.81,
+            "1": 0.18,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 461
+    },
+    {
+      "id": "small-news",
+      "state": {
+        "reply": "A traveller mentions the bridge at Hollin is closed for repairs. He tips his hat and walks on."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.21,
+          "confidence": 0.79,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.78,
+            "2": 0.17,
+            "3": 0.03,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0.12,
+          "confidence": 0.9,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.88,
+            "1": 0.12,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 220,
+      "inputTokens": 466
+    },
+    {
+      "id": "small-mood",
+      "state": {
+        "reply": "Arin seems distracted tonight, glancing north more than once, though she says nothing about it."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1,
+          "confidence": 0.99,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.99,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 1.01,
+          "confidence": 0.98,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.98,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 466
+    },
+    {
+      "id": "small-track",
+      "state": {
+        "reply": "Fresh hoofprints cross the road ahead, heading toward the old mill."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.47,
+          "confidence": 0.61,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.53,
+            "2": 0.47,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0.8,
+          "confidence": 0.75,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.25,
+            "1": 0.7,
+            "2": 0.05,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 257,
+      "inputTokens": 460
+    },
+    {
+      "id": "small-offer",
+      "state": {
+        "reply": "The innkeeper offers them a room at half price if they help unload a wagon tomorrow."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.88,
+          "confidence": 0.85,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.15,
+            "2": 0.82,
+            "3": 0.03,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.96,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.95,
+            "1": 0.05,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 204,
+      "inputTokens": 464
+    },
+    {
+      "id": "mid-stranger",
+      "state": {
+        "reply": "A cloaked woman sits at their table uninvited and says she knows who sent the letter."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 2.36,
+          "confidence": 0.71,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.68,
+            "3": 0.29,
+            "4": 0.03
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.26,
+          "confidence": 0.75,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.02,
+            "2": 0.7,
+            "3": 0.28,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 465
+    },
+    {
+      "id": "mid-closed",
+      "state": {
+        "reply": "The city gate is barred at noon. A herald reads out that no one may leave until the thief is found."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 2.83,
+          "confidence": 0.75,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.23,
+            "3": 0.7,
+            "4": 0.07
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.16,
+          "confidence": 0.87,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.84,
+            "3": 0.16,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 468
+    },
+    {
+      "id": "mid-quarrel",
+      "state": {
+        "reply": "Arin and the merchant start shouting over the price; hands drift toward belts."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 2.34,
+          "confidence": 0.68,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.02,
+            "2": 0.71,
+            "3": 0.18,
+            "4": 0.09
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 3.17,
+          "confidence": 0.84,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.81,
+            "4": 0.18
+          }
+        }
+      },
+      "latencyMs": 242,
+      "inputTokens": 461
+    },
+    {
+      "id": "mid-letter",
+      "state": {
+        "reply": "The letter is in Bren's hand, dated yesterday, though Bren has been dead a month."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 3.03,
+          "confidence": 0.19,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.3,
+            "3": 0.34,
+            "4": 0.35
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.03,
+          "confidence": 0.77,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.11,
+            "2": 0.73,
+            "3": 0.15,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 464
+    },
+    {
+      "id": "tense-still",
+      "state": {
+        "reply": "The two sides stare at each other across the courtyard. No one moves. Rain drips from the eaves."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 0.36,
+          "confidence": 0.7,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.65,
+            "1": 0.34,
+            "2": 0.01,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.55,
+          "confidence": 0.62,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.44,
+            "3": 0.55,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 203,
+      "inputTokens": 468
+    },
+    {
+      "id": "tense-wait",
+      "state": {
+        "reply": "They wait in the dark crypt, listening. The scratching beyond the door stops, then starts again."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.17,
+          "confidence": 0.67,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.12,
+            "1": 0.6,
+            "2": 0.28,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.89,
+          "confidence": 0.91,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.11,
+            "3": 0.89,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 285,
+      "inputTokens": 465
+    },
+    {
+      "id": "tense-hide",
+      "state": {
+        "reply": "Boots pass inches from the hay where they hide. A lantern swings, slows, moves on."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.48,
+          "confidence": 0.52,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.1,
+            "1": 0.36,
+            "2": 0.52,
+            "3": 0.02,
+            "4": 0
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.96,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 224,
+      "inputTokens": 466
+    },
+    {
+      "id": "tense-standoff",
+      "state": {
+        "reply": "The duke holds the knife to the boy's throat and waits for an answer."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 1.63,
+          "confidence": 0.43,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0.13,
+            "1": 0.27,
+            "2": 0.48,
+            "3": 0.09,
+            "4": 0.03
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 3.85,
+          "confidence": 0.88,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.15,
+            "4": 0.85
+          }
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 461
+    },
+    {
+      "id": "big-fire",
+      "state": {
+        "reply": "The barn goes up in flames all at once; the horses break loose and the village wakes screaming."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 3.89,
+          "confidence": 0.92,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.08,
+            "4": 0.91
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 4,
+          "confidence": 1,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 1
+          }
+        }
+      },
+      "latencyMs": 214,
+      "inputTokens": 465
+    },
+    {
+      "id": "big-reveal",
+      "state": {
+        "reply": "The masked rider pulls off her hood: it is Arin's sister, the one they buried."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 3.85,
+          "confidence": 0.88,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.12,
+            "4": 0.87
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.75,
+          "confidence": 0.67,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.28,
+            "3": 0.63,
+            "4": 0.07
+          }
+        }
+      },
+      "latencyMs": 217,
+      "inputTokens": 465
+    },
+    {
+      "id": "big-arrival",
+      "state": {
+        "reply": "The king's army crests the hill, banners high, and the siege is broken in an hour."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 3.8,
+          "confidence": 0.84,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.17,
+            "4": 0.81
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 2.71,
+          "confidence": 0.36,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.01,
+            "2": 0.27,
+            "3": 0.4,
+            "4": 0.24
+          }
+        }
+      },
+      "latencyMs": 235,
+      "inputTokens": 466
+    },
+    {
+      "id": "big-collapse",
+      "state": {
+        "reply": "The bridge gives way under the cart. Half the caravan is in the river and the rest is cut off on the far bank."
+      },
+      "questions": {
+        "change": {
+          "type": "score",
+          "instructions": "How much does `reply` change the situation?",
+          "criteria": [
+            "nothing new: the scene goes on as before",
+            "a small new detail or piece of news",
+            "a new development the characters must respond to",
+            "a major development that changes their plans",
+            "the situation is transformed"
+          ]
+        },
+        "tension": {
+          "type": "score",
+          "instructions": "How tense is the scene in `reply`?",
+          "criteria": [
+            "calm: nothing is at stake right now",
+            "slight unease: a small worry or friction",
+            "clear tension: a conflict or a threat is present",
+            "high tension: danger or confrontation is close",
+            "peak: danger, violence or a showdown is happening now"
+          ]
+        }
+      },
+      "answers": {
+        "change": {
+          "type": "score",
+          "score": 3.53,
+          "confidence": 0.61,
+          "legend": {
+            "0": "nothing new: the scene goes on as before",
+            "1": "a small new detail or piece of news",
+            "2": "a new development the characters must respond to",
+            "3": "a major development that changes their plans",
+            "4": "the situation is transformed"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.45,
+            "4": 0.54
+          }
+        },
+        "tension": {
+          "type": "score",
+          "score": 3.19,
+          "confidence": 0.75,
+          "legend": {
+            "0": "calm: nothing is at stake right now",
+            "1": "slight unease: a small worry or friction",
+            "2": "clear tension: a conflict or a threat is present",
+            "3": "high tension: danger or confrontation is close",
+            "4": "peak: danger, violence or a showdown is happening now"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.06,
+            "3": 0.7,
+            "4": 0.24
+          }
+        }
+      },
+      "latencyMs": 343,
+      "inputTokens": 471
+    }
+  ]
+}

@@ -1,0 +1,691 @@
+{
+  "source": "ideas.mts canonVerify run 2 over test/fixtures/judge/spike-canon-verify.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:42:20.911Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "05fe396d0e55",
+  "run": 2,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "unsupportedDropped": 1,
+      "supportedDropped": 0.0455,
+      "supportedKept": 0.9545,
+      "unsupportedInserted": 0
+    },
+    "floors": [
+      {
+        "name": "J7.2 unsupported dropped",
+        "value": 1,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "J7.2 supported dropped",
+        "value": 0.0455,
+        "floor": 0.1,
+        "op": "<=",
+        "ok": true
+      },
+      {
+        "name": "J7.7 supported kept",
+        "value": 0.9545,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "J7.7 unsupported inserted",
+        "value": 0,
+        "floor": 0,
+        "op": "<=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 263,
+  "calls": [
+    {
+      "id": "ferry",
+      "state": {
+        "story": {
+          "title": "The Lantern Ferry",
+          "cast": [
+            "Max",
+            "Mira",
+            "Captain Holt",
+            "Old Sefa"
+          ]
+        },
+        "checkpoint": {
+          "name": "Guard the Garden",
+          "objective": "Keep thieves out of Sefa's garden for three nights."
+        },
+        "arc_summaries": {
+          "arc_1": "Max hired Mira to take him across the Grey River at night. Halfway over, river smugglers led by Captain Holt boarded the ferry. Mira bargained with Holt and gave up her cargo of lamp oil so they would let the ferry pass.",
+          "arc_2": "On the east bank, Max found Old Sefa, the herbalist, who agreed to brew the fever cure for his sister in exchange for three nights of guarding her garden from thieves."
+        },
+        "facts": {
+          "fact_1": "Mira's ferry is called the Lantern.",
+          "fact_2": "Captain Holt has a scar across his left hand.",
+          "fact_3": "Max's sister Lena is sick with marsh fever in the village of Brack.",
+          "fact_4": "Old Sefa needs moonpetal for the cure, and moonpetal only grows on the west bank.",
+          "fact_5": "Holt's smugglers took the lamp oil but left the ferry intact."
+        }
+      },
+      "questions": {
+        "sentence:0": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max crossed the Grey River at night on Mira's ferry, the Lantern.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:1": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Smugglers under Captain Holt boarded the ferry, and Mira bought their way past with her cargo of lamp oil.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:2": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max fought off Holt's smugglers and threw two of them into the river.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:3": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"On the east bank, the herbalist Old Sefa agreed to brew a cure for Lena's marsh fever.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:4": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Mira agreed to guard Sefa's garden for three nights in return for the cure.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:5": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The smugglers sank the Lantern before they left.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:6": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max is now keeping thieves out of Sefa's garden.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:7": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Sefa already has all the moonpetal she needs for the cure.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        }
+      },
+      "answers": {
+        "sentence:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "sentence:1": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "sentence:2": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "sentence:3": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "sentence:4": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "sentence:5": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "sentence:6": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "sentence:7": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      },
+      "latencyMs": 525,
+      "inputTokens": 1604
+    },
+    {
+      "id": "archive",
+      "state": {
+        "story": {
+          "title": "The Glass Archive",
+          "cast": [
+            "Max",
+            "Archivist Dorrel",
+            "Iven",
+            "the Warden of Keys"
+          ]
+        },
+        "checkpoint": {
+          "name": "The Sealed Wing",
+          "objective": "Search the sealed wing for the charter before the morning bell."
+        },
+        "arc_summaries": {
+          "arc_1": "Max entered the Glass Archive to find the lost charter of his family's land. Archivist Dorrel refused to help until Max proved he could read the old script, which he did by translating a page of a hymn.",
+          "arc_2": "Iven, a thief hiding among the shelves, offered to show Max the sealed wing if Max would let her keep anything else she found there. Max agreed, and the two slipped past the Warden of Keys during the evening bell."
+        },
+        "facts": {
+          "fact_1": "The charter is written on blue vellum.",
+          "fact_2": "The Warden of Keys locks the sealed wing at the evening bell.",
+          "fact_3": "Iven owes a debt to a fence named Castor.",
+          "fact_4": "Dorrel lost the sight of one eye in a lamp fire.",
+          "fact_5": "Max's family land is the Orrin vineyard."
+        }
+      },
+      "questions": {
+        "sentence:0": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max came to the Glass Archive looking for the lost charter to his family's Orrin vineyard.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:1": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Dorrel would not help until Max translated a page of an old hymn and so proved he could read the script.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:2": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Dorrel refused at first because Max's family had once burned part of the Archive.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:3": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"A thief named Iven offered to lead him into the sealed wing if she could keep whatever else she found.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:4": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max refused Iven's bargain and went on alone.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:5": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The two of them slipped past the Warden of Keys during the evening bell.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:6": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Iven later stole the charter and sold it to the fence Castor.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:7": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max is now searching the sealed wing for the charter, written on blue vellum, before the morning bell.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        }
+      },
+      "answers": {
+        "sentence:0": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "sentence:1": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "sentence:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:3": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "sentence:4": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "sentence:5": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "sentence:6": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "sentence:7": {
+          "type": "noul",
+          "noul": 0.69
+        }
+      },
+      "latencyMs": 512,
+      "inputTokens": 1606
+    },
+    {
+      "id": "pass",
+      "state": {
+        "story": {
+          "title": "Winter at Halden Pass",
+          "cast": [
+            "Max",
+            "Sergeant Brask",
+            "Tova",
+            "the Hermit"
+          ]
+        },
+        "checkpoint": {
+          "name": "Down the Mountain",
+          "objective": "Lead the patrol down before the food runs out."
+        },
+        "arc_summaries": {
+          "arc_1": "A blizzard trapped Max's patrol at the Halden Pass waystation. Sergeant Brask ordered everyone to stay inside, but Tova went out to find the missing mule driver and came back with him alive but frostbitten.",
+          "arc_2": "During the third night, wolves circled the waystation. Max lit the signal fire on the roof, and the wolves scattered."
+        },
+        "facts": {
+          "fact_1": "The mule driver's name is Pell.",
+          "fact_2": "Tova lost two fingers to frostbite years ago.",
+          "fact_3": "The waystation has food for six more days.",
+          "fact_4": "The Hermit lives in a cave above the pass and trades in furs.",
+          "fact_5": "Brask has commanded the patrol for eleven years."
+        }
+      },
+      "questions": {
+        "sentence:0": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"A blizzard snowed Max's patrol in at the Halden Pass waystation.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:1": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Against Sergeant Brask's orders, the scout Tova went out into the storm and brought back the mule driver Pell, frostbitten but alive.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:2": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Brask himself went out into the storm to find Pell.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:3": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Pell died of the cold a day after Tova found him.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:4": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"On the third night Max drove off the circling wolves by lighting the signal fire on the roof.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:5": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The Hermit came down from his cave and helped fight off the wolves.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:6": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"With food left for six days, the patrol must now make its way down the mountain.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:7": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The waystation's stores will last the patrol a full month.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        }
+      },
+      "answers": {
+        "sentence:0": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "sentence:1": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "sentence:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:3": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:4": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "sentence:5": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:6": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "sentence:7": {
+          "type": "noul",
+          "noul": 0.01
+        }
+      },
+      "latencyMs": 263,
+      "inputTokens": 1580
+    },
+    {
+      "id": "court",
+      "state": {
+        "story": {
+          "title": "The Salt Court",
+          "cast": [
+            "Max",
+            "Queen Ysolde",
+            "Lord Varric",
+            "Neva"
+          ]
+        },
+        "checkpoint": {
+          "name": "The Queen's Answer",
+          "objective": "Secure the queen's decision on the salt tax."
+        },
+        "arc_summaries": {
+          "arc_1": "Max arrived at the Salt Court as an envoy from the river towns, asking for the salt tax to be lowered. Queen Ysolde agreed to hear him at the spring feast.",
+          "arc_2": "At the feast, Lord Varric accused Max of carrying forged letters. Neva, the queen's handmaid, testified that she had seen the letters sealed by the river council, and the queen dismissed the accusation.",
+          "arc_3": "Afterwards Varric's men followed Max to his lodgings, but he slipped away through the laundry court."
+        },
+        "facts": {
+          "fact_1": "The salt tax was doubled last autumn.",
+          "fact_2": "Varric owns the largest salt pans on the coast.",
+          "fact_3": "Neva was born in one of the river towns.",
+          "fact_4": "Queen Ysolde has not yet given her answer on the tax."
+        }
+      },
+      "questions": {
+        "sentence:0": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max came to the Salt Court as the river towns' envoy to ask for a lower salt tax, which had been doubled the autumn before.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:1": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"At the spring feast Lord Varric accused him of carrying forged letters.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:2": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Neva, the queen's handmaid, testified that she had seen the river council seal them, and the queen dismissed the charge.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:3": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Moved by Neva's words, the queen lowered the salt tax that same night.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:4": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Neva spoke for Max because she was secretly in love with him.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:5": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Varric, whose salt pans are the largest on the coast, had his men follow Max after the feast.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:6": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Varric's men caught Max at his lodgings and beat him.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:7": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The queen has yet to give her answer on the tax.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        }
+      },
+      "answers": {
+        "sentence:0": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "sentence:1": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "sentence:2": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "sentence:3": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:4": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:5": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "sentence:6": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:7": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 256,
+      "inputTokens": 1603
+    },
+    {
+      "id": "clock",
+      "state": {
+        "story": {
+          "title": "The Clockmaker's Debt",
+          "cast": [
+            "Max",
+            "Edda Wren",
+            "Bastian",
+            "Pip"
+          ]
+        },
+        "checkpoint": {
+          "name": "The Last Ten Crowns",
+          "objective": "Raise the remaining ten crowns before the new moon."
+        },
+        "arc_summaries": {
+          "arc_1": "Edda Wren asked Max to recover a music box she had pawned to the moneylender Bastian. Bastian agreed to return it if Edda repaid forty crowns by the new moon.",
+          "arc_2": "Max and the apprentice Pip raised twenty crowns by repairing the town clock. Edda sold her late husband's tools for ten more."
+        },
+        "facts": {
+          "fact_1": "The music box plays a lullaby Edda's mother wrote.",
+          "fact_2": "Bastian charges a crown a day for late payment.",
+          "fact_3": "Pip is fourteen and wants to become a clockmaker.",
+          "fact_4": "The new moon is in three days."
+        }
+      },
+      "questions": {
+        "sentence:0": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The clockmaker Edda Wren had pawned a music box to the moneylender Bastian and asked Max to get it back.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:1": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Bastian would return it for forty crowns paid by the new moon.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:2": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Max and Pip earned twenty crowns repairing the town clock and Edda sold her late husband's tools for ten more, which leaves ten crowns still to find.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:3": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Bastian demanded sixty crowns for the box.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:4": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The music box hides the key to Bastian's vault.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:5": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"Pip sold his own tools to raise the money.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        },
+        "sentence:6": {
+          "type": "noul",
+          "instructions": "Is this sentence of the story's summary supported by `arc_summaries`, `facts` and `checkpoint`: \"The box plays a lullaby written by Edda's mother.\"? Use `story` only for names.",
+          "criteria": {
+            "true": "The sources state or clearly imply everything the sentence says; condensing, combining or rewording them is fine",
+            "false": "The sentence adds something the sources do not say: an invented event, detail, number, cause or outcome, the wrong person, or the opposite of what happened"
+          }
+        }
+      },
+      "answers": {
+        "sentence:0": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "sentence:1": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "sentence:2": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "sentence:3": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:4": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "sentence:5": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "sentence:6": {
+          "type": "noul",
+          "noul": 0.85
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 1433
+    }
+  ]
+}

@@ -1,0 +1,1114 @@
+{
+  "source": "ideas.mts picture run 1 over test/fixtures/judge/spike-picture.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:46:36.598Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "8b9d98811126",
+  "run": 1,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "drawPrecision": 1,
+      "skipRecall": 1,
+      "drawRecall": 1
+    },
+    "floors": [
+      {
+        "name": "draw precision",
+        "value": 1,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "skip recall",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 247,
+  "calls": [
+    {
+      "id": "d-dragon",
+      "state": {
+        "reply": "The dragon tears the roof off the granary in one pull, and grain pours out over its scales like gold sand while the villagers scatter below."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.98,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.98
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.89
+        }
+      },
+      "latencyMs": 2318,
+      "inputTokens": 477
+    },
+    {
+      "id": "d-harbour-dawn",
+      "state": {
+        "reply": "Dawn breaks over the harbour: a hundred red sails catch the light at once, and the water between the hulls turns to beaten copper."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.97,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.03,
+            "4": 0.97
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.85
+        }
+      },
+      "latencyMs": 2151,
+      "inputTokens": 477
+    },
+    {
+      "id": "d-duel",
+      "state": {
+        "reply": "Steel rings on steel as Arin and the masked knight circle each other on the frozen lake, sparks spitting where their blades meet."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.73,
+          "confidence": 0.77,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.27,
+            "4": 0.73
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      },
+      "latencyMs": 349,
+      "inputTokens": 476
+    },
+    {
+      "id": "d-throne",
+      "state": {
+        "reply": "The queen rises from a throne carved out of a single block of black salt, her crown of white coral catching the torchlight, and the whole hall falls silent."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.88,
+          "confidence": 0.9,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.12,
+            "4": 0.88
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 482
+    },
+    {
+      "id": "d-storm-ship",
+      "state": {
+        "reply": "A wave as tall as the mast smashes across the deck; Kell clings to the wheel as lightning splits the sky behind the torn mainsail."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.96
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.95
+        }
+      },
+      "latencyMs": 191,
+      "inputTokens": 479
+    },
+    {
+      "id": "d-forest-spirit",
+      "state": {
+        "reply": "Between the birches stands a stag made of moonlight and mist, its antlers hung with tiny lanterns, watching them without a sound."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.98,
+          "confidence": 0.98,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.98
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.82
+        }
+      },
+      "latencyMs": 247,
+      "inputTokens": 479
+    },
+    {
+      "id": "d-market-fire",
+      "state": {
+        "reply": "Flames race along the market awnings, and through the smoke a horse bursts free, dragging a cart of burning silks behind it."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.96
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 476
+    },
+    {
+      "id": "d-ruined-tower",
+      "state": {
+        "reply": "They crest the ridge and there it is: the broken tower, split clean down the middle, ivy pouring from the wound and ravens circling its crown."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.96
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      },
+      "latencyMs": 202,
+      "inputTokens": 480
+    },
+    {
+      "id": "s-memory-battle",
+      "state": {
+        "reply": "Brask stares into his cup. He remembers the battle at the ford: the river red, the banners in the mud, the screaming horses. \"That was a long time ago,\" he says."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.32,
+          "confidence": 0.7,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.02,
+            "3": 0.64,
+            "4": 0.34
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      },
+      "latencyMs": 340,
+      "inputTokens": 489
+    },
+    {
+      "id": "s-memory-wedding",
+      "state": {
+        "reply": "Mira smiles faintly, remembering her wedding on the river: a hundred lanterns floating past the boat, her mother's silver comb in her hair."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.47,
+          "confidence": 0.57,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.02,
+            "3": 0.48,
+            "4": 0.5
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 338,
+      "inputTokens": 481
+    },
+    {
+      "id": "s-plan-assault",
+      "state": {
+        "reply": "\"Here's how it goes,\" Doran says, tapping the map. \"At midnight we scale the wall, set the gatehouse on fire, and ride through the smoke with the whole garrison chasing us.\""
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.73,
+          "confidence": 0.77,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.27,
+            "4": 0.73
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      },
+      "latencyMs": 223,
+      "inputTokens": 493
+    },
+    {
+      "id": "s-plan-feast",
+      "state": {
+        "reply": "\"Tomorrow there'll be a feast,\" the steward promises. \"Roast swans, towers of sugar, fireworks over the lake. You'll see.\""
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.65,
+          "confidence": 0.72,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.34,
+            "4": 0.66
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      },
+      "latencyMs": 230,
+      "inputTokens": 481
+    },
+    {
+      "id": "s-dream-wolf",
+      "state": {
+        "reply": "Max wakes with a start. In the dream a giant white wolf was standing on the frozen sea, its eyes burning like coals. Now there is only the grey ceiling of the inn."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.76,
+          "confidence": 0.8,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.24,
+            "4": 0.76
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 270,
+      "inputTokens": 486
+    },
+    {
+      "id": "s-report-sack",
+      "state": {
+        "reply": "The messenger is out of breath. \"The capital has fallen. They say the palace burned for three days and the river was choked with ships.\""
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.69,
+          "confidence": 0.75,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.3,
+            "4": 0.7
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      },
+      "latencyMs": 237,
+      "inputTokens": 478
+    },
+    {
+      "id": "s-story-giant",
+      "state": {
+        "reply": "The old woman leans close to the children. \"And the giant lifted the whole mountain on his back and walked into the sea,\" she says, and they gasp."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 3.5,
+          "confidence": 0.59,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.41,
+            "4": 0.55
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      },
+      "latencyMs": 267,
+      "inputTokens": 482
+    },
+    {
+      "id": "s-talk-prices",
+      "state": {
+        "reply": "\"Four silver for the rope, two for the lamp oil,\" the merchant says. \"Take it or leave it.\" Max counts out the coins."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 1.51,
+          "confidence": 0.51,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0.12,
+            "1": 0.3,
+            "2": 0.53,
+            "3": 0.05,
+            "4": 0
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.84
+        }
+      },
+      "latencyMs": 228,
+      "inputTokens": 479
+    },
+    {
+      "id": "s-thinking",
+      "state": {
+        "reply": "Arin is quiet for a while, weighing whether to trust the stranger. Finally she decides she will, at least until morning."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 0.33,
+          "confidence": 0.73,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0.73,
+            "1": 0.21,
+            "2": 0.06,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.54
+        }
+      },
+      "latencyMs": 310,
+      "inputTokens": 474
+    },
+    {
+      "id": "s-plain-room",
+      "state": {
+        "reply": "The room is small: a bed, a chair, a basin of water. Max sets his pack down."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 1.35,
+          "confidence": 0.72,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.66,
+            "2": 0.34,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      },
+      "latencyMs": 309,
+      "inputTokens": 470
+    },
+    {
+      "id": "s-summary",
+      "state": {
+        "reply": "The next three days pass without incident. They walk, they eat, they sleep, and the road goes on."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 0.36,
+          "confidence": 0.7,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0.67,
+            "1": 0.3,
+            "2": 0.03,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.5
+        }
+      },
+      "latencyMs": 251,
+      "inputTokens": 471
+    },
+    {
+      "id": "s-dialogue",
+      "state": {
+        "reply": "\"You're late.\" \"I know.\" \"Again.\" \"I know.\" Tova sighs and waves him inside."
+      },
+      "questions": {
+        "striking": {
+          "type": "score",
+          "instructions": "How striking is the strongest image that `reply` shows?",
+          "criteria": [
+            "nothing to see: talk, thought or summary",
+            "a plain image: an ordinary room, a person standing",
+            "a clear image with some detail worth seeing",
+            "a vivid image: a strong subject, action or setting",
+            "a remarkable image: something a reader would want to see drawn"
+          ]
+        },
+        "now": {
+          "type": "noul",
+          "instructions": "Does that strongest image happen now, in the scene of `reply`, rather than being remembered, reported, imagined, dreamed or planned?",
+          "criteria": {
+            "true": "It happens in front of the characters at this moment",
+            "false": "It is a memory, a report, a dream, a plan, a story someone tells, or something imagined"
+          }
+        }
+      },
+      "answers": {
+        "striking": {
+          "type": "score",
+          "score": 0.87,
+          "confidence": 0.67,
+          "legend": {
+            "0": "nothing to see: talk, thought or summary",
+            "1": "a plain image: an ordinary room, a person standing",
+            "2": "a clear image with some detail worth seeing",
+            "3": "a vivid image: a strong subject, action or setting",
+            "4": "a remarkable image: something a reader would want to see drawn"
+          },
+          "probabilities": {
+            "0": 0.27,
+            "1": 0.6,
+            "2": 0.13,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "now": {
+          "type": "noul",
+          "noul": 0.84
+        }
+      },
+      "latencyMs": 241,
+      "inputTokens": 472
+    }
+  ]
+}
