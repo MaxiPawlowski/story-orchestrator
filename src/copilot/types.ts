@@ -7,6 +7,7 @@ import type {
   PrimitiveValue,
   Quality,
   RosterMember,
+  StoryBriefing,
   StoryRequirements,
   StoryLoreSelect,
   StorySceneRead,
@@ -53,6 +54,7 @@ export type ProposalOp =
   | { kind: "setStagecraft"; stagecraft: StoryStagecraft }
   | { kind: "setSceneRead"; sceneRead: StorySceneRead }
   | { kind: "setLoreSelect"; loreSelect: StoryLoreSelect }
+  | { kind: "setBriefing"; briefing: StoryBriefing }
   | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];

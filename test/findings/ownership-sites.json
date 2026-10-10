@@ -864,6 +864,10 @@
     "src/runtime/vectorYield.ts#yieldingVectorHost.vectorQuery": {
       "status": "local",
       "note": "F-B1c-2 (2026-10-09): waits for the judge to go quiet, then forwards the read to the host query; holds no state."
+    },
+    "src/runtime/briefingDraftHost.ts#draftBriefing": {
+      "status": "checked",
+      "note": "v2.8 10 D2 (2026-10-10): the player's per-chat briefing draft. The RunGuard minted before the model call is checked right after it, before the draft is checked, journaled or written through setUiSettings (extras.briefing.draft); a chat switch while the model answers writes and journals nothing (briefingDraft.test.ts \"a chat switch while the model answers writes nothing\")."
     }
   }
 }

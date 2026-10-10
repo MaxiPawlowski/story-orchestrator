@@ -16,6 +16,7 @@ import {
   setRequirements,
   setLoreSelect,
   setSceneRead,
+  setBriefing,
   setStagecraft,
   setStartCheckpoint,
   setStoryField,
@@ -141,6 +142,8 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return setSceneRead(draft, op.sceneRead);
     case "setLoreSelect":
       return setLoreSelect(draft, keepAuthorLoreFlags(draft, op.loreSelect));
+    case "setBriefing":
+      return setBriefing(draft, op.briefing);
     default:
       return draft;
   }
@@ -279,6 +282,8 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: "story.lore_select", label: op.loreSelect.lorebooks.length ? `Lore-select may pick from ${op.loreSelect.lorebooks.join(", ")}` : "No lore-select books" };
     case "setSceneRead":
       return { action: "update", entity: "story.scene_read", label: op.sceneRead.locations?.length ? `Scene places: ${op.sceneRead.locations.join(", ")}` : "No scene places" };
+    case "setBriefing":
+      return { action: "update", entity: "story.briefing", label: `Briefing: ${op.briefing.sections.map((section) => section.heading).join(" / ")}` };
     default:
       return { action: "update", entity: "unknown", label: "Unknown change" };
   }

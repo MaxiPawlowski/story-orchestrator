@@ -34,6 +34,7 @@
       "announceTransitions": false,
       "hudEnabled": true,
       "briefing": false,
+      "briefingDraft": false,
       "playerSetup": false,
       "inline": {
         "level": 1,

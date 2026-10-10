@@ -86,6 +86,12 @@ export const EDIT_TOOLS = {
   setStagecraft: { backedBy: "setStagecraft", doc: "Replace the curator's lorebook scope.", args: { stagecraft: req("object", "{lorebooks: string[]}") } },
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
   setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?, exclusive?}") } },
+  setBriefing: {
+    backedBy: "setBriefing",
+    doc: "Set the page the player reads before the first line (the whole briefing). Player copy: only what the player may know at the start, never a later beat, "
+      + "an outcome or a character the start keeps off stage; a draft that names one is refused.",
+    args: { briefing: req("object", "{sections: [{heading, text}] (1-6, plain text, no macros), title?, tone?, image?, start_label?}") },
+  },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
   setPlayer: {
     backedBy: "setPlayer",
@@ -238,7 +244,6 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   removeArcBridge: "covered by setArcBridges",
   clearStartCheckpoint: "setStartCheckpoint moves the start; a story without one does not validate",
   setStoryId: "the story's identity is the author's, set in the Story tab",
-  setBriefing: "player copy the author writes in the Story tab; drafting it is a later model-backed step",
   setMemberCard: "card-field bindings are authored in the Roster tab and the checkpoint Card changes section; an agent tool for them is a later step",
   newQuest: "constructor; setQuests takes the full list",
   newMilestone: "constructor; setMilestones takes the full list",

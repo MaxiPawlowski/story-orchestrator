@@ -127,6 +127,24 @@ export const RECIPES = {
       { topic: "stagecraft", cue: "a style or rules entry left open to curator rewrites", text: "protect style and rules entries from curator rewrites" },
     ],
   },
+  briefing: {
+    title: "Write the player's briefing",
+    when: "the opening beat and its cast exist and the story has no briefing, or the author asks for the page the player reads before the first line",
+    topics: ["briefing", "story-basics", "player", "opening-scene"],
+    steps: [
+      { tool: "readGuide", does: "read the briefing topic" },
+      { tool: "readCheckpoint", does: "the start beat: its player_name, scenario and the cast it switches off" },
+      { tool: "readStory", does: "player_intro, the player profile and the cast's card names" },
+      { tool: "setBriefing", does: "2 to 4 sections (where you are, who you are, who is with you, how to play) from the start only" },
+    ],
+    verify: VERIFY,
+    diagnostics: ["briefing-spoiler-risk"],
+    traps: [
+      { topic: "briefing", cue: "a character who is not in the scene yet", text: "never name a later beat, an outcome or a character the start keeps off stage" },
+      { topic: "briefing", cue: "no macros (`{{user}}` is refused)", text: "plain text only: no {{user}} or other macros" },
+      { topic: "briefing", cue: "an authored `briefing` always wins", text: "an authored briefing replaces any per-chat draft, so write it from what the player knows at the start" },
+    ],
+  },
   "group-ready": {
     title: "Make a story group-ready",
     when: "the story should run in a group chat with its cast, or Repair says a member or the group is missing",

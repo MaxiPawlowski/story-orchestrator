@@ -1,8 +1,11 @@
 import { INTERMEDIATE_UNREACHABLE, isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
 import { runDiagnostics, type Diagnostic } from "../studio/diagnostics";
+import { briefingSpoilerNames } from "../studio/briefingDiagnostics";
 import { applyOpsChecked } from "./proposal";
 import { defersReachability } from "./stages";
 import type { CopilotStage, ProposalOp } from "./types";
+
+export const BRIEFING_SPOILER_REFUSAL = "the briefing is player copy read before the first line, so it may hold only what the player knows at the start.";
 
 export interface ProposalValidation {
   next: StoryV2;
@@ -33,8 +36,14 @@ export const validateProposal = (draft: StoryV2, ops: ProposalOp[], stage?: Copi
     deferred.push(`${error.path}: intermediate checkpoint '${id}' has no route to an anchor yet; the transitions stage must connect it`);
     return false;
   });
+  const spoilers = ops.flatMap((op, index) => {
+    if (op.kind !== "setBriefing") return [];
+    const named = briefingSpoilerNames(next, op.briefing);
+    return named.length ? [`ops.${index}.briefing: ${BRIEFING_SPOILER_REFUSAL} It names ${named.join(", ")}.`] : [];
+  });
   const blocking = [
     ...stageIssues,
+    ...spoilers,
     ...issues,
     ...blockingErrors.map((error) => `${error.path}: ${error.message}`),
     ...diagnostics.filter((diagnostic) => diagnostic.severity === "blocking").map((diagnostic) => `${diagnostic.path}: ${diagnostic.message}`),

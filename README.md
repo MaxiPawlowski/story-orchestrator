@@ -50,6 +50,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Stories | Play an authored story on top of an ordinary chat. |  |
 | Playing | Group story | A group can start every new chat with the same story. |  |
 | Playing | Story briefing | A short "Before you start" page the first time a story starts in a chat. |  |
+| Playing | Drafted briefing | A story with no briefing gets one written for this chat from its opening. |  |
 | Playing | Who you are in this story | A story that says who you play asks you once, at the start: keep your persona, choose another, or create one. |  |
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |

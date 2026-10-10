@@ -29,7 +29,7 @@ export type RouteResolution = { ok: true; route: ModelRoute | null; source: "rol
 
 export const MODEL_PASSES = [
   "read", "sceneSummary", "shortTerm", "epistemic", "ledger", "arcSummary", "canon", "chapterSeal", "supersession", "curator", "generation", "critic", "copilot",
-  "director", "inner", "suggestions", "loreCreate", "ask",
+  "director", "inner", "suggestions", "loreCreate", "ask", "briefing",
 ] as const;
 
 export type ModelPass = typeof MODEL_PASSES[number];

@@ -70,6 +70,10 @@ export const SETTING_COPY = {
     "Show the story briefing when a story starts",
     "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from the drawer.",
   ),
+  "display.briefingDraft": copy(
+    "Write a briefing when a story has none",
+    "The wizard's model writes one for this chat from the story's opening only, never what comes later. One call per new story in a chat.",
+  ),
   "display.playerSetup": copy(
     "Ask who you are when a story starts",
     "When a story says who you play, its start page asks once: keep, choose or create a persona. Off: your current one is kept.",

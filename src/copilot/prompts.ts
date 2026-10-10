@@ -43,8 +43,9 @@ const OP_GRAMMAR = [
   '  { "kind": "setStagecraft", "stagecraft": { "lorebooks": string[] } }',
   '  { "kind": "setLoreSelect", "loreSelect": { "lorebooks": string[], "top_k"?: number, "exclusive"?: true } }',
   '  { "kind": "setSceneRead", "sceneRead": { "locations": string[], "times"?: string[], "inject"?: boolean } }',
+  '  { "kind": "setBriefing", "briefing": { "sections": [{ "heading": string, "text": string }], "title"?: string, "tone"?: string, "start_label"?: string } }',
   "Transitions are referenced by { from, to }, never by index. Only reference ids that already exist in the draft.",
-  "setArcBridges, setRequirements, setStagecraft, setSceneRead and setLoreSelect replace the whole list — send the full intended set, never a fragment.",
+  "setArcBridges, setRequirements, setStagecraft, setSceneRead, setLoreSelect and setBriefing replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
 export const FIRST_MESSAGE_RULE =
@@ -83,7 +84,9 @@ const INTERVIEW_PROTOCOL = [
 const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: `Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the ` +
     `value is purely code-driven. An extractor quality whose answer is plainly visible in the text may carry read_as ("choice" for bool/enum, "stated" for a number or name the ` +
-      `text states, "rating" for a described scale) so a judge can read it every turn; leave read_as out when the answer needs inference. ${stageOnlyEmitLine("qualities")}`,
+      `text states, "rating" for a described scale) so a judge can read it every turn; leave read_as out when the answer needs inference. Once the premise says where the ` +
+      `story starts and who the player is, you may also propose the player's briefing (setBriefing): what the player may know before the first line, nothing later. ` +
+      `${stageOnlyEmitLine("qualities")}`,
   checkpoints: `Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep ` +
     `exactly one start checkpoint. ${stageOnlyEmitLine("checkpoints")}`,
   transitions: `Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target ` +
@@ -93,7 +96,8 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
       `motives may say what one member wants in that beat — drives and motives are told only to that character, never to the player), ` +
       `what the chat must provide before it can run (requirements), which lorebooks the background ` +
       `curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which ` +
-        `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${OPENING_CAST_RULE} ` +
+        `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, any thread bridges, and the player's ` +
+        `briefing if the draft has none (setBriefing: the opening scene and its cast only). ${OPENING_CAST_RULE} ` +
         `${stageOnlyEmitLine("effects")}`,
   provisioning: `Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close ` +
     `exactly that gap — one card per cast member the story directs (each with a one-line "role": what they do in this story), the story's own lorebook plus the entries the ` +

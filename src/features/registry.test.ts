@@ -18,6 +18,7 @@ import {
 import { SETTINGS_AREA_COPY, SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
 import { BRIEFING_COPY, HELP_COPY, ONBOARDING_LINES } from "./helpCopy";
+import { BRIEFING_DRAFT_COPY } from "./briefingDraftCopy";
 import { ASK_TEXT } from "./askCopy";
 import { ASK_COPY, PLAYER_REFUSAL } from "@copilot/agent/ask";
 import { ASK_HOST_COPY } from "@runtime/askLiveState";
@@ -87,7 +88,7 @@ const copyItems = (): CopyItem[] => [
   ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP, ASK_TEXT, ASK_COPY, ASK_HOST_COPY, { refusal: PLAYER_REFUSAL }]
     .flatMap((table, index) => Object.values(table).map((text) => ({ source: `player copy table ${index}`, audience: "player" as const, text: String(text) }))),
   ...Object.values(INLINE_LEVEL_LABELS).map((text) => ({ source: "inline level", audience: "player" as const, text })),
-  ...[...Object.values(BRIEFING_COPY), ...ONBOARDING_LINES.map((line) => line.text)].map((text) => ({ source: "briefing copy", audience: "player" as const, text })),
+  ...[...Object.values(BRIEFING_COPY), ...Object.values(BRIEFING_DRAFT_COPY), ...ONBOARDING_LINES.map((line) => line.text)].map((text) => ({ source: "briefing copy", audience: "player" as const, text })),
   ...[STORY_HELP_STRING, storyHelpText(), SO_MEM_HELP_STRING, soMemHelpText()].map((text) => ({ source: "slash help", audience: "player" as const, text })),
   { source: "slash help /cp", audience: "author", text: CP_HELP_STRING },
   ...Object.values(AREA_LABELS).map((text) => ({ source: "area", audience: "player" as const, text })),
