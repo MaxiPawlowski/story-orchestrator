@@ -188,8 +188,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 20 });
-    expect(hudSetupText(counts)).toBe("fix setup (34)");
+    expect(counts).toEqual({ blocks: 14, degrades: 21 });
+    expect(hudSetupText(counts)).toBe("fix setup (35)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });
