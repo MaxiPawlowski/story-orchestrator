@@ -65,10 +65,22 @@ export async function installPayloadProbe(page) {
     state.chatIds = [];
     if (!state.wrapped) {
       const MODEL_CALL = /\/api\/(?:backends\/[a-z-]+\/generate|novelai\/generate|horde\/generate|plugins\/story-orchestrator-[a-z-]+\/(?!status))/;
+      const requestTail = (body: unknown): string | null => {
+        if (typeof body !== 'string') return null;
+        try {
+          const parsed = JSON.parse(body);
+          const text = typeof parsed?.prompt === 'string' ? parsed.prompt
+            : Array.isArray(parsed?.messages) ? parsed.messages.map((message: any) => (typeof message?.content === 'string' ? message.content : '')).join('\n')
+            : body;
+          return text.slice(-160);
+        } catch {
+          return body.slice(-160);
+        }
+      };
       const original = g.fetch;
       g.fetch = function payloadGoldenFetch(input: any) {
         const url = String(typeof input === 'string' ? input : input?.url ?? '');
-        if (MODEL_CALL.test(url)) g.__soPayloadGolden.modelCalls.push({ url, at: new Date().toISOString() });
+        if (MODEL_CALL.test(url)) g.__soPayloadGolden.modelCalls.push({ url, at: new Date().toISOString(), tail: requestTail(arguments[1]?.body) });
         return original.apply(this, arguments as any);
       };
       state.wrapped = true;
