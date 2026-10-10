@@ -245,9 +245,12 @@ const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
   ),
 };
 
+const SYSTEMONE_LOCAL_READINESS: ReadinessFacts = {};
+
 export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, ReadinessFacts> = {
   typesafe: withFixtureRevisions(JUDGE_READINESS, MEASURED_FIXTURE_REVISION),
   "llama-logprob": withFixtureRevisions(LLAMA_LOGPROB_READINESS, MEASURED_FIXTURE_REVISION),
+  "systemone-local": withFixtureRevisions(SYSTEMONE_LOCAL_READINESS, MEASURED_FIXTURE_REVISION),
 };
 
 export interface JudgeFixtureStale {

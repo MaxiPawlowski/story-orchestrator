@@ -99,6 +99,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |
 | Images | Animated faces | Blink and talking-mouth frames give sprites movement. | Experimental |
 | Judge | Judge | A second, fast model for yes/no and pick-one decisions. |  |
+| Judge | Local judge | An open model on this machine that can answer the judge's questions instead of TypeSafe. | Experimental |
 | Authoring | Build sprite packs | Edit a reference picture into expression sprites and animation frames. | Experimental |
 | Authoring | Mouth replacement region | Replace the lips cleanly while leaving the rest of the expression intact. | Experimental |
 | Authoring | Sprite edit resolution | Compare smaller edits for faster sprite generation. | Experimental |

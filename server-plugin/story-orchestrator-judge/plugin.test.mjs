@@ -85,12 +85,16 @@ test('status reports the key source, never the key', async () => {
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 1200, accountPerMinute: 1200, tokensPerSecond: 250_000, accountTokensPerSecond: 250_000 },
-        adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
+        adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'systemone-local': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
         refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
-        served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 },
+        served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0, 'systemone-local': 0 }, byUse: {}, cancelled: 0 },
         providers: {
             typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
             'llama-logprob': { configured: false, keySource: null, contract: 'logprob', local: false, host: null },
+            'systemone-local': {
+                configured: false, keySource: null, contract: 'native', local: false, host: null, model: null, modelsDir: null, modelPath: null,
+                problem: 'no-url', detail: plugin.LOCAL_PROBLEMS['no-url'],
+            },
         },
     });
     assert.ok(!JSON.stringify(out.body).includes('sk-test-status'));
@@ -505,7 +509,7 @@ test('provider table: each provider reads its own key, and an unknown provider h
     process.env.TYPESAFE_API_KEY = 'sk-typesafe';
     process.env.SO_JUDGE_LLAMA_KEY = 'llama-local-key';
     try {
-        assert.deepEqual(Object.keys(plugin.PROVIDERS), ['typesafe', 'llama-logprob']);
+        assert.deepEqual(Object.keys(plugin.PROVIDERS), ['typesafe', 'llama-logprob', 'systemone-local']);
         assert.equal((await plugin.resolveKey({}, 'llama-logprob', { accountsEnabled: false })).key, 'llama-local-key');
         assert.equal((await plugin.resolveKey({}, 'typesafe', { accountsEnabled: false })).key, 'sk-typesafe');
         assert.equal(await plugin.resolveKey({}, 'openai', { accountsEnabled: false }), null);
@@ -607,7 +611,7 @@ test('T6-4: /status counts every call forwarded to a provider, per provider and 
     const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: () => undefined });
     const idle = fakeResponse();
     await handlers.status({}, idle.res);
-    assert.deepEqual(idle.out.body.served, { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 });
+    assert.deepEqual(idle.out.body.served, { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0, 'systemone-local': 0 }, byUse: {}, cancelled: 0 });
     for (const use of ['director', 'director', 'warden']) await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': use } }), fakeResponse().res);
     await handlers.receive(pageRequest(question), fakeResponse().res);
     await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': 'bad use!' } }), fakeResponse().res);
@@ -617,7 +621,7 @@ test('T6-4: /status counts every call forwarded to a provider, per provider and 
     const status = fakeResponse();
     await handlers.status({}, status.res);
     assert.deepEqual(status.out.body.served, {
-        since: '1970-01-01T00:00:00.000Z', total: 5, byProvider: { typesafe: 5, 'llama-logprob': 0 }, byUse: { director: 2, warden: 1, unlabelled: 2 }, cancelled: 0,
+        since: '1970-01-01T00:00:00.000Z', total: 5, byProvider: { typesafe: 5, 'llama-logprob': 0, 'systemone-local': 0 }, byUse: { director: 2, warden: 1, unlabelled: 2 }, cancelled: 0,
     });
 });
 
@@ -781,4 +785,105 @@ test('F9: four lore-sized requests in one second through the handler all reach T
     const codes = await Promise.all([0, 1, 2, 3].map(async (index) => { const out = fakeResponse(); await handlers.receive(pageRequest(lore(index)), out.res); return out.out.statusCode; }));
     assert.deepEqual(codes, [200, 200, 200, 200]);
     assert.equal(calls.total, 4);
+});
+
+const LOCAL_ENV = { SO_JUDGE_LOCAL_URL: 'http://127.0.0.1:8095/', SO_JUDGE_MODELS_DIR: 'C:\\dev\\models\\so-judge' };
+const localFetch = ({ health = { ok: true, model: 'decider-4b-v2.1-Q4_K_M', modelPath: 'C:\\dev\\models\\so-judge\\models\\decider-4b-v2.1-Q4_K_M.gguf' }, answer = { model: 'decider-4b-v2.1-Q4_K_M', answers: { greeting: { type: 'noul', noul: 0.93 } }, usage: { input_tokens: 40, output_tokens: 0 } } } = {}) => {
+    const seen = [];
+    const fetchImpl = async (url, init = {}) => {
+        seen.push({ url, method: init.method, headers: init.headers, body: init.body ? JSON.parse(init.body) : undefined });
+        if (url.endsWith('/health')) return new Response(JSON.stringify(health), { status: 200 });
+        return new Response(JSON.stringify(answer), { status: 200 });
+    };
+    return { seen, fetchImpl };
+};
+
+test('v2.8 14: the local judge URL comes only from the server env and must be loopback; the models folder is reported as set', () => {
+    assert.equal(plugin.localSetup({}).problem, 'no-url');
+    assert.equal(plugin.localSetup({ SO_JUDGE_LOCAL_URL: 'file:///etc/passwd' }).problem, 'bad-url');
+    assert.equal(plugin.localSetup({ ...LOCAL_ENV, SO_JUDGE_LOCAL_URL: 'http://192.168.50.130:8095' }).problem, 'not-loopback');
+    assert.deepEqual(plugin.localSetup({ SO_JUDGE_LOCAL_URL: 'http://127.0.0.1:8095' }), { modelsDir: null, label: null, endpoint: { base: 'http://127.0.0.1:8095', host: '127.0.0.1:8095', local: true }, problem: null });
+    assert.equal(plugin.localSetup({ SO_JUDGE_LOCAL_URL: 'http://localhost:8095' }).problem, null);
+    assert.deepEqual(plugin.localSetup(LOCAL_ENV), {
+        modelsDir: 'C:\\dev\\models\\so-judge', label: null, endpoint: { base: 'http://127.0.0.1:8095', host: '127.0.0.1:8095', local: true }, problem: null,
+    });
+});
+
+test('v2.8 14: the local route forwards state + questions to the env URL only, drops a page-chosen model and URL, and stamps the served model', async () => {
+    const { seen, fetchImpl } = localFetch();
+    const handlers = plugin.createHandlers({ fetchImpl, accountsEnabled: false, env: LOCAL_ENV, now: () => 0 });
+    const ok = fakeResponse();
+    await handlers.receiveLocal(pageRequest({ ...question, model: 'jev-1.13.0', url: 'http://evil.example' }), ok.res);
+    assert.equal(ok.out.statusCode, 200, JSON.stringify(ok.out.body));
+    assert.equal(ok.out.body.model, 'decider-4b-v2.1-Q4_K_M');
+    assert.deepEqual(ok.out.body.answers, { greeting: { type: 'noul', noul: 0.93 } });
+    assert.deepEqual(seen.map((call) => call.url), ['http://127.0.0.1:8095/health', 'http://127.0.0.1:8095/v1/systemone']);
+    assert.deepEqual(seen[1].body, { state: question.state, questions: question.questions });
+    assert.deepEqual(seen[1].headers, { 'Content-Type': 'application/json' });
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual(status.out.body.providers['systemone-local'], {
+        configured: true, keySource: null, contract: 'native', local: true, host: '127.0.0.1:8095', model: 'decider-4b-v2.1-Q4_K_M',
+        modelsDir: 'C:\\dev\\models\\so-judge', modelPath: 'C:\\dev\\models\\so-judge\\models\\decider-4b-v2.1-Q4_K_M.gguf', problem: null,
+    });
+    assert.equal(status.out.body.served.byProvider['systemone-local'], 1);
+    assert.equal(status.out.body.served.byProvider.typesafe, 0, 'control: nothing reached TypeSafe');
+});
+
+test('v2.8 14: an answer without a model takes the env label, and a reply that is not a System One answer is refused', async () => {
+    const unlabelled = localFetch({ health: { ok: true }, answer: { answers: { greeting: { type: 'noul', noul: 0.4 } } } });
+    const labelled = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: unlabelled.fetchImpl, accountsEnabled: false, env: { ...LOCAL_ENV, SO_JUDGE_LOCAL_MODEL: 'decider-4b-v2.1-Q4_K_M' } }).receiveLocal(pageRequest(question), labelled.res);
+    assert.equal(labelled.out.body.model, 'decider-4b-v2.1-Q4_K_M');
+    const nothing = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: unlabelled.fetchImpl, accountsEnabled: false, env: LOCAL_ENV }).receiveLocal(pageRequest(question), nothing.res);
+    assert.equal(nothing.out.body.model, 'systemone-local:unknown', 'an unnamed model never matches a calibration row');
+    const garbage = localFetch({ answer: { text: 'Yes.' } });
+    const refused = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: garbage.fetchImpl, accountsEnabled: false, env: LOCAL_ENV }).receiveLocal(pageRequest(question), refused.res);
+    assert.equal(refused.out.statusCode, 502);
+});
+
+test('v2.8 14: a remote URL is refused before any call, and a server that does not answer its health check is unreachable', async () => {
+    const remote = localFetch();
+    const far = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: remote.fetchImpl, accountsEnabled: false, env: { ...LOCAL_ENV, SO_JUDGE_LOCAL_URL: 'https://judge.example.com' } }).receiveLocal(pageRequest(question), far.res);
+    assert.equal(far.out.statusCode, 409);
+    assert.equal(far.out.body.problem, 'not-loopback');
+    assert.equal(remote.seen.length, 0);
+    const down = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: async () => { throw new TypeError('fetch failed'); }, accountsEnabled: false, env: LOCAL_ENV }).receiveLocal(pageRequest(question), down.res);
+    assert.equal(down.out.statusCode, 409);
+    assert.equal(down.out.body.problem, 'unreachable');
+});
+
+test('v2.8 14: the local judge is asked one call at a time by default (SO_JUDGE_LOCAL_MAX_IN_FLIGHT), and the shape and size guards still hold', async () => {
+    let live = 0;
+    let peak = 0;
+    const fetchImpl = async (url) => {
+        if (url.endsWith('/health')) return new Response(JSON.stringify({ ok: true, model: 'm', modelPath: 'C:\\dev\\models\\m.gguf' }), { status: 200 });
+        live += 1;
+        peak = Math.max(peak, live);
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        live -= 1;
+        return new Response('{"model":"m","answers":{}}', { status: 200 });
+    };
+    const handlers = plugin.createHandlers({ fetchImpl, accountsEnabled: false, env: LOCAL_ENV });
+    const answers = await Promise.all([1, 2, 3].map(async () => { const out = fakeResponse(); await handlers.receiveLocal(pageRequest(question), out.res); return out.out.statusCode; }));
+    assert.deepEqual(answers, [200, 200, 200]);
+    assert.equal(peak, 1);
+    const two = plugin.createHandlers({ fetchImpl, accountsEnabled: false, env: { ...LOCAL_ENV, SO_JUDGE_LOCAL_MAX_IN_FLIGHT: '2' } });
+    peak = 0;
+    await Promise.all([1, 2].map(async () => two.receiveLocal(pageRequest(question), fakeResponse().res)));
+    assert.equal(peak, 2, 'control: the env raises it');
+    const bad = fakeResponse();
+    await handlers.receiveLocal(pageRequest({ state: {}, questions: {} }), bad.res);
+    assert.equal(bad.out.statusCode, 400);
+    const big = fakeResponse();
+    await handlers.receiveLocal(pageRequest({ ...question, state: { text: 'a '.repeat(55_000) } }), big.res);
+    assert.equal(big.out.statusCode, 413);
+    assert.equal(big.out.body.tooLarge, true);
+    const foreign = fakeResponse();
+    await handlers.receiveLocal(pageRequest(question, { headers: { 'x-so-plugin': undefined } }), foreign.res);
+    assert.equal(foreign.out.statusCode, 403);
 });

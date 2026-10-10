@@ -1,9 +1,11 @@
 # Plan 14 — Open-source Jev alternative (local judge)
 
-**Status (2026-10-03): v2.8 plan 14 (was v2.7 plan 15). Decided: build a local judge provider, opt-in per use; our own
-eval harness; local systemone (A1: decider-4b, then Plumb-4B) ahead of NLI (A2); a local server on 127.0.0.1 started by
-the user from the tray; models and caches off `C:`; cloud LLMs offline only; A5 not now. Not built; jevbench read; our
-evals not run.**
+**Status (2026-10-10): A1 built on branch `v2.8-local-judge` (provider `systemone-local`, plugin route, local server +
+tray entry, setup script, matrix runner, `memory-verify` / `stall` held-out twins); not calibrated, so every use routed
+to it is refused and TypeSafe stays the default. Models are NOT downloaded yet (C: lacks the space). Calibration run
+waits for a 3090 slot. A2 (NLI) not built. Gate record below.** (2026-10-03: decided: build a local judge provider,
+opt-in per use; our own eval harness; local systemone (A1: decider-4b, then Plumb-4B) ahead of NLI (A2); a local
+server on 127.0.0.1 started by the user from the tray; cloud LLMs offline only; A5 not now.)
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "Open-source Jev alternative (local judge)". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (provider, plugin route, matrix runner); acceptance LT
 (local systemone / NLI calibration on this PC); the play-load check runs on RP (group replies on the pod while the local
@@ -70,7 +72,11 @@ Verified on this box 2026-10-03:
 
 ## Deployment rules (v2.8 rule 5)
 
-- **Models and caches off `C:`.** One install-wide path names where judge models live: env `SO_JUDGE_MODELS_DIR` on the
+- **Owner correction 2026-10-10: models loaded dynamically live on the fast disk, `C:/dev/models`** (configurable),
+  not off `C:`. The local judge's folder is `C:/dev/models/so-judge` by default (`SO_JUDGE_MODELS_DIR`). The
+  "refuse a path on `C:`" check below is therefore **not built**; the plugin reports the folder and the served model
+  path read-only instead. The rest of this section is the 2026-10-03 text, kept as history.
+- **(superseded 2026-10-10) Models and caches off `C:`.** One install-wide path names where judge models live: env `SO_JUDGE_MODELS_DIR` on the
   ST server, shown read-only in the judge panel. The local systemone server is started with its weights and every cache
   under it (`HF_HOME`, `HF_HUB_CACHE`, the server's own cache flags, or Ollama's `OLLAMA_MODELS` if Ollama serves it).
   The A2 plugin route passes `cache_dir` under it to `sillytavern-transformers`, never ST's `data/_cache`. The plugin
@@ -368,3 +374,81 @@ Adolion text. W27 (the harness plugin offers opencode only, no logins) is kept.
 - Tiers: implementation D, acceptance LT, play-load RP. Registry gate (B10) and v2.8 rule 9 on newly routable uses.
 - References version-qualified (B12); Links cut to the plans that matter. Line refs touched re-checked
   (`providers.ts:3`, plugin `index.mjs:9-11`, `:29`).
+
+## Gate record (A1 build, 2026-10-10)
+
+Branch `v2.8-local-judge` (worktree `C:\dev\so-local-judge`), from master `9b4572f4`.
+
+### As built
+
+- **Provider** `systemone-local` (`src/judge/providers.ts`): contract native, `remote: false`, label "Local judge (this
+  machine)". Readiness table `JUDGE_READINESS_BY_PROVIDER["systemone-local"]` is **empty**, so `judgeRoute` refuses
+  every use routed to it (`uncalibrated`) before sending, and the panel says "not calibrated there". TypeSafe stays the
+  default for every use. This is the deliberate exception to "every built feature on by default": the calibration
+  invariant forbids routing an unmeasured use (owner instruction 2026-10-10).
+- **Page transport** `judgeLocalTransport` (`stHost/judge.ts`) posts to `/providers/systemone-local/systemone`; same
+  code path as the TypeSafe transport (no new client code, so nothing added to a lazy chunk). The page never sends a
+  URL or a model for it.
+- **Plugin 1.9.0**: `PROVIDERS["systemone-local"]`, URL only from `SO_JUDGE_LOCAL_URL` (loopback only, else
+  `not-loopback`), `/health` read before the first call and cached 30 s (`unreachable` refuses 409 with no decision
+  asked), page `model` dropped, the served model stamped from the server (or `SO_JUDGE_LOCAL_MODEL`, else
+  `systemone-local:unknown`, which never matches a row), a non-System-One reply refused 502, same shape/size guards
+  (400/413), its own limiter at 1 in flight (`SO_JUDGE_LOCAL_MAX_IN_FLIGHT`). `/status` reports host, model,
+  `SO_JUDGE_MODELS_DIR`, the served model path and the problem; the Judge panel shows them read-only.
+- **Server** `scripts/local/judgeServer.py` (stdlib HTTP): backend `decider` (in-process `decider-ai`, GGUF through
+  its llama.cpp engine, CPU unless `--gpu-layers`) or `proxy` (in front of `jevk5-serve` for Plumb-4B); refuses a
+  non-loopback host; normalises answers to the System One shape (`--self-test`).
+- **CLI** `scripts/local/judge.mjs plan|setup|start|stop|status|check` over `judgeModels.mjs`: everything under
+  `SO_JUDGE_MODELS_DIR` (default `C:/dev/models/so-judge`: venv, weights, HF/uv/pip caches, logs); `setup` downloads
+  only with `--yes` and refuses when free space is short. Space: decider-4b ~6.2 GB (2.7 weights + ~2.5 env + 1
+  headroom), Plumb-4B ~12.4 GB. Plumb's catalog row and proxy wiring are prepared, unverified.
+- **Tray**: `C:\dev\tray\items\story-orchestrator.json` "Local judge (decider-4b)": status `http` on
+  `127.0.0.1:8095/health`, Start / Check (one probe decision: model, latency, path) / Stop, plan, install+download
+  (confirm with the space), folders. `status.txt` reads OK. The entries run from `C:\dev\story-orchestrator`, so they
+  work once this branch is merged.
+- **Matrix runner** `scripts/spike/typesafe/matrix.mts` (P2): fixtures × arms (`typesafe`, `systemone-local`, `off`),
+  serial, `--runs`, `--rotate`, `--holdout`, refuses a model arm without a preregistration note covering its uses;
+  writes calls.jsonl / rows.jsonl / summary.json with floor result, p50/p95 vs budget, decision Brier, ECE, AUROC,
+  rotation flips, trigger-only twin agreement, questions per request, $/1k. Metrics in
+  `scripts/debug/lib/judgeMatrixMetrics.mts` (tested). `calibrate-node.mts` now shares the use dispatch
+  (`lib/uses.mts`). Prereg note: `test/measurements/v2.8/14-local-judge/prereg-decider-4b.json`.
+- **B8 held-out twins** written and labelled before any answer: `memory-verify-holdout.json` (24 lines, 10
+  unsupported, 5 transcripts), `stall-holdout.json` (20 cases, 47 leaves), a story no other fixture uses.
+- **Feature registry + Help**: `judge-local` (experimental, Show me `#so-judge-local-systemone-local`). Guide:
+  `setup/judge.md` §Local judge (disk space table), `setup/models.md`. Plugin README.
+
+### Deviations
+
+- Off-`C:` rule replaced by the owner's 2026-10-10 correction (above); no `models-on-system-drive` refusal.
+- No model downloaded and nothing run on a model (owner: C: is short of space; the 3090 is another agent's tonight).
+  The off arm of the matrix ran end to end over every fixture and holdout (`--arm off --use all --holdout --rotate`).
+- A2 (NLI), A6 (cascade) and the play-load check are not started.
+
+### Gates (2026-10-10, worktree `C:\dev\so-local-judge`)
+
+- `npm run gates -- --no-storybook --jobs=2`: test, test:replay, build, typecheck, typecheck:test, test:debug, lint,
+  debug:typecheck, test:plugin all exit 0 (477 s, under heavy box load); test:release red on one check, the shipped
+  guide named a machine path (`C:/dev/models/so-judge`), fixed by naming it `dev/models/so-judge` on the system drive,
+  then `npm run guide:build` + `npm run test:release` 119/119 and `npx jest src/guide src/features src/copilot` 367/367.
+  Storybook skipped (`--no-storybook`): run `JudgeSettingsGroup` stories `RoutedToTheLocalJudge`,
+  `LocalJudgeNotStarted` (new) and `RoutedToAnUncalibratedLocalProvider`, `RoutedToARefusedLocalProvider` (touched
+  component) before merge.
+- `npm run test:plugin`: 125/125 (7 new local-judge tests; a planted remote URL and an unanswered health check are
+  refused before any decision is asked).
+- An earlier gates run under the same load had two replay rows survive (`background-write-unowned`,
+  `curator-writes-gated-entry`); both killed on the next run and on an isolated rerun: load flake, not this change.
+- jest: `src/runtime/judgeLocalProvider.test.ts` (a mutant routing to the uncalibrated local use is refused and sends
+  nothing; control with a passed row routes there and never to TypeSafe; model mismatch discarded).
+- No live gate: nothing ST-facing ran on :8000 (owner: no model lanes tonight); the provider's live gate is the
+  calibration run (LT) below. NOT green for live.
+
+### Next (calibration, LT)
+
+1. Free ~6.2 GB on C:, then `node scripts/local/judge.mjs setup --yes` (with `SO_JUDGE_PIP_EXTRA_INDEX` set to a
+   CUDA llama-cpp-python wheel index for a GPU run).
+2. `SO_JUDGE_LOCAL_GPU_LAYERS=99 node scripts/local/judge.mjs start`, `node scripts/local/judge.mjs check`.
+3. `SO_JUDGE_LOCAL_URL=http://127.0.0.1:8095 SO_JUDGE_MODELS_DIR=C:/dev/models/so-judge node --no-warnings
+   --experimental-transform-types scripts/spike/typesafe/matrix.mts --arm systemone-local --use all --holdout --runs 2
+   --rotate --prereg test/measurements/v2.8/14-local-judge/prereg-decider-4b.json`.
+4. Rows that pass ×2 with their twins go into `JUDGE_READINESS_BY_PROVIDER["systemone-local"]` (measuredOn
+   `decider-4b-v2.1-Q4_K_M`, fixture revision bound), dev-only until the play-load check (RP) passes.

@@ -1,4 +1,4 @@
-export const EXPECTED_PLUGIN_VERSIONS = { judge: "1.8.0", harness: "1.2.0" } as const;
+export const EXPECTED_PLUGIN_VERSIONS = { judge: "1.9.0", harness: "1.2.0" } as const;
 
 export type ServerPluginId = keyof typeof EXPECTED_PLUGIN_VERSIONS;
 

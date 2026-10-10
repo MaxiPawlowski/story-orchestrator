@@ -26,8 +26,9 @@ use's tooltip in the panel under "Sends:") to the provider it is routed to. It n
 text, other chats or the key. To stop it, untick **Use the judge**, or the single use. TypeSafe's policy:
 <https://typesafe.ai/legal/privacy-policy>.
 
-A local provider (`llama-logprob`, a llama-server you run, set with `SO_JUDGE_LLAMA_URL` on the server) keeps
-everything on your machine. A use is sent to a provider only where it has been measured for that provider and model.
+A local provider (the [local judge](#local-judge-experimental) below, or `llama-logprob`, a llama-server you run, set
+with `SO_JUDGE_LLAMA_URL` on the server) keeps everything on your machine. A use is sent to a provider only where it
+has been measured for that provider and model.
 
 ## Uses
 
@@ -82,13 +83,61 @@ approve each note first.
 Two uses run before a reply (Speaker direction and Lore selection). They have a 1.5 s budget; a slow judge delays the
 turn by at most that much before falling back.
 
+## Local judge (experimental)
+
+A small open decision model can answer the judge's questions on this computer instead of TypeSafe. Nothing it is
+asked leaves the machine: the plugin only talks to a server on `127.0.0.1` and refuses any other address. The first
+model is **decider-4b v2.1** (Apache-2.0, `Mapika/decider-4b-GGUF`, Q4_K_M); **Plumb-4B** (Apache-2.0,
+`crh225/plumb-4b`) is prepared as the second.
+
+**Not measured yet.** A use routed to the local judge is refused until it has been measured there against the same
+floors as TypeSafe (twice, on held-out rows too, inside the use's time budget, then in a real play session). Until
+then it keeps its usual path and the readiness list says "not calibrated there". TypeSafe stays the default for every
+use; picking the local judge is per use, in the provider list beside it.
+
+### Disk space
+
+Everything lives in one folder, `dev/models/so-judge` on the system drive by default (set `SO_JUDGE_MODELS_DIR` to move it): the Python
+environment, the weights, the Hugging Face and uv caches and the logs. Keep it on a fast disk; the model is loaded
+from there each time the server starts.
+
+| Model | Weights | Python environment | Free space to start with |
+|---|---|---|---|
+| decider-4b (Q4_K_M) | about 2.7 GB | about 2.5 GB | about 6.2 GB |
+| Plumb-4B (bf16) | about 8.4 GB | about 3 GB | about 12.4 GB |
+
+`node scripts/local/judge.mjs plan` prints what is missing and the free space on that drive, and `setup` refuses to
+start when there is not enough.
+
+### Set it up
+
+1. Prepare and download (needs Python 3.12 through `uv`; downloads only with `--yes`):
+
+   ```
+   node scripts/local/judge.mjs plan
+   node scripts/local/judge.mjs setup --yes
+   ```
+
+   For a GPU build of llama.cpp set `SO_JUDGE_PIP_EXTRA_INDEX` to a CUDA wheel index first
+   (e.g. `https://abetlen.github.io/llama-cpp-python/whl/cu124`).
+2. Start the server from the tray (**Story Orchestrator › Local judge › Start**), or
+   `node scripts/local/judge.mjs start`. It listens on `127.0.0.1:8095` (`SO_JUDGE_LOCAL_PORT`) and runs on the CPU
+   unless `SO_JUDGE_LOCAL_GPU_LAYERS` is set. **Check** asks it one question and prints the model, the latency and
+   where the weights are; **Stop** stops it.
+3. Point the plugin at it: set `SO_JUDGE_LOCAL_URL=http://127.0.0.1:8095` (and `SO_JUDGE_MODELS_DIR` if you moved the
+   folder) in SillyTavern's environment and restart SillyTavern. The **Judge** panel then shows the local judge,
+   its model and its folder whenever a use is routed to it.
+
+The plugin asks the local judge one question at a time (`SO_JUDGE_LOCAL_MAX_IN_FLIGHT`, default 1) and keeps the same
+request-size limits as for TypeSafe.
+
 ## Server limits
 
 The plugin never sends a request too large for the provider (it answers "too large" instead) and paces calls to the
 provider's documented rate, halving its rate after a "too many requests" answer and recovering over two minutes.
 Environment variables on the server: `TYPESAFE_API_KEY`, `TYPESAFE_BASE_URL`, `SO_JUDGE_LLAMA_URL`,
-`SO_JUDGE_LLAMA_KEY`, `SO_JUDGE_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC`,
-`SO_JUDGE_MAX_IN_FLIGHT`. Details: `server-plugin/story-orchestrator-judge/README.md`.
+`SO_JUDGE_LLAMA_KEY`, `SO_JUDGE_LOCAL_URL`, `SO_JUDGE_MODELS_DIR`, `SO_JUDGE_LOCAL_MAX_IN_FLIGHT`,
+`SO_JUDGE_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC`, `SO_JUDGE_MAX_IN_FLIGHT`. Details: `server-plugin/story-orchestrator-judge/README.md`.
 
 ---
 

@@ -37,7 +37,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A4 | Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds on demand | 23 |
 | A5 | Lorebook features for the campaign: outlets, regex keys, NOT logic, triggers | D11 |
 | A6 | Open stretches (engine half, then M1/M2) | 19 |
-| A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 |
+| A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 — built on `v2.8-local-judge` 2026-10-10 (unmerged); uses refused until calibrated; calibration waits for a 3090 slot and ~6.2 GB free on C: |
 | A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 |
 | A9 | GPU broker in the ST plugin | 28, D8 (needs approval) |
 | A10 | Image workflows in stories | 29, D8 (needs approval) |

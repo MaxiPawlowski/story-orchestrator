@@ -41,6 +41,13 @@ export const offeredJudgeUses = (uses: readonly JudgeUseKey[], authorView: boole
 
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
+const LOCAL_PROBLEM_COPY: Record<string, string> = {
+  "no-url": "no local judge server is set on the SillyTavern server (see the Judge page of the guide)",
+  "bad-url": "the local judge address on the SillyTavern server is not a web address",
+  "not-loopback": "the local judge address names another machine, and only this machine is allowed",
+  unreachable: "the local judge server does not answer; start it from the tray",
+};
+
 const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
 
 const concernText = (row: JudgeReadinessRow): string => {
@@ -141,7 +148,19 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
       const providerStatus = typeof status === "object" && status !== null ? status.providers?.[provider] : undefined;
       if (!providerLeavesMachine(provider, providerStatus)) {
         const where = providerStatus?.host ? ` (${providerStatus.host})` : "";
-        return <div key={provider} id={`so-judge-local-${provider}`} className="text-xs opacity-70">{info.label} runs on this machine{where}: nothing it is asked leaves it.</div>;
+        const model = providerStatus?.model ? ` · model ${providerStatus.model}` : "";
+        const folder = providerStatus?.modelsDir ? ` · models in ${providerStatus.modelsDir}` : "";
+        const notReady = providerStatus?.problem ? LOCAL_PROBLEM_COPY[providerStatus.problem] ?? providerStatus.problem : null;
+        const problem = notReady ? <span className="so-warning-text"> Not ready: {notReady}.</span> : null;
+        return (
+          <div key={provider} id={`so-judge-local-${provider}`} className="text-xs opacity-70">
+            {info.label} runs on this machine{where}: nothing it is asked leaves it.{model}{folder}{problem}
+          </div>
+        );
+      }
+      if (provider === "systemone-local") {
+        const problem = providerStatus?.problem ?? "unreachable";
+        return <div key={provider} id={`so-judge-local-${provider}`} className="text-xs so-warning-text">{info.label} is not ready: {LOCAL_PROBLEM_COPY[problem] ?? problem}.</div>;
       }
       if (settings.noticesSeen.includes(provider)) return null;
       return (

@@ -1,6 +1,6 @@
 import type { JudgeTransport } from "./types";
 
-export const JUDGE_PROVIDER_IDS = ["typesafe", "llama-logprob"] as const;
+export const JUDGE_PROVIDER_IDS = ["typesafe", "llama-logprob", "systemone-local"] as const;
 export type JudgeProviderId = (typeof JUDGE_PROVIDER_IDS)[number];
 
 export const DEFAULT_JUDGE_PROVIDER: JudgeProviderId = "typesafe";
@@ -33,6 +33,12 @@ export const JUDGE_PROVIDERS: Record<JudgeProviderId, JudgeProviderInfo> = {
     remote: false,
     notice: "A configured llama-server off this machine is consent: while the judge is on, excerpts for uses routed here go to it. To stop it, untick \"Use the judge\" or the use itself.",
   },
+  "systemone-local": {
+    label: "Local judge (this machine)",
+    remote: false,
+    notice: "A configured local judge answers on this machine only: excerpts for uses routed here go to the server on 127.0.0.1 and nowhere else, "
+      + "and the plugin refuses any other host. To stop it, untick \"Use the judge\" or the use itself.",
+  },
 };
 
 export const isJudgeProviderId = (value: unknown): value is JudgeProviderId => JUDGE_PROVIDER_IDS.includes(value as JudgeProviderId);
@@ -41,6 +47,9 @@ export interface JudgeProviderStatus {
   configured: boolean;
   local: boolean;
   host: string | null;
+  model?: string | null;
+  modelsDir?: string | null;
+  problem?: string | null;
 }
 
 export const providerLeavesMachine = (id: JudgeProviderId, status: JudgeProviderStatus | null | undefined): boolean =>

@@ -1,0 +1,755 @@
+{
+  "use": "memory-verify",
+  "floors": {
+    "unsupportedDropped": 0.9,
+    "supportedDropped": 0.1
+  },
+  "labelledAt": "2026-10-10",
+  "source": "Held out (v2.8 plan 14, B8): 24 English lines over 5 transcripts, written and labelled 2026-10-10 before any provider answered them, in a story none of the other fixtures use. Same row shape and floors as memory-verify.json.",
+  "rows": [
+    {
+      "id": "VH1.0",
+      "case": "VH1",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_10",
+          "speaker": "Bram",
+          "text": "\"The *Merrow* went down on the reef nine winters back. Twelve hands. I pulled two of them out myself.\""
+        },
+        {
+          "id": "msg_11",
+          "speaker": "Max",
+          "text": "\"Only two?\""
+        },
+        {
+          "id": "msg_12",
+          "speaker": "Bram",
+          "text": "He nods slowly. \"The rest the sea kept.\""
+        }
+      ],
+      "line": "The Merrow sank on the reef nine winters ago.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH1.1",
+      "case": "VH1",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_10",
+          "speaker": "Bram",
+          "text": "\"The *Merrow* went down on the reef nine winters back. Twelve hands. I pulled two of them out myself.\""
+        },
+        {
+          "id": "msg_11",
+          "speaker": "Max",
+          "text": "\"Only two?\""
+        },
+        {
+          "id": "msg_12",
+          "speaker": "Bram",
+          "text": "He nods slowly. \"The rest the sea kept.\""
+        }
+      ],
+      "line": "Bram rescued two of the Merrow's crew.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH1.2",
+      "case": "VH1",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_10",
+          "speaker": "Bram",
+          "text": "\"The *Merrow* went down on the reef nine winters back. Twelve hands. I pulled two of them out myself.\""
+        },
+        {
+          "id": "msg_11",
+          "speaker": "Max",
+          "text": "\"Only two?\""
+        },
+        {
+          "id": "msg_12",
+          "speaker": "Bram",
+          "text": "He nods slowly. \"The rest the sea kept.\""
+        }
+      ],
+      "line": "Bram was the captain of the Merrow.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "VH1.3",
+      "case": "VH1",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_10",
+          "speaker": "Bram",
+          "text": "\"The *Merrow* went down on the reef nine winters back. Twelve hands. I pulled two of them out myself.\""
+        },
+        {
+          "id": "msg_11",
+          "speaker": "Max",
+          "text": "\"Only two?\""
+        },
+        {
+          "id": "msg_12",
+          "speaker": "Bram",
+          "text": "He nods slowly. \"The rest the sea kept.\""
+        }
+      ],
+      "line": "Max pulled two sailors from the sea.",
+      "supported": false,
+      "kind": "wrong-actor"
+    },
+    {
+      "id": "VH1.4",
+      "case": "VH1",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_10",
+          "speaker": "Bram",
+          "text": "\"The *Merrow* went down on the reef nine winters back. Twelve hands. I pulled two of them out myself.\""
+        },
+        {
+          "id": "msg_11",
+          "speaker": "Max",
+          "text": "\"Only two?\""
+        },
+        {
+          "id": "msg_12",
+          "speaker": "Bram",
+          "text": "He nods slowly. \"The rest the sea kept.\""
+        }
+      ],
+      "line": "Ten of the Merrow's twelve hands were lost.",
+      "supported": true,
+      "kind": "summary"
+    },
+    {
+      "id": "VH2.0",
+      "case": "VH2",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Odile",
+          "text": "\"The lamp burns whale oil, not paraffin. Paraffin smokes the lens.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Where do you keep the oil?\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Odile",
+          "text": "\"In the store under the stairs. Mind the third step, it's rotten.\""
+        }
+      ],
+      "line": "The lamp burns whale oil.",
+      "supported": true,
+      "kind": "verbatim"
+    },
+    {
+      "id": "VH2.1",
+      "case": "VH2",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Odile",
+          "text": "\"The lamp burns whale oil, not paraffin. Paraffin smokes the lens.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Where do you keep the oil?\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Odile",
+          "text": "\"In the store under the stairs. Mind the third step, it's rotten.\""
+        }
+      ],
+      "line": "The lamp burns paraffin.",
+      "supported": false,
+      "kind": "contradicted"
+    },
+    {
+      "id": "VH2.2",
+      "case": "VH2",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Odile",
+          "text": "\"The lamp burns whale oil, not paraffin. Paraffin smokes the lens.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Where do you keep the oil?\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Odile",
+          "text": "\"In the store under the stairs. Mind the third step, it's rotten.\""
+        }
+      ],
+      "line": "The oil is kept in a store under the stairs.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH2.3",
+      "case": "VH2",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Odile",
+          "text": "\"The lamp burns whale oil, not paraffin. Paraffin smokes the lens.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Where do you keep the oil?\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Odile",
+          "text": "\"In the store under the stairs. Mind the third step, it's rotten.\""
+        }
+      ],
+      "line": "The third step of the stairs is rotten.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH2.4",
+      "case": "VH2",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Odile",
+          "text": "\"The lamp burns whale oil, not paraffin. Paraffin smokes the lens.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Where do you keep the oil?\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Odile",
+          "text": "\"In the store under the stairs. Mind the third step, it's rotten.\""
+        }
+      ],
+      "line": "Odile fell through the rotten third step last winter.",
+      "supported": false,
+      "kind": "embellished"
+    },
+    {
+      "id": "VH3.0",
+      "case": "VH3",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_30",
+          "speaker": "Bram",
+          "text": "\"Folk in the village say Odile poisoned the old keeper. I don't believe it, mind.\""
+        },
+        {
+          "id": "msg_31",
+          "speaker": "Max",
+          "text": "\"What do you believe?\""
+        },
+        {
+          "id": "msg_32",
+          "speaker": "Bram",
+          "text": "\"That he drank himself off the gallery rail.\""
+        }
+      ],
+      "line": "Villagers say Odile poisoned the old keeper.",
+      "supported": true,
+      "kind": "reported-claim"
+    },
+    {
+      "id": "VH3.1",
+      "case": "VH3",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_30",
+          "speaker": "Bram",
+          "text": "\"Folk in the village say Odile poisoned the old keeper. I don't believe it, mind.\""
+        },
+        {
+          "id": "msg_31",
+          "speaker": "Max",
+          "text": "\"What do you believe?\""
+        },
+        {
+          "id": "msg_32",
+          "speaker": "Bram",
+          "text": "\"That he drank himself off the gallery rail.\""
+        }
+      ],
+      "line": "Odile poisoned the old keeper.",
+      "supported": false,
+      "kind": "lie-as-fact"
+    },
+    {
+      "id": "VH3.2",
+      "case": "VH3",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_30",
+          "speaker": "Bram",
+          "text": "\"Folk in the village say Odile poisoned the old keeper. I don't believe it, mind.\""
+        },
+        {
+          "id": "msg_31",
+          "speaker": "Max",
+          "text": "\"What do you believe?\""
+        },
+        {
+          "id": "msg_32",
+          "speaker": "Bram",
+          "text": "\"That he drank himself off the gallery rail.\""
+        }
+      ],
+      "line": "Bram does not believe Odile poisoned the old keeper.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH3.3",
+      "case": "VH3",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_30",
+          "speaker": "Bram",
+          "text": "\"Folk in the village say Odile poisoned the old keeper. I don't believe it, mind.\""
+        },
+        {
+          "id": "msg_31",
+          "speaker": "Max",
+          "text": "\"What do you believe?\""
+        },
+        {
+          "id": "msg_32",
+          "speaker": "Bram",
+          "text": "\"That he drank himself off the gallery rail.\""
+        }
+      ],
+      "line": "Bram believes the old keeper fell from the gallery rail while drunk.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH4.0",
+      "case": "VH4",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Max",
+          "text": "I lock the lamp room behind me and hang the key on the nail by the stove."
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Odile",
+          "text": "\"Not there. Keep it on you,\" she snaps, and takes it down herself."
+        },
+        {
+          "id": "msg_42",
+          "speaker": "Narrator",
+          "text": "She drops the key back into your hand."
+        }
+      ],
+      "line": "Max locked the lamp room.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH4.1",
+      "case": "VH4",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Max",
+          "text": "I lock the lamp room behind me and hang the key on the nail by the stove."
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Odile",
+          "text": "\"Not there. Keep it on you,\" she snaps, and takes it down herself."
+        },
+        {
+          "id": "msg_42",
+          "speaker": "Narrator",
+          "text": "She drops the key back into your hand."
+        }
+      ],
+      "line": "Max hung the lamp-room key by the stove, and Odile gave it back to him.",
+      "supported": true,
+      "kind": "summary"
+    },
+    {
+      "id": "VH4.2",
+      "case": "VH4",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Max",
+          "text": "I lock the lamp room behind me and hang the key on the nail by the stove."
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Odile",
+          "text": "\"Not there. Keep it on you,\" she snaps, and takes it down herself."
+        },
+        {
+          "id": "msg_42",
+          "speaker": "Narrator",
+          "text": "She drops the key back into your hand."
+        }
+      ],
+      "line": "Odile locked the lamp room.",
+      "supported": false,
+      "kind": "wrong-actor"
+    },
+    {
+      "id": "VH4.3",
+      "case": "VH4",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Max",
+          "text": "I lock the lamp room behind me and hang the key on the nail by the stove."
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Odile",
+          "text": "\"Not there. Keep it on you,\" she snaps, and takes it down herself."
+        },
+        {
+          "id": "msg_42",
+          "speaker": "Narrator",
+          "text": "She drops the key back into your hand."
+        }
+      ],
+      "line": "Odile told Max to leave the key on the nail.",
+      "supported": false,
+      "kind": "inverted"
+    },
+    {
+      "id": "VH4.4",
+      "case": "VH4",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Max",
+          "text": "I lock the lamp room behind me and hang the key on the nail by the stove."
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Odile",
+          "text": "\"Not there. Keep it on you,\" she snaps, and takes it down herself."
+        },
+        {
+          "id": "msg_42",
+          "speaker": "Narrator",
+          "text": "She drops the key back into your hand."
+        }
+      ],
+      "line": "Odile kept the lamp-room key for herself.",
+      "supported": false,
+      "kind": "contradicted"
+    },
+    {
+      "id": "VH5.0",
+      "case": "VH5",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Narrator",
+          "text": "The storm breaks just after midnight. A shutter tears loose on the east side and the lamp gutters."
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Max",
+          "text": "I wedge the shutter with a chair and trim the wick until the flame steadies."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Odile",
+          "text": "\"You kept it lit,\" she says from the doorway. \"Good.\""
+        }
+      ],
+      "line": "The storm broke just after midnight.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH5.1",
+      "case": "VH5",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Narrator",
+          "text": "The storm breaks just after midnight. A shutter tears loose on the east side and the lamp gutters."
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Max",
+          "text": "I wedge the shutter with a chair and trim the wick until the flame steadies."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Odile",
+          "text": "\"You kept it lit,\" she says from the doorway. \"Good.\""
+        }
+      ],
+      "line": "A shutter tore loose on the east side.",
+      "supported": true,
+      "kind": "verbatim"
+    },
+    {
+      "id": "VH5.2",
+      "case": "VH5",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Narrator",
+          "text": "The storm breaks just after midnight. A shutter tears loose on the east side and the lamp gutters."
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Max",
+          "text": "I wedge the shutter with a chair and trim the wick until the flame steadies."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Odile",
+          "text": "\"You kept it lit,\" she says from the doorway. \"Good.\""
+        }
+      ],
+      "line": "The lamp went out during the storm.",
+      "supported": false,
+      "kind": "contradicted"
+    },
+    {
+      "id": "VH5.3",
+      "case": "VH5",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Narrator",
+          "text": "The storm breaks just after midnight. A shutter tears loose on the east side and the lamp gutters."
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Max",
+          "text": "I wedge the shutter with a chair and trim the wick until the flame steadies."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Odile",
+          "text": "\"You kept it lit,\" she says from the doorway. \"Good.\""
+        }
+      ],
+      "line": "Max kept the lamp lit through the storm.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "VH5.4",
+      "case": "VH5",
+      "lang": "en",
+      "storyTitle": "The Lighthouse at Gull Point",
+      "cast": [
+        "Narrator",
+        "Odile",
+        "Bram"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Narrator",
+          "text": "The storm breaks just after midnight. A shutter tears loose on the east side and the lamp gutters."
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Max",
+          "text": "I wedge the shutter with a chair and trim the wick until the flame steadies."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Odile",
+          "text": "\"You kept it lit,\" she says from the doorway. \"Good.\""
+        }
+      ],
+      "line": "The storm damage was caused by lightning striking the tower.",
+      "supported": false,
+      "kind": "invented-cause"
+    }
+  ]
+}

@@ -354,6 +354,15 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.judge.enabled,
   },
   {
+    id: "judge-local", name: "Local judge", area: "judge", audience: "setup",
+    oneLine: "An open model on this machine that can answer the judge's questions instead of TypeSafe.",
+    what: "A small open decision model runs on this computer, started from the tray, and nothing it is asked leaves the machine. "
+      + "Pick it per use in the provider list beside each use. Until a use has been measured on it, that use keeps its usual path.",
+    where: settingsAt("#so-judge-local-systemone-local", "Judge › Local judge (this machine)"),
+    settings: [], doc: "setup/judge.md", status: "experimental", needs: ["judge-plugin"],
+    isOn: (settings) => settings.judge.enabled && Object.values(settings.judge.provider).includes("systemone-local"),
+  },
+  {
     id: "road-ahead", name: "Prepared road ahead", area: "authoring", audience: "author",
     oneLine: "Writes the scenes between two turning points before play gets there.",
     what: "Where a story leaves a gap, the story model writes outline beats to fill it. The judge can write several outlines and keep the best.",

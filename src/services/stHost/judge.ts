@@ -22,7 +22,14 @@ export interface JudgeStatus {
 
 const readProviders = (value: unknown): Partial<Record<JudgeProviderId, JudgeProviderStatus>> | undefined => (isRecord(value)
   ? Object.fromEntries(JUDGE_PROVIDER_IDS.map((id) => [id, value[id]]).filter((pair): pair is [JudgeProviderId, Record<string, unknown>] => isRecord(pair[1]))
-    .map(([id, row]) => [id, { configured: row.configured === true, local: row.local === true, host: typeof row.host === "string" ? row.host : null }]))
+    .map(([id, row]) => [id, {
+      configured: row.configured === true,
+      local: row.local === true,
+      host: typeof row.host === "string" ? row.host : null,
+      ...(typeof row.model === "string" ? { model: row.model } : {}),
+      ...(typeof row.modelsDir === "string" ? { modelsDir: row.modelsDir } : {}),
+      ...(typeof row.problem === "string" ? { problem: row.problem } : {}),
+    }]))
   : undefined);
 
 // public/scripts/secrets.js:349 — writes through /api/secrets/write, clears nothing we own, and the
@@ -72,7 +79,7 @@ async function postToPlugin(path: string, body: unknown, signal?: AbortSignal, u
   return await response.json() as unknown;
 }
 
-export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
+const pluginSystemOne = (path: string): JudgeTransport => async (request: JudgeRequest, options) => {
   const controller = new AbortController();
   const stop = budgetTimer(options.timeoutMs, () => controller.abort());
   // The caller's epoch signal aborts the same controller, so a story load, restart or
@@ -81,12 +88,16 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   options.signal?.addEventListener("abort", onEpochAbort);
   if (options.signal?.aborted) controller.abort();
   try {
-    return await postToPlugin("/systemone", request, controller.signal, options.use) as JudgeResponse;
+    return await postToPlugin(path, request, controller.signal, options.use) as JudgeResponse;
   } finally {
     stop();
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };
+
+export const judgeTransport: JudgeTransport = pluginSystemOne("/systemone");
+
+export const judgeLocalTransport: JudgeTransport = pluginSystemOne("/providers/systemone-local/systemone");
 
 export const judgeLlamaComplete: LlamaComplete = (body, options) => postToPlugin("/providers/llama-logprob/completion", body, options.signal, options.use);
 

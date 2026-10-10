@@ -3,13 +3,22 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.8.0';
+export const PLUGIN_VERSION = '1.9.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
+export const LOCAL_SECRET_KEY = 'so_judge_local_key';
 export const PROVIDERS = Object.freeze({
     typesafe: Object.freeze({ id: 'typesafe', contract: 'native', secretKey: SECRET_KEY, envKey: 'TYPESAFE_API_KEY', dotenv: true, keyRequired: true }),
     'llama-logprob': Object.freeze({ id: 'llama-logprob', contract: 'logprob', secretKey: LLAMA_SECRET_KEY, envKey: 'SO_JUDGE_LLAMA_KEY', dotenv: false, keyRequired: false, urlEnv: 'SO_JUDGE_LLAMA_URL' }),
+    'systemone-local': Object.freeze({ id: 'systemone-local', contract: 'native', secretKey: LOCAL_SECRET_KEY, envKey: 'SO_JUDGE_LOCAL_KEY', dotenv: false, keyRequired: false, urlEnv: 'SO_JUDGE_LOCAL_URL' }),
 });
+export const PROVIDER_IDS = Object.freeze(Object.keys(PROVIDERS));
+export const MODELS_DIR_ENV = 'SO_JUDGE_MODELS_DIR';
+export const LOCAL_MODEL_ENV = 'SO_JUDGE_LOCAL_MODEL';
+export const LOCAL_IN_FLIGHT_ENV = 'SO_JUDGE_LOCAL_MAX_IN_FLIGHT';
+export const LOCAL_MAX_IN_FLIGHT = 1;
+export const LOCAL_HEALTH_TIMEOUT_MS = 1_500;
+export const LOCAL_HEALTH_TTL_MS = 30_000;
 export const LLAMA_LIMITS = Object.freeze({ maxPredict: 4, maxProbs: 50, maxPromptChars: 140_000 });
 export const DEFAULT_MODEL = 'jev-1.13.0';
 export const MAX_CHOICE_OPTIONS = 255;
@@ -53,7 +62,7 @@ const DOTENV_FILE = path.join(os.homedir(), '.typesafe', 'api-key', '.env');
 export const info = {
     id: 'story-orchestrator-judge',
     name: 'Story Orchestrator judge',
-    description: 'Server-side proxy from Story Orchestrator to its judge providers (TypeSafe System One, llama-server log-probabilities); keys never reach the page.',
+    description: 'Server-side proxy from Story Orchestrator to its judge providers (TypeSafe System One, llama-server log-probabilities, a local System One server on 127.0.0.1); keys never reach the page.',
 };
 
 const apiUrl = () => `${(process.env.TYPESAFE_BASE_URL ?? 'https://api.typesafe.ai').replace(/\/$/, '')}/v1/systemone`;
@@ -153,6 +162,60 @@ export function llamaEndpoint(env = process.env) {
     } catch {
         return null;
     }
+}
+
+export function localSetup(env = process.env) {
+    const modelsDir = env[MODELS_DIR_ENV]?.trim() || null;
+    const label = env[LOCAL_MODEL_ENV]?.trim() || null;
+    const raw = env[PROVIDERS['systemone-local'].urlEnv]?.trim();
+    const base = { modelsDir, label, endpoint: null };
+    if (!raw) return { ...base, problem: 'no-url' };
+    let url;
+    try {
+        url = new URL(raw);
+    } catch {
+        return { ...base, problem: 'bad-url' };
+    }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return { ...base, problem: 'bad-url' };
+    const endpoint = { base: url.href.replace(/\/$/, ''), host: url.host, local: LOOPBACK_HOSTS.has(url.hostname) };
+    if (!endpoint.local) return { ...base, endpoint, problem: 'not-loopback' };
+    return { ...base, endpoint, problem: null };
+}
+
+export const LOCAL_PROBLEMS = Object.freeze({
+    'no-url': `no local judge configured (set SO_JUDGE_LOCAL_URL on the SillyTavern server)`,
+    'bad-url': 'SO_JUDGE_LOCAL_URL is not an http(s) URL',
+    'not-loopback': 'the local judge must listen on 127.0.0.1; SO_JUDGE_LOCAL_URL names another host',
+    unreachable: 'the local judge server does not answer its health check; start it from the tray',
+});
+
+export async function readLocalHealth(endpoint, fetchImpl = globalThis.fetch, { timeoutMs = LOCAL_HEALTH_TIMEOUT_MS } = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetchImpl(`${endpoint.base}/health`, { method: 'GET', signal: controller.signal });
+        if (!response.ok) return { ok: false, problem: 'unreachable' };
+        const data = JSON.parse(await response.text());
+        const model = typeof data?.model === 'string' && data.model.trim() ? data.model.trim() : null;
+        const modelPath = typeof data?.modelPath === 'string' && data.modelPath.trim() ? data.modelPath.trim() : null;
+        return { ok: true, model, modelPath, problem: null };
+    } catch {
+        return { ok: false, problem: 'unreachable' };
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+export function withServedModel(text, label) {
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch {
+        return null;
+    }
+    if (!isRecord(data) || !isRecord(data.answers)) return null;
+    const served = typeof data.model === 'string' && data.model.trim() ? data.model.trim() : null;
+    return JSON.stringify({ ...data, model: served ?? label ?? 'systemone-local:unknown' });
 }
 
 export function validateLlamaBody(body) {
@@ -514,18 +577,33 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     const limits = limitsFromEnv(env, { users });
     let retryAfter = 1;
     const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
-    const served = { since: refusals.since, total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 };
+    const served = { since: refusals.since, total: 0, byProvider: Object.fromEntries(PROVIDER_IDS.map((id) => [id, 0])), byUse: {}, cancelled: 0 };
     const countServed = (provider, request) => {
         const use = judgeUseOf(request);
         served.total += 1;
         served.byProvider[provider] += 1;
         served.byUse[use] = (served.byUse[use] ?? 0) + 1;
     };
-    const adaptive = { typesafe: createAdaptiveRate({ now }), 'llama-logprob': createAdaptiveRate({ now }) };
+    const adaptive = Object.fromEntries(PROVIDER_IDS.map((id) => [id, createAdaptiveRate({ now })]));
     const onRefuse = (seconds) => { retryAfter = seconds; };
+    const localLimits = { ...limits, maxInFlight: positiveInteger(env?.[LOCAL_IN_FLIGHT_ENV], LOCAL_MAX_IN_FLIGHT), perMinute: Number.MAX_SAFE_INTEGER, accountPerMinute: Number.MAX_SAFE_INTEGER, tokensPerSecond: Number.MAX_SAFE_INTEGER, accountTokensPerSecond: Number.MAX_SAFE_INTEGER };
     const acquire = {
         typesafe: createLimiter({ ...limits, now, onRefuse, adaptive: adaptive.typesafe }),
         'llama-logprob': createLimiter({ ...limits, now, onRefuse, adaptive: adaptive['llama-logprob'] }),
+        'systemone-local': createLimiter({ ...localLimits, now, onRefuse, adaptive: adaptive['systemone-local'] }),
+    };
+    let health = { at: -Infinity, value: null };
+    const localHealth = async (endpoint, fresh = false) => {
+        if (!fresh && health.value && now() - health.at < LOCAL_HEALTH_TTL_MS) return health.value;
+        const value = await readLocalHealth(endpoint, fetchImpl);
+        health = { at: now(), value };
+        return value;
+    };
+    const localState = async (fresh = false) => {
+        const setup = localSetup(env);
+        if (setup.problem || !setup.endpoint) return { setup, health: null, problem: setup.problem };
+        const read = await localHealth(setup.endpoint, fresh);
+        return { setup, health: read, problem: read.problem };
     };
     const upstreamOptions = (provider, signal) => ({ now, onBusy: (waitMs) => adaptive[provider].busy(waitMs), ...(signal ? { signal } : {}) });
     const countUpstream = (provider, upstream) => {
@@ -575,15 +653,22 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             const resolved = await resolveKey(request, 'typesafe', keyOptions);
             const llama = llamaEndpoint(env);
             const llamaKey = llama ? await resolveKey(request, 'llama-logprob', keyOptions) : null;
+            const local = await localState(true);
             return response.json({
                 configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
                 limits,
-                adaptive: { typesafe: adaptive.typesafe.state(), 'llama-logprob': adaptive['llama-logprob'].state() },
+                adaptive: Object.fromEntries(PROVIDER_IDS.map((id) => [id, adaptive[id].state()])),
                 refusals: { ...refusals },
                 served: { ...served, byProvider: { ...served.byProvider }, byUse: { ...served.byUse } },
                 providers: {
                     typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
                     'llama-logprob': { configured: Boolean(llama), keySource: llamaKey?.source ?? null, contract: PROVIDERS['llama-logprob'].contract, local: llama?.local ?? false, host: llama?.host ?? null },
+                    'systemone-local': {
+                        configured: local.problem === null, keySource: null, contract: PROVIDERS['systemone-local'].contract,
+                        local: local.setup.endpoint?.local ?? false, host: local.setup.endpoint?.host ?? null,
+                        model: local.health?.model ?? local.setup.label ?? null, modelsDir: local.setup.modelsDir, modelPath: local.health?.modelPath ?? null,
+                        problem: local.problem, ...(local.problem ? { detail: LOCAL_PROBLEMS[local.problem] } : {}),
+                    },
                 },
             });
         },
@@ -613,8 +698,28 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             countUpstream('typesafe', upstream);
             answer(response, upstream);
         },
+        async localSystemone(request, response) {
+            const local = await localState();
+            if (local.problem) return response.status(409).json({ configured: false, problem: local.problem, error: LOCAL_PROBLEMS[local.problem] });
+            const issues = shapeIssues(request.body);
+            if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
+            const oversize = sizeIssues(request.body);
+            if (oversize.length) return response.status(413).json({ error: 'request too large', tooLarge: true, issues: oversize });
+            const resolved = await resolveKey(request, 'systemone-local', keyOptions);
+            countServed('systemone-local', request);
+            const payload = { state: request.body.state, questions: request.body.questions };
+            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${local.setup.endpoint.base}/v1/systemone`, upstreamOptions('systemone-local', request.cancel));
+            countUpstream('systemone-local', upstream);
+            if (upstream.cancelled || upstream.status !== 200) return answer(response, upstream);
+            const text = withServedModel(upstream.text, local.health?.model ?? local.setup.label);
+            if (text === null) return response.status(502).json({ error: 'the local judge answered something that is not a System One answer' });
+            answer(response, { ...upstream, text });
+        },
         receive(request, response) {
             return guarded(request, response, handlers.systemone, 'typesafe');
+        },
+        receiveLocal(request, response) {
+            return guarded(request, response, handlers.localSystemone, 'systemone-local');
         },
         receiveLlama(request, response) {
             return guarded(request, response, handlers.llamaCompletion, 'llama-logprob');
@@ -649,6 +754,7 @@ export async function init(router) {
     router.get('/status', guardRoute(handlers.status));
     router.post('/systemone', guardRoute(handlers.receive));
     router.post('/providers/llama-logprob/completion', guardRoute(handlers.receiveLlama));
+    router.post('/providers/systemone-local/systemone', guardRoute(handlers.receiveLocal));
     const resolved = await resolveKey(null);
     const limits = limitsFromEnv(process.env, { users });
     console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}; per user ${limits.perMinute}/min, ${limits.maxInFlight} in flight (${RATE_ENV}, ${IN_FLIGHT_ENV}); account ${limits.accountPerMinute}/min, ${limits.accountTokensPerSecond} input tokens/s (${ACCOUNT_RATE_ENV}, ${ACCOUNT_TOKENS_ENV}), per user ${limits.tokensPerSecond} tokens/s; lowered on a TypeSafe 429`);

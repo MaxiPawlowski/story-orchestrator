@@ -95,7 +95,7 @@ export type { ConnectionProfileSummary } from "@services/stHost/connectionProfil
 export { countTokens, countTokensBatch, tokenizerIdentity } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
-export { judgeLlamaComplete, judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
+export { judgeLlamaComplete, judgeLocalTransport, judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";
 export { probeCapability, capabilityReport, capabilityState, invalidateCapabilities, hostFacts, renderCapabilityReport, CAPABILITY_IDS } from "@services/stHost/capabilities";
 export type { CapabilityId, CapabilityReport, CapabilityState, HostFacts } from "@services/stHost/capabilities";
