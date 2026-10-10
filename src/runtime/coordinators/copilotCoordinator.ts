@@ -70,6 +70,7 @@ export class CopilotCoordinator {
       grantedLorebooks: granted,
       castNames: draftCastNames(story),
       personaNames: safe(host.listPersonas, []),
+      groupCasts: host.listGroupCasts ? safe(host.listGroupCasts, []) : [],
     };
   }
 

@@ -22,7 +22,7 @@ import { stableStringify } from "@runtime/hash";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
-export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 40, maxTokens: 240_000 };
+export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 60, maxTokens: 240_000 };
 const OBSERVATION_LIMIT = 1500;
 const CHECK_LINES = 12;
 

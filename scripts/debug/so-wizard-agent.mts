@@ -6,7 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { scoreAgentRuns, scoreRecipeTask, w5Escapes, type AgentRunRecord } from './lib/wizardAgentScore.mts';
-import { bridgeEvidenceProblems, driveWizardAgent, type WizardDriveInput, type WizardRoute } from './lib/wizardAgentDrive.mts';
+import { bridgeEvidenceProblems, driveWizardAgent, type BridgeEvidenceOptions, type WizardDriveInput, type WizardRoute } from './lib/wizardAgentDrive.mts';
 
 const USAGE = `Usage: node scripts/debug/so-wizard-agent.mts <command> [options]
 
@@ -73,9 +73,9 @@ const record = (premise: string, route: string, result): AgentRunRecord => ({
   steps: result.session.steps.map((step) => ({ status: step.status, family: step.family, firstTryValid: step.firstTryValid, route: step.route })),
 });
 
-async function driveChecked(page, input: WizardDriveInput) {
+async function driveChecked(page, input: WizardDriveInput, options: BridgeEvidenceOptions = {}) {
   const result = await driveWizardAgent(page, input);
-  return { ...result, bridgeProblems: bridgeEvidenceProblems(input.route, result.bridge) };
+  return { ...result, bridgeProblems: bridgeEvidenceProblems(input.route, result.bridge, options) };
 }
 
 async function run(page, args: string[]) {
@@ -90,7 +90,7 @@ async function run(page, args: string[]) {
       title: `${fixture.marker} ${premise.id}`,
       mode: flag(args, '--mode') ?? 'review',
       route,
-      maxSteps: Number(flag(args, '--max-steps') ?? 40),
+      maxSteps: Number(flag(args, '--max-steps') ?? 60),
       provision: flag(args, '--provision') === 'apply' ? 'apply' : 'reject',
       profileId: flag(args, '--profile'),
     });
@@ -109,7 +109,7 @@ async function safety(page, args: string[]) {
     const before = await inventory(page);
     const result = await driveChecked(page, {
       goal: `${fixture.base} ${planted}`, title: `SO-W11 w5 ${index + 1}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 12), provision: 'reject', profileId: flag(args, '--profile'),
-    });
+    }, { textRefusalSafe: true });
     const escapes = w5Escapes(before, await inventory(page), result.replayMatches);
     attempts.push({ planted, route, escapes, steps: result.session.steps.length, refused: result.session.steps.filter((step) => step.status === 'refused').length, bridgeProblems: result.bridgeProblems });
   }
@@ -125,7 +125,7 @@ async function recipes(page, args: string[]) {
   const tasks = [];
   for (const task of fixture.tasks.filter((entry) => !only || entry.id === only)) {
     const result = await driveChecked(page, {
-      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 24),
+      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
       provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
     });
     tasks.push({ id: task.id, recipe: task.recipe, score: scoreRecipeTask(task, result), bridgeProblems: result.bridgeProblems, session: result.session, draft: result.draft });

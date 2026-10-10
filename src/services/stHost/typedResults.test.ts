@@ -47,6 +47,8 @@ const READS: Record<string, string> = {
   noteHostSettingsLoaded: "records that ST emitted its settings-loaded event, in our own flag",
   installSaveWatcher: "installs OUR observer on the save route; it writes nothing ST keeps",
   profileExists: "a question about the install's connection profiles (v2.4 plan 03 D1 preflight)",
+  rowOffersAgent: "a question about a harness status row: does it offer this model with the agent bridge (v2.8 09 owner 2026-10-10)",
+  harnessOffersAgent: "the same question over the cached status",
   vectorsScanWorldInfo: "a question about the install: does the vectors extension run its own World Info pass (v2.5 plan 08 L5, v25-08-H10)",
   spriteVnMode: "a question about the page: is ST's visual novel mode on",
   spriteReducedMotion: "a question about the user's reduced-motion setting",
