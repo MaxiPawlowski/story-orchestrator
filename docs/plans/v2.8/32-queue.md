@@ -70,7 +70,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | R4 | B1-EMPTY formal arms | M4 |
 | R5 | B1-NARR + rating pack. **2026-10-10 (pod 2): B1-NARR PASS run 1 (run 2 owed), rating pack rated blind; record 31 §Pod 2 measurements** | M5 |
 | R6 | S-17 on the scope budget. **2026-10-10 (pod 2): S-17 FAIL ×2, 37-S17 FAIL ×2 (F27); after the F27 fix (master `83403197`) PASS ×2 both, 37-M1 PASS ×2** | M7 |
-| R7 | Lorebook R5: sheets after character definitions vs depth 4 | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
+| R7 | Lorebook R5: sheets after character definitions vs depth 4. **2026-10-10 (pod 2): INCOMPLETE, no `--swa-full` reuse 0 both arms (first difference moved to ~65 %, the player role); swa rerun not started; P5 owed (31 D-P5, M9)** | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
 | R8 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, thinking A/B | M15 |
 | R9 | J6d shadow record, offline replay (option C) | 12 |
 | R10 | Cue + scene read merge A/B | 15 |
