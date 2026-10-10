@@ -111,7 +111,7 @@ export function buildDirectorOps(story: NormalizedStoryV2, frontierId: string, d
     { kind: "add-stub", checkpoint: stub },
     { kind: "add-checkpoint", checkpoint: anchor },
     { kind: "add-transition", transition: { from: frontierId, to: stubId, priority: 1, gate } },
-    { kind: "add-transition", transition: { from: stubId, to: anchorId, priority: 1, gate: { q: progressQualityForAnchor(anchorId), op: ">=", v: 1 } } },
+    { kind: "add-transition", transition: { from: stubId, to: anchorId, priority: 1, gate: { any: [{ q: progressQualityForAnchor(anchorId), op: ">=", v: 1 }, gate] } } },
   ];
   return { anchorId, ops, openingGate: gate, issues };
 }

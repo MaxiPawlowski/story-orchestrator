@@ -83,6 +83,8 @@ export function renderDirectorPrompt(input: DirectorInput): string {
     `- The objective is one or two sentences (at most ${LIVING_MAX_OBJECTIVE_CHARS} characters).`,
     LENGTH_LIMITS,
     `- "opens_when" says what must happen in play before the story heads there. It must NOT already be true now, and play must be able to make it true.`,
+    `  It belongs to the current turning point: a step the player is likely to take within a few turns while pursuing it, with what that scene already holds. `
+      + `Never a detail that only the new turning point introduces, and never one exact action when several would do.`,
     `  Either reuse a story value: {"reuse":{"q":"<key>","op":"==|!=|>=|<=|>|<|in","v":<literal>}} (only keys listed above with a reader that is not locked against it),`,
     `  or declare one new yes/no value: {"new":{"key":"short_snake_key","rubric":"Did <something observable> happen?"}}.`,
     `- Declare at most ${LIVING_MAX_NEW_QUALITIES} new values in total, counting "opens_when". "snapshot" may set values the new turning point assumes on arrival.`,

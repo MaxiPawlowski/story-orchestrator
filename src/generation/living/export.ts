@@ -1,5 +1,5 @@
 import {
-  gateKeys, isLivingId, LIVING_OPENING_ID, parseStoryV2, progressQualityForAnchor, slugifyStoryId,
+  gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, LIVING_OPENING_ID, parseStoryV2, progressQualityForAnchor, slugifyStoryId,
   type Chapter, type Checkpoint, type NormalizedStoryV2, type Quality, type StoryV2, type Transition, type ValidationError,
 } from "@engine/index";
 import { LIVING_STUB_SUFFIX } from "./types";
@@ -24,9 +24,14 @@ const anchorOfStub = (id: string): string | null => (id.endsWith(LIVING_STUB_SUF
 
 const isGenerated = (id: string) => isLivingId(id) && id !== LIVING_OPENING_ID;
 
+const bridgedStub = (id: string): string => new RegExp(`^${GENERATED_CHECKPOINT_PREFIX}(.+${LIVING_STUB_SUFFIX})_\\d+$`).exec(id)?.[1] ?? id;
+
 export function excludedCheckpoints(story: NormalizedStoryV2, reached: ReadonlySet<string>, includeUnreached: boolean): Set<string> {
   if (includeUnreached) return new Set();
-  const excluded = new Set(story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor" && isGenerated(checkpoint.id) && !reached.has(checkpoint.id)).map((checkpoint) => checkpoint.id));
+  const headedTo = new Set([...reached].map(bridgedStub).filter((id) => story.checkpointById[id]?.type === "intermediate")
+    .flatMap((id) => (story.outgoingByCheckpoint[id] ?? []).map((transition) => transition.to)));
+  const excluded = new Set(story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor" && isGenerated(checkpoint.id) && !reached.has(checkpoint.id) && !headedTo.has(checkpoint.id))
+    .map((checkpoint) => checkpoint.id));
   story.checkpoints.forEach((checkpoint) => {
     if (checkpoint.type !== "intermediate" || !isGenerated(checkpoint.id) || reached.has(checkpoint.id)) return;
     const target = anchorOfStub(checkpoint.id);
