@@ -2,10 +2,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { FEATURES, authorGuideDoc } from "@features/registry";
 import { GUIDE_TOPIC_IDS } from "@copilot/guideTopics";
-import { GUIDE_ASSETS, GUIDE_PAGES } from "./pages.generated";
+import { GUIDE_ASSETS, GUIDE_NAV, GUIDE_PAGES } from "./pages.generated";
 import { GuideMarkdown } from "./GuideMarkdown";
 import { docToId, normalizePath, resolveAsset, resolveLink, slugify, targetForDoc } from "./links";
-import { groupPages, indexPages, searchGuide, visiblePages } from "./search";
+import { groupPages, indexPages, NAV_ALL, NAV_MORE, searchGuide, visiblePages } from "./search";
+import { parseMarkdown } from "./markdown";
 import { requestGuide, onGuideRequest } from "./request";
 import type { GuidePage } from "./types";
 
@@ -16,9 +17,20 @@ const HOME = "https://github.com/o/r";
 describe("in-plugin guide", () => {
   it("every registry feature and author topic points at a bundled page", () => {
     const missing = [...FEATURES.map((feature) => feature.doc), ...GUIDE_TOPIC_IDS.map(authorGuideDoc)]
-      .filter((doc) => !ids.has(targetForDoc(doc).id));
+      .filter((doc) => {
+        const target = targetForDoc(doc);
+        const page = PAGES.find((candidate) => candidate.id === target.id);
+        return !page || (target.anchor !== undefined && !page.headings.some((heading) => heading.slug === target.anchor));
+      });
     expect(missing).toEqual([]);
+    expect(GUIDE_TOPIC_IDS.map(authorGuideDoc).filter((doc) => !/^author\/fields\/[a-z-]+\.md#[a-z0-9-]+$/.test(doc))).toEqual([]);
   });
+
+  it("an <a id> line names the next heading's anchor, and a heading without one keeps its slug", () => {
+    const blocks = parseMarkdown('<a id="gates"></a>\n\n## Gates and exits\n\n## Plain');
+    expect(blocks.map((block) => (block.kind === "heading" ? [block.text, block.anchor ?? null] : block.kind))).toEqual([["Gates and exits", "gates"], ["Plain", null]]);
+  });
+
 
   it("every page renders without raw HTML and every heading gets the slug the bundle recorded", () => {
     for (const page of PAGES) {
@@ -38,7 +50,7 @@ describe("in-plugin guide", () => {
     expect(resolveLink("README.md", "javascript:alert(1)", HOME)).toEqual({ kind: "none" });
     expect(resolveLink("README.md", "//evil.example", HOME)).toEqual({ kind: "none" });
     expect(resolveLink("README.md", "https://example.com", HOME)).toEqual({ kind: "external", url: "https://example.com" });
-    expect(normalizePath("author/topics/../wizard.md")).toBe("author/wizard.md");
+    expect(normalizePath("author/fields/../wizard.md")).toBe("author/wizard.md");
     expect(docToId("setup/images.md")).toBe("setup/images");
     expect(slugify("The `/story` command")).toBe("the-story-command");
   });
@@ -54,14 +66,23 @@ describe("in-plugin guide", () => {
     expect(render("![x\" onerror=\"alert(1)](https://evil.example)")).not.toMatch(/onerror="/);
     expect(render("![](../assets/ok.png)")).not.toContain("<img");
     expect(resolveAsset("setup/README.md", "../assets/ok.png")).toBe("assets/ok.png");
-    expect(resolveAsset("author/topics/gates.md", "../../assets/a.webp")).toBe("assets/a.webp");
+    expect(resolveAsset("author/fields/moving-on.md", "../../assets/a.webp")).toBe("assets/a.webp");
     expect(resolveAsset("setup/README.md", "../assets/a.svg")).toBeNull();
     expect(Object.keys(GUIDE_ASSETS).length).toBeGreaterThan(0);
   });
 
   it("hides author pages in player mode and finds pages by title first", () => {
     expect(visiblePages(PAGES, false).some((page) => page.audience === "author")).toBe(false);
-    expect(groupPages(visiblePages(PAGES, true)).map((group) => group.audience)).toEqual(["player", "setup", "author"]);
+    expect(groupPages(visiblePages(PAGES, true), GUIDE_NAV).map((group) => group.audience)).toEqual(["player", "setup", "author"]);
+    const author = groupPages(visiblePages(PAGES, true), GUIDE_NAV).find((group) => group.audience === "author");
+    expect(author?.sections.map((section) => section.title)).toEqual(["Start here", "Tools", "Reference", "Story fields"]);
+    expect(author?.sections[0].pages[0].id).toBe("author/README");
+    expect(author?.sections.at(-1)?.pages.map((page) => page.id)).toEqual(["story", "characters", "tracking", "scenes", "scene-effects", "moving-on", "lore-and-memory", "game-layer"].map((name) => `author/fields/${name}`));
+    expect(groupPages(visiblePages(PAGES, false), GUIDE_NAV).flatMap((group) => group.sections.map((section) => section.title))).toEqual(["Start here", "Play", "Set up"]);
+    const loose = groupPages([...PAGES, { id: "setup/stray", doc: "setup/stray.md", audience: "setup", title: "Stray", headings: [], body: "" }], GUIDE_NAV);
+    expect(loose.find((group) => group.audience === "setup")?.sections.at(-1)).toEqual({ title: NAV_MORE, pages: [expect.objectContaining({ id: "setup/stray" })] });
+    expect(groupPages(PAGES.filter((page) => page.audience === "setup")).map((group) => group.sections.map((section) => [section.title, section.pages[0].id]))).toEqual([[[NAV_ALL, "setup/README"]]]);
+
     const hits = searchGuide(indexPages(visiblePages(PAGES, false)), "memory model");
     expect(hits[0]?.page.id).toBe("setup/memory-model");
     expect(searchGuide(indexPages(PAGES), "zzqx-nothing")).toEqual([]);

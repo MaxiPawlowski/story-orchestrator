@@ -283,7 +283,8 @@ export const GuideOpensAboveTheStudioFromEveryTab: Story = {
         await userEvent.click(await within(entry).findByRole("button", { name: `${GUIDE_COPY.openInGuide}: ${GUIDE_TOPICS[topic].title}` }));
         const reader = await body.findByRole("dialog", { name: GUIDE_COPY.title });
         await expect(reader).toHaveAttribute("open");
-        await waitFor(() => expect(reader.querySelector(`[data-so="guide-page"][data-doc="${authorGuideDoc(topic)}"]`)).toBeVisible(), { timeout: 5000 });
+        await waitFor(() => expect(reader.querySelector(`[data-so="guide-page"][data-doc="${authorGuideDoc(topic).split("#")[0]}"]`)).toBeVisible(), { timeout: 5000 });
+        await waitFor(() => expect(reader.querySelector(`#so-guide-h-${topic}`)).toBeVisible());
         await waitFor(() => expect(reader.contains(doc.activeElement)).toBe(true));
         const close = within(reader).getByRole("button", { name: GUIDE_COPY.close });
         const search = within(reader).getByRole("searchbox", { name: GUIDE_COPY.search });

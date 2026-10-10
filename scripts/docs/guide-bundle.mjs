@@ -32,10 +32,17 @@ export const headingsOf = (body) => {
   const seen = new Map();
   const headings = [];
   let fenced = false;
-  for (const line of body.split("\n")) {
+  let anchor = null;
+  for (const line of body.replace(/<!--[\s\S]*?-->/g, "").split("\n")) {
     if (line.startsWith("```")) fenced = !fenced;
+    if (!line.trim()) continue;
+    const named = !fenced && /^<a id="([a-z0-9-]+)"><\/a>$/.exec(line.trim());
+    if (named) { anchor = named[1]; continue; }
+    const pending = anchor;
+    anchor = null;
     const match = !fenced && /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line);
     if (!match) continue;
+    if (pending) { headings.push({ level: match[1].length, text: match[2].trim(), slug: pending }); continue; }
     const base = slugify(match[2]);
     const count = seen.get(base) ?? 0;
     seen.set(base, count + 1);
@@ -110,10 +117,57 @@ export const brokenLinks = (pages) => {
   return broken;
 };
 
+export const NAV_AUDIENCES = ["player", "setup", "author"];
+export const NAV_START = { title: "Start here", ids: ["README", "quick-start"] };
+export const NAV_INDEXES = [{ doc: "README.md", level: 3, audiences: ["player", "setup"] }, { doc: "author/README.md", level: 2, audiences: ["author"] }];
+export const NAV_MORE = "More pages";
+
+export const indexSections = (page, level) => {
+  const sections = [];
+  let section = null;
+  for (const line of page.body.split("\n")) {
+    const heading = /^(#{1,6})\s+(.*?)\s*$/.exec(line);
+    if (heading && heading[1].length <= level) {
+      section = heading[1].length === level ? { title: heading[2], ids: [] } : null;
+      if (section) sections.push(section);
+      continue;
+    }
+    if (!section) continue;
+    for (const [, target] of line.matchAll(/\]\(([^)\s#]+\.md)\)/g)) {
+      const id = pageId(posix.normalize(posix.join(posix.dirname(page.doc), target)));
+      if (!section.ids.includes(id)) section.ids.push(id);
+    }
+  }
+  return sections;
+};
+
+export const buildNav = (pages) => {
+  const byId = new Map(pages.map((page) => [page.id, page]));
+  const placed = new Set();
+  const sections = [];
+  const add = (audience, title, ids) => {
+    const kept = ids.filter((id) => byId.get(id)?.audience === audience && !placed.has(id));
+    kept.forEach((id) => placed.add(id));
+    if (kept.length) sections.push({ audience, title, ids: kept });
+  };
+  add("player", NAV_START.title, NAV_START.ids);
+  for (const index of NAV_INDEXES) {
+    const page = pages.find((candidate) => candidate.doc === index.doc);
+    if (!page) continue;
+    const found = indexSections(page, index.level);
+    if (found[0] && index.doc !== "README.md") found[0].ids.unshift(page.id);
+    for (const audience of index.audiences) for (const section of found) add(audience, section.title, section.ids);
+  }
+  for (const audience of NAV_AUDIENCES) add(audience, NAV_MORE, pages.filter((page) => page.audience === audience).map((page) => page.id));
+  return NAV_AUDIENCES.flatMap((audience) => sections.filter((section) => section.audience === audience));
+};
+
 export const render = (pages, assets = buildAssets()) => [
-  "import type { GuidePage } from \"./types\";",
+  "import type { GuideNavSection, GuidePage } from \"./types\";",
   "",
   `export const GUIDE_PAGES: GuidePage[] = ${JSON.stringify(pages, null, 1)};`,
+  "",
+  `export const GUIDE_NAV: GuideNavSection[] = ${JSON.stringify(buildNav(pages), null, 1)};`,
   "",
   `export const GUIDE_ASSETS: Record<string, string> = ${JSON.stringify(Object.fromEntries(assets.map((asset) => [asset.path, `data:${asset.mime};base64,${asset.data}`])), null, 1)};`,
   "",

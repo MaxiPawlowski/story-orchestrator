@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, posix } from "node:path";
-import { buildSite, fileFor, homeLayout, relativeHref, topicGroups } from "./guide-site.mjs";
+import { buildSite, fileFor, homeLayout, navSections, relativeHref } from "./guide-site.mjs";
 
 const out = mkdtempSync(join(tmpdir(), "guide-site-"));
 const built = await buildSite({ out, homePage: "https://github.com/o/r" });
@@ -62,7 +62,7 @@ test("README pages map to index.html and relative links climb directories", () =
   assert.equal(fileFor("README"), "index.html");
   assert.equal(fileFor("player/README"), "player/index.html");
   assert.equal(relativeHref("player/playing", { id: "setup/judge", anchor: "keys" }), "../setup/judge.html#so-guide-h-keys");
-  assert.equal(relativeHref("author/topics/gates", { id: "author/README" }), "../index.html");
+  assert.equal(relativeHref("author/fields/moving-on", { id: "author/README" }), "../index.html");
   assert.equal(dirname("x"), ".");
 });
 
@@ -73,22 +73,24 @@ test("the home page lays its guide sections out as cards and marks the quick sta
   assert.match(html, /href="quick-start\.html"/);
 });
 
-test("the nav lists every author topic once, folded under its group", () => {
-  const html = readFileSync(join(out, "author/topics/gates.html"), "utf8");
+test("the nav lists every page once, in the guide's own sections and order", () => {
+  const html = readFileSync(join(out, "author/fields/moving-on.html"), "utf8");
   const nav = html.split("<nav")[1].split("</nav>")[0];
-  const topics = [...nav.matchAll(/href="([a-z0-9-]+)\.html"/g)].map((match) => match[1]);
-  const files = pageFiles.filter((file) => file.startsWith("author/topics/"));
-  assert.equal(new Set(topics).size, topics.length);
-  for (const file of files) assert.ok(topics.includes(posix.basename(file, ".html")), file);
-  assert.match(nav, /<details open><summary>Story fields \(\d+\)<\/summary>/);
+  const links = [...nav.matchAll(/href="([^"]+)"/g)].map((match) => posix.normalize(posix.join("author/fields", match[1])));
+  assert.equal(new Set(links).size, links.length);
+  assert.deepEqual([...links].sort(), [...pageFiles].sort());
+  const summaries = [...nav.matchAll(/<summary>([^<]+)<\/summary>/g)].map((match) => match[1]);
+  assert.deepEqual(summaries, ["Start here", "Play", "Set up", "Start here", "Tools", "Reference", "Story fields"]);
+  assert.ok(links.indexOf("author/fields/story.html") < links.indexOf("author/fields/game-layer.html"));
 });
 
-test("a topic missing from the author index still reaches the nav, under More topics", () => {
+test("a page missing from the guide's sections still reaches the nav, under More pages", () => {
   const pages = [
-    { id: "author/README", audience: "author", title: "A", body: "### Group\n\n- [X](topics/x.md)\n" },
-    { id: "author/topics/x", audience: "author", title: "X", body: "" },
-    { id: "author/topics/y", audience: "author", title: "Y", body: "" },
+    { id: "author/README", audience: "author", title: "A", body: "" },
+    { id: "author/x", audience: "author", title: "X", body: "" },
+    { id: "author/y", audience: "author", title: "Y", body: "" },
   ];
-  assert.deepEqual(topicGroups(pages), [{ title: "Group", ids: ["author/topics/x"] }, { title: "More topics", ids: ["author/topics/y"] }]);
+  const nav = [{ audience: "author", title: "Group", ids: ["author/README", "author/x", "author/gone"] }];
+  assert.deepEqual(navSections(pages, nav), [{ audience: "author", title: "Group", ids: ["author/README", "author/x"] }, { audience: "author", title: "More pages", ids: ["author/y"] }]);
   assert.match(homeLayout("<p><strong>New here?</strong></p><h4>A</h4><p>a</p><ul><li>1</li></ul><h4>B</h4><ul><li>2</li></ul><p>end</p>"), /^<p class="primary">.*<div class="cards"><section class="card"><h4>A<\/h4>.*<\/section><section class="card"><h4>B<\/h4>.*<\/div><p>end<\/p>$/);
 });

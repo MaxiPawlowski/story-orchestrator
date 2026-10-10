@@ -1,5 +1,6 @@
 import type { Feature } from "./registry";
 import { settingsAt, studioAt } from "./where";
+import { authorGuideDoc } from "./guideLinks";
 
 export const IMAGE_FEATURES: readonly Feature[] = [
   {
@@ -7,7 +8,7 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",
     where: studioAt("#so-studio-modal", "Turning point › Effects"),
-    settings: [], guideTopic: "background", doc: "author/topics/background.md", status: "shipped",
+    settings: [], guideTopic: "background", doc: authorGuideDoc("background"), status: "shipped",
   },
   {
     id: "story-scenario", name: "Story scenario", area: "world", audience: "author",
@@ -15,7 +16,7 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     what: "A story can give a turning point a scenario: one short framing text that stands in for every member card's scenario in a group, and follows the "
       + "story as it moves. A scenario typed into the chat by hand is left alone. When a story sets none, the author view names the cards whose scenarios frame the chat.",
     where: studioAt("#so-studio-modal", "Turning point › Effects › Scenario"),
-    settings: [], guideTopic: "scenario", doc: "author/topics/scenario.md", status: "shipped", needs: ["group-chat", "story"],
+    settings: [], guideTopic: "scenario", doc: authorGuideDoc("scenario"), status: "shipped", needs: ["group-chat", "story"],
   },
   {
     id: "images", name: "Illustrations", area: "images", audience: "setup",

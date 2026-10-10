@@ -15,4 +15,4 @@ A player line that is wholly out of character (wrapped in `((…))`, or starting
 
 ---
 
-[Author's guide](README.md) · next: [Title, description and id](topics/story-basics.md)
+[Author's guide](README.md) · next: [The story as a whole](fields/story.md)

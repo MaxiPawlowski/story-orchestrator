@@ -111,7 +111,7 @@ describe("v2.7 plan 01 feature registry", () => {
     expect(new Set(ids).size).toBe(ids.length);
     for (const feature of FEATURES) {
       expect(FEATURE_AREAS).toContain(feature.area);
-      expect(feature.doc).toMatch(/^(player|author|setup)\/[A-Za-z0-9/-]+\.md$/);
+      expect(feature.doc).toMatch(/^(player|author|setup)\/[A-Za-z0-9/-]+\.md(?:#[a-z0-9-]+)?$/);
       expect(feature.oneLine.trim().length).toBeGreaterThan(0);
       expect(feature.what.trim().length).toBeGreaterThan(feature.oneLine.length / 2);
       if (feature.guideTopic) expect(GUIDE_TOPIC_IDS).toContain(feature.guideTopic);
@@ -119,12 +119,12 @@ describe("v2.7 plan 01 feature registry", () => {
   });
 
   it("points every feature's doc at a guide page that exists", () => {
-    const missing = FEATURES.filter((feature) => !existsSync(join(ROOT, "docs", "guide", feature.doc))).map((feature) => `${feature.id}: ${feature.doc}`);
+    const missing = FEATURES.filter((feature) => !existsSync(join(ROOT, "docs", "guide", feature.doc.split("#")[0]))).map((feature) => `${feature.id}: ${feature.doc}`);
     expect(missing).toEqual([]);
   });
 
   it("points every author's guide topic at a page that exists", () => {
-    expect(GUIDE_TOPIC_IDS.filter((topic) => !existsSync(join(ROOT, "docs", "guide", authorGuideDoc(topic))))).toEqual([]);
+    expect(GUIDE_TOPIC_IDS.filter((topic) => !existsSync(join(ROOT, "docs", "guide", authorGuideDoc(topic).split("#")[0])))).toEqual([]);
   });
 
   it("assigns every install-wide setting key to exactly one feature", () => {

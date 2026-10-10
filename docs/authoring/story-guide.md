@@ -2,7 +2,7 @@
 
 This guide is for the person who writes the story: the premise, the turning points, the cast and what has to be true to move on. It covers every field a format-2 story can carry, what each one does while someone plays, what a good one looks like, what a bad one looks like, and what goes wrong when it is missing or mistaken.
 
-You do not need to read it top to bottom. The Studio shows the matching section under "How to write this" on each editor, and the wizard's agent reads the same sections through its `readGuide` tool. Each section below is one guide topic; the marker under its heading is the topic's name.
+You do not need to read it top to bottom. The Studio shows the matching section under "How to write this" on each editor, and the wizard's agent reads the same sections through its `readGuide` tool. Each field section is one guide topic with a short id (`gates`, `roster`), the name the Studio and the wizard use for it.
 
 Where the guide says "the reading model" it means the memory model that reads the chat after each turn and fills in the story's qualities. Where it says "the judge" it means the small judgment model, which picks from lists. Where it says "the narrator" it means the model that writes the replies the player reads.
 

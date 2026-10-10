@@ -37,59 +37,32 @@ export const relativeHref = (fromId, target) => {
 
 const escapeHtml = (text) => text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 
-const HOME_IDS = ["README", "quick-start"];
-const HOME_LABELS = { README: "Home", "quick-start": "Quick start" };
-const PAGE_ORDER = [
-  "player/README", "player/playing", "player/drawer-and-hud", "player/memory", "player/troubleshooting",
-  "setup/README", "setup/models", "setup/memory-model", "setup/judge", "setup/images", "setup/sprites", "setup/harness", "setup/settings-reference",
-  "author/README", "author/step-by-step", "author/how-a-story-plays", "author/good-practices", "author/wizard", "author/studio", "author/macros-and-commands",
-];
+const HOME_LABELS = { README: "Home" };
 
-const orderOf = (page) => {
-  const at = PAGE_ORDER.indexOf(page.id);
-  return at < 0 ? PAGE_ORDER.length : at;
-};
-
-export const topicGroups = (pages) => {
-  const readme = pages.find((page) => page.id === "author/README");
-  if (!readme) return [];
-  const groups = [];
-  let group = null;
-  for (const line of readme.body.split("\n")) {
-    const heading = /^### (.+)$/.exec(line);
-    if (heading) groups.push(group = { title: heading[1].trim(), ids: [] });
-    const topic = /\]\(topics\/([a-z0-9-]+)\.md\)/.exec(line);
-    if (topic && group) group.ids.push(`author/topics/${topic[1]}`);
-  }
-  const listed = new Set(groups.flatMap((entry) => entry.ids));
-  const rest = pages.filter((page) => page.id.startsWith("author/topics/") && !listed.has(page.id)).map((page) => page.id);
-  return rest.length ? [...groups, { title: "More topics", ids: rest }] : groups;
-};
-
-const navLink = (currentId, page, label = page.title) => {
+const navLink = (currentId, page) => {
   const href = relativeHref(currentId, { id: page.id });
   const current = page.id === currentId ? ' aria-current="page"' : "";
+  const label = HOME_LABELS[page.id] ?? (page.id.endsWith("/README") ? "Overview" : page.title);
   return `<li><a href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a></li>`;
 };
 
-export const navFor = (pages, currentId) => {
+export const navSections = (pages, nav) => {
   const byId = new Map(pages.map((page) => [page.id, page]));
-  const home = HOME_IDS.filter((id) => byId.has(id)).map((id) => navLink(currentId, byId.get(id), HOME_LABELS[id])).join("");
-  const sections = AUDIENCE_ORDER.map((audience) => {
-    const items = pages
-      .filter((page) => page.audience === audience && !HOME_IDS.includes(page.id) && !page.id.includes("/topics/"))
-      .sort((a, b) => orderOf(a) - orderOf(b) || a.title.localeCompare(b.title));
-    let links = items.map((page) => navLink(currentId, page, page.id.endsWith("/README") ? "Overview" : page.title)).join("");
-    if (audience === "author") {
-      const groups = topicGroups(pages);
-      const count = groups.reduce((sum, group) => sum + group.ids.length, 0);
-      const open = currentId.startsWith("author/topics/") ? " open" : "";
-      const inner = groups.map((group) => `<li class="group">${escapeHtml(group.title)}</li>${group.ids.filter((id) => byId.has(id)).map((id) => navLink(currentId, byId.get(id))).join("")}`).join("");
-      if (count) links += `<li><details${open}><summary>Story fields (${count})</summary><ul>${inner}</ul></details></li>`;
-    }
-    return `<section><h2>${AUDIENCE_LABELS[audience]}</h2><ul>${links}</ul></section>`;
+  const placed = new Set();
+  const sections = nav.map((section) => ({ ...section, ids: section.ids.filter((id) => byId.has(id) && !placed.has(id) && placed.add(id)) }));
+  const rest = AUDIENCE_ORDER.map((audience) => ({ audience, title: "More pages", ids: pages.filter((page) => page.audience === audience && !placed.has(page.id)).map((page) => page.id) }));
+  return [...sections, ...rest].filter((section) => section.ids.length);
+};
+
+export const navFor = (pages, currentId, nav = []) => {
+  const byId = new Map(pages.map((page) => [page.id, page]));
+  const sections = navSections(pages, nav);
+  return AUDIENCE_ORDER.map((audience) => {
+    const own = sections.filter((section) => section.audience === audience);
+    if (!own.length) return "";
+    const inner = own.map((section) => `<details open><summary>${escapeHtml(section.title)}</summary><ul>${section.ids.map((id) => navLink(currentId, byId.get(id))).join("")}</ul></details>`).join("");
+    return `<section><h2>${AUDIENCE_LABELS[audience]}</h2>${inner}</section>`;
   }).join("");
-  return `<section><ul>${home}</ul></section>${sections}`;
 };
 
 export const homeLayout = (html) => {
@@ -148,7 +121,7 @@ const pageHtml = ({ title, nav, content, base, home }) => `<!doctype html>
 export async function buildSite({ out = SITE_OUT, homePage = "https://github.com/MaxiPawlowski/story-orchestrator" } = {}) {
   const build = compileRenderer();
   const load = (name) => import(pathToFileURL(join(build, name)).href);
-  const [{ GuideMarkdown }, { GUIDE_PAGES }, { plainText }, React, { renderToStaticMarkup }] = await Promise.all([
+  const [{ GuideMarkdown }, { GUIDE_NAV, GUIDE_PAGES }, { plainText }, React, { renderToStaticMarkup }] = await Promise.all([
     load("GuideMarkdown.mjs"), load("pages.generated.mjs"), load("markdown.mjs"), import("react"), import("react-dom/server"),
   ]);
   rmSync(out, { recursive: true, force: true });
@@ -168,7 +141,7 @@ export async function buildSite({ out = SITE_OUT, homePage = "https://github.com
     const shown = page.id === "README" ? homeLayout(content) : content;
     const target = join(out, file);
     mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, pageHtml({ title: page.title, nav: navFor(GUIDE_PAGES, page.id), content: shown, base, home: homePage }));
+    writeFileSync(target, pageHtml({ title: page.title, nav: navFor(GUIDE_PAGES, page.id, GUIDE_NAV), content: shown, base, home: homePage }));
     index.push({ id: page.id, title: page.title, url: file, text: plainText(page.body).replace(/\s+/g, " ").slice(0, 4000) });
   }
   writeFileSync(join(out, "search-index.json"), JSON.stringify(index));

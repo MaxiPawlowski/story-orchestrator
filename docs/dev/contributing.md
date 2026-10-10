@@ -48,8 +48,13 @@ that calls a model is not done until it ran against a real model in the browser.
 and the wizard read it), and `guideTopics.test.ts` fails when the two drift. `docs/guide/author/` is generated from it:
 
 ```bash
-npm run docs:guide      # rewrite docs/guide/author/*.md (except the hand-written studio, wizard and examples pages)
+npm run docs:guide      # rewrite the generated author pages and src/guide/pages.generated.ts
 ```
+
+The fields go on one page per group (`docs/guide/author/fields/<group>.md`), each topic a `##` section anchored by its
+id (`fields/moving-on.md#gates`). The groups live in `src/features/guideTopicGroups.json`, read by the split script and
+by `authorGuideDoc`, so a new topic needs a group or the split fails. The in-app reader's sidebar follows the guide's
+own index pages: the Play and Set up lists in `docs/guide/README.md` and the sections of the author README.
 
 `scripts/docs/split-guide.test.mjs` (part of `npm run test:release`) fails when the generated pages are stale.
 

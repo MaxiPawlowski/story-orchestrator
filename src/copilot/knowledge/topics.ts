@@ -15,7 +15,7 @@ export const GUIDE_PAGES_COVERED_ELSEWHERE: Readonly<Record<string, string>> = {
   "setup/settings-reference": "each setting is in its feature topic",
 };
 
-export const isCoveredElsewhere = (page: GuidePage): boolean => Object.hasOwn(GUIDE_PAGES_COVERED_ELSEWHERE, page.id) || page.id.startsWith("author/topics/");
+export const isCoveredElsewhere = (page: GuidePage): boolean => Object.hasOwn(GUIDE_PAGES_COVERED_ELSEWHERE, page.id) || page.id.startsWith("author/fields/");
 
 const flat = (text: string) => text.replace(/\s+/g, " ").trim();
 

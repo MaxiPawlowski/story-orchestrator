@@ -15,6 +15,12 @@ export interface GuidePage {
   body: string;
 }
 
+export interface GuideNavSection {
+  audience: GuideAudience;
+  title: string;
+  ids: string[];
+}
+
 export interface GuideTarget {
   id: string;
   anchor?: string;

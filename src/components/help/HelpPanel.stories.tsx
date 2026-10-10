@@ -7,8 +7,8 @@ import { HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 const HOME = "https://github.com/MaxiPawlowski/story-orchestrator";
 
 const TOPICS: HelpGuideTopic[] = [
-  { id: "tension", title: "Tension", text: "How a turning point declares the tension it aims for.", doc: "author/topics/tension.md" },
-  { id: "gates", title: "Gates", text: "What must be true before the story moves on.", doc: "author/topics/gates.md" },
+  { id: "tension", title: "Tension", text: "How a turning point declares the tension it aims for.", doc: "author/fields/scenes.md#tension" },
+  { id: "gates", title: "Gates", text: "What must be true before the story moves on.", doc: "author/fields/moving-on.md#gates" },
 ];
 
 const isOn = (feature: { id: string }) => (feature.id === "memory" ? true : feature.id === "chapters" ? false : null);
@@ -59,7 +59,7 @@ export const AuthorViewAddsTheRestAndTheGuide: Story = {
     await expect(canvasElement.querySelector('[data-so="help-feature"][data-audience="author"]')).not.toBeNull();
     const topic = canvasElement.querySelector('[data-so="help-guide-topic"][data-topic="tension"]') as HTMLElement;
     await userEvent.click(within(topic).getByText("Tension"));
-    await expect(within(topic).getByRole("link", { name: "Read more" })).toHaveAttribute("href", `${HOME}/blob/master/docs/guide/author/topics/tension.md`);
+    await expect(within(topic).getByRole("link", { name: "Read more" })).toHaveAttribute("href", `${HOME}/blob/master/docs/guide/author/fields/scenes.md#tension`);
   },
 };
 

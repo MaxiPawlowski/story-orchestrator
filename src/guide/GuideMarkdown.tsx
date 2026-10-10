@@ -62,7 +62,7 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetS
     switch (block.kind) {
       case "heading": {
         const Tag = HEADING_TAGS[Math.min(block.level, 6) - 1];
-        const id = headingDomId(slug(block.text));
+        const id = headingDomId(block.anchor ?? slug(block.text));
         return <Tag key={key} id={id} data-so="guide-heading" className="so-guide-heading font-semibold">{inline(block.children, key)}</Tag>;
       }
       case "paragraph": return <p key={key}>{inline(block.children, key)}</p>;

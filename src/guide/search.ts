@@ -1,5 +1,5 @@
 import { plainText } from "./markdown";
-import type { GuideAudience, GuidePage } from "./types";
+import type { GuideAudience, GuideNavSection, GuidePage } from "./types";
 
 export interface GuideHit {
   page: GuidePage;
@@ -48,8 +48,29 @@ export const searchGuide = (index: readonly GuideIndexEntry[], query: string): G
 
 export const AUDIENCE_ORDER: readonly GuideAudience[] = ["player", "setup", "author"];
 
-export const groupPages = (pages: readonly GuidePage[]): Array<{ audience: GuideAudience; pages: GuidePage[] }> => AUDIENCE_ORDER
-  .map((audience) => ({ audience, pages: pages.filter((page) => page.audience === audience).sort((a, b) => sectionRank(a) - sectionRank(b) || a.title.localeCompare(b.title)) }))
-  .filter((group) => group.pages.length > 0);
+export interface GuideNavGroup {
+  audience: GuideAudience;
+  sections: Array<{ title: string; pages: GuidePage[] }>;
+}
 
-const sectionRank = (page: GuidePage) => (page.id.endsWith("README") ? 0 : page.id.includes("/topics/") ? 2 : 1);
+export const NAV_MORE = "More pages";
+export const NAV_ALL = "Pages";
+
+const readmeFirst = (page: GuidePage) => (page.id.endsWith("README") ? 0 : 1);
+
+export const groupPages = (pages: readonly GuidePage[], nav: readonly GuideNavSection[] = []): GuideNavGroup[] => {
+  const byId = new Map(pages.map((page) => [page.id, page]));
+  const placed = new Set<string>();
+  const take = (id: string, audience: GuideAudience): GuidePage[] => {
+    const page = byId.get(id);
+    if (!page || page.audience !== audience || placed.has(id)) return [];
+    placed.add(id);
+    return [page];
+  };
+  return AUDIENCE_ORDER.map((audience) => {
+    const listed = nav.filter((section) => section.audience === audience).map((section) => ({ title: section.title, pages: section.ids.flatMap((id) => take(id, audience)) }));
+    const rest = pages.filter((page) => page.audience === audience && !placed.has(page.id)).sort((a, b) => readmeFirst(a) - readmeFirst(b) || a.title.localeCompare(b.title));
+    const sections = [...listed, { title: nav.length ? NAV_MORE : NAV_ALL, pages: rest }].filter((section) => section.pages.length > 0);
+    return { audience, sections };
+  }).filter((group) => group.sections.length > 0);
+};

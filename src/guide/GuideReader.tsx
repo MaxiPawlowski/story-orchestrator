@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { GUIDE_COPY } from "@features/helpCopy";
 import { GuideMarkdown, headingDomId } from "./GuideMarkdown";
 import { groupPages, indexPages, searchGuide, visiblePages } from "./search";
-import type { GuidePage, GuideTarget } from "./types";
+import type { GuideNavSection, GuidePage, GuideTarget } from "./types";
 
 export interface GuideReaderProps {
   pages: readonly GuidePage[];
+  nav?: readonly GuideNavSection[];
   authorView: boolean;
   homePage: string;
   target: GuideTarget | null;
@@ -17,10 +18,10 @@ export const HOME_ID = "README";
 
 const sameTarget = (a: GuideTarget | undefined, b: GuideTarget) => a?.id === b.id && a?.anchor === b.anchor;
 
-export function GuideReader({ pages, authorView, homePage, target, onTargetSeen, assetSrc }: GuideReaderProps) {
+export function GuideReader({ pages, nav: sections, authorView, homePage, target, onTargetSeen, assetSrc }: GuideReaderProps) {
   const shown = useMemo(() => visiblePages(pages, authorView), [pages, authorView]);
   const index = useMemo(() => indexPages(shown), [shown]);
-  const groups = useMemo(() => groupPages(shown), [shown]);
+  const groups = useMemo(() => groupPages(shown, sections), [shown, sections]);
   const [nav, setNav] = useState<{ history: GuideTarget[]; position: number }>(() => ({ history: [target ?? { id: HOME_ID }], position: 0 }));
   const { history, position } = nav;
   const [query, setQuery] = useState("");
@@ -69,22 +70,42 @@ export function GuideReader({ pages, authorView, homePage, target, onTargetSeen,
       </div>
       <select data-so="guide-nav-select" className="text_pole md:hidden" aria-label={GUIDE_COPY.pages} value={page?.id ?? ""}
         onChange={(event) => go({ id: event.target.value })}>
-        {groups.map((group) => (
-          <optgroup key={group.audience} label={GUIDE_COPY.audience[group.audience]}>
-            {group.pages.map((entry) => <option key={entry.id} value={entry.id}>{entry.title}</option>)}
+        {groups.flatMap((group) => group.sections.map((section) => (
+          <optgroup key={`${group.audience}:${section.title}`} label={`${GUIDE_COPY.audience[group.audience]}: ${section.title}`}>
+            {section.pages.map((entry) => <option key={entry.id} value={entry.id}>{entry.title}</option>)}
           </optgroup>
-        ))}
+        )))}
       </select>
       <div className="flex min-h-0 flex-1 gap-3">
-        <nav data-so="guide-nav" aria-label={GUIDE_COPY.pages} className="so-guide-nav hidden w-48 shrink-0 flex-col gap-2 overflow-y-auto md:flex">
+        <nav data-so="guide-nav" aria-label={GUIDE_COPY.pages} className="so-guide-nav hidden w-52 shrink-0 flex-col gap-2 overflow-y-auto md:flex">
           {groups.map((group) => (
-            <div key={group.audience} data-audience={group.audience} className="flex flex-col gap-0.5">
+            <div key={group.audience} data-audience={group.audience} className="flex flex-col gap-1">
               <div className="text-xs font-medium uppercase opacity-80">{GUIDE_COPY.audience[group.audience]}</div>
-              {group.pages.map((entry) => (
-                <button key={entry.id} type="button" data-so="guide-nav-item" data-page={entry.id} aria-current={entry.id === page?.id ? "page" : undefined}
-                  className={`so-guide-nav-item text-left text-xs ${entry.id === page?.id ? "font-semibold" : ""}`} onClick={() => go({ id: entry.id })}>
-                  {entry.title}
-                </button>
+              {group.sections.map((section) => (
+                <details key={section.title} open data-so="guide-nav-section" data-section={section.title}>
+                  <summary className="cursor-pointer text-xs opacity-80">{section.title}</summary>
+                  <div className="flex flex-col gap-0.5 pl-2">
+                    {section.pages.map((entry) => (
+                      <div key={entry.id} className="flex flex-col gap-0.5">
+                        <button type="button" data-so="guide-nav-item" data-page={entry.id} aria-current={entry.id === page?.id ? "page" : undefined}
+                          className={`so-guide-nav-item text-left text-xs ${entry.id === page?.id ? "font-semibold" : ""}`} onClick={() => go({ id: entry.id })}>
+                          {entry.title}
+                        </button>
+                        {entry.id === page?.id && entry.headings.some((heading) => heading.level === 2) && (
+                          <div data-so="guide-nav-outline" className="flex flex-col gap-0.5 pl-2">
+                            {entry.headings.filter((heading) => heading.level === 2).map((heading) => (
+                              <button key={heading.slug} type="button" data-so="guide-nav-heading" data-anchor={heading.slug}
+                                aria-current={current.anchor === heading.slug ? "location" : undefined}
+                                className="so-guide-nav-item text-left text-xs opacity-80" onClick={() => go({ id: entry.id, anchor: heading.slug })}>
+                                {heading.text}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </details>
               ))}
             </div>
           ))}
