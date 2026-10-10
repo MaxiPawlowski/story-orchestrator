@@ -31,7 +31,7 @@ everything on your machine. A use is sent to a provider only where it has been m
 
 ## Uses
 
-Every use is on by default except **House rules**. The ones marked *author* show only in Author view.
+Every use is on by default, House rules too (it is below its measured floor). The ones marked *author* show only in Author view.
 
 | Use | What it does | Sends |
 |---|---|---|
@@ -57,7 +57,7 @@ Every use is on by default except **House rules**. The ones marked *author* show
 ### How the defaults were chosen
 
 Every use was measured in English on 2026-10-01 against `jev-1.13.0`, each against a floor fixed before the run.
-Every use met its floor except House rules: on the Adolion saga's 8 rules it caught every broken
+Every use met its floor except House rules: on one story's 8 rules it caught every broken
 rule (18/18) and kept every kept one (10/10), but left untouched replies alone 165 of 172 times against a floor of
 0.966 (2026-10-02). Every use is on by default all the same, the unmeasured ones too (2026-10-09), so you see them in play; switch one off here. For house rules, prefer objective rules with one demand each; judgement rules that overlap (who
 voices whom, mystery vs secret) raise false alarms. A paragraph-count rule is checked in code instead. On any other
