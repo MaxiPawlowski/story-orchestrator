@@ -1,4 +1,5 @@
 import type { Feature, FeatureWhere } from "./registry";
+import { authorGuideDoc } from "./guideLinks";
 
 const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
 
@@ -44,6 +45,6 @@ export const GAME_FEATURES: readonly Feature[] = [
     what: "A quest's status comes from the story's own state, never from a stored list, so a swipe or a reopened chat shows the same quests. "
       + "A check rolls a seeded die once per visit; a reward switches lore or cast once and is taken back when the reply that earned it is.",
     where: { selector: "#so-studio-modal", label: "Studio › Game", surface: "studio" },
-    settings: [], guideTopic: "quests", doc: "author/topics/quests.md", status: "experimental", needs: ["story"],
+    settings: [], guideTopic: "quests", doc: authorGuideDoc("quests"), status: "experimental", needs: ["story"],
   },
 ];

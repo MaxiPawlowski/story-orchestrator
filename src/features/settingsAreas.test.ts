@@ -29,7 +29,7 @@ describe("v2.7 plan 29 settings by area", () => {
     for (const area of FEATURE_AREAS) {
       const copy = SETTINGS_AREA_COPY[area];
       expect([area, copy.oneLine.trim().length > 10]).toEqual([area, true]);
-      expect([area, existsSync(join(ROOT, "docs", "guide", copy.doc))]).toEqual([area, true]);
+      expect([area, existsSync(join(ROOT, "docs", "guide", copy.doc.split("#")[0]))]).toEqual([area, true]);
       expect(jargonIn(`${copy.label} ${copy.oneLine}`)).toEqual([]);
       expect(settingsGuideLabel(area)).toBe(`Read the guide: ${copy.label}`);
     }

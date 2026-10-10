@@ -1,0 +1,10 @@
+[
+ { "page": "story", "title": "The story as a whole", "topics": ["story-basics", "briefing", "player", "arc-template", "requirements"] },
+ { "page": "characters", "title": "Characters", "topics": ["roster", "drives-motives", "talk-control", "character-life", "living-cards"] },
+ { "page": "tracking", "title": "What the story tracks", "topics": ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"] },
+ { "page": "scenes", "title": "Scenes", "topics": ["checkpoints", "objective-agency", "open-stretches", "tension", "opening-scene"] },
+ { "page": "scene-effects", "title": "What a scene changes", "topics": ["guidance", "author-note", "world-info", "preset", "background", "scenario", "cast-changes", "npc-replies", "experimental-effects"] },
+ { "page": "moving-on", "title": "Moving between scenes", "topics": ["gates", "transitions", "convergence", "arc-bridges", "branching", "living-director"] },
+ { "page": "lore-and-memory", "title": "Lore and memory", "topics": ["stagecraft", "lore-select", "scene-read", "house-rules", "chapters"] },
+ { "page": "game-layer", "title": "Game layer and display", "topics": ["presentation", "quests", "checks", "widgets", "clues-and-maps", "html-panels"] }
+]

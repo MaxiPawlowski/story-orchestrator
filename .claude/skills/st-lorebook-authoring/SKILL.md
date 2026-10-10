@@ -220,7 +220,7 @@ Details: scripting-and-api.md.
 - `references/activation-internals.md`: the scan step by step, with line references (buffer, gate
   order, groups, budget, recursion, placement, timed effects, events). Open it when behaviour surprises
   you.
-- `docs/authoring/lorebook-mechanics.md`: the source-verified capability reference (ST 1.19.0) and how
+- `docs/guide/author/lorebook-mechanics.md`: the source-verified capability reference (ST 1.19.0) and how
   Story Orchestrator layers on top (story-scoped lore, gating modes, lore select, mirror, curator). It
   wins over this skill and the vendored docs where they disagree (its §16).
 - `references/troubleshooting.md`: the console log dictionary, a dry-run recipe, and tables for

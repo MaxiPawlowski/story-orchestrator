@@ -18,7 +18,7 @@ export interface ListBlock {
 }
 
 export type Block =
-  | { kind: "heading"; level: number; children: Inline[]; text: string }
+  | { kind: "heading"; level: number; children: Inline[]; text: string; anchor?: string }
   | { kind: "paragraph"; children: Inline[] }
   | { kind: "code"; text: string }
   | { kind: "quote"; children: Inline[] }
@@ -131,6 +131,7 @@ export const inlineText = (nodes: Inline[]): string => nodes.map((node) => {
 
 const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const HEADING = /^(#{1,6})\s+(.*?)\s*#*\s*$/;
+export const ANCHOR = /^<a id="([a-z0-9-]+)"><\/a>$/;
 const RULE = /^\s*([-*_])(\s*\1){2,}\s*$/;
 const TABLE_SEPARATOR = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
 
@@ -199,9 +200,14 @@ export const parseMarkdown = (source: string): Block[] => {
   const lines = source.replace(/\r\n/g, "\n").replace(/<!--[\s\S]*?-->/g, "").split("\n");
   const blocks: Block[] = [];
   let index = 0;
+  let anchor: string | undefined;
   while (index < lines.length) {
     const line = lines[index];
     if (!line.trim()) { index += 1; continue; }
+    const named = ANCHOR.exec(line.trim());
+    if (named) { anchor = named[1]; index += 1; continue; }
+    const pending = anchor;
+    anchor = undefined;
     if (line.startsWith("```")) {
       const end = lines.findIndex((candidate, at) => at > index && candidate.startsWith("```"));
       const stop = end < 0 ? lines.length : end;
@@ -212,7 +218,7 @@ export const parseMarkdown = (source: string): Block[] => {
     const heading = HEADING.exec(line);
     if (heading) {
       const children = parseInline(heading[2]);
-      blocks.push({ kind: "heading", level: heading[1].length, children, text: heading[2] });
+      blocks.push({ kind: "heading", level: heading[1].length, children, text: heading[2], ...(pending ? { anchor: pending } : {}) });
       index += 1;
       continue;
     }

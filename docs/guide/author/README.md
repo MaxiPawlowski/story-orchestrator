@@ -4,7 +4,7 @@
 
 This guide is for the person who writes the story: the premise, the turning points, the cast and what has to be true to move on. It covers every field a format-2 story can carry, what each one does while someone plays, what a good one looks like, what a bad one looks like, and what goes wrong when it is missing or mistaken.
 
-You do not need to read it top to bottom. The Studio shows the matching section under "How to write this" on each editor, and the wizard's agent reads the same sections through its `readGuide` tool. Each section below is one guide topic; the marker under its heading is the topic's name.
+You do not need to read it top to bottom. The Studio shows the matching section under "How to write this" on each editor, and the wizard's agent reads the same sections through its `readGuide` tool. Each field section is one guide topic with a short id (`gates`, `roster`), the name the Studio and the wizard use for it.
 
 Where the guide says "the reading model" it means the memory model that reads the chat after each turn and fills in the story's qualities. Where it says "the judge" it means the small judgment model, which picks from lists. Where it says "the narrator" it means the model that writes the replies the player reads.
 
@@ -19,79 +19,70 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 - [Checkpoint Studio](studio.md): the visual editor: tabs, diagnostics, saving to the library.
 - [The setup wizard](wizard.md): from a premise to a playable story, and what it creates on your install.
+
+## Reference
+
 - [Macros and slash commands](macros-and-commands.md): story values in your cards and prompts, and the author commands.
+- [Lorebook mechanics](lorebook-mechanics.md): how SillyTavern runs World Info, checked against its code, and what a story adds on top.
 
-## The fields, one page per topic (46)
+## Story fields
 
-### The story as a whole
+Every field a story can carry: 46 topics on 8 pages, from the story as a whole down to the game layer.
 
-- [Title, description and id](topics/story-basics.md) (`story-basics`)
-- [Briefing](topics/briefing.md) (`briefing`)
-- [Who the player is](topics/player.md) (`player`)
-- [Dramatic shape](topics/arc-template.md) (`arc-template`)
-- [Requirements](topics/requirements.md) (`requirements`)
-
-### Characters
-
-- [Cast](topics/roster.md) (`roster`)
-- [Drives and motives](topics/drives-motives.md) (`drives-motives`)
-- [Speaker direction](topics/talk-control.md) (`talk-control`)
-- [Character life](topics/character-life.md) (`character-life`)
-- [Living cards](topics/living-cards.md) (`living-cards`)
-
-### What the story tracks
-
-- [Qualities](topics/qualities.md) (`qualities`)
-- [Rubrics](topics/quality-rubric.md) (`quality-rubric`)
-- [Latching and monotonic](topics/latching.md) (`latching`)
-- [How a quality is read](topics/quality-reads.md) (`quality-reads`)
-- [Chance rolls](topics/chance-roll.md) (`chance-roll`)
-
-### Scenes
-
-- [Checkpoints](topics/checkpoints.md) (`checkpoints`)
-- [Objectives and player agency](topics/objective-agency.md) (`objective-agency`)
-- [Open stretches](topics/open-stretches.md) (`open-stretches`)
-- [Tension targets](topics/tension.md) (`tension`)
-- [The opening scene](topics/opening-scene.md) (`opening-scene`)
-
-### What a scene changes
-
-- [Narrator guidance](topics/guidance.md) (`guidance`)
-- [Author's note](topics/author-note.md) (`author-note`)
-- [Beat lore](topics/world-info.md) (`world-info`)
-- [Preset](topics/preset.md) (`preset`)
-- [Background](topics/background.md) (`background`)
-- [Scenario](topics/scenario.md) (`scenario`)
-- [Cast changes](topics/cast-changes.md) (`cast-changes`)
-- [NPC replies](topics/npc-replies.md) (`npc-replies`)
-- [Experimental effects](topics/experimental-effects.md) (`experimental-effects`)
-
-### Moving between scenes
-
-- [Gates](topics/gates.md) (`gates`)
-- [Transitions](topics/transitions.md) (`transitions`)
-- [Convergence](topics/convergence.md) (`convergence`)
-- [Thread bridges](topics/arc-bridges.md) (`arc-bridges`)
-- [Living stories](topics/living-director.md) (`living-director`)
-- [Branches that follow the player](topics/branching.md) (`branching`)
-
-### Lore and memory
-
-- [Curator scope](topics/stagecraft.md) (`stagecraft`)
-- [Lore select](topics/lore-select.md) (`lore-select`)
-- [Scene places and times](topics/scene-read.md) (`scene-read`)
-- [House rules](topics/house-rules.md) (`house-rules`)
-- [Chapters](topics/chapters.md) (`chapters`)
-
-### Game layer and display
-
-- [Illustrations and display](topics/presentation.md) (`presentation`)
-- [Quests and milestones](topics/quests.md) (`quests`)
-- [Checks](topics/checks.md) (`checks`)
-- [Stats and story panels](topics/widgets.md) (`widgets`)
-- [Clue walls and maps](topics/clues-and-maps.md) (`clues-and-maps`)
-- [Story-made HTML panels](topics/html-panels.md) (`html-panels`)
+- [The story as a whole](fields/story.md)
+  - [Title, description and id](fields/story.md#story-basics) (`story-basics`)
+  - [Briefing](fields/story.md#briefing) (`briefing`)
+  - [Who the player is](fields/story.md#player) (`player`)
+  - [Dramatic shape](fields/story.md#arc-template) (`arc-template`)
+  - [Requirements](fields/story.md#requirements) (`requirements`)
+- [Characters](fields/characters.md)
+  - [Cast](fields/characters.md#roster) (`roster`)
+  - [Drives and motives](fields/characters.md#drives-motives) (`drives-motives`)
+  - [Speaker direction](fields/characters.md#talk-control) (`talk-control`)
+  - [Character life](fields/characters.md#character-life) (`character-life`)
+  - [Living cards](fields/characters.md#living-cards) (`living-cards`)
+- [What the story tracks](fields/tracking.md)
+  - [Qualities](fields/tracking.md#qualities) (`qualities`)
+  - [Rubrics](fields/tracking.md#quality-rubric) (`quality-rubric`)
+  - [Latching and monotonic](fields/tracking.md#latching) (`latching`)
+  - [How a quality is read](fields/tracking.md#quality-reads) (`quality-reads`)
+  - [Chance rolls](fields/tracking.md#chance-roll) (`chance-roll`)
+- [Scenes](fields/scenes.md)
+  - [Checkpoints](fields/scenes.md#checkpoints) (`checkpoints`)
+  - [Objectives and player agency](fields/scenes.md#objective-agency) (`objective-agency`)
+  - [Open stretches](fields/scenes.md#open-stretches) (`open-stretches`)
+  - [Tension targets](fields/scenes.md#tension) (`tension`)
+  - [The opening scene](fields/scenes.md#opening-scene) (`opening-scene`)
+- [What a scene changes](fields/scene-effects.md)
+  - [Narrator guidance](fields/scene-effects.md#guidance) (`guidance`)
+  - [Author's note](fields/scene-effects.md#author-note) (`author-note`)
+  - [Beat lore](fields/scene-effects.md#world-info) (`world-info`)
+  - [Preset](fields/scene-effects.md#preset) (`preset`)
+  - [Background](fields/scene-effects.md#background) (`background`)
+  - [Scenario](fields/scene-effects.md#scenario) (`scenario`)
+  - [Cast changes](fields/scene-effects.md#cast-changes) (`cast-changes`)
+  - [NPC replies](fields/scene-effects.md#npc-replies) (`npc-replies`)
+  - [Experimental effects](fields/scene-effects.md#experimental-effects) (`experimental-effects`)
+- [Moving between scenes](fields/moving-on.md)
+  - [Gates](fields/moving-on.md#gates) (`gates`)
+  - [Transitions](fields/moving-on.md#transitions) (`transitions`)
+  - [Convergence](fields/moving-on.md#convergence) (`convergence`)
+  - [Thread bridges](fields/moving-on.md#arc-bridges) (`arc-bridges`)
+  - [Branches that follow the player](fields/moving-on.md#branching) (`branching`)
+  - [Living stories](fields/moving-on.md#living-director) (`living-director`)
+- [Lore and memory](fields/lore-and-memory.md)
+  - [Curator scope](fields/lore-and-memory.md#stagecraft) (`stagecraft`)
+  - [Lore select](fields/lore-and-memory.md#lore-select) (`lore-select`)
+  - [Scene places and times](fields/lore-and-memory.md#scene-read) (`scene-read`)
+  - [House rules](fields/lore-and-memory.md#house-rules) (`house-rules`)
+  - [Chapters](fields/lore-and-memory.md#chapters) (`chapters`)
+- [Game layer and display](fields/game-layer.md)
+  - [Illustrations and display](fields/game-layer.md#presentation) (`presentation`)
+  - [Quests and milestones](fields/game-layer.md#quests) (`quests`)
+  - [Checks](fields/game-layer.md#checks) (`checks`)
+  - [Stats and story panels](fields/game-layer.md#widgets) (`widgets`)
+  - [Clue walls and maps](fields/game-layer.md#clues-and-maps) (`clues-and-maps`)
+  - [Story-made HTML panels](fields/game-layer.md#html-panels) (`html-panels`)
 
 ## For contributors
 

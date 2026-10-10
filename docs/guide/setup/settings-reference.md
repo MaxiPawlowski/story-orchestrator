@@ -58,7 +58,7 @@ The memory model that reads the chat, and what the story remembers. [More](../se
 
 ## Characters
 
-Who answers your messages in a group, and how many at once. [More](../author/topics/talk-control.md)
+Who answers your messages in a group, and how many at once. [More](../author/fields/characters.md#talk-control)
 
 | Setting | Where | What it does | Default | Key |
 |---|---|---|---|---|
@@ -72,7 +72,7 @@ Who answers your messages in a group, and how many at once. [More](../author/top
 
 ## World
 
-How a story's lorebooks are switched on, and the lorebook helper. [More](../author/topics/world-info.md)
+How a story's lorebooks are switched on, and the lorebook helper. [More](../author/fields/scene-effects.md#world-info)
 
 | Setting | Where | What it does | Default | Key |
 |---|---|---|---|---|

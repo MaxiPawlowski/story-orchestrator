@@ -1,4 +1,5 @@
 import type { Feature, FeatureWhere } from "./registry";
+import { authorGuideDoc } from "./guideLinks";
 
 const settingsAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Settings › ${label}`, surface: "settings" });
 const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
@@ -90,6 +91,6 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Free play between two turning points, with no task.",
     what: "An open bridge scene has no goal line. After a few turns the world points toward the next place; the player leaves by their own move.",
     where: { selector: "#so-studio-modal", label: "Studio › Checkpoints", surface: "studio" },
-    settings: [], guideTopic: "open-stretches", doc: "author/topics/open-stretches.md", status: "experimental", needs: ["story"],
+    settings: [], guideTopic: "open-stretches", doc: authorGuideDoc("open-stretches"), status: "experimental", needs: ["story"],
   },
 ];

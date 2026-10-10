@@ -1,4 +1,5 @@
 import type { FeatureArea } from "./registry";
+import { authorGuideDoc } from "./guideLinks";
 
 export interface SettingCopy {
   label: string;
@@ -364,8 +365,8 @@ export interface SettingsAreaCopy {
 export const SETTINGS_AREA_COPY: Record<FeatureArea, SettingsAreaCopy> = {
   play: { label: "Playing", oneLine: "Which story this chat plays, and what you see while you play.", doc: "player/playing.md" },
   memory: { label: "Memory", oneLine: "The memory model that reads the chat, and what the story remembers.", doc: "setup/memory-model.md" },
-  characters: { label: "Characters", oneLine: "Who answers your messages in a group, and how many at once.", doc: "author/topics/talk-control.md" },
-  world: { label: "World", oneLine: "How a story's lorebooks are switched on, and the lorebook helper.", doc: "author/topics/world-info.md" },
+  characters: { label: "Characters", oneLine: "Who answers your messages in a group, and how many at once.", doc: authorGuideDoc("talk-control") },
+  world: { label: "World", oneLine: "How a story's lorebooks are switched on, and the lorebook helper.", doc: authorGuideDoc("world-info") },
   images: { label: "Images", oneLine: "Optional pictures and character sprites; both need your own image setup.", doc: "setup/images.md" },
   judge: { label: "Judge", oneLine: "An optional fast model for small choices; it never blocks a reply.", doc: "setup/judge.md" },
   authoring: { label: "Authoring", oneLine: "Tools for writing stories.", doc: "author/README.md" },

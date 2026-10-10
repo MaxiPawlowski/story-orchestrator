@@ -8,6 +8,7 @@ import { LIVING_FEATURES } from "./livingFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { chatAt, drawerAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
+import { authorGuideDoc } from "./guideLinks";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
@@ -159,7 +160,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
     where: settingsAt("#so-pacing-hint", "Playing › Pacing"),
-    settings: ["pacing"], guideTopic: "tension", doc: "author/topics/tension.md", status: "shipped", needs: ["story"],
+    settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
     isOn: (settings) => settings.pacing.hintEnabled,
   },
   {
@@ -198,7 +199,7 @@ const CORE_FEATURES: readonly Feature[] = [
       + "the next reply's prompt restates that fact once, after your approval or on its own.",
     where: settingsAt("#so-warden-enabled", "Memory › Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
-    doc: "author/topics/house-rules.md", status: "shipped", needs: ["judge-plugin"],
+    doc: authorGuideDoc("house-rules"), status: "shipped", needs: ["judge-plugin"],
     isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
   },
   {
@@ -222,7 +223,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Tracks who knows what, so characters do not know things they never saw.",
     what: "The memory model also notes what each character knows, suspects or hides. Each character's prompt carries only its own knowledge, so secrets stay secret.",
     where: settingsAt("#so-epistemic-capable", "Memory › Advanced › Track what each character knows"),
-    settings: ["memory.epistemicLedgerCapable"], doc: "author/topics/drives-motives.md", status: "shipped", needs: ["memory-profile"],
+    settings: ["memory.epistemicLedgerCapable"], doc: authorGuideDoc("drives-motives"), status: "shipped", needs: ["memory-profile"],
     isOn: (settings) => settings.memory.epistemicLedgerCapable,
   },
   {
@@ -231,7 +232,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
       + "character. It can also read a reply's reasoning for what the character intends.",
     where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
-    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: "author/topics/drives-motives.md", status: "shipped",
+    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: authorGuideDoc("drives-motives"), status: "shipped",
     needs: ["memory-profile", "author-view"],
     isOn: (settings) => settings.memory.innerBeat === true || settings.memory.harvestReasoning === true,
   },
@@ -240,21 +241,21 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Story lorebook entries switch on and off as the story moves.",
     what: "A story can switch lorebook entries on at a turning point. Per chat keeps each chat's entries separate; file writes change the lorebook files themselves.",
     where: settingsAt("#so-wi-gating-mode", "World › Lorebooks"),
-    settings: ["worldInfo.gatingMode", "worldInfo.normalized", "worldInfo.normalizedFrom"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped",
+    settings: ["worldInfo.gatingMode", "worldInfo.normalized", "worldInfo.normalizedFrom"], guideTopic: "world-info", doc: authorGuideDoc("world-info"), status: "shipped",
   },
   {
     id: "story-lorebooks", name: "Story lorebooks", area: "world", audience: "author",
     oneLine: "A story's lorebooks load only in the chats that play it.",
     what: "The lorebooks a story lists are added to its own chats, so two stories never share lore. A story lorebook still switched on for every chat is flagged in Repair.",
     where: settingsAt("#so-lorebooks-header", "World › Lorebooks"),
-    settings: ["worldInfo.keptGlobal"], guideTopic: "requirements", doc: "author/topics/requirements.md", status: "shipped",
+    settings: ["worldInfo.keptGlobal"], guideTopic: "requirements", doc: authorGuideDoc("requirements"), status: "shipped",
   },
   {
     id: "memory-lore", name: "Memory can trigger lore", area: "world", audience: "author",
     oneLine: "Established facts and scene history can activate lorebook entries.",
     what: "Facts, scene history and the current guidance join each lorebook scan, so an entry whose keys they mention activates. Private knowledge never joins.",
     where: settingsAt("#so-wi-scan-memory", "World › Lorebooks"),
-    settings: ["worldInfo.scanMemory"], doc: "author/topics/world-info.md", status: "shipped",
+    settings: ["worldInfo.scanMemory"], doc: authorGuideDoc("world-info"), status: "shipped",
     isOn: (settings) => settings.worldInfo.scanMemory,
   },
   {
@@ -263,7 +264,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "Story lorebook entries that activate by keyword or lore select land a few messages from the end of the chat instead of beside the character card, "
       + "with the same text and order. Per chat gating only; a story can keep its authored positions with lore_select.position.",
     where: settingsAt("#so-wi-late-lore", "World › Lorebooks"),
-    settings: ["worldInfo.lateLore", "worldInfo.lateLoreDepth"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped",
+    settings: ["worldInfo.lateLore", "worldInfo.lateLoreDepth"], guideTopic: "world-info", doc: authorGuideDoc("world-info"), status: "shipped",
     isOn: (settings) => settings.worldInfo.lateLore,
   },
   {
@@ -271,7 +272,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. It touches only the lorebooks the story lists, and never progress or memory.",
     where: settingsAt("#so-curator-enabled", "World › Background helpers"),
-    settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
+    settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
   },
@@ -282,7 +283,7 @@ const CORE_FEATURES: readonly Feature[] = [
       + "Each one waits for you, can be edited first, names any entry that already reads as the same thing so you can patch that one instead, counts against the story's limit per chat, "
       + "and a rollback deletes it unless you changed it. A written entry is stamped with its chat; deleting that chat asks whether to delete its entries too. Its model is the Lore creation task.",
     where: settingsAt("#so-curator-create", "World › Background helpers"),
-    settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
+    settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.createEnabled && settings.stagecraft.acceptMode !== "off",
   },
@@ -292,7 +293,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
       + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
     where: settingsAt("#so-curator-accept-mode", "World › Background helpers"),
-    settings: [], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
+    settings: [], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
   },
   ...IMAGE_FEATURES,
@@ -319,7 +320,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Writes the scenes between two turning points before play gets there.",
     what: "Where a story leaves a gap, the story model writes outline beats to fill it. The judge can write several outlines and keep the best.",
     where: settingsAt("#so-judge-expansion-variants", "Judge › Outlines for the road ahead"),
-    settings: ["judge.expansion"], guideTopic: "convergence", doc: "author/topics/convergence.md", status: "shipped", needs: ["memory-profile", "author-view"],
+    settings: ["judge.expansion"], guideTopic: "convergence", doc: authorGuideDoc("convergence"), status: "shipped", needs: ["memory-profile", "author-view"],
   },
   {
     id: "studio", name: "Studio", area: "authoring", audience: "author",

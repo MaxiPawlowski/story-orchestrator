@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ASSET_MAX_BYTES, assetPath, brokenLinks, buildAssets, buildGuide, GUIDE_OUT, headingsOf, imageProblems, leaksIn, render, slugify } from "./guide-bundle.mjs";
+import { ASSET_MAX_BYTES, assetPath, brokenLinks, buildAssets, buildGuide, buildNav, GUIDE_OUT, headingsOf, imageProblems, leaksIn, NAV_MORE, render, slugify } from "./guide-bundle.mjs";
 
 test("the bundled guide is current: run `npm run docs:guide` after editing docs/guide", () => {
   assert.equal(readFileSync(GUIDE_OUT, "utf8").replace(/\r\n/g, "\n"), render(buildGuide()));
@@ -9,7 +9,7 @@ test("the bundled guide is current: run `npm run docs:guide` after editing docs/
 
 test("every page has a title, a known audience and a unique id", () => {
   const pages = buildGuide();
-  assert.ok(pages.length >= 50);
+  assert.ok(pages.length >= 30);
   assert.equal(new Set(pages.map((page) => page.id)).size, pages.length);
   for (const page of pages) {
     assert.ok(page.title && page.title !== page.doc, page.doc);
@@ -29,6 +29,26 @@ test("a link to a missing page or heading is reported", () => {
 test("heading slugs follow GitHub: code marks and punctuation dropped, repeats numbered", () => {
   assert.equal(slugify("The `/story` command"), "the-story-command");
   assert.deepEqual(headingsOf("# A\n## Same\n```\n# not\n```\n## Same").map((h) => h.slug), ["a", "same", "same-1"]);
+});
+
+test("an <a id> line above a heading names that heading's anchor, and only that heading's", () => {
+  assert.deepEqual(headingsOf('<a id="gates"></a>\n\n## Gates and exits\n\n## Same\n<a id="x"></a>\ntext\n## Same').map((h) => h.slug), ["gates", "same", "same-1"]);
+});
+
+test("the nav places every page once, README first, in the guide's own sections and order", () => {
+  const pages = buildGuide();
+  const nav = buildNav(pages);
+  const ids = nav.flatMap((section) => section.ids);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.deepEqual([...ids].sort(), pages.map((page) => page.id).sort());
+  assert.deepEqual(nav.map((section) => `${section.audience}:${section.title}`), ["player:Start here", "player:Play", "setup:Set up", "author:Start here", "author:Tools", "author:Reference", "author:Story fields"]);
+  assert.deepEqual(nav.map((section) => section.ids[0]).filter((id) => id.endsWith("README")), ["README", "player/README", "setup/README", "author/README"]);
+  for (const section of nav) assert.ok(section.ids.every((id) => pages.find((page) => page.id === id).audience === section.audience), section.title);
+});
+
+test("control: a page no index lists lands in More pages", () => {
+  const pages = [...buildGuide(), { id: "setup/stray", doc: "setup/stray.md", audience: "setup", title: "Stray", headings: [], body: "" }];
+  assert.deepEqual(buildNav(pages).find((section) => section.title === NAV_MORE), { audience: "setup", title: NAV_MORE, ids: ["setup/stray"] });
 });
 
 test("the shipped guide names no machine path, internal plan or private evidence", () => {
