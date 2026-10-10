@@ -92,12 +92,13 @@ export class ExtractionCoordinator {
   scopeContext(): ScopeSourceContext {
     const story = this.deps.getStory();
     const owners = cardScopeOwners(story, this.deps.hosts.roster);
-    return { owners, cursor: this.state.cardScopeCursor ?? 0, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster), rotation: this.deps.getState()?.boundary ?? 0 };
+    return { owners, cursor: this.state.cardScopeCursor ?? 0, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster), rotation: this.state.scopeReads ?? 0 };
   }
 
   cardScope(): ScopeSourceContext {
     const context = this.scopeContext();
     if (Object.keys(this.deps.getStory()?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = (context.cursor ?? 0) + 4;
+    this.state.scopeReads = (context.rotation ?? 0) + 1;
     return context;
   }
 

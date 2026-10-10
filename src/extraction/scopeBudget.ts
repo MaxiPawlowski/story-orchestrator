@@ -1,16 +1,22 @@
-export const SCOPE_EXTRA_BUDGET = 5;
+export const SCOPE_EXTRA_TOKENS = 250;
 
 export interface BudgetTier {
-  keys: readonly string[];
-  rotate?: boolean;
-  cap?: number;
+  units: readonly (readonly string[])[];
+  group?: string;
+}
+
+export interface SharedCost {
+  keys: ReadonlySet<string>;
+  cost: number;
 }
 
 export interface ScopeBudgetInput {
   free: ReadonlySet<string>;
   tiers: readonly BudgetTier[];
   slots: number;
-  rotation?: number;
+  cost?: (key: string) => number;
+  caps?: Readonly<Record<string, number>>;
+  shared?: readonly SharedCost[];
 }
 
 export interface ScopeBudgetResult {
@@ -19,26 +25,39 @@ export interface ScopeBudgetResult {
   used: number;
 }
 
-const window = (keys: string[], size: number, start: number): Set<string> =>
-  new Set(Array.from({ length: Math.min(size, keys.length) }, (_, at) => keys[(start + at) % keys.length]));
+const unitCost = (keys: readonly string[], cost: (key: string) => number, shared: readonly SharedCost[], paidShared: ReadonlySet<SharedCost>) =>
+  keys.reduce((sum, key) => sum + cost(key), 0) + shared.filter((entry) => !paidShared.has(entry) && keys.some((key) => entry.keys.has(key))).reduce((sum, entry) => sum + entry.cost, 0);
 
-export const fitScopeBudget = ({ free, tiers, slots, rotation = 0 }: ScopeBudgetInput): ScopeBudgetResult => {
+export const fitScopeBudget = ({ free, tiers, slots, cost = () => 1, caps = {}, shared = [] }: ScopeBudgetInput): ScopeBudgetResult => {
   const taken = new Set(free);
-  let left = Math.max(0, Math.floor(slots));
+  const total = Math.max(0, slots);
+  let left = total;
+  const paidShared = new Set(shared.filter((entry) => [...free].some((key) => entry.keys.has(key))));
+  const groupUsed = new Map<string, number>();
   const kept: string[][] = [];
   const dropped: string[][] = [];
   for (const tier of tiers) {
-    const payable = [...new Set(tier.keys)].filter((key) => !taken.has(key));
-    const room = Math.min(left, tier.cap === undefined ? left : Math.max(0, Math.floor(tier.cap)));
-    const start = tier.rotate && payable.length > room && room > 0 ? (Math.max(0, Math.floor(rotation)) * room) % payable.length : 0;
-    const paid = payable.length <= room ? new Set(payable) : window(payable, room, start);
-    left -= paid.size;
-    kept.push(tier.keys.filter((key) => taken.has(key) || paid.has(key)));
-    dropped.push(tier.keys.filter((key) => !taken.has(key) && !paid.has(key)));
-    paid.forEach((key) => taken.add(key));
+    const cap = tier.group !== undefined && caps[tier.group] !== undefined ? Math.max(0, Math.floor(caps[tier.group])) : Infinity;
+    for (const unit of tier.units) {
+      const payable = [...new Set(unit)].filter((key) => !taken.has(key));
+      if (!payable.length) continue;
+      const used = tier.group === undefined ? 0 : groupUsed.get(tier.group) ?? 0;
+      const price = unitCost(payable, cost, shared, paidShared);
+      if (used + payable.length > cap || price > left) continue;
+      left -= price;
+      if (tier.group !== undefined) groupUsed.set(tier.group, used + payable.length);
+      shared.filter((entry) => payable.some((key) => entry.keys.has(key))).forEach((entry) => paidShared.add(entry));
+      payable.forEach((key) => taken.add(key));
+    }
+    const keys = [...new Set(tier.units.flat())];
+    kept.push(keys.filter((key) => taken.has(key)));
+    dropped.push(keys.filter((key) => !taken.has(key)));
   }
-  return { kept, dropped, used: Math.max(0, Math.floor(slots)) - left };
+  return { kept, dropped, used: total - left };
 };
 
-export const scopeSlots = (free: ReadonlySet<string>, baseline: readonly string[], extra = SCOPE_EXTRA_BUDGET): number =>
-  new Set(baseline.filter((key) => !free.has(key))).size + extra;
+export const scopeSlots = (free: ReadonlySet<string>, baseline: readonly string[], cost: (key: string) => number = () => 1, extra = SCOPE_EXTRA_TOKENS): number =>
+  [...new Set(baseline.filter((key) => !free.has(key)))].reduce((sum, key) => sum + cost(key), 0) + extra;
+
+export const rotated = <T>(items: readonly T[], start: number): T[] =>
+  items.length ? items.map((_, at) => items[(Math.max(0, Math.floor(start)) + at) % items.length]) : [];
