@@ -15,7 +15,9 @@ for (const profile of localProfiles) {
 const memoryProfile = localProfiles.find((row) => row.name === 'Story Orchestrator Memory Unsloth');
 if (!memoryProfile) throw new Error('memory profile missing');
 
-const so = ext['story-orchestrator'].settings;
+const so = ((ext['story-orchestrator'] ??= {}).settings ??= {});
+so.extraction ??= {};
+so.image ??= {};
 before.extraction = JSON.parse(JSON.stringify(so.extraction));
 so.extraction.profileId = memoryProfile.id;
 for (const role of Object.keys(so.extraction.profiles ?? {})) so.extraction.profiles[role] = memoryProfile.id;

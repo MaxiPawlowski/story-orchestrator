@@ -74,7 +74,8 @@ await withST(async (page) => {
       const slashPath = '/scripts/slash-commands.js';
       const slash = await import(slashPath);
       await slash.executeSlashCommandsWithOptions(`/profile "${main.name}"`);
-      ctx.extensionSettings['story-orchestrator'].settings.image.enabled = false;
+      const ours = (ctx.extensionSettings['story-orchestrator'].settings ??= {});
+      ours.image = { ...(ours.image ?? {}), enabled: false };
       (globalThis as any).storyOrchestratorSprites.updateSettings({ enabled: true, explicit: true, onDemand: true, cardOverlay: false,
         builders: { ...rt.getGlobalSettings().sprites.builders, [folder]: { baseSet: '', box: { x: box[0], y: box[1], width: box[2], height: box[3] }, steps: 25,
           models } } });

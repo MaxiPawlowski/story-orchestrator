@@ -143,7 +143,7 @@ async function build() {
       await closeCheckpointStudio(page); await closeUnpinnedDrawers(page);
       await page.evaluate((sprites) => {
         const ctx = (globalThis as any).SillyTavern.getContext();
-        ctx.extensionSettings['story-orchestrator'].settings.sprites = sprites;
+        (ctx.extensionSettings['story-orchestrator'].settings ??= {}).sprites = sprites;
         (globalThis as any).storyOrchestratorRuntime.touch();
       }, saved);
       await saveSettingsNow(page);

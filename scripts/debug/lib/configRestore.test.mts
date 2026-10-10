@@ -13,6 +13,11 @@ test('a restore keeps a story and a wizard session another session created after
   assert.deepEqual(preservedSessions, ['peer-draft']);
 });
 
+test('a snapshot whose settings delta was absent restores to absent, whatever the run stored', () => {
+  const { next } = mergeRestore({ v2Stories: [{ id: 'mine' }] }, { settings: { judge: { enabled: false } }, v2Stories: [{ id: 'mine' }] });
+  assert.equal(next && 'settings' in next, false);
+});
+
 test('a restore to "no config" stays a delete', () => {
   assert.equal(mergeRestore(null, { v2Stories: [{ id: 'x' }] }).next, null);
 });

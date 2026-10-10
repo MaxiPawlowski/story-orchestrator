@@ -95,7 +95,7 @@ if (args.includes('--check')) {
     await writeFile(resolve(directory, 'index.html'), html);
   } finally {
     await closeCheckpointStudio(page); await closeUnpinnedDrawers(page);
-    await page.evaluate((settings) => { const ctx = (globalThis as any).SillyTavern.getContext(); ctx.extensionSettings['story-orchestrator'].settings.sprites = settings;
+    await page.evaluate((settings) => { const ctx = (globalThis as any).SillyTavern.getContext(); (ctx.extensionSettings['story-orchestrator'].settings ??= {}).sprites = settings;
       (globalThis as any).storyOrchestratorRuntime.touch(); }, before.settings);
     await saveSettingsNow(page);
     const after = await page.evaluate(async (folder) => { const ctx = (globalThis as any).SillyTavern.getContext();

@@ -143,8 +143,8 @@ export async function readJudgeConfig(page): Promise<JudgeConfigCapture | null> 
 export async function writeJudgeConfig(page, config: JudgeConfigCapture) {
   await evaluateInST(page, (next) => {
     const root = SillyTavern.getContext().extensionSettings['story-orchestrator'];
-    if (!root?.settings) throw new Error('the extension settings root is missing');
-    root.settings.judge = next.judge;
+    if (!root) throw new Error('the extension settings root is missing');
+    (root.settings ??= {}).judge = next.judge;
     globalThis.storyOrchestratorJudge?.invalidateStatus?.();
     globalThis.storyOrchestratorRuntime?.setStagecraftSettings?.({ ...next.warden, ...next.curator });
     return true;

@@ -100,11 +100,13 @@ export interface StripPlan {
   imageExtension: { was: boolean; now: false };
 }
 
-const spritesSwitchedOff = (value: unknown) => record(value).enabled === false && record(value).explicit === true;
+const EXTRACTION_DEFAULTS = { enabled: true, cadence: 3, stabilityLag: 0, profileId: null };
+
+const spritesOn = (value: unknown) => record(value).enabled === true && record(value).explicit === true;
 
 export function mediaOff(root: Record<string, any>) {
   if (!root.settings || typeof root.settings !== 'object') root.settings = {};
-  const was = { image: record(root.settings.image).enabled !== false, sprites: !spritesSwitchedOff(root.settings.sprites) };
+  const was = { image: record(root.settings.image).enabled !== false, sprites: spritesOn(root.settings.sprites) };
   root.settings.image = { ...record(root.settings.image), enabled: false };
   root.settings.sprites = { ...record(root.settings.sprites), enabled: false, explicit: true };
   return was;
@@ -307,8 +309,8 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
       .map((entry) => ({ id: String(entry.id), hash: String(entry.hash ?? ''), title: String(entry.title ?? ''), checkpoints: Array.isArray(entry.raw?.checkpoints) ? entry.raw.checkpoints.length : 0 }))
       .sort((a, b) => a.id.localeCompare(b.id)),
     selected: sorted(strings(record(record(input.settings.world_info_settings).world_info).globalSelect)),
-    extraction: Object.keys(extraction).length ? canonical({ enabled: extraction.enabled, cadence: extraction.cadence, stabilityLag: extraction.stabilityLag, profileId: extraction.profileId ?? null }) as Record<string, unknown> : null,
-    media: { image: record(record(root.settings).image).enabled !== false, sprites: !spritesSwitchedOff(record(root.settings).sprites) },
+    extraction: canonical({ enabled: extraction.enabled ?? EXTRACTION_DEFAULTS.enabled, cadence: extraction.cadence ?? EXTRACTION_DEFAULTS.cadence, stabilityLag: extraction.stabilityLag ?? EXTRACTION_DEFAULTS.stabilityLag, profileId: extraction.profileId ?? EXTRACTION_DEFAULTS.profileId }) as Record<string, unknown>,
+    media: { image: record(record(root.settings).image).enabled !== false, sprites: spritesOn(record(root.settings).sprites) },
     swipes: hostSwipesOn(input.settings),
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,

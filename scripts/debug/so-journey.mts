@@ -362,10 +362,10 @@ export async function applySetup(page, setup, { allowConfig, journey = null, gro
   if (setup.resetJudge) {
     applied.judge = await evaluateInST(page, () => {
       const root = SillyTavern.getContext().extensionSettings['story-orchestrator'];
-      const judge = root?.settings?.judge;
-      if (!judge) return null;
+      const judge = globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.judge ?? root?.settings?.judge;
+      if (!root || !judge) return null;
       const uses = Object.fromEntries(Object.keys(judge.uses ?? {}).map((key) => [key, false]));
-      root.settings.judge = { ...judge, enabled: false, timeoutMs: 1500, uses, expansion: { variants: 1, temperature: 0.7, pick: 'code' } };
+      (root.settings ??= {}).judge = { ...judge, enabled: false, timeoutMs: 1500, uses, expansion: { variants: 1, temperature: 0.7, pick: 'code' } };
       globalThis.storyOrchestratorJudge?.invalidateStatus?.();
       return { enabled: false, uses: Object.keys(uses).length };
     }).catch(() => null);

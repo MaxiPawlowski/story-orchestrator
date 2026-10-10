@@ -128,7 +128,7 @@ export async function readOutageContext(page: any): Promise<OutageContext> {
     const ctx = (globalThis as any).SillyTavern.getContext();
     const cm = ctx.extensionSettings?.connectionManager ?? {};
     const profiles: any[] = Array.isArray(cm.profiles) ? cm.profiles : [];
-    const settings = ctx.extensionSettings?.['story-orchestrator']?.settings ?? {};
+    const settings = (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? ctx.extensionSettings?.['story-orchestrator']?.settings ?? {};
     const pick = (id: unknown) => {
       const profile = profiles.find((entry) => entry?.id === id);
       return profile ? { name: profile.name, mode: profile.mode, api: profile.api, model: profile.model, 'api-url': profile['api-url'] } : null;
@@ -403,7 +403,8 @@ async function settingsCommand(page: any, doc: RunsDoc, run: RunSpec, column: Co
   const switched = gating?.mode === spec.wiGating ? null : await wi.applyWiGating(page, spec.wiGating);
   const back = await evaluateInST(page, () => {
     const ctx = (globalThis as any).SillyTavern.getContext();
-    return { raw: ctx.extensionSettings?.['story-orchestrator']?.settings ?? null, effective: (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? null };
+    const root = ctx.extensionSettings?.['story-orchestrator'];
+    return { raw: root ? root.settings ?? {} : null, effective: (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? null };
   });
   const problems = readbackProblems(back.effective, back.raw, spec.readback);
   const report = { run: run.id, column, at: new Date().toISOString(), ok: problems.length === 0, problems, fallbacksUsed, preserved: doc.baseline.preserve, patch, wiGating: { wanted: spec.wiGating, before: gating, switched }, raw: back.raw, effective: back.effective };

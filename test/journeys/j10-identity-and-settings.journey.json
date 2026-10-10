@@ -333,7 +333,7 @@
       ],
       "steps": [
         {
-          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (!root?.settings?.judge?.uses) throw new Error('the judge settings could not be read'); globalThis.__j10Verify = { before: root.settings.judge.uses.memoryVerify, arm: globalThis.__soJudgeMode ?? null }; root.settings.judge.uses.memoryVerify = false; if (globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify !== false) throw new Error('memoryVerify did not switch off for this check'); return globalThis.__j10Verify;"
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (!root) throw new Error('the extension settings root could not be read'); const s = (root.settings ??= {}); globalThis.__j10Verify = { before: s.judge?.uses?.memoryVerify, effective: globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify, arm: globalThis.__soJudgeMode ?? null }; s.judge = { ...(s.judge ?? {}), uses: { ...(s.judge?.uses ?? {}), memoryVerify: false } }; if (globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify !== false) throw new Error('memoryVerify did not switch off for this check'); return globalThis.__j10Verify;"
         },
         {
           "eval": "await SillyTavern.getContext().executeSlashCommandsWithOptions('/newchat'); await new Promise((done) => setTimeout(done, 2500)); return { chatId: SillyTavern.getContext().chatId };",
@@ -445,7 +445,7 @@
           "log": true
         },
         {
-          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const saved = globalThis.__j10Verify; if (!saved) throw new Error('the memoryVerify switch was never captured'); root.settings.judge.uses.memoryVerify = saved.before; const now = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify; if (now !== saved.before) throw new Error(`memoryVerify was not put back: ${now} vs ${saved.before}`); return { memoryVerify: now };"
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const saved = globalThis.__j10Verify; if (!saved) throw new Error('the memoryVerify switch was never captured'); const s = (root.settings ??= {}); const uses = { ...(s.judge?.uses ?? {}) }; if (saved.before === undefined) delete uses.memoryVerify; else uses.memoryVerify = saved.before; s.judge = { ...(s.judge ?? {}), uses }; const now = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.memoryVerify; if (now !== saved.effective) throw new Error(`memoryVerify was not put back: ${now} vs ${saved.effective}`); return { memoryVerify: now };"
         }
       ]
     },

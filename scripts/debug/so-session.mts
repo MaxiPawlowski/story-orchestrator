@@ -1012,9 +1012,10 @@ async function settingRecord(page: any, path: string, value: unknown) {
     const keys = path.split('.');
     let node = settings;
     for (const key of keys.slice(0, -1)) node = (node[key] = node[key] && typeof node[key] === 'object' ? node[key] : {});
-    const previous = node[keys[keys.length - 1]];
+    const effective = keys.reduce((at: any, key) => (at && typeof at === 'object' ? at[key] : undefined), (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? null);
+    const previous = effective !== undefined ? effective : node[keys[keys.length - 1]];
     node[keys[keys.length - 1]] = value;
-    return previous === undefined ? null : previous;
+    return previous === undefined ? null : JSON.parse(JSON.stringify(previous));
   }, { path, value });
   const refresher = refresherFor(path);
   const refreshed = refresher ? await evaluateInST(page, (name: string) => {

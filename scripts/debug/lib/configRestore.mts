@@ -80,8 +80,8 @@ export function planLibraryRestore(before: LibraryCapture | null | undefined, cu
 }
 
 /**
- * S7. A crashed run that cleared the config leaves the root empty (or holding only the defaults the
- * runtime writes back on its next read), and the next run's snapshot would capture that. The snapshot
+ * S7. A crashed run that cleared the config leaves the root empty (or holding only the settings delta a
+ * runtime write stored since; a read never writes), and the next run's snapshot would capture that. The snapshot
  * file is marked `restoredAt` once a run puts it back, so an UNRESTORED snapshot is exactly a run that
  * died between clearing and restoring. Setup recovers only that, and only over a root that looks cleared.
  */

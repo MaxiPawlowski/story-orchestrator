@@ -12,7 +12,7 @@ function install({ popupText = WI_GATING_CONFIRM_TEXT, capability = 'present', s
   let open: { content: string; resolve: (ok: boolean) => void } | null = null;
   const clicks: string[] = [];
   (globalThis as any).SillyTavern = { getContext: () => ({ extensionSettings: settingsReadable ? { 'story-orchestrator': { settings: { worldInfo } } } : {} }) };
-  (globalThis as any).storyOrchestratorRuntime = { getSnapshot: () => ({ wiGating: { active, capability: { state: capability, detail: 'd' } } }) };
+  (globalThis as any).storyOrchestratorRuntime = { getSnapshot: () => ({ wiGating: { active, capability: { state: capability, detail: 'd' } } }), getGlobalSettings: () => (settingsReadable ? { worldInfo } : null) };
   (globalThis as any).storyOrchestratorScanGating = {
     active: () => active,
     capability: () => ({ state: capability, detail: 'd' }),

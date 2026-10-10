@@ -8,7 +8,7 @@ const install = () => ({
     disabledExtensions: ['tts'],
     connectionManager: { profiles: [{ name: 'local', 'api-url': 'http://127.0.0.1:18888' }, { name: 'pod', 'api-url': 'http://127.0.0.1:18080' }, { name: 'cloud', api: 'deepseek' }] },
     sd: { comfy_url: 'http://127.0.0.1:8188' },
-    'story-orchestrator': { settings: { judge: { enabled: true }, image: { enabled: true, comfyUrl: 'http://127.0.0.1:8188' }, sprites: { enabled: true } } },
+    'story-orchestrator': { settings: { judge: { enabled: true }, image: { enabled: true, comfyUrl: 'http://127.0.0.1:8188' }, sprites: { enabled: true, explicit: true } } },
   },
   power_user: { default_persona: 'owner.png', persona_auto_lock: false },
   user_avatar: 'owner.png',

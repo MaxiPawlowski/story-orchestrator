@@ -100,7 +100,7 @@ export async function getSettingsPanelState(page) {
 // still selected fails the first read, and the scheduler then pauses extraction install-wide.
 export async function assignedRoleProfiles(page): Promise<Record<string, { id: string; label: string | null }>> {
   return evaluateInST(page, () => {
-    const assigned = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profiles ?? {};
+    const assigned = (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.()?.extraction?.profiles ?? SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profiles ?? {};
     const options = Array.from(document.querySelectorAll('#so-extraction-profile option')) as HTMLOptionElement[];
     return Object.fromEntries(Object.entries(assigned).map(([role, id]) => [role, { id: String(id), label: options.find((option) => option.value === id)?.textContent?.trim() ?? null }]));
   });
@@ -140,7 +140,7 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   if (!labels.length) throw new Error('No connection profiles offered by the settings panel.');
   const search = String(wanted).trim().toLowerCase();
   const current = await evaluateInST(page, () => {
-    const stored = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profileId ?? '';
+    const stored = (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.()?.extraction?.profileId ?? SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profileId ?? '';
     const option = Array.from(document.querySelectorAll('#so-extraction-profile option')).find((entry) => stored && (entry as HTMLOptionElement).value === stored);
     return (option?.textContent ?? '').trim();
   });

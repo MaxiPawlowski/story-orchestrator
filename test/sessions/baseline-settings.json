@@ -164,7 +164,6 @@
     },
     "worldInfo": {
       "gatingMode": "scan",
-      "gatingChosen": false,
       "scanMemory": true
     },
     "image": {
