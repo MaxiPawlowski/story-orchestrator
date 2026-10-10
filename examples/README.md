@@ -16,31 +16,17 @@ Files:
 - `Xentar Checkpoints.json` — the World Info / lorebook the story's `world_info` effects toggle.
 - `Arin.png`, `DM Narrator.png`, `Luke.png`, `Ponticius.png` — the four roster character cards.
 
-It carries an authored identity (`"id": "sun-ruins"`, `"version": 1`) and typed `requirements`, so a
-chat pins the copy it plays: editing or deleting the library record never disturbs a running game.
+It carries an authored identity (`"id": "sun-ruins"`) and typed `requirements`, so a chat pins the copy it
+plays: editing or deleting the library record never disturbs a running game.
 
 ### Setup
 
-1. Select a Connection Manager memory profile as the **Memory model profile** in the Story Orchestrator
-   settings panel. It is install-wide — every chat, including new ones, inherits it, and extraction is
-   on by default.
-2. **Start → Import a story**: paste `quest-for-the-sun-ruins.json` or pick the file, and click
-   **Import and load**. With no chat open it is only saved to the library (**Save to library**); pick
-   it under **Continue → Choose a story** once the group chat from step 3 is open.
-3. Give the story what it requires:
-   - **By hand** — import the four character cards (**Characters → Import**), create a **group chat**
-     containing `DM Narrator`, `Arin`, `Ponticius` and `Luke`, and import `Xentar Checkpoints.json` as
-     a lorebook (the story requires one named **Xentar Checkpoints**).
-   - **Or let the wizard do it** — turn on **Author view** in the drawer and press **Fix with wizard**
-     on the unmet-requirements panel: it proposes each missing card, lorebook and group as its own
-     card, creates only what you accept, and never touches an asset that already exists.
-4. Open the group chat and play. The drawer opens on the player view — where you are, what happened
-   recently, open threads, what the story has established, and whether the extension is reading,
-   working, waiting or stuck. Turn on **Author view** for the blackboard, convergence bars, scheduler
-   and the exact injected payload.
+Follow the guide's [Quick start](../docs/guide/quick-start.md): choose a memory model, import the four cards and the
+lorebook, make a group with all four characters, then **Start → Import a story** in that group chat. Instead of
+importing the cards by hand, **Fix with wizard** (Author view, the requirements panel) can propose each missing card,
+the lorebook and the group, and creates only what you accept.
 
-The requirements dots turn green once the group members and the lorebook are present. Anchors — job
-board, mission, departure, artifact, guild return — are reached on every path; the Luke branch and the
+Anchors (job board, mission, departure, artifact, guild return) are reached on every path; the Luke branch and the
 riddle outcome vary the route between them.
 
 ### What this example deliberately leaves out

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { OUT, ROOT, SOURCE, parseGuide, renderPages, staleIssues, writePages } from "./split-guide.mjs";
+import { OUT, ROOT, SOURCE, groupTopics, parseGuide, renderPages, staleIssues, writePages } from "./split-guide.mjs";
 
 const guide = readFileSync(join(ROOT, SOURCE), "utf8");
 
@@ -45,4 +45,13 @@ test("control: an edited source, an edited page and a leftover page are each rep
 
 test("control: a heading without a topic marker is refused", () => {
   assert.throws(() => parseGuide(guide.replace("<!-- topic: tension -->\n", "").replace("<!-- topic: tension -->\r\n", "")), /no topic marker/);
+});
+
+test("the author index lists every topic once, grouped, and an ungrouped topic lands in More topics", () => {
+  const topics = parseGuide(guide).topics;
+  const listed = groupTopics(topics).flatMap(([, items]) => items.map((topic) => topic.id));
+  assert.deepEqual([...listed].sort(), topics.map((topic) => topic.id).sort());
+  const extra = [...topics, { id: "brand-new", title: "Brand new" }];
+  assert.deepEqual(groupTopics(extra).at(-1), ["More topics", [{ id: "brand-new", title: "Brand new" }]]);
+  assert.ok(!renderPages(guide).get("README.md").split("## For contributors")[0].includes("src/engine/schema.ts"));
 });

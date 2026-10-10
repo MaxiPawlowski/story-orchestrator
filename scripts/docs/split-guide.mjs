@@ -15,8 +15,24 @@ const HAND_WRITTEN = [
   ["studio.md", "Checkpoint Studio", "the visual editor: tabs, diagnostics, saving to the library"],
   ["wizard.md", "The setup wizard", "from a premise to a playable story, and what it creates on your install"],
   ["macros-and-commands.md", "Macros and slash commands", "story values in your cards and prompts, and the author commands"],
-  ["examples.md", "Examples", "a complete story to read, import and play"],
 ];
+
+export const TOPIC_GROUPS = [
+  ["The story as a whole", ["story-basics", "briefing", "player", "arc-template", "requirements"]],
+  ["Characters", ["roster", "drives-motives", "talk-control", "character-life"]],
+  ["What the story tracks", ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"]],
+  ["Scenes", ["checkpoints", "objective-agency", "open-stretches", "tension", "opening-scene"]],
+  ["What a scene changes", ["guidance", "author-note", "world-info", "preset", "background", "scenario", "cast-changes", "npc-replies", "experimental-effects"]],
+  ["Moving between scenes", ["gates", "transitions", "convergence", "arc-bridges"]],
+  ["Lore and memory", ["stagecraft", "lore-select", "scene-read", "house-rules", "chapters"]],
+  ["Game layer and display", ["presentation", "quests", "checks", "widgets", "clues-and-maps", "html-panels"]],
+];
+
+export const groupTopics = (topics) => {
+  const known = new Set(TOPIC_GROUPS.flatMap(([, ids]) => ids));
+  const groups = TOPIC_GROUPS.map(([title, ids]) => [title, topics.filter((topic) => ids.includes(topic.id))]);
+  return [...groups, ["More topics", topics.filter((topic) => !known.has(topic.id))]].filter(([, items]) => items.length);
+};
 
 export function parseGuide(text) {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
@@ -73,18 +89,22 @@ export function renderPages(text) {
   });
   pages.set("good-practices.md", page("Part 2", "Good practices and traps", guide.practices.text, `---\n\n${index} · next: [Build a story step by step](step-by-step.md)`));
   pages.set("step-by-step.md", page("Part 3", "Build a story step by step", guide.steps.text, `---\n\n${index}`));
+  const paragraphs = guide.preface.split(/\n{2,}/);
+  const sources = paragraphs.filter((text) => text.startsWith("Sources of truth"));
+  const intro = paragraphs.filter((text) => !sources.includes(text));
   const readme = [
     banner(),
     "",
     `# ${guide.title}`,
     "",
-    guide.preface,
+    intro.join("\n\n"),
     "",
     "## Start here",
     "",
     "- [How a story plays](how-a-story-plays.md): the two rules most advice comes from.",
     "- [Build a story step by step](step-by-step.md): the wizard's four steps, done by hand or with the wizard.",
     "- [Good practices and traps](good-practices.md): what live play taught, one line each.",
+    "- The bundled example, `examples/sun-ruins/`: play it with the [Quick start](../quick-start.md), then read its JSON next to the field pages below.",
     "",
     "## Tools",
     "",
@@ -92,8 +112,13 @@ export function renderPages(text) {
     "",
     `## The fields, one page per topic (${guide.topics.length})`,
     "",
-    ...guide.topics.map((topic) => `- [${topic.title}](${TOPICS_DIR}/${topic.id}.md) (\`${topic.id}\`)`),
-    "",
+    ...groupTopics(guide.topics).flatMap(([title, items]) => [
+      `### ${title}`,
+      "",
+      ...items.map((topic) => `- [${topic.title}](${TOPICS_DIR}/${topic.id}.md) (\`${topic.id}\`)`),
+      "",
+    ]),
+    ...(sources.length ? ["## For contributors", "", ...sources, ""] : []),
   ].join("\n");
   pages.set("README.md", readme);
   return pages;

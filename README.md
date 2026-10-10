@@ -7,37 +7,28 @@ edits and deletions roll the story back with the chat. You play by chatting, as 
 
 **Guide website:** [maxipawlowski.github.io/story-orchestrator](https://maxipawlowski.github.io/story-orchestrator/) (the same pages ship inside the extension: Help → Open the guide).
 
-**Guide sources:** [docs/guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md) ·
-[Player](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/player/README.md) ·
-[Setup](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/README.md) ·
-[Author](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/author/README.md) ·
-[Troubleshooting](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/player/troubleshooting.md) ·
-[Contributing](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/dev/contributing.md)
+**New here?** The [Quick start](https://maxipawlowski.github.io/story-orchestrator/quick-start.html) takes you from install to playing the bundled
+example story in a group chat. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
+[`docs/dev`](docs/dev/contributing.md).
 
 ## Install
 
-- **Release zip:** unzip `story-orchestrator-<version>.zip` so its `story-orchestrator/` folder lands at
-  `<SillyTavern>/public/scripts/extensions/third-party/story-orchestrator`, then reload SillyTavern. The zip already
-  holds the built extension.
-- **Source:** clone anywhere outside SillyTavern, write your SillyTavern root into a `.st-root` file (or set
-  `ST_ROOT`; the build hashes SillyTavern's files), then `npm ci && npm run build && npm run stage`. `dist/` is not in
-  the repository, so the build is required.
-
-The panel appears under **Extensions → Story Orchestrator**.
+There is no published release yet. Clone this repository anywhere outside SillyTavern, write your SillyTavern root into
+a `.st-root` file (or set `ST_ROOT`; the build hashes SillyTavern's files), then
+`npm ci && npm run build && npm run stage`. `dist/` is not in the repository, so the build is required. Reload
+SillyTavern; the panel appears under **Extensions → Story Orchestrator**.
 
 | Tested on | |
 |---|---|
 | SillyTavern (live play) | 1.19.0 |
 | Declared older host | 1.18.0 (`minimum_client_version`): machine gates only, not played through |
 
-Other versions are untested; details in the
-[guide](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/README.md#tested-on). Optional server plugins (judge, harness, GPU, media) are installed separately:
-[Setup](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/README.md#server-plugins).
+Other versions are untested; details in
+[Tested on](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-tested-on).
 
 ### Companion server plugins
 
-Their source, tests and READMEs live in [`server-plugin/`](server-plugin/) in this repository. The release zip
-includes their runtime source. They run inside SillyTavern's Node server; the browser extension calls their
+Their source, tests and READMEs live in [`server-plugin/`](server-plugin/). They run inside SillyTavern's Node server; the browser extension calls their
 `/api/plugins/story-orchestrator-*` routes.
 
 | Plugin | Provides |
@@ -47,22 +38,9 @@ includes their runtime source. They run inside SillyTavern's Node server; the br
 | [GPU](server-plugin/story-orchestrator-gpu/README.md) | Coordination of local text generation and ComfyUI sharing a GPU. |
 | [Media](server-plugin/story-orchestrator-media/README.md) | Owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. |
 
-From a source checkout, `npm run plugin:install` installs judge and keeps every companion already installed in sync.
-Add `-- --with gpu,media,harness` to install all four. It compares each shipped file by content (never by version) and
-copies only the files that differ; `--check` lists them without writing and exits 2 when any differ. Installation
-never touches a local `config.json`.
-Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, and restart SillyTavern after installing or updating.
-From a release zip, copy the chosen companion folders from `server-plugin/` into `<SillyTavern>/plugins/`.
-
-## Quick start
-
-1. **Memory model.** Make a Connection Manager profile (with the model's instruct template), pick it as the
-   **Memory model profile** under **Memory**, and press **Test memory model**. It is install-wide.
-2. **A story.** **Start → Import a story** and load `examples/sun-ruins/quest-for-the-sun-ruins.json` (it needs the
-   four cards, the group and the lorebook in that folder; **Fix with wizard** can create them), or turn on the wizard
-   under **Authoring** and use **New story (wizard)**.
-3. **Play** in the story's group chat. The story bar above the chat box opens the drawer: where you are, what
-   happened, what is open. **Repair** names anything missing.
+All four are optional. Install them with `npm run plugin:install` (add `-- --with gpu,media,harness` for the others),
+set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern:
+[Server plugins](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-server-plugins).
 
 ## Features
 
@@ -146,20 +124,20 @@ image service nothing is drawn and nothing fails. Install settings decide whethe
 for art at its own moments; each chat can pause it or draw on demand from **Overview → Illustrations**. The advanced
 ComfyUI recipes need the optional media plugin and pick a model per picture type from what your ComfyUI has. The GPU
 plugin is optional; configure its adapter when local text and image models need to share one GPU.
-[More](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/images.md)
+[More](https://maxipawlowski.github.io/story-orchestrator/setup/images.html)
 
-## Judge recommended configuration
+## Judge
 
-The judge (TypeSafe's Jev, behind the optional `story-orchestrator-judge` server plugin) ships with **every use on
-except House rules**, and sends nothing until a TypeSafe key is configured. Each use lists what it sends in its
-tooltip. Measured on `jev-1.13.0`; on another model the panel marks a use as unproven. The use table, privacy and
-measurements: [Judge](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/setup/judge.md).
+The judge (TypeSafe's Jev, behind the optional `story-orchestrator-judge` server plugin) ships with **every use on**,
+and sends nothing until a TypeSafe key is configured. Each use lists what it sends in its tooltip. Measured on
+`jev-1.13.0`; on another model the panel marks a use as unproven. The use table, privacy and measurements:
+[Judge](https://maxipawlowski.github.io/story-orchestrator/setup/judge.html).
 
 ## Macros and commands
 
 `{{story_*}}` macros (title, checkpoint, tension, scene location/time/present, `story_quality_<key>`, memory tiers,
 chapters, …), `/story`, `/so-mem` and the author's `/cp`:
-[Macros and slash commands](https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/author/macros-and-commands.md).
+[Macros and slash commands](https://maxipawlowski.github.io/story-orchestrator/author/macros-and-commands.html).
 
 ## Provenance & licensing
 

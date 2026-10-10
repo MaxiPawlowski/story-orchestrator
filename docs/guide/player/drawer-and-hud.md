@@ -16,7 +16,7 @@ open the drawer. It can also show:
 | `stepped back` | You swiped, edited or deleted a message and the story moved back to match. |
 | `branch — continue?` | This chat is a branch; click to pick the story up here. |
 
-The bar can be switched off under **Display** in the settings.
+The bar can be switched off under **Playing** in the settings.
 
 ## The drawer
 
@@ -56,6 +56,25 @@ In Author view, the list button next to ? opens the **Activity** panel: what the
 message, rolls included, each linked to its message. The Scheduler tab also names phrases the newest reply repeats
 from at least two of the five replies before it ("Repeating across the last 6 replies: …"); it is counted in code,
 calls no model and only reports.
+
+## Journal, stat sheet and story panels
+
+Some stories add panels. Open them from the buttons under the drawer's Overview or from the wand menu; each opens in
+its own panel you can move and resize.
+
+- **Journal**: the quests you have found, their steps and progress, what a quest gives you when the story shows it,
+  the main line so far, milestones and a short log. A quest you have not found is not listed.
+- **Stat sheet**: what you carry and the meters the story shows in the open.
+- **Story panels**: a clock filling up, a quest board, a wall of clues, a map. A clue wall lists what you have found;
+  a map marks the places you reached, with "you are here". Something found at the last turn is marked new. A clue or
+  a place can carry a button that puts a line in the box where you type; nothing is sent until you send it.
+- **Story-made panels**: a panel page the story brings. It runs shut off from SillyTavern: it sees only what its plain
+  panel shows, cannot read your chats or settings or fetch anything, and can only put one of the story's own lines in
+  the box. A page that tries to open another page is closed at once.
+
+A swipe or an edit of the reply that finished a quest takes the quest, and whatever it gave you, back with it.
+**Journal**, **Stat sheet**, **Story panels** and **Story-made panels** in the settings turn each off (Story-made
+panels off shows the plain panel instead), and an author can switch them off for one story.
 
 ## Notes under messages
 

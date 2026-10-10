@@ -8,39 +8,54 @@ You do not need to read it top to bottom. The Studio shows the matching section 
 
 Where the guide says "the reading model" it means the memory model that reads the chat after each turn and fills in the story's qualities. Where it says "the judge" it means the small judgment model, which picks from lists. Where it says "the narrator" it means the model that writes the replies the player reads.
 
-Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engine/validate.ts` and `src/engine/validate/*.ts`, the agency defaults are `src/engine/agency.ts`, and the Studio checks are `src/studio/diagnostics.ts` (`DIAGNOSTIC_CONSEQUENCES`), `src/studio/authoringDiagnostics.ts` and `src/studio/chapterDiagnostics.ts`. If this guide and the code disagree, the code is right and this guide is a bug.
-
 ## Start here
 
 - [How a story plays](how-a-story-plays.md): the two rules most advice comes from.
 - [Build a story step by step](step-by-step.md): the wizard's four steps, done by hand or with the wizard.
 - [Good practices and traps](good-practices.md): what live play taught, one line each.
+- The bundled example, `examples/sun-ruins/`: play it with the [Quick start](../quick-start.md), then read its JSON next to the field pages below.
 
 ## Tools
 
 - [Checkpoint Studio](studio.md): the visual editor: tabs, diagnostics, saving to the library.
 - [The setup wizard](wizard.md): from a premise to a playable story, and what it creates on your install.
 - [Macros and slash commands](macros-and-commands.md): story values in your cards and prompts, and the author commands.
-- [Examples](examples.md): a complete story to read, import and play.
 
 ## The fields, one page per topic (44)
+
+### The story as a whole
 
 - [Title, description and id](topics/story-basics.md) (`story-basics`)
 - [Briefing](topics/briefing.md) (`briefing`)
 - [Who the player is](topics/player.md) (`player`)
 - [Dramatic shape](topics/arc-template.md) (`arc-template`)
 - [Requirements](topics/requirements.md) (`requirements`)
+
+### Characters
+
 - [Cast](topics/roster.md) (`roster`)
 - [Drives and motives](topics/drives-motives.md) (`drives-motives`)
+- [Speaker direction](topics/talk-control.md) (`talk-control`)
+- [Character life](topics/character-life.md) (`character-life`)
+
+### What the story tracks
+
 - [Qualities](topics/qualities.md) (`qualities`)
 - [Rubrics](topics/quality-rubric.md) (`quality-rubric`)
 - [Latching and monotonic](topics/latching.md) (`latching`)
 - [How a quality is read](topics/quality-reads.md) (`quality-reads`)
 - [Chance rolls](topics/chance-roll.md) (`chance-roll`)
+
+### Scenes
+
 - [Checkpoints](topics/checkpoints.md) (`checkpoints`)
 - [Objectives and player agency](topics/objective-agency.md) (`objective-agency`)
 - [Open stretches](topics/open-stretches.md) (`open-stretches`)
 - [Tension targets](topics/tension.md) (`tension`)
+- [The opening scene](topics/opening-scene.md) (`opening-scene`)
+
+### What a scene changes
+
 - [Narrator guidance](topics/guidance.md) (`guidance`)
 - [Author's note](topics/author-note.md) (`author-note`)
 - [Beat lore](topics/world-info.md) (`world-info`)
@@ -48,24 +63,37 @@ Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engin
 - [Background](topics/background.md) (`background`)
 - [Scenario](topics/scenario.md) (`scenario`)
 - [Cast changes](topics/cast-changes.md) (`cast-changes`)
-- [The opening scene](topics/opening-scene.md) (`opening-scene`)
 - [NPC replies](topics/npc-replies.md) (`npc-replies`)
 - [Experimental effects](topics/experimental-effects.md) (`experimental-effects`)
+
+### Moving between scenes
+
 - [Gates](topics/gates.md) (`gates`)
 - [Transitions](topics/transitions.md) (`transitions`)
 - [Convergence](topics/convergence.md) (`convergence`)
 - [Thread bridges](topics/arc-bridges.md) (`arc-bridges`)
-- [Speaker direction](topics/talk-control.md) (`talk-control`)
+
+### Lore and memory
+
 - [Curator scope](topics/stagecraft.md) (`stagecraft`)
 - [Lore select](topics/lore-select.md) (`lore-select`)
 - [Scene places and times](topics/scene-read.md) (`scene-read`)
 - [House rules](topics/house-rules.md) (`house-rules`)
 - [Chapters](topics/chapters.md) (`chapters`)
+
+### Game layer and display
+
 - [Illustrations and display](topics/presentation.md) (`presentation`)
 - [Quests and milestones](topics/quests.md) (`quests`)
 - [Checks](topics/checks.md) (`checks`)
 - [Stats and story panels](topics/widgets.md) (`widgets`)
 - [Clue walls and maps](topics/clues-and-maps.md) (`clues-and-maps`)
 - [Story-made HTML panels](topics/html-panels.md) (`html-panels`)
-- [Character life](topics/character-life.md) (`character-life`)
+
+### More topics
+
 - [Living cards](topics/living-cards.md) (`living-cards`)
+
+## For contributors
+
+Sources of truth: the schema is `src/engine/schema.ts`, the parser is `src/engine/validate.ts` and `src/engine/validate/*.ts`, the agency defaults are `src/engine/agency.ts`, and the Studio checks are `src/studio/diagnostics.ts` (`DIAGNOSTIC_CONSEQUENCES`), `src/studio/authoringDiagnostics.ts` and `src/studio/chapterDiagnostics.ts`. If this guide and the code disagree, the code is right and this guide is a bug.
