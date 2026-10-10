@@ -6,6 +6,7 @@ import {
 import { replayWorldInfoFiles } from "./effectSteps";
 import { onSettingsWrite } from "./librarySave";
 import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveRefusal, type LoreExclusiveStats } from "./loreExclusive";
+import { applyLorePlacement, lorePlacementFor, type LorePlacementRefusal, type LorePlacementStats } from "./lorePlacement";
 import type { CompleteLoreSelection } from "./loreSelect";
 import { createMirrorScan } from "./mirrorScan";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
@@ -48,6 +49,7 @@ export interface ScanGatingDebug {
   lastGuard: () => ScanGuardResult | null;
   lastMirror: () => number;
   lastExclusive: () => { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null;
+  lastPlacement: () => { refusal: LorePlacementRefusal | null; stats: LorePlacementStats } | null;
   timings: () => number[];
   normalize: () => Promise<NormalizeOutcome | null>;
   requestScan: () => Promise<boolean>;
@@ -139,6 +141,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   });
   let lastMirror = 0;
   let lastExclusive: { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null = null;
+  let lastPlacement: { refusal: LorePlacementRefusal | null; stats: LorePlacementStats } | null = null;
   let stopMirrorWatch: (() => void) | null = null;
   const apply = (arrays: Parameters<Parameters<typeof installScanGating>[0]>[0]) => {
     if (!scanGatingActive()) return;
@@ -148,6 +151,15 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastScan = provider.apply(arrays, rows);
     const plan = loreExclusiveFor({ ...deps.exclusive, scanActive: scanGatingActive, story: deps.story, chatId: deps.chatId, vectorsScanWorldInfo });
     lastExclusive = { refusal: plan.refusal, stats: applyLoreExclusive(arrays, plan) };
+    const worldInfo = getGlobalSettings().worldInfo;
+    const placement = lorePlacementFor({
+      enabled: () => worldInfo.lateLore,
+      depth: () => worldInfo.lateLoreDepth,
+      story: deps.story,
+      chatId: deps.chatId,
+      ownedChat: deps.ownedChat,
+    });
+    lastPlacement = { refusal: placement.refusal, stats: applyLorePlacement(arrays, placement) };
     timings.push(performance.now() - started);
     if (timings.length > SCAN_TIMING_LIMIT) timings.shift();
     const of = ownersOf();
@@ -205,6 +217,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastGuard: scanGuard.last,
     lastMirror: () => lastMirror,
     lastExclusive: () => lastExclusive,
+    lastPlacement: () => lastPlacement,
     timings: () => [...timings],
     normalize: gating.renormalize,
     requestScan: gating.requestScan,

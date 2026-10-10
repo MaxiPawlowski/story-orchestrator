@@ -10,6 +10,8 @@ export interface WorldInfoGatingGroupProps {
   onRenormalize: () => void;
   scanMemory: boolean;
   onScanMemory: (on: boolean) => void;
+  lateLore?: boolean;
+  onLateLore?: (on: boolean) => void;
 }
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
@@ -32,7 +34,7 @@ const WiGatingAuthorDetail = ({ status, unavailable }: { status: WiGatingStatus 
 // C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
 // re-normalise button is its one action.
-export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize, scanMemory, onScanMemory }: WorldInfoGatingGroupProps) {
+export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize, scanMemory, onScanMemory, lateLore = true, onLateLore }: WorldInfoGatingGroupProps) {
   const mode = status?.mode ?? "scan";
   const busy = status?.busy ?? false;
   const unavailable = mode === "scan" && status?.capability && status.capability.state !== "present" ? status.capability : null;
@@ -54,6 +56,12 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
           <div data-so="wi-scan-memory" className="flex flex-col gap-1">
             <CheckRow id="so-wi-scan-memory" setting="worldInfo.scanMemory" className="text-xs" checked={scanMemory} onChange={onScanMemory} />
             <span className="text-xs opacity-70">{settingHelp("worldInfo.scanMemory")}</span>
+          </div>
+        )}
+        {authorView && mode === "scan" && onLateLore && (
+          <div data-so="wi-late-lore" className="flex flex-col gap-1">
+            <CheckRow id="so-wi-late-lore" setting="worldInfo.lateLore" className="text-xs" checked={lateLore} onChange={onLateLore} />
+            <span className="text-xs opacity-70">{settingHelp("worldInfo.lateLore")}</span>
           </div>
         )}
       </Advanced>

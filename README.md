@@ -88,6 +88,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |
+| World | Per-turn lore after the history | Lore that changes every turn is placed near the end of the prompt, so the start can be reused. |  |
 | World | Lorebook curator | Proposes updates to the story's lorebook as play overtakes it. |  |
 | World | New lorebook entries | The curator proposes a new keyed entry for something play has established. |  |
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |

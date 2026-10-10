@@ -202,6 +202,11 @@ export const SETTING_COPY = {
     "Established facts, scene history and the current guidance join every lorebook scan, so an entry whose keys they mention can activate. "
       + "What characters privately know never joins it.",
   ),
+  "worldInfo.lateLore": copy(
+    "Per-turn lore after the history",
+    "Story lorebook entries that come and go turn by turn (keyword and lore-select picks) are placed a few messages from the end of the chat instead of beside the character card. "
+      + "Their text and order stay the same; the start of the prompt stays the same from turn to turn, so a local model can reuse it and answer sooner.",
+  ),
   "stagecraft.curatorEnabled": copy(
     "Lorebook curator",
     "A background helper that reads what has happened and proposes changes to the story's own lorebook. It only touches the lorebooks the story lists, "

@@ -438,9 +438,9 @@ export interface StorySceneRead {
 // inferred: entry text leaves the machine.
 export interface StoryLoreSelect {
   lorebooks: string[];
-  top_k?: number;
-  min_p?: number;
+  top_k?: number; min_p?: number;
   exclusive?: boolean;
+  position?: "authored" | "depth";
 }
 
 export const BRIEFING_MAX_SECTIONS = 6;

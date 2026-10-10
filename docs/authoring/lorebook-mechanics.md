@@ -296,13 +296,19 @@ The normalizer writes `disable: true` only on gated entries of listed books and 
 
 ### 14.4 Lore-select and exclusive (`runtime/loreSelect.ts`, `loreExclusive.ts`, `judge/lore.ts`)
 
-- Story field `lore_select: {lorebooks, top_k?, min_p?, exclusive?}` (`engine/schema.ts:419-424`); `top_k` 1-12 (rounded), `min_p` 0-1 (`engine/validate/storyOptions.ts:86-108`). Defaults: `top_k` 4, `min_p` 0.6, chunk 64 entries, content clipped to 600 chars, 1500 ms timeout (`judge/policy.ts:60-65`).
+- Story field `lore_select: {lorebooks, top_k?, min_p?, exclusive?, position?}` (`engine/schema.ts:419-424`); `top_k` 1-12 (rounded), `min_p` 0-1 (`engine/validate/storyOptions.ts:86-108`). Defaults: `top_k` 4, `min_p` 0.6, chunk 64 entries, content clipped to 600 chars, 1500 ms timeout (`judge/policy.ts:60-65`).
 - Candidates: entries of the listed books that are enabled, non-constant and non-empty (`judge/lore.ts:42-45`). Fields read: `world`, `uid`, `comment`, `content`, `disable`, `constant`.
 - Left to ST's own scan, never rated (R12, `runtime/loreKeyMatch.ts`): an entry the keyword scan is certain to activate for this generation (scan buffer read as ST builds it: non-system messages newest first, `Name: text` with Include Names, the swiped reply dropped on a swipe; `scanDepth` or the global depth, case, whole words, regex keys, secondary logic), and an entry whose primary key equals the drafted member's card name or roster alias. "Certain" excludes any entry with probability < 100, an inclusion group, a character filter, triggers, delay, cooldown, `delayUntilRecursion`, a leading decorator or a macro in a key; budget overflow is not predicted. Measured on Saga chats (263 candidates): 5.00 -> about 4.9 judge calls per reply.
 - The judge rates each candidate against the active checkpoint's name, objective and recent window; picks with `p >= min_p`, highest first, at most `top_k` (`judge/lore.ts:50-83`).
 - Picks are forced with `WORLDINFO_FORCE_ACTIVATE` for the next scan only (`stHost/worldInfoActivate.ts:16-25`). Runs in the generate interceptor before the scan, or on `MESSAGE_SENT` when the generation adds the user message; never for dry or quiet runs (`runtime/loreSelectTiming.ts:15-37`). Cached per chat, story revision, message, scope, generation type and drafted member (`loreSelect.ts`).
 - Forced picks still pass gates 1-9, groups, probability and budget. Judge use `loreSelect` is on by default (`judge/settings.ts:72-74`).
 - **Exclusive** (`loreExclusive.ts:37-88`) disables, on the scan copies, every unpicked entry of the `lore_select` books. Needs: judge use `loreExclusive` (depends on `loreSelect`), scan mode, `exclusive: true`, a loud generation, Vector Storage WI off, and a complete selection for this chat, story revision and message. Never suppressed: picked, left to the scan (R12), constant, checkpoint-gated, timed (`sticky`/`cooldown`/`delay` > 0), already disabled, or entries without a `disable` key. In file mode it is refused (`not-scan`).
+
+### 14.4b Late lore placement (`runtime/lorePlacement.ts`, v2.8 B1-PFX)
+
+- On the scan copies only (scan mode, after the gate and exclusive; never a file write), for the chat the story was loaded into: every enabled, non-constant entry of the story's books (`requirements.lorebooks` plus `lore_select.lorebooks`, never the mirror or another book) at position 0 (before char) or 1 (after char) is moved to position 4, role system: after-char entries to depth `worldInfo.lateLoreDepth` (default 4), before-char entries one deeper, so the two groups keep the order the story string gave them. Text, `order`, keys and every other field are unchanged, and the move is the same on every scan, so the entry hash (sticky/cooldown) is stable while the setting holds.
+- Why: the story string (system, wiBefore, card, wiAfter, persona) is the start of every prompt; a keyword entry that comes and goes changes it on every new message, so llama-server reuses nothing (B1-PFX pod 2 2026-10-10: reuse p50 0, first difference about 1.1K tokens in). At depth 4 the first per-turn difference is a few messages from the end.
+- Install switch `worldInfo.lateLore` (default on, Author view `#so-wi-late-lore`); a story keeps authored positions with `lore_select.position: "authored"`. Forced lore-select picks come from `getSortedEntries`, which runs the same handler, so they carry the moved position. A WI regex script with a depth range now sees the moved entries at their depth. Turning the setting off mid-chat changes the hash of the moved entries once, which ends a running sticky/cooldown on them. Debug: `storyOrchestratorScanGating.lastPlacement()`.
 
 ### 14.5 Memory mirror (`runtime/memoryMirror.ts`, `mirrorScan.ts`)
 
@@ -339,7 +345,7 @@ The normalizer writes `disable: true` only on gated entries of listed books and 
 | Macros in keys/content | used | `{{story_*}}` macros resolve in entries; `{{// so:…}}` markers ride the comment macro |
 | Scan depth, include names | respected | `scanMemory` blocks join the inject buffer, which depth 0 still blanks |
 | Recursion flags | respected | Forced picks and appended story lore recurse like any entry |
-| `position`/`depth`/`role`/`order` | respected; written only as template defaults by `upsertWIEntry` | Curator and gates never change placement |
+| `position`/`depth`/`role`/`order` | respected; written only as template defaults by `upsertWIEntry` | Curator and gates never change placement; late lore placement (14.4b) moves story-book per-turn entries to depth on the scan copies |
 | AN positions | respected | Subject to the AN interval like any entry |
 | `probability`, groups | respected | A forced pick can lose its group or its roll; evidence reports it as `lore-force-lost` |
 | Timed effects | respected; conflicts in file mode | Every file write (gate toggle, curator op, mirror upsert, author edit) changes the hash and suspends a running sticky/cooldown (section 7). Exclusive leaves timed entries alone |
@@ -349,7 +355,7 @@ The normalizer writes `disable: true` only on gated entries of listed books and 
 | Vector Storage WI | coexists | Exclusive refuses while it is on; vectors see appended story lore because they call `getSortedEntries` |
 | Match sources, outlets, `automationId`, decorators | ignored | Untouched; an `@@activate` entry in a gated book still fires when enabled |
 | Book sources | used | Story books via append, mirror via chat slot (file) or `chatLore` append (scan); never global selection |
-| `ENTRIES_LOADED` | used | First listener: story lore + evidence; last: scan gate or file-mode guard, mirror append, exclusive, evidence |
+| `ENTRIES_LOADED` | used | First listener: story lore + evidence; last: scan gate or file-mode guard, mirror append, exclusive, late lore placement, evidence |
 | `FORCE_ACTIVATE` | used | Lore-select only |
 | `WORLD_INFO_ACTIVATED`, `WORLDINFO_UPDATED` | used | Evidence; mirror copy refresh |
 
