@@ -1,6 +1,7 @@
 # Plan 10 — Briefing drafting by the wizard
 
-**Status (2026-10-03): v2.8 plan 10 (the LLM half of v2.7 plan 03 "story briefing", now v2.7 05; review A8, F13).
+**Status (2026-10-10): BUILT on branch `v2.8-briefing` (owner approved 2026-10-10), see §Gate record; CL floors not run.**
+**Earlier status (2026-10-03): v2.8 plan 10 (the LLM half of v2.7 plan 03 "story briefing", now v2.7 05; review A8, F13).
 Decided in principle by the user (old 03 decision 1); this contract is not yet reviewed by the user; not built.**
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance CL (the wizard's authoring profile on
@@ -87,3 +88,68 @@ Ask mode), v2.6 plan 11 (agentic wizard tools).
 Applied: A8 (decision 1 gets a body, a gate and model-input spoiler protection), F13 (auto-draft opt-in, route and
 spoiler gate specified; the selector indicator is v2.7 05; C8 is built only through v2.7 05), rule 9 (dark launch).
 Not here: old 03 decision 3 (saga vs act indicator) is deterministic and stays in v2.7 05.
+
+## Gate record (2026-10-10, branch `v2.8-briefing`)
+
+Built as written except where noted; every feature on by default (owner rule 2026-10-10: private plugin, floors
+informational, so rule 9's dark launch does not apply). Builds on plan 09 (recipes, `readGuide`, the DeepSeek default for
+the authoring role).
+
+**D1, author drafting.** `setBriefing` is now a `ProposalOp` (`copilot/types.ts`, `parseOps.ts` reads it with the story's
+own `readBriefing`, `proposal.ts` applies it through `mutations.setBriefing`) and an edit tool (`agent/tools.ts`; its
+`MUTATIONS_WITHOUT_A_TOOL` excuse is gone). Staged wizard: allowed in the Premise (`qualities`) and Setup (`effects`)
+stages, the `briefing` guide topic is in both stage guides, both stage instructions mention it. A draft that trips
+`briefing-spoiler-risk` (shared `briefingSpoilerNames`, `studio/briefingDiagnostics.ts`) is blocking in
+`validateProposal`, so the stage spends its one repair on it, and is refused in the agent loop's `editProblem` with the
+named terms and the diagnostic code. New recipe `briefing` (readGuide → readCheckpoint → readStory → setBriefing, verify,
+traps cued from the guide). Tests: `copilot/agent/setBriefing.test.ts`.
+
+**D2, per-chat player draft.** Install setting `display.briefingDraft` ("Write a briefing when a story has none",
+`#so-briefing-draft`, Playing/Display, **on**). Lazy `runtime/briefingDraftHost.ts` (started from `wiring/lore.ts` like
+the card overlay) asks once per chat + story + hash while the story's briefing is pending and the story has no authored
+one. Prompt from `runtime/briefingDraft.ts#briefingDraftInput` only: title, `player_intro` (never `description`), the start
+checkpoint's `player_name` and `effects.scenario`, `player.role/summary/assumes`, the card names of the cast the start leaves
+on stage. Route: role `authoring`, new pass `briefing` (debug global `storyOrchestratorDebugBriefingResponse`). The reply is
+checked by `readBriefing` and `briefingSpoilerNames`; a failing draft is discarded with a journal line and the
+`player_intro` fallback stays; a failed call is silent. Stored per chat in `extras.briefing.draft = {storyId, hash,
+sections, at}`, shown only while the pinned story's hash matches; the open modal swaps to it when it lands, with the note
+"Written for this chat from the story's opening…" (`[data-so="briefing-drafted"]`). Rollback leaves it, reopen keeps it,
+Restart drops it, a story update makes it stale. Census row `briefingDraftHost.ts#draftBriefing` checked.
+Tests: `runtime/briefingDraft.test.ts` (projection forbidden-field list + description control, discard cases, store under
+rollback/reopen/Restart/update, chat switch mid-call, failed call, setting off, authored briefing, once per key, payload
+invariance).
+
+Deviations: the draft lives in `extras.briefing.draft`, not `extras.ui.briefingDraft` (`extras.ui` is rebuilt from the
+install settings and stripped before persisting); "version" is the record hash (stories carry no version since
+2026-10-07); latency goes to the journal detail, not the record (main bundle budget); the projection carries card names
+only, not roster roles (`roster[].role` is author copy and can spoil; there is no player-facing role field); there is no
+"How to play" story field, so the prompt states the generic how-to-play line itself; the session baseline sets
+`briefingDraft: false` beside `briefing: false`.
+
+**Owner decisions to confirm (taken as the plan recommends, or forced by the code):**
+1. D2 on by default (owner rule), not dark until the floors pass twice.
+2. Staged wizard: the briefing may be proposed in Premise and in Setup (the plan said Premise; at Premise the draft often
+   has no start checkpoint or cast yet, so Setup is where it can be specific).
+3. Projection without roster roles (above).
+4. A draft is discarded on any spoiler term, including a later checkpoint name in common words: conservative.
+
+Commands and results (final tree):
+- `npm run gates -- --no-storybook --jobs 2`: **all green in 196.6 s** (typecheck, typecheck:test, debug:typecheck, test,
+  build, test:replay, lint, test:plugin, test:release, test:debug). `test-storybook:ci` SKIPPED (worktree, `--no-storybook`).
+  Earlier runs were red and fixed: authoring calibration goldens (recorded `allowedKinds` predate `setBriefing`: the replay
+  now drops kinds added after recording, `KINDS_ADDED_AFTER_RECORDING`), call-site role census, errorCopy inventory, session
+  baseline, arrival golden (new scenario), a cast through unknown, and the main bundle budget.
+- Main entry `dist/index.js` **1,249,926 B** (budget 1,250,000; 74 B headroom). The drafted-note copy moved to the lazy
+  `features/briefingDraftCopy.ts` and the setting help was shortened to fit.
+- Storybook to run on master: `Briefing/BriefingModal` (BriefingOnly, new DraftedBriefing), `Briefing/BriefingHost` (new
+  DraftReplacesTheIntroInTheOpenModal, OpensOnActivation), `Settings/*` panels that render `#so-briefing-draft` (PlayGroups
+  Display group).
+- No-model live check: lane 50 (offline seed, private ST code copy `C:\dev\so-lanes\agent-st-briefing` with the branch
+  staged, nothing staged into the shared ST slot), `test/scenarios/v28-10-briefing-draft.json --sandbox` ×2 PASS: planted
+  draft lands as `source: draft`, the drawer's Story briefing opens it with the drafted note and no spoiler, 
+  `assert-player-clean` 0 findings, and a planted spoiling draft after Restart is discarded (intro stays). Plumbing only.
+- Not run: the CL floors (spoiler ×10 per story on sun-ruins + two Adolion lab stories, usefulness rating, latency) on the
+  DeepSeek authoring route; no real-model draft was made.
+
+Adolion: the campaign's stories should author their own `briefing` (the per-chat draft is a fallback that sees only the
+opening); the briefing recipe gives a campaign author a reviewed first draft from the opening scene.

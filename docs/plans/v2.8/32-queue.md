@@ -31,7 +31,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 
 | # | Item | Source |
 |---|---|---|
-| A1 | Briefing drafting by the wizard | 10, D5 |
+| A1 | Briefing drafting by the wizard: built on `v2.8-briefing` (22286afb + gate record), gates green, no-model lane ×2; CL floors owed, not merged | 10, D5 |
 | A2 | Story presence panels: what is left (C4/C5/C7/C9a) | 04, D10 |
 | A3 | v2.7 carry-over: lore-select batching (C12), curator digest (C13-b), model-driven items (C11), R4 gate lift + Studio control | 01, D1 |
 | A4 | Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds on demand | 23 |
