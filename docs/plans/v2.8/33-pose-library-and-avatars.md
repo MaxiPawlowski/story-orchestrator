@@ -288,3 +288,30 @@ CL: score `test/fixtures/poses/replies.json` with the real classifier chain, all
 Storybook interaction/viewport/a11y checks are authored for 390/768/1440 and the new UI parts. `test-storybook:ci` was **not run** in this worktree: its runner resolves the main checkout's stories through the junction. These browser checks are owed from a suitable checkout; no live/browser gate is claimed green.
 
 Deviations: gate runner now accepts spaced `--jobs 2` (it previously ignored that spelling); both spellings have deterministic coverage. Player card layers use the same validated binding type. The ownership census also scans the new Studio async writer explicitly. Optional installed DWPose supplies the base's head/hip proportion; absent files leave alpha-box retargeting available. P3 uses two copies of the character reference without a skeleton when supported, and one reference on a one-image encoder; S0 owes compatibility. Open questions remain Qwen's second-image obedience, identity/timing, prop fidelity and live cleanup inventory. Main budget stays 1,300,000 B.
+
+## Gate record: Storybook assertion repair
+
+2026-10-10 · C:\dev\so-poses · v2.8-poses. The real index-json runner reproduced four failed stories and one passed story: toHaveValue rejected the asymmetric stringContaining matcher although the copied JSON contained sit_chair. Use toHaveDisplayValue with an id regex; connect the 390/768/1440 variants to the runner's testViewport setting. Production code unchanged.
+
+npm run storybook:build: exit 0. Static output served from this worktree at http://127.0.0.1:6006.
+node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6006 --maxWorkers 2 --disable-telemetry PosesList: 1 suite, 5 stories passed; no axe violations; exit 0.
+node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6006 --maxWorkers 4 --disable-telemetry: 120 suites, 760 stories passed in 180.7s; exit 0.
+
+npm run gates -- --no-storybook --jobs 2: exit 0. Storybook was validated separately above.
+
+```text
+gates: all green in 195.3s
+  ok   test (103.7s, started at 0s)
+  ok   build (9.2s, started at 103.9s)
+  ok   test:replay (134.4s, started at 0s)
+  ok   test:debug (33.4s, started at 113.2s)
+  ok   typecheck (23.0s, started at 134.4s)
+  ok   typecheck:test (29.9s, started at 146.9s)
+  ok   lint (29.1s, started at 157.4s)
+  ok   debug:typecheck (10.6s, started at 176.8s)
+  ok   test:release (6.4s, started at 187.4s)
+  ok   test:plugin (8.7s, started at 186.5s)
+  SKIPPED: test-storybook:ci (say so in the gate record)
+```
+
+npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exit 0. Source CRLF preserved. No ST, GPU, downloads or model calls; S0, CL and LI acceptance remain owed.

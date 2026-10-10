@@ -23,14 +23,14 @@ export const Default: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Use as default pose" }));
     await expect(useDraftStore.getState().draft.roster[0].sprites?.pose).toBe("sit_chair");
     await userEvent.click(canvas.getByRole("button", { name: "Copy pose to editor" }));
-    await expect(canvas.getByRole("textbox", { name: "Pose JSON" })).toHaveValue(expect.stringContaining("sit_chair"));
+    await expect(canvas.getByRole("textbox", { name: "Pose JSON" })).toHaveDisplayValue(/"id": "sit_chair"/);
     await userEvent.click(canvas.getByRole("button", { name: "Import pose JSON" }));
     await expect(canvas.getByRole("status")).toHaveTextContent("Imported 1 pose");
   },
 };
-export const Narrow: Story = { parameters: { viewport: { defaultViewport: "pose390" } }, ...Default };
-export const Tablet: Story = { parameters: { viewport: { defaultViewport: "pose768" } }, ...Default };
-export const Wide: Story = { parameters: { viewport: { defaultViewport: "pose1440" } }, ...Default };
+export const Narrow: Story = { ...Default, parameters: { viewport: { defaultViewport: "pose390" }, testViewport: { width: 390, height: 900 } } };
+export const Tablet: Story = { ...Default, parameters: { viewport: { defaultViewport: "pose768" }, testViewport: { width: 768, height: 1024 } } };
+export const Wide: Story = { ...Default, parameters: { viewport: { defaultViewport: "pose1440" }, testViewport: { width: 1440, height: 900 } } };
 export const InvalidImport: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
