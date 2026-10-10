@@ -19,7 +19,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 
 | # | What | Why / last result | Where |
 |---|---|---|---|
-| M1 | 35-K3 and 35-K4 run 2 | run 1 PASS (batch 3); K3 under the fixed carried check (F-B1c-3) | pod |
+| M1 | 35-K3 and 35-K4 run 2 | run 1 PASS (batch 3); K3 under the fixed carried check (F-B1c-3). **2026-10-10 (3090, one cell, judge on / release)**: 98 turns, agency flags 0, 15 releases (< 20), carried 13 / 15, K4 0 restatements in 15; other three cells not run (time) | pod |
 | M2 | 35-K5 with enough releases (≥ 20 pooled) | 7–8 measured; control arms land under 20 (run variance, F-B1c-5); longer runs or more segments | pod |
 | M3 | B1-C3 judge timeouts per use; B1-C12 lore-select requests per turn | pod run killed; the 3090 diagnostic had the warden at 7/118 timeouts and C12 p50 7, max 18 | pod (3090 diagnostic) |
 | M4 | B1-EMPTY formal arms A/B | 8/8 recoveries seen incidentally in batch 3, not the formal row | pod |
@@ -58,7 +58,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F17 | Director timeouts: 36 of 155 calls over the 1500 ms budget (p50 about 960 ms) on the 3090 C3 run | warden fix record, v2.8 01 §B |
 | F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09. **2026-10-10 (3090, §3090 measurements M11)**: still p95 8.5 s / max 14.2 s locally, and 12 of 14 slow sends were not near a consolidation pass; see F19 |
 | F19 | On the 1-slot controller the player's line is taken only after the drafted member's inner-voice call returns, and that call queues behind extraction reads (3 slowest sends: 10–14 s). Check by trace whether the inner beat runs before ST posts the line; if so, post first | §3090 measurements 2026-10-10, M11 |
-| F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal`. Every local C3 run so far stopped at 71–81 of 98 turns. Find whether ST's count or a late injection overshoots; locally, leave margin (`max_context` below 32K) | §3090 measurements 2026-10-10, item 3 |
+| F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal`. Every local C3 run so far stopped at 71–81 of 98 turns. Find whether ST's count or a late injection overshoots. The failing reply request carried `truncation_length` 32768 and `n_predict` 1400, so the prompt ST built counted ≥ 80 tokens more on the server than ST's own count; lowering `settings.json` `max_context` to 30720 did not reach the request (the loaded preset's 32768 won) | §3090 measurements 2026-10-10, item 3 |
 | F22 | C3 ×2 not met on `ddf021bd` (3090): warden 1 / 103 then 6 / 114, wardenLore 4 / 99 then 7 / 109. No timeout near a consolidation pass; run 2's come in 2-minute bursts across every judge use, mostly `queue`. Attribute the bursts (plugin `/status` served counts and TypeSafe latency per minute), then decide plugin capacity, lore-select chunking (F16/F21) or judge share | §3090 measurements 2026-10-10, item 3 |
 | F21 | Exclusive lore select never applies: with every signal on, each loud generation refuses `no-selection`, because about 45 % of lore-select chunk calls fall back `busy` (judge-plugin 429/503) and the selection is never complete. Fewer, larger chunks (F16) or a retry for the missing chunks | §3090 measurements 2026-10-10, M10 |
 
@@ -211,6 +211,30 @@ warden fix's single 0 / 114 run (c3fix final) does not repeat on this build. Run
 - M11 in run 2: p50 373 ms, p95 7,165 ms, max 35,610 ms, 9 over 1 s, 0 of them near a consolidation pass (F19).
 - Run 2 also stopped on the 32K overflow (request of 32,900 tokens, F20), at turn 73. The harness fix skipped the jump prompts
   without a stall.
+
+### 4. 35-K3 / 35-K4 run 2 (local variant): one cell
+
+Time allowed one cell: **judge on, release arm** (`k3-cell.sh`, a copy of b1c's `k3-lane.sh`: `--judge-uses agencyCheck
+--warden-mode auto`), lane 13 freshly seeded, campaign lab journey at the pin `6709a3a6` (includes the fixed carried check
+`c5f513bf`), 02:39–06:33Z, **98 / 98 turns**. The other three cells were not started: a cell took 3 h 54 min, past the 10:00Z stop.
+
+| Row | Result (one run) | Detail |
+|---|---|---|
+| 35-K3 | **INCOMPLETE** | agency flags 0 (bar = control mean + 1, no control run); 15 release points, under the arm's predeclared 20 (the journey check failed on size, as F-B1c-5 describes for control arms) |
+| 35-K4 | **INCOMPLETE** as scored (no ×2) | 0 restatements in 15 measured release replies (15 / 15 measured) |
+| carried | 13 of 15 releases carried the block under the fixed check | the 2 not carried are not attributed here (the fixed check counts a release at a chain's last voice on the next turn) |
+
+`so-sp6-score` on the one record: overall INCOMPLETE (each cell needs 2 runs). 141 replies; the product's empty-reply recovery fired 8
+times. Send-to-line: p50 368 ms, p95 1,046 ms, max 34,858 ms (5 over 1 s). Deviation: the lane's `settings.json` `max_context` was set
+to 30720 to leave margin for F20, but the reply request still carried `truncation_length` 32768 (the loaded preset's), and one request
+of 32,848 tokens got the controller's 409 again (turn ~45); the round recovered and the run finished.
+
+### Evidence, cleanup
+
+`test/sessions/evidence/phase-c/3090-2026-10-10/` (private, not archived): drivers (`prep-local*.sh`, `row.sh`, `journey-batch.sh`,
+`c3-run.sh`, `k3-cell.sh`, `g5-*.js`, `g-post*.{js,sh}`, `excl-probe.sh`, `*.cjs` counters), `m1/`, `scan/` (G2–G5 logs, J3/J7 batch
+rows), `c3/run1`, `c3/run2` (journals, judge-cause samples, score records, raws, lane server logs, page evidence), `k3/`, seed logs,
+gates log. Lanes 12 and 13 stopped; the controller left on `fast`, idle; the private ST copy deleted.
 
 Run 1 other uses (calls / timeouts / `busy`): lore 382 / 9 / 174, scene 102 / 1, typed 150 / 0 / 13, memoryVerify 102 / 0 / 3,
 memoryPairs 72 / 0, stall 19 / 0. Warden provider p50 1,114 / p95 2,608 ms; wardenLore 501 / 3,353 ms. `so-judge timeouts`: warden
