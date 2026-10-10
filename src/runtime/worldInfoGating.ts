@@ -234,13 +234,13 @@ class WiGatingRuntime implements WiGating {
     const preview = await previewOf(this.deps);
     const run = beginRun(this.alive);
     if (!(await this.deps.confirm(preview)) || !run.stillOwns()) return false;
-    this.deps.write({ gatingMode: "scan", gatingChosen: true });
+    this.deps.write({ gatingMode: "scan" });
     await this.sync();
     return this.live;
   };
 
   requestFile = async () => {
-    this.deps.write({ gatingMode: "file", gatingChosen: true });
+    this.deps.write({ gatingMode: "file" });
     await this.sync();
   };
 

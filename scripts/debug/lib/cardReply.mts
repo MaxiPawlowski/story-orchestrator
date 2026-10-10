@@ -51,7 +51,7 @@ export async function checkLocalCardReply(page, spec: { character?: string; fiel
       const capture = (globalThis as any).__soV27CardCapture;
       if (capture) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, capture.listener);
       delete (globalThis as any).__soV27CardCapture;
-      ctx.extensionSettings['story-orchestrator'].settings.sprites = saved;
+      (ctx.extensionSettings['story-orchestrator'].settings ??= {}).sprites = saved;
       (globalThis as any).storyOrchestratorRuntime.touch();
     }, saved);
     await saveSettingsNow(page);

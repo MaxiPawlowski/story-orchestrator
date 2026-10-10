@@ -61,12 +61,16 @@ try {
             const local = requireHarness(['controller', 'localProfiles']);
             const saved = await page.evaluate(({ name, controller }) => {
                 const ctx = (globalThis as any).SillyTavern.getContext();
-                const settings = ctx.extensionSettings['story-orchestrator'].settings;
+                const root = ctx.extensionSettings['story-orchestrator'];
+                const settings = (root.settings ??= {});
+                settings.image = { ...(settings.image ?? {}) };
+                settings.sprites = { ...(settings.sprites ?? {}) };
                 const profile = ctx.extensionSettings.connectionManager.profiles.find((p: any) => p.name === name);
                 if (!profile || profile.api !== 'llamacpp' || String(profile['api-url'] ?? '').replace(/[/]+$/, '') !== controller) throw new Error('Local reply profile is not pinned to the managed controller.');
-                const prior = { image: settings.image.enabled, sprites: settings.sprites.enabled, onDemand: settings.sprites.onDemand, selected: ctx.extensionSettings.connectionManager.selectedProfile };
+                const prior = { image: settings.image.enabled, sprites: settings.sprites.enabled, explicit: settings.sprites.explicit, onDemand: settings.sprites.onDemand, selected: ctx.extensionSettings.connectionManager.selectedProfile };
                 settings.image.enabled = false;
                 settings.sprites.enabled = true;
+                settings.sprites.explicit = true;
                 settings.sprites.onDemand = false;
                 for (const key of Object.keys(globalThis)) if (key.startsWith('storyOrchestratorDebug')) delete (globalThis as any)[key];
                 return prior;
@@ -117,10 +121,19 @@ try {
                 if (report.reopened.storyId !== report.after.storyId || report.reopened.boundary !== report.after.boundary || !report.reopened.ready) throw new Error('Reopen did not preserve the played state.');
             } finally {
                 await page.evaluate((saved) => {
-                    const settings = (globalThis as any).SillyTavern.getContext().extensionSettings['story-orchestrator'].settings;
-                    settings.image.enabled = saved.image;
-                    settings.sprites.enabled = saved.sprites;
-                    settings.sprites.onDemand = saved.onDemand;
+                    const root = (globalThis as any).SillyTavern.getContext().extensionSettings['story-orchestrator'];
+                    const settings = (root.settings ??= {});
+                    const put = (section: string, key: string, value: unknown) => {
+                        const next = { ...(settings[section] ?? {}) };
+                        if (value === undefined) delete next[key];
+                        else next[key] = value;
+                        if (Object.keys(next).length) settings[section] = next;
+                        else delete settings[section];
+                    };
+                    put('image', 'enabled', saved.image);
+                    put('sprites', 'enabled', saved.sprites);
+                    put('sprites', 'explicit', saved.explicit);
+                    put('sprites', 'onDemand', saved.onDemand);
                 }, saved);
                 await saveSettingsNow(page);
             }

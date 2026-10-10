@@ -10,6 +10,7 @@ export interface ResidueSnapshot {
   characters: Array<{ name: string; avatar: string }>;
   sessions: Array<{ key: string; applied: string[] }>;
   spikes: Record<string, unknown> | null;
+  spikesStored?: Record<string, unknown> | null;
 }
 
 export interface ResiduePlan {
@@ -41,7 +42,7 @@ export function residueOf(before: ResidueSnapshot, after: ResidueSnapshot, marke
     if (added.length) prune[session.key] = added;
     if (!known && session.applied.every((name) => added.includes(name))) drop.push(session.key);
   }
-  return { lorebooks, deselect, characters, sessions: { drop, prune }, spikes: same(before.spikes, after.spikes) ? undefined : before.spikes };
+  return { lorebooks, deselect, characters, sessions: { drop, prune }, spikes: same(before.spikes, after.spikes) ? undefined : before.spikesStored !== undefined ? before.spikesStored : before.spikes };
 }
 
 export const residueCount = (plan: ResiduePlan) => plan.lorebooks.length + plan.deselect.length + plan.characters.length + plan.sessions.drop.length + Object.keys(plan.sessions.prune).length + (plan.spikes === undefined ? 0 : 1);
@@ -58,7 +59,8 @@ export async function captureResidue(page): Promise<ResidueSnapshot> {
       selected: [...(wi.selected_world_info ?? [])],
       characters: (ctx.characters ?? []).filter((entry) => typeof entry?.avatar === 'string').map((entry) => ({ name: String(entry.name ?? ''), avatar: entry.avatar })),
       sessions: sessions.filter((session) => typeof session?.key === 'string').map((session) => ({ key: session.key, applied: (Array.isArray(session.applied) ? session.applied : []).filter((name) => typeof name === 'string') })),
-      spikes: root?.settings?.spikes ? JSON.parse(JSON.stringify(root.settings.spikes)) : null,
+      spikes: JSON.parse(JSON.stringify((globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.()?.spikes ?? root?.settings?.spikes ?? null)),
+      spikesStored: root?.settings?.spikes ? JSON.parse(JSON.stringify(root.settings.spikes)) : null,
     };
   });
 }
@@ -86,9 +88,9 @@ export async function sweepResidue(page, before: ResidueSnapshot | null, marker 
         .filter((session) => !plan.sessions.drop.includes(session?.key))
         .map((session) => (plan.sessions.prune[session?.key] ? { ...session, applied: (session.applied ?? []).filter((name) => !plan.sessions.prune[session.key].includes(name)) } : session));
     }
-    if (root?.settings && plan.spikes !== undefined) {
-      if (spikesBefore === null) delete root.settings.spikes;
-      else root.settings.spikes = spikesBefore;
+    if (root && plan.spikes !== undefined) {
+      if (spikesBefore === null) delete root.settings?.spikes;
+      else (root.settings ??= {}).spikes = spikesBefore;
     }
     return { errors };
   }, { plan, spikesBefore: plan.spikes ?? null });

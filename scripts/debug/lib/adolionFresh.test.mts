@@ -154,11 +154,19 @@ test('a lane with image or sprite generation on fails, and the strip switches bo
   input.settings.extension_settings['story-orchestrator'].settings.image.enabled = true;
   assert.ok(checkInventory(manifest, buildInventory(manifest, input)).some((line) => line.startsWith('media generation is on in the lane (image true, sprites false)')));
   const plan = stripPlan(manifest, { worlds: [], characters: [], chatDirs: [], groups: [], groupChats: [], settings: { extension_settings: { 'story-orchestrator': { settings: { image: { enabled: true, comfyUrl: 'x' } } } } } });
-  assert.deepEqual(plan.media, { image: true, sprites: true });
+  assert.deepEqual(plan.media, { image: true, sprites: false }, 'an unset section reads as its default: images on, sprites off');
   assert.deepEqual(plan.settings.extension_settings['story-orchestrator'].settings.image, { enabled: false, comfyUrl: 'x' });
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.display.briefing, false, 'the lane never opens a briefing over a scripted import');
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.enabled, false);
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.explicit, true);
+});
+
+test('the stored settings are a delta over the defaults: absent media and extraction read as their defaults', () => {
+  const input = cleanInput();
+  input.settings.extension_settings['story-orchestrator'].settings = { image: { enabled: false }, sprites: { explicit: true } };
+  const inventory = buildInventory(manifest, input);
+  assert.deepEqual(inventory.media, { image: false, sprites: false });
+  assert.deepEqual(inventory.extraction, { cadence: 3, enabled: true, profileId: null, stabilityLag: 0 });
 });
 
 test('plan 15 model config: the lane copy aligns the stale Artemis profile, takes the RP system prompt off non-RP profiles and drops an unrouted dead one', () => {

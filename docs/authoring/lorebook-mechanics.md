@@ -283,7 +283,7 @@ SO never selects a story book globally and never edits a book outside the paths 
 
 | | File mode | Scan mode |
 |---|---|---|
-| Setting | `worldInfo.gatingMode = "file"`, only as the author's own choice (`worldInfo.gatingChosen`, `runtime/settingsModel.ts`), or the fallback when the scan capability is absent | `"scan"`, **the default since 2026-10-09** (R7); active only once the scan handler is seen on a probe scan (`stHost/worldInfoScan.ts:56-69`) and gated entries are normalized to rest off (`runtime/worldInfoNormalize.ts`). The first normalization needs no confirm and toasts counts only; switching from file to scan keeps the confirm (`runtime/worldInfoGating.ts`) |
+| Setting | `worldInfo.gatingMode = "file"`, only as the author's own choice (install-wide settings store only what the user set, F15), or the fallback when the scan capability is absent | `"scan"`, **the default since 2026-10-09** (R7); active only once the scan handler is seen on a probe scan (`stHost/worldInfoScan.ts:56-69`) and gated entries are normalized to rest off (`runtime/worldInfoNormalize.ts`). The first normalization needs no confirm and toasts counts only; switching from file to scan keeps the confirm (`runtime/worldInfoGating.ts`) |
 | How | `setWIEntriesState` writes `disable` into the book files, one load, save and read-back per book, and no write at all when no entry's state would change (R13; `runtime/effectSteps.ts` `applyWorldInfo`, `stHost/worldInfo.ts`) | The LAST `ENTRIES_LOADED` listener flips `disable` on the per-scan copies (`runtime/scanGatePlan.ts:74-121`, `runtime/worldInfoScan.ts:26-58`); no file write |
 | Cross-chat leak | The flags are global file state; a guard on the scan copies (`runtime/worldInfoScanGuard.ts:33-64`) re-applies the right plan for the chat being scanned | none by construction |
 | Timed effects | each file toggle changes the entry hash (section 7) | only the copy's hash; an "on" entry hashes the same every scan. The gate never adds a `disable` key the copy lacks (`scanGatePlan.ts:71-81`) |
@@ -292,7 +292,7 @@ SO never selects a story book globally and never edits a book outside the paths 
 
 `worldInfoFilesHeld()` stops file writes while scan mode is active or still settling (`runtime/worldInfoMode.ts:31`; used at `effectsApplier.ts:202`, `296`, `341`).
 
-The normalizer writes `disable: true` only on gated entries of listed books and records what each was (`normalizedFrom`), so a story's removal can offer them back; an entry outside every gated set is never written, whatever its state. A stored `gatingMode: "file"` without `gatingChosen` reads as the scan default, so an install that never chose switches on its next start.
+The normalizer writes `disable: true` only on gated entries of listed books and records what each was (`normalizedFrom`), so a story's removal can offer them back; an entry outside every gated set is never written, whatever its state. An install that never chose file mode stores no `gatingMode`, so it reads the scan default.
 
 ### 14.4 Lore-select and exclusive (`runtime/loreSelect.ts`, `loreExclusive.ts`, `judge/lore.ts`)
 

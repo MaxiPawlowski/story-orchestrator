@@ -58,7 +58,7 @@
       }
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; globalThis.__v2405judge = { before: JSON.parse(JSON.stringify(root.settings.judge)) }; root.settings.judge = { ...root.settings.judge, enabled: true, uses: { ...root.settings.judge.uses, loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: SillyTavern.getContext().getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`the judge plugin is not configured here, so lore-select cannot force anything: ${JSON.stringify(status)}`); if (!globalThis.storyOrchestratorLore.selector.active()) throw new Error('lore-select is not active: the story has no lore_select scope'); return { loreSelect: true, plugin: status.pluginVersion ?? 'configured' };",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; globalThis.__v2405judge = { before: structuredClone(root.settings?.judge) }; root.settings ??= {}; root.settings.judge = { ...(root.settings.judge ?? {}), enabled: true, uses: { ...(root.settings.judge?.uses ?? {}), loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: SillyTavern.getContext().getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`the judge plugin is not configured here, so lore-select cannot force anything: ${JSON.stringify(status)}`); if (!globalThis.storyOrchestratorLore.selector.active()) throw new Error('lore-select is not active: the story has no lore_select scope'); return { loreSelect: true, plugin: status.pluginVersion ?? 'configured' };",
       "log": true
     },
     {
@@ -109,7 +109,7 @@
       }
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (globalThis.__v2405judge?.before) root.settings.judge = globalThis.__v2405judge.before; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); return { judge: root.settings.judge.uses.loreSelect === false ? 'restored' : root.settings.judge.uses.loreSelect };",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (globalThis.__v2405judge) (root.settings ??= {}).judge = globalThis.__v2405judge.before; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); const loreSelect = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.loreSelect; return { judge: loreSelect === false ? 'restored' : loreSelect };",
       "log": true
     }
   ],

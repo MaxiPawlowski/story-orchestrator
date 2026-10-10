@@ -24,10 +24,10 @@ export function parseWiGating(value: string | undefined | null): WiGatingMode | 
 export async function readWiGating(page): Promise<WiGatingCapture | null> {
   return evaluateInST(page, () => {
     const status = (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.()?.wiGating;
-    const settings = (globalThis as any).SillyTavern?.getContext?.()?.extensionSettings?.['story-orchestrator']?.settings?.worldInfo;
+    const settings = (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.()?.worldInfo;
     if (!settings) return null;
     const entries: number = Object.values(settings.normalized ?? {}).reduce((sum: number, comments: any) => sum + (Array.isArray(comments) ? comments.length : 0), 0) as number;
-    return { mode: settings.gatingMode === 'scan' ? 'scan' : 'file', active: status?.active === true, ledgerEntries: entries, capability: status?.capability?.state ?? null };
+    return { mode: settings.gatingMode === 'file' ? 'file' : 'scan', active: status?.active === true, ledgerEntries: entries, capability: status?.capability?.state ?? null };
   }, null);
 }
 

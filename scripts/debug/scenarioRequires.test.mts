@@ -177,6 +177,6 @@ test('no-model lane: only model keys leave secrets.json, and the judge flag is w
   assert.deepEqual((off.extension_settings as any)['story-orchestrator'].v2Stories, [1]);
   assert.deepEqual((off.extension_settings as any)['story-orchestrator'].settings.extraction, { cadence: 2 });
   assert.equal(judgeEnabledIn(withJudgeEnabled({}, true)), true);
-  assert.equal(judgeEnabledIn({}), null);
+  assert.equal(judgeEnabledIn({}), true, 'an unset judge.enabled reads as its default (on)');
   assert.throws(() => withJudgeEnabled(null, true), /not an object/);
 });

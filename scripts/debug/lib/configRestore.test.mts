@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blockingDialogFor, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
+import { blockingDialogFor, emptySnapshotRefusal, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
   const snapshot = { settings: { cadence: 3 }, v2Stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
@@ -11,6 +11,11 @@ test('a restore keeps a story and a wizard session another session created after
   assert.deepEqual((next?.wizardSessions as Array<{ key: string }>).map((session) => session.key), ['mine', 'peer-draft']);
   assert.deepEqual(preservedStories, ['peer']);
   assert.deepEqual(preservedSessions, ['peer-draft']);
+});
+
+test('a snapshot whose settings delta was absent restores to absent, whatever the run stored', () => {
+  const { next } = mergeRestore({ v2Stories: [{ id: 'mine' }] }, { settings: { judge: { enabled: false } }, v2Stories: [{ id: 'mine' }] });
+  assert.equal(next && 'settings' in next, false);
 });
 
 test('a restore to "no config" stays a delete', () => {
@@ -99,4 +104,19 @@ test('A25: a refused import that still wrote a record is removed, because the re
 test('A25 control: an unreadable library before the run removes nothing, so no user story is at risk', () => {
   const current = [story('user-story', 1, 'h-user'), story('refused-import', 1, 'h-refused')];
   assert.deepEqual(planLibraryRestore({ trusted: false, records: [] }, current).next, current);
+});
+
+test('F15: a trusted capture of an all-defaults root restores to it, over whatever the run stored', () => {
+  const live = ['settings', 'schema'];
+  assert.equal(emptySnapshotRefusal({ trusted: true, present: true, value: {} }, live), null);
+  assert.equal(emptySnapshotRefusal({ trusted: true, present: false, value: null }, live), null);
+  assert.deepEqual(mergeRestore({}, { settings: { judge: { enabled: false } }, schema: 1 }).next, {});
+});
+
+test('F15: a capture that could not read the settings is refused over a populated root, and only there', () => {
+  const live = ['settings'];
+  assert.match(emptySnapshotRefusal({ trusted: false, present: false, value: null }, live) ?? '', /proves nothing/);
+  assert.match(emptySnapshotRefusal({ present: true, value: {} }, live) ?? '', /proves nothing/);
+  assert.equal(emptySnapshotRefusal({ trusted: false, present: false, value: null }, []), null);
+  assert.equal(emptySnapshotRefusal({ trusted: false, present: true, value: { settings: {} } }, live), null);
 });

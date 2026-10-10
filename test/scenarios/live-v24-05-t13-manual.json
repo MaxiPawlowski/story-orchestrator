@@ -623,7 +623,7 @@
       }
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'scan', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'scan' };",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; (root.settings ??= {}).worldInfo = { gatingMode: 'scan', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'scan' };",
       "log": true
     },
     {
@@ -714,7 +714,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); await rt.selectStory('so-t13-s'); if (rt.getSnapshot().storyId !== 'so-t13-s' || !rt.getSnapshot().ready) throw new Error('chat S does not play story S'); globalThis.__soT13m.here('S'); const root = ctx.extensionSettings['story-orchestrator']; globalThis.__t13judge = JSON.parse(JSON.stringify(root.settings.judge)); root.settings.judge = { ...root.settings.judge, enabled: true, uses: { ...root.settings.judge.uses, loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`the judge plugin is not configured: ${JSON.stringify(status)}`); if (!globalThis.storyOrchestratorLore.selector.active()) throw new Error('lore-select is not active for story S'); const arm = await globalThis.__soT13m.s7Arm(); globalThis.__m = { before: globalThis.__soT13m.slots() }; return arm;",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); await rt.selectStory('so-t13-s'); if (rt.getSnapshot().storyId !== 'so-t13-s' || !rt.getSnapshot().ready) throw new Error('chat S does not play story S'); globalThis.__soT13m.here('S'); const root = ctx.extensionSettings['story-orchestrator']; globalThis.__t13judge = { judge: structuredClone(root.settings?.judge) }; root.settings ??= {}; root.settings.judge = { ...(root.settings.judge ?? {}), enabled: true, uses: { ...(root.settings.judge?.uses ?? {}), loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`the judge plugin is not configured: ${JSON.stringify(status)}`); if (!globalThis.storyOrchestratorLore.selector.active()) throw new Error('lore-select is not active for story S'); const arm = await globalThis.__soT13m.s7Arm(); globalThis.__m = { before: globalThis.__soT13m.slots() }; return arm;",
       "log": true
     },
     {
@@ -725,7 +725,7 @@
       }
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; try { return await globalThis.__soT13m.s7Result(globalThis.__m.before); } finally { if (globalThis.__t13judge) root.settings.judge = globalThis.__t13judge; globalThis.storyOrchestratorJudge.invalidateStatus(); SillyTavern.getContext().saveSettingsDebounced(); }",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; try { return await globalThis.__soT13m.s7Result(globalThis.__m.before); } finally { if (globalThis.__t13judge) (root.settings ??= {}).judge = globalThis.__t13judge.judge; globalThis.storyOrchestratorJudge.invalidateStatus(); SillyTavern.getContext().saveSettingsDebounced(); }",
       "log": true
     },
     {
@@ -748,7 +748,7 @@
       }
     },
     {
-      "eval": "const prep = await globalThis.__soT13m.s1cPrepare(); globalThis.__soT13m.off(); await new Promise((resolve) => setTimeout(resolve, 2000)); const judge = SillyTavern.getContext().extensionSettings['story-orchestrator'].settings.judge.uses.loreSelect; console.log('[T13 manual record]', JSON.stringify(globalThis.__soT13m.report())); return { record: globalThis.__soT13m.report(), judgeLoreSelect: judge, note: 'books and scan mode are LEFT for the S1c leg; finish by hand, then restore worldInfo = file and remove --marker SO-T13' };",
+      "eval": "const prep = await globalThis.__soT13m.s1cPrepare(); globalThis.__soT13m.off(); await new Promise((resolve) => setTimeout(resolve, 2000)); const judge = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge.uses.loreSelect; console.log('[T13 manual record]', JSON.stringify(globalThis.__soT13m.report())); return { record: globalThis.__soT13m.report(), judgeLoreSelect: judge, note: 'books and scan mode are LEFT for the S1c leg; finish by hand, then restore worldInfo = file and remove --marker SO-T13' };",
       "log": true
     }
   ]

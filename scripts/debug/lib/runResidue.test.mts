@@ -51,3 +51,10 @@ test('spikes absent before and switched on during the run are restored to absent
   assert.equal(plan.spikes, null);
   assert.equal(residueCount(plan), 1);
 });
+
+test('spikes compare the effective view and restore the stored delta, so a normalised store is not residue', () => {
+  const effective = { sp5Scenario: false, reasoningEffect: false };
+  assert.equal(residueOf({ ...base(), spikes: effective, spikesStored: { sp5Scenario: false } }, { ...base(), spikes: effective, spikesStored: null }).spikes, undefined);
+  const plan = residueOf({ ...base(), spikes: effective, spikesStored: null }, { ...base(), spikes: { ...effective, sp5Scenario: true }, spikesStored: { sp5Scenario: true } });
+  assert.equal(plan.spikes, null, 'an absent stored section is restored to absent');
+});

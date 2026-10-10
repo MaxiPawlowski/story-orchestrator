@@ -60,7 +60,8 @@ await withST(async (page) => {
   try {
     await page.evaluate(() => {
       const root = (globalThis as any).SillyTavern.getContext().extensionSettings['story-orchestrator'];
-      root.settings.image.enabled = false; root.settings.sprites.onDemand = false; root.settings.extraction.enabled = false;
+      const ours = (root.settings ??= {});
+      ours.image = { ...(ours.image ?? {}), enabled: false }; ours.sprites = { ...(ours.sprites ?? {}), onDemand: false }; ours.extraction = { ...(ours.extraction ?? {}), enabled: false };
     });
     await openGroup(page, argValue(process.argv.slice(2), '--group', 'Adolion - The Saga'));
     await page.evaluate(async (story) => {

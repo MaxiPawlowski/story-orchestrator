@@ -957,7 +957,7 @@
       }
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'scan', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'scan', note: 'takes effect at the next startRuntime (the reload below)' };",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; (root.settings ??= {}).worldInfo = { gatingMode: 'scan', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'scan', note: 'takes effect at the next startRuntime (the reload below)' };",
       "log": true
     },
     {
@@ -1039,7 +1039,7 @@
       "log": true
     },
     {
-      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { ...root.settings.worldInfo, gatingMode: 'file' }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'file', note: 'S6: the file path runs over normalised books after the reload' };",
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; (root.settings ??= {}).worldInfo = { ...root.settings.worldInfo, gatingMode: 'file' }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'file', note: 'S6: the file path runs over normalised books after the reload' };",
       "log": true
     },
     {
@@ -1055,7 +1055,7 @@
       "log": true
     },
     {
-      "eval": "await globalThis.storyOrchestratorRuntime.removeStory('so-t13-d'); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); if (globalThis.__soT13?.disarm) globalThis.__soT13.disarm(); console.log('[T13 spike record]', JSON.stringify(T)); return { record: T, restored: 'worldInfo = file, empty ledger' };",
+      "eval": "await globalThis.storyOrchestratorRuntime.removeStory('so-t13-d'); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; (root.settings ??= {}).worldInfo = { gatingMode: 'file', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); if (globalThis.__soT13?.disarm) globalThis.__soT13.disarm(); console.log('[T13 spike record]', JSON.stringify(T)); return { record: T, restored: 'worldInfo = file, empty ledger' };",
       "log": true
     },
     {

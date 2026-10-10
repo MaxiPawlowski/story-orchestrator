@@ -70,7 +70,7 @@ export async function buildCardBase(page, spec: { character?: string } = {}) {
   } finally {
     await page.evaluate((saved) => {
       const ctx = (globalThis as any).SillyTavern.getContext();
-      ctx.extensionSettings['story-orchestrator'].settings.sprites = saved;
+      (ctx.extensionSettings['story-orchestrator'].settings ??= {}).sprites = saved;
       (globalThis as any).storyOrchestratorRuntime.touch();
     }, saved);
     await saveSettingsNow(page);

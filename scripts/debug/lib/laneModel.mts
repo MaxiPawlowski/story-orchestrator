@@ -21,11 +21,13 @@ export function withJudgeEnabled(settings: unknown, enabled: boolean): Record<st
   return { ...settings, extension_settings: { ...extensions, 'story-orchestrator': { ...root, settings: { ...ours, judge: { ...judge, enabled } } } } };
 }
 
+const JUDGE_ENABLED_DEFAULT = true;
+
 export const judgeEnabledIn = (settings: unknown): boolean | null => {
   const value = isRecord(settings) && isRecord(settings.extension_settings) && isRecord(settings.extension_settings['story-orchestrator'])
     ? (settings.extension_settings['story-orchestrator'] as Record<string, unknown>).settings
     : null;
-  return isRecord(value) && isRecord(value.judge) && typeof value.judge.enabled === 'boolean' ? value.judge.enabled : null;
+  return isRecord(value) && isRecord(value.judge) && typeof value.judge.enabled === 'boolean' ? value.judge.enabled : JUDGE_ENABLED_DEFAULT;
 };
 
 export const OFFLINE_PORT = 18079;
@@ -78,7 +80,7 @@ export function offlineProblems(settings: unknown, lanePort: number, podLane: Of
   return [
     ...[...seen].map((url) => `settings.json still names ${url}`),
     ...(ours?.image?.enabled === false ? [] : ['image.enabled is not false']),
-    ...(ours?.sprites?.enabled === false ? [] : ['sprites.enabled is not false']),
+    ...(ours?.sprites?.enabled === true && ours?.sprites?.explicit === true ? ['sprites.enabled is not false'] : []),
     ...(Array.isArray(disabled) && disabled.includes('stable-diffusion') ? [] : ['stable-diffusion is not disabled']),
     ...(podLane || judgeEnabledIn(settings) === false ? [] : ['judge.enabled is not false']),
     ...(isRecord(settings) && (settings.power_user as Record<string, unknown> | undefined)?.default_persona == null && settings.user_avatar === OFFLINE_PERSONA ? [] : [`the persona is not the install's first (${OFFLINE_PERSONA}, no default persona)`]),
