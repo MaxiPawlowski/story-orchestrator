@@ -153,8 +153,8 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
         const notReady = providerStatus?.problem ? LOCAL_PROBLEM_COPY[providerStatus.problem] ?? providerStatus.problem : null;
         const problem = notReady ? <span className="so-warning-text"> Not ready: {notReady}.</span> : null;
         return (
-          <div key={provider} id={`so-judge-local-${provider}`} className="text-xs opacity-70">
-            {info.label} runs on this machine{where}: nothing it is asked leaves it.{model}{folder}{problem}
+          <div key={provider} id={`so-judge-local-${provider}`} className="text-xs">
+            <span className="opacity-70">{info.label} runs on this machine{where}: nothing it is asked leaves it.{model}{folder}</span>{problem}
           </div>
         );
       }
