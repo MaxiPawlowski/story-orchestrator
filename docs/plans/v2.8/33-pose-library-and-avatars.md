@@ -222,6 +222,7 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
    **Recommended: yes.**
 4. Shipped library of ~40 generic poses plus story and install-wide custom poses? **Recommended: yes.**
 5. mesh-avatar-studio: park with v2.9 05.1 (close-shot live head), no work now? **Recommended: yes.**
+   **Owner decision 2026-10-10:** brought into v2.8 as [plan 36](36-live-head.md), building on `v2.8-live-head`; posing stays separate.
 6. Pose pick in the classifier chain, on by default? **Recommended: yes (owner rule), after B1–B2.**
 
 ## 8. Unresolved questions

@@ -58,7 +58,8 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A19 | Curator ops on `constant` entries wait for review in `auto` mode (author decision). **Proposed, needs owner pick** | 25 rank 5 (P5), v2.7 02 C13 |
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
 | A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
-| A22 | Pose library + cheap re-posing (skeleton-guided Qwen edit, S0 spike first) and layered looks that change with the story; mesh-avatar-studio parked with v2.9 05.1. **Needs owner pick on the options** | 33 |
+| A22 | Pose library + cheap re-posing (skeleton-guided Qwen edit, S0 spike first) and layered looks that change with the story; live head moved to A23. **Needs owner pick on the pose options** | 33 |
+| A23 | Live close-shot head (mesh-avatar-studio): owner approved 2026-10-10; building on `v2.8-live-head`, deterministic rig/runtime/tool; vision and LI checks owed | 36, 33 §7 decision 5, v2.9 05.1 |
 
 ## Measurements (need a pod or a free 3090)
 

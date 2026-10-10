@@ -916,6 +916,10 @@
     "src/runtime/createNearDups.ts#createNearDups": {
       "status": "local",
       "note": "v2.8 A15: fills a local result array from a temporary vector collection it owns and purges; the caller (LoreCreator.run) checks ownership after it returns. Tests: runtime/createNearDups.test.ts."
+    },
+    "src/sprites/liveHead/mount.ts#attachHead": {
+      "status": "checked",
+      "note": "v2.8 36: takes a RunGuard, checks after prepareHead and before each layer/publication. Its frame callback rechecks ownership; abort, context loss and teardown synchronously restore the static sprite and dispose resources. prepareHead checks after every await and holds no external writes. LiveHead's continuation checks the same guard before keeping a disposer; stale callbacks cannot publish readiness. Cases: liveHead.test.ts and mount.test.ts."
     }
   }
 }

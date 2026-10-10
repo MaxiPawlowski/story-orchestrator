@@ -4,6 +4,14 @@ import { authorGuideDoc } from "./guideLinks";
 
 export const IMAGE_FEATURES: readonly Feature[] = [
   {
+    id: "live-head", name: "Live close-shot head", area: "images", audience: "setup",
+    oneLine: "A rigged close shot breathes, blinks and talks as a reply streams.",
+    what: "Import a rig for a member's look in Author view. Close shots animate in the page; missing rigs keep the static sprite. Reduced motion stops movement.",
+    where: settingsAt("#so-live-head-enabled", "Images › Sprite stage › Live close-shot head"),
+    settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
+    isOn: (settings) => settings.sprites.liveHead,
+  },
+  {
     id: "backgrounds", name: "Backgrounds", area: "images", audience: "author",
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",

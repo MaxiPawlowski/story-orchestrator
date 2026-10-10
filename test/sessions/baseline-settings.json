@@ -205,6 +205,8 @@
       "crossfadeMs": 250,
       "focus": true,
       "breathing": true,
+      "liveHead": true,
+      "liveHeadRigs": {},
       "blink": true,
       "mouth": "simple",
       "cardOverlay": true,
