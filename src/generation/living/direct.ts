@@ -116,10 +116,11 @@ export async function runBranch(run: BranchRun, model: ModelCall, ask: ModelAsk)
   return { status: "refused", issues: retry, attempts: DIRECTOR_ATTEMPTS, raw };
 }
 
-async function critique(run: Pick<DirectorRun, "input">, draft: DirectorDraft, model: ModelCall, ask: ModelAsk): Promise<string[]> {
+async function critique(run: Pick<DirectorRun, "input" | "guard">, draft: DirectorDraft, model: ModelCall, ask: ModelAsk): Promise<string[]> {
   const prompt = renderDirectorCriticPrompt({
     premise: run.input.premise, canon: run.input.canon, frontier: `"${run.input.frontier.name}" — ${run.input.frontier.objective}`,
     name: draft.anchor.name, objective: draft.anchor.objective,
+    player: run.guard.playerNames.find((name) => name.trim()) ?? "the player", cast: run.input.cast.map((member) => member.name),
   });
   const verdict = parseCriticVerdict(await askText(model, prompt, { ...ask, pass: "critic", maxTokens: 384 }));
   if (verdict.pass || UNREADABLE_VERDICTS.includes(verdict.issues.join(""))) return [];

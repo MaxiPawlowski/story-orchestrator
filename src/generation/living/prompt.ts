@@ -94,6 +94,8 @@ export interface DirectorCriticInput {
   frontier: string;
   name: string;
   objective: string;
+  player: string;
+  cast: string[];
 }
 
 export function renderDirectorCriticPrompt(input: DirectorCriticInput): string {
@@ -102,10 +104,12 @@ export function renderDirectorCriticPrompt(input: DirectorCriticInput): string {
     `Premise: ${input.premise}`,
     `Canon:\n${input.canon.trim() || "(none)"}`,
     `It follows: ${input.frontier}`,
+    `The player: ${input.player}. The cast: ${input.cast.join(", ") || "(none named)"}.`,
     `Name: ${input.name}`,
     `Objective: ${input.objective}`,
-    `Fail it when the objective narrates or decides the player's own act (accepting, agreeing, refusing, choosing, going somewhere, feeling), `
-      + `when it contradicts the canon, or when the name gives away an outcome.`,
+    `What the cast and the world do is expected and allowed, and so is a scene that has moved on since the earlier turning point.`,
+    `Fail it only when the objective narrates or decides what ${input.player} does, says, chooses or feels (accepting, agreeing, refusing, choosing, going somewhere, `
+      + `feeling), when it directly contradicts a line of the canon, or when the name states how the turning point ends.`,
     `Return exact JSON: {"pass":true|false,"issues":["..."]}`,
   ].join("\n");
 }
@@ -115,18 +119,21 @@ export interface BranchContext {
   exits: string[];
   convergeTo: { name: string; objective: string };
   why: string;
+  prepared?: boolean;
 }
 
 export function renderBranchPrompt(input: DirectorInput, branch: BranchContext): string {
   const cast = input.cast.map((member) => `${member.name}${member.role ? ` (${member.role})` : ""}`);
   return [
-    `You direct a story that follows the player. The player has gone off the prepared ways forward; write a short branch that follows what they are actually doing.`,
+    branch.prepared
+      ? `You direct a story that follows the player. Write one more way forward from the current turning point, one the player might take instead of the prepared ones.`
+      : `You direct a story that follows the player. The player has gone off the prepared ways forward; write a short branch that follows what they are actually doing.`,
     `Story: ${input.title}`,
     `Premise: ${input.premise}`,
     ...(input.tone ? [`Tone: ${input.tone}`] : []),
     list("Cast (use only these people, or people the canon establishes)", cast),
     `The current turning point: "${input.frontier.name}" — ${input.frontier.objective}`,
-    list("The prepared ways forward the player is NOT taking", branch.exits),
+    list(branch.prepared ? "The prepared ways forward (yours must differ from every one of them)" : "The prepared ways forward the player is NOT taking", branch.exits),
     `Why this is a branch: ${branch.why}`,
     list("The latest messages, oldest first", branch.recent),
     `Canon:\n${input.canon.trim() || "(none yet)"}`,

@@ -33,7 +33,7 @@ const manager = {
   curatorDueForRun: () => false,
   innerBeatDue: () => false,
   meanwhile: { land: async () => 0, due: () => false, schedule: () => false },
-  living: { applyAccepted: async () => 0, compact: () => undefined, due: () => false, schedule: () => false },
+  living: { applyAccepted: async () => 0, compact: () => undefined, relevant: () => false, afterBoundary: async () => undefined },
   recordReconciliation: jest.fn(),
   judgedExtraction: jest.fn(() => false),
 } as unknown as RuntimeManager;
@@ -41,23 +41,23 @@ const manager = {
 const scheduler = { onBoundary: jest.fn(), schedule: jest.fn(), cadenceQueuedAt: jest.fn(() => false) } as unknown as ExtractionScheduler;
 
 describe("living story director (v2.8 22)", () => {
-  it("applies accepted turning points before expansion looks for a stub, and schedules the director off-path when due", async () => {
+  it("applies accepted turning points before expansion looks for a stub, and hands the rest to the port off-path", async () => {
     const order = BOUNDARY_WORK.map((item) => item.id);
     expect(order.indexOf("living-apply")).toBeLessThan(order.indexOf("expansion"));
     expect(order.indexOf("living-director")).toBeGreaterThan(order.indexOf("expansion-commit"));
     const applyAccepted = jest.fn(async () => 1);
     const compact = jest.fn();
-    const schedule = jest.fn(() => true);
-    const on = { ...manager, living: { applyAccepted, compact, due: () => true, schedule } } as unknown as RuntimeManager;
+    const afterBoundary = jest.fn(async () => undefined);
+    const on = { ...manager, living: { applyAccepted, compact, relevant: () => true, afterBoundary } } as unknown as RuntimeManager;
     runBoundaryWork({ result: result(2, 4), manager: on, scheduler });
     await Promise.resolve();
     await Promise.resolve();
     expect(applyAccepted).toHaveBeenCalledWith({ boundary: 1, messageId: 4 });
     expect(compact).toHaveBeenCalled();
-    expect(schedule).toHaveBeenCalledTimes(1);
-    const off = { ...manager, living: { applyAccepted, compact, due: () => false, schedule } } as unknown as RuntimeManager;
+    expect(afterBoundary).toHaveBeenCalledWith({ boundary: 1, messageId: 4, fired: false }, expect.any(Function));
+    const off = { ...manager, living: { applyAccepted, compact, relevant: () => false, afterBoundary } } as unknown as RuntimeManager;
     runBoundaryWork({ result: result(2, 4), manager: off, scheduler });
-    expect(schedule).toHaveBeenCalledTimes(1);
+    expect(afterBoundary).toHaveBeenCalledTimes(1);
   });
 });
 

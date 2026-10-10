@@ -1,13 +1,12 @@
 import { isValidationErrorList, parseStoryV2, type EngineState, type NormalizedStoryV2, type StoryEngine } from "@engine/index";
 import type { ModelCall } from "@extraction/index";
 import { getPlayerName } from "@services/STAPI";
-import { LivingCoordinator } from "./coordinators/livingCoordinator";
+import { LivingPort } from "./livingPort";
 import type { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { JournalRecordKind } from "./journal";
 import { livingInputs } from "./livingInputs";
 import type { JudgeRuntime } from "./judge";
-import { buildDivergenceRequest, DIVERGENCE_TIMEOUT_MS, exitDescriptions, readDivergence, windowLines, windowText } from "@generation/living/divergence";
 import type { RunOwnership } from "./runToken";
 import { findStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { LoadedStory, RuntimeExtras } from "./types";
@@ -29,9 +28,11 @@ export interface LivingWiring {
 
 const rebuildFailure = (parsed: ReturnType<typeof parseStoryV2> | null): string => (parsed && isValidationErrorList(parsed) ? parsed[0]?.message ?? "" : "");
 
-export function wireLiving(wiring: LivingWiring): LivingCoordinator {
+const divergence = () => import("@generation/living/divergence");
+
+export function wireLiving(wiring: LivingWiring): LivingPort {
   const { engine, expansion } = wiring;
-  return new LivingCoordinator({
+  return new LivingPort({
     ...wiring.view, ...wiring.lifecycle,
     loaded: () => {
       const loaded = wiring.loaded();
@@ -52,10 +53,15 @@ export function wireLiving(wiring: LivingWiring): LivingCoordinator {
     historyFloor: () => (wiring.loaded() ? engine.historyFrom().boundary : null),
     enabled: () => wiring.extras().stagecraft.settings.livingEnabled !== false,
     branching: () => wiring.extras().stagecraft.settings.branchingEnabled !== false,
-    recentTurns: () => windowText(windowLines(wiring.chatRows())),
+    prefetch: () => wiring.extras().stagecraft.settings.prefetchEnabled !== false,
+    recentTurns: async () => {
+      const { windowLines, windowText } = await divergence();
+      return windowText(windowLines(wiring.chatRows()));
+    },
     askDivergence: async (story, activeId) => {
       const judge = wiring.judge();
       if (!judge?.active("divergence")) return null;
+      const { buildDivergenceRequest, DIVERGENCE_TIMEOUT_MS, exitDescriptions, readDivergence, windowLines } = await divergence();
       const request = buildDivergenceRequest(exitDescriptions(story, activeId), windowLines(wiring.chatRows()), getPlayerName() || "the player");
       const result = await judge.ask("divergence", request, { timeoutMs: DIVERGENCE_TIMEOUT_MS, summarize: (answers) => ({ fit: readDivergence(answers)?.p ?? "none" }) });
       return readDivergence(result.answers);

@@ -1,0 +1,133 @@
+{
+  "frontierId": "liv_1",
+  "raw": {
+    "format": 2,
+    "id": "lantern-coast-living",
+    "title": "Lantern Coast",
+    "description": "A living story on a fishing coast where the lanterns have started going out.",
+    "player": {
+      "role": "a newcomer who took a room above the harbour inn"
+    },
+    "living": {
+      "premise": "On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+      "tone": "quiet, salt-worn, a little uncanny",
+      "cast": [
+        "harbourmaster",
+        "innkeeper",
+        "keeper"
+      ],
+      "chapter_size": [
+        2,
+        3
+      ],
+      "ending": "director-proposes"
+    },
+    "qualities": [
+      {
+        "key": "trust_harbourmaster",
+        "type": "int",
+        "source": "extractor",
+        "rubric": "How far does the harbourmaster trust the player, from 0 to 3?"
+      },
+      {
+        "key": "lighthouse_lit",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has the lighthouse been lit again?"
+      },
+      {
+        "key": "liv_1_noticed_lanterns_dark",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player observe a harbour lantern going out, or hear a specific account of one going out?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "liv_1_way",
+        "name": "Toward The Lamp Room, After Dark",
+        "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "type": "intermediate",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_1",
+        "name": "The Lamp Room, After Dark",
+        "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "type": "anchor",
+        "tension_target": "stirring",
+        "chapter": "liv_ch_1"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "liv_open",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_noticed_lanterns_dark",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "harbourmaster",
+        "name": "Maren",
+        "role": "harbourmaster",
+        "drive": "keep the boats safe"
+      },
+      {
+        "id": "innkeeper",
+        "name": "Tobin",
+        "role": "innkeeper",
+        "drive": "keep the inn full"
+      },
+      {
+        "id": "keeper",
+        "name": "Ysolde",
+        "role": "lighthouse keeper",
+        "drive": "keep the light burning"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ],
+    "requirements": {
+      "members": [
+        "Maren",
+        "Tobin",
+        "Ysolde",
+        "Narrator"
+      ]
+    },
+    "chapters": [
+      {
+        "id": "liv_ch_1",
+        "title": "Chapter 1"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"A Room Above the Harbour\",\"objective\":\"Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow.\",\"tension\":\"tense\",\"snapshot\":{\"lighthouse_lit\":false},\"opens_when\":{\"new\":{\"key\":\"ysolde_spoke_of_the_light\",\"rubric\":\"Did the player hear Ysolde speak of the lighthouse light going unlit?\"}},\"new_qualities\":[],\"builds_on\":null,\"new_chapter\":false,\"chapter_title\":null,\"final\":false,\"reason\":\"Ysolde's arrival at the inn forces the harbour's silence into the open by lodging the lighthouse keeper under the same roof as the newcomer, and her refusal to relight gives the player a concrete pressure to act on or ignore.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

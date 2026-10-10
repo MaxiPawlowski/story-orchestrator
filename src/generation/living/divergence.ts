@@ -1,30 +1,13 @@
 import { gateLeaves, type NormalizedStoryV2 } from "@engine/index";
 import { choice, choiceAnswer, type JudgeAnswer, type JudgeRequest } from "@judge/index";
 import { isRecord } from "@utils/guards";
-import { LIVING_BRANCH_PREFIX, LIVING_STUB_SUFFIX } from "./types";
+import { LIVING_BRANCH_PREFIX, LIVING_STUB_SUFFIX, type DivergenceReading, type DivergenceState } from "./types";
 
 export const DIVERGENCE_NONE_P = 0.6;
 export const DIVERGENCE_SURE_P = 0.9;
 export const DIVERGENCE_STREAK = 2;
 export const DIVERGENCE_WINDOW = 6;
 export const DIVERGENCE_NONE = "none";
-
-export interface DivergenceState {
-  checkpointId: string | null;
-  streak: number;
-  lastBoundary: number;
-  last: DivergenceReading | null;
-  branchedFrom: string[];
-}
-
-export interface DivergenceReading {
-  source: "judge" | "refusal";
-  none: boolean;
-  p: number | null;
-  boundary: number;
-}
-
-export const createDivergenceState = (): DivergenceState => ({ checkpointId: null, streak: 0, lastBoundary: -1, last: null, branchedFrom: [] });
 
 export interface DivergenceStep {
   state: DivergenceState;

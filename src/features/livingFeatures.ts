@@ -18,7 +18,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
     what: "At a turning point with ways forward, the story notices when what you do fits none of them (refusing them twice, or the judge saying so twice in a row). "
       + "The story director then writes a short branch from where you are, and the road it takes rejoins the story further on. At most one branch per turning point.",
     where: { selector: "#so-branching-enabled", label: "Settings › World › Background helpers", surface: "settings" },
-    settings: ["stagecraft.branchingEnabled"], guideTopic: "living", doc: "author/topics/living.md", status: "experimental",
+    settings: ["stagecraft.branchingEnabled", "stagecraft.prefetchEnabled"], guideTopic: "branching", doc: "author/topics/branching.md", status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
     isOn: (settings) => settings.stagecraft.branchingEnabled !== false,
   },

@@ -111,6 +111,7 @@
       "meanwhileAcceptMode": "auto",
       "livingEnabled": true,
       "branchingEnabled": true,
+      "prefetchEnabled": true,
       "createEnabled": true,
       "createRequireMeasured": false
     },

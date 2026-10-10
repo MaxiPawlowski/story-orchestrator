@@ -1,4 +1,3 @@
-import type { DivergenceState } from "./divergence";
 import type { Chapter, Checkpoint, GateNode, LivingAutonomy, PrimitiveValue, Quality, TensionLevel, Transition } from "@engine/index";
 
 export const LIVING_MAX_NEW_QUALITIES = 2;
@@ -8,6 +7,24 @@ export const LIVING_OP_CAP = 400;
 export const LIVING_STUB_SUFFIX = "_way";
 export const LIVING_CHAPTER_PREFIX = "liv_ch_";
 export const LIVING_BRANCH_PREFIX = "liv_b";
+export interface DivergenceState {
+  checkpointId: string | null;
+  streak: number;
+  lastBoundary: number;
+  last: DivergenceReading | null;
+  branchedFrom: string[];
+}
+
+export interface DivergenceReading {
+  source: "judge" | "refusal";
+  none: boolean;
+  p: number | null;
+  boundary: number;
+}
+
+export const createDivergenceState = (): DivergenceState => ({ checkpointId: null, streak: 0, lastBoundary: -1, last: null, branchedFrom: [] });
+
+export const LIVING_PREFETCH_WHY = "prepared ahead: one more way forward the player might take instead of the written ones";
 
 export type LivingOpPayload =
   | { kind: "add-checkpoint"; checkpoint: Checkpoint }
@@ -67,6 +84,7 @@ export interface DirectorProposal {
   attempts: number;
   autonomy: LivingAutonomy;
   kind?: "branch";
+  prepared?: boolean;
   convergeTo?: string;
   why?: string;
   appliedAt?: { boundary: number; messageId: number };

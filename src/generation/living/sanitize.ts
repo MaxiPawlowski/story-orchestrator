@@ -1,6 +1,5 @@
 import { isRecord } from "@utils/guards";
-import { createDivergenceState, type DivergenceState } from "./divergence";
-import { createLivingState, type DirectorProposal, type LivingOp, type LivingRuntimeState } from "./types";
+import { createDivergenceState, createLivingState, type DirectorProposal, type DivergenceState, type LivingOp, type LivingRuntimeState } from "./types";
 
 const OP_KINDS = ["add-checkpoint", "add-transition", "add-stub", "add-quality", "add-chapter"];
 const STATUSES = ["proposed", "accepted", "applied", "rejected", "withdrawn", "failed"];

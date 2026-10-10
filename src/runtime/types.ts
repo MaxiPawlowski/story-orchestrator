@@ -132,6 +132,7 @@ export interface StagecraftSettings {
   meanwhileAcceptMode?: MeanwhileAcceptMode;
   livingEnabled?: boolean;
   branchingEnabled?: boolean;
+  prefetchEnabled?: boolean;
   createEnabled: boolean;
   createRequireMeasured: boolean;
 }

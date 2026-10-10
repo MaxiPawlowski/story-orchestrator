@@ -208,6 +208,7 @@ export const DrawerTabs = ({
           onRetry={() => void manager.retryExtraction()}
           onBranchFromOldest={onBranchFromOldest}
           onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)}
+          onSaveLiving={() => manager.living.saveAsStory({ includeUnreached: false })}
           setup={{ findings: setupFindings(snapshot), onShowMe, onFix, onDismiss: (check, dismissed) => manager.setCheckDismissed(check, dismissed) }}
         />}
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">

@@ -6,7 +6,8 @@ import { compactOps, dropOpsAfter, foldOps, graphEpoch, livingRaw } from "./fold
 import { excludedCheckpoints, projectLivingExport } from "./export";
 import { guardDraft, narratesPlayer } from "./guard";
 import { parseDirectorDraft } from "./parse";
-import { buildDirectorOps, checkDirectorOps, findFrontier, livingAutonomy, planChapter } from "./plan";
+import { findFrontier, livingAutonomy } from "./frontier";
+import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import { renderDirectorPrompt, type DirectorInput } from "./prompt";
 import { runDirector } from "./direct";
 import { createLivingState, type DirectorDraft, type LivingOp, type LivingOpPayload, type LivingRuntimeState } from "./types";

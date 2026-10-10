@@ -9,7 +9,8 @@ import type { DirectorDraft } from "@generation/living/types";
 import { heldSecrets, withoutSecretLines, type EpistemicEntry } from "@memory/index";
 import { defaultInlineSettings } from "./settingsModel";
 import { composeInlineTimeline, type InlineSources } from "./inlineTimeline";
-import { livingSlice } from "./livingSnapshot";
+import { livingAuthorView } from "./livingAuthorView";
+import { installLivingAuthorView, livingSlice } from "./livingSnapshot";
 import { buildNarrativeStatus } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
 import { playedProjection, projectionText } from "./playerProjection";
@@ -88,9 +89,10 @@ describe("v2.8 22 spoiler property: an unreached generated anchor and a held sec
       id: "p2", status: "applied" as const, epoch: "0:1:x", frontierId: "liv_1", anchorId: "liv_2", ops: [], issues: [], reason: "the bell thread", boundary: 2, messageId: 4,
       attempts: 1, autonomy: "auto" as const, at: "t", draft: draft(UNREACHED_NAME, UNREACHED_OBJECTIVE, "bell_heard"),
     }], epochBumps: 0, passes: 2, lastPass: null };
-    const player = livingSlice({ story: run.story, state: run.engine.serialize(), living, authorView: false, enabled: true, epoch: null });
+    const player = livingSlice({ story: run.story, state: run.engine.serialize(), living, authorView: false, enabled: true, branching: true, epoch: null });
     expect(player).toEqual({ canSave: true, author: null });
-    const author = livingSlice({ story: run.story, state: run.engine.serialize(), living, authorView: true, enabled: true, epoch: null });
+    installLivingAuthorView(livingAuthorView);
+    const author = livingSlice({ story: run.story, state: run.engine.serialize(), living, authorView: true, enabled: true, branching: true, epoch: null });
     expect(JSON.stringify(author)).toContain(UNREACHED_NAME);
   });
 

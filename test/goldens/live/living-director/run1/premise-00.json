@@ -1,0 +1,83 @@
+{
+  "frontierId": "liv_open",
+  "raw": {
+    "format": 2,
+    "id": "lantern-coast-living",
+    "title": "Lantern Coast",
+    "description": "A living story on a fishing coast where the lanterns have started going out.",
+    "player": {
+      "role": "a newcomer who took a room above the harbour inn"
+    },
+    "living": {
+      "premise": "On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+      "tone": "quiet, salt-worn, a little uncanny",
+      "cast": [
+        "harbourmaster",
+        "innkeeper",
+        "keeper"
+      ],
+      "chapter_size": [
+        2,
+        3
+      ],
+      "ending": "director-proposes"
+    },
+    "qualities": [
+      {
+        "key": "trust_harbourmaster",
+        "type": "int",
+        "source": "extractor",
+        "rubric": "How far does the harbourmaster trust the player, from 0 to 3?"
+      },
+      {
+        "key": "lighthouse_lit",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has the lighthouse been lit again?"
+      }
+    ],
+    "checkpoints": [],
+    "transitions": [],
+    "roster": [
+      {
+        "id": "harbourmaster",
+        "name": "Maren",
+        "role": "harbourmaster",
+        "drive": "keep the boats safe"
+      },
+      {
+        "id": "innkeeper",
+        "name": "Tobin",
+        "role": "innkeeper",
+        "drive": "keep the inn full"
+      },
+      {
+        "id": "keeper",
+        "name": "Ysolde",
+        "role": "lighthouse keeper",
+        "drive": "keep the light burning"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ],
+    "requirements": {
+      "members": [
+        "Maren",
+        "Tobin",
+        "Ysolde",
+        "Narrator"
+      ]
+    }
+  },
+  "reply": "{\n  \"name\": \"The Second Lantern Fails\",\n  \"objective\": \"Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong.\",\n  \"tension\": \"stirring\",\n  \"snapshot\": {\n    \"trust_harbourmaster\": 0,\n    \"lighthouse_lit\": true\n  },\n  \"opens_when\": {\n    \"new\": {\n      \"key\": \"asked_about_lanterns\",\n      \"rubric\": \"Did the player press any local about the lanterns going out?\"\n    }\n  },\n  \"new_qualities\": [],\n  \"builds_on\": null,\n  \"new_chapter\": false,\n  \"chapter_title\": null,\n  \"final\": false,\n  \"reason\": \"Establishes the central uncanny pressure on-screen and gives the player a first live thread to pursue with Maren or the fishermen.\"\n}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

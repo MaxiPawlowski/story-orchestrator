@@ -26,6 +26,7 @@ interface RigOptions {
   authorView?: boolean;
   answers?: string[];
   judge?: Array<{ none: boolean; p: number } | null>;
+  prefetch?: boolean;
 }
 
 const rig = (options: RigOptions = {}) => {
@@ -63,10 +64,11 @@ const rig = (options: RigOptions = {}) => {
     historyFloor: () => engine.historyFrom().boundary,
     enabled: () => true,
     branching: () => true,
+    prefetch: () => options.prefetch ?? true,
     authorView: () => extras.authorView,
     sealsOn: () => true,
     inputs,
-    recentTurns: () => ["Max: I walk away from the ford and follow the miller's dog into the reeds."],
+    recentTurns: async () => ["Max: I walk away from the ford and follow the miller's dog into the reeds."],
     askDivergence: async () => { hooks.duringJudge?.(); return judge.shift() ?? null; },
     saveRecord: (story) => { calls.saved.push(story); return { ok: true, id: String(story.id), title: story.title }; },
     storyIdTaken: () => false,
@@ -300,8 +302,8 @@ describe("v2.8 22 living director at runtime", () => {
 });
 
 describe("v2.8 22 divergence branching", () => {
-  const atMill = async (judge: Array<{ none: boolean; p: number } | null>, answers: string[] = []) => {
-    const rigged = rig({ story: "living-hybrid", judge, answers });
+  const atMill = async (judge: Array<{ none: boolean; p: number } | null>, answers: string[] = [], prefetch = true) => {
+    const rigged = rig({ story: "living-hybrid", judge, answers, prefetch });
     await rigged.commit();
     return rigged;
   };
@@ -346,6 +348,35 @@ describe("v2.8 22 divergence branching", () => {
     rigged.hooks.duringJudge = () => { rigged.context.chatId = "c2"; };
     expect(await rigged.coordinator.checkDivergence({ boundary: 1, messageId: 2 }, sink.place)).toBe(false);
     expect(rigged.extras.living?.divergence).toBeUndefined();
+  });
+
+  it("prefetch prepares one more way forward from the checkpoint the player is at, and it counts as that checkpoint's one branch", async () => {
+    const off = await atMill([], [], false);
+    expect(off.coordinator.prefetchDue()).toBe(false);
+    const rigged = await atMill([{ none: true, p: 0.95 }], [answer(1, { name: "Along the Weir", objective: "The weir path along the millrace leads downstream." })]);
+    expect(rigged.coordinator.prefetchDue()).toBe(true);
+    const sink = placed();
+    expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
+    expect(sink.jobs.map((job) => job.reason)).toEqual(["living:prefetch:mill"]);
+    await sink.jobs[0].run?.();
+    expect(rigged.calls.prompts[0]).toContain("yours must differ from every one of them");
+    expect(rigged.extras.living?.proposals.at(-1)).toMatchObject({ kind: "branch", prepared: true, convergeTo: "ford", status: "accepted" });
+    expect(rigged.coordinator.prefetchDue()).toBe(false);
+    await rigged.commit();
+    expect(rigged.loaded.story.checkpointById.liv_b1_way).toMatchObject({ name: "Along the Weir" });
+    expect(rigged.coordinator.prefetchDue()).toBe(false);
+    expect(await rigged.coordinator.checkDivergence({ boundary: 2, messageId: 4 }, placed().place)).toBe(false);
+    expect(rigged.calls.journal).toContain("living director wrote another way forward");
+  });
+
+  it("prefetch never prepares before the first reply, nor ahead of the checkpoint the player is at", async () => {
+    const fresh = rig({ story: "living-hybrid" });
+    expect(fresh.coordinator.prefetchDue()).toBe(false);
+    const rigged = await atMill([]);
+    rigged.set("ford_found", true);
+    await rigged.commit();
+    expect(rigged.engine.serialize().activeCheckpointId).toBe("ford");
+    expect(rigged.coordinator.prefetchDue()).toBe(false);
   });
 
   it("a rollback that takes a branch back lets the checkpoint branch again", async () => {

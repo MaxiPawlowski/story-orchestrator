@@ -305,6 +305,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
     living: livingSlice({
       story, state, living: extras.living, authorView: extras.ui.authorView, enabled: extras.stagecraft.settings.livingEnabled !== false,
+      branching: extras.stagecraft.settings.branchingEnabled !== false,
       epoch: extras.living ? graphEpoch(extras.living) : null,
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),

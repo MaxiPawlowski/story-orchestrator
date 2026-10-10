@@ -167,6 +167,8 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
         onChange={(on) => manager.setStagecraftSettings({ livingEnabled: on })} />
       <CheckRow id="so-branching-enabled" setting="stagecraft.branchingEnabled" checked={snapshot.stagecraft.settings.branchingEnabled !== false}
         onChange={(on) => manager.setStagecraftSettings({ branchingEnabled: on })} />
+      <CheckRow id="so-prefetch-enabled" setting="stagecraft.prefetchEnabled" checked={snapshot.stagecraft.settings.prefetchEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ prefetchEnabled: on })} />
     </div>
   );
 };

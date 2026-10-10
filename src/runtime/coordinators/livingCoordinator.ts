@@ -1,14 +1,18 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
-import {
-  branchTarget, createDivergenceState, hasLiveBranch, markBranched, nextBranchId, stepDivergence, unmarkBranched, type DivergenceReading, type DivergenceState,
-} from "@generation/living/divergence";
+import { branchTarget, hasLiveBranch, markBranched, nextBranchId, stepDivergence, unmarkBranched } from "@generation/living/divergence";
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
-import { checkDirectorOps, findFrontier, livingAutonomy } from "@generation/living/plan";
-import { createLivingState, LIVING_OP_CAP, LIVING_PROPOSAL_LIMIT, type DirectorProposal, type LivingRuntimeState } from "@generation/living/types";
+import { findFrontier, livingAutonomy } from "@generation/living/frontier";
+import { checkDirectorOps } from "@generation/living/plan";
+import {
+  createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
+  type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
+} from "@generation/living/types";
 import { beginRun, type RunOwnership } from "../runToken";
 import type { LivingInputs } from "../livingInputs";
+
+export { livingAuthorView } from "../livingAuthorView";
 
 type LivingUnit = typeof import("../livingUnit");
 const loadUnit = (): Promise<LivingUnit> => import("../livingUnit");
@@ -34,10 +38,11 @@ export interface LivingCoordinatorDeps {
   historyFloor: () => number | null;
   enabled: () => boolean;
   branching: () => boolean;
+  prefetch: () => boolean;
   authorView: () => boolean;
   sealsOn: () => boolean;
   inputs: () => LivingInputs;
-  recentTurns: () => string[];
+  recentTurns: () => Promise<string[]>;
   askDivergence: (story: NormalizedStoryV2, activeId: string) => Promise<{ none: boolean; p: number } | null>;
   saveRecord: (raw: StoryV2) => { ok: true; id: string; title: string } | { ok: false; reason: string };
   storyIdTaken: (id: string) => boolean;
@@ -163,7 +168,7 @@ export class LivingCoordinator {
     const divergence = base.kind === "branch" && proposal.status !== "failed" ? markBranched(this.divergence, base.frontierId) : this.divergence;
     const lastPass = { boundary: proposal.boundary, frontierId: base.frontierId, at: base.at };
     this.write({ ...this.state, passes: this.state.passes + 1, lastPass, divergence, proposals: [...this.state.proposals, proposal] });
-    const what = base.kind === "branch" ? "a branch" : "the next turning point";
+    const what = base.prepared ? "another way forward" : base.kind === "branch" ? "a branch" : "the next turning point";
     const verb = base.autonomy === "auto" ? "wrote" : "proposed";
     this.deps.journal(
       proposal.status === "failed" ? "living director wrote nothing" : `living director ${verb} ${what}`,
@@ -221,7 +226,23 @@ export class LivingCoordinator {
     return true;
   }
 
-  async proposeBranch(why: string, debugResponse?: string | null): Promise<DirectorProposal | null> {
+  prefetchDue(): boolean {
+    const story = this.deps.getStory();
+    const state = this.deps.getState();
+    if (!this.deps.branching() || !this.deps.prefetch() || this.inFlight || !story || !state || this.atCap() || this.waitingNow()) return false;
+    const activeId = state.activeCheckpointId;
+    if (state.boundary < 1 || this.divergence.branchedFrom.includes(activeId) || !(story.outgoingByCheckpoint[activeId] ?? []).length) return false;
+    return !hasLiveBranch(story, activeId) && Boolean(branchTarget(story, activeId));
+  }
+
+  prefetch(place: (job: SchedulerJob) => unknown): boolean {
+    if (!this.prefetchDue()) return false;
+    const activeId = this.deps.getState()?.activeCheckpointId ?? "?";
+    place({ priority: LIVING_JOB_PRIORITY, reason: `living:prefetch:${activeId}`, run: async () => { await this.proposeBranch(LIVING_PREFETCH_WHY, null, true); } });
+    return true;
+  }
+
+  async proposeBranch(why: string, debugResponse?: string | null, prepared = false): Promise<DirectorProposal | null> {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     const loaded = this.deps.loaded();
@@ -230,12 +251,13 @@ export class LivingCoordinator {
     const targetId = branchTarget(story, sourceId);
     if (!targetId || hasLiveBranch(story, sourceId)) return null;
     const run = beginRun(this.deps.ownership);
-    const base: ProposalBase = { ...this.baseFor(story, state, sourceId), kind: "branch", convergeTo: targetId, why };
+    const base: ProposalBase = { ...this.baseFor(story, state, sourceId), kind: "branch", convergeTo: targetId, why, ...(prepared ? { prepared: true } : {}) };
     this.inFlight = true;
     try {
       const unit = await loadUnit();
       const outcome = await unit.branchNext({
-        story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, recent: this.deps.recentTurns(), inputs: this.deps.inputs(),
+        story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, ...(prepared ? { prepared: true } : {}),
+        recent: await this.deps.recentTurns(), inputs: this.deps.inputs(),
         model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
@@ -280,7 +302,7 @@ export class LivingCoordinator {
     if (!proposal || !(proposal.status === "proposed" || proposal.status === "failed")) return null;
     const divergence = proposal.kind === "branch" ? unmarkBranched(this.divergence, [proposal.frontierId]) : this.divergence;
     this.write({ ...patchProposal(this.state, id, { status: "rejected", reason: "regenerated" }), divergence });
-    return proposal.kind === "branch" ? this.proposeBranch(proposal.why ?? "regenerated by the author") : this.propose();
+    return proposal.kind === "branch" ? this.proposeBranch(proposal.why ?? "regenerated by the author", null, proposal.prepared === true) : this.propose();
   }
 
   private withdraw(reason: string) {

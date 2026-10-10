@@ -214,6 +214,12 @@ export const SETTING_COPY = {
     "When what you do fits none of a turning point's ways forward (you refused them twice, or the judge says so twice in a row), the story director writes a short "
       + "branch that follows you and rejoins the story further on. At most one branch per turning point; a swipe takes it back.",
   ),
+  "stagecraft.prefetchEnabled": copy(
+    "Prepare one more way forward",
+    "When you reach a turning point that has ways forward, the story director writes one more way out of it in the background, before you need it, so going "
+      + "off script finds a road already there. Only for the turning point you are at, never further ahead, and it counts as that turning point's one branch. "
+      + "Needs branching on.",
+  ),
   "stagecraft.createEnabled": copy(
     "New lorebook entries",
     "The curator may also propose a NEW keyed entry for a person, place, group or thing that at least two established facts name and no entry covers yet. "

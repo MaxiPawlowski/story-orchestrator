@@ -3,7 +3,8 @@ import { livingChapterSize } from "@engine/validate/living";
 import type { ModelCall } from "@extraction/modelRoute";
 import { runBranch, runDirector, type BranchOutcome, type DirectorOutcome } from "@generation/living/direct";
 import { exitDescriptions } from "@generation/living/divergence";
-import { livingChapters, planChapter, suggestedTension, usesLivingChapters } from "@generation/living/plan";
+import { livingChapters } from "@generation/living/frontier";
+import { planChapter, suggestedTension, usesLivingChapters } from "@generation/living/plan";
 import type { DirectorInput } from "@generation/living/prompt";
 import type { LivingInputs } from "./livingInputs";
 
@@ -77,6 +78,7 @@ export interface BranchNextInput {
   branchId: string;
   state: EngineState;
   why: string;
+  prepared?: boolean;
   recent: string[];
   inputs: LivingInputs;
   model: ModelCall;
@@ -89,7 +91,7 @@ export async function branchNext(input: BranchNextInput): Promise<BranchOutcome>
   const director = directorInput({ story, raw: input.raw, frontierId: sourceId, state, sealsOn: true, inputs: input.inputs, model: input.model, debugResponse: input.debugResponse });
   const target = story.checkpointById[targetId];
   const context = {
-    recent: input.recent, why: input.why, exits: exitDescriptions(story, sourceId).map((exit) => exit.text),
+    recent: input.recent, why: input.why, ...(input.prepared ? { prepared: true } : {}), exits: exitDescriptions(story, sourceId).map((exit) => exit.text),
     convergeTo: { name: target?.name ?? targetId, objective: target?.objective ?? "" },
   };
   return runBranch({
