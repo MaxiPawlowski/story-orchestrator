@@ -3,7 +3,6 @@ import {
   type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
-import { boundCardQualities } from "@engine/cardFields";
 import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkMotives, checkRequirementMembers } from "./authoringDiagnostics";
 import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
@@ -14,6 +13,7 @@ import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
 import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
+import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -75,6 +75,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...PLAYER_CONSEQUENCES,
   ...LIFE_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
+  ...WIDGET_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -210,14 +211,10 @@ const checkLatchingSnapshots = (run: DiagnosticRun) => {
 
 const checkQualitiesInScope = (run: DiagnosticRun) => {
   const { draft, push } = run;
-  const referencedKeys = boundCardQualities(draft.roster ?? [], draft.player);
-  draft.transitions.forEach((transition) => walkLeaves(transition.gate, (leaf) => referencedKeys.add(leaf.q)));
-  draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => referencedKeys.add(key)));
-  (draft.quests ?? []).flatMap((quest) => [quest.visible_when, quest.offered_when, quest.done_when, quest.failed_when,
-    ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])])
-    .forEach((gate) => gate && walkLeaves(gate, (leaf) => referencedKeys.add(leaf.q)));
+  const referencedKeys = scopedKeys(draft);
+  const widgetOnly = widgetGateKeys(draft);
   draft.qualities.forEach((quality, index) => {
-    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY) return;
+    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY || widgetOnly.has(quality.key)) return;
     if (!referencedKeys.has(quality.key)) {
       push(
         "quality-never-in-scope",
@@ -499,6 +496,7 @@ const DIAGNOSTIC_CHECKS = [
   checkPlayerProfile,
   checkAgendaPace,
   checkStageSprites,
+  checkWidgets,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

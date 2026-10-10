@@ -114,7 +114,7 @@ export interface Milestone {
   secret?: boolean;
 }
 
-export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board"] as const;
+export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html"] as const;
 export type WidgetKind = (typeof WIDGET_KINDS)[number];
 export const WIDGET_AUDIENCES = ["player", "author"] as const;
 export type WidgetAudience = (typeof WIDGET_AUDIENCES)[number];
@@ -137,6 +137,29 @@ export interface WidgetOptions {
   closed?: boolean;
 }
 
+export interface WidgetClue {
+  id: string;
+  text: string;
+  when: GateNode;
+  action?: string;
+}
+
+export interface WidgetClueLink {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface WidgetPin {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  checkpoint?: string;
+  when?: GateNode;
+  action?: string;
+}
+
 export interface StoryWidget {
   id: string;
   kind: WidgetKind;
@@ -147,6 +170,18 @@ export interface StoryWidget {
   audience: WidgetAudience;
   accent?: WidgetAccent;
   icon?: WidgetIcon;
+  clues?: WidgetClue[];
+  links?: WidgetClueLink[];
+  image?: string;
+  pins?: WidgetPin[];
+  template?: string;
+  source?: string;
+  actions?: WidgetIntent[];
+}
+
+export interface WidgetIntent {
+  id: string;
+  text: string;
 }
 
 export const questRewardKey = (questId: string): string => `quest_${questId}_rewarded`;

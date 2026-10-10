@@ -178,7 +178,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
 | 22 | written (exploration); decided (M1 first); not run |
-| 23 | written 2026-10-03 (story widgets); not decided |
+| 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook owed |
 | 24 | written 2026-10-03 (test plan); runs last |
 | 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
 

@@ -1,6 +1,9 @@
 # Plan 23: Story widgets (story-authored UI for its mechanics)
 
-**Status: DRAFT 2026-10-03 (user topic). Not decided.** Overview: `00-overview.md`. **Gate tiers:** implementation D;
+**Status: BUILT 2026-10-10 on `v2.8-story-widgets` (deterministic tiers; see §Gate record).** Option A's first five kinds were
+built in v2.7 36 (`meters`, `track`, `log`, `clock`, `board`); this branch adds `clues` and `map`, the Studio live preview,
+named player intents, and option B (sandboxed author HTML, kind `html`) shaped on MCP Apps, on by default per the owner's
+2026-10-10 rule (every built feature on). Was: DRAFT 2026-10-03 (user topic). Overview: `00-overview.md`. **Gate tiers:** implementation D;
 acceptance D (widgets read state, they never call a model). Builds after v2.8 18 (visible qualities), because most widgets
 show what 18 makes public.
 
@@ -143,3 +146,172 @@ It runs a downloaded story's script with the player's ST session. Not offered.
 v2.7 06 (panel framework, per-story toggles, roll store), v2.8 04 (player panels), v2.8 18 (public qualities, checks),
 v2.8 20 (relationship meters stay author-only), v2.8 02 (campaign pilot), `.claude/rules/architecture.md` (two personas,
 spoiler checklist).
+
+## Prior art (2026-10)
+
+Researched 2026-10-10 (coordinator brief, then the sources below read directly). What each one taught, what this branch
+took, and what is left as a follow-up.
+
+| Source | What it does | Taken | Follow-up |
+|---|---|---|---|
+| OpenAI Intelligent UI in ChatGPT (2026-10-07) | a library of native, streamable components the model arranges: buttons, forms, checklists | a small, typed catalog: two more kinds (`clues`, `map`), each a closed shape; no model chooses a layout | none: our layout is the author's, never the model's |
+| OpenUI (open standard) | a deliberately small domain catalog, compact declarations, reads (`Query`) apart from writes (`Mutation`), each write validated by the server before it runs | every widget interaction is a **named intent** declared in the story (`action` on a clue or pin, `actions[]` on an HTML panel) that becomes the player's own action: its text goes in the box where they type, to send or change; it never writes story state (agency + propose-only kept) | an intent that opens a drawer tab or asks for a declared roll (plan B's other two intents) |
+| OpenAI Apps SDK, "Plan components" | inline first; data tools apart from render tools; durable state on the server, ephemeral UI state in the component | the projection is the data (`runtime/widgets.ts`), the components only render it; the HTML page gets the same projection | fullscreen / picture-in-picture panel modes |
+| Claude Dashboards (2026-10-08) | every number can show the query behind it; each chart shows "last refreshed" | player freshness only: a clue or pin that appeared at the last turn is marked "new" (`fresh`), computed from the boundary log so it rolls back with it | author provenance (which quality, which boundary or reply changed a value) and a player "changed N replies ago" on meters and clocks |
+| Claude Motion | animation as code over text and shapes, so wording and timing stay editable | deterministic, state-diff transitions in CSS only: a meter bar eases to its new width, a clock box fills, a new clue slides in, a new pin drops; all inside `prefers-reduced-motion: no-preference`; no video | a per-story motion toggle |
+| MCP Apps (SEP-1865, `io.modelcontextprotocol/ui`) | `ui://` HTML resources rendered in a sandboxed iframe, JSON-RPC over `postMessage`, predeclared templates a host can review, loggable messages, consent for tool calls, text fallback | the model for option B; see the next section | see the next section |
+
+Sources:
+- https://www.macrumors.com/2026/10/07/chatgpt-intelligent-ui/
+- https://wavect.io/blog/openai-intelligent-ui-vs-openui/
+- https://www.openui.com/
+- https://developers.openai.com/apps-sdk/plan/components
+- https://runtimewire.com/article/anthropic-claude-dashboards-motion-beta
+- https://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps/
+- https://apps.extensions.modelcontextprotocol.io/api/documents/overview.html
+- the spec draft and SDK: https://github.com/modelcontextprotocol/ext-apps (`specification/draft/apps.mdx`, package
+  `@modelcontextprotocol/ext-apps`)
+
+## MCP Apps: what option B follows and what it leaves out
+
+Read 2026-10-10: the announcement, the API overview and the spec draft in `modelcontextprotocol/ext-apps`.
+
+**Followed.**
+- **Predeclared templates.** An HTML panel is a `widgets[]` entry of kind `html` with its whole `template` in the story, so
+  it exists before anything renders: the Studio shows it in the Widgets editor with a live preview (template size, the
+  view it is given, its actions, its plain version) and Diagnostics lists every one (`html-widget-declared`, info) with what
+  it may put in the box. MCP Apps' prefetch-and-review step is our Studio review.
+- **Sandboxed iframe, restrictive content policy by default.** `srcdoc` frame, `sandbox="allow-scripts"`, CSP
+  `default-src 'none'`, inline scripts and styles only, `data:` images, `connect-src 'none'` (the spec's default policy,
+  without its `'self'` entries, because we declare no domains at all), plus `form-action`, `base-uri`, `frame-src` and
+  `worker-src 'none'`; `referrerPolicy="no-referrer"`.
+- **JSON-RPC 2.0 over `postMessage`, a closed method set.** View → host: `ui/initialize` (request; answers
+  `protocolVersion`, `hostInfo`, `hostCapabilities.intents`, `hostContext {displayMode: "inline", theme}` and the
+  `widget` view), `ui/notifications/initialized`, `ui/notifications/size-changed` (clamped 40 to 800 px), and our one
+  write-shaped request `story/propose-intent {id}`. Host → view: `ui/notifications/widget-data` (the view, sent when it
+  changes; the spec's `ui/notifications/tool-result` in our terms) and `ui/resource-teardown` on unmount. Anything else is
+  answered `-32601` and logged. A small helper (`window.storyWidget`: `ready`, `onData`, `propose`, `resize`) is injected
+  before the template, so authors need no SDK.
+- **Every message auditable.** Every inbound message, every data notification and every host decision goes into an
+  in-memory audit ring (cap 200, `storyOrchestratorWidgetBridge.audit()`); the opening, each intent and each refusal also go
+  into the session journal (kind `author`). The full ring is not persisted: a resize per render would flood the 200-row
+  persisted journal.
+- **Consent, narrowed.** The only write is an intent, and it never acts: its declared text goes into the box where the
+  player types, refused while they are typing and paced to one per 1.5 s; the player's own Send is the consent.
+- **Graceful degradation.** `source` names an ordinary widget; with "Story-made panels" off (`display.presence.htmlWidgets`),
+  or after a closed page, the player gets that widget, so a story never depends on the page.
+
+**Left out, on purpose.**
+- **`allow-same-origin` and the double-iframe sandbox proxy on a separate origin.** The spec requires both for web hosts.
+  We have one origin (ST's), and an extension cannot stand up a second one; a frame with `allow-same-origin` on ST's origin
+  would reach the CSRF token and the chats. Instead the frame gets no same-origin grant at all, so it runs in a unique
+  opaque origin: the isolation the proxy's separate origin buys, without the proxy. The cost is that the page cannot use
+  storage or cookies of its own.
+- **Declared network domains (`ui.csp` connect / resource domains).** Not offered: a story is a stranger's file, and a page
+  that may reach a domain can report what the player has seen. Pictures go inline as `data:` URLs.
+- **`tools/call`, `resources/read`, `ui/message`, `ui/update-model-context`, `ui/open-link`, `ui/download-file`,
+  `ui/request-display-mode`, `sampling/createMessage`.** None is offered: the page never talks to a model, never writes
+  the chat, never opens links or files, and never changes the prompt (payload invariance: widgets change nothing sent to the
+  model). The two other intents plan B named ("open the drawer at X", "request a declared roll") are follow-ups.
+- **Display modes (fullscreen, pip).** Our panels are already movable and resizable in the panel frame; inline only.
+- **The SDK (`@modelcontextprotocol/ext-apps`).** Not used: it depends on the MCP client/core packages and zod, far over
+  the bundle headroom, and we use a five-method subset. The bridge is `runtime/htmlWidget.ts` (pure, tested) and
+  `components/widgets/HtmlWidgetFrame.tsx`, both in the lazy panel chunk.
+- **Waiting for a teardown answer.** We post `ui/resource-teardown` and unmount; the page has nothing to save.
+
+**Residual risk, stated.** A sandboxed frame may still navigate itself (`location.href = …`, a link, `meta refresh`), and
+no frame attribute or CSP directive blocks that in current browsers, so a hostile template can make one request that carries
+what it was shown (player-safe data the player has already seen). The frame counts its loads; a second load closes the page
+at once, shows the plain panel and journals it (`LeavingThePageClosesIt` story). Fetch, XHR, images, fonts, frames,
+workers, forms, popups, top navigation, parent access, cookies and storage are all blocked (`EscapeAttemptsAreBlocked`).
+
+## Decisions (2026-10-10, for the user)
+
+1. **Story-made HTML panels on by default.** Built on, per the owner's rule that every built feature ships on. The plan
+   text said off by default, and the residual self-navigation channel above exists. Recommended: keep on (the data a page
+   could leak is what the player already sees, and the panel closes on the first navigation); switch to off if a shared
+   story arrives from someone untrusted. One install setting, `display.presence.htmlWidgets`.
+2. **`roster` and `timeline` kinds** stay "on demand" (no story asks yet). Recommended: yes.
+3. **Map pins on a location enum.** Built: pins by `checkpoint` (reached = on the path) or by `when` (a gate). Not built: a
+   pin per enum value with "visited" memory, because the boundary log is capped at 200 and history would silently drop;
+   authors use a latching bool per place. Recommended: keep.
+4. **The Adolion pilot widget (an arcs board via v2.8 02)** is not part of this branch (public repo; content reviewed by a
+   second model per rule 11). Recommended: run it with v2.7 38's lab copy.
+5. **Follow-ups from §Prior art:** author provenance on values, player "changed N replies ago", drawer/roll intents,
+   per-story motion toggle. Recommended: build provenance first (author view only, no player copy change).
+
+## Gate record
+
+### 2026-10-10: build on `v2.8-story-widgets` (from master `201bd784`), deterministic tiers + no-model lane
+
+**What was built**
+
+- Format (`engine/gameSchema.ts`): `WIDGET_KINDS` gains `clues`, `map`, `html`; `StoryWidget` gains `clues[]`
+  (`id`, `text`, `when`, `action?`), `links[]`, `image`, `pins[]` (`id`, `label`, `x`, `y`, `checkpoint | when`,
+  `action?`), `template`, `source`, `actions[]` (`id`, `text`).
+- Validator (`engine/validate/widgets.ts`, still in the lazy game-layer chunk): `readWidgets(value, {qualityByKey,
+  qualities, checkpointIds}, errors)`; a clue is found by exactly one of a bool `quality` (normalized to a gate) or
+  `when`; link ends are clues of the widget, no self or duplicate link; `image` is a SillyTavern background file name
+  (`MAP_IMAGE_PATTERN`: no path, no colon, no query, an image extension); pins 0-100 %, on a known checkpoint or a gate;
+  items only on their own kind; actions 1-200 chars; HTML template 1-32000 chars, `source` an ordinary widget of the
+  same audience, one HTML panel per source, at most 10 actions; caps 40 items, 80 links.
+- Projection (`runtime/widgets.ts`, lazy): clues/pins absent until found or reached, links only between shown clues
+  (by index, no ids), a checkpoint pin `here` while active, `fresh` from the last boundary log entry; a wall with
+  nothing found is not drawn, a map always is; an HTML view carries its source view, the source is not listed again.
+- Named intents: `WidgetCard` renders `action` as a button that fills `#send_textarea` through `fillChatInput(text, "")`
+  (refused while the player is typing, never sends); the HTML bridge's `story/propose-intent {id}` fills only the
+  declared text.
+- Option B (`runtime/htmlWidget.ts` pure bridge + `runtime/htmlWidgetAudit.ts` ring,
+  `components/widgets/HtmlWidgetFrame.tsx`), all in the lazy panel chunk: see §MCP Apps. Install setting
+  `display.presence.htmlWidgets` (default on, settings copy, `PresenceControls` `#so-presence-html-widgets`, feature
+  `story-made-panels`, `test/sessions/baseline-settings.json`).
+- Motion: CSS transitions/animations for bars, clock boxes, new clues and pins, only under
+  `prefers-reduced-motion: no-preference`.
+- Studio: Widgets editor fields for clues/links, image/pins, source/template/actions, and `WidgetPreview` (per widget,
+  sample values for every key the widget reads and "reached" per pin checkpoint, rendered as the lines the player would
+  get) over `studio/widgetPreview.ts`.
+- Diagnostics (`studio/widgetDiagnostics.ts`, each with a `DIAGNOSTIC_CONSEQUENCES` line): `widget-item-never-read`
+  (warning; it replaces `quality-never-in-scope` for a key only widgets read), `map-pin-unreachable` (warning),
+  `map-image-missing` (warning, with the install's backgrounds), `html-widget-declared` (info, lists every HTML panel).
+  `checkQualitiesInScope` now shares `scopedKeys` with it.
+- Docs: `story-guide.md` topics `clues-and-maps` and `html-panels` (+ compact twins, Studio Game tab guide, generated
+  author pages via `npm run docs:guide`), the `widgets` topic names the new kinds, player guide `playing.md`, settings
+  reference + README feature table (`npm run docs:settings`).
+- Guards: `architecture.test.ts` presence list gains the five new modules (no prompt seam); widgets add no extraction
+  scope (payload invariance kept; a clue on an unread quality is a diagnostic, not a new read).
+
+**Tests (jest)**: `engine/validate/widgets.test.ts` (25: shapes and every refusal, control), `runtime/widgetKinds.test.ts`
+(15: hidden clues/pins/links byte-identical property, 4 seeds x 25 runs; rollback ≡ replay 4 seeds x 25 cuts plus a
+negative control; fresh/here; HTML source), `runtime/htmlWidget.test.ts` (18: sandbox grants, CSP before the template,
+method whitelist, notifications, declared-only intent text, pacing, refused fill, size clamp, audit clip and cap,
+journal filter), `studio/widgetDiagnostics.test.ts` (8: the four codes, preview lines), `diagnostics.test.ts` seeded run
+extended (every code once), `test/goldens/arrival-findings.json` re-recorded for the new fixture story (empty entry).
+
+**Commands (worktree, `ST_ROOT=C:/dev/SillyTavern-MainBranch`, read only)**
+- `npm run gates -- --no-storybook`: **all green in 96.9 s** (build, typecheck, typecheck:test, debug:typecheck, test
+  7313 pass / 1 skipped, lint, test:release, test:debug, test:replay 32 of 32 killed, test:plugin).
+  `test-storybook:ci` SKIPPED (worktree). `npm run typecheck:test`: clean.
+- Main entry `dist/index.js` **1,248,575 B** (budget 1,250,000): the bridge, frame, preview and new kinds are lazy; the
+  main entry carries only the setting copy, the feature entry and `presenceUi` wiring. Headroom is now 1.4 KB.
+
+**Live D, no model** (lane 11 under a private ST copy `C:\dev\so-lanes\agent-st-widgets`, lanes root
+`C:\dev\so-lanes\so-lanes`, seeded with `SO_LANE_OFFLINE=1`; the real ST slot, :8000 and the 3090 untouched):
+`test/scenarios/v28-23-widgets.json --sandbox --group "Group: Arin, DM Narrator"` **17/17 green x2**
+(`C:\dev\so-lanes\so-lanes\11\debug\runs\2026-10-10T08-24-37-168Z-so-scenario-run`, `…08-25-07-431Z-…`): player panels
+before and after a find, no hidden text in the snapshot or the page, the HTML panel's frame is `sandbox="allow-scripts"`
+and initializes over the bridge (audit `ui/initialize`, `initialized`, `size-changed`), story-made panels off shows the
+plain wall and its action fills the box without sending, the dock pin is `here` and fresh, a deleted message reverts every
+panel byte for byte, `assert-player-clean` 0 findings with the three panels open (moved beside the drawer so the tabs stay
+clickable; geometry restored after). Earlier red runs were fixture faults (a gate on unset values, panel state left open
+by a failed run), fixed in the fixture. The one console error is the fixture map's absent picture (404).
+
+**Stories to re-run (Storybook, not run here)**: `Panels/WidgetCard` (new `Clues`, `ClueActionRefused`, `CluesReadOnly`,
+`MapPins`, `MapPhone`, `CluesPhone`), `Panels/WidgetPanel` (new `CluesPanel`, `MapPanel`, `HtmlPanelFramed`,
+`HtmlPanelOffShowsPlainPanel`, `MapPhone`), `Panels/HtmlWidgetFrame` (new: `ReadsTheViewAndProposesDeclaredLines`,
+`EscapeAttemptsAreBlocked`, `LeavingThePageClosesIt`, `Phone`, `Wide`), `Studio/WidgetsEditor` (new `CluesMapAndHtml`,
+`PreviewOverASample`, `PreviewMapReached`, `KindsPhone`), plus `Studio/GameEditor`, `Panels/JournalPanel`,
+`Settings/PlayGroups` (presence controls gained a row).
+
+**Not run / owed**: Storybook interaction + a11y (above); the Adolion pilot widget (decision 4); a real-browser check
+that a hostile template's self-navigation request is the only channel (the story asserts closure, not the absence of the
+request).

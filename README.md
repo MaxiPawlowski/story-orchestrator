@@ -91,7 +91,8 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Playing | Repetition readout | Author view names phrases the latest reply repeats from the five before it. | Experimental |
 | Playing | Journal | A movable panel with your quests and a log of what happened, for stories that keep quests. |  |
 | Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
-| Playing | Story panels | Extra panels a story adds, such as a clock that fills or a board of quests. |  |
+| Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
+| Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |

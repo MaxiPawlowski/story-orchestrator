@@ -122,6 +122,14 @@ story can add its own panels (a clock filling up, a quest board). Open them from
 Overview or from the wand menu; each opens in its own panel you can move and resize. **Journal**, **Stat sheet** and
 **Story panels** in the settings turn each off, and the author can switch them off for one story.
 
+A clue wall lists what you have found, and a map marks the places you have reached, with "you are here" on the one
+you are at; something found at the last turn is marked new. A clue or a place can carry a button that puts a line in
+the box where you type ("I show the ledger page to the ferryman."); you can change it, and nothing is sent until you
+send it. Some stories bring a panel page of their own. It runs shut off from SillyTavern: it sees only what its plain
+panel shows, cannot read your chats or settings or fetch anything, and can only put one of the story's own lines in
+the box. A page that tries to open another page is closed at once. **Story-made panels** in the settings turns these
+off, and you get the plain panel instead.
+
 A swipe or an edit of the reply that finished a quest takes the quest, and whatever it gave you, back with it.
 
 ## Coming back after a break

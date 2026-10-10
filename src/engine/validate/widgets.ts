@@ -1,15 +1,31 @@
 import {
-  WIDGET_ACCENTS, WIDGET_AUDIENCES, WIDGET_ICONS, WIDGET_KINDS, type Quality, type StoryWidget, type ValidationError, type WidgetBind, type WidgetKind,
+  WIDGET_ACCENTS, WIDGET_AUDIENCES, WIDGET_ICONS, WIDGET_KINDS, type GateNode, type Quality, type StoryWidget, type ValidationError, type WidgetBind, type WidgetClue,
+  type WidgetClueLink, type WidgetKind, type WidgetPin,
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
 import { readGate, validateGate } from "./gates";
 import { GAME_ID_PATTERN, readLabel } from "./checks";
 
-const WIDGET_KEYS = ["id", "kind", "title", "bind", "options", "visible_when", "audience", "accent", "icon"] as const;
+const WIDGET_KEYS = ["id", "kind", "title", "bind", "options", "visible_when", "audience", "accent", "icon", "clues", "links", "image", "pins", "template", "source", "actions"] as const;
 const OPTION_KEYS = ["limit", "closed"] as const;
+const CLUE_KEYS = ["id", "text", "quality", "when", "action"] as const;
+const LINK_KEYS = ["from", "to", "label"] as const;
+const PIN_KEYS = ["id", "label", "x", "y", "checkpoint", "when", "action"] as const;
+const ITEM_KEYS = ["clues", "links", "image", "pins", "template", "source", "actions"] as const;
+const INTENT_KEYS = ["id", "text"] as const;
 export const WIDGET_LIMIT_MAX = 50;
 export const CLOCK_SEGMENTS = { min: 2, max: 12 } as const;
+export const WIDGET_ITEMS_MAX = 40;
+export const WIDGET_LINKS_MAX = 80;
+export const CLUE_TEXT_MAX = 200;
+export const MAP_IMAGE_PATTERN = /^[^/\\:?#%]{1,120}\.(png|jpe?g|webp|gif|avif|bmp)$/i;
+
+export interface WidgetRefs {
+  qualityByKey: Record<string, Quality>;
+  qualities: Quality[];
+  checkpointIds: ReadonlySet<string>;
+}
 
 const BIND_WORDS: Record<string, WidgetBind> = { quests: { quests: true }, path: { path: true }, arcs: { arcs: true } };
 
@@ -27,7 +43,11 @@ const readBind = (value: unknown, path: string, errors: ValidationError[]): Widg
 };
 
 const KIND_BINDS: Record<WidgetKind, ReadonlyArray<keyof WidgetBind | string>> = {
-  meters: ["quality", "qualities", "group"], track: ["path", "quests"], log: [], clock: ["quality"], board: ["quests", "arcs"],
+  meters: ["quality", "qualities", "group"], track: ["path", "quests"], log: [], clock: ["quality"], board: ["quests", "arcs"], clues: [], map: [], html: [],
+};
+
+const KIND_ITEMS: Record<WidgetKind, ReadonlyArray<(typeof ITEM_KEYS)[number]>> = {
+  meters: [], track: [], log: [], clock: [], board: [], clues: ["clues", "links"], map: ["image", "pins"], html: ["template", "source", "actions"],
 };
 
 const DEFAULT_BIND: Partial<Record<WidgetKind, WidgetBind>> = { track: { path: true }, board: { quests: true } };
@@ -70,7 +90,177 @@ const readLook = (value: Record<string, unknown>, path: string, errors: Validati
   return { ...(isOneOf(value.accent, WIDGET_ACCENTS) ? { accent: value.accent } : {}), ...(isOneOf(value.icon, WIDGET_ICONS) ? { icon: value.icon } : {}) };
 };
 
-const readWidget = (value: unknown, path: string, qualityByKey: Record<string, Quality>, qualities: Quality[], errors: ValidationError[]): StoryWidget | null => {
+const readFoundWhen = (value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): GateNode | undefined => {
+  if (value.quality !== undefined) {
+    const key = asString(value.quality)?.trim() ?? "";
+    const quality = refs.qualityByKey[key];
+    if (!quality) return refuse(errors, `${path}.quality`, `unknown quality '${key}'`, undefined);
+    if (quality.type !== "bool") return refuse(errors, `${path}.quality`, `'${key}' is not a bool, so it cannot say found; use when`, undefined);
+    return { q: key, op: "==", v: true };
+  }
+  const gate = readGate(value.when, `${path}.when`, errors);
+  if (gate) validateGate(gate, refs.qualityByKey, `${path}.when`, errors);
+  return gate ?? undefined;
+};
+
+export const WIDGET_ACTION_MAX = 200;
+
+const readAction = (value: unknown, path: string, errors: ValidationError[]): string | undefined => {
+  if (value === undefined) return undefined;
+  const text = typeof value === "string" ? value.trim() : "";
+  if (text && text.length <= WIDGET_ACTION_MAX) return text;
+  return refuse(errors, path, `an action is the player's own line, 1 to ${WIDGET_ACTION_MAX} characters, put in the box for them to send`, undefined);
+};
+
+const readList = (value: unknown, path: string, noun: string, max: number, errors: ValidationError[]): unknown[] | undefined => {
+  if (!Array.isArray(value) || !value.length) return refuse(errors, path, `${noun} are a non-empty list`, undefined);
+  if (value.length > max) return refuse(errors, path, `at most ${max} ${noun}`, undefined);
+  return value;
+};
+
+const uniqueIds = (items: ReadonlyArray<{ id: string }>, path: string, noun: string, errors: ValidationError[]) => {
+  const seen = new Set<string>();
+  items.forEach((item, index) => {
+    if (seen.has(item.id)) addError(errors, `${path}.${index}.id`, `duplicate ${noun} '${item.id}'`);
+    seen.add(item.id);
+  });
+};
+
+const readClue = (value: unknown, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetClue | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a clue is {id, text, quality} or {id, text, when}", null);
+  rejectUnknownKeys(value, CLUE_KEYS, path, errors);
+  const id = asString(value.id)?.trim() ?? "";
+  if (!GAME_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "a clue id is a lowercase slug");
+  const text = asString(value.text)?.trim() ?? "";
+  const textOk = text.length > 0 && text.length <= CLUE_TEXT_MAX;
+  if (!textOk) addError(errors, `${path}.text`, `a clue's text is 1 to ${CLUE_TEXT_MAX} characters`);
+  if ((value.quality === undefined) === (value.when === undefined)) return refuse(errors, path, "a clue is found by exactly one of quality or when", null);
+  const when = readFoundWhen(value, path, refs, errors);
+  const action = readAction(value.action, `${path}.action`, errors);
+  return GAME_ID_PATTERN.test(id) && textOk && when ? { id, text, when, ...(action ? { action } : {}) } : null;
+};
+
+const readLink = (value: unknown, path: string, clueIds: ReadonlySet<string>, errors: ValidationError[]): WidgetClueLink | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a link is {from, to, label?}", null);
+  rejectUnknownKeys(value, LINK_KEYS, path, errors);
+  const from = asString(value.from)?.trim() ?? "";
+  const to = asString(value.to)?.trim() ?? "";
+  const label = readLabel(value.label, `${path}.label`, errors);
+  if (!clueIds.has(from)) return refuse(errors, `${path}.from`, `'${from}' is not a clue of this widget`, null);
+  if (!clueIds.has(to)) return refuse(errors, `${path}.to`, `'${to}' is not a clue of this widget`, null);
+  if (from === to) return refuse(errors, path, "a link joins two different clues", null);
+  return { from, to, ...(label ? { label } : {}) };
+};
+
+const readLinks = (value: unknown, path: string, clues: WidgetClue[], errors: ValidationError[]): WidgetClueLink[] | undefined => {
+  if (value === undefined) return undefined;
+  const list = readList(value, path, "links", WIDGET_LINKS_MAX, errors);
+  if (!list) return undefined;
+  const ids = new Set(clues.map((clue) => clue.id));
+  const links = list.map((entry, index) => readLink(entry, `${path}.${index}`, ids, errors)).filter((link): link is WidgetClueLink => link !== null);
+  const pairs = new Set<string>();
+  links.forEach((link, index) => {
+    const pair = [link.from, link.to].sort().join(" ");
+    if (pairs.has(pair)) addError(errors, `${path}.${index}`, `'${link.from}' and '${link.to}' are linked twice`);
+    pairs.add(pair);
+  });
+  return links.length ? links : undefined;
+};
+
+const isPercent = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+
+const readPin = (value: unknown, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetPin | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a pin is {id, label, x, y, checkpoint} or {id, label, x, y, when}", null);
+  rejectUnknownKeys(value, PIN_KEYS, path, errors);
+  const id = asString(value.id)?.trim() ?? "";
+  if (!GAME_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "a pin id is a lowercase slug");
+  const label = readLabel(value.label, `${path}.label`, errors) ?? refuse(errors, `${path}.label`, "a pin needs a label", undefined);
+  if (!isPercent(value.x)) addError(errors, `${path}.x`, "x is a percentage of the image width, 0 to 100");
+  if (!isPercent(value.y)) addError(errors, `${path}.y`, "y is a percentage of the image height, 0 to 100");
+  if ((value.checkpoint === undefined) === (value.when === undefined)) return refuse(errors, path, "a pin shows by exactly one of checkpoint or when", null);
+  const checkpoint = typeof value.checkpoint === "string" ? value.checkpoint.trim() : undefined;
+  if (value.checkpoint !== undefined && (!checkpoint || !refs.checkpointIds.has(checkpoint))) return refuse(errors, `${path}.checkpoint`, `unknown checkpoint '${String(value.checkpoint)}'`, null);
+  const when = value.when === undefined ? undefined : readFoundWhen({ when: value.when }, path, refs, errors);
+  const action = readAction(value.action, `${path}.action`, errors);
+  if (!GAME_ID_PATTERN.test(id) || !label || !isPercent(value.x) || !isPercent(value.y) || (!checkpoint && !when)) return null;
+  return { id, label, x: value.x, y: value.y, ...(checkpoint ? { checkpoint } : {}), ...(when ? { when } : {}), ...(action ? { action } : {}) };
+};
+
+type WidgetItems = Pick<StoryWidget, "clues" | "links" | "image" | "pins" | "template" | "source" | "actions">;
+
+const readClueItems = (value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
+  const list = readList(value.clues, `${path}.clues`, "clues", WIDGET_ITEMS_MAX, errors);
+  if (!list) return null;
+  const clues = list.map((entry, index) => readClue(entry, `${path}.clues.${index}`, refs, errors)).filter((clue): clue is WidgetClue => clue !== null);
+  uniqueIds(clues, `${path}.clues`, "clue", errors);
+  const links = readLinks(value.links, `${path}.links`, clues, errors);
+  return clues.length ? { clues, ...(links ? { links } : {}) } : null;
+};
+
+const readMapItems = (value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
+  const image = typeof value.image === "string" ? value.image.trim() : "";
+  const imageOk = MAP_IMAGE_PATTERN.test(image);
+  if (!imageOk) addError(errors, `${path}.image`, "image is the file name of a SillyTavern background (png, jpg, webp, gif, avif or bmp), never a path or a link");
+  const list = readList(value.pins, `${path}.pins`, "pins", WIDGET_ITEMS_MAX, errors);
+  if (!list) return null;
+  const pins = list.map((entry, index) => readPin(entry, `${path}.pins.${index}`, refs, errors)).filter((pin): pin is WidgetPin => pin !== null);
+  uniqueIds(pins, `${path}.pins`, "pin", errors);
+  return imageOk && pins.length ? { image, pins } : null;
+};
+
+export const HTML_TEMPLATE_MAX = 32000;
+export const WIDGET_INTENTS_MAX = 10;
+
+const readIntent = (value: unknown, path: string, errors: ValidationError[]): { id: string; text: string } | null => {
+  if (!isRecord(value)) return refuse(errors, path, "an action is {id, text}", null);
+  rejectUnknownKeys(value, INTENT_KEYS, path, errors);
+  const id = asString(value.id)?.trim() ?? "";
+  if (!GAME_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "an action id is a lowercase slug");
+  const text = readAction(value.text, `${path}.text`, errors) ?? refuse(errors, `${path}.text`, "an action needs the player's line", undefined);
+  return GAME_ID_PATTERN.test(id) && text ? { id, text } : null;
+};
+
+const readHtmlItems = (value: Record<string, unknown>, path: string, errors: ValidationError[]): WidgetItems | null => {
+  const template = typeof value.template === "string" ? value.template : "";
+  const templateOk = template.trim().length > 0 && template.length <= HTML_TEMPLATE_MAX;
+  if (!templateOk) addError(errors, `${path}.template`, `template is the panel's HTML, 1 to ${HTML_TEMPLATE_MAX} characters`);
+  const source = asString(value.source)?.trim() ?? "";
+  if (!GAME_ID_PATTERN.test(source)) addError(errors, `${path}.source`, "source names the ordinary widget whose view this panel shows, and that stands in when story-made panels are off");
+  const list = value.actions === undefined ? [] : readList(value.actions, `${path}.actions`, "actions", WIDGET_INTENTS_MAX, errors) ?? [];
+  const actions = list.map((entry, index) => readIntent(entry, `${path}.actions.${index}`, errors)).filter((intent): intent is { id: string; text: string } => intent !== null);
+  uniqueIds(actions, `${path}.actions`, "action", errors);
+  if (!templateOk || !GAME_ID_PATTERN.test(source)) return null;
+  return { template, source, ...(actions.length ? { actions } : {}) };
+};
+
+const readItems = (kind: WidgetKind, value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
+  ITEM_KEYS.filter((field) => value[field] !== undefined && !KIND_ITEMS[kind].includes(field))
+    .forEach((field) => addError(errors, `${path}.${field}`, `a ${kind} widget has no ${field}`));
+  if (kind === "clues") return readClueItems(value, path, refs, errors);
+  if (kind === "map") return readMapItems(value, path, refs, errors);
+  if (kind === "html") return readHtmlItems(value, path, errors);
+  return {};
+};
+
+const who = (audience: StoryWidget["audience"]) => (audience === "player" ? "players" : "authors");
+
+const checkHtmlSources = (widgets: StoryWidget[], errors: ValidationError[]) => {
+  const byId = new Map(widgets.map((widget) => [widget.id, widget]));
+  const used = new Set<string>();
+  widgets.forEach((widget, index) => {
+    if (widget.kind !== "html" || !widget.source) return;
+    const source = byId.get(widget.source);
+    const path = `widgets.${index}.source`;
+    if (!source) addError(errors, path, `'${widget.source}' is not a widget of this story`);
+    else if (source.kind === "html") addError(errors, path, "an HTML panel's source is an ordinary widget, never another HTML panel");
+    else if (source.audience !== widget.audience) addError(errors, path, `'${source.id}' is shown to ${who(source.audience)}, so this panel cannot show its view to ${who(widget.audience)}`);
+    else if (used.has(source.id)) addError(errors, path, `'${source.id}' already backs another HTML panel`);
+    used.add(widget.source);
+  });
+};
+
+const readWidget = (value: unknown, path: string, refs: WidgetRefs, errors: ValidationError[]): StoryWidget | null => {
+  const { qualityByKey, qualities } = refs;
   if (!isRecord(value)) return refuse(errors, path, "a widget is {id, kind, title}", null);
   rejectUnknownKeys(value, WIDGET_KEYS, path, errors);
   const id = asString(value.id)?.trim() ?? "";
@@ -83,22 +273,21 @@ const readWidget = (value: unknown, path: string, qualityByKey: Record<string, Q
   const options = readOptions(value.options, `${path}.options`, errors);
   const look = readLook(value, path, errors);
   if (!GAME_ID_PATTERN.test(id) || !isOneOf(value.kind, WIDGET_KINDS) || !title) return null;
+  const items = readItems(value.kind, value, path, refs, errors);
+  if (!items) return null;
   const audience = isOneOf(value.audience, WIDGET_AUDIENCES) ? value.audience : "player";
   const bind = readBind(value.bind, `${path}.bind`, errors) ?? DEFAULT_BIND[value.kind];
   if (!bind && (value.kind === "meters" || value.kind === "clock")) return refuse(errors, `${path}.bind`, `a ${value.kind} widget needs a bind`, null);
   const problem = bind ? bindProblem({ kind: value.kind, audience }, bind, qualityByKey, qualities) : null;
   if (problem) return refuse(errors, `${path}.bind`, problem, null);
-  return { id, kind: value.kind, title, audience, ...(bind ? { bind } : {}), ...(options ? { options } : {}), ...(visible ? { visible_when: visible } : {}), ...look };
+  return { id, kind: value.kind, title, audience, ...(bind ? { bind } : {}), ...(options ? { options } : {}), ...(visible ? { visible_when: visible } : {}), ...look, ...items };
 };
 
-export const readWidgets = (value: unknown, qualityByKey: Record<string, Quality>, qualities: Quality[], errors: ValidationError[]): StoryWidget[] | undefined => {
+export const readWidgets = (value: unknown, refs: WidgetRefs, errors: ValidationError[]): StoryWidget[] | undefined => {
   if (value === undefined) return undefined;
   if (!Array.isArray(value)) return refuse(errors, "widgets", "widgets are a list", undefined);
-  const widgets = value.map((entry, index) => readWidget(entry, `widgets.${index}`, qualityByKey, qualities, errors)).filter((widget): widget is StoryWidget => widget !== null);
-  const seen = new Set<string>();
-  widgets.forEach((widget, index) => {
-    if (seen.has(widget.id)) addError(errors, `widgets.${index}.id`, `duplicate widget '${widget.id}'`);
-    seen.add(widget.id);
-  });
+  const widgets = value.map((entry, index) => readWidget(entry, `widgets.${index}`, refs, errors)).filter((widget): widget is StoryWidget => widget !== null);
+  uniqueIds(widgets, "widgets", "widget", errors);
+  checkHtmlSources(widgets, errors);
   return widgets.length ? widgets : undefined;
 };
