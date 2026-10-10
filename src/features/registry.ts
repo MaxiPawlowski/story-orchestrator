@@ -270,7 +270,8 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "curator-create", name: "New lorebook entries", area: "world", audience: "author",
     oneLine: "The curator proposes a new keyed entry for something play has established.",
     what: "When at least two established facts name a person, place, group or thing that no entry covers, the curator drafts a new entry for the story's own lorebook. "
-      + "Each one waits for you, can be edited first, counts against the story's limit per chat, and a rollback deletes it unless you changed it. Its model is the Lore creation task.",
+      + "Each one waits for you, can be edited first, names any entry that already reads as the same thing so you can patch that one instead, counts against the story's limit per chat, "
+      + "and a rollback deletes it unless you changed it. A written entry is stamped with its chat; deleting that chat asks whether to delete its entries too. Its model is the Lore creation task.",
     where: settingsAt("#so-curator-create", "World › Background helpers"),
     settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
     needs: ["memory-profile"],

@@ -1,0 +1,88 @@
+{
+  "revision": 1,
+  "note": "v2.8 A15: near-duplicate pairs for the curator create card, synthetic, English, no campaign text. The trigram bands below are the declared fallback for an install without ST vectors; the vector bands are consolidation's (plan 08). Labels were written before any score.",
+  "vectorBands": { "duplicate": 0.82, "sameTopic": 0.55 },
+  "trigramBands": { "duplicate": 0.45, "sameTopic": 0.25 },
+  "pairs": [
+    {
+      "id": "d01", "label": "duplicate",
+      "candidate": { "comment": "Warden Hale", "keys": ["Hale", "warden"], "content": "Warden Hale runs Greyfen prison, takes bribes in tobacco and wears the master key on a chain." },
+      "entry": { "comment": "The Warden", "keys": ["warden", "Greyfen warden"], "content": "The warden of Greyfen accepts tobacco as a bribe and keeps the only master key around his neck." }
+    },
+    {
+      "id": "d02", "label": "duplicate",
+      "candidate": { "comment": "The Grey Ferry", "keys": ["ferry", "ferryman"], "content": "A flat ferry crosses the Lune at dusk; the ferryman asks a copper and a name." },
+      "entry": { "comment": "Lune Ferry", "keys": ["ferry", "Lune crossing"], "content": "The only crossing of the Lune is a ferry run at dusk by a ferryman who wants a coin and your name." }
+    },
+    {
+      "id": "d03", "label": "duplicate",
+      "candidate": { "comment": "Order of the Ash", "keys": ["Ash Order", "ashen knights"], "content": "Knights who burn their banners after each victory and swear on cinders." },
+      "entry": { "comment": "The Ash Order", "keys": ["Ash Order", "order of ash"], "content": "A knightly order that burns its banner after every win; its oaths are sworn over cinders." }
+    },
+    {
+      "id": "d04", "label": "duplicate",
+      "candidate": { "comment": "Salt Market", "keys": ["salt market", "brine stalls"], "content": "The harbor's salt market opens before dawn and closes when the tide turns." },
+      "entry": { "comment": "The Salt Market", "keys": ["salt market"], "content": "Before sunrise the salt market on the quay opens, and it shuts when the tide comes in." }
+    },
+    {
+      "id": "d05", "label": "duplicate",
+      "candidate": { "comment": "Mother Ivy", "keys": ["Ivy", "herb witch"], "content": "Mother Ivy sells cures from her hut in the fen and never gives change." },
+      "entry": { "comment": "Ivy the herbwife", "keys": ["Ivy", "Mother Ivy"], "content": "An old herbwife called Mother Ivy lives in the fen and sells remedies, keeping any change." }
+    },
+    {
+      "id": "d06", "label": "duplicate",
+      "candidate": { "comment": "Black Tower", "keys": ["black tower", "tower"], "content": "A tower of black stone on the ridge where the old mage sealed himself in." },
+      "entry": { "comment": "The Black Tower", "keys": ["Black Tower"], "content": "On the ridge stands a black stone tower; the old mage locked himself inside it." }
+    },
+    {
+      "id": "t01", "label": "same-topic",
+      "candidate": { "comment": "Harbor Master", "keys": ["harbor master", "Dunn"], "content": "Dunn, the harbor master, logs every ship and can be paid to forget one." },
+      "entry": { "comment": "The Harbor", "keys": ["harbor", "docks"], "content": "The harbor holds forty berths, a customs house and the harbor master's office." }
+    },
+    {
+      "id": "t02", "label": "same-topic",
+      "candidate": { "comment": "Ash Order Squire", "keys": ["squire Bren"], "content": "Bren is a squire of the Ash Order who doubts the cinder oath." },
+      "entry": { "comment": "The Ash Order", "keys": ["Ash Order"], "content": "A knightly order that burns its banner after every win; its oaths are sworn over cinders." }
+    },
+    {
+      "id": "t03", "label": "same-topic",
+      "candidate": { "comment": "Fen Path", "keys": ["fen path", "causeway"], "content": "A raised causeway through the fen; it floods at the spring tide." },
+      "entry": { "comment": "The Fen", "keys": ["fen", "marsh"], "content": "A wide marsh east of town where reeds hide the old causeway and its flood stones." }
+    },
+    {
+      "id": "t04", "label": "same-topic",
+      "candidate": { "comment": "Tower Guard", "keys": ["tower guard"], "content": "Two guards watch the black tower's door and are never relieved." },
+      "entry": { "comment": "The Black Tower", "keys": ["Black Tower"], "content": "On the ridge stands a black stone tower; the old mage locked himself inside it." }
+    },
+    {
+      "id": "x01", "label": "distinct",
+      "candidate": { "comment": "Glass Choir", "keys": ["glass choir", "choir"], "content": "Singers who perform only on frozen lakes, so their voices carry." },
+      "entry": { "comment": "The Delta", "keys": ["delta", "river mouth"], "content": "Where the river splits into seven mouths and the mud swallows carts." }
+    },
+    {
+      "id": "x02", "label": "distinct",
+      "candidate": { "comment": "Copper Lantern Inn", "keys": ["Copper Lantern", "inn"], "content": "An inn with a copper lantern over the door; the cook was a soldier." },
+      "entry": { "comment": "The Salt Market", "keys": ["salt market"], "content": "Before sunrise the salt market on the quay opens, and it shuts when the tide comes in." }
+    },
+    {
+      "id": "x03", "label": "distinct",
+      "candidate": { "comment": "Thessaly Vane", "keys": ["Thessaly", "Vane"], "content": "A cartographer who sells maps with one deliberate error each." },
+      "entry": { "comment": "Mother Ivy", "keys": ["Ivy"], "content": "An old herbwife who lives in the fen and sells remedies." }
+    },
+    {
+      "id": "x04", "label": "distinct",
+      "candidate": { "comment": "Wolf Moon", "keys": ["wolf moon"], "content": "The winter full moon, when the hill clans hold their truce." },
+      "entry": { "comment": "The Warden", "keys": ["warden"], "content": "The warden of Greyfen accepts tobacco as a bribe and keeps the only master key around his neck." }
+    },
+    {
+      "id": "x05", "label": "distinct",
+      "candidate": { "comment": "Iron Bridge", "keys": ["iron bridge"], "content": "A bridge of riveted iron over the gorge, built by the old railway." },
+      "entry": { "comment": "Lune Ferry", "keys": ["ferry"], "content": "The only crossing of the Lune is a ferry run at dusk by a ferryman." }
+    },
+    {
+      "id": "x06", "label": "distinct",
+      "candidate": { "comment": "Red Abbot", "keys": ["abbot", "Red Abbot"], "content": "The abbot of the hill monastery dyes his robes with madder." },
+      "entry": { "comment": "The Ash Order", "keys": ["Ash Order"], "content": "A knightly order that burns its banner after every win." }
+    }
+  ]
+}

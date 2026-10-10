@@ -1,6 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
-  CURATOR_OP_REVERTED, hiddenTitleRefusal, isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
+  CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, type CreatedStampOwner,
+  isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
   type CreatedEntry, type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
@@ -44,6 +45,7 @@ export interface CuratorWriterDeps {
   journal: (summary: string) => void;
   ownership: () => RunOwnership;
   host: () => CuratorWiHost;
+  owner?: () => CreatedStampOwner | null;
 }
 
 export class CuratorWriter {
@@ -80,7 +82,8 @@ export class CuratorWriter {
     const refused = protectedRefusal(op, live.content);
     if (refused) return { ok: false, record: { ...entry, status: "failed", message: refused } };
     const before = { content: live.content, disabled: live.disabled, uid };
-    const after = op.kind === "enable" || op.kind === "disable" ? { content: before.content, disabled: op.kind === "disable" } : { content: preview.content ?? "", disabled: before.disabled };
+    const flip = op.kind === "enable" || op.kind === "disable";
+    const after = flip ? { content: before.content, disabled: op.kind === "disable" } : { content: keepStamps(live.content, preview.content ?? ""), disabled: before.disabled };
     const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString(), messageId } };
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
@@ -106,13 +109,13 @@ export class CuratorWriter {
     const existing = await host.readWIEntry(op.lorebook, op.comment);
     if (run.lapsed()) return { ok: false, record: entry, lapsed: true };
     if (existing) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" already exists in ${op.lorebook}; a new entry never edits one` } };
-    const after = { content: op.text, disabled: false };
+    const after = { content: stampCreated(op.text, this.deps.owner?.() ?? null), disabled: false };
     const writeAhead = { status: "pending" as const, at: new Date().toISOString(), messageId };
     const pending: CuratorOpRecord = { ...entry, after, created: { keys: [...op.keys] }, target: { lorebookFileId: lorebookFileId(op.lorebook) }, writeAhead };
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
-      const written = await host.createWIEntry(op.lorebook, { comment: op.comment, keys: op.keys, content: op.text });
+      const written = await host.createWIEntry(op.lorebook, { comment: op.comment, keys: op.keys, content: after.content });
       if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, target: { lorebookFileId: written.lorebookFileId, uid: written.uid }, writeAhead: undefined } };
     } catch (error) {
