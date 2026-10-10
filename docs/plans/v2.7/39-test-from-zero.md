@@ -1138,3 +1138,19 @@ ten segments (critical targets included) never holding two consecutive `escalate
 enough. That is the measurement's variance, not a shorter window. No floor retuned; the 35 owner decides in B2 whether the
 control-arm size stays a per-run INCOMPLETE condition. Note for that decision: the lab check simulates one boundary per turn, and
 these runs had 1.4 to 1.6 (multi-voice turns), which moves every streak.
+
+## Pod 2 record (2026-10-10, branch `v2.8-pod2`, master `84c23335`, RunPod)
+
+Second pod round beside pod 1: pod `27f66m9327okh8` `llm-pod-4500-v28-measure` (Secure, EU-RO-1, RTX PRO 4500, $0.72/h), lanes 30/31
+under `C:\dev\so-lanes\pod2` on a private ST copy; the real ST slot, :8000, lane 0, the 3090 and pod 1 untouched. Full record:
+`docs/plans/v2.8/31-v27-wrap-backlog.md` §Pod 2 measurements 2026-10-10. Adolion rows report counts only.
+
+| Row | Result | Detail |
+|---|---|---|
+| B1-PFX | **FAIL ×2** | reuse p50 0 in every arm-run (World Info in the story string changes per message); swa arm at `LLM_CTX` 24576 (98304 does not fit 32 GB), decode p50 24.3 tok/s; v2.7 41 gate record |
+| B1-HIST | **INCOMPLETE** | run 1, 3 of 30 turns per arm; 24576 arm ≤ 24,576 tokens, prompt ms p50 0.49 × control; probes not asked |
+| S-17 | **FAIL ×2** | DeepSeek 4.1 flash (CL), `--values` b1b `s17-values.json`; tokens +24.6 % both runs (> 15 % / 12 %; +17.1 % before the budget); latency +9.9 / +5.8 %, block p95 122, quest fairness max wait 0 (ok); 7 members, 4 active quest keys, 3 card pulls, 8 relationship pulls |
+| 37-S17 | **FAIL ×2** | as S-17 (tokens +24.6 %), latency +4.9 / +0.6 %; relationship pair fairness max wait 6 reads, 9 pairs over 3; backlog F27 |
+| B1-NARR | **PASS (run 1 only)** | P3 copy `agent-st-b1c-cand` (2e9ae27b, `a52734d6326e`) vs pre-P3 `agent-st-b1c-prep3` (d33a75a8, `8a71ef276e84`), both arms at once from one seeded image, 20/20 Narrator turns each. Holdings p50 2,197 vs 5,478 tokens; P3 additions beyond the enabled members max 768 (never > 1,100 in 21 Narrator requests); Narrator prompt p50 41,845 vs 45,698 (−3,853, floor −2,500). Blind rating (codex exec, delegated, sides shuffled by hash, 20 pairs): P3 12, control 8, tie 0 = 60 % (floor 50 %); invented strangers 2 vs 2. One empty reply left after recovery in the P3 arm. Run 2 not run |
+
+Not run (budget): 35-K5 (R3), B1-EMPTY formal arms (R4), lorebook R5 (R7), v2.8 01 owed rows (R8).

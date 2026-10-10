@@ -466,3 +466,58 @@ Deviations:
   - The first gates run was red only on `codeHealth` S5 and lint `max-len` (a 233-character line, then split) and on `arrivalEquivalence` (it scans untracked scenario files, which were moved aside for the run).
 - Docs and scenarios: docs-only gates (none). The new scenario stories are in the `arrivalEquivalence` golden (`SO_RECORD_ARRIVAL_GOLDEN=1`).
 - Evidence: `so-evidence.mts archive --label pod-2026-10-10-smallwins`, then `npm run sessions:archive`.
+
+## Pod 2 measurements 2026-10-10 (branch `v2.8-pod2`, master `84c23335`)
+
+Second pod round, beside pod 1. Pod `27f66m9327okh8` `llm-pod-4500-v28-measure` (Secure, EU-RO-1, RTX PRO 4500 Blackwell 32 GB,
+$0.72/h, volume `x9gi6f1rig`, Artemis v1.1 Q4_K_M, q8_0, env as pod `ll3lglh2kyz4h2` with `MAX_UPTIME_HOURS` 7, `IDLE_MINUTES` 20,
+`LLM_DEBUG_LOG` 1). Lanes 30/31 under their own lanes root `C:\dev\so-lanes\pod2`, served from a private ST code copy
+(`C:\dev\so-lanes\agent-st-pod2`, this worktree's bundle `8461d0e96038` staged; data junctioned read-only for the seeds). The real ST
+slot, :8000, lane 0, the 3090 and pod 1 and its lanes were not touched. Tunnel `so-pod up 2` on 18082. Both lanes were adolion-fresh
+at pin `251a029e`. Every later arm started from one copy of lane 31's seeded data (`seeded-image`). Adolion rows give counts only.
+Evidence (private): `so-sessions:evidence/phase-c/pod2-2026-10-10/` (lanes, pod 2 capture, and `rows/` with each row's dirs,
+drivers and notes).
+
+| Row | Result | Detail |
+|---|---|---|
+| B1-PFX | **FAIL ×2** | See below. Reuse p50 0 in every arm-run; `--swa-full` decode p50 24.3 tok/s (< 25) |
+| B1-HIST | **INCOMPLETE** (1 run, 3 of 30 turns per arm) | 24576 arm: max 23,108 prompt tokens (control max 41,000), prompt ms p50 39.8 s vs 81.6 s (0.49 ×, floor ≤ 0.6). Recall probes not run |
+| S-17 / 37-S17 | **FAIL ×2 / FAIL ×2** | F23 |
+| B1-NARR | **PASS (run 1 only)** | P3 copy `agent-st-b1c-cand` (2e9ae27b, `a52734d6326e`) vs pre-P3 `agent-st-b1c-prep3` (d33a75a8, `8a71ef276e84`), both arms at once from one seeded image, 20/20 Narrator turns each. Holdings p50 2,197 vs 5,478 tokens; P3 additions beyond the enabled members max 768 (never > 1,100 in 21 Narrator requests); Narrator prompt p50 41,845 vs 45,698 (−3,853, floor −2,500). Blind rating (codex exec, delegated, sides shuffled by hash, 20 pairs): P3 12, control 8, tie 0 = 60 % (floor 50 %); invented strangers 2 vs 2. One empty reply left after recovery in the P3 arm. Run 2 not run |
+
+**B1-PFX as run.** The row's swa arm (`--swa-full`, `LLM_CTX` 98304, P2) does not fit the 32 GB card. At 24576 it already uses
+30.7 GB (control 21.4 GB). Both arms ran at `LLM_CTX` 24576, P2, with the B1 flags (`--kv-unified --cache-ram 16384
+--ctx-checkpoints 32 --checkpoint-min-step 1024`), `--swa-full` added for the swa arm. So the 247-message saga prompt fits without
+front trimming, the chat was cut to its first 80 messages (`/del 167`, an ordinary rollback). Prompts were 13.4–15.9K tokens, under ST
+`max_context` 24576. The lane was quiet: extraction, curator and meanwhile off, reply effort off, 300-token replies, so only loud
+requests reached the pod. Judge uses stayed as shipped. Each unit: `/trigger` A, A (same-speaker pair), Narrator, B
+(member-after-Narrator pair), then `/del 4`. That is 20 units = 40 pairs = 80 requests per arm-run. Reuse = `cache_n / (cache_n +
+prompt_n)` from llama-server's own `timings`, recorded in-page from each streamed reply. Runs 2 reset by `/del` back to the 80-row
+cut on the same lane, not a fresh seed.
+
+| arm-run | same-speaker reuse p50 | member-after-Narrator reuse p50 | prompt ms p50 (same-speaker) | decode tok/s p50 / min | truncated |
+|---|---|---|---|---|---|
+| control run 1 | 0 | 0 | 9,717 | 29.4 / 22.2 | 0 |
+| control run 2 | 0 | 0 | 9,740 | 29.4 / 22.1 | 0 |
+| swa run 1 | 0 | 0 | 11,974 | 24.3 / 17.1 | 0 |
+| swa run 2 | 0 | 0 | 12,085 | 24.2 / 23.4 | 0 |
+
+Synthetic probe on the same server, same flags. A 17,122-token prompt, then the same prompt with 6 tail tokens changed, then with
+8 words inserted at 50 %. The tail change reuses 17,116 tokens in both arms. The mid insert reuses 8,557 with `--swa-full` and 0
+without. Cold prefill: 1,053 vs 1,370 tok/s. So the server can reuse with `--swa-full`, and the real prompts change too early for it.
+Two consecutive same-speaker prompts first differ about 4.5K characters (~1.1K tokens) in, inside the story
+string's World Info: the entries placed before the card change as each new message changes what activates. That is earlier than the
+depth-10 player role plan 41 §4 measured. Neither P2 (`--swa-full`) nor P5 (depth moves) can help until that World Info leaves the
+story string. It is the M9 / lorebook R5 question (sheets after the character definitions vs depth 4). P4 (join cards) stays moot.
+
+**B1-HIST as run.** Run 1 only, both arms at the same time from the same seeded data: lane 30 control (`max_context` 98304), lane 31
+24576. The rest of the install was shipped defaults with memory roles on the pod's memory profile and the judge on. Each turn took
+6–9 minutes on the shared pod. A turn is about 130K prefill tokens across two voices, memory reads and many ~1.2K-token passes, and
+4-slot decode ran at 4–16 tok/s per stream. 30 turns plus 10 probes, ×2 arms ×2 runs (~8 h) could not fit, so both arms stopped
+after 3 turns. The 10 recall probes (written before any run, kept private) were not asked.
+
+**Harness notes.** An `st-eval` attach on the loaded machine took ~24 s. A 30 s attach timeout made `st-eval` clear the lane's
+`session.json` and read a throwaway browser ("Initializing…"); the lane's own browser was untouched and the file was restored.
+PFX therefore runs its pair loop in the page (one eval, polled each minute). The saga chat is 1 day old, so the away-recap popup
+covered `#send_but`: the first two HIST attempts posted nothing (SEND-NOT-POSTED); prep now closes open dialogs. C: hit 0 bytes
+free around 10:40Z (machine-wide). One `so-pod up` tick failed `ENOSPC`, and the 1.8 GB seeded image moved to F:.
