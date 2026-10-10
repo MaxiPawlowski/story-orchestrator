@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import type { RunGuard } from "@runtime/runToken";
 import { headArtHash, headAssetBytes } from "@services/stHost/liveHeadAssets";
 import type { LiveHeadRef } from "../liveHeadRefs";
@@ -26,6 +26,8 @@ export function LiveHead(props: LiveHeadProps) {
   latest.current = props;
   const { beginRun } = props;
   const { member, look, artHash, source, manifest } = props.binding;
+  const revision = useRef(0);
+  const canvasKey = useMemo(() => ++revision.current, [member, look, artHash, source, manifest, beginRun]);
   useEffect(() => {
     const binding = { member, look, artHash, source, manifest };
     const element = canvas.current;
@@ -59,5 +61,5 @@ export function LiveHead(props: LiveHeadProps) {
     }).catch(() => { clearTimeout(timeout); abort.abort(); visible(false); owner.release(); });
     return () => { dispose?.(); visible(false); live = false; clearTimeout(timeout); abort.abort(); owner.signal.removeEventListener("abort", onOwnerAbort); owner.release(); };
   }, [member, look, artHash, source, manifest, beginRun]);
-  return <canvas ref={canvas} className="so-live-head" aria-hidden="true" style={{ ...props.style, visibility: "hidden" }} />;
+  return <canvas key={canvasKey} ref={canvas} className="so-live-head" aria-hidden="true" style={{ ...props.style, visibility: "hidden" }} />;
 }
