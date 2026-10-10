@@ -1,4 +1,4 @@
-import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -49,6 +49,19 @@ export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoB
 
 export const earnedWorldInfo = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>): unknown[] =>
   (story.life ? gameLayer()?.life.agendaWorldInfo(story, values) ?? [] : []);
+
+export interface EarnedSwitches {
+  rewarded: string[];
+  earned: unknown[];
+}
+
+export const NO_EARNED_SWITCHES: EarnedSwitches = { rewarded: [], earned: [] };
+
+export const earnedSwitches = (story: NormalizedStoryV2 | null, values: Readonly<Record<string, unknown>>): EarnedSwitches =>
+  (story ? { rewarded: rewardedQuestIds(story, { ...values }), earned: earnedWorldInfo(story, values) } : NO_EARNED_SWITCHES);
+
+export const earnedSwitchesKey = (switches: EarnedSwitches): string =>
+  (switches.rewarded.length || switches.earned.length ? JSON.stringify([switches.rewarded, switches.earned]) : "");
 
 export function stagedPath(path: string[], stagedFrom: number | undefined): string[] {
   const from = validStagedFrom(stagedFrom, path.length);

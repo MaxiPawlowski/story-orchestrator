@@ -2,9 +2,12 @@ import type { LifeAuthorView } from "@runtime/lifeSnapshot";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
-export const CharacterLifePanel = ({ life }: { life: LifeAuthorView }) => {
+export type MeanwhileDecide = (id: string, status: "accepted" | "rejected") => void;
+
+export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; onDecide?: MeanwhileDecide }) => {
   const names = Object.fromEntries(life.rows.map((row) => [row.id, row.name]));
   const waiting = life.proposals.filter((proposal) => proposal.status === "proposed");
+  const settled = life.proposals.filter((proposal) => proposal.status === "accepted" || proposal.status === "applied").slice(-6);
   return (
     <section id="so-character-life" aria-label="Character life" className="mt-3 text-xs">
       <div className="font-medium mb-1">Character life</div>
@@ -39,7 +42,26 @@ export const CharacterLifePanel = ({ life }: { life: LifeAuthorView }) => {
         <div data-so="life-proposals">
           <div className="font-medium">Meanwhile, proposed</div>
           {waiting.map((proposal) => (
-            <div key={proposal.id} data-so="life-proposal">{names[proposal.memberId] ?? proposal.memberId}: {proposal.text}</div>
+            <div key={proposal.id} data-so="life-proposal" data-id={proposal.id} className="flex flex-wrap items-center gap-1">
+              <span>{names[proposal.memberId] ?? proposal.memberId}: {proposal.text}</span>
+              {onDecide && (
+                <>
+                  <button type="button" className="menu_button" data-so="life-proposal-accept" onClick={() => onDecide(proposal.id, "accepted")}>Accept</button>
+                  <button type="button" className="menu_button" data-so="life-proposal-reject" onClick={() => onDecide(proposal.id, "rejected")}>Reject</button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {settled.length > 0 && (
+        <div data-so="life-proposals-settled">
+          <div className="font-medium">Meanwhile, accepted</div>
+          {settled.map((proposal) => (
+            <div key={proposal.id} data-so="life-proposal-settled" data-status={proposal.status}>
+              {names[proposal.memberId] ?? proposal.memberId}: {proposal.text}
+              <span className="opacity-70"> · {proposal.status === "applied" ? "in their private notes" : "lands at the next reply"}</span>
+            </div>
           ))}
         </div>
       )}

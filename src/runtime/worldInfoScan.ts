@@ -1,5 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import { storyRevision } from "./hash";
+import { earnedSwitches, earnedSwitchesKey, NO_EARNED_SWITCHES } from "./worldInfoGates";
 import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateRow, type ScanGateStats } from "./scanGatePlan";
 
 // Spike (host-free). Which gate a scan gets. The scan belongs to the loaded story
@@ -11,6 +12,7 @@ export interface ScanGateSources {
   ownedChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
+  values?: () => Readonly<Record<string, unknown>>;
   ready: () => boolean;
   library: () => unknown[];
   libraryRevision: () => string;
@@ -35,9 +37,11 @@ export class ScanGateProvider {
     const story = this.sources.story();
     const owns = Boolean(story) && chatId !== null && chatId === this.sources.ownedChat() && this.sources.ready();
     const path = owns ? this.sources.path() : [];
-    const key = [owns ? "story" : "no-story", chatId ?? "", owns && story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), this.sources.libraryRevision()].join("|");
+    const switches = owns ? earnedSwitches(story, this.sources.values?.() ?? {}) : NO_EARNED_SWITCHES;
+    const key = [owns ? "story" : "no-story", chatId ?? "", owns && story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), earnedSwitchesKey(switches),
+      this.sources.libraryRevision()].join("|");
     if (this.memo?.key === key) return this.memo.choice;
-    const choice: ScanGateChoice = { gate: scanGatePlan(this.sources.library(), owns ? story : null, path), owner: owns ? "story" : "no-story", key };
+    const choice: ScanGateChoice = { gate: scanGatePlan(this.sources.library(), owns ? story : null, path, switches), owner: owns ? "story" : "no-story", key };
     this.memo = { key, choice };
     return choice;
   }

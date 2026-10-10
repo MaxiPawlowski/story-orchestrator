@@ -3,7 +3,7 @@ import { join } from "path";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import { privateLifeLines } from "@engine/life/lines";
 import type { ModelCall } from "@extraction/modelRoute";
-import { acceptedMeanwhile, createAgendaProposals, rollbackAgendaProposals, sanitizeAgendaProposals, type AgendaProposalsState } from "./agendaProposals";
+import { createAgendaProposals, landAcceptedProposals, landedMeanwhile, rollbackAgendaProposals, sanitizeAgendaProposals, type AgendaProposalsState } from "./agendaProposals";
 import { AgendaProposalCoordinator } from "./coordinators/agendaProposalCoordinator";
 import { buildMeanwhilePrompt, parseMeanwhile } from "./meanwhilePrompt";
 import { mintToken, tokenMatches, type RunContext } from "./runToken";
@@ -22,7 +22,7 @@ const harness = (reply: string) => {
     getStory: () => STORY, getState: () => STATE, getProposals: () => proposals, setProposals: (next) => { proposals = next; },
     window: () => [{ speaker: "Arin", text: "The harbour is quiet tonight." }], model: () => model,
     ownership: { mint: (window) => mintToken(context, window ?? null), check: (token) => tokenMatches(context, token) },
-    journal: (summary) => { journal.push(summary); }, updateInjection: () => {}, persist: async () => {}, notify: () => {},
+    journal: (summary) => { journal.push(summary); }, persist: async () => {}, notify: () => {},
   });
   return { coordinator, proposals: () => proposals, journal, prompts, moveDuring: () => { moveDuringCall = true; } };
 };
@@ -52,17 +52,20 @@ describe("v2.7 plan 37 L3 (C2): meanwhile proposals are text only, reviewed by t
     expect(prompt).not.toContain("concealing");
   });
 
-  it("stores a proposal as proposed, never accepted on its own, and only an accepted one reaches the holder's block", async () => {
+  it("stores a proposal as proposed, never accepted on its own, and only an accepted one that landed at a boundary reaches the holder's block", async () => {
     const run = harness("MEANWHILE: arin | debt | Arin counted the coins twice.");
     const outcome = await run.coordinator.propose();
     expect(outcome.ok).toBe(true);
     const [proposal] = run.proposals()!.proposals;
     expect(proposal).toMatchObject({ status: "proposed", public: false, sourceWindow: { from: 2, to: 9 }, boundary: 4 });
-    expect(acceptedMeanwhile(run.proposals(), "arin")).toEqual([]);
+    expect(landedMeanwhile(run.proposals(), "arin")).toEqual([]);
     expect(await run.coordinator.decide(proposal.id, "accepted")).toBe(true);
-    const lines = privateLifeLines(STORY, {}, "arin", acceptedMeanwhile(run.proposals(), "arin"));
+    expect(landedMeanwhile(run.proposals(), "arin")).toEqual([]);
+    const landed = landAcceptedProposals(run.proposals()!, { boundary: 5, messageId: 11 });
+    expect(landed.proposals[0]).toMatchObject({ status: "applied", appliedAt: { boundary: 5, messageId: 11 } });
+    const lines = privateLifeLines(STORY, {}, "arin", landedMeanwhile(landed, "arin"));
     expect(lines).toContain("Meanwhile, off stage, you: Arin counted the coins twice.");
-    expect(privateLifeLines(STORY, {}, "narrator", acceptedMeanwhile(run.proposals(), "narrator"))).not.toContain("coins");
+    expect(privateLifeLines(STORY, {}, "narrator", landedMeanwhile(landed, "narrator"))).not.toContain("coins");
   });
 
   it("journals a rejection with its reason", async () => {
@@ -94,7 +97,7 @@ describe("v2.7 plan 37 L3 (C2): meanwhile proposals are text only, reviewed by t
   });
 
   it("rolls back with the messages it was read from, and survives a reopen", () => {
-    const state = { proposals: [{ id: "p", memberId: "arin", agendaId: "debt", text: "t", public: false as const, reason: "r", sourceWindow: { from: 2, to: 9 }, boundary: 4, status: "accepted" as const }] };
+    const state = { proposals: [{ id: "p", memberId: "arin", agendaId: "debt", text: "t", public: false as const, reason: "r", sourceWindow: { from: 2, to: 9 }, boundary: 4, status: "accepted" as const }], passes: [] };
     expect(rollbackAgendaProposals(state, 9).proposals).toEqual([]);
     expect(rollbackAgendaProposals(state, 10)).toBe(state);
     expect(sanitizeAgendaProposals(JSON.parse(JSON.stringify(state)))).toEqual(state);

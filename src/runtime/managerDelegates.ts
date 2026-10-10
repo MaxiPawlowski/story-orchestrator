@@ -28,6 +28,8 @@ export abstract class CoordinatorDelegates {
 
   get chapters() { return this.co.memory.chapters; }
   get game() { return this.co.game; }
+  get meanwhile() { return this.co.meanwhile; }
+  decideMeanwhile(id: string, status: "accepted" | "rejected", reason?: string) { return this.co.meanwhile.decide(id, status, reason); }
   refreshMemoryInjection() { this.co.memory.updateInjection(); }
 
   async runCopilotStage(
@@ -72,7 +74,7 @@ export abstract class CoordinatorDelegates {
     const deps = this.co.rollbackDeps;
     return {
       get: () => deps.extras().agendaProposals, set: (next: AgendaProposalsState) => { deps.extras().agendaProposals = next; },
-      ownership: deps.ownership, persist: deps.persist, notify: deps.notify, updateInjection: () => deps.memory.updateInjection(),
+      ownership: deps.ownership, persist: deps.persist, notify: deps.notify,
     };
   }
   clearCopilotNudge() { this.co.copilot.clearNudge(); }

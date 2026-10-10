@@ -32,6 +32,7 @@ const manager = {
   shouldCompactShortTerm: () => false,
   curatorDueForRun: () => false,
   innerBeatDue: () => false,
+  meanwhile: { land: async () => 0, due: () => false, schedule: () => false },
   recordReconciliation: jest.fn(),
   judgedExtraction: jest.fn(() => false),
 } as unknown as RuntimeManager;

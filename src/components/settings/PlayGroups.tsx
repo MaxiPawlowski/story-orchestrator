@@ -7,6 +7,7 @@ import type { RuntimeManager } from "@runtime/index";
 import { getGlobalSettings, setGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
+import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "@runtime/agendaProposals";
 import { keepGlobalStoryLore, releaseGlobalStoryLore } from "@runtime/storyLoreHost";
 import { STAGECRAFT_ACCEPT_MODES, wardenFamilyMode, type StagecraftAcceptMode } from "@stagecraft/index";
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
@@ -145,6 +146,17 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
       {snapshot.stagecraft.settings.curatorEnabled && snapshot.ready && snapshot.stagecraftScope.length === 0 && (
         <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
       )}
+      <div className="flex flex-col gap-1 text-sm">
+        <FieldLabel htmlFor="so-meanwhile-accept-mode" setting="stagecraft.meanwhileAcceptMode" />
+        <select
+          id="so-meanwhile-accept-mode"
+          value={snapshot.stagecraft.settings.meanwhileAcceptMode ?? DEFAULT_MEANWHILE_ACCEPT_MODE}
+          onChange={(event) => manager.setStagecraftSettings({ meanwhileAcceptMode: isMeanwhileAcceptMode(event.target.value) ? event.target.value : DEFAULT_MEANWHILE_ACCEPT_MODE })}
+        >
+          <option value="review">Propose them; I accept each one</option>
+          <option value="off">Do not propose</option>
+        </select>
+      </div>
     </div>
   );
 };

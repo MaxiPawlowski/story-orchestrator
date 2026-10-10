@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { fnv1a } from "../hash";
-import { createAgendaProposals, PROPOSAL_RING_CAP, type AgendaProposalsState, type MeanwhileProposal } from "../agendaProposals";
+import { createAgendaProposals, decideProposal, PROPOSAL_RING_CAP, type AgendaProposalsState, type MeanwhileProposal } from "../agendaProposals";
 import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "../meanwhilePrompt";
 import { beginRun, type RunOwnership } from "../runToken";
 
@@ -16,7 +16,6 @@ export interface AgendaProposalDeps {
   model: () => ModelCall;
   ownership: RunOwnership;
   journal: (summary: string, note: string) => void;
-  updateInjection: () => void;
   persist: () => Promise<void>;
   notify: () => void;
 }
@@ -45,7 +44,7 @@ export class AgendaProposalCoordinator {
       reason: "proposed by the meanwhile curator", sourceWindow: window, boundary: state.boundary, status: "proposed",
     }));
     const known = new Set(this.state.proposals.map((proposal) => proposal.id));
-    this.deps.setProposals({ proposals: [...this.state.proposals, ...added.filter((proposal) => !known.has(proposal.id))].slice(-PROPOSAL_RING_CAP) });
+    this.deps.setProposals({ ...this.state, proposals: [...this.state.proposals, ...added.filter((proposal) => !known.has(proposal.id))].slice(-PROPOSAL_RING_CAP) });
     if (parsed.refused.length) this.deps.journal(`${parsed.refused.length} meanwhile line(s) refused`, parsed.refused.map((entry) => `${entry.reason}: ${entry.line}`).join("\n"));
     await this.deps.persist();
     if (run.stillOwns()) this.deps.notify();
@@ -55,10 +54,10 @@ export class AgendaProposalCoordinator {
   async decide(id: string, status: "accepted" | "rejected", reason = ""): Promise<boolean> {
     const run = beginRun(this.deps.ownership);
     const proposal = this.state.proposals.find((entry) => entry.id === id && entry.status === "proposed");
-    if (!proposal) return false;
-    this.deps.setProposals({ proposals: this.state.proposals.map((entry) => (entry === proposal ? { ...entry, status, ...(reason ? { decision: reason } : {}) } : entry)) });
+    const next = decideProposal(this.state, id, status, reason);
+    if (!proposal || !next) return false;
+    this.deps.setProposals(next);
     if (status === "rejected") this.deps.journal(`Meanwhile event rejected for ${proposal.memberId}`, reason || proposal.text);
-    this.deps.updateInjection();
     await this.deps.persist();
     if (run.stillOwns()) this.deps.notify();
     return true;

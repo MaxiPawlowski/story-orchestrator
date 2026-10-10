@@ -10,9 +10,11 @@ const chatWindow = (from: number, to: number) => ((getContext().chat ?? []) as C
 
 export const attachAgendaProposals = (manager: RuntimeManager): AgendaProposalCoordinator => {
   const slice = manager.agendaProposalSlice();
-  return new AgendaProposalCoordinator({
+  const coordinator = new AgendaProposalCoordinator({
     getStory: () => manager.getStory(), getState: () => manager.getEngineState(), getProposals: slice.get, setProposals: slice.set,
     window: chatWindow, model: () => manager.model, ownership: slice.ownership,
-    journal: (summary, note) => manager.noteRecap(summary, note, "author"), updateInjection: slice.updateInjection, persist: slice.persist, notify: slice.notify,
+    journal: (summary, note) => manager.noteRecap(summary, note, "author"), persist: slice.persist, notify: slice.notify,
   });
+  manager.meanwhile.attach(coordinator);
+  return coordinator;
 };

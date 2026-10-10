@@ -1,7 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import { storyRevision } from "./hash";
 import { applyScanGate, emptyScanGateStats, scanGatePlan, type ScanEntry, type ScanGate, type ScanGateStats } from "./scanGatePlan";
-import { releasePlan } from "./worldInfoGates";
+import { earnedSwitches, earnedSwitchesKey, NO_EARNED_SWITCHES, releasePlan, type EarnedSwitches } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
 
 export interface ScanGuardSources {
@@ -9,6 +9,7 @@ export interface ScanGuardSources {
   storyChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
+  values?: () => Readonly<Record<string, unknown>>;
   ready: () => boolean;
   library: () => unknown[];
   libraryRevision: () => string;
@@ -30,9 +31,9 @@ const releaseOnly = (library: unknown[], story: NormalizedStoryV2): ScanGate => 
   return gate;
 };
 
-export const scanGuardGate = (library: unknown[], story: NormalizedStoryV2 | null, path: string[], owner: ScanGuardOwner): ScanGate => {
+export const scanGuardGate = (library: unknown[], story: NormalizedStoryV2 | null, path: string[], owner: ScanGuardOwner, switches: EarnedSwitches = NO_EARNED_SWITCHES): ScanGate => {
   if (owner === "no-story" || !story) return scanGatePlan(library, null, []);
-  return owner === "story" ? scanGatePlan(library, story, path) : releaseOnly(library, story);
+  return owner === "story" ? scanGatePlan(library, story, path, switches) : releaseOnly(library, story);
 };
 
 export class ScanGuard {
@@ -51,9 +52,10 @@ export class ScanGuard {
     const owner = this.owner();
     const story = owner === "no-story" ? null : this.sources.story();
     const path = owner === "story" ? this.sources.path() : [];
-    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"),
+    const switches = owner === "story" ? earnedSwitches(story, this.sources.values?.() ?? {}) : NO_EARNED_SWITCHES;
+    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), earnedSwitchesKey(switches),
       this.sources.libraryRevision()].join("|");
-    if (this.memo?.key !== key) this.memo = { key, owner, gate: scanGuardGate(this.sources.library(), story, path, owner) };
+    if (this.memo?.key !== key) this.memo = { key, owner, gate: scanGuardGate(this.sources.library(), story, path, owner, switches) };
     return { owner: this.memo.owner, gate: this.memo.gate };
   }
 
