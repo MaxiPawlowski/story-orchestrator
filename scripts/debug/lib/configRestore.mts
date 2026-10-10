@@ -92,6 +92,26 @@ export function shouldRecoverConfig(liveKeys: string[], snapshot: { present?: bo
   return Boolean(value && typeof value === 'object' && Object.keys(value as object).length);
 }
 
+export interface ConfigSnapshot {
+  trusted?: boolean;
+  present?: boolean;
+  value?: unknown;
+  restoredAt?: unknown;
+}
+
+/**
+ * F15. The stored settings are a delta, so an all-defaults install legitimately holds an empty root (or none),
+ * and a trusted capture of it restores exactly that. Only a capture that could not read the extension
+ * settings is refused over a populated root: its emptiness proves nothing. A crashed run's cleared root is
+ * not captured as a trusted empty one, because setup recovers it (S7) before taking the snapshot.
+ */
+export function emptySnapshotRefusal(snapshot: ConfigSnapshot | null, liveKeys: string[]): string | null {
+  const value = snapshot?.value;
+  const empty = !snapshot?.present || !value || typeof value !== 'object' || Object.keys(value as object).length === 0;
+  if (!empty || liveKeys.length === 0 || snapshot?.trusted === true) return null;
+  return 'the capture could not read the extension settings, so its empty root proves nothing';
+}
+
 /**
  * S10. Host dialogs setup must not click through. Each one either means another writer touched this
  * chat, or its OK button writes to the install. Anything else is closed with its cancel control.

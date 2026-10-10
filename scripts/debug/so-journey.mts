@@ -25,7 +25,7 @@ import { archiveJourneyRecord, fixtureSha256, unselectedDependencies } from './l
 import { trackJudgeRequests } from './lib/judgeSettle.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
-import { BLOCKING_DIALOGS, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
+import { BLOCKING_DIALOGS, emptySnapshotRefusal, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
@@ -158,16 +158,11 @@ async function writeGlobalConfig(page, value) {
 
 export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
   const snapshot = await readJSON(file);
-  // A restore may never turn a populated config into an empty one. A run that snapshots an empty
-  // root (because an earlier run cleared it and died) would otherwise write that emptiness back
-  // every time, so the clear survives forever and takes extraction.profileId with it (2026-09-20).
-  const snapshotEmpty = !snapshot.present || !snapshot.value || Object.keys(snapshot.value).length === 0;
-  if (snapshotEmpty) {
-    const live = await evaluateInST(page, (key) => Object.keys(SillyTavern.getContext().extensionSettings?.[key] ?? {}), EXTENSION_KEY);
-    if (live.length) {
-      console.log(`Refusing to restore an empty config over a populated one (live keys: ${live.join(', ')}) — snapshot ${file} looks like the residue of a crashed run.`);
-      return { key: EXTENSION_KEY, skipped: 'empty snapshot over populated config', liveKeys: live };
-    }
+  const live = await evaluateInST(page, (key) => Object.keys(SillyTavern.getContext().extensionSettings?.[key] ?? {}), EXTENSION_KEY);
+  const refusal = emptySnapshotRefusal(snapshot, live);
+  if (refusal) {
+    console.log(`Refusing to restore an empty config over a populated one (live keys: ${live.join(', ')}): ${refusal} (snapshot ${file}).`);
+    return { key: EXTENSION_KEY, skipped: 'untrusted empty snapshot over populated config', liveKeys: live };
   }
   const result = await writeGlobalConfig(page, snapshot.present ? snapshot.value : null);
   await writeFile(file, JSON.stringify({ ...snapshot, restoredAt: new Date().toISOString() }, null, 2), 'utf-8');

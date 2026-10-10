@@ -67,9 +67,10 @@ try {
                 settings.sprites = { ...(settings.sprites ?? {}) };
                 const profile = ctx.extensionSettings.connectionManager.profiles.find((p: any) => p.name === name);
                 if (!profile || profile.api !== 'llamacpp' || String(profile['api-url'] ?? '').replace(/[/]+$/, '') !== controller) throw new Error('Local reply profile is not pinned to the managed controller.');
-                const prior = { image: settings.image.enabled, sprites: settings.sprites.enabled, onDemand: settings.sprites.onDemand, selected: ctx.extensionSettings.connectionManager.selectedProfile };
+                const prior = { image: settings.image.enabled, sprites: settings.sprites.enabled, explicit: settings.sprites.explicit, onDemand: settings.sprites.onDemand, selected: ctx.extensionSettings.connectionManager.selectedProfile };
                 settings.image.enabled = false;
                 settings.sprites.enabled = true;
+                settings.sprites.explicit = true;
                 settings.sprites.onDemand = false;
                 for (const key of Object.keys(globalThis)) if (key.startsWith('storyOrchestratorDebug')) delete (globalThis as any)[key];
                 return prior;
@@ -131,6 +132,7 @@ try {
                     };
                     put('image', 'enabled', saved.image);
                     put('sprites', 'enabled', saved.sprites);
+                    put('sprites', 'explicit', saved.explicit);
                     put('sprites', 'onDemand', saved.onDemand);
                 }, saved);
                 await saveSettingsNow(page);
