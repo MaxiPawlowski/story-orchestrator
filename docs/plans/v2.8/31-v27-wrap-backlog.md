@@ -49,7 +49,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F8 | The warden counts an empty reply as rendered | B1 attempt 2 |
 | F9 | Judge-plugin 429 bursts (13 in 2 min) | C3 local-variant |
 | F10 | D rows with no runner | F15 |
-| F11 | `sessions:archive` gzips files over 90 MB before pushing | task chip 2026-10-08 |
+| F11 | `sessions:archive` gzips files over 90 MB before pushing | task chip 2026-10-08. **Fixed 2026-10-09** (`v2.8-small-fixes`): `scripts/lib/sessionsArchive.mjs` gzips (-9, only the `.gz` kept) every new or modified file over 90 MB in the so-sessions work tree before `add -A`, and refuses (nothing staged) when a changed file is still over 95 MB; node:test on a temp repo, never run against the real one |
 | F12 | 3090 cannot hold the "normal" profile with the v1m GGUF, and the pods run v1.1; decide model-file parity for local rows | C3 local-variant |
 | F13 | Campaign sprite fixes | v2.7 38 |
 | F14 | Whatever the owner flags while playing with every feature on | owner sessions |
