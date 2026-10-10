@@ -34,7 +34,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A1 | Briefing drafting by the wizard | 10, D5 |
 | A2 | Story presence panels: what is left (C4/C5/C7/C9a) | 04, D10 |
 | A3 | v2.7 carry-over: lore-select batching (C12), curator digest (C13-b), model-driven items (C11), R4 gate lift + Studio control | 01, D1 |
-| A4 | Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds on demand | 23 |
+| A4 | ~~Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds~~ built on `v2.8-widgets-followups` 2026-10-10 (`70ab9a78`), gates green, lane 54 19/19 x2; Storybook owed (23 Gate record) | 23 |
 | A5 | Lorebook features for the campaign: outlets, regex keys, NOT logic, triggers | D11 |
 | A6 | Open stretches (engine half, then M1/M2) | 19 |
 | A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 |
