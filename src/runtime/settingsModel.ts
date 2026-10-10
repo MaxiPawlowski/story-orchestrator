@@ -7,6 +7,7 @@ import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
 import { isReplyEffort, sanitizeReasoningBudget } from "@utils/reasoningEffort";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
+import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "./agendaProposals";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
 import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSettings } from "./displayToggles";
@@ -189,7 +190,9 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   harvestReasoning: true,
 });
 
-export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto" });
+export const defaultStagecraftSettings = (): StagecraftSettings => ({
+  curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE,
+});
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
@@ -282,6 +285,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       agencyAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.agencyAcceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.agencyAcceptMode,
+      meanwhileAcceptMode: isRecord(value.stagecraft) && isMeanwhileAcceptMode(value.stagecraft.meanwhileAcceptMode)
+        ? value.stagecraft.meanwhileAcceptMode
+        : defaults.stagecraft.meanwhileAcceptMode,
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),

@@ -40,6 +40,13 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     run: ({ result, manager }) => manager.game.onBoundary(result, manager.getLoadedChatId()),
   },
   {
+    id: "meanwhile-land",
+    order: 6,
+    run: ({ result, manager }) => {
+      void manager.meanwhile.land({ boundary: result.boundary, messageId: result.context.lastMessageId }).catch((error) => log.warn("meanwhile landing failed", error));
+    },
+  },
+  {
     id: "scheduler-tick",
     order: 10,
     run: ({ result, scheduler }) => {
@@ -164,6 +171,14 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     when: ({ result, manager }) => Boolean(result.fired) && manager.curatorDueForRun(),
     run: ({ manager, scheduler }) => {
       scheduler.schedule({ priority: 4, reason: "wi-curator:checkpoint", run: async () => { await manager.runWiCuratorPass("checkpoint"); } });
+    },
+  },
+  {
+    id: "meanwhile-proposals",
+    order: 66,
+    when: ({ result, manager }) => Boolean(result.fired) && manager.meanwhile.due(result.boundary),
+    run: ({ manager, scheduler }) => {
+      manager.meanwhile.schedule("checkpoint", (job) => scheduler.schedule(job));
     },
   },
   {

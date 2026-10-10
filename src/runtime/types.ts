@@ -50,7 +50,7 @@ import type { ChanceRuntimeState, RollRecord } from "./rolls";
 import type { PresenceView } from "./presence";
 import type { EffectsRuntimeState } from "./effectTypes";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
-import type { AgendaProposalsState } from "./agendaProposals";
+import type { AgendaProposalsState, MeanwhileAcceptMode } from "./agendaProposals";
 import type { GameAuthorView, GameView } from "./gameTypes";
 import type { LifeAuthorView } from "./lifeSnapshot";
 
@@ -127,6 +127,7 @@ export interface StagecraftSettings {
   wardenEnabled: boolean;
   wardenAcceptMode: StagecraftAcceptMode;
   agencyAcceptMode?: StagecraftAcceptMode;
+  meanwhileAcceptMode?: MeanwhileAcceptMode;
 }
 
 export interface StagecraftRuntimeState {

@@ -411,11 +411,15 @@
     },
     "src/runtime/coordinators/agendaProposalCoordinator.ts#AgendaProposalCoordinator.propose": {
       "status": "checked",
-      "note": "v2.7 plan 37 L3 (dev-only): mints a RunGuard over the read window before the curator call and returns before any write when it lapsed; the proposal ring is written only after that check, and notify is re-checked after the persist. Case: agendaProposals.test.ts \"writes nothing when the chat moves during the call\"."
+      "note": "v2.7 plan 37 L3, in play since v2.8 (2026-10-09, scheduled by the meanwhile-proposals boundary work and scene breaks): mints a RunGuard over the read window before the curator call and returns before any write when it lapsed; the proposal ring is written only after that check, and notify is re-checked after the persist. Case: agendaProposals.test.ts \"writes nothing when the chat moves during the call\"."
     },
     "src/runtime/coordinators/agendaProposalCoordinator.ts#AgendaProposalCoordinator.decide": {
       "status": "checked",
-      "note": "v2.7 plan 37 L3 (dev-only): the author decision is written before any await; only notify follows the persist, and it is re-checked against the run."
+      "note": "v2.7 plan 37 L3, in play since v2.8 (2026-10-09): the author decision is written before any await; only notify follows the persist, and it is re-checked against the run. Accepting no longer refreshes the injection: an accepted proposal lands at the next boundary (meanwhilePort.land)."
+    },
+    "src/runtime/meanwhilePort.ts#createMeanwhilePort.land": {
+      "status": "checked",
+      "note": "v2.8 (2026-10-09): boundary work meanwhile-land. Mints a RunGuard first; the landing (accepted -> applied, keyed by the boundary and its message), the injection refresh and the journal line are all written before the only await; after the persist, notify is re-checked against the run. Cases: meanwhilePlay.review.test.ts \"does not notify when the chat moved during the persist (RunOwnership)\" and its control."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyEarnedEffects": {
       "status": "checked",

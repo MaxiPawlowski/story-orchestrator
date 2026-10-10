@@ -199,6 +199,11 @@ export const SETTING_COPY = {
     "Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. "
       + "Never apply: only show what it would do.",
   ),
+  "stagecraft.meanwhileAcceptMode": copy(
+    "Off-stage events",
+    "For stories whose characters have plans: when the story moves on or a scene ends, the memory model proposes one short thing a character did off stage toward that plan. "
+      + "Each one waits for you in Author view and, once accepted, reaches only that character at the next reply. Do not propose: no calls are made.",
+  ),
   "stagecraft.wardenEnabled": copy(
     "Continuity warden",
     "After each character reply, the judge checks it against the story's established facts; when it breaks one, the next reply's prompt restates that fact once. "

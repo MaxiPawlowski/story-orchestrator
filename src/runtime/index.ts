@@ -183,7 +183,8 @@ export function startRuntime() {
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
   globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
-  void import("./agendaProposalsDev").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
+  void import("./agendaProposalsHost").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
+  runtimeDisposers.push(() => runtimeManager.meanwhile.attach(null));
   attachGenerationObservers(live, runtimeDisposers, generation);
   privateInjectionUnsub = subscribeGenerationEvents(live, generation, lore, access.chatLastId, () => void startupLoad());
   // Versioned settings (loaded synchronously from a cache) are already in place,

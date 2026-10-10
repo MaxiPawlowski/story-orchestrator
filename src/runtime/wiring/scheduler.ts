@@ -57,6 +57,7 @@ const scheduleSceneBreak = (live: LiveParts) => runtimeManager.onSceneBreakConfi
   if (runtimeManager.curatorDueForRun()) {
     place({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
   }
+  runtimeManager.meanwhile.schedule(`scene-${audit.sceneBreak?.reason}`, place);
 });
 
 export const startScheduler = (live: LiveParts, disposers: Disposers) => {

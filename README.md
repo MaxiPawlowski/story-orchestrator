@@ -110,6 +110,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | World | Lorebook curator | Proposes updates to the story's lorebook as play overtakes it. |  |
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
+| World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |

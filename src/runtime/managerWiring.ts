@@ -27,7 +27,8 @@ import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
-import { acceptedMeanwhile } from "./agendaProposals";
+import { landedMeanwhile } from "./agendaProposals";
+import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
@@ -73,7 +74,7 @@ export function wireCoordinators(port: ManagerPort) {
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
     beatFor: (rosterId) => inner.beatFor(rosterId),
-    meanwhile: (rosterId) => acceptedMeanwhile(port.extras().agendaProposals, rosterId),
+    meanwhile: (rosterId) => landedMeanwhile(port.extras().agendaProposals, rosterId),
     journal: (summary, note) => port.journal("story", summary, note),
     chapterHost: {
       closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
@@ -168,6 +169,10 @@ export function wireCoordinators(port: ManagerPort) {
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
   });
   const game = createGamePort({ engine, loaded: port.loaded, extras: port.extras, effects: port.effects, ownership: lifecycle.ownership, persist: lifecycle.persist, notify: lifecycle.notify });
+  const meanwhile = createMeanwhilePort({
+    ...view, extras: port.extras, ownership: lifecycle.ownership, updateInjection: () => memory.updateInjection(),
+    journal: (summary, note) => port.journal("author", summary, note), persist: lifecycle.persist, notify: lifecycle.notify,
+  });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
     restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), extras: () => port.extras(),
@@ -180,5 +185,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, rollbackDeps, storyUpdateDeps };
 }

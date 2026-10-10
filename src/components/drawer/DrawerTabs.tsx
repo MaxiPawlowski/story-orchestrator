@@ -228,7 +228,7 @@ export const DrawerTabs = ({
         </section>
         {imagePanel}
         </div>}
-        {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} /></AuthorTab>}
+        {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} onDecideMeanwhile={(id, status) => void manager.decideMeanwhile(id, status)} /></AuthorTab>}
         {activeTab === "memory" && <Lazy fallback={null}><MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} /></Lazy>}
         {activeTab === "scheduler" && <AuthorTab id="scheduler"><SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} /></AuthorTab>}
         {activeTab === "payload" && (

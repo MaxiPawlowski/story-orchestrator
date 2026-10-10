@@ -8,9 +8,6 @@ const HARNESS = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
-  "src/runtime/agendaProposalsDev.ts",
-  "src/runtime/coordinators/agendaProposalCoordinator.ts",
-  "src/runtime/meanwhilePrompt.ts",
 ];
 const CALIBRATION_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
@@ -30,6 +27,8 @@ const DROPPED_SPIKES = [
 ];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost.ts", "src/runtime/replyEffortLive.ts", "src/services/stHost/llamaCpp.ts", "src/utils/replyEffort.ts"];
+
+const LAZY_MEANWHILE = ["src/runtime/agendaProposalsHost.ts", "src/runtime/coordinators/agendaProposalCoordinator.ts", "src/runtime/meanwhilePrompt.ts"];
 
 const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
 
@@ -55,6 +54,21 @@ describe("harness, calibration and spike modules ship as lazy chunks, never in t
     expect(LAZY_SHIPPED.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_SHIPPED.includes(path))).toEqual([]);
     expect(LAZY_SHIPPED.filter(isHarness)).toEqual([]);
+  });
+
+  it("v2.8: the meanwhile proposal pass ships in play but loads as its own chunk, never with the entry", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_MEANWHILE.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_MEANWHILE.includes(path))).toEqual([]);
+  });
+
+  it("control: a planted static import of the meanwhile host from the entry is reached", () => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}
+export { attachAgendaProposals } from "./runtime/agendaProposalsHost";
+` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => LAZY_MEANWHILE.includes(path))).toEqual(expect.arrayContaining(LAZY_MEANWHILE));
   });
 
   it("control: a planted static import of the reply effort host from the entry is reached", () => {

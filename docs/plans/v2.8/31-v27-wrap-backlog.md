@@ -34,6 +34,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M13 | Keyword-scan recall on the lore lab after the campaign key tightening | 0.25 → 0.26 | none |
 | M14 | Phase C ×2 from zero on one build | symbolic now; runs when there is budget | pod |
 | M15 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, funded thinking A/B | unchanged | pod |
+| M16 | D2 agenda proposals in real play: a character-life story in a group, real memory model (no `debugResponse`), Author view; play past a checkpoint change and a scene break; check one pass per trigger and none within `MEANWHILE_MIN_GAP` (8) boundaries or while a proposal waits, the proposal stays `proposed` until accepted, an accepted one lands at the next reply (`appliedAt`) and appears only in the holder's private block (`getAppliedEpistemicBlock` / payload capture with `onMemberDrafted`), never in a player surface (`so-ui.mts assert-player-clean`); swipe the landing reply (back to `accepted`, lands again); cost per pass (one curator call, 300 tokens max). Re-run 37-L3 (`so-b1-meanwhile.mts`) on the shipped build | built 2026-10-09 (`v2.8-agenda-proposals`), jest + no-model only; the 3090 was busy, so no real-model run | pod or 3090 |
 
 ## Fix
 
@@ -63,7 +64,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | # | What | Plan |
 |---|---|---|
 | D1 | C12 lore-select batching, C13-b digest, C11 model-driven items, R4 gate lift + Studio control | v2.8 01 |
-| D2 | Agenda proposals wired into play (today a harness handle only) | v2.7 37 L3 |
+| D2 | Agenda proposals wired into play. **Built 2026-10-09** (`v2.8-agenda-proposals`): review mode on by default, cadence on checkpoint changes and scene breaks, accepted proposals land at the next boundary; real-model check owed (M16) | v2.7 37 L3 |
 | D3 | Smart-context harvest and inner voice L5, as spikes | v2.8 21, v2.7 20 L5 |
 | D4 | Curator `create` op | v2.8 11 |
 | D5 | Wizard assistant, briefing drafting | v2.8 09, 10 |
@@ -119,3 +120,24 @@ test 611 suites / 7,083 passed / 1 skipped, test:plugin 111 / 114 (3 skipped), t
 **What remains.** Pod re-measure of M8 (these are local-variant numbers); 37-M1 run 2 on an uncontended controller; the 36-Q1-M1 runner
 vs the B2 budget; whether the judge-first default for relationships changes any `judge.uses` setting (it is the existing typed path,
 on by default).
+
+## Gate record (2026-10-09, branch `v2.8-agenda-proposals`, D2)
+
+Agenda proposals wired into play (architecture.md, "Character life" invariant). Design: own setting `stagecraft.meanwhileAcceptMode`
+`review` (default) | `off`, never auto (plan 37: never auto-accepted); a pass on a checkpoint change (boundary work
+`meanwhile-proposals`, order 66) or a confirmed scene break, only while an agenda is open, no proposal waits for the author and
+`MEANWHILE_MIN_GAP` (8) boundaries passed since the last pass; accepted proposals land at the next boundary (`meanwhile-land`,
+order 6) into the holder's private block only, and a rollback past the landing returns them to `accepted`. Text only, so no host
+write and no effect-ledger row. Review: Accept / Reject in Author view (`CharacterLifePanel`).
+
+- `npm run gates -- --no-storybook` (ST_ROOT set): **all green in 193.7 s** (typecheck, build, typecheck:test, test, debug:typecheck,
+  lint, test:release, test:debug, test:plugin, test:replay 32 of 32 killed). `test-storybook:ci` SKIPPED (worktree); re-run
+  `Drawer/CharacterLifePanel` (new `ReviewMeanwhileProposals`), `Settings/PlayGroups`, `Settings/SettingsPanel`, `Drawer/DrawerTabs`.
+- Main entry `dist/index.js` 1,222,526 B (budget 1,250,000); the meanwhile prompt only in lazy chunks (`lazyHarness.guard.test.ts`
+  `LAZY_MEANWHILE` + control).
+- No-model plumbing: lane 8 (no-model) on a private ST code copy `C:\dev\so-lanes\agent-st-meanwhile`,
+  `test/scenarios/v28-meanwhile-proposals.json --sandbox`: 17/17 green ×2 (evidence `C:\dev\so-lanes\8\debug\runs\2026-10-10T00-38-16-290Z-so-scenario-run`,
+  `…2026-10-10T00-38-58-350Z-so-scenario-run`). The proposal text is a debugResponse: plumbing only, NOT the real-model gate (M16).
+- Same lane: `v27-37-character-life.json` green; `v27-37-agenda-effect.json` red at step 12 ("the step-two entry to switch on"):
+  the fixture reads the lorebook file's `disable` flag while the lane runs `worldInfo.gatingMode: scan`, where gated entries are not
+  toggled in the file. Not touched by this change (authored step path); left for the fixture's owner.
