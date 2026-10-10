@@ -1,6 +1,6 @@
 import {
   DEFAULT_LIVING_CHAPTER_SIZE, LIVING_AUTONOMY, LIVING_CHAPTER_SIZE_MAX, LIVING_ENDING_MODES, LIVING_HORIZON_MAX, LIVING_OPENING_ID,
-  LIVING_OPENING_MAX_CHARS, LIVING_PREMISE_MAX_CHARS, LIVING_TONE_MAX_CHARS, isLivingId,
+  GENERATED_CHECKPOINT_PREFIX, LIVING_OPENING_MAX_CHARS, LIVING_PREMISE_MAX_CHARS, LIVING_TONE_MAX_CHARS, isLivingId,
   type Checkpoint, type LivingEnding, type Quality, type RosterMember, type StoryLiving, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
@@ -67,8 +67,10 @@ export const readLiving = (value: unknown, errors: ValidationError[]): StoryLivi
   };
 };
 
+const isDirectorOrBridge = (id: string): boolean => isLivingId(id) || id.startsWith(GENERATED_CHECKPOINT_PREFIX);
+
 export const needsLivingOpening = (living: StoryLiving | undefined, checkpoints: readonly Checkpoint[]): boolean =>
-  Boolean(living) && !checkpoints.some((checkpoint) => checkpoint.id === LIVING_OPENING_ID) && checkpoints.every((checkpoint) => isLivingId(checkpoint.id));
+  Boolean(living) && !checkpoints.some((checkpoint) => checkpoint.id === LIVING_OPENING_ID) && checkpoints.every((checkpoint) => isDirectorOrBridge(checkpoint.id));
 
 export const LIVING_FIRST_CHAPTER_ID = "liv_ch_1";
 

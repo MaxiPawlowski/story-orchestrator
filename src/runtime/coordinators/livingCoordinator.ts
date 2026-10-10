@@ -336,6 +336,12 @@ export class LivingCoordinator {
     });
   }
 
+  private switchedOff(proposal: DirectorProposal): string | null {
+    if (proposal.kind !== "branch") return this.deps.enabled() ? null : "the living director was switched off before it applied";
+    if (!this.deps.branching()) return "branching was switched off before it applied";
+    return proposal.prepared && !this.deps.prefetch() ? "preparing ahead was switched off before it applied" : null;
+  }
+
   async applyAccepted(at: { boundary: number; messageId: number }): Promise<number> {
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -346,7 +352,15 @@ export class LivingCoordinator {
     const epoch = graphEpoch(this.state);
     let current: LivingRuntimeState = this.state.authored ? this.state : { ...this.state, authored: { raw: loaded.raw, hash: loaded.hash } };
     const applied: string[] = [];
+    const switched: string[] = [];
     for (const proposal of accepted) {
+      const off = this.switchedOff(proposal);
+      if (off) {
+        current = patchProposal(current, proposal.id, { status: "withdrawn", reason: off });
+        switched.push(`${proposal.draft?.anchor.name ?? proposal.id}: ${off}`);
+        if (proposal.kind === "branch") current = { ...current, divergence: unmarkBranched(current.divergence ?? createDivergenceState(), [proposal.frontierId]) };
+        continue;
+      }
       const stale = proposal.epoch !== epoch || applied.length > 0;
       const check = stale ? null : checkDirectorOps({
         raw: loaded.raw, story, frontierId: proposal.frontierId, ops: proposal.ops, values: state.blackboard.values, latched: state.blackboard.latched ?? {},
@@ -367,6 +381,7 @@ export class LivingCoordinator {
       if (raw) this.deps.setPlayedRaw(raw);
       this.deps.journal(`the story grew: ${applied.length} director change(s) applied`, applied.join(", "));
     }
+    if (switched.length) this.deps.journal(`living director change(s) withdrawn: ${switched.length}`, switched.join("; "));
     await this.deps.persist();
     if (run.stillOwns()) this.deps.notify();
     return applied.length;
@@ -419,6 +434,12 @@ export class LivingCoordinator {
     this.withdraw("the author updated the story");
   }
 
+  private saveRefused(reason: string): LivingSaveOutcome {
+    this.deps.journal("Save as story refused", reason);
+    this.deps.notify();
+    return { ok: false, reason };
+  }
+
   async saveAsStory(options: { includeUnreached: boolean; title?: string }): Promise<LivingSaveOutcome> {
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -429,17 +450,14 @@ export class LivingCoordinator {
     const unit = await loadUnit();
     if (!run.stillOwns()) return { ok: false, reason: "the chat changed before the story was saved" };
     const parsed = parseStoryV2(loaded.raw);
-    if (isValidationErrorList(parsed)) return { ok: false, reason: "the played story does not validate" };
+    if (isValidationErrorList(parsed)) return this.saveRefused("the played story does not validate");
     const reached = new Set([...state.visitedPath, state.activeCheckpointId]);
     const title = options.title?.trim() || `${story.title} (played)`;
     const id = unit.livingExportId(loaded.storyId, this.deps.storyIdTaken);
     const projected = unit.projectLivingExport(loaded.raw, parsed, { reached, includeUnreached, id, title, scrub: this.deps.inputs().scrub });
-    if (!projected.ok) {
-      this.deps.journal("Save as story refused", projected.reason);
-      return { ok: false, reason: projected.reason };
-    }
+    if (!projected.ok) return this.saveRefused(projected.reason);
     const saved = this.deps.saveRecord(projected.raw);
-    if (!saved.ok) return { ok: false, reason: saved.reason };
+    if (!saved.ok) return this.saveRefused(saved.reason);
     this.deps.journal(`saved the run as “${saved.title}”`, `${projected.excluded.length} unreached checkpoint(s) left out${includeUnreached ? " (author kept them)" : ""}`);
     this.deps.notify();
     return { ok: true, id: saved.id, title: saved.title, excluded: projected.excluded.length };

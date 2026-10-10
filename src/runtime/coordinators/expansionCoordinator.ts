@@ -17,6 +17,8 @@ import { log } from "@utils/log";
 type ExpansionUnit = typeof import("../expansionUnit");
 const loadUnit = (): Promise<ExpansionUnit> => import("../expansionUnit");
 
+export const LIVING_STUB_ATTEMPTS = 3;
+
 export const expansionKey = (
   candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
 ) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
@@ -174,10 +176,13 @@ export class ExpansionCoordinator {
 
   // An entry blocks its key, except a look-ahead that went stale or failed: arrival re-queues it
   // (capped by attempts), so a pre-generation can waste a generation but never block the real one.
+  // A failed director stub is asked again too: its exit waits on progress only a chain pays.
   private queue(candidate: StubExpansionCandidate, origin: "active" | "lookahead", schedule: (reason: string, run: () => Promise<void>) => void, headingP?: number) {
     const key = expansionKey(candidate);
     const existing = this.entries[key];
-    const retryable = origin === "active" && existing?.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2;
+    const retryable = origin === "active" && Boolean(existing) && (
+      (existing?.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2)
+      || (isLivingId(candidate.stubId) && existing?.status === "failed" && existing.attempts < LIVING_STUB_ATTEMPTS));
     const orphaned = Boolean(existing && ["queued", "generating"].includes(existing.status) && !this.hasLiveJob(key));
     if (existing && !retryable && !orphaned) return false;
     const job = beginRun(this.deps.ownership);

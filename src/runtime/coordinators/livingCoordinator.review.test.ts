@@ -594,4 +594,32 @@ describe("v2.8 22 divergence branching", () => {
     expect(rigged.extras.living?.divergence?.branchedFrom).toEqual([]);
     expect(graphEpoch(rigged.extras.living as LivingRuntimeState)).toMatch(/^\d+:0:-$/);
   });
+  it("F24(d): a prepared way forward written while prefetch was on is withdrawn at the boundary when prefetch was switched off before it applied (L2 delete pass)", async () => {
+    const options: RigOptions = { story: "living-hybrid", answers: [answer(1, { name: "The Guild Tavern Next Door" })], prefetch: true };
+    const rigged = rig(options);
+    await rigged.commit();
+    const sink = placed();
+    expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
+    await sink.jobs[0].run?.();
+    expect(rigged.extras.living?.proposals.at(-1)).toMatchObject({ kind: "branch", prepared: true, status: "accepted" });
+    expect(rigged.extras.living?.divergence?.branchedFrom).toEqual(["mill"]);
+    options.prefetch = false;
+    await rigged.commit();
+    expect(rigged.loaded.story.checkpointById.liv_b1_way).toBeUndefined();
+    expect(rigged.extras.living?.proposals.at(-1)).toMatchObject({ status: "withdrawn", reason: "preparing ahead was switched off before it applied" });
+    expect(rigged.extras.living?.divergence?.branchedFrom).toEqual([]);
+    expect(rigged.calls.journal).toContain("living director change(s) withdrawn: 1");
+    expect(rigged.calls.journal.some((line) => line.startsWith("the story grew"))).toBe(false);
+  });
+
+  it("control F24(d): with prefetch still on, the same prepared way forward applies", async () => {
+    const rigged = rig({ story: "living-hybrid", answers: [answer(1, { name: "The Guild Tavern Next Door" })], prefetch: true });
+    await rigged.commit();
+    const sink = placed();
+    expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
+    await sink.jobs[0].run?.();
+    await rigged.commit();
+    expect(rigged.loaded.story.checkpointById.liv_b1_way).toMatchObject({ name: "The Guild Tavern Next Door" });
+    expect(rigged.calls.journal).not.toContain("living director change(s) withdrawn: 1");
+  });
 });
