@@ -30,7 +30,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M9 | Lorebook R5: Cast and place sheets "after character definitions" vs depth 4 | needs a real-model A/B on prefix stability and quality; the first same-member diff is earlier (Vector Storage, depth-10 player role) | pod |
 | M10 | Lore selection after R12: calls per reply, exclusive-mode effect under scan mode | before: ~5 judge calls per reply, exclusive refused in file mode. **2026-10-10 (3090)**: still ~5 per reply (p50 7 / p95 15 / max 17 per turn); exclusive never applied (`no-selection`, F21) | 3090 |
 | M11 | Send-to-line latency by turn decile after `43a16f4a` and F1 | batch 3 max 4.5 s, mostly 25–40 ms. **2026-10-10 (3090)**: p50 323 ms, p95 8.5 s, max 14.2 s (F19) | 3090 |
-| M12 | Warden timeouts after the warden fix | see the warden task's record | 3090 |
+| M12 | Warden timeouts after the warden fix | see the warden task's record. **2026-10-10 (3090, C3 ×2 on `ddf021bd`)**: not met: warden 1 / 103, 6 / 114; wardenLore 4 / 99, 7 / 109 (F22) | 3090 |
 | M13 | Keyword-scan recall on the lore lab after the campaign key tightening | 0.25 → 0.26 | none |
 | M14 | Phase C ×2 from zero on one build | symbolic now; runs when there is budget | pod |
 | M15 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, funded thinking A/B | unchanged | pod |
@@ -59,6 +59,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09. **2026-10-10 (3090, §3090 measurements M11)**: still p95 8.5 s / max 14.2 s locally, and 12 of 14 slow sends were not near a consolidation pass; see F19 |
 | F19 | On the 1-slot controller the player's line is taken only after the drafted member's inner-voice call returns, and that call queues behind extraction reads (3 slowest sends: 10–14 s). Check by trace whether the inner beat runs before ST posts the line; if so, post first | §3090 measurements 2026-10-10, M11 |
 | F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal`. Every local C3 run so far stopped at 71–81 of 98 turns. Find whether ST's count or a late injection overshoots; locally, leave margin (`max_context` below 32K) | §3090 measurements 2026-10-10, item 3 |
+| F22 | C3 ×2 not met on `ddf021bd` (3090): warden 1 / 103 then 6 / 114, wardenLore 4 / 99 then 7 / 109. No timeout near a consolidation pass; run 2's come in 2-minute bursts across every judge use, mostly `queue`. Attribute the bursts (plugin `/status` served counts and TypeSafe latency per minute), then decide plugin capacity, lore-select chunking (F16/F21) or judge share | §3090 measurements 2026-10-10, item 3 |
 | F21 | Exclusive lore select never applies: with every signal on, each loud generation refuses `no-selection`, because about 45 % of lore-select chunk calls fall back `busy` (judge-plugin 429/503) and the selection is never complete. Fewer, larger chunks (F16) or a retry for the missing chunks | §3090 measurements 2026-10-10, M10 |
 
 ## Develop
@@ -162,8 +163,8 @@ from the authored effects, independently of `src/runtime`).
 | G3 | **GREEN ×2** strict | J7 (sun-ruins) `--wi-gating scan`, lane 12: 8 pass / 0 fail each (1,520 s, 1,678 s), 8 of 8 first try, cleanup clean |
 | G4 | **GREEN** | J3 `--wi-gating scan` ×2 (8 pass / 0 fail, 164 s, 150 s, first try) and J7 `--wi-gating file` ×1 (8 pass / 0 fail, 1,404 s); the lane came back in `scan` (not chosen) after the file run; header diffs only the open chat |
 | G5 | **PASS ×2** (lane 13, no model) | One normalised entry hand-enabled through ST's API, page reloaded: the start-up verify reports it (drift 1, the only one), the author's Repair row "switched on outside the story" shows, the file still has it on (not switched off silently); re-normalise: file off, drift 0, row gone, 1 book write. Book hashes after both runs identical to before. The extension-disabled half and G1 (c) (manual, extension off) not run |
-| G1 | **PASS** (×1, C3 run 1 chat) | Adolion saga chat after 71 real turns over a 9-checkpoint path: scan view 323 / 323 gated entries as the path says (0 wrong, 0 unseen), owner `story`, drift 0, missingKey 0; T12 ring 20 loud-generation slots, 0 entries from another story's gated set, 0 flags |
-| G8 | **PASS** ×2 (same chat) | 40 + 10 dry scans over the 14 ledger books: p50 3.1 / 3.0 ms, p95 4.1 / 3.7 ms (≤ 5), max 5.4 / 7.1 ms |
+| G1 | **PASS** ×2 (C3 run 1 and run 2 chats) | Adolion saga chat after 71 real turns over a 9-checkpoint path: scan view 323 / 323 gated entries as the path says (0 wrong, 0 unseen), owner `story`, drift 0, missingKey 0; T12 ring 20 loud-generation slots, 0 entries from another story's gated set, 0 flags |
+| G8 | **PASS** ×3 (two chats) | 40 + 10 dry scans over the 14 ledger books: p95 4.1 / 3.7 ms (run 1 chat), 3.2 ms (run 2 chat) (≤ 5), max 7.1 ms |
 | G7 | not run | clean host per README ST version; unchanged, owed |
 
 **M10 (lore selection under scan mode)**, C3 run 1 (fresh Adolion lane, loreSelect on, 71 turns, 108 replies): lore-select requests per
@@ -193,6 +194,23 @@ Diagnostic, never a manifest slot.
 | Run | Lane | Turns | warden calls / timeouts | wardenLore calls / timeouts | `score --row B1-C3` | director calls / timeouts (answered > 1,500 ms) |
 |---|---|---|---|---|---|---|
 | 1 | 13, 20:08–23:14Z | 71 | 103 / 1 (queue) | 99 / 4 (queue 3, unattributed 1) | INCOMPLETE (wardenLore 99 < 100) | 147 / 0 (40) |
+| 2 | 12, 23:36–02:30Z | 73 | 114 / 6 (queue 4, provider 1, unattributed 1) | 109 / 7 (queue 5, provider 1, unattributed 1) | **FAIL** (both over 1 per 50) | 155 / 8 (54) |
+
+**Verdict: not met ×2.** Run 2 FAILs warden and wardenLore; run 1 is INCOMPLETE with wardenLore already at 4 timeouts. The
+warden fix's single 0 / 114 run (c3fix final) does not repeat on this build. Run 2 other uses (calls / timeouts / `busy`): lore 426 /
+20 / 186, scene 113 / 4, typed 157 / 4 / 13, memoryVerify 99 / 3, memoryPairs 48 / 2, critic 2 / 1; warden provider p50 1,448 / p95
+3,398 ms. C12: p50 8, p95 16, max 22 lore-select requests per loud turn (621 requests, 72 turns).
+
+- **Not the consolidation cause any more**: 0 of the timeouts of either run (all uses) started within 10 s of a consolidation pass
+  (12 and 26 passes), so the vector yield holds.
+- **Run 2's timeouts come in bursts across every use**: 55 timeouts, 17 of them in 00:46:57–00:49:04Z over 8 uses, another 6 in
+  00:23:29–00:23:40Z; mostly `queue` (the plugin had not passed the call on at the budget). Judge-plugin 429s were about the same in
+  both runs (~170 recorded). This reads as plugin or provider capacity during those minutes (1 user, 2 slots, judge share 3, lore
+  select filling the queue with 4–8 chunk calls per reply), not as a warden-path defect; not attributed further here. Row F22.
+- G1 and G8 repeated in run 2's chat: 323 / 323 matched, 0 foreign in 20 ring slots; scans p95 3.2 ms. **G1 and G8 are PASS ×2.**
+- M11 in run 2: p50 373 ms, p95 7,165 ms, max 35,610 ms, 9 over 1 s, 0 of them near a consolidation pass (F19).
+- Run 2 also stopped on the 32K overflow (request of 32,900 tokens, F20), at turn 73. The harness fix skipped the jump prompts
+  without a stall.
 
 Run 1 other uses (calls / timeouts / `busy`): lore 382 / 9 / 174, scene 102 / 1, typed 150 / 0 / 13, memoryVerify 102 / 0 / 3,
 memoryPairs 72 / 0, stall 19 / 0. Warden provider p50 1,114 / p95 2,608 ms; wardenLore 501 / 3,353 ms. `so-judge timeouts`: warden
