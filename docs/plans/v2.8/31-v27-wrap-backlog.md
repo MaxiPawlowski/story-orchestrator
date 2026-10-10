@@ -24,10 +24,10 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M3 | B1-C3 judge timeouts per use; B1-C12 lore-select requests per turn | pod run killed; the 3090 diagnostic had the warden at 7/118 timeouts and C12 p50 7, max 18 | pod (3090 diagnostic) |
 | M4 | B1-EMPTY formal arms A/B | 8/8 recoveries seen incidentally in batch 3, not the formal row | pod |
 | M5 | B1-NARR plus its rating pack | P3 Narrator holdings scoping, unmeasured | pod |
-| M6 | B1-PFX (prompt-cache reuse) and B1-HIST (32K vs 98K history) | dropped for budget twice; decides the group cache layout (P4) and the history window (P1) **2026-10-10 (pod 2, `27f66m9327okh8`, §Pod 2 measurements): B1-PFX FAIL ×2; B1-HIST INCOMPLETE (3 turns per arm, 1 run)**. PFX: reuse p50 0 on same-speaker and member-after-Narrator pairs in all four arm-runs, `--swa-full` included. The first per-turn difference is the World Info in the story string (entries before the card change with each new message), not the depth-10 player role. `--swa-full` at `LLM_CTX` 98304 does not fit the 32 GB card; run at 24576. HIST partial: the 24576 arm stayed at or under 24576 tokens, prompt ms p50 0.49 × control; probes not run | pod |
+| M6 | B1-PFX (prompt-cache reuse) and B1-HIST (32K vs 98K history) | dropped for budget twice; decides the group cache layout (P4) and the history window (P1) **2026-10-10 (pod 2, `27f66m9327okh8`, §Pod 2 measurements): B1-PFX FAIL ×2; B1-HIST INCOMPLETE (3 turns per arm, 1 run)**. PFX: reuse p50 0 on same-speaker and member-after-Narrator pairs in all four arm-runs, `--swa-full` included. The first per-turn difference is the World Info in the story string (entries before the card change with each new message), not the depth-10 player role. `--swa-full` at `LLM_CTX` 98304 does not fit the 32 GB card; run at 24576. HIST partial: the 24576 arm stayed at or under 24576 tokens, prompt ms p50 0.49 × control; probes not run. **Built 2026-10-10** (`v2.8-lore-placement`, §Late lore placement): per-turn story-book WI moves to depth 4 on the scan copies (`worldInfo.lateLore`, on). PFX re-run owed with `place-all.sh` (control vs late ×2 + 40 blind pairs) | pod |
 | M7 | S-17 / 37-S17 on the new scope budget (`extraction/scopeBudget.ts`) | FAIL ×2 at +17 % before the budget; pair fairness may count per axis, not per pair **2026-10-10 (pod 2 lane 31, DeepSeek CL, master `84c23335`): S-17 FAIL ×2, 37-S17 FAIL ×2**. Tokens +24.6 % in all four runs (combined 3,063 vs baseline 2,460 mean), above +17.1 % before the budget. Latency +0.6–9.9 % ok, block p95 122 ok, quest fairness ok, pair fairness max wait 6 (9 pairs over 3). Filed as F27. **F27 fixed 2026-10-10** (`v2.8-read-budget`): offline replay of these pod 2 inputs +10.0 % / max wait 3 (was +25.3 % / 6 on the same replay). Re-run owed: S-17 ×2 and 37-S17 ×2 on the DeepSeek flash read profile, lanes 30+, same `--values` | pod |
 | M8 | 36-Q1-M2 quest completion recall, 36-Q1-M1 scope, 37-M1 relationship direction, 37-L6-C voice warden OOC recall | 0.46, split, 0.20, 0.5. **2026-10-09 local variant (3090, ×2, §Gate record): M2 PASS 1.00 / 0.92 (was 0.46 ×2); 37-M1 PASS 0.95 (judge first) / run 2 PASS 2026-10-10 on an uncontended controller (§3090 measurements 2026-10-10); L6-C PASS 0.8 / 0.9 (was 0.5 ×2); Q1-M1 not decided (arm 20 can no longer carry 20 keys under B2's scope budget)**. Pod re-measure still owed (local-variant numbers) | pod |
-| M9 | Lorebook R5: Cast and place sheets "after character definitions" vs depth 4 | needs a real-model A/B on prefix stability and quality; the first same-member diff is earlier (Vector Storage, depth-10 player role) | pod |
+| M9 | Lorebook R5: Cast and place sheets "after character definitions" vs depth 4 | needs a real-model A/B on prefix stability and quality; the first same-member diff is earlier (Vector Storage, depth-10 player role). **2026-10-10**: the depth-4 arm is now the default (`worldInfo.lateLore`, §Late lore placement); the A/B is the M6 `place-all.sh` protocol (control = the setting off = after the card) | pod |
 | M10 | Lore selection after R12: calls per reply, exclusive-mode effect under scan mode | before: ~5 judge calls per reply, exclusive refused in file mode. **2026-10-10 (3090)**: still ~5 per reply (p50 7 / p95 15 / max 17 per turn); exclusive never applied (`no-selection`, F21) **2026-10-10 (pod)**: lore select 2.85 / 2.56 judge calls per reply (97 / 34, 46 / 18; was ~5), 1 lore timeout in 143, 0 `busy`; exclusive applied in every loud generation window (54 / 54, 65 / 68; the 3 others `story-off` / `not-loud`, i.e. quiet scans); F21 holds live. 22-turn SP6 prefix ×2, §Pod round 2026-10-10 | 3090 |
 | M11 | Send-to-line latency by turn decile after `43a16f4a` and F1 | batch 3 max 4.5 s, mostly 25–40 ms. **2026-10-10 (3090)**: p50 323 ms, p95 8.5 s, max 14.2 s (F19) | 3090 **2026-10-10 (3090, `v2.8-local-3090`, §Local controller X2)**: 24 turns ×2, before p50 44 / 56 ms, p95 5,830 / 11,862 ms, max 15,568 / 14,263 ms; after the token-count bypass p50 38 / 23 ms, p95 808 / 517 ms, max 965 / 3,467 ms (0 / 1 over 1 s) |
 | M12 | Warden timeouts after the warden fix | see the warden task's record. **2026-10-10 (3090, C3 ×2 on `ddf021bd`)**: not met: warden 1 / 103, 6 / 114; wardenLore 4 / 99, 7 / 109 (F22) **2026-10-10 (pod)**: warden 0 / 32 and 0 / 16, wardenLore 0 / 31 and 0 / 16 timeouts; all uses 2 timeouts in 779 calls (1 lore, 1 director), plugin `upstreamBusyAnswers` 0, adaptive factor 1 throughout: no burst to attribute. Under the 100-call floor (short runs, run 2's journal tail lost 10:27–10:48Z to the C: disk-full window), so diagnostic, not scored; F22 not reproduced | 3090 |
@@ -78,6 +78,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F26 | **Fixed 2026-10-10** (`b8de063a`, branch `v2.8-living-rollback`, merged): a swipe / edit / delete of the reply whose boundary applied a living director change kept the change when no transition had fired: `runRollback`'s noop path (`!shouldRollbackFromMessage`) never called `restoreLiving`, so the branch's ops and checkpoint stayed (L2 swipe ×3 on `43ea77ac`). `livingMovedAfter` (any living op after the restored boundary) now takes the full path; `livingRollback.review.test.ts` (swipe/edit/delete, a negative control without the dep, an op at the boundary). Live ×2 green | 2026-10-10 pod round (M23) |
 | F27 | **Fixed 2026-10-10** (`v2.8-read-budget`), live re-run owed (M7). Attributed offline (the pod 2 raw inputs replayed through `buildFixtureRun`, a words + digits + punctuation token count that matched DeepSeek's: +25.3 % vs +24.6 %): (1) tokens: F6 wrote the direction rule (~70 tokens) on every axis line, so 8 axes cost ~880 tokens and swapping 3 card lines for them grew the prompt; the budget counted keys, not tokens; (2) the 4 quest keys took 4 of the 11 slots although their `scope_hint` kept every one out of the prompt in the first 11 windows; (3) the others' window `rotation × room mod n` ran over a candidate list that changes with who is present and drafted, so it was not round robin per pair (and in live play the rotation was the boundary, which steps more than 1 per read at cadence > 1). Fix: the direction rule once, as a header above the questions (`STEP_READ_HEADER`; the per-line rubric is unchanged); the budget in tokens of the rendered question (`questionCost`, `SCOPE_EXTRA_TOKENS` 250 over the baseline's card questions, the shared rule paid once); a key the scope will not carry (hint, latch, not extractor) is not offered to the budget; relationship axes go in by pair, all of a pair's axes together, each pair with a fixed phase out of `REL_ROTATION_READS` (4) and taken first on its phase; order active quests, drafted member, pairs due this read, the card share, other quests, cards, other pairs; `REL_AXES_PER_READ` 8 -> 12 (the token budget is the bound); the live rotation is a per-read counter (`extraction.scopeReads`). Replay of the pod 2 inputs: +10.0 %, max pair wait 3, one read of 20 without a card pull (cards rotate in the other 19); jest `scopeBudgetS17.replay.test.ts` (synthetic S-17 shape: before +17.3 % / wait 8, after +9.9 % / wait 3; planted controls: per-axis rule +26.3 %, rotation stepping 2 wait 10). Instrument: `so-b1-combined-scope` counts active quest keys over every read (the first read admits none in this lab). Previously: S-17 / 37-S17 on the shipped scope budget (`extraction/scopeBudget.ts`, master `84c23335`): token growth **+24.6 %** in all four runs (floors +15 % 36 / +12 % 37; was +17.1 % before the budget), relationship pair fairness max wait **6** reads (9 pairs over 3), and the overflow drops 3 card pulls plus 6–12 relationship pulls on every read. Latency, block size and quest fairness pass. A budget design issue, not for a pod round | pod 2 2026-10-10 (§Pod 2 measurements): DeepSeek 4.1 flash read profile, lane 31, `--values` b1b `s17-values.json`; records `so-sessions:evidence/phase-c/pod2-2026-10-10/rows/s17/{S-17,37-S17}-run{1,2}.record.json` |
 | F28 | **Fixed 2026-10-10** (`v2.8-pod2`): `scripts/local/judge.mjs setup` downloaded only the decider-4b `.gguf`, but `decider-ai`'s GGUF engine loads its HF tokenizer from the same folder, so a fresh setup's judge server failed at start (`Couldn't instantiate the backend tokenizer`). Setup now also downloads `tokenizer.json`, `tokenizer_config.json` and `decider_config.json` (`JUDGE_MODELS[...].companions`), and the weights count as present only with them (`judge.test.mjs`) | pod 2 local-judge calibration 2026-10-10 (the server ran once the three files were fetched by hand) |
+| F29 | Payload goldens on a no-model lane: since the features-on defaults three of six cases cannot run as written. Living prefetch (`living:prefetch:cp1`, priority 3) waits in the heavy queue behind an open breaker, so `wait: {schedulerIdle}` times out; briefing drafting (on story load) and the inner beat (`PRIVATE NOTE TASK`) make model calls the tripwire refuses; `group-relationships` expects 8 axes per read and gets 5 (B2 scope budget). Workaround used for §Late lore placement: lane settings `stagecraft.livingEnabled/prefetchEnabled`, `memory.innerBeat`, `display.briefingDraft` false, relationships case left out. Fix: the capture tool pins those (or the cases set them), and `group-relationships` follows the budget | §Late lore placement 2026-10-10 |
 
 ## Develop
 
@@ -492,3 +493,66 @@ slot); while text is absent or loading they still wait in the queue. A page-side
 (`gate1`, not kept): it held 2 in flight and the line still waited 15 s, which is what pointed at the tokenizer XHRs. The one 3.5 s
 send left in after 2 is not attributed (no trace kept for that run). Pods are unaffected (llama-server directly, no gateway queue).
 Gates: `npm run gates -- --no-storybook --jobs 2` exit 0 (all ten steps), `npm run typecheck:test` exit 0, on master `1231fda4` merged. The GPU was left idle after the runs (controller and lane 40 stopped).
+
+## Late lore placement 2026-10-10 (branch `v2.8-lore-placement`, M6 B1-PFX / M9, queue R2 / R7)
+
+Pod 2 PFX: reuse p50 0 on every pair; in two same-speaker prompts the first difference is about 1.1K tokens in, inside the
+story string's World Info (story-book keyword / lore-select entries, position 1 in the Adolion books, change with every message).
+
+**Built** (`runtime/lorePlacement.ts`, wired last in the scan handler, `worldInfoScanHost.ts`): option (a) plus (b).
+On the scan copies only (scan mode, after the gate and exclusive, never a file write), for the chat the story was loaded
+into, every enabled non-constant entry of the story's books (`requirements.lorebooks` + `lore_select.lorebooks`, never the
+mirror, a user, character or persona book) at position 0/1 goes to position 4, role system: after-char entries to depth
+`worldInfo.lateLoreDepth` (4), before-char ones to depth 5, so the two groups keep the story string's order. Text, order,
+keys and every other field unchanged; the same move on every scan, so ST's entry hash (sticky/cooldown) is stable. Constants
+(the checkpoint scenes) stay put. Forced lore-select picks come from `getSortedEntries`, which runs the same handler, so they
+carry the moved position. Install switch `worldInfo.lateLore` (default on, Author view `#so-wi-late-lore`, feature
+`late-lore`); a story keeps its authored positions with `lore_select.position: "authored"`. Main bundle +2.2 KB
+(1,286,323 B, budget 1,300,000): the per-scan handler is synchronous, so it stays in the main chunk.
+
+Expectation: same-speaker pairs reuse everything before the first in-chat difference (the depth-10 player role, then the
+depth-5/4 lore block); cross-member pairs still diverge at the drafted card (group swap mode), so no gain is expected there.
+
+### Gates
+
+- `npm run gates -- --no-storybook --jobs=2`: all green in 139.0 s (test, test:replay, build, typecheck, test:debug, typecheck:test, lint, debug:typecheck, test:plugin, test:release); Storybook skipped (`--no-storybook`; `WorldInfoGatingGroup` gained an optional row, no story added).
+- jest `runtime/lorePlacement.test.ts` (6): on the scan copies the story's per-turn entries move (before -> depth 5, after ->
+  depth 4) with identical text/order fields, an ST-style assembly gives the same entry sequence, other books (user, mirror,
+  character), constants, disabled and non-0/1 positions untouched; identical on two scans (hash); only what exclusive left on
+  moves; refusals (setting off, `position: "authored"`, not the owned chat, no story); depth clamp and defaults; an unknown
+  `lore_select.position` is refused.
+- Payload goldens, no-model lane 61 (private ST copy `agent-st-lore`), baseline = master `e64ead2a` (bundle `3a18dfb89296`),
+  candidate = this branch (bundle `3a92a462c3cd`), new case `test/scenarios/payload/group-lore-placement.json` (captures with
+  the setting off and on): candidate ×2 identical (`payload invariance: identical`); base vs candidate ×2 `every difference
+  declared`: 12 of 24 captures identical (every `-authored` capture, away-notice, narrator-holdings: no story-book keyword
+  entry active), 12 differ only by the story-book entries leaving the story string for the depth-4 system block (declaration:
+  the block header and the persona line read as moved; the declared file names the persona, so it stays with the captures).
+  Structural check `placement-check.cjs` ×2: same line multiset, same entry order, no entry left in the story string, 0
+  problems. Lane prep and F29 (three cases need a workaround) above. Captures, declarations, check:
+  `C:\dev\so-lanes\lore\golden\` (persona text of the install: private, not committed).
+- Live in-page on lane 61 (sun-ruins in the toy group): `lastPlacement()` `setting-off` with the switch off, `moved 9 (after 9),
+  constant 2` with it on.
+
+### Live protocol (pod 2, `C:\dev\so-lanes\pod2\place-all.sh`)
+
+Runs on lane 30 with `ST_ROOT=PREP_ST_ROOT=C:/dev/so-lanes/agent-st-lore` (this build is staged there; restage after any
+rebuild: `ST_ROOT=C:/dev/so-lanes/agent-st-lore npm run build && npm run stage` in the worktree). About 3 h of pod time (one
+arm-run is 20 units = 80 replies, ~43 min on the PFX run); start by 18:50Z to end before the 22:05Z cap. The pod's watchdog
+stops it after 20 min idle, so start it right after the previous row.
+
+1. `llama-restart.sh 24576 2 --kv-unified --cache-ram 16384 --ctx-checkpoints 32 --checkpoint-min-step 1024` (the PFX control
+   server; Artemis back from the judge server), `prep-lane.sh 30 24576 quiet 300` (seeded image, Saga, quiet, 300-token replies),
+   then living director, inner beat and briefing drafting off on the lane (both arms), the recorder (`rec-arm.js`), a run header.
+2. Per arm (`place-arm.sh`): set `worldInfo.lateLore` (control false, late true), cut the chat to 80 rows, prove the arm on a scan
+   (`lastPlacement().refusal` `setting-off` / `null`, else the arm stops), then the PFX pair loop (`place-inpage.js` = `pfx-inpage.js`
+   + reply text and the placement per step): 20 units of same1/same2 (one member twice), cross1 (Narrator), cross2 (another member),
+   each unit deleted after it. Order run1 control, late; run2 late, control.
+3. Score: `node pfx-score.cjs place/run1-control place/run1-late place/run2-control place/run2-late` -> `place/score.json`
+   (reuse = cache_n / (cache_n + prompt_n) per tagged request, p50 by pair kind, prompt ms, decode tok/s).
+   Pass (predeclared): late `sameSpeaker.reuseP50` >= 0.80 in both runs, control stays near 0 (reproduces PFX), and late prompt ms
+   p50 on same-speaker pairs <= 0.5 x control. memberAfterNarrator is reported, not scored (diverges at the card by design).
+4. Quality: `place-pack.cjs` builds 40 blind pairs (u*-same1 of each unit and run: the only replies with identical context in
+   both arms), sides by seeded hash, key apart, into `pod2/private/` (Adolion text: never in this repo or a report). Rate with a
+   delegated model (codex exec with `private/place-rate-prompt.txt`), unblind with `place-score-pack.cjs <answers>`. Pass: late
+   is not worse: late wins + ties >= control wins, and factual slips late <= control + 2.
+5. Archive `pod2/place` and `pod2/private/place-*` with the round's evidence (`so-evidence.mts archive`, then `npm run sessions:archive`).

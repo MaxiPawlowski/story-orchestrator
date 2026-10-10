@@ -131,9 +131,20 @@ export interface WorldInfoSettings {
   /** Facts, scene history and checkpoint guidance join the World Info scan buffer. Off unless the author switches it on. */
   scanMemory: boolean;
   keptGlobal: string[];
+  lateLore: boolean;
+  lateLoreDepth: number;
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+export const DEFAULT_LATE_LORE_DEPTH = 4;
+export const LATE_LORE_DEPTH_MIN = 0;
+export const LATE_LORE_DEPTH_MAX = 20;
+
+export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LATE_LORE_DEPTH): number =>
+  typeof value === "number" && Number.isFinite(value) ? Math.min(LATE_LORE_DEPTH_MAX, Math.max(LATE_LORE_DEPTH_MIN, Math.round(value))) : fallback;
+
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
+  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH,
+});
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -167,6 +178,8 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     keptGlobal: Array.isArray(value.keptGlobal)
       ? [...new Set(value.keptGlobal.filter((book): book is string => typeof book === "string").map((book) => book.trim()).filter(Boolean))]
       : [],
+    lateLore: typeof value.lateLore === "boolean" ? value.lateLore : defaultWorldInfoSettings().lateLore,
+    lateLoreDepth: clampLateLoreDepth(value.lateLoreDepth),
   };
 };
 

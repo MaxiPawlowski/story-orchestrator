@@ -175,7 +175,9 @@
     },
     "worldInfo": {
       "gatingMode": "scan",
-      "scanMemory": true
+      "scanMemory": true,
+      "lateLore": true,
+      "lateLoreDepth": 4
     },
     "image": {
       "enabled": false,

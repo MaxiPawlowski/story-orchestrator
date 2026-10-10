@@ -53,6 +53,7 @@ export const ChapterGroup = ({ snapshot, manager }: GroupProps) => (
 
 export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
   const [scanMemory, setScanMemory] = useState(() => getGlobalSettings().worldInfo.scanMemory);
+  const [lateLore, setLateLore] = useState(() => getGlobalSettings().worldInfo.lateLore);
   const [releasing, setReleasing] = useState(false);
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
@@ -82,6 +83,8 @@ export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
           manager.setScanMemory(on);
           setScanMemory(getGlobalSettings().worldInfo.scanMemory);
         }}
+        lateLore={lateLore}
+        onLateLore={(on) => setLateLore(setGlobalSettings({ worldInfo: { lateLore: on } }).worldInfo.lateLore)}
       />
     </div>
   );

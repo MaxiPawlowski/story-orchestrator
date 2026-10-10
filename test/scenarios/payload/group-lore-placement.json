@@ -1,0 +1,71 @@
+{
+  "_note": "v2.8 B1-PFX late lore placement (31 M6/M9, 32 R2/R7), case group-lore-placement. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening for the probe and the tripwire). Sun-ruins in the toy group at cp1; one scripted turn whose lines name keyed entries of the story book Xentar Checkpoints (position 1, after the card: Xentar, Guild of Adventurers, Sun Ruins, Artifacts). Captured with `worldInfo.lateLore` off (`*-authored`) and on (`*-late`), then the key is removed again (absent = the default). On a build without the placement both labels are identical; with it, the `-late` captures differ from the baseline only by those entries leaving the story string and arriving as a depth-4 system block (declared in test/measurements/v2.8/lore-placement/declared.json).",
+  "requires": {
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture (cp1 then disables Ponticius and Luke; the capture tool re-enables them after cleanup), and no judge request"
+  },
+  "steps": [
+    {
+      "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; return { pinned: ['read', 'curator'] };"
+    },
+    {
+      "import_story": {
+        "file": "../../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const at = rt.getActiveCheckpointInfo()?.id; if (at !== 'cp1') throw new Error(`the story did not start at cp1: ${at}`); return { cadence: 0, checkpoint: at };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "I tell Arin the guild in Xentar posted a job: an artifact in the sun ruins."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The guild clerk slides the posting across the counter; the seal of Xentar is still warm."
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin reads it twice. An artifact from the sun ruins? Then we leave at dawn."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const s = SillyTavern.getContext().extensionSettings; s['story-orchestrator'] ??= {}; const root = s['story-orchestrator']; root.settings ??= {}; root.settings.worldInfo ??= {}; root.settings.worldInfo.lateLore = false; return { lateLore: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo?.lateLore ?? null };"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('turn-rest-authored');"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('turn-arin-authored', { member: 'Arin' });"
+    },
+    {
+      "eval": "const s = SillyTavern.getContext().extensionSettings; s['story-orchestrator'] ??= {}; const root = s['story-orchestrator']; root.settings ??= {}; root.settings.worldInfo ??= {}; root.settings.worldInfo.lateLore = true; return { lateLore: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo?.lateLore ?? null };"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('turn-rest-late');"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('turn-arin-late', { member: 'Arin' });"
+    },
+    {
+      "eval": "const s = SillyTavern.getContext().extensionSettings; s['story-orchestrator'] ??= {}; const root = s['story-orchestrator']; root.settings ??= {}; root.settings.worldInfo ??= {}; delete root.settings.worldInfo.lateLore; return { lateLore: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo?.lateLore ?? null };"
+    }
+  ]
+}

@@ -258,6 +258,15 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.worldInfo.scanMemory,
   },
   {
+    id: "late-lore", name: "Per-turn lore after the history", area: "world", audience: "author",
+    oneLine: "Lore that changes every turn is placed near the end of the prompt, so the start can be reused.",
+    what: "Story lorebook entries that activate by keyword or lore select land a few messages from the end of the chat instead of beside the character card, "
+      + "with the same text and order. Per chat gating only; a story can keep its authored positions with lore_select.position.",
+    where: settingsAt("#so-wi-late-lore", "World › Lorebooks"),
+    settings: ["worldInfo.lateLore", "worldInfo.lateLoreDepth"], guideTopic: "world-info", doc: "author/topics/world-info.md", status: "shipped",
+    isOn: (settings) => settings.worldInfo.lateLore,
+  },
+  {
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. It touches only the lorebooks the story lists, and never progress or memory.",

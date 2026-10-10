@@ -234,9 +234,10 @@ export const GUIDE_TOPICS = {
   },
   "lore-select": {
     title: "Lore select",
-    fields: "lore_select.lorebooks, top_k, min_p, exclusive",
+    fields: "lore_select.lorebooks, top_k, min_p, exclusive, position",
     text: "Books whose entries the judge picks per reply, even without their keywords; top_k (1 to 12) caps the picks, min_p (0 to 1) the confidence. exclusive also switches "
-      + "off the unpicked entries for that reply. Require each book under requirements, or it may not be active.",
+      + "off the unpicked entries for that reply. position \"authored\" keeps this story's per-turn entries beside the character card instead of a few messages from the end "
+      + "(the install default, \"depth\"). Require each book under requirements, or it may not be active.",
   },
   "scene-read": {
     title: "Scene places and times",

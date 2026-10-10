@@ -15,7 +15,8 @@ const STAGECRAFT_KEYS = ["lorebooks", "exclude", "createCap"] as const;
 
 const EXCLUSION_KEYS = ["lorebook", "comments"] as const;
 
-const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p", "exclusive"] as const;
+const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p", "exclusive", "position"] as const;
+const LORE_SELECT_POSITIONS = ["authored", "depth"] as const;
 
 const readRequirementList = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0).map((entry) => entry.trim());
@@ -109,8 +110,16 @@ const readLoreSelect = (value: unknown, errors: ValidationError[]): StoryLoreSel
   const topK = number("top_k", 1, 12);
   const minP = number("min_p", 0, 1);
   if (value.exclusive !== undefined && typeof value.exclusive !== "boolean") addError(errors, "lore_select.exclusive", "lore_select.exclusive must be true or false");
+  const position = LORE_SELECT_POSITIONS.find((allowed) => allowed === value.position);
+  if (value.position !== undefined && !position) addError(errors, "lore_select.position", `lore_select.position must be one of ${LORE_SELECT_POSITIONS.join(", ")}`);
   return lorebooks.length
-    ? { lorebooks, ...(topK !== undefined ? { top_k: topK } : {}), ...(minP !== undefined ? { min_p: minP } : {}), ...(value.exclusive === true ? { exclusive: true } : {}) }
+    ? {
+      lorebooks,
+      ...(topK !== undefined ? { top_k: topK } : {}),
+      ...(minP !== undefined ? { min_p: minP } : {}),
+      ...(value.exclusive === true ? { exclusive: true } : {}),
+      ...(position ? { position } : {}),
+    }
     : undefined;
 };
 
