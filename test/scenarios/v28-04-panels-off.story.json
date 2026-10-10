@@ -1,0 +1,183 @@
+{
+  "format": 2,
+  "id": "so-v28-04-panels-off",
+  "title": "SO-V28-04 Panels off",
+  "description": "v2.8 plan 04 no-model fixture: the v2.7 36 quest story with every story panel switched off by the story.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "accepted",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Did the party agree to help the ferryman?"
+    },
+    {
+      "key": "paid",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Was the ferryman's debt paid?"
+    },
+    {
+      "key": "found_map",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Did the party find the smuggler's map?"
+    },
+    {
+      "key": "at_wall",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the party at the harbour wall?"
+    },
+    {
+      "key": "climbed",
+      "type": "bool",
+      "source": "code",
+      "rubric": "Did the climb succeed?"
+    },
+    {
+      "key": "resolve",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "The party's resolve, 0-5.",
+      "display": {
+        "public": true,
+        "label": "Resolve",
+        "as": "meter",
+        "min": 0,
+        "max": 5
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "harbour",
+      "name": "The harbour",
+      "player_name": "The harbour",
+      "player_text": "Find a way over the wall.",
+      "objective": "Reach the wall.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "rooftops",
+      "name": "The rooftops",
+      "player_name": "The rooftops",
+      "objective": "Cross the rooftops.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "harbour",
+      "to": "rooftops",
+      "priority": 0,
+      "gate": {
+        "all": [
+          {
+            "q": "at_wall",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "climbed",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "check": {
+        "id": "climb",
+        "label": "Climb",
+        "quality": "climbed",
+        "roll": {
+          "sides": 20,
+          "target": 2
+        },
+        "narrate": "public"
+      }
+    }
+  ],
+  "quests": [
+    {
+      "id": "debt",
+      "title": "The ferryman's debt",
+      "kind": "side",
+      "giver": "narrator",
+      "visible_when": {
+        "q": "accepted",
+        "op": "==",
+        "v": true
+      },
+      "steps": [
+        {
+          "text": "Pay what is owed",
+          "done_when": {
+            "q": "paid",
+            "op": "==",
+            "v": true
+          }
+        }
+      ],
+      "reward": {
+        "label": "Free passage"
+      }
+    },
+    {
+      "id": "smuggler",
+      "title": "SO-HIDDEN-QUEST-TITLE",
+      "kind": "side",
+      "author_note": "SO-AUTHOR-NOTE",
+      "visible_when": {
+        "q": "found_map",
+        "op": "==",
+        "v": true
+      },
+      "steps": [
+        {
+          "text": "SO-HIDDEN-STEP",
+          "done_when": {
+            "q": "paid",
+            "op": "==",
+            "v": true
+          }
+        }
+      ]
+    }
+  ],
+  "milestones": [
+    {
+      "id": "helper",
+      "title": "A helping hand",
+      "when": {
+        "q": "accepted",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "id": "secret",
+      "title": "SO-SECRET-MILESTONE",
+      "secret": true,
+      "when": {
+        "q": "found_map",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "display": {
+    "suggestions": false,
+    "journal": false,
+    "stat_sheet": false
+  }
+}

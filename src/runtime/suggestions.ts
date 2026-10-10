@@ -27,12 +27,23 @@ const lastPlayerLine = (projection: PlayedProjection): string | null => {
   return own?.text.trim().toLowerCase() ?? null;
 };
 
-export function parseSuggestions(text: string, projection: PlayedProjection): string[] {
+const escapeName = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const namesIn = (line: string, names: readonly string[]) => names.some((name) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeName(name)}(?![\\p{L}\\p{N}])`, "iu").test(line));
+
+export const unseenWithheld = (projection: PlayedProjection, withheld: readonly string[]): string[] => {
+  const shown = projectionText(projection);
+  return withheld.filter((name) => !namesIn(shown, [name]));
+};
+
+export function parseSuggestions(text: string, projection: PlayedProjection, withheld: readonly string[] = []): string[] {
   const last = lastPlayerLine(projection);
+  const unseen = unseenWithheld(projection, withheld);
   const seen = new Set<string>();
   return text.split("\n")
     .map((line) => line.trim().replace(/^(?:[-*•]|\d+[.)])\s*/, "").replace(/^["“]|["”]$/g, "").trim())
     .filter((line) => line.length > 0 && line.length <= SUGGESTION_MAX_CHARS && !/^(?:here are|sure|suggestions?:)/i.test(line))
+    .filter((line) => !namesIn(line, unseen))
     .filter((line) => {
       const key = line.toLowerCase();
       if (key === last || seen.has(key)) return false;

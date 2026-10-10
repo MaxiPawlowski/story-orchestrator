@@ -80,7 +80,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | D7 | Story widgets (rest after option A) | v2.8 23 |
 | D8 | GPU broker in the ST plugin, image workflows per story, model downloads | v2.8 28, 29, 30 |
 | D9 | TunnelVision re-harvest | v2.8 25 |
-| D10 | Story presence panels C4/C5/C7/C9a (what is left) | v2.8 04 |
+| D10 | Story presence panels C4/C5/C7/C9a (what is left) | v2.8 04 (done 2026-10-10, `v2.8-panels-rest`; C5 CL owed) |
 | D11 | Lorebook features the campaign could still use: outlets, regex keys, NOT logic, triggers | lorebook review |
 
 ## Test setup (next pod round)

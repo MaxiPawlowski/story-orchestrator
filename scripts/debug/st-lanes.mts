@@ -1,6 +1,6 @@
 import { execFile, spawn } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { createWriteStream, existsSync, readFileSync } from 'node:fs';
+import { createWriteStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { freemem } from 'node:os';
 import { PROJECT_ROOT } from './lib/connection.mts';
@@ -20,7 +20,8 @@ install) and its own browser, so install-wide state (extension settings, story l
 selection, judge settings) never crosses lanes and journeys can run side by side. The model backend
 is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest.
 
-  seed <n...> [--fresh]        copy data/default-user into lane n (skips backups, vectors, thumbnails); with
+  seed <n...> [--fresh] [--slim] copy data/default-user into lane n (skips backups, vectors, thumbnails; --slim also
+                               skips each card's sprite folder, for a no-model lane on a short disk); with
                                SO_LANE_OFFLINE=1 the copy is made offline: every loopback URL in settings.json
                                but the lane's own (local model servers, a GPU controller, ComfyUI) points at the
                                closed port 18079, model keys are removed as no-model does, no default persona (the first persona, user-default.png), judge, images, sprites
@@ -83,7 +84,7 @@ export const laneEnv = (n: number): Record<string, string> => {
   return { ST_URL: `http://127.0.0.1:${lane.port}/`, ST_DEBUG_CDP_PORT: String(lane.cdp), SO_DEBUG_DIR: lane.debug, SO_LANE: String(n) };
 };
 
-const laneNumbers = (args: string[]) => args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter((n) => n >= 1 && n <= 50);
+const laneNumbers = (args: string[]) => args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter((n) => n >= 1 && n <= 99);
 
 function argValue(name: string, fallback: string | null = null) {
   const index = process.argv.indexOf(name);
@@ -147,7 +148,9 @@ async function seed(n: number, fresh: boolean) {
   await rm(resolve(lane.root, OFFLINE_MARKER), { force: true });
   const source = resolve(ST_ROOT, 'data', 'default-user');
   await mkdir(lane.data, { recursive: true });
-  await cp(source, target, { recursive: true, filter: (path) => !SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source });
+  const sprites = resolve(source, 'characters');
+  const slim = process.argv.includes('--slim');
+  await cp(source, target, { recursive: true, filter: (path) => (!SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source) && !(slim && resolve(path, '..') === sprites && statSync(path).isDirectory()) });
   const swipes = await swipesOnInLane(target);
   const offline = offlineRequested() ? await makeOffline(n) : null;
   return { lane: n, seeded: true, from: source, to: target, swipes, ...(offline ? { offline } : {}) };

@@ -4,7 +4,9 @@ import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./na
 export const PROJECTION_TRANSCRIPT_MESSAGES = 12;
 export const PROJECTION_MESSAGE_CHARS = 600;
 
-const PLAYER_SECTIONS: readonly NarrativeSectionId[] = ["now", "about", "recently", "threads", "chapters", "story", "end"];
+const PLAYER_SECTIONS: readonly NarrativeSectionId[] = ["now", "about", "recently", "threads", "quests", "chapters", "story", "end"];
+
+export const WITHHELD_NAME_MIN_CHARS = 4;
 
 export interface ProjectionLine {
   speaker: string;
@@ -70,6 +72,15 @@ const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly str
     const name = checkpoint ? playerCheckpointName(checkpoint) : null;
     return name ? [name] : [];
   });
+  return [...new Set(names)];
+};
+
+export const withheldNames = (story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null): string[] => {
+  if (!story) return [];
+  const reached = new Set([...visitedPath, ...(activeCheckpointId ? [activeCheckpointId] : [])]);
+  const unreached = story.checkpoints.filter((checkpoint) => !reached.has(checkpoint.id)).flatMap((checkpoint) => [checkpoint.player_name, checkpoint.name]);
+  const quests = (story.quests ?? []).map((quest) => quest.title);
+  const names = [...unreached, ...quests].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
   return [...new Set(names)];
 };
 
