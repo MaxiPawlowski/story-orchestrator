@@ -1,105 +1,112 @@
 # 37 — Codex handoff: finish the sprite/pose work, then the stopped branches
 
-Written 2026-10-10 for `codex exec` (gpt-6.1-sol) sessions over the following days. Each task below is self-contained:
-read the "Context" list, do the "Objective", prove it with "Verify", record it as "Done means". Work the tasks
-**in order**: part A (sprites, poses, live head) first, then part B (the branches stopped on 2026-10-10).
+Written 2026-10-10 for the owner to work through in **interactive Codex sessions**, over the following days. Each task
+below is self-contained:
+- read its "Context" list;
+- do its "Objective";
+- prove it with "Verify";
+- record it as "Done means".
 
-## How to run a task
+Work the tasks **in order**: part A (sprites, poses, live head) first, then part B (the branches stopped on 2026-10-10).
 
-```bash
-codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox -C <worktree> - < <prompt-file>
-```
+## For the owner: starting a task
 
-The prompt file is this document's task section plus the "Rules for every task" section below, pasted together. One task per
-run. The run writes its report to `C:\dev\so-handoff-<task id>-report.md` (at most 40 lines).
+1. Open a terminal in `C:\dev\story-orchestrator` and start Codex:
+   ```bash
+   codex -m gpt-6.1-sol -c model_reasoning_effort=high
+   ```
+   Codex reads `AGENTS.md` on its own; that file holds the shared rules (privacy, models, your machine, merge policy).
+   Codex needs write access outside the repo (worktrees in `C:\dev\so-*`, lanes in `C:\dev\so-lanes`) and to
+   localhost, so approve those, or start it with `--sandbox danger-full-access` if you are happy to.
+2. Give it one task per session, for example:
+   > Read docs/plans/v2.8/37-codex-handoff.md ("Rules for every task" and task A1) and do task A1.
+3. **Tasks that need the 3090** (A3, the second half of A4, A5, A6): add a line saying until when it is free, e.g.
+   *"The 3090 is free until 23:00. I'm not playing."* Without that line, Codex stops before any GPU step.
+4. **Tasks that need something from you** (an approval, a key, a choice) make Codex stop and ask you in the chat. The
+   tasks name these points as **Ask the owner**.
 
-## Rules for every task
+## Rules for every task (Codex: read these first)
 
-1. **Read first, every run:** `.claude/CLAUDE.md`, every file in `.claude/rules/` (architecture, invariants, gotchas, debug
-   scripts, working style), and `docs/plans/v2.8/32-queue.md`. They are binding. Files are CRLF; write multi-line
-   scripts to a file, never a shell heredoc (gotchas: "This repo is CRLF").
-2. **Where you work:** each task names a worktree under `C:\dev\so-<name>` and a branch. Create a missing one with
-   `git -C C:/dev/story-orchestrator worktree add -b <branch> C:/dev/so-<name> master`, copy `.st-root` from the main
-   checkout, and junction `node_modules`
-   (`cmd //c mklink //J "C:\dev\so-<name>\node_modules" "C:\dev\story-orchestrator\node_modules"`). **Never delete a
-   junctioned `node_modules`** (it deletes the main checkout's).
-3. **Merging to master** (`C:\dev\story-orchestrator`, branch `master`) is allowed only at the end of a task, only when:
-   - the branch is committed and `git -C C:/dev/story-orchestrator status --short` is empty before you start;
-   - `git merge --no-ff <branch>` resolves cleanly, with generated files regenerated (`npm run docs:guide`,
-     `npm run docs:settings`) and never hand-merged;
-   - the **full** `npm run gates -- --jobs 4` in the main checkout prints `gates: all green` (Storybook included; kill a
-     leftover server on :6006 first). If any step is red, fix it on the branch, not on master; if you cannot, run
-     `git merge --abort` and stop.
-   Then `git push origin master`, `npm run stage`, and `npm run plugins:install`. If plugins changed (`restartNeeded: true`),
-   restart ST: kill the process on port 8000, then `node scripts/local/cli.mjs start-st`. Never force-push. Never
-   `git reset --hard`, `git clean`, or `git stash drop`.
-4. **The owner's install is real.** ST at `http://127.0.0.1:8000`, data in `C:\dev\SillyTavern-MainBranch\data\default-user`, and
-   lane 0 belong to the owner:
-   - never run journeys, scenarios or seeds against them;
-   - live checks run on a lane (`node scripts/debug/st-lanes.mts`, lanes 30+), as the debug skill describes
-     (`.claude/skills/debug/SKILL.md`);
-   - staging (`npm run stage`) only at the end of rule 3.
-5. **GPU (the RTX 3090) only when the owner said so in this run's prompt** (a line "3090 is free until <time>"). Without
-   that line, a GPU step is written up as owed and the task stops before it. With it:
-   - go through the local controller (`node scripts/local/cli.mjs start`, then its `unload` / `start-comfy` / `free-images`
-     routes, `scripts/local/README.md`);
-   - never kill a process you did not start;
-   - leave the GPU idle at the end (`node scripts/local/cli.mjs stop`).
-   No RunPod.
-6. **Downloads only through the product's model-downloads feature (plan 30)**, and only the files a task names. The Hugging
-   Face token is the owner's: they type it into the ST UI (Story Orchestrator settings → Models → Hugging Face key, which
-   writes ST secret `api_key_huggingface`). Never ask for it in a prompt, never print it, never write it to a file.
-   Check free space on C: first (`df -h /c`): stop if under 30 GB.
+1. **Read first, every session:** `AGENTS.md`, `.claude/CLAUDE.md`, every file in `.claude/rules/` and
+   `docs/plans/v2.8/32-queue.md`. They are binding.
+   - The `.claude/skills/*/SKILL.md` files are reference manuals: read the one a task names.
+   - Files are CRLF. Write multi-line scripts to a file, never a shell heredoc (gotchas: CRLF).
+2. **Where you work:** each task names a worktree under `C:\dev\so-<name>` and a branch.
+   - Create a missing one with `git -C C:/dev/story-orchestrator worktree add -b <branch> C:/dev/so-<name> master`, copy
+     `.st-root` from the main checkout, and junction `node_modules`
+     (`cmd //c mklink //J "C:\dev\so-<name>\node_modules" "C:\dev\story-orchestrator\node_modules"`).
+   - **Never delete a junctioned `node_modules`**: that deletes the main checkout's.
+   - Start every task by running `git merge master` in its worktree.
+3. **Merging to master** (`C:\dev\story-orchestrator`, branch `master`) only at the end of a task, and only when:
+   - `git -C C:/dev/story-orchestrator status --short` is empty before you start;
+   - `git merge --no-ff <branch>` resolves. Regenerate the generated files (`npm run docs:guide`,
+     `npm run docs:settings`); never hand-merge them;
+   - the **full** `npm run gates -- --jobs 4` in the main checkout prints `gates: all green`, Storybook included. Kill any
+     leftover server on :6006 first. If a step is red, fix it on the branch, not on master. If you cannot, run
+     `git merge --abort` and tell the owner.
+
+   Then:
+   - `git push origin master`, `npm run stage`, `npm run plugins:install`;
+   - if plugins changed (`restartNeeded: true`), **ask the owner** before restarting ST. The restart is: kill the process
+     on port 8000, then `node scripts/local/cli.mjs start-st`;
+   - tell the owner to reload the ST page.
+
+   Never force-push, `git reset --hard`, `git clean` or `git stash drop`.
+4. **The owner's install is real.** ST at `http://127.0.0.1:8000`, `C:\dev\SillyTavern-MainBranch\data\default-user` and
+   lane 0 belong to the owner.
+   - Never run journeys, scenarios or seeds against them.
+   - Live checks run on a lane (`node scripts/debug/st-lanes.mts`, lanes 30+), as the debug skill describes.
+   - Staging only at the end of rule 3.
+5. **The GPU (the RTX 3090) only when the owner said in this session that it is free, and until when.**
+   - Otherwise write the GPU step up as owed and stop before it.
+   - With the go-ahead, use the local controller: `node scripts/local/cli.mjs start`, then its `unload` /
+     `start-comfy` / `free-images` routes (`scripts/local/README.md`).
+   - Never kill a process you did not start.
+   - Leave the GPU idle at the end: `node scripts/local/cli.mjs stop`.
+   - No RunPod.
+6. **Downloads only through the product's model-downloads feature (plan 30)**, and only the files a task names.
+   - The Hugging Face key is the owner's. **Ask the owner** to type it into the ST UI: Story Orchestrator settings → Models
+     → Hugging Face key, which writes ST secret `api_key_huggingface`. Wait until they confirm.
+   - Never ask for the key in the chat, print it or write it to a file.
+   - Check free space on C: first (`df -h /c`), and stop if it is under 30 GB.
 7. **Model calls:**
-   - Opencode `openai/gpt-6.1-sol` (the owner's subscription) is the default for authoring and vision.
-   - DeepSeek is pay-per-token: fall back to it only if Sol cannot do the step, and report the token count.
+   - Opencode `openai/gpt-6.1-sol` is the default for authoring and vision.
+   - DeepSeek is pay-per-token: use it only if Sol cannot do the step, after asking the owner, and report the tokens used.
    - TypeSafe judge calls: at most 300 per task, counted and reported.
-8. **Adolion is private and unread by the owner.** No campaign content in this public repo. Reports name no character, place,
-   quest or plot; counts only. Campaign work happens in `C:\dev\adolion-campaign` (private), on a branch, with its own
-   `scripts/check_all.sh` green before merging there. Pin bumps go in `scripts/debug/adolion-fresh.pin.json` (see the commit
-   `d203f58c` for every file a bump touches).
-9. **Every code change follows the house rules** (`.claude/rules/working-style.md`):
+8. **Adolion is private, and the owner has not read it.**
+   - No campaign content goes in this public repo.
+   - What you tell the owner (chat, commit messages here, reports) names no character, place, quest or plot: counts only.
+   - Campaign work happens in `C:\dev\adolion-campaign` on a branch, and its `scripts/check_all.sh` must be green before
+     merging there.
+   - A pin bump goes in `scripts/debug/adolion-fresh.pin.json`; commit `d203f58c` shows every file a bump touches.
+9. **House rules** (`.claude/rules/working-style.md`):
    - no code comments; TypeScript strict;
-   - every UI part gets a `.stories.tsx`;
-   - every async writer gets a RunGuard and a census row;
-   - main bundle at most 1,300,000 B (it is about 1,293,100 now). Put new code in lazy chunks; never raise the budget.
+   - a `.stories.tsx` for every UI part;
+   - a RunGuard and a census row for every async writer;
+   - main bundle at most 1,300,000 B (about 1,293,000 now): put new code in lazy chunks and never raise the budget.
 10. **Finish every task:**
-    - append a `## Gate record` to the task's plan (date, exact commands, result lines, deviations, what is owed);
+    - append a `## Gate record` to the task's plan: date, exact commands, result lines, deviations, what is owed;
     - update its row in `32-queue.md`;
     - commit with a message ending in `Co-Authored-By: Codex (gpt-6.1-sol) <noreply@openai.com>`;
-    - write the report.
+    - give the owner a short summary in the chat (at most 15 lines): what is done, what is owed, and what needs them next.
+11. **Running Storybook tests from a worktree.** `npm run test-storybook:ci` cannot find stories there, because the
+    `node_modules` junction resolves to the main checkout. Instead:
+    - build with `npm run storybook:build`;
+    - serve with `npm run serve-sb` (port 6006);
+    - run the test runner by path with `--index-json` against `http://127.0.0.1:6006`. `scripts/release/gates.mjs` shows how.
 
 ---
 
 # Part A — sprites, poses and the live head, fully working
 
-Current state (2026-10-10): master `cb98ea3f` holds the pose library (plan 33, B1–B3) and the live head (plan 36) merged
-locally, **not pushed**. Full gates are red on one Storybook story (A0). Nothing in part A has run on a real GPU,
-real art or a real browser frame clock yet.
+Current state (2026-10-10, master `f81261c2`, pushed and installed): the pose library (plan 33, B1–B3) and the live
+head (plan 36) are on master and green, including the full Storybook suite. Nothing in part A has run yet on a real
+GPU, on real art, or against a real browser frame clock.
 
-## A0 — Make master green, push and install
+## A0 — Make master green, push and install: **done 2026-10-10**
 
-- **Worktree:** the main checkout `C:\dev\story-orchestrator`. This is the one task that commits to master directly: a story
-  fix on top of the unpushed merge.
-- **Context:**
-  - `src/sprites/liveHead/LiveHead.stories.tsx` (story `SyntheticBust`);
-  - `src/sprites/liveHead/*.tsx`;
-  - `.storybook/preview.ts` (the a11y rules, `mountRootFor`);
-  - gotchas "All our CSS is scoped to the mount roots";
-  - commit `c7283dee` (how the PosesList story was fixed).
-- **Objective:** `Sprites/LiveHead › SyntheticBust` fails with "1 accessibility violation was detected". Find the
-  violation and fix its cause in the component, not by disabling the rule. Then make the full gates green and ship.
-  1. Build and serve Storybook: run `npm run storybook:build`, then `npm run serve-sb` in the background (port 6006).
-  2. Reproduce the failure: `npm run test-storybook -- src/sprites/liveHead/LiveHead.stories.tsx`.
-  3. To name the violation, run axe-core on the story iframe
-     (`http://127.0.0.1:6006/iframe.html?id=sprites-livehead--synthetic-bust`) through Playwright. The earlier contrast
-     fixes used this method.
-- **Verify:** that story passes, then the full `npm run gates -- --jobs 4` prints `gates: all green`.
-- **Done means:**
-  - pushed to origin master, then `npm run stage` and `npm run plugins:install`, with ST restarted if
-    `restartNeeded`;
-  - the staged `dist/manifest.json` bundle sha matches a fresh build;
-  - the queue rows A22 and A23 say "on master".
+The LiveHead demo buttons' contrast was fixed in `2168544f`, merged as `a4b5e94d`. Master `f81261c2` was pushed, staged and
+installed.
 
 ## A1 — Live head: browser checks LI1, LI3, LI4, LI6 (no GPU, no model)
 
@@ -150,7 +157,7 @@ real art or a real browser frame clock yet.
      - no mouth stretching onto the chin;
      - no tears at ±30°;
      - at most 3 review rounds.
-  2. Then, **only if the owner's prompt lists the members**, rig those campaign members' current base art from the owner's ST
+  2. Then **ask the owner** which campaign members to rig, if any. Rig only those campaign members' current base art from the owner's ST
      (`data/default-user/characters/`; read-only) into the rig cache. Rig files go to the install's rig store
      (`sprites.liveHeadRigs` / the store plan 36 names), never into this repo.
   3. NumPy/OpenCV were missing for CPU layer inpainting. Install them into the repo's Python environment (`.venv`, or the
@@ -166,8 +173,9 @@ real art or a real browser frame clock yet.
 
 ## A3 — Poses: DWPose download and S0 spike on the 3090
 
-- **Precondition:** the owner's prompt says "3090 is free until <time>", and the owner has saved the Hugging Face key in the
-  ST UI (rule 6). Otherwise stop after step 1 and report what is waiting.
+- **Precondition:** the owner said in this session that the 3090 is free, and until when (rule 5). Step 2 needs the Hugging
+  Face key: **ask the owner** to save it in the ST UI and wait (rule 6). Without either, stop after step 1 and tell the
+  owner what is waiting.
 - **Worktree:** `C:\dev\so-poses` (branch `v2.8-poses`, `git merge master` first).
 - **Context:**
   - `docs/plans/v2.8/33-pose-library-and-avatars.md` (§3–§6, the S0 row in §6, §7 decisions, Gate record);
@@ -213,7 +221,7 @@ real art or a real browser frame clock yet.
 - **Objective:**
   1. **CL, no GPU:** score the 40 replies through the real pick chain (judge, then LLM, then none) on a lane with the
      owner's normal judge and authoring profiles. Report accuracy (floor ≥ 80 %, informational) and the judge calls.
-  2. **Acceptance, needs A3 passed and a "3090 is free" line:** the synthetic 3-member story, 3 looks × 4 directed poses ×
+  2. **Acceptance, needs A3 passed and the owner's go-ahead on the 3090 (rule 5):** the synthetic 3-member story, 3 looks × 4 directed poses ×
      3 labels, played on a lane ×2. Assert:
      - no reply waits on a render (send→reply latency within +10 % of a no-sprites arm);
      - S0 floors on the live renders;
@@ -223,7 +231,7 @@ real art or a real browser frame clock yet.
 
 ## A5 — GPU broker and story image workflows, real check (plans 28 and 29 LI)
 
-- **Precondition:** "3090 is free".
+- **Precondition:** the owner's go-ahead on the 3090 (rule 5).
 - **Worktree:** new `C:\dev\so-media-li`, branch `v2.8-media-li`.
 - **Context:** plan 28 §LI + LT and its Gate record ("Not run"); plan 29 §LI and its Gate record; `server-plugin/story-orchestrator-gpu/`;
   `scripts/local/`.
@@ -237,8 +245,8 @@ real art or a real browser frame clock yet.
 
 ## A6 — Campaign sprite fixes (backlog F13 / X6; v2.7 38 D13b, D13c)
 
-- **Precondition** for any re-render: "3090 is free".
-- **Worktree:** `C:\dev\adolion-campaign` on a new branch `v2.8-sprites` (private repo; reports spoiler-free).
+- **Precondition** for any re-render: the owner's go-ahead on the 3090 (rule 5).
+- **Worktree:** `C:\dev\adolion-campaign` on a new branch `v2.8-sprites` (private repo; what you tell the owner stays spoiler-free).
 - **Context:**
   - `docs/plans/v2.7/38-adolion-campaign.md` rows D13b and D13c;
   - campaign `scripts/render_sprites.py`, `night_sprites.cmd`, `normalize_sprite_sets.py`, `sprite_progress.py`;
@@ -266,7 +274,7 @@ Every branch below is a WIP commit whose gates were **not run**. For each one:
 2. Read the branch's own plan Gate record line, which says what is done and what is next.
 3. Finish the work.
 4. Run `npm run gates -- --no-storybook --jobs 2` and `npm run typecheck:test` in the worktree. Run the Storybook stories
-   the change touched the way A0 does (build, serve on :6006, run the test runner by path with `--index-json`).
+   the change touched, as rule 11 describes.
 5. Merge per rule 3.
 
 ## B1 — A3 v2.7 carry-over (`C:\dev\so-carry-over`, `v2.8-carry-over` @ `bb610004`)
@@ -297,7 +305,7 @@ Every branch below is a WIP commit whose gates were **not run**. For each one:
 - **Objective:**
   - fix the red typecheck:test, test and lint from the first run;
   - finish what plan 34 lists as buildable;
-  - campaign recommendations go into the report only (rule 8).
+  - campaign recommendations go only into your chat summary, without spoilers (rule 8).
 - **Verify:** gates green; jest cases cover each ST behaviour plan 34 cites, with host file:line in the test name or plan.
 
 ## B3 — A6 open stretches (`C:\dev\so-open-stretches`, `v2.8-open-stretches` @ `ef94cc26`)
