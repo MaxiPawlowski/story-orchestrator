@@ -15,7 +15,7 @@
     { "id": "dock", "name": "The dock", "player_name": "The dock", "objective": "Search the dock.", "type": "anchor" }
   ],
   "transitions": [
-    { "from": "harbour", "to": "dock", "priority": 0, "gate": { "all": [{ "q": "searched_dock", "op": "==", "v": true }, { "q": "found_ledger", "op": "==", "v": true }, { "q": "secret_found", "op": "!=", "v": true }, { "q": "alarm", "op": ">=", "v": 0 }] } }
+    { "from": "harbour", "to": "dock", "priority": 0, "gate": { "all": [{ "q": "searched_dock", "op": "==", "v": true }, { "q": "found_ledger", "op": "==", "v": true }] } }
   ],
   "widgets": [
     {

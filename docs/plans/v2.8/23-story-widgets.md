@@ -239,3 +239,79 @@ workers, forms, popups, top navigation, parent access, cookies and storage are a
    second model per rule 11). Recommended: run it with v2.7 38's lab copy.
 5. **Follow-ups from §Prior art:** author provenance on values, player "changed N replies ago", drawer/roll intents,
    per-story motion toggle. Recommended: build provenance first (author view only, no player copy change).
+
+## Gate record
+
+### 2026-10-10: build on `v2.8-story-widgets` (from master `201bd784`), deterministic tiers + no-model lane
+
+**What was built**
+
+- Format (`engine/gameSchema.ts`): `WIDGET_KINDS` gains `clues`, `map`, `html`; `StoryWidget` gains `clues[]`
+  (`id`, `text`, `when`, `action?`), `links[]`, `image`, `pins[]` (`id`, `label`, `x`, `y`, `checkpoint | when`,
+  `action?`), `template`, `source`, `actions[]` (`id`, `text`).
+- Validator (`engine/validate/widgets.ts`, still in the lazy game-layer chunk): `readWidgets(value, {qualityByKey,
+  qualities, checkpointIds}, errors)`; a clue is found by exactly one of a bool `quality` (normalized to a gate) or
+  `when`; link ends are clues of the widget, no self or duplicate link; `image` is a SillyTavern background file name
+  (`MAP_IMAGE_PATTERN`: no path, no colon, no query, an image extension); pins 0-100 %, on a known checkpoint or a gate;
+  items only on their own kind; actions 1-200 chars; HTML template 1-32000 chars, `source` an ordinary widget of the
+  same audience, one HTML panel per source, at most 10 actions; caps 40 items, 80 links.
+- Projection (`runtime/widgets.ts`, lazy): clues/pins absent until found or reached, links only between shown clues
+  (by index, no ids), a checkpoint pin `here` while active, `fresh` from the last boundary log entry; a wall with
+  nothing found is not drawn, a map always is; an HTML view carries its source view, the source is not listed again.
+- Named intents: `WidgetCard` renders `action` as a button that fills `#send_textarea` through `fillChatInput(text, "")`
+  (refused while the player is typing, never sends); the HTML bridge's `story/propose-intent {id}` fills only the
+  declared text.
+- Option B (`runtime/htmlWidget.ts` pure bridge + `runtime/htmlWidgetAudit.ts` ring,
+  `components/widgets/HtmlWidgetFrame.tsx`), all in the lazy panel chunk: see §MCP Apps. Install setting
+  `display.presence.htmlWidgets` (default on, settings copy, `PresenceControls` `#so-presence-html-widgets`, feature
+  `story-made-panels`, `test/sessions/baseline-settings.json`).
+- Motion: CSS transitions/animations for bars, clock boxes, new clues and pins, only under
+  `prefers-reduced-motion: no-preference`.
+- Studio: Widgets editor fields for clues/links, image/pins, source/template/actions, and `WidgetPreview` (per widget,
+  sample values for every key the widget reads and "reached" per pin checkpoint, rendered as the lines the player would
+  get) over `studio/widgetPreview.ts`.
+- Diagnostics (`studio/widgetDiagnostics.ts`, each with a `DIAGNOSTIC_CONSEQUENCES` line): `widget-item-never-read`
+  (warning; it replaces `quality-never-in-scope` for a key only widgets read), `map-pin-unreachable` (warning),
+  `map-image-missing` (warning, with the install's backgrounds), `html-widget-declared` (info, lists every HTML panel).
+  `checkQualitiesInScope` now shares `scopedKeys` with it.
+- Docs: `story-guide.md` topics `clues-and-maps` and `html-panels` (+ compact twins, Studio Game tab guide, generated
+  author pages via `npm run docs:guide`), the `widgets` topic names the new kinds, player guide `playing.md`, settings
+  reference + README feature table (`npm run docs:settings`).
+- Guards: `architecture.test.ts` presence list gains the five new modules (no prompt seam); widgets add no extraction
+  scope (payload invariance kept; a clue on an unread quality is a diagnostic, not a new read).
+
+**Tests (jest)**: `engine/validate/widgets.test.ts` (25: shapes and every refusal, control), `runtime/widgetKinds.test.ts`
+(15: hidden clues/pins/links byte-identical property, 4 seeds x 25 runs; rollback ≡ replay 4 seeds x 25 cuts plus a
+negative control; fresh/here; HTML source), `runtime/htmlWidget.test.ts` (18: sandbox grants, CSP before the template,
+method whitelist, notifications, declared-only intent text, pacing, refused fill, size clamp, audit clip and cap,
+journal filter), `studio/widgetDiagnostics.test.ts` (8: the four codes, preview lines), `diagnostics.test.ts` seeded run
+extended (every code once), `test/goldens/arrival-findings.json` re-recorded for the new fixture story (empty entry).
+
+**Commands (worktree, `ST_ROOT=C:/dev/SillyTavern-MainBranch`, read only)**
+- `npm run gates -- --no-storybook`: **all green in 96.9 s** (build, typecheck, typecheck:test, debug:typecheck, test
+  7313 pass / 1 skipped, lint, test:release, test:debug, test:replay 32 of 32 killed, test:plugin).
+  `test-storybook:ci` SKIPPED (worktree). `npm run typecheck:test`: clean.
+- Main entry `dist/index.js` **1,248,575 B** (budget 1,250,000): the bridge, frame, preview and new kinds are lazy; the
+  main entry carries only the setting copy, the feature entry and `presenceUi` wiring. Headroom is now 1.4 KB.
+
+**Live D, no model** (lane 11 under a private ST copy `C:\dev\so-lanes\agent-st-widgets`, lanes root
+`C:\dev\so-lanes\so-lanes`, seeded with `SO_LANE_OFFLINE=1`; the real ST slot, :8000 and the 3090 untouched):
+`test/scenarios/v28-23-widgets.json --sandbox --group "Group: Arin, DM Narrator"` **17/17 green x2**
+(`C:\dev\so-lanes\so-lanes\11\debug\runs\2026-10-10T08-24-37-168Z-so-scenario-run`, `…08-25-07-431Z-…`): player panels
+before and after a find, no hidden text in the snapshot or the page, the HTML panel's frame is `sandbox="allow-scripts"`
+and initializes over the bridge (audit `ui/initialize`, `initialized`, `size-changed`), story-made panels off shows the
+plain wall and its action fills the box without sending, the dock pin is `here` and fresh, a deleted message reverts every
+panel byte for byte, `assert-player-clean` 0 findings with the three panels open (moved beside the drawer so the tabs stay
+clickable; geometry restored after). Earlier red runs were fixture faults (a gate on unset values, panel state left open
+by a failed run), fixed in the fixture. The one console error is the fixture map's absent picture (404).
+
+**Stories to re-run (Storybook, not run here)**: `Panels/WidgetCard` (new `Clues`, `ClueActionRefused`, `CluesReadOnly`,
+`MapPins`, `MapPhone`, `CluesPhone`), `Panels/WidgetPanel` (new `CluesPanel`, `MapPanel`, `HtmlPanelFramed`,
+`HtmlPanelOffShowsPlainPanel`, `MapPhone`), `Panels/HtmlWidgetFrame` (new: `ReadsTheViewAndProposesDeclaredLines`,
+`EscapeAttemptsAreBlocked`, `LeavingThePageClosesIt`, `Phone`, `Wide`), `Studio/WidgetsEditor` (new `CluesMapAndHtml`,
+`PreviewOverASample`, `PreviewMapReached`, `KindsPhone`), plus `Studio/GameEditor`, `Panels/JournalPanel`,
+`Settings/PlayGroups` (presence controls gained a row).
+
+**Not run / owed**: Storybook interaction + a11y (above); the Adolion pilot widget (decision 4); a real-browser check
+that a hostile template's self-navigation request is the only channel (the story asserts closure, not the absence of the
+request).
