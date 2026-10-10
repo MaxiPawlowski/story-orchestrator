@@ -138,6 +138,16 @@ write and no effect-ledger row. Review: Accept / Reject in Author view (`Charact
 - No-model plumbing: lane 8 (no-model) on a private ST code copy `C:\dev\so-lanes\agent-st-meanwhile`,
   `test/scenarios/v28-meanwhile-proposals.json --sandbox`: 17/17 green ×2 (evidence `C:\dev\so-lanes\8\debug\runs\2026-10-10T00-38-16-290Z-so-scenario-run`,
   `…2026-10-10T00-38-58-350Z-so-scenario-run`). The proposal text is a debugResponse: plumbing only, NOT the real-model gate (M16).
-- Same lane: `v27-37-character-life.json` green; `v27-37-agenda-effect.json` red at step 12 ("the step-two entry to switch on"):
-  the fixture reads the lorebook file's `disable` flag while the lane runs `worldInfo.gatingMode: scan`, where gated entries are not
-  toggled in the file. Not touched by this change (authored step path); left for the fixture's owner.
+- Same lane: `v27-37-character-life.json` green; `v27-37-agenda-effect.json` was red at step 12 ("the step-two entry to switch on").
+  Two causes. The fixture read the lorebook file's `disable` flag while the lane runs `worldInfo.gatingMode: scan` (the default),
+  where gated entries are never toggled in the file. And a real defect under it: the scan gate (`worldInfoScan.ts`) and the
+  file-mode scan guard (`worldInfoScanGuard.ts`) planned from the checkpoint path alone, without the earned switches the file
+  path uses (quest rewards, landed agenda steps), so in scan mode an agenda or quest-reward entry never switched on, and in file
+  mode the guard forced it back off in every scan copy. Fixed: both take the blackboard values, plan with `earnedSwitches`, and
+  key their memo on them (`scanGateEarned.review.test.ts`, with a no-values control that shows the defect). The fixture now asserts
+  what this chat's scan used (`snapshot.scanGate` after an in-page `getSortedEntries`, `on` = `effectiveDisabled === false`) and
+  that scan mode never changes the file; the file-flag assertions moved to `v27-37-agenda-effect-file.json`, which switches to file
+  mode first and restores it last (as `memory-mirror-file.json` does). Lane 8, no model: scan leg 17/17 ×2, file leg 19/19 ×2
+  (mode restored to scan both times); `v28-meanwhile-proposals`, `v27-37-character-life`, `v27-36-quest-lifecycle` green on the
+  same build. Both legs end with a residue sweep of the untitled wizard session `applyProvisioning` records (pre-existing).
+- After the scan-gate fix: `npm run gates -- --no-storybook` all green in 156.8 s (test:replay 32 of 32 killed); Storybook SKIPPED.

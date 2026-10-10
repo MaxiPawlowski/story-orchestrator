@@ -1,5 +1,5 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { releasePlan, worldInfoPlan } from "./worldInfoGates";
+import { NO_EARNED_SWITCHES, releasePlan, worldInfoPlan, type EarnedSwitches } from "./worldInfoGates";
 import { bookKey, entryComment } from "./worldInfoMatch";
 
 // `worldInfo.gatingMode: "scan"`, the default. The file path writes checkpoint world info into shared
@@ -23,11 +23,11 @@ const setEntry = (gate: ScanGate, lorebook: string, comment: string, on: boolean
 // = worldInfoPlan(loaded, path) ∪ releasePlan(library, keep = loaded): what the file path leaves
 // behind when it applies the loaded story's path and releases everyone else's gated entries. A null
 // `loaded` is "no story": every library gated entry off.
-export function scanGatePlan(library: unknown[], loaded: NormalizedStoryV2 | null, path: string[]): ScanGate {
+export function scanGatePlan(library: unknown[], loaded: NormalizedStoryV2 | null, path: string[], switches: EarnedSwitches = NO_EARNED_SWITCHES): ScanGate {
   const gate: ScanGate = new Map();
   for (const plan of releasePlan(library, loaded)) for (const comment of plan.disable) setEntry(gate, plan.lorebook, comment, false);
   if (loaded) {
-    for (const plan of worldInfoPlan(loaded, path)) {
+    for (const plan of worldInfoPlan(loaded, path, switches.rewarded, switches.earned)) {
       for (const comment of plan.disable) setEntry(gate, plan.lorebook, comment, false);
       for (const comment of plan.enable) setEntry(gate, plan.lorebook, comment, true);
     }

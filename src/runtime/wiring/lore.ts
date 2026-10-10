@@ -38,6 +38,7 @@ const startGating = (disposers: Disposers, exclusive: Parameters<typeof startSca
         const state = runtimeManager.getEngineState();
         return state ? stagedPath(state.visitedPath, state.stagedFrom) : [];
       },
+      values: () => runtimeManager.getEngineState()?.blackboard.values ?? {},
       mirrorBook: () => runtimeManager.getMirrorBook(),
       exclusive,
       ownership: runtimeManager.getOwnership(),

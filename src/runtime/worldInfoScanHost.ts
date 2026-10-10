@@ -27,6 +27,7 @@ export interface ScanGatingWiring {
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
   filePath: () => string[];
+  values: () => Readonly<Record<string, unknown>>;
   mirrorBook: () => MemoryMirrorBook | null;
   exclusive: {
     useActive: () => boolean;
@@ -70,6 +71,7 @@ const startScanGuard = (deps: ScanGatingWiring) => {
     storyChat: deps.ownedChat,
     story: deps.story,
     path: deps.filePath,
+    values: deps.values,
     ready: () => evaluateRequirements(deps.story(), requirementsOptions(deps.mirrorBook(), false)).ready,
     library,
     libraryRevision,
@@ -125,6 +127,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     ownedChat: deps.ownedChat,
     story: deps.story,
     path: deps.path,
+    values: deps.values,
     ready: () => evaluateRequirements(deps.story(), requirementsOptions(null, true)).ready,
     library,
     libraryRevision,
