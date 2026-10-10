@@ -6,6 +6,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 
 - [Curator scope](#stagecraft)
 - [Lore select](#lore-select)
+- [Lorebook entry features](#lore-entries)
 - [Scene places and times](#scene-read)
 - [House rules](#house-rules)
 - [Chapters](#chapters)
@@ -35,6 +36,19 @@ Fields: `lore_select.lorebooks`, `top_k` (1 to 12), `min_p` (0 to 1), `exclusive
 - **Good.** `{ "lorebooks": ["Adolion World"], "top_k": 6, "min_p": 0.7, "exclusive": true }`; raise `min_p` for a big book.
 - **Bad.** A book that is not required.
 - **If wrong.** Lore select only reaches books SillyTavern scans, so a book not under requirements may never be in play (`lore-select-inactive`); `exclusive` with no book excludes nothing (`lore-select-exclusive-empty`).
+
+<a id="lore-entries"></a>
+
+## Lorebook entry features
+
+Topic `lore-entries`.
+
+Fields (on the wizard's `upsertLorebookEntry` step, written into SillyTavern's own entry fields): `keys` as `/pattern/flags`, `secondaryKeys`, `logic` (`and-any`, `not-all`, `not-any`, `and-all`), `outlet`, `triggers` (`wizard/provisioning.ts` `loreEntryShapeProblem`, `stHost/worldInfo.ts` `upsertWIEntry`).
+
+- **What it does.** These are SillyTavern's own entry features; a story's books can use them and the runtime respects each one. A key written `/pattern/flags` is a regular expression and ignores the case and whole-word settings, so add `i` yourself. `secondaryKeys` narrow a keyword match: with `logic` `and-any` (the default) one of them must also appear, `and-all` every one, `not-any` none of them, `not-all` not every one. `outlet` places the text only where `{{outlet::name}}` is written (a card field, the preset, the Author's Note or another entry); higher `order` comes first there. `triggers` limit the generation types the entry fires on: `normal`, `continue`, `impersonate`, `swipe`, `regenerate`, `quiet`. Lore select leaves an outlet entry in its outlet (late lore placement moves only entries placed before or after the character definitions), never asks the judge about an entry whose `triggers` leave out the reply being written (SillyTavern checks triggers before a forced entry, so the pick could never land), and counts a `not-any`/`not-all` entry as certain to fire only when nothing outside the chat is scanned with it (our scanned memory blocks and the Author's Note usually are, so such entries are rated like any other).
+- **Good.** A tavern entry keyed `tavern` with `secondaryKeys: ["fight", "brawl"]`, `logic: "not-any"`, so its calm description stays out of a brawl; `/\bsilver (key|lock)s?\b/i` for one entry that covers every form; a map summary with `outlet: "map"` read by an Author's Note or card field that writes `{{outlet::map}}`; a recap entry with `triggers: ["quiet"]` for summaries only.
+- **Bad.** A regex with an unescaped `/` inside it, which SillyTavern silently reads as plain text; secondary keys on an always-in-context entry, which skips every key check; an outlet nothing writes `{{outlet::name}}` for.
+- **If wrong.** The wizard refuses these before you see them: a pattern key that would be read as plain text, a `logic` with no secondary keys, secondary keys on a constant entry or with no keyword, an outlet name holding `{` or `}`, an unknown trigger. An outlet with no `{{outlet::name}}` anywhere fires and lands nowhere; nothing warns about it, so check the prompt with SillyTavern's prompt inspector.
 
 <a id="scene-read"></a>
 

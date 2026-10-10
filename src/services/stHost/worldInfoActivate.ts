@@ -2,6 +2,7 @@ import { getContext } from "./context";
 import type { HostScannableEntry } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { triggerGenerationType } from "@utils/wiKeys";
 
 export type { HostScannableEntry } from "./hostTypes";
 
@@ -29,6 +30,8 @@ export interface HostScanBuffer {
   depth: number;
   caseSensitive: boolean;
   matchWholeWords: boolean;
+  trigger: string | null;
+  injected: boolean;
 }
 
 interface ScanRow {
@@ -36,6 +39,12 @@ interface ScanRow {
   name?: unknown;
   is_system?: unknown;
 }
+
+const injectsScanText = (): boolean => {
+  const prompts = getContext().extensionPrompts;
+  if (!prompts || typeof prompts !== "object") return true;
+  return Object.values(prompts).some((prompt) => Boolean(prompt?.scan) && typeof prompt?.value === "string" && prompt.value.trim().length > 0);
+};
 
 export function readScanBuffer(generationType?: string): HostScanBuffer {
   const settings = worldInfoModule.getWorldInfoSettings() as Record<string, unknown>;
@@ -50,6 +59,8 @@ export function readScanBuffer(generationType?: string): HostScanBuffer {
     depth: typeof settings.world_info_depth === "number" ? settings.world_info_depth : 2,
     caseSensitive: settings.world_info_case_sensitive === true,
     matchWholeWords: settings.world_info_match_whole_words === true,
+    trigger: triggerGenerationType(generationType),
+    injected: injectsScanText(),
   };
 }
 

@@ -5,6 +5,6 @@
  { "page": "scenes", "title": "Scenes", "topics": ["checkpoints", "objective-agency", "open-stretches", "tension", "opening-scene"] },
  { "page": "scene-effects", "title": "What a scene changes", "topics": ["guidance", "author-note", "world-info", "preset", "background", "scenario", "cast-changes", "npc-replies", "experimental-effects"] },
  { "page": "moving-on", "title": "Moving between scenes", "topics": ["gates", "transitions", "convergence", "arc-bridges", "branching", "living-director"] },
- { "page": "lore-and-memory", "title": "Lore and memory", "topics": ["stagecraft", "lore-select", "scene-read", "house-rules", "chapters"] },
+ { "page": "lore-and-memory", "title": "Lore and memory", "topics": ["stagecraft", "lore-select", "lore-entries", "scene-read", "house-rules", "chapters"] },
  { "page": "game-layer", "title": "Game layer and display", "topics": ["presentation", "quests", "checks", "widgets", "clues-and-maps", "html-panels"] }
 ]

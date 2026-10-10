@@ -1,4 +1,4 @@
-import { advanceEnvironment, describeProvisioningOp, emptyEnvironment, grantCandidates, isProvisioningKind, planProvisioning, provisioningRequirements, revokeCandidates, validateProvisioningOp } from "./provisioning";
+import { advanceEnvironment, describeProvisioningOp, emptyEnvironment, grantCandidates, isProvisioningKind, loreEntryShape, planProvisioning, provisioningRequirements, revokeCandidates, validateProvisioningOp } from "./provisioning";
 import { provisioningSeed, recordGrant, renderAnswers, wizardSessionKey, YOU_DECIDE } from "./interview";
 import type { ProvisioningEnvironment, ProvisioningOp, WizardSessionState } from "./types";
 
@@ -40,6 +40,31 @@ describe("provisioning validation (create-only)", () => {
     const result = validateProvisioningOp(op, environment({ storyLorebooks: ["Sun Ruins Lore"], ownedLorebooks: ["Sun Ruins Lore"] }));
     expect(result.ok).toBe(false);
     expect(result.message).toContain("does not exist yet");
+  });
+
+  it("refuses an entry shape SillyTavern would read differently from what the step says (v2.8 34)", () => {
+    const owned = environment({ lorebookNames: ["Lore"], ownedLorebooks: ["Lore"] });
+    const write = (patch: Partial<Extract<ProvisioningOp, { kind: "upsertLorebookEntry" }>>) =>
+      validateProvisioningOp({ kind: "upsertLorebookEntry", lorebook: "Lore", comment: "Map", keys: ["map"], content: "The map.", ...patch }, owned);
+    expect(write({ keys: ["/a/b/i"] }).message).toContain("plain text");
+    expect(write({ keys: ["/(unclosed/i"] }).message).toContain("plain text");
+    expect(write({ secondaryKeys: ["/a/b/"] }).message).toContain("plain text");
+    expect(write({ logic: "not-any" }).message).toContain("no secondary keys");
+    expect(write({ secondaryKeys: ["storm"], constant: true }).message).toContain("skips every key check");
+    expect(write({ keys: [], secondaryKeys: ["storm"] }).message).toContain("no keywords");
+    expect(write({ outlet: "map}}" }).message).toContain("outlet name");
+    expect(write({ triggers: ["normal", "send"] }).message).toContain('"send"');
+    expect([
+      write({ keys: ["/harbou?r/i", "/a\\/b/"], secondaryKeys: ["storm"], logic: "not-any", outlet: "map", triggers: ["normal", "continue"] }).ok,
+      write({ keys: ["/"] }).ok,
+      write({ constant: true, keys: [] }).ok,
+    ]).toEqual([true, true, true]);
+  });
+
+  it("hands the host only the shape fields a step really sets", () => {
+    expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: [], content: "x", secondaryKeys: [" ", "storm "], logic: "and-all", outlet: " map ", triggers: [] }))
+      .toEqual({ secondaryKeys: ["storm"], logic: "and-all", outlet: "map" });
+    expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: [], content: "x", logic: "and-all", constant: false })).toEqual({ constant: false });
   });
 
   it("refuses a group whose members do not exist yet", () => {

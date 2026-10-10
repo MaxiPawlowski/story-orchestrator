@@ -205,6 +205,22 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("ops.0.description"))).toBe(true);
     expect(issues.some((issue) => issue.includes("ops.1.members"))).toBe(true);
   });
+
+  it("reads a lorebook entry's secondary keys, logic, outlet and triggers, and refuses an unknown logic", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "",
+      ops: [
+        { kind: "upsertLorebookEntry", lorebook: "L", comment: "Map", keys: ["/maps?/i"], content: "The map.", secondaryKeys: "storm, fog", logic: "not-any", outlet: " map ", triggers: ["normal"] },
+        { kind: "upsertLorebookEntry", lorebook: "L", comment: "Bad", keys: ["x"], content: "y", logic: "never" },
+        { kind: "upsertLorebookEntry", lorebook: "L", comment: "Plain", keys: ["x"], content: "y", secondaryKeys: [], outlet: "  " },
+      ],
+    }));
+    expect(proposal.ops).toEqual([
+      { kind: "upsertLorebookEntry", lorebook: "L", comment: "Map", content: "The map.", keys: ["/maps?/i"], secondaryKeys: ["storm", "fog"], logic: "not-any", outlet: "map", triggers: ["normal"] },
+      { kind: "upsertLorebookEntry", lorebook: "L", comment: "Plain", content: "y", keys: ["x"] },
+    ]);
+    expect(issues.some((issue) => issue.includes("ops.1.logic"))).toBe(true);
+  });
 });
 
 describe("parseSuggestions", () => {

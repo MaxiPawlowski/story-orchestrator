@@ -14,7 +14,14 @@ export interface ProvisioningCardProps {
   onApply: (op: ProvisioningOp) => void;
 }
 
-type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | "bool" };
+type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | "bool" | "select"; options?: Array<[string, string]> };
+
+const LOGIC_OPTIONS: Array<[string, string]> = [
+  ["", "Any secondary key appears (default)"],
+  ["and-all", "Every secondary key appears"],
+  ["not-any", "No secondary key appears"],
+  ["not-all", "Not every secondary key appears"],
+];
 
 const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
   createCharacterCard: [
@@ -34,6 +41,10 @@ const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
     { key: "keys", label: "Keywords", kind: "list" },
     { key: "content", label: "Content", kind: "area" },
     { key: "constant", label: "Always in context", kind: "bool" },
+    { key: "secondaryKeys", label: "Secondary keywords (checked after a keyword matched)", kind: "list" },
+    { key: "logic", label: "Fires when", kind: "select", options: LOGIC_OPTIONS },
+    { key: "outlet", label: "Outlet name (placed only where {{outlet::name}} is written)", kind: "text" },
+    { key: "triggers", label: "Fires only on these generation types", kind: "list" },
   ],
   createGroup: [
     { key: "name", label: "Group name", kind: "text" },
@@ -86,6 +97,10 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           <span className="st-muted">{field.label}</span>
           {field.kind === "bool" ? (
             <input type="checkbox" checked={Boolean(record[field.key])} disabled={applied} onChange={(event) => patch(field.key, event.target.checked)} />
+          ) : field.kind === "select" ? (
+            <select className="text_pole st-input" value={asText(record[field.key], "text")} disabled={applied} onChange={(event) => patch(field.key, event.target.value || undefined)}>
+              {(field.options ?? []).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
           ) : field.kind === "area" ? (
             <textarea className="text_pole st-input min-h-[48px]" value={asText(record[field.key], field.kind)} disabled={applied} onChange={(event) => patch(field.key, event.target.value)} />
           ) : (

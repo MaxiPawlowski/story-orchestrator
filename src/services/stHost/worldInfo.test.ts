@@ -330,6 +330,26 @@ describe("upsertWIEntry identical rewrite (T4-3)", () => {
   });
 });
 
+describe("upsertWIEntry entry shape (v2.8 34)", () => {
+  it("writes secondary keys with their logic, an outlet and generation triggers in ST's field names (world-info.js:4084-4124)", async () => {
+    putOnDisk("Lore", []);
+    st.worldNames = ["Lore"];
+    expect(await upsertWIEntry("Lore", "Harbour map", "The map.", ["/harbou?r/i"], { secondaryKeys: ["storm"], logic: "not-any", outlet: "map", triggers: ["normal"] })).toBe("created");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ key: ["/harbou?r/i"], keysecondary: ["storm"], selective: true, selectiveLogic: 2, position: 7, outletName: "map", triggers: ["normal"], disable: false });
+  });
+
+  it("an identical rewrite of the whole shape is unchanged; a changed key or field is written", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "Map", "The map."), key: ["map"], keysecondary: ["storm"], selective: true, selectiveLogic: 2 }]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockClear();
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: ["storm"], logic: "not-any" })).toBe("unchanged");
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map", "chart"])).toBe("updated");
+    expect(await upsertWIEntry("Lore", "Map", "The map.", [], { logic: "and-all", secondaryKeys: ["storm"] })).toBe("updated");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ key: ["map", "chart"], selectiveLogic: 3 });
+  });
+});
+
 describe("createLorebook (wizard)", () => {
   it("creates the book and leaves it unselected, so it reaches only the chats of its story", async () => {
     expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: true });

@@ -1,6 +1,7 @@
 import { PROVISIONING_OP_KINDS, type ProvisioningEnvironment, type ProvisioningOp, type ProvisioningOpKind } from "./types";
 import { lorebookFileId } from "@utils/string";
 import { nearestKey } from "@utils/levenshtein";
+import { LORE_GENERATION_TRIGGERS, outletNameProblem, regexKeyProblem } from "@utils/wiKeys";
 import { castCardName, castMemberNames, type StoryV2 } from "@engine/index";
 
 const norm = (value: string) => value.trim().toLowerCase();
@@ -8,6 +9,39 @@ const has = (values: string[], wanted: string) => values.some((value) => norm(va
 // Lorebook comparisons key on the file id the host actually addresses, not the display title:
 // `world_names` lists file ids and a title with `:` or `?` is filed under its sanitised form.
 const hasFile = (values: string[], wanted: string) => values.some((value) => norm(lorebookFileId(value)) === norm(lorebookFileId(wanted)));
+
+const TRIGGERS: readonly string[] = LORE_GENERATION_TRIGGERS;
+
+export function loreEntryShapeProblem(op: Extract<ProvisioningOp, { kind: "upsertLorebookEntry" }>): string | null {
+  const secondary = (op.secondaryKeys ?? []).filter((key) => key.trim());
+  for (const key of [...op.keys, ...secondary]) {
+    const problem = regexKeyProblem(key);
+    if (problem) return `"${op.comment}": ${problem}`;
+  }
+  if (op.logic && !secondary.length) return `"${op.comment}" sets a secondary key logic but has no secondary keys, so the logic would do nothing.`;
+  if (secondary.length && op.constant) return `"${op.comment}" is always in context, and SillyTavern skips every key check for such an entry, secondary keys too: drop the secondary keys or the always-in-context switch.`;
+  if (secondary.length && !op.keys.some((key) => key.trim()) && !op.constant) return `"${op.comment}" has secondary keys but no keywords: SillyTavern checks secondary keys only after a keyword matched.`;
+  const outlet = op.outlet?.trim() ?? "";
+  if (outlet) {
+    const problem = outletNameProblem(outlet);
+    if (problem) return `"${op.comment}": ${problem}`;
+  }
+  const unknown = (op.triggers ?? []).filter((trigger) => !TRIGGERS.includes(trigger));
+  if (unknown.length) return `"${op.comment}" names ${unknown.map((trigger) => `"${trigger}"`).join(", ")} as a generation trigger; SillyTavern knows only ${TRIGGERS.join(", ")}.`;
+  return null;
+}
+
+export const loreEntryShape = (op: Extract<ProvisioningOp, { kind: "upsertLorebookEntry" }>) => {
+  const secondaryKeys = (op.secondaryKeys ?? []).map((key) => key.trim()).filter(Boolean);
+  const outlet = op.outlet?.trim() ?? "";
+  return {
+    ...(op.constant !== undefined ? { constant: op.constant } : {}),
+    ...(secondaryKeys.length ? { secondaryKeys } : {}),
+    ...(secondaryKeys.length && op.logic ? { logic: op.logic } : {}),
+    ...(outlet ? { outlet } : {}),
+    ...(op.triggers?.length ? { triggers: op.triggers } : {}),
+  };
+};
 
 export const unknownPersonas = (personas: readonly string[] | undefined, environment: Pick<ProvisioningEnvironment, "personaNames">): string[] =>
   (personas ?? []).filter((name) => name.trim() && !has(environment.personaNames, name));
@@ -71,6 +105,8 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
       if (!op.lorebook.trim()) return fail("A lorebook entry needs a lorebook.");
       if (!op.comment.trim()) return fail("A lorebook entry needs a title.");
       if (!op.content.trim()) return fail(`"${op.comment}" has no content.`);
+      const shape = loreEntryShapeProblem(op);
+      if (shape) return fail(shape);
       if (!hasFile(environment.lorebookNames, op.lorebook)) return fail(`"${op.lorebook}" does not exist yet. Add a step that creates it before writing entries into it.`);
       // The story *requiring* a book says it depends on the book. Only a book this wizard made
       // for this story — or one the author explicitly granted — may be written into.

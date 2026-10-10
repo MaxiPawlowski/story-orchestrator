@@ -263,6 +263,16 @@ describe("R12: entries ST's own scan already settles never reach the judge", () 
     expect((await env.selector.select("GENERATION_STARTED"))?.cached).toBe(false);
   });
 
+  it("never asks about an entry whose generation triggers leave this generation out, since ST checks triggers before a forced entry (world-info.js:4807-4812)", async () => {
+    const triggered = [keyed(1, ["dragon"], { triggers: ["quiet"] }), keyed(2, ["lighthouse"], { triggers: ["normal"] }), keyed(3, ["Warden"])];
+    const loud = setup({ entries: triggered, buffer: () => ({ ...buffer(["Max: hello"]), trigger: "normal" }) });
+    await loud.selector.select("GENERATION_STARTED", "normal");
+    expect(asked(loud)).toEqual(["Story Lore 2", "Story Lore 3"]);
+    const unknown = setup({ entries: triggered, buffer: () => ({ ...buffer(["Max: hello"]), trigger: null }) });
+    await unknown.selector.select("MESSAGE_SENT");
+    expect(asked(unknown)).toEqual(["Story Lore 1", "Story Lore 2", "Story Lore 3"]);
+  });
+
   it("a swipe reads the buffer without the reply it replaces", async () => {
     const types: Array<string | undefined> = [];
     const env = setup({ entries, buffer: (type) => { types.push(type); return null; } });

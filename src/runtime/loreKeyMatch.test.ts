@@ -43,7 +43,7 @@ describe("keywordWillActivate: only when ST's scan is certain to activate the en
   });
 
   it("applies the four secondary-key logics only when the entry is selective", () => {
-    const secondary = (selectiveLogic: number, keysecondary: string[]) => keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary }), scan);
+    const secondary = (selectiveLogic: number, keysecondary: string[]) => keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary }), { ...scan, injected: false });
     expect([secondary(0, ["dragon", "lights"]), secondary(0, ["dragon"])]).toEqual([true, false]);
     expect([secondary(1, ["lights", "dragon"]), secondary(1, ["lights"])]).toEqual([true, false]);
     expect([secondary(2, ["dragon"]), secondary(2, ["lights"])]).toEqual([true, false]);
@@ -65,6 +65,23 @@ describe("keywordWillActivate: only when ST's scan is certain to activate the en
     ["constant", { constant: true }],
   ] as Array<[string, Partial<HostScannableEntry>]>)("is never certain with %s", (_label, patch) => {
     expect(keywordWillActivate(entry(["harbour"], patch), scan)).toBe(false);
+  });
+
+  it("NOT logic is certain only when the scan holds no text the buffer cannot see (world-info.js:298-320, 4718-4726)", () => {
+    const not = (selectiveLogic: number, view: ScanBufferView, patch: Partial<HostScannableEntry> = {}) =>
+      keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary: ["dragon"], ...patch }), view);
+    expect([not(1, { ...scan, injected: false }), not(2, { ...scan, injected: false })]).toEqual([true, true]);
+    expect([not(1, { ...scan, injected: true }), not(2, { ...scan, injected: true }), not(2, scan)]).toEqual([false, false, false]);
+    expect(not(2, { ...scan, injected: false }, { matchCharacterDescription: true })).toBe(false);
+    expect(not(2, { ...scan, injected: false }, { matchScenario: false })).toBe(true);
+    expect(keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 0, keysecondary: ["lights"] }), { ...scan, injected: true })).toBe(true);
+    expect(keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 3, keysecondary: ["lights"], matchPersonaDescription: true }), scan)).toBe(true);
+  });
+
+  it("generation triggers are certain only for a known generation type they list (world-info.js:4807-4812)", () => {
+    const triggered = (trigger: string | null | undefined) => keywordWillActivate(entry(["harbour"], { triggers: ["normal", "continue"] }), { ...scan, trigger });
+    expect([triggered("normal"), triggered("continue")]).toEqual([true, true]);
+    expect([triggered("quiet"), triggered(null), triggered(undefined)]).toEqual([false, false, false]);
   });
 
   it("control: probability off, or 100, is still certain", () => {
