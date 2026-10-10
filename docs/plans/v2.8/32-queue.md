@@ -50,9 +50,9 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A12 | Smart-context harvest (E0 first, offline) | 21, D3 |
 | A13 | Inner voice L5 spike | v2.7 20, D3 |
 | A14 | TunnelVision pattern harvest (report) | 25, D9; done 2026-10-10 (`25-tunnelvision-report.md` §Re-run) |
-| A15 | Curator create near-dup on meaning: vectors bands (0.82/0.55) else trigram at a declared threshold; "patch X instead" on the card. **Proposed, needs owner pick** | 25 rank 1, 11 |
-| A16 | `{{// so:created}}` stamp on applied creates; reaper offers to remove stamped entries of deleted chats. **Proposed, needs owner pick** | 25 rank 2, 11 |
-| A17 | Lorebook-writer census guard (every WI write site listed with its guard). **Proposed, needs owner pick** | 25 rank 3 (TV #55) |
+| A15 | ~~Curator create near-dup on meaning: vectors bands (0.82/0.55) else trigram at a declared threshold; "patch X instead" on the card~~ approved 2026-10-10, built on `v2.8-curator-safety` (`stagecraft/createNearDup.ts`, `runtime/createNearDups.ts`; fixture `curator-create/near-dup.json`), D gates green; live check owed with M17 (11 Gate record A15-A17) | 25 rank 1, 11 |
+| A16 | ~~`{{// so:created}}` stamp on applied creates; reaper offers to remove stamped entries of deleted chats~~ approved 2026-10-10, built on `v2.8-curator-safety` (`stagecraft/createdStamp.ts`, `runtime/createdReaper.ts`), D gates green; live delete-chat check owed (11 Gate record A15-A17) | 25 rank 2, 11 |
+| A17 | ~~Lorebook-writer census guard (every WI write site listed with its guard)~~ approved 2026-10-10, built on `v2.8-curator-safety` (`runtime/lorebookWriters.guard.test.ts`, `test/findings/lorebook-writers.json`, 29 sites) | 25 rank 3 (TV #55) |
 | A18 | Health check: a story book managed by TunnelVision → `degrades` finding. **Proposed, needs owner pick** | 25 rank 4 (P6) |
 | A19 | Curator ops on `constant` entries wait for review in `auto` mode (author decision). **Proposed, needs owner pick** | 25 rank 5 (P5), v2.7 02 C13 |
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |

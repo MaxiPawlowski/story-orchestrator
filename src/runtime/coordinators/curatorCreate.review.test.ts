@@ -2,7 +2,7 @@ import { textModel } from "../../../test/support/modelCall";
 import type { ModelAsk } from "@extraction/modelRoute";
 import { ModelCallError } from "@extraction/modelError";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { createEligibility, type CreateEligibilityRow, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import { createEligibility, type CreateEligibilityRow, type CuratorEntryView, type CuratorOpRecord, type CuratorProposalRecord, type NearDup, type NearDupSubject } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createExtras, createStagecraft, sanitizeStagecraft, stripGlobalSettings } from "../extras";
 import { defaultGlobalSettings } from "../settingsModel";
@@ -78,6 +78,8 @@ interface Options {
   rows?: CreateEligibilityRow[];
   model?: string | null;
   cap?: number;
+  owner?: { chatId: string; groupId: string | null } | null;
+  nearDups?: (subjects: NearDupSubject[], entries: CuratorEntryView[]) => Promise<NearDup[][] | null>;
 }
 
 const harness = (options: Options = {}) => {
@@ -105,7 +107,9 @@ const harness = (options: Options = {}) => {
       facts: () => options.facts ?? FACTS,
       roster: () => ["Mira"],
       eligibility: () => createEligibility(options.model === undefined ? "deepseek:deepseek-chat" : options.model, options.rows ?? []),
+      ...(options.nearDups ? { nearDups: options.nearDups } : {}),
     },
+    ...(options.owner !== undefined ? { chatOwner: () => options.owner ?? null } : {}),
     journal: (summary: string) => journal.push(summary),
     persist: async () => undefined,
     notify: () => undefined,
@@ -429,5 +433,68 @@ describe("v2.8 11 B1: eligibility (route model x create-B x fixture revision 2)"
     const env = harness();
     expect((await env.coordinator.runCreatePass("checkpoint", OSKAR)).ran).toBe(true);
     expect(env.journal.some((line) => line.includes("(not-measured)"))).toBe(true);
+  });
+});
+
+describe("v2.8 A15/A16: near-duplicates on meaning, and the so:created stamp", () => {
+  const OWNER = { chatId: "chat-a", groupId: "g-1" };
+  const STAMP = "{{// so:created chat-a | g-1}}";
+
+  const createOskar = async (env: ReturnType<typeof harness>) => {
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const [card] = env.creates();
+    await env.coordinator.setOpDecision(card.record.id, card.index, "accepted");
+    await env.coordinator.applyAccepted();
+    return Object.values(books.get("Story Lore") ?? {}).find((entry) => entry.comment === "Oskar");
+  };
+
+  it("an applied create carries the chat's stamp, and the ledger's compare-and-set still deletes it on rollback", async () => {
+    const env = harness({ owner: OWNER });
+    const created = await createOskar(env);
+    expect(created?.content).toBe(`The delta's boatwright; mends hulls for a silver.\n${STAMP}`);
+    expect(env.creates()[0].entry.after?.content).toBe(created?.content);
+    expect(await env.coordinator.revertAppliedSince(20)).toBe(1);
+    expect(Object.values(books.get("Story Lore") ?? {}).some((entry) => entry.comment === "Oskar")).toBe(false);
+  });
+
+  it("control: without a chat owner nothing is stamped", async () => {
+    const created = await createOskar(harness({ owner: null }));
+    expect(created?.content).toBe("The delta's boatwright; mends hulls for a silver.");
+  });
+
+  it("a later curator rewrite keeps the stamp, and one that tries to add a stamp is refused", async () => {
+    const env = harness({ owner: OWNER });
+    await createOskar(env);
+    await env.coordinator.runCuratorPass("test", "[rewrite] Oskar || Oskar now charges two silver.");
+    const rewrite = env.read().proposals.at(-1)!;
+    await env.coordinator.decideProposal(rewrite.id, "accepted");
+    await env.coordinator.applyAccepted();
+    expect(Object.values(books.get("Story Lore") ?? {}).find((entry) => entry.comment === "Oskar")?.content).toBe(`Oskar now charges two silver.\n${STAMP}`);
+    await env.coordinator.runCuratorPass("test", "[rewrite] The Delta || Reeds. {{// so:created chat-z}}");
+    expect(env.read().proposals.at(-1)!.dropped.join(" ")).toContain("adds a curator marker");
+    expect(books.get("Story Lore")![0].content).toBe("Reeds and channels.");
+  });
+
+  it("vector near-duplicates replace the wording ones on the card", async () => {
+    const nearDups = jest.fn(async (_subjects: NearDupSubject[], _entries: CuratorEntryView[]): Promise<NearDup[][] | null> => [[{ comment: "The Delta", score: 0.82, band: "duplicate", via: "vectors" }]]);
+    const env = harness({ nearDups });
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    expect(nearDups).toHaveBeenCalledWith([{ comment: "Oskar", keys: ["Oskar", "boatwright"], content: "The delta's boatwright; mends hulls for a silver." }], expect.arrayContaining([expect.objectContaining({ comment: "The Delta" })]));
+    expect(nearDups.mock.calls[0][1]).not.toContainEqual(expect.objectContaining({ comment: "The Ferryman" }));
+    expect(env.creates()[0].entry.nearDups).toEqual([{ comment: "The Delta", score: 0.82, band: "duplicate", via: "vectors" }]);
+  });
+
+  it("no vectors (null) keeps the wording check's answer", async () => {
+    const env = harness({ nearDups: async () => null });
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    expect(env.creates()[0].entry.nearDups?.every((dup) => dup.via === "wording")).toBe(true);
+  });
+
+  it("a chat switch while the vectors answer discards the pass; control: the same pass without a switch lands", async () => {
+    const switched = harness({ nearDups: async () => { switched.switchChat(); return [[]]; } });
+    expect(await switched.coordinator.runCreatePass("checkpoint", OSKAR)).toMatchObject({ discarded: "chat" });
+    expect(switched.creates()).toEqual([]);
+    const kept = harness({ nearDups: async () => [[]] });
+    expect((await kept.coordinator.runCreatePass("checkpoint", OSKAR)).record).not.toBeNull();
   });
 });

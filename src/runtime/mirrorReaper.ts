@@ -1,6 +1,7 @@
 import type { ChatOwner, ChatPresence, ConfirmAnswer } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
+import { serialQueue } from "./serialQueue";
 import { beginRun, mintToken, tokenMatches, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
 
 // A deleted chat leaves its per-chat mirror book behind (`memoryMirror.ts`). The reap is
@@ -172,7 +173,7 @@ export interface ReapOutcome {
 }
 
 export class MirrorReaper {
-  private queue: Promise<unknown> = Promise.resolve();
+  private readonly queue = serialQueue();
 
   constructor(private readonly deps: MirrorReaperDeps) {}
 
@@ -182,9 +183,7 @@ export class MirrorReaper {
 
   /** Serialised, so a group delete that announces every chat asks one question at a time. */
   onChatDeleted(chatId: string): Promise<ReapOutcome[]> {
-    const next = this.queue.then(() => this.reapChat(chatId));
-    this.queue = next.catch(() => undefined);
-    return next;
+    return this.queue(() => this.reapChat(chatId));
   }
 
   private async reapChat(chatId: string): Promise<ReapOutcome[]> {

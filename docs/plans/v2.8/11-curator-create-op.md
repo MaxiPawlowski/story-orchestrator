@@ -3,7 +3,7 @@
 **Status (2026-10-10): BUILT on `v2.8-curator-create`, on by default (owner 2026-10-09: private plugin, floors
 informational). Contract B, review-only, Lore creation role. Fixture revision 2 frozen; measured offline ×2 on
 DeepSeek flash: none 1.00 ×2, propose 0.444 / 0.694, BELOW the 0.90 floor (recorded, not retuned). Owed: the ST-route
-run and the J8 create checks (31 M16, M17). Gate record at the end.** (Was 2026-10-03: decided, not built.)
+run and the J8 create checks (31 M16, M17). Gate record at the end. Queue A15–A17 (near-dup on meaning, `so:created` stamp + reaper offer, lorebook-writer census) built on `v2.8-curator-safety`, second Gate record.** (Was 2026-10-03: decided, not built.)
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "Curator `create` op". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance CL (frozen-fixture runs and the J8 create
 checks on the cloud curator route; no pod).
@@ -267,3 +267,48 @@ shipped path after run 1 (a marker in a new entry is refused inside `validateCre
    contract and revision 3; the prompt sentence is part of the measured shape)?
 3. Thinking routes: a Lore creation route on a thinking model needs a low effort or thinking off, or every pass comes back
    empty. Add a check (an `unknown`/empty-reply warning on the role row), or leave it to the role's effort setting?
+
+## Gate record A15–A17 (2026-10-10, branch `v2.8-curator-safety`)
+
+Queue rows A15–A17 (TunnelVision harvest, `25-tunnelvision-report.md` §Re-run ranks 1–3), owner-approved 2026-10-10.
+Everything on by default; nothing new to switch.
+
+| Row | Built | Where |
+|---|---|---|
+| A15 near-dup on meaning | The create card's near-duplicates come from ST vectors when the install has them: the shown curator entries go into a temporary collection, each card is queried at consolidation's two bands (duplicate 0.82, same topic 0.55, `DEFAULT_DEDUP_THRESHOLDS`, pinned equal by jest), collection purged. Absent or failing vectors: a wording fallback, trigram Jaccard over stopword-stripped title + keys and over content, max of the two, declared bands duplicate 0.45 / same topic 0.25 (written into the fixture before scoring). The ownership token is re-checked after the vector await. Card copy: duplicate "Looks like “X” (same meaning). Patch “X” instead?", same topic "Close to “X” (same topic). A patch to “X” may be enough." Still a warning, never a refusal | `stagecraft/createNearDup.ts`, `runtime/createNearDups.ts`, `runtime/loreCreator.ts` (`withMeaning`), `components/drawer/CreateCard.tsx`, fixture `test/fixtures/curator-create/near-dup.json` (16 pairs: 6 duplicate, 4 same topic, 6 distinct) |
+| A16 `so:created` stamp | An applied create is written as `<text>` + newline + `{{// so:created <chatId> \| <groupId>}}` (owner from `currentChatOwner` at the write edge; `{}`, `\|` and newlines stripped from the ids); `after.content` carries it, so compare-and-set revert and write-ahead reconcile are unchanged. `so:created` joined the curator marker set: a create, rewrite or patch that adds one is refused, a patch that crosses one is refused, and a rewrite of a stamped entry keeps the live stamp (a forged one is replaced). ST strip verified in source: legacy `macros.js:659` (`/\{\{\/\/([\s\S]*?)\}\}/gm` → `''`) and the macro engine's `//` comment macro (`macros/definitions/core-macros.js:281-298`); `world-info.js:5058` runs `substituteParams` on every activated entry. Reaper: on `CHAT_DELETED` / `GROUP_CHAT_DELETED`, after the mirror reap and in the same queue, every listed book in a library story's `stagecraft.lorebooks` is read for entries stamped with that chat; none → nothing asked; chat still present or unverifiable → nothing asked (unverifiable journaled); otherwise one confirm naming every entry (`data-so-reap-chat`, so `settleReapPrompts` declines it in harness cleanups); on yes each entry is re-read and deleted only while it still carries that chat's stamp and the runtime lifetime still owns the run. Unstamped entries and other chats' entries are never offered | `stagecraft/createdStamp.ts`, `stagecraft/curatorTiers.ts`, `runtime/curatorWriter.ts`, `runtime/createdReaper.ts`, `runtime/mirrorReaperHost.ts` |
+| A17 writer census | AST census of every identifier naming one of 16 host WI writers (create/ensure/delete book, upsert/create/update/restore/delete entry, the on/off writers, chat-slot bind/unbind, global deselect, force-activate) under `src/` outside `src/services/` and tests: calls, passed references and port bindings count; imports, type positions, interface members and strings do not. 29 sites, each with one of 11 declared guards and literal evidence that must be in the code (comments stripped). Fails on an unlisted site, a stale row, an unknown guard, missing evidence, a `host-port` row whose consumer is not censused, or a WI writer exported from `stHost/worldInfo*.ts` that the writer list leaves out. Planted controls: a synthetic file with a call, a shorthand port and a passed reference (caught) beside an import, a `Pick<…>` string and an interface member (not caught); the real ledger minus the curator's create row reports exactly that site | `test/findings/lorebookWriters.ts`, `test/findings/lorebook-writers.json`, `runtime/lorebookWriters.guard.test.ts` |
+
+### A15 fixture result (jest, deterministic)
+
+Wording fallback at the declared bands: duplicates 6/6 flagged (3 as duplicate, 3 as same topic), same topic 3/4
+flagged (t03 missed, 0.18), distinct 0/6 flagged. Control: the shipped whole-text trigram at 0.85 flagged 0/6
+duplicates. The vector path is not measured here (needs ST's embedding source); its bands are consolidation's.
+
+### Gates
+
+- `npm run gates -- --no-storybook --jobs=2`: **all green in 151.7 s** (test 7645 passed / 1 skipped, test:replay 32 of 32
+  killed, typecheck, typecheck:test, lint, build, test:debug 1193/0, debug:typecheck, test:plugin, test:release).
+  **Storybook SKIPPED** (`--no-storybook`). Re-run: `Drawer/StagecraftPanel` → `CreateCardPatchInstead` (new),
+  `CreateCardNearDup`, `CreateCardNeedsKeys`, `CreateCardCreated`.
+- `npm run typecheck:test` green (also inside gates).
+- New jest: `stagecraft/createNearDup.test.ts` (6), `stagecraft/createdStamp.test.ts` (6), `runtime/createNearDups.test.ts` (4),
+  `runtime/createdReaper.test.ts` (9), `runtime/lorebookWriters.guard.test.ts` (5), 6 more in
+  `runtime/coordinators/curatorCreate.review.test.ts` (stamp written + rollback still deletes, no-owner control, rewrite keeps
+  the stamp and a forged stamp is refused, vectors replace wording, null keeps wording, chat switch during the vector
+  read discards with a no-switch control).
+- Census/ledger rows: ownership `CreatedEntryReaper.reapChat` (checked), `.stamped`, `createNearDups` (local); error copy
+  `LoreCreator.withMeaning` silent catch; the two reapers now share `runtime/serialQueue.ts` (the duplicate-body ratchet).
+- No live gate (not staged into ST; see owed).
+
+### Deviations / owed
+
+- Not staged into ST (staging replaces what :8000 and every lane serve). Live checks owed: a create card on a lane
+  with vectors on (meaning bands) and off (wording), an applied create carrying the stamp, the stamp absent from a
+  `capturePayload` prompt, and a deleted sandbox chat offering its entries (decline and accept). Fold into M17.
+- Entries created before this build carry no stamp and are never offered for removal.
+- The reaper reads the library's curator books, not the deleted chat's pinned copy (the chat is gone): a story
+  removed from the library before its chat is deleted leaves its stamped entries unoffered (findable by the stamp).
+- Adolion campaign: no change needed. Its curator books get stamps only on new creates; nothing it ships carries
+  `so:created`.
+

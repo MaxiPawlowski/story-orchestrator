@@ -11,7 +11,7 @@ import {
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts,
-  capRefusal, createCapFor, isCreateOp, newEntriesText, type CreateEligibility, type CreatedEntry,
+  capRefusal, createCapFor, isCreateOp, newEntriesText, type CreatedEntry, type CreatedStampOwner,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
@@ -19,7 +19,7 @@ import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPor
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
 import { CuratorWriter, createdEntryOf } from "../curatorWriter";
-import { LoreCreator, type LoreCreateOutcome } from "../loreCreator";
+import { LoreCreator, type LoreCreateOutcome, type LoreCreatorDeps } from "../loreCreator";
 import { withholds } from "../generationLifecycle";
 import { log } from "@utils/log";
 
@@ -45,12 +45,9 @@ export interface StagecraftCoordinatorDeps {
     scene?: (speaker: string) => Pick<NonNullable<WardenCheckInput["houseRuleContext"]>["scene"], "speakerRole" | "groupMembers">;
     nudgeActive: () => boolean;
   };
-  lore?: {
-    facts: () => string[];
-    roster: () => string[];
-    eligibility: () => CreateEligibility;
-  };
+  lore?: LoreCreatorDeps["lore"];
   journal: (summary: string, note?: string) => void;
+  chatOwner?: () => CreatedStampOwner | null;
   persist: () => Promise<void>;
   notify: () => void;
   // A curator pass reads the world, awaits a model for seconds, then writes
@@ -115,6 +112,7 @@ export class StagecraftCoordinator {
     this.writer = new CuratorWriter({
       getStory: () => deps.getStory(), state: () => this.state, patch: (next) => this.patch(next), updateOps: (id, update) => this.updateOps(id, update),
       save: () => this.save(), journal: (summary) => deps.journal(summary), ownership: () => deps.ownership, host: () => deps.hosts.curator,
+      ...(deps.chatOwner ? { owner: deps.chatOwner } : {}),
     });
     this.creator = new LoreCreator({
       getStory: deps.getStory, getState: deps.getState, state: () => this.state, patch: (next) => this.patch(next), save: () => this.save(),

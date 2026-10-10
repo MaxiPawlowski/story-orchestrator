@@ -1,9 +1,9 @@
 import { stripChannelNoise } from "@extraction/parse";
 import { buildWiCuratorPrompt } from "./prompt";
 import { protectedRefusal } from "./curatorTiers";
-import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorScope } from "./types";
+import { wordingNearDups } from "./createNearDup";
+import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorScope, type NearDup } from "./types";
 
-export const CREATE_NEAR_DUP_THRESHOLD = 0.85;
 export const CREATE_MIN_FACTS = 2;
 
 export interface CreateCandidateOp {
@@ -25,7 +25,7 @@ export interface CreateVerdict {
   op: CreateCandidateOp;
   ok: boolean;
   reason?: string;
-  nearDups: Array<{ comment: string; score: number }>;
+  nearDups: NearDup[];
 }
 
 const NEVER_INVENT = "- Never invent new entries, never touch anything outside the list, never write about the player's own knowledge.";
@@ -64,22 +64,6 @@ export function parseCreateLines(raw: string): CreateCandidateOp[] {
 const fold = (value: string) => value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
 const plain = (value: string) => fold(value).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
 
-const trigrams = (value: string): Set<string> => {
-  const text = ` ${plain(value)} `;
-  const grams = new Set<string>();
-  for (let index = 0; index + 3 <= text.length; index += 1) grams.add(text.slice(index, index + 3));
-  return grams;
-};
-
-export const trigramJaccard = (left: string, right: string): number => {
-  const a = trigrams(left);
-  const b = trigrams(right);
-  if (!a.size || !b.size) return 0;
-  let shared = 0;
-  a.forEach((gram) => { if (b.has(gram)) shared += 1; });
-  return shared / (a.size + b.size - shared);
-};
-
 const mentions = (text: string, name: string) => {
   const needle = plain(name);
   return needle.length > 0 && ` ${plain(text)} `.includes(` ${needle} `);
@@ -98,12 +82,7 @@ export const factsNaming = (facts: string[], op: Pick<CreateCandidateOp, "commen
 };
 
 export function validateCreate(op: CreateCandidateOp, context: CreateCandidateContext): CreateVerdict {
-  const nearDups = context.entries
-    .filter((entry) => context.allowlist.includes(entry.lorebook))
-    .map((entry) => ({ comment: entry.comment, score: Math.round(trigramJaccard(`${op.comment} ${op.content}`, `${entry.comment} ${entry.content}`) * 100) / 100 }))
-    .filter((match) => match.score >= CREATE_NEAR_DUP_THRESHOLD)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+  const nearDups = wordingNearDups(op, context.entries.filter((entry) => context.allowlist.includes(entry.lorebook)));
   const refuse = (reason: string): CreateVerdict => ({ op, ok: false, reason, nearDups });
   if (!context.allowlist.includes(op.lorebook)) return refuse(`"${op.lorebook}" is not on this story's stagecraft allowlist`);
   if (!op.comment) return refuse("a new entry needs a title");

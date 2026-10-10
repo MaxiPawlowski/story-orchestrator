@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCuratorResponse } from "./parse";
-import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, factsNaming, CREATE_MIN_FACTS, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
+import { trigramJaccard } from "./createNearDup";
+import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, validateCreate, factsNaming, CREATE_MIN_FACTS, type CreateCase } from "./createCandidate";
 import { CREATE_CONTRACT_ID, CREATE_FIXTURE_REVISION, CREATE_FLOORS, createEligibility } from "./createEligibility";
 
 const ROOT = join(__dirname, "../..");
@@ -172,7 +173,7 @@ describe("F5 code guards", () => {
     const verdict = validateCreate({ lorebook: near.book, comment: "Warden Hale", keys: ["warden"], content: "Warden Hale runs Greyfen, takes bribes in tobacco and keeps the master key on a chain at his neck." }, caseContext(near));
     expect(verdict.ok).toBe(true);
     expect(verdict.nearDups[0]?.comment).toBe("The Warden");
-    expect(verdict.nearDups[0]?.score).toBeGreaterThanOrEqual(CREATE_NEAR_DUP_THRESHOLD);
+    expect(verdict.nearDups[0]).toMatchObject({ via: "wording", band: expect.stringMatching(/duplicate|same-topic/) });
   });
 
   it("trigram Jaccard ignores accents, case and punctuation", () => {

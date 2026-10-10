@@ -100,6 +100,16 @@ export interface CuratorProposal {
   dropped: string[];
 }
 
+export type NearDupBand = "duplicate" | "same-topic";
+export type NearDupMethod = "vectors" | "wording";
+
+export interface NearDup {
+  comment: string;
+  score: number;
+  band?: NearDupBand;
+  via?: NearDupMethod;
+}
+
 export type CuratorOpStatus = "pending" | "accepted" | "rejected" | "applied" | "failed" | "revert-failed" | "externally-edited";
 
 export interface CuratorOpRecord {
@@ -117,7 +127,7 @@ export interface CuratorOpRecord {
    * Apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate. */
   writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
-  nearDups?: Array<{ comment: string; score: number }>;
+  nearDups?: NearDup[];
   created?: { keys: string[] };
 }
 

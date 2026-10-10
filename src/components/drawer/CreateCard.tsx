@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CreateCuratorOp, CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
+import { nearDupAdvice, type CreateCuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import type { RuntimeManager } from "@runtime/index";
 
 const CREATE_STATUS: Record<CuratorOpRecord["status"], string> = {
@@ -35,7 +35,7 @@ export const CreateCard = ({ record, index, entry, op, manager }: {
     <div data-so="curator-op" data-kind="create" className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="opacity-100">new entry “{op.comment}” in {op.lorebook} <span className="opacity-70">· {createStatusText(entry)}</span></div>
       {(entry.nearDups ?? []).map((dup) => (
-        <div key={dup.comment} data-so="curator-near-dup" className="so-warning-text">may duplicate “{dup.comment}” ({Math.round(dup.score * 100)}% alike)</div>
+        <div key={dup.comment} data-so="curator-near-dup" data-band={dup.band ?? ""} className="so-warning-text">{nearDupAdvice(dup)}</div>
       ))}
       {entry.status === "failed" && entry.message && <div className="so-error-text">{entry.message}</div>}
       {decidable ? (

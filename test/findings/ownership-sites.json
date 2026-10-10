@@ -904,6 +904,18 @@
     "src/runtime/briefingDraftHost.ts#draftBriefing": {
       "status": "checked",
       "note": "v2.8 10 D2 (2026-10-10): the player's per-chat briefing draft. The RunGuard minted before the model call is checked right after it, before the draft is checked, journaled or written through setUiSettings (extras.briefing.draft); a chat switch while the model answers writes and journals nothing (briefingDraft.test.ts \"a chat switch while the model answers writes nothing\")."
+    },
+    "src/runtime/createdReaper.ts#CreatedEntryReaper.reapChat": {
+      "status": "checked",
+      "note": "v2.8 A16: a deleted chat's curator-created entries. The reap's world is the runtime lifetime (lifetimeOwnership, as the mirror reaper): run.stillOwns() before each entry's re-read and again before its delete; the entry is deleted only while it still carries that chat's so:created stamp. Tests: runtime/createdReaper.test.ts."
+    },
+    "src/runtime/createdReaper.ts#CreatedEntryReaper.stamped": {
+      "status": "local",
+      "note": "v2.8 A16: collects the stamped entries into a local array; writes nothing."
+    },
+    "src/runtime/createNearDups.ts#createNearDups": {
+      "status": "local",
+      "note": "v2.8 A15: fills a local result array from a temporary vector collection it owns and purges; the caller (LoreCreator.run) checks ownership after it returns. Tests: runtime/createNearDups.test.ts."
     }
   }
 }
