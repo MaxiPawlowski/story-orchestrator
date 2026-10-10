@@ -5,6 +5,7 @@ import {
 } from "@services/stHost/sprites";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { beginRun } from "@runtime/runToken";
+import { actorHeadRef, castHeadStatus } from "./liveHeadStage";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionRead } from "./classify";
@@ -64,6 +65,11 @@ export class SpriteStage {
   }
 
   view = (): StageView => this.snapshot;
+  beginHeadRun = () => beginRun(this.manager.getOwnership());
+
+  headStatus(): Array<{ member: string; name: string; look: string; present: boolean }> {
+    return castHeadStatus(this.actors, spriteCast().members, this.manager.getStory()?.roster ?? [], this.settings().liveHeadRigs);
+  }
 
   updateSettings(patch: Partial<SpriteSettings>): void {
     setGlobalSettings({ sprites: patch });
@@ -97,8 +103,10 @@ export class SpriteStage {
     const direction = this.direction();
     const actors = this.actors
       .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking }, direction))
-.map(({ name, avatar, label, path, set, keys, frames, pose }) => ({ name, avatar, label, path, set, pose, framing: memberDirection(direction, keys).framing,
-        frames: frames.get(set)?.get(label), spotlight: isSpotlit(direction, keys) }));
+      .map((actor) => ({ name: actor.name, avatar: actor.avatar, label: actor.label, path: actor.path, set: actor.set,
+        pose: actor.pose, framing: memberDirection(direction, actor.keys).framing,
+        frames: actor.frames.get(actor.set)?.get(actor.label), spotlight: isSpotlit(direction, actor.keys),
+        liveHead: actorHeadRef(actor, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs) }));
     return {
       visible: ready && (narrow || settings.stage === "always" || vn) && actors.length > 0,
       placement: vn ? "vn" : "strip",
@@ -110,8 +118,14 @@ export class SpriteStage {
       settings,
       activation,
       capability: this.capability,
-      reducedMotion: spriteReducedMotion(),
+      reducedMotion: spriteReducedMotion() || this.manager.getStory()?.display?.motion === false,
+      headSession: this.headSession(),
     };
+  }
+
+  private headSession(): string {
+    const { chatId, storyId, storyHash, sessionEpoch } = this.manager.getOwnership().mint();
+    return JSON.stringify([chatId, storyId, storyHash, sessionEpoch]);
   }
 
   notify = () => {
@@ -149,6 +163,8 @@ export class SpriteStage {
       { eventName: "CHARACTER_EDITED", handler: () => { this.lists.clear(); void this.reload(); } },
       { eventName: "GROUP_MEMBER_DRAFTED", handler: (id: unknown) => this.begin(typeof id === "number" || Array.isArray(id) ? spriteDraftedName(id as number | [number]) : null) },
       { eventName: "STREAM_TOKEN_RECEIVED", handler: () => this.streamToken() },
+      { eventName: "GENERATION_STOPPED", handler: () => this.activity.stop() },
+      { eventName: "GENERATION_ENDED", handler: () => this.activity.stop() },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (id: unknown, type: unknown) => { if (typeof id === "number") void this.rendered(id, typeof type === "string" ? type : undefined); } },
       { eventName: "MESSAGE_SWIPED", handler: () => this.replay() },
       { eventName: "MESSAGE_EDITED", handler: () => this.replay() },

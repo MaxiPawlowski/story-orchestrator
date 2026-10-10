@@ -1,4 +1,5 @@
 import type { CapabilityState } from "@services/STAPI";
+import type { LiveHeadRef } from "./liveHeadRefs";
 import type { Framing } from "./direction";
 import type { AnimationFrames } from "./animation";
 import type { SpriteActivation, SpriteSettings } from "./settings";
@@ -15,6 +16,7 @@ export interface StageActor {
   pose?: string;
   framing?: Framing;
   frames?: AnimationFrames;
+  liveHead?: LiveHeadRef;
 }
 
 export type StagePlacement = "vn" | "strip";
@@ -31,6 +33,7 @@ export interface StageView {
   activation: SpriteActivation;
   capability: CapabilityState | "checking";
   reducedMotion: boolean;
+  headSession: string;
 }
 
 export interface Stream {

@@ -6,6 +6,8 @@ import { defaultSpriteSettings } from "../settings";
 import { readSpriteProfile } from "../profile";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { Actor } from "../castLoad";
+import { actorHeadRef } from "../liveHeadStage";
+import { liveHeadKey } from "../liveHeadRefs";
 
 jest.mock("@services/stHost/sprites", () => ({ spriteBuilderMembers: () => [] }));
 jest.mock("../expressionCalls", () => ({ expressionDeps: () => ({ judge: null, llm: null }) }));
@@ -27,12 +29,17 @@ test("rollback and replay choose the same cached look, pose and actual image pat
     frames: new Map(), set: "default", keyword: null, label: "neutral", desiredLabel: "neutral", path: "/default.png",
     bodies: ["coat", "armor"].map((outfit) => { const layers = lookLayers(card, { outfit }); return { set: `lp_${outfit}`, look: stableStringify(layers.base), pose: pose.id, tags: pose.tags, stamp: stableStringify([pose, layers, undefined]) }; }) };
   const controller = new StagePoses({ manager, actors: () => [actor], settings: defaultSpriteSettings, direction: () => null, notify: () => {} });
+  const ref = { member: "arin", look: "lp_coat", artHash: "a".repeat(64), source: "/coat.png", manifest: "/head.json" };
+  const refs = { [liveHeadKey(ref)]: ref };
   controller.choose(actor);
   expect([actor.set, actor.path]).toEqual(["lp_coat", "/coat.png"]);
+  expect(actorHeadRef(actor, story.roster, refs)).toEqual(ref);
   outfit = "armor"; controller.choose(actor);
   expect([actor.set, actor.path]).toEqual(["lp_armor", "/armor.png"]);
+  expect(actorHeadRef(actor, story.roster, refs)).toBeUndefined();
   outfit = "coat"; controller.choose(actor);
   expect([actor.set, actor.path]).toEqual(["lp_coat", "/coat.png"]);
+  expect(actorHeadRef(actor, story.roster, refs)).toEqual(ref);
   actor.set = "default"; actor.path = "/default.png"; controller.choose(actor);
   expect([actor.set, actor.path]).toEqual(["lp_coat", "/coat.png"]);
   controller.close();

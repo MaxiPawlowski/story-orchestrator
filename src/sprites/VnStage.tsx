@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
 import type { SpriteStage, StageActor } from "./stage";
 import { figureBox, frameSlice, type FigureBox, type Framing } from "./direction";
 import { log } from "@utils/log";
@@ -8,6 +10,7 @@ import { frameBudget } from "./faceFrames";
 import { StreamActivity } from "./animation";
 
 const inactiveActivity = new StreamActivity();
+const LiveHead = lazyRetry(() => import("./liveHead/LiveHead").then((module) => ({ default: module.LiveHead })));
 
 interface Layer {
   key: number;
@@ -83,10 +86,11 @@ function useVisibleShare(active: boolean): number {
   return share;
 }
 
-function Sprite({ actor, index, count, speaking, talking, focus, breathing, crossfadeMs, reducedMotion, framing, share, budget, stage }: {
+function Sprite({ actor, index, count, speaking, talking, focus, breathing, crossfadeMs, reducedMotion, framing, share, budget, stage, liveHead }: {
   actor: StageActor; index: number; count: number; speaking: boolean; talking: boolean; focus: boolean; breathing: boolean; crossfadeMs: number; reducedMotion: boolean;
   framing: Framing; share: number; budget: number;
   stage: SpriteStage;
+  liveHead: boolean;
 }) {
   const [layers, setLayers] = useState<Layer[]>([{ key: 0, src: actor.path }]);
   const next = useRef(1);
@@ -106,7 +110,7 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
   }, []);
   const width = Math.min(34, 92 / Math.max(count, 1));
   const left = count <= 1 ? 50 : 50 + (index - (count - 1) / 2) * Math.min(width * 0.8, 88 / (count - 1));
-  const classes = ["so-sprite", focus ? (speaking ? "so-speaking" : talking ? "so-talking" : "so-idle") : "", breathing && !reducedMotion ? "so-breathing" : "",
+  const classes = ["so-sprite", focus ? (speaking ? "so-speaking" : talking ? "so-talking" : "so-idle") : "", breathing && !reducedMotion && !mediaMotion ? "so-breathing" : "",
     actor.spotlight ? "so-spotlight" : "", framed ? `so-framed so-frame-${framing}` : ""].filter(Boolean).join(" ");
   const imageStyle: React.CSSProperties | undefined = framed ? { height: `${slice.scale * share * 100}%`, top: `${-slice.offset * share * 100}%` } : undefined;
   return (
@@ -120,6 +124,10 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
         ))}
         {actor.frames && <AnimatedFace frames={actor.frames} activity={stage.activity ?? inactiveActivity} name={actor.name} seed={actor.avatar}
           blink={stage.view().settings.blink} mouth={stage.view().settings.mouth} paused={reducedMotion || mediaMotion || layers.length > 1} budget={budget} style={imageStyle} />}
+        {liveHead && actor.liveHead && <Lazy quiet key={stage.view().headSession}><LiveHead binding={actor.liveHead}
+          beginRun={stage.beginHeadRun} activity={stage.activity ?? inactiveActivity} name={actor.name} label={actor.label}
+          motion={!reducedMotion && !mediaMotion} breathing={breathing} blink={stage.view().settings.blink}
+          mouth={stage.view().settings.mouth !== "off"} style={imageStyle} /></Lazy>}
       </div>
     </div>
   );
@@ -131,12 +139,15 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
   if (!view.visible) return null;
   const { settings } = view;
   const budget = frameBudget(view.actors.filter((actor) => actor.frames).length);
+  const closeActors = view.actors.filter((actor) => (actor.framing ?? view.framing) === "close");
+  const headActor = closeActors.find((actor) => actor.spotlight) ?? closeActors.find((actor) => actor.name === view.speaking) ?? closeActors[0];
   return (
     <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement}>
       {view.actors.map((actor, index) => (
         <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
           talking={view.talker === actor.name} budget={budget} stage={stage}
-          framing={actor.framing ?? (view.framing === "close" && view.actors.length > 1 && !actor.spotlight ? "thigh" : view.framing)} share={share}
+          liveHead={settings.liveHead && (actor.framing ?? view.framing) === "close" && actor === headActor}
+          framing={actor.framing ?? (view.framing === "close" && view.actors.length > 1 && actor !== headActor ? "thigh" : view.framing)} share={share}
           focus={settings.focus && view.actors.length > 1} breathing={settings.breathing} crossfadeMs={settings.crossfadeMs} reducedMotion={view.reducedMotion} />
       ))}
     </div>

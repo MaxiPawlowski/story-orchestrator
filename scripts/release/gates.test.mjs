@@ -38,6 +38,7 @@ test("concurrent steps: --serial runs one at a time, --jobs caps how many run at
   assert.equal(gateSteps(["--serial"]).serial, true);
   assert.equal(gateSteps(["--serial", "--jobs=8"]).jobs, 1);
   assert.equal(gateSteps(["--jobs=3"]).jobs, 3);
+  assert.equal(gateSteps(["--no-storybook", "--jobs", "2"]).jobs, 2);
   assert.equal(gateSteps(["--jobs", "2"]).jobs, 2);
   assert.ok(gateSteps([]).jobs >= 2);
   assert.ok(!gateSteps(["--no-storybook"]).steps.includes("test-storybook:ci"));

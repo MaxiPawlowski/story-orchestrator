@@ -4,6 +4,14 @@ import { authorGuideDoc } from "./guideLinks";
 
 export const IMAGE_FEATURES: readonly Feature[] = [
   {
+    id: "live-head", name: "Live close-shot head", area: "images", audience: "setup",
+    oneLine: "A rigged close shot breathes, blinks and talks as a reply streams.",
+    what: "Import a rig for a member's look in Author view. Close shots animate in the page; missing rigs keep the static sprite. Reduced motion stops movement.",
+    where: settingsAt("#so-live-head-enabled", "Images › Sprite stage › Live close-shot head"),
+    settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
+    isOn: (settings) => settings.sprites.liveHead,
+  },
+  {
     id: "pose-library", name: "Poses and character layers", area: "images", audience: "author",
     oneLine: "Direct a body pose and let looks change with the story.",
     what: "Choose from 40 original skeletons, add story or install poses, and bind visual card fields to base, face or decal edits. Bodies render on first need and swipes restore the applied choice.",

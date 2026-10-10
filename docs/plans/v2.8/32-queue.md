@@ -59,6 +59,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
 | A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
 | A22 | Pose library and character layers B1–B3 — **building on `v2.8-poses`**; S0/CL/LI owed. Live heads are the separate `v2.8-live-head` track. Owner decisions accepted 2026-10-10 | 33 |
+| A23 | Live close-shot head (mesh-avatar-studio): owner approved 2026-10-10; building on `v2.8-live-head`, deterministic rig/runtime/tool; vision and LI checks owed | 36, 33 §7 decision 5, v2.9 05.1 |
 
 ## Measurements (need a pod or a free 3090)
 

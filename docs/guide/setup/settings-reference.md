@@ -119,6 +119,7 @@ Optional pictures and character sprites; both need your own image setup. [More](
 | **Expression model when the judge is off** | Settings › Images › Sprite stage | Which profile picks expressions when the judge cannot. Same as the image-prompt model by default. | Not set | `sprites.profileId` |
 | **Dim whoever is not speaking** | Settings › Images › Sprite stage | Fades the characters who are not talking, so the speaker stands out. | On | `sprites.focus` |
 | **Idle breathing** | Settings › Images › Sprite stage | A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines. | On | `sprites.breathing` |
+| **Live close-shot head** | Settings › Images › Sprite stage | Animates a close shot when this member's look has a rig. Falls back to the static sprite. Reduced motion and the story's motion setting stop movement. | On | `sprites.liveHead` |
 | **Blink** | Settings › Images › Sprite stage | Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off. | On | `sprites.blink` |
 | **Current character state in replies** | Settings › Images › Sprite stage | Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged. | On | `sprites.cardOverlay` |
 | **Pose library** | Settings › Images › Sprite stage | Choose body poses from scene directions, sticky keywords and reply picks. Bodies render when needed. | On | `sprites.poses` |

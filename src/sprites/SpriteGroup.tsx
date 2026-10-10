@@ -8,6 +8,8 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import { storySpriteChoice, userSpriteChoice } from "./activation";
 import { startSprites } from "./start";
 import { SpriteSettingsView } from "./SpriteSettingsView";
+import { LiveHeadAuthor } from "./liveHead/LiveHeadAuthor";
+import { liveHeadKey } from "./liveHeadRefs";
 
 export default function SpriteGroup({ manager }: { manager: RuntimeManager }) {
   const [stage, setStage] = useState<SpriteStage | null>(null);
@@ -28,6 +30,7 @@ export default function SpriteGroup({ manager }: { manager: RuntimeManager }) {
     setNotice(result.labels ? `Removed ${result.labels} generated sprite files.` : "There were none to remove.");
   } : undefined;
   return (
+    <>
     <SpriteSettingsView
       settings={view.settings}
       activation={view.activation}
@@ -41,5 +44,10 @@ export default function SpriteGroup({ manager }: { manager: RuntimeManager }) {
       onRemoveStorySprites={remove}
       removeNotice={notice}
     />
+    {snapshot.ui.authorView && <LiveHeadAuthor rows={stage.headStatus()} onImport={(ref) => {
+      const rigs = Object.fromEntries(Object.entries(view.settings.liveHeadRigs).filter(([, entry]) => entry.member !== ref.member || entry.look !== ref.look));
+      stage.updateSettings({ liveHeadRigs: { ...rigs, [liveHeadKey(ref)]: ref } });
+    }} />}
+    </>
   );
 }

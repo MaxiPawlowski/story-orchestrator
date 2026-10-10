@@ -220,6 +220,19 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
 5. mesh-avatar-studio brought into v2.8 as a separate track on `v2.8-live-head`. Cross-reference only here; that branch owns its build.
 6. Classifier-chain pose pick accepted, on by default. The CL floor remains informational.
 
+### Original proposal and live-head cross-reference
+
+1. Re-posing route: P2 skeleton-guided Qwen edit (P3 fallback)? **Recommended: yes.** Alternatives: P3 only (no
+   skeletons), P4 SDXL + ControlNet + IP-Adapter/LoRA.
+2. Download P4's files (ControlNet, IP-Adapter, CLIP-vision, DWPose) through v2.8 30 for the spike arm and pose
+   scoring? **Recommended: DWPose yes (scoring + pose import); P4 files only if P2 misses its floors.**
+3. Layer model (base / pose body / face / decal) with full body re-render instead of composited outfit layers?
+   **Recommended: yes.**
+4. Shipped library of ~40 generic poses plus story and install-wide custom poses? **Recommended: yes.**
+5. mesh-avatar-studio: park with v2.9 05.1 (close-shot live head), no work now? **Recommended: yes.**
+   **Owner decision 2026-10-10:** brought into v2.8 as [plan 36](36-live-head.md), building on `v2.8-live-head`; posing stays separate.
+6. Pose pick in the classifier chain, on by default? **Recommended: yes (owner rule), after B1–B2.**
+
 ## 8. Unresolved questions
 
 - Does Qwen Image 2.1's edit encoder take a second image and follow a keypoint map? (S0 step 1.)
