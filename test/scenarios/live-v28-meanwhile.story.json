@@ -1,0 +1,33 @@
+{
+  "format": 2,
+  "id": "so-live-v28-meanwhile",
+  "title": "SO-LIVE-V28 Meanwhile",
+  "description": "v2.8 31 M16 live fixture: Arin carries an open agenda (the last step repeats, so it never closes), the market -> confession checkpoint change fires on Arin's confession, and the party moves market -> docks -> inn for two scene breaks.",
+  "roster": [
+    {
+      "id": "arin", "name": "Arin", "role": "a guide with a debt",
+      "relationships": [{ "toward": "player", "axes": ["trust"], "range": [-3, 3] }],
+      "mood": { "baseline": "calm", "lasts": { "boundaries": 3 } },
+      "agenda": [{
+        "id": "debt", "goal": "Repay the smuggler before the festival", "pace": "per_n_boundaries", "every": 3,
+        "steps": [
+          { "text": "sold her mother's ring at the market" },
+          { "text": "met the smuggler's runner at the harbour" },
+          { "text": "counted what is still owed", "repeat": true }
+        ]
+      }]
+    },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "qualities": [
+    { "key": "location", "type": "enum", "values": ["market", "docks", "inn"], "source": "extractor", "evidence_from": "world", "rubric": "Where the party is right now: the market, the docks, or the inn." },
+    { "key": "confessed", "type": "bool", "source": "extractor", "rubric": "Has Arin told the player about her debt to the smuggler?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The market", "type": "anchor", "start": true, "objective": "Meet Arin at the market." },
+    { "id": "confession", "name": "The confession", "type": "anchor", "objective": "Hear Arin out and travel on with her." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "confession", "priority": 1, "gate": { "all": [{ "q": "confessed", "op": "==", "v": true }] } }
+  ]
+}

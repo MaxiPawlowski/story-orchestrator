@@ -1,0 +1,163 @@
+{
+  "_note": "v2.8 31 M17 (v2.8 11 J8 create checks) live: group chat, main reply on the pod, curator + lore-creation route on DeepSeek (cloud). Guards first (measured, unestablished, hidden: none of them touches the positive), then the positive: a real lore pass over facts from real reads proposes a card that waits, the author accepts it, it is written at the next boundary and its content reaches the next prompt (activation proof); a run whose real pass proposes nothing is recorded P1 BLOCKED. Guards on the live host: unmeasured route refused with createRequireMeasured on (no call), unestablished name and hidden (gated / excluded) titles refused at plan time, auto mode never creates (a card stays pending across a boundary), createCap 2 skips the pass with no call, a card edited into the excluded title is refused at the write edge. Guard inputs are scripted lore replies (debugResponse) because a real model cannot be made to propose a refused card; the positive is never scripted.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ]
+  },
+  "steps": [
+    {
+      "eval": "const wi = await import('/scripts/world-info.js'); const name = 'SO-LIVE-V28-11 Lore'; if (!wi.world_names?.includes(name)) return { book: 'absent' }; const data = await wi.loadWorldInfo(name); const keep = ['The Harbour', 'The Ferryman', 'Sealed Vault']; const removed = []; for (const [uid, entry] of Object.entries(data?.entries ?? {})) if (!keep.includes(entry.comment)) { removed.push(entry.comment); delete data.entries[uid]; } if (removed.length) await wi.saveWorldInfo(name, data, true); return { removed };",
+      "log": true
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.setExtractionSettings({ cadence: 1, stabilityLag: 0 }); globalThis.__m17 = { calls: [], prompts: [], notes: [] }; if (!globalThis.__m17Fetch) { const orig = window.fetch; globalThis.__m17Fetch = orig; window.fetch = async (url, init) => { try { const body = typeof init?.body === 'string' ? init.body : ''; if (String(url).includes('/api/backends/') && body.includes('no listed entry already covers')) globalThis.__m17.calls.push({ at: Date.now(), url: String(url) }); } catch {} return orig(url, init); }; } if (globalThis.__m17Prompt) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__m17Prompt); globalThis.__m17Prompt = (data, dry) => { if (!dry) globalThis.__m17.prompts.push({ at: Date.now(), body: JSON.stringify(data ?? null) }); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__m17Prompt); globalThis.__m17creates = () => (rt.getStagecraftState().proposals ?? []).flatMap((record) => record.ops.map((entry, index) => ({ id: record.id, index, status: entry.status, op: entry.op, message: entry.message ?? null }))).filter((x) => x.op?.kind === 'create'); globalThis.__m17book = async () => { const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: 'SO-LIVE-V28-11 Lore' }) }).then((x) => x.json()); return Object.values(r.entries ?? {}); }; const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-LIVE-V28-11 Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !String(lorebook.message).includes('already exists')) throw new Error('could not create the story lorebook: ' + lorebook.message); for (const e of [{ comment: 'The Harbour', keys: ['harbour', 'pier'], content: 'The harbour is a crescent of stone piers where fishing boats tie up.' }, { comment: 'The Ferryman', keys: ['ferry', 'ferryman'], content: 'SO-FERRY-ORIGINAL the ferryman is excluded from the curator.' }, { comment: 'Sealed Vault', keys: ['vault'], content: 'A sealed vault under the harbour office.' }]) { const w = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-LIVE-V28-11 Lore', comment: e.comment, keys: e.keys, content: e.content }, { requirements: { lorebooks: ['SO-LIVE-V28-11 Lore'] } }); if (!w.ok) throw new Error('could not write ' + e.comment + ': ' + w.message); } const wi = await import('/scripts/world-info.js'); await wi.updateWorldInfoList(); return { entries: (await globalThis.__m17book()).map((e) => e.comment) };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "live-v28-11-create.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'review', createEnabled: true, createRequireMeasured: false }); for (let i = 0; i < 40 && !rt.getSnapshot().requirements?.ready; i += 1) await new Promise((r) => setTimeout(r, 250)); const snap = rt.getSnapshot(); if (!snap.requirements?.ready) throw new Error('requirements not ready: ' + JSON.stringify(snap.requirements)); return { settings: rt.getStagecraftState().settings, scope: snap.stagecraftScope ?? null };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We reach the harbour. Oskar the boatwright is patching the hull of a fishing boat on the slipway.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Oskar looks up and says he charges one silver to mend a hull. Beside him, Tilda the net-maker is mending nets.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Tilda tells us she sells her nets to every fisherman on the pier, and asks whether we need a boat.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const texts = () => rt.getExtractionFacts().map((f) => String(f.text ?? f)); const count = (name) => texts().filter((t) => t.includes(name)).length; const before = { Oskar: count('Oskar'), Tilda: count('Tilda'), facts: texts().length }; globalThis.__m17.factsReal = before; if (before.Oskar < 2 || before.Tilda < 2) { const q = String.fromCharCode(34); const fact = (t, e) => 'FACT importance=2 text=' + q + t + q + ' evidence=' + q + e + q; const read = [fact('Oskar the boatwright patches hulls at the harbour.', 'Oskar the boatwright is patching the hull'), fact('Oskar charges one silver to mend a hull.', 'he charges one silver to mend a hull'), fact('Tilda the net-maker mends nets on the pier.', 'Tilda the net-maker is mending nets'), fact('Tilda sells her nets to every fisherman on the pier.', 'she sells her nets to every fisherman on the pier')].join(String.fromCharCode(10)); await rt.runExtractionNow(read, 'm17-seed'); globalThis.__m17.notes.push('real reads left Oskar in ' + before.Oskar + ', Tilda in ' + before.Tilda + ' of ' + before.facts + ' facts-tier rows; a scripted read added four facts so the create pass is eligible (positive still a real lore call)'); } const after = { Oskar: count('Oskar'), Tilda: count('Tilda'), facts: texts().length }; if (after.Oskar < 2) throw new Error('facts tier still names Oskar fewer than twice: ' + JSON.stringify({ before, after, texts: texts().slice(-8) })); return { real: before, after };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ createRequireMeasured: true }); const calls = globalThis.__m17.calls.length; const out = await rt.runLoreCreatePass('m17-measured'); rt.setStagecraftSettings({ createRequireMeasured: false }); const pass = rt.getStagecraftState().lastCreatePass; if (out.skipped !== 'not-measured') throw new Error('an unmeasured route ran with measurement required: ' + JSON.stringify(out)); if (globalThis.__m17.calls.length !== calls) throw new Error('a call was sent on an unmeasured route'); return { skipped: out.skipped, reason: pass?.reason ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__m17creates().length; const out = await rt.runLoreCreatePass('m17-unestablished', \"[create] SO-LIVE-V28-11 Lore || Zebulon || Zebulon || A stranger nobody has ever met.\"); const pass = rt.getStagecraftState().lastCreatePass; const added = globalThis.__m17creates().slice(before); if (added.length) throw new Error('unestablished: a card was made: ' + JSON.stringify(added)); return { skipped: out.skipped ?? null, dropped: pass?.dropped ?? [] };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__m17creates().length; const out = await rt.runLoreCreatePass('m17-hidden', \"[create] SO-LIVE-V28-11 Lore || Sealed Vault || vault || A vault.\\n[create] SO-LIVE-V28-11 Lore || The Ferryman || ferry || The ferryman.\"); const pass = rt.getStagecraftState().lastCreatePass; const added = globalThis.__m17creates().slice(before); if (added.length) throw new Error('hidden: a card was made: ' + JSON.stringify(added)); return { skipped: out.skipped ?? null, dropped: pass?.dropped ?? [] };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const book = (await globalThis.__m17book()).map((e) => e.comment); let out = null; let card = null; const tries = []; for (let i = 0; i < 3 && !card; i += 1) { const calls = globalThis.__m17.calls.length; out = await rt.runLoreCreatePass('m17-positive'); const st = rt.getStagecraftState(); tries.push({ ran: out.ran, skipped: out.skipped ?? null, calls: globalThis.__m17.calls.length - calls, raw: String(st.lastCreatePass?.rawResponse ?? '').slice(0, 400), dropped: st.lastCreatePass?.dropped ?? [] }); card = globalThis.__m17creates().find((c) => c.status === 'pending' && !book.includes(c.op.comment)) ?? null; } globalThis.__m17.p1 = card; globalThis.__m17.p1Tries = tries; if (tries.some((t) => t.ran && t.calls !== 1)) throw new Error('a real lore pass did not send exactly one call: ' + JSON.stringify(tries)); if (!card) { globalThis.__m17.notes.push('P1 BLOCKED: the real lore route proposed no create in 3 passes'); return { blocked: true, tries }; } if (card.status !== 'pending') throw new Error('the real create card did not wait for the author'); return { card, tries };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Scheduler"
+      }
+    },
+    {
+      "eval": "if (!globalThis.__m17.p1) return { skipped: 'no P1 card' }; for (let i = 0; i < 30 && !document.querySelector('[data-so=\"curator-create-keys\"]'); i += 1) await new Promise((r) => setTimeout(r, 200)); if (!document.querySelector('[data-so=\"curator-create-keys\"]')) throw new Error('no create card in the review ring'); return { cards: document.querySelectorAll('[data-so=\"curator-create-keys\"]').length };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; let cards = globalThis.__m17creates().filter((c) => c.status === 'pending'); if (cards.length < 2) { const have = cards.map((c) => c.op.comment).join(' '); const name = /tilda/i.test(have) ? 'Oskar' : 'Tilda'; const keys = name === 'Oskar' ? 'Oskar, boatwright' : 'Tilda, net-maker'; const line = '[create] SO-LIVE-V28-11 Lore || ' + name + ' || ' + keys + ' || ' + (name === 'Oskar' ? 'The harbour boatwright; mends a hull for one silver.' : 'The net-maker of the pier; sells nets to every fisherman.'); await rt.runLoreCreatePass('m17-second', line); cards = globalThis.__m17creates().filter((c) => c.status === 'pending'); globalThis.__m17.notes.push('the real pass proposed one card; a scripted second card (' + name + ') fills the cap'); } if (cards.length < 2) throw new Error('need two pending create cards, have ' + JSON.stringify(cards)); globalThis.__m17.n2 = cards.find((c) => !globalThis.__m17.p1 || c.id !== globalThis.__m17.p1.id || c.index !== globalThis.__m17.p1.index); rt.setStagecraftSettings({ acceptMode: 'auto' }); return { cards: cards.map((c) => [c.op.comment, c.status]), n2: globalThis.__m17.n2.op.comment };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.getStagecraftState(); const used = (st.created ?? []).length + globalThis.__m17creates().filter((c) => c.status === 'pending' || c.status === 'accepted').length; const calls = globalThis.__m17.calls.length; const out = await rt.runLoreCreatePass('m17-cap'); if (used >= 2) { if (out.skipped !== 'cap-reached') throw new Error('createCap 2 reached (' + used + ') but the pass ran: ' + JSON.stringify(out)); if (globalThis.__m17.calls.length !== calls) throw new Error('a call was sent past the cap'); return { used, skipped: out.skipped }; } globalThis.__m17.notes.push('cap check vacuous: only ' + used + ' create(s) used'); return { used, vacuous: true, out };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We walk along the pier, looking over the moored boats.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const cards = globalThis.__m17creates(); const book = (await globalThis.__m17book()).map((e) => e.comment); const wrong = cards.filter((c) => c.status !== 'pending' && c.status !== 'rejected'); if (wrong.length) throw new Error('a create left pending across an auto-mode boundary: ' + JSON.stringify(wrong)); const written = cards.filter((c) => book.includes(c.op.comment) && !['The Harbour', 'The Ferryman', 'Sealed Vault'].includes(c.op.comment)); if (written.length) throw new Error('auto mode wrote a create: ' + JSON.stringify(written)); rt.setStagecraftSettings({ acceptMode: 'review' }); const p1 = globalThis.__m17.p1; if (p1) { const live = globalThis.__m17creates().find((c) => c.id === p1.id && c.index === p1.index); const ok = await rt.setCuratorOpDecision(live.id, live.index, 'accepted'); globalThis.__m17.p1Accept = ok; } const n2 = globalThis.__m17.n2; await rt.setCuratorOpDecision(n2.id, n2.index, 'accepted', { kind: 'create', lorebook: 'SO-LIVE-V28-11 Lore', comment: 'The Ferryman', keys: ['ferry'], text: 'SO-OVERWRITE' }); return { pending: cards.length, statuses: globalThis.__m17creates().map((c) => [c.op.comment, c.status]) };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin points at a small sailing boat and asks who owns it.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; let cards = globalThis.__m17creates(); for (let i = 0; i < 40 && cards.some((c) => c.status === 'accepted'); i += 1) { await new Promise((r) => setTimeout(r, 500)); cards = globalThis.__m17creates(); } const book = await globalThis.__m17book(); const ferry = book.find((e) => e.comment === 'The Ferryman'); if (!String(ferry?.content).includes('SO-FERRY-ORIGINAL') || book.filter((e) => e.comment === 'The Ferryman').length !== 1) throw new Error('the excluded entry was touched: ' + JSON.stringify(book.filter((e) => e.comment === 'The Ferryman'))); const n2 = cards.find((c) => c.id === globalThis.__m17.n2.id && c.index === globalThis.__m17.n2.index); if (n2.status !== 'failed') throw new Error('the card edited into an excluded title was not refused at the write edge: ' + JSON.stringify(n2)); const p1 = globalThis.__m17.p1; if (!p1) return { n2: n2.message, p1: 'blocked' }; const live = cards.find((c) => c.id === p1.id && c.index === p1.index); const entry = book.find((e) => e.comment === live.op.comment); if (live.status !== 'applied' || !entry || entry.disable) throw new Error('the accepted create was not written at the boundary: ' + JSON.stringify({ live, entry })); const created = rt.getStagecraftState().created ?? []; if (created.length !== 1) throw new Error('created ledger: ' + JSON.stringify(created)); globalThis.__m17.written = { comment: entry.comment, keys: entry.key, content: entry.content, at: Date.now() }; return { written: globalThis.__m17.written, n2: n2.message };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Oskar and Tilda wave at us from the pier. Oskar, Tilda, can either of you find us a boat?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "const w = globalThis.__m17.written; if (!w) return { skipped: 'P1 blocked' }; const esc = (t) => JSON.stringify(String(t)).slice(1, -1); const after = globalThis.__m17.prompts.filter((p) => p.at > w.at); if (!after.length) throw new Error('no main generation after the write'); const hit = after.filter((p) => p.body.includes(esc(w.content))).length; if (!hit) throw new Error('the created entry never reached a prompt (activation proof failed): keys ' + JSON.stringify(w.keys)); return { activated: hit + ' of ' + after.length + ' prompts', keys: w.keys, notes: globalThis.__m17.notes, tries: globalThis.__m17.p1Tries };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (globalThis.__m17Prompt) { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__m17Prompt); delete globalThis.__m17Prompt; } if (globalThis.__m17Fetch) { window.fetch = globalThis.__m17Fetch; delete globalThis.__m17Fetch; } rt.setUiSettings({ authorView: false }); await new Promise((r) => setTimeout(r, 800)); return { notes: globalThis.__m17.notes, calls: globalThis.__m17.calls.length };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": 1500
+    }
+  ]
+}

@@ -808,3 +808,56 @@ A CC group setup needs the brief line in the CC main prompt, `thinking_budget_to
 - Active window **09:14–10:47Z, about 93 minutes** of requests on the shared production pod: about 1.55 pod-hours of my time against the 1.3 asked. The overrun was the sequential ST trials (about 60–90 s per CC turn).
 - No pod was created, stopped or updated. The pod's own billing is shared with the other work on it.
 - DeepSeek calls: the lanes' own orchestration passes (extraction, director) ran on their DeepSeek profile during the ST trials; none were made by the scripts.
+
+## 2026-10-10 (pod): Chat Completion vs Text Completion A/B, thinking with budget 400
+
+Owner-requested (v2.8 31 M25). Dedicated pod `c9knurjijfupao` (`llm-pod-4500-v28-smallwins`, RTX PRO 4500 Blackwell, EU-RO-1, $0.72/h; the pod of the 2026-10-10 small-wins round), llama-server b11046, Artemis v1.1 Q4_K_M, production flags (ctx 196608, `-np 4`, `--kv-unified`, q8_0 KV). Lanes 13 and 22 (adolion-fresh, pin `6709a3a6`, thinking overlay) under a private ST copy (`C:\dev\so-lanes\agent-st-podsw`, build master `a11cb81e`); the real install, lane 0 and :8000 untouched. Kit, raw rows and the hand-read dump: `C:\dev\so-lanes\podsw\cctc\` (private).
+
+### Arms (the API route is the only difference)
+
+| | A: Text Completion (today's lane setup) | B: Chat Completion, custom source to the same llama-server |
+|---|---|---|
+| Prompt | `Gemma 4 Thinking` instruct (`<|think|>` + the brief-plan line), Start Reply With `<|channel>thought\n`, prompt ends `Name:<|channel>thought\n` | CC main prompt = the lane's TC system prompt + the same brief-plan line (this replaces ST's default main prompt, so its "avoid quotation marks" line is gone); `nsfw` and `jailbreak` prompts emptied (TC sends neither); names behaviour "content"; ST's group nudge on |
+| Thinking | template | `chat_template_kwargs.enable_thinking: true` in `custom_include_body` |
+| Budget | the reply-effort overlay, medium = 400 | the same overlay, `thinking_budget_tokens: 400` merged into `custom_include_body` |
+| Samplers | `Artemis v1.1 RP` (temp 1, min_p 0.05 first, DRY 0.8/1.75/2/4096) | the same values in `custom_include_body` (min_p, top_k 0, DRY, sampler order) and CC temp 1 / top_p 1 |
+| Length, context, streaming | 1400, the lane's context, streaming on | 1400, the same context, streaming on |
+
+**The budget reaches the request on both routes** (a fetch capture of every generate request, all 40 loud requests): TC carried all five `reasoning_budget_*` keys with the message `"\nTime to write the reply.\n"`, `max 1400`; CC carried `thinking_budget_tokens: 400` and `enable_thinking: true` inside `custom_include_body`, `include_reasoning: true`.
+
+### 1. ST group trials (both arms at once, n = 20 each)
+
+Same scene on both lanes: group *The Adventurer's Road*, the greeting, one player line naming Belle, Dalan and Ellie; `/trigger await=true` Tobias, Belle, Dalan, Ellie, 5 reps each; each reply cut afterwards. Every reply hand-read.
+
+| Arm | Wrong speaker / out of form | Empty | Word damage (read) | Loops | Reasoning tokens median / max | Over budget (> 420) | Closed at once | Reply time median / p90 | First visible text median / p90 |
+|---|---|---|---|---|---|---|---|---|---|
+| A TC | **1/20** (Ellie's turn written as a three-character script) | 0 | 0 | 0 | 404 / 406 | 0 | 2/20 | 53.7 / 89.6 s | 15.4 / 31.5 s (reply 16.6 s) |
+| B CC | **0/20** | 0 | 0 | 0 | 320 / 399 | 0 | 0 | 53.0 / 82.9 s | 12.5 / 35.7 s |
+
+- Reasoning chars median / max: TC 1478 / 1641, CC 1285 / 1660. The brief-plan line reaches CC: it no longer reasons longer than TC (2026-10-02: 2367–2703 chars with no line).
+- A reply settling the player's registration for them (agency, soft): about 1–2 per arm, no difference.
+- Prose style: both arms use quoted speech, so the CC main prompt fix removes the 2026-10-02 style difference.
+- **The streaming first-token drop of 2026-10-02 is gone on today's overlay**: 0/20 TC replies lost an opening token (Auto-fix Markdown off since `8c8f2454`).
+
+### 2. Raw blind turns (20 blind-20 bodies, seed 1001, 600 reply + 800 reasoning cap)
+
+| Arm | Empty | Reasoning tokens median / max | Reply chars median | Time median / p90 | Starts as another character |
+|---|---|---|---|---|---|
+| TC `stga` + budget 400 (message on) | 0/20 | 372 / 408 | 814 | 80 / 101 s | 0 |
+| CC + brief line + `thinking_budget_tokens` 400 + nudge | 0/20 | 399 / 399 | 806 | 72 / 99 s | 0 (1 names another member inside the reply) |
+
+### 3. Blind pack `test/sessions/rating-pack/model-blind-20-cctc/` (pending)
+
+The same 20 turns as the earlier packs. The pack tool takes exactly 4 configs, so two reused arms fill it: the new CC arm, the new TC arm, the 2026-10-02 TC budget-400 arm (`EB-stga-b400`, empty close message) and the thinking-off control (`BL1`). The key is sealed: sha256 `f8919e6be0a3ede5626c3417660ccbd2d9696cab758723fb22dc6bd9bc04c09d` (`so-model-blind.mts verify-key --out …`). The owner's rating is pending.
+
+A **delegated pre-rating** (codex exec, `gpt-6.1-sol`, reasoning high, `pack.md` and the sheet only, 80/80 rows) is in `delegated-sol/`. Its per-config result is only in `delegated-sol/unsealed-summary.md` and is not repeated here, so it cannot steer the human rating.
+
+### Reading
+
+- **CC is now at parity in a group.** The fair config holds the speaker (0/20 vs TC 1/20), leaves nothing empty, honours the 400 budget (max 399), and replies in the same time with an earlier first visible text. The three gaps of 2026-10-02 are closed by configuration alone: the brief line in the CC main prompt, the overlay's `thinking_budget_tokens`, and names "content".
+- What remains is preference: the blind rating decides whether groups move. Until then, groups stay on TC; nothing in the product depends on the route.
+- n = 20 per arm on one scene; the single TC out-of-form reply is not a significant difference.
+
+### Not tested
+
+- CC with names "completion"; CC solo; loops-in-context (L body); more than one seed on the blind turns; latency on a quiet pod (other rows shared it: 2 model lanes plus their orchestration passes).

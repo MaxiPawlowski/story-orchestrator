@@ -1,0 +1,201 @@
+{
+  "_note": "v2.8 31 M16 live: agenda/meanwhile proposals in real play (default accept mode auto), real reply model, real memory model and a real curator route, no debugResponse. One pass on the checkpoint change, none on a scene break inside MEANWHILE_MIN_GAP (8) boundaries, one on a scene break past it; each auto-accepted proposal lands at the next boundary into Arin's private block only; cutting the landing reply puts it back to accepted and it lands again; one curator call per pass, <= 300 tokens; nothing on a player surface. Model-dependent branches are recorded in globalThis.__m16.notes, never asserted as the model's choice.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ]
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1, stabilityLag: 0, profiles: { ...(rt.getGlobalSettings().extraction.profiles ?? {}), curator: '975bc0dc-956b-4cd8-9fe4-9be158e01847' } }); globalThis.__m16 = { notes: [], calls: [] }; if (!globalThis.__m16Fetch) { const orig = window.fetch; globalThis.__m16Fetch = orig; window.fetch = async (url, init) => { try { const body = typeof init?.body === 'string' ? init.body : ''; if (String(url).includes('/api/backends/') && body.includes('did off stage, between scenes')) { let max = null; try { const parsed = JSON.parse(body); max = parsed.max_tokens ?? parsed.max_new_tokens ?? parsed.n_predict ?? null; } catch {} globalThis.__m16.calls.push({ at: Date.now(), boundary: rt.getEngineState()?.boundary ?? null, url: String(url), maxTokens: max }); } } catch {} return orig(url, init); }; } globalThis.__m16snap = () => { const s = rt.agendaProposalSlice().get() ?? { passes: [], proposals: [] }; const e = rt.getEngineState(); const bb = rt.getSnapshot().blackboard ?? {}; return { boundary: e.boundary, cp: e.activeCheckpointId, location: bb.location ?? null, confessed: bb.confessed ?? null, passes: s.passes.map((p) => ({ ...p })), proposals: s.proposals.map((p) => ({ id: p.id, status: p.status, boundary: p.boundary, reason: p.reason, appliedAt: p.appliedAt ?? null, text: p.text })) }; }; globalThis.__m16block = (name) => { const ctx = SillyTavern.getContext(); rt.onMemberDrafted(ctx.characters.findIndex((c) => c.name === name)); const block = rt.getAppliedEpistemicBlock(); rt.clearPrivateInjection(); return block; }; return { cadence: rt.getGlobalSettings().extraction.cadence, mode: rt.getGlobalSettings().stagecraft.meanwhileAcceptMode };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "live-v28-meanwhile.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); for (let i = 0; i < 50 && !globalThis.storyOrchestratorAgendaProposals; i += 1) await new Promise((r) => setTimeout(r, 100)); if (!globalThis.storyOrchestratorAgendaProposals) throw new Error('the meanwhile coordinator never attached'); const mode = rt.getGlobalSettings().stagecraft.meanwhileAcceptMode; if (mode !== 'auto') throw new Error('meanwhile accept mode is not the auto default: ' + mode); return globalThis.__m16snap();",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I push through the crowded market stalls looking for Arin, the guide I was told to meet here at the market.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin, you keep glancing at the harbour road. Tell me honestly what is troubling you. Do you owe someone money?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "So Arin has just confessed it to me: she owes the smuggler a debt and has to repay him before the festival. Thank you for telling me the truth, Arin.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 90; i += 1) { if (rt.getEngineState().activeCheckpointId === 'confession' || rt.getSnapshot().blackboard?.confessed === true) return { arrived: 'extraction' }; await new Promise((r) => setTimeout(r, 1000)); } await SillyTavern.getContext().executeSlashCommandsWithOptions('/cp set confessed true'); globalThis.__m16.notes.push('confessed was not extracted after three turns; author /cp set confessed true queued (the transition still fires at a real boundary)'); return { arrived: 'author-set' };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin, I am glad you trusted me with that. Where should we go first?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "checkpointIn": [
+          "confession"
+        ],
+        "timeoutMs": 240000
+      },
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "let snap = globalThis.__m16snap(); for (let i = 0; i < 120 && !snap.passes.length; i += 1) { await new Promise((r) => setTimeout(r, 1000)); snap = globalThis.__m16snap(); } if (!snap.passes.length) throw new Error('no meanwhile pass after the checkpoint change and the scenes so far: ' + JSON.stringify(snap)); for (let i = 1; i < snap.passes.length; i += 1) if (snap.passes[i].boundary - snap.passes[i - 1].boundary < 8) throw new Error('two passes inside MEANWHILE_MIN_GAP: ' + JSON.stringify(snap.passes)); const cpPass = snap.passes.find((p) => /checkpoint/.test(p.reason)); if (!cpPass) { const last = snap.passes.at(-1); if (snap.boundary - last.boundary >= 8) throw new Error('the checkpoint change came past the gap and ran no pass: ' + JSON.stringify(snap)); globalThis.__m16.notes.push('the checkpoint change fell inside the gap of a ' + last.reason + ' pass at boundary ' + last.boundary + ' (no pass, as designed)'); } globalThis.__m16.pass1 = snap.passes.at(-1); globalThis.__m16.first = snap.proposals.map((p) => p.id); if (snap.proposals.some((p) => p.status === 'proposed')) throw new Error('auto mode left a proposal waiting: ' + JSON.stringify(snap.proposals)); if (!snap.proposals.length) globalThis.__m16.notes.push('no proposal yet (model answered NONE or every line refused)'); return snap;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin, what will you do about the debt now? I will help you if I can.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "const snap = globalThis.__m16snap(); const first = snap.proposals.filter((p) => globalThis.__m16.first.includes(p.id)); if (!first.length) { globalThis.__m16.notes.push('no proposal from pass 1: landing checks vacuous'); return { vacuous: true, snap }; } const unlanded = first.filter((p) => p.status !== 'applied' || !p.appliedAt); if (unlanded.length) throw new Error('an auto-accepted proposal did not land at the next boundary: ' + JSON.stringify(unlanded)); const arin = globalThis.__m16block('Arin'); const narrator = globalThis.__m16block('DM Narrator'); for (const p of first) { if (!arin.includes(p.text)) throw new Error('Arin block lacks the landed event: ' + p.text + ' || ' + arin.slice(0, 600)); if (narrator.includes(p.text)) throw new Error('the narrator block carries Arin\\'s event: ' + p.text); } const ctx = SillyTavern.getContext(); globalThis.__m16.landing = { id: first[0].id, appliedAt: first[0].appliedAt, last: ctx.chat.length - 1 }; return { landed: first.map((p) => p.appliedAt), last: ctx.chat.length - 1 };",
+      "log": true
+    },
+    {
+      "eval": "const land = globalThis.__m16.landing; if (!land) return { skipped: 'no landing' }; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const from = land.appliedAt.messageId; const to = ctx.chat.length - 1; await ctx.executeSlashCommandsWithOptions('/cut ' + from + '-' + to); let p = null; for (let i = 0; i < 60; i += 1) { p = (rt.agendaProposalSlice().get()?.proposals ?? []).find((x) => x.id === land.id); if (p?.status === 'accepted' && !p.appliedAt) break; await new Promise((r) => setTimeout(r, 250)); } if (p?.status !== 'accepted' || p.appliedAt) throw new Error('cutting the landing reply did not put it back to accepted: ' + JSON.stringify(p)); if (globalThis.__m16block('Arin').includes(p.text)) throw new Error('the block still carries a landing that was rolled back'); return { cut: [from, to], status: p.status, wasLast: from === land.last };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Let us keep moving, Arin. Tell me more about this smuggler while we walk.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "const land = globalThis.__m16.landing; if (!land) return { skipped: 'no landing' }; const p = globalThis.__m16snap().proposals.find((x) => x.id === land.id); if (p?.status !== 'applied' || !p.appliedAt) throw new Error('the proposal did not land again after the rollback: ' + JSON.stringify(p)); if (!globalThis.__m16block('Arin').includes(p.text)) throw new Error('relanded but missing from Arin block'); return { relanded: p.appliedAt };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We leave the market behind and walk down the hill to the docks, where the fishing boats are tied up.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "const snap = globalThis.__m16snap(); const gap = snap.boundary - globalThis.__m16.pass1.boundary; globalThis.__m16.docks = { boundary: snap.boundary, location: snap.location, gap }; if (gap < 8 && snap.passes.length !== 1) throw new Error('a pass ran inside MEANWHILE_MIN_GAP: ' + JSON.stringify(snap.passes)); if (snap.location !== 'docks') globalThis.__m16.notes.push('location after the docks line read ' + snap.location); return { gap, location: snap.location, passes: snap.passes };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin, which of these boats belongs to the smuggler's people?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I keep watch on the pier while you talk to the fishermen.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "The sun is going down over the water. How much do you still owe him, Arin?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Then we will find the money together. First we need somewhere to sleep.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "const snap = globalThis.__m16snap(); const gap = snap.boundary - globalThis.__m16.pass1.boundary; globalThis.__m16.notes.push('before the inn line: ' + snap.passes.length + ' pass(es), gap ' + gap); return { gap, boundary: snap.boundary, location: snap.location, passes: snap.passes };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We leave the docks and climb the lane to the inn, and take a room there for the night.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 10000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "let snap = globalThis.__m16snap(); for (let i = 0; i < 90 && snap.passes.length < 2; i += 1) { await new Promise((r) => setTimeout(r, 1000)); snap = globalThis.__m16snap(); } const calls = globalThis.__m16.calls; const out = { passes: snap.passes, location: snap.location, boundary: snap.boundary, calls, notes: globalThis.__m16.notes, proposals: snap.proposals.map((p) => ({ id: p.id, status: p.status, reason: p.reason, boundary: p.boundary, appliedAt: p.appliedAt })) }; if (snap.passes.length < 2) throw new Error('expected a second pass on a scene break past the gap: ' + JSON.stringify(out)); for (let i = 1; i < snap.passes.length; i += 1) { if (!/scene|checkpoint/.test(snap.passes[i].reason)) throw new Error('a pass with an unknown trigger: ' + JSON.stringify(snap.passes[i])); if (snap.passes[i].boundary - snap.passes[i - 1].boundary < 8) throw new Error('two passes inside MEANWHILE_MIN_GAP: ' + JSON.stringify(snap.passes)); } if (!snap.passes.slice(1).some((p) => /scene/.test(p.reason))) throw new Error('no scene-triggered pass: ' + JSON.stringify(snap.passes)); if (calls.length !== snap.passes.length) throw new Error('curator calls per pass is not one: ' + calls.length + ' calls for ' + snap.passes.length + ' passes ' + JSON.stringify(out)); if (calls.some((c) => c.maxTokens !== null && c.maxTokens > 300)) throw new Error('a pass asked for more than 300 tokens: ' + JSON.stringify(calls)); if (snap.proposals.some((p) => p.status === 'proposed')) throw new Error('auto mode left a proposal waiting'); const unlanded = snap.proposals.filter((p) => p.status === 'accepted' && p.boundary < snap.boundary - 1); if (unlanded.length) throw new Error('accepted proposals not landed at a later boundary: ' + JSON.stringify(unlanded)); return out;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const texts = (rt.agendaProposalSlice().get()?.proposals ?? []).map((p) => p.text); rt.setUiSettings({ authorView: false }); await new Promise((r) => setTimeout(r, 800)); if (rt.getSnapshot().lifeAuthor) throw new Error('lifeAuthor in player mode'); const leak = texts.filter((t) => document.body.innerText.includes(t)); if (leak.length) throw new Error('meanwhile text on a player surface: ' + JSON.stringify(leak)); if (globalThis.__m16Fetch) { window.fetch = globalThis.__m16Fetch; delete globalThis.__m16Fetch; } return { checked: texts.length };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": 1500
+    }
+  ]
+}

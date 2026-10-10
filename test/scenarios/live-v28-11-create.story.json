@@ -1,0 +1,27 @@
+{
+  "format": 2,
+  "id": "so-live-v28-11-create",
+  "title": "SO-LIVE-V28-11 Create",
+  "description": "v2.8 31 M17 live fixture: a harbour story whose curator scope is one story book with a covered entry, an excluded entry and a checkpoint-gated entry; createCap 2.",
+  "requirements": { "lorebooks": ["SO-LIVE-V28-11 Lore"] },
+  "roster": [
+    { "id": "arin", "name": "Arin", "role": "a guide" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "qualities": [
+    { "key": "boat_hired", "type": "bool", "source": "extractor", "rubric": "Has the party hired a boat?" }
+  ],
+  "checkpoints": [
+    { "id": "harbour", "name": "The harbour", "type": "anchor", "start": true, "objective": "Find a boat at the harbour.",
+      "effects": { "world_info": { "enable": [{ "lorebook": "SO-LIVE-V28-11 Lore", "comments": ["Sealed Vault"] }] } } },
+    { "id": "crossing", "name": "The crossing", "type": "anchor", "objective": "Cross the bay." }
+  ],
+  "transitions": [
+    { "from": "harbour", "to": "crossing", "priority": 1, "gate": { "all": [{ "q": "boat_hired", "op": "==", "v": true }] } }
+  ],
+  "stagecraft": {
+    "lorebooks": ["SO-LIVE-V28-11 Lore"],
+    "exclude": [{ "lorebook": "SO-LIVE-V28-11 Lore", "comments": ["The Ferryman"] }],
+    "createCap": 2
+  }
+}

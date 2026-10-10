@@ -176,6 +176,8 @@
   "test/scenarios/live-v25-09-sp8-w3-safety.json#0": [],
   "test/scenarios/live-v25-11-a7-idless-import.json#0": [],
   "test/scenarios/live-v28-09-ask-player-play.json#0": [],
+  "test/scenarios/live-v28-11-create.story.json#0": [],
+  "test/scenarios/live-v28-meanwhile.story.json#0": [],
   "test/scenarios/live-v4-turn-types-real.json#0": [],
   "test/scenarios/live-v5-foreign-blob.json#0": [],
   "test/scenarios/live-v5b-adopt-imported.json#0": [],
