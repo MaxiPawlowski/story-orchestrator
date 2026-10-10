@@ -1,7 +1,62 @@
 # Plan 25 report — TunnelVision re-harvest (upstream @ `a01d7ee`)
 
-**Run 2026-10-07, docs only.** Plan: `25-tunnelvision-pattern-harvest.md` (all Recommended answers). Nothing in `src/`
+**Run 2026-10-07, re-run 2026-10-10 (section below), docs only.** Plan: `25-tunnelvision-pattern-harvest.md` (all Recommended answers; the re-run also read open PRs). Nothing in `src/`
 changed; every candidate row below is a proposal that changes a consumer plan only by the user's decision.
+
+## Re-run 2026-10-10 (owner approval, queue A14)
+
+**What moved.** Upstream `main` did not: still `a01d7ee` (`git ls-remote`, 2026-10-10; GitHub `pushed_at`
+2026-08-20). TheLibrarian unchanged (`c012a0f`). New material is in **open PRs** (decision 3 said skip them in the
+first pass; with `main` frozen they are the only new code). Fetched read-only into the corpus clone as local branches
+`pr25 pr50 pr51 pr55 pr56 pr59 pr60 pr61` (PR head commits below). Ours moved more: three 2026-10-07 candidates are
+already built.
+
+| 2026-10-07 candidate | Our state on `9b4572f4` |
+|---|---|
+| P2 swipe tail in pre-gen windows | **fixed**: `runtime/settledWindow.ts` (`swipePending`, `settledLastIndex`) feeds lore select, scene read, talk |
+| P3 OOC read-only turns | **built**: `engine/ooc.ts` (wrapped `((…))` + `OOC:` marker), used by `extraction/chatRows.ts:20` (window drops OOC lines), curator input, widgets, agenda tick `life_turn_ooc` (commit `77429afc`) |
+| P1 near-dup metric | **still open**: curator create shipped (`878b9424`) with trigram Jaccard ≥ 0.85 (`stagecraft/createCandidate.ts:6,101-106`), the exact pair TV measured as never firing on reworded duplicates (`5bbac2c`) |
+| P5 constant entries, P6 foreign-writer check, P7 origin stamp | still open (`grep -i "constant\|tunnelvision" src/stagecraft src/runtime/checks*.ts` = warden read only) |
+
+### New patterns from the open PRs
+
+| # | PR / head | Pattern | Our state | Verdict |
+|---|---|---|---|---|
+| Q1 | #55 `14f403e` | Two background writers resolved their target book without the read-only check every explicit tool passes; in a two-book setup the post-turn processor wrote into the read-only book (`post-turn-processor.js:239,1368`). Lesson: a permission enforced per call site is lost at the next call site | we guard at the write edge (`curatorWriter.ts:66,77,177` `isCuratorWritable`), but nothing lists the lorebook writers: curator, memory mirror, wizard provisioning, gating normaliser (`coordinatorHosts.ts:33-53`, `copilotCoordinator.ts:167`) | **take**: a census guard like the message-DOM one (`architecture.test.ts:98-104`) |
+| Q2 | #50 `ce9096d` `c6ffaf3` `69fe312` | "Two correct guards combined into a gap": a re-entrancy flag dropped a swipe that arrived mid-run, and the run's origin check then discarded its own writes, so the turn kept no memory. Fix: one pending slot drained after the run, origin re-checked right before the write, `regenerate` kept apart from `swipe` because only swipe gets a revert pass (`turn-classification.js` on pr50, `sidecar-writer.js:1417`) | we queue, never drop (`extraction/scheduler.ts:471-525`), and every writer re-checks its `RunToken` before each write | confirms design; **take a jest case**: a swipe during an in-flight read still gets its own P0 read and the stale one writes nothing |
+| Q3 | #60 `57f056d` | ST emits `WORLDINFO_UPDATED` from `_save` (`world-info.js:4160`) **before** `createNewWorldInfo` refreshes `world_names` (`:4462-4463`), and the lorebook selects emit nothing, so a listener reading the book list sees the old one; TV refreshes on the select `change` and `CHARACTER_EDITED` | `requirementsWatch.ts` listens to `WORLDINFO_SETTINGS_UPDATED` (emitted only at `world-info.js:5842,6228`), not to a create or an import. A required book created or imported in ST's own UI likely stays red until the next `GENERATION_STARTED` | **verify, then take** (S) |
+| Q4 | #60 `3c6c56a` | ST renders extension HTML templates through Handlebars, whose missing-helper hook resolves `{{char}}` in help text | n/a (React UI) | host fact only |
+| Q5 | #25 `2844407` | strip tools on swipe generations; manual `/tv-commit` writer | `/cp extract` exists; tool turns are v2.7 15 | no |
+| Q6 | #56 `c64352f` | an entry module with a top-level `await init()` crashed every test that imported a sibling transitively; split the pure helpers out | present lesson (`saveEvidence.ts` / `saveEvidenceHost.ts`, gotchas) | no |
+| Q7 | #51 `ea37bc8` | a mobile `@media` block placed before its base rules lost 33 declarations to source order | Tailwind emits variants after base utilities; our hand-written `.st-*` rules are not audited for it | no (note) |
+| Q8 | #59, #61 | ingest hidden (`is_system`) messages on request; one-click "create chat lorebook" offering the card's books read-only | we never mutate or hide chat; Presence-hidden rows are a known gap (gotchas) | no |
+
+### A gap the stamp idea (P7) exposes
+
+Curator patches and creates land in the story's `stagecraft.lorebooks`, which are shared by every chat that plays the
+story. The record of a created entry lives only in that chat's `extras.stagecraft.created`. Delete the chat and the
+entry stays in the shared book with nothing pointing at it (the mirror reaper covers mirror books only). Not verified
+live; a content stamp (`{{// so:created <chatId>:<boundary>}}`, stripped before any prompt like `so:protect`) makes
+those entries findable from the book itself, and the reaper could then offer to remove them.
+
+### Ranked (value / cost / risk)
+
+| Rank | Idea | Value | Cost | Risk | Why |
+|---|---|---|---|---|---|
+| 1 | P1 near-dup on meaning: ST vectors bands (0.82 / 0.55, already used by consolidation) else trigram at a threshold declared on the fixture before a run; card offers "patch X instead" | 5 | S | low | curator create is live in the pod round (M17); a reworded twin passes today |
+| 2 | P7 + gap: `so:created` stamp on applied creates; reaper offers to remove stamped entries of deleted chats | 4 | S–M | low | created entries outlive their chat in a shared book |
+| 3 | Q1 lorebook-writer census guard | 3 | S | none | cheap; pins "every WI write goes through its guard" the way the DOM census pins DOM writes |
+| 4 | P6 foreign background writer check: a story book TunnelVision manages → `degrades` finding (scan suppression + rewrites that can drop `so:protect` markers) | 3 | S | low | the most common co-installed lore writer; we detect none |
+| 5 | P5 constant entries: a curator op on a `constant` entry waits for review even in `auto` | 3 | S | low (author decision) | a constant entry is in every prompt, so an unreviewed rewrite costs the most |
+| 6 | Q3 refresh requirements on a book create/import | 2 | S | low | verify first |
+| 7 | Q2 swipe-during-read jest case | 2 | S | none | test only |
+| 8 | P13 re-injection cooldown for lore select | 3 | M | medium | belongs to plan 21 (A12) |
+
+Rows 1–7 are added to `32-queue.md` §Features as A15–A21, **proposed, need owner pick**; row 8 stays with A12.
+
+---
+
+## 2026-10-07 pass
 
 ## Pins
 

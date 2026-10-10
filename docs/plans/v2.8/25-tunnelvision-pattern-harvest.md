@@ -135,3 +135,12 @@ No model calls, no lane, no pod.
 - Found during the run (proposals, see report): our create near-dup check is the exact metric/threshold mismatch TV
   fixed (`createCandidate.ts:5`, trigram 0.85); our pre-generation window likely includes the swiped reply
   (`runtime/index.ts:129-135`), needs a jest case.
+
+**2026-10-10 re-run (owner approval, queue A14; docs only, worktree `so-tunnelvision`, branch `v2.8-tunnelvision`).**
+
+- Upstream `main` unchanged at `a01d7ee`; TheLibrarian unchanged at `c012a0f`. Open PRs #25 #50 #51 #55 #56 #59 #60 #61
+  fetched read-only into the corpus clone as local branches `pr<n>` and read (overrides decision 3: with `main` frozen
+  they are the only new code). ST re-checked at `ad29cbda6` (2026-10-03).
+- Our side since 2026-10-07: P2 fixed (`runtime/settledWindow.ts`), P3 built (`engine/ooc.ts`), curator create built
+  with the P1 metric unchanged.
+- Report §Re-run 2026-10-10: 8 PR patterns (Q1–Q8), ranked list; queue rows A15–A21 added as proposals.
