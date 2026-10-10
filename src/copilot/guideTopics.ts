@@ -293,6 +293,14 @@ export const GUIDE_TOPICS = {
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
       + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
   },
+  living: {
+    title: "Living stories",
+    fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
+    text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
+      + "when play reaches the last written anchor (authored_until in a hybrid), the story director writes the next one (liv_<n>, a stub before it, at most 2 new qualities, "
+      + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
+      + "A branch (liv_b<n>) follows a player who leaves every exit and rejoins the next anchor. Save as story keeps reached turning points only.",
+  },
 } as const satisfies Record<string, GuideTopic>;
 
 export type GuideTopicId = keyof typeof GUIDE_TOPICS;

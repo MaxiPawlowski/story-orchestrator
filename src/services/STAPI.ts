@@ -66,6 +66,7 @@ export {
   listGlobalLorebooks,
   readLoreBindings,
   listGroupMembers,
+  listGroupMemberNames,
   listMutedGroupMembers,
   listLorebookComments,
   listPersonas,

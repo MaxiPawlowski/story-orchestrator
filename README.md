@@ -92,6 +92,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Playing | Journal | A movable panel with your quests and a log of what happened, for stories that keep quests. |  |
 | Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills or a board of quests. |  |
+| Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |
@@ -112,6 +113,8 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
 | World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
+| World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
+| World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |

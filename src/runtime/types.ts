@@ -51,6 +51,8 @@ import type { PresenceView } from "./presence";
 import type { EffectsRuntimeState } from "./effectTypes";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
 import type { AgendaProposalsState, MeanwhileAcceptMode } from "./agendaProposals";
+import type { LivingRuntimeState } from "@generation/living/types";
+import type { LivingView } from "./livingSnapshot";
 import type { GameAuthorView, GameView } from "./gameTypes";
 import type { LifeAuthorView } from "./lifeSnapshot";
 
@@ -128,6 +130,8 @@ export interface StagecraftSettings {
   wardenAcceptMode: StagecraftAcceptMode;
   agencyAcceptMode?: StagecraftAcceptMode;
   meanwhileAcceptMode?: MeanwhileAcceptMode;
+  livingEnabled?: boolean;
+  branchingEnabled?: boolean;
   createEnabled: boolean;
   createRequireMeasured: boolean;
 }
@@ -171,6 +175,7 @@ export interface RuntimeExtras {
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
   agendaProposals?: AgendaProposalsState;
+  living?: LivingRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
@@ -560,6 +565,7 @@ export interface RuntimeSnapshot {
   game?: GameView | null;
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;
+  living?: LivingView | null;
 }
 
 export interface LoadedStory {

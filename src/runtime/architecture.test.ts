@@ -167,6 +167,17 @@ describe("architecture guards", () => {
     });
   });
 
+  it("keeps the living director away from the blackboard and memory, like stagecraft (v2.8 22)", () => {
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    const isolated = [...walk(join(SRC, "generation/living")), join(SRC, "runtime/coordinators/livingCoordinator.ts"), join(SRC, "runtime/livingUnit.ts")];
+    const leaks = (source: string) => ({
+      offenders: [...source.matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]).filter((specifier) => /@memory|@services|STAPI|coordinators\/memory|coordinators\/extraction/.test(specifier)),
+      writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(|\.blackboard\.set\w*\(|setQuality\(/g)].map((match) => match[0]),
+    });
+    for (const path of isolated) expect({ path: relative(path), ...leaks(readFileSync(path, "utf8")) }).toEqual({ path: relative(path), offenders: [], writes: [] });
+    expect(leaks('import { addMemoryEntries } from "@memory/index";\nengine.enqueue({});')).toEqual({ offenders: ["@memory/index"], writes: ["enqueue("] });
+  });
+
   it("lets only the declared writer write the continuity note (v2.2 plan 05)", () => {
     const spec = INJECTION_REGISTRY.continuityNote;
     const declared = `${spec.writer}.ts`;

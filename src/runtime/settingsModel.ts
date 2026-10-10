@@ -190,7 +190,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
@@ -287,6 +287,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       meanwhileAcceptMode: isRecord(value.stagecraft) && isMeanwhileAcceptMode(value.stagecraft.meanwhileAcceptMode)
         ? value.stagecraft.meanwhileAcceptMode
         : defaults.stagecraft.meanwhileAcceptMode,
+      livingEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.livingEnabled === "boolean" ? value.stagecraft.livingEnabled : defaults.stagecraft.livingEnabled,
+      branchingEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.branchingEnabled === "boolean"
+        ? value.stagecraft.branchingEnabled : defaults.stagecraft.branchingEnabled,
       createEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.createEnabled === "boolean" ? value.stagecraft.createEnabled : defaults.stagecraft.createEnabled,
       createRequireMeasured: isRecord(value.stagecraft) && typeof value.stagecraft.createRequireMeasured === "boolean"
         ? value.stagecraft.createRequireMeasured : defaults.stagecraft.createRequireMeasured,

@@ -109,6 +109,8 @@
       "wardenAcceptMode": "review",
       "agencyAcceptMode": "auto",
       "meanwhileAcceptMode": "auto",
+      "livingEnabled": true,
+      "branchingEnabled": true,
       "createEnabled": true,
       "createRequireMeasured": false
     },
@@ -135,7 +137,8 @@
         "loreExclusive": true,
         "expressions": true,
         "attentionCheck": true,
-        "wardenVoice": true
+        "wardenVoice": true,
+        "divergence": true
       },
       "expansion": {
         "variants": 1,
@@ -162,6 +165,7 @@
         "expressions": "typesafe",
         "attentionCheck": "typesafe",
         "wardenVoice": "typesafe",
+        "divergence": "typesafe",
         "warden": "typesafe"
       }
     },

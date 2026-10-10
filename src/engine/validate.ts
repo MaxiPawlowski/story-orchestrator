@@ -14,6 +14,7 @@ import { indexCardFields, validateCardEffects } from "./cardFields";
 import { checkStretches } from "./validate/stretch";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer } from "./validate/gameLayer";
+import { checkLiving, livingOpening, needsLivingOpening, readLiving } from "./validate/living";
 
 export { readChapters };
 
@@ -103,7 +104,9 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const layer = gameLayer();
   if (!layer && usesGameLayer(json)) return [{ path: "$", message: GAME_LAYER_LOADING }];
 
-  const checkpoints = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
+  const living = readLiving(json.living, errors);
+  const authoredCheckpoints = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
+  const checkpoints = living && needsLivingOpening(living, authoredCheckpoints) ? [livingOpening(living, json.chapters), ...authoredCheckpoints] : authoredCheckpoints;
   const baseQualities = readList(json.qualities, "qualities", readQuality, errors);
   const transitions = readList(json.transitions, "transitions", readTransition, errors);
   const quests = layer?.readQuests(json.quests, errors);
@@ -140,6 +143,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
   layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
   const widgets = layer?.readWidgets(json.widgets, qualityByKey, qualities, errors);
+  checkLiving(living, checkpointById, roster, qualityByKey, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 
@@ -174,6 +178,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(widgets ? { widgets } : {}),
     ...(life?.clock ? { clock: life.clock } : {}),
     ...(life ? { life } : {}),
+    ...(living ? { living } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

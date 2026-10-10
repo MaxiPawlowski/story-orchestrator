@@ -518,6 +518,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
+    this.co.living.adopt(saved ? "hydrate" : "activate");
     reconcileEffectLedgerInto(this.extras.effects, (note) => this.noteRecap(note, "")); await this.playerSetup.autoResolve(); this.notify();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
       stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));

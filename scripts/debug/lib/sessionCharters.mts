@@ -7,7 +7,7 @@ export const RUBRIC_SCORES = ['works', 'annoying', 'broken', 'not-noticed'] as c
 export const STORY_KINDS = ['adolion', 'wizard', 'example'] as const;
 export const JUDGE_USES = [
   'director', 'memoryVerify', 'memoryPairs', 'sceneTrigger', 'sceneTracker', 'lookahead', 'loreSelect', 'curatorFilter', 'typedExtraction',
-  'stallCheck', 'expansionCritic', 'expansionLookahead', 'agencyCheck', 'houseRules', 'wardenLore', 'loreExclusive', 'expressions', 'attentionCheck', 'wardenVoice',
+  'stallCheck', 'expansionCritic', 'expansionLookahead', 'agencyCheck', 'houseRules', 'wardenLore', 'loreExclusive', 'expressions', 'attentionCheck', 'wardenVoice', 'divergence',
 ] as const;
 export const SETTING_KEYS = ['judge', 'inlineLevel', 'images', 'sprites', 'innerHarvest', 'innerBeat', 'chapters', 'curator', 'announceTransitions', 'viewport', 'raw'] as const;
 export const USER_REVIEW = 'recorded for the user\'s review';

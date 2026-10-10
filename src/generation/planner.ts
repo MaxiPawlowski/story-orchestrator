@@ -29,6 +29,14 @@ export function findFirstReachableAnchor(story: NormalizedStoryV2, checkpointId:
   return null;
 }
 
+export function findStubExpansionCandidates(story: NormalizedStoryV2, sourceCheckpointId: string): StubExpansionCandidate[] {
+  return (story.outgoingByCheckpoint[sourceCheckpointId] ?? []).flatMap((transition) => {
+    if (!isStubCheckpoint(story, transition.to)) return [];
+    const targetAnchorId = findFirstReachableAnchor(story, transition.to);
+    return targetAnchorId ? [{ sourceCheckpointId, stubId: transition.to, targetAnchorId, transition }] : [];
+  });
+}
+
 export function findStubExpansionCandidate(story: NormalizedStoryV2, sourceCheckpointId: string): StubExpansionCandidate | null {
   for (const transition of story.outgoingByCheckpoint[sourceCheckpointId] ?? []) {
     if (!isStubCheckpoint(story, transition.to)) continue;

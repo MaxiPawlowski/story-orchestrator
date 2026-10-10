@@ -488,7 +488,38 @@ export interface StoryV2 {
   milestones?: Milestone[];
   widgets?: StoryWidget[];
   clock?: StoryClock;
+  living?: StoryLiving;
 }
+
+export const LIVING_PREFIX = "liv_";
+export const LIVING_OPENING_ID = "liv_open";
+export const LIVING_AUTONOMY = ["suggest", "auto"] as const;
+export type LivingAutonomy = (typeof LIVING_AUTONOMY)[number];
+export const LIVING_ENDING_MODES = ["open", "director-proposes"] as const;
+export type LivingEndingMode = (typeof LIVING_ENDING_MODES)[number];
+export type LivingEnding = LivingEndingMode | { when: GateNode };
+export const LIVING_HORIZON_MAX = 3;
+export const LIVING_CHAPTER_SIZE_MAX = 12;
+export const LIVING_PREMISE_MAX_CHARS = 2000;
+export const LIVING_TONE_MAX_CHARS = 200;
+export const LIVING_OPENING_MAX_CHARS = 600;
+export const LIVING_MAX_NAME_CHARS = 60;
+export const LIVING_MAX_OBJECTIVE_CHARS = 400;
+export const DEFAULT_LIVING_CHAPTER_SIZE: [number, number] = [3, 5];
+
+export interface StoryLiving {
+  premise: string;
+  tone?: string;
+  cast?: string[];
+  horizon?: number;
+  chapter_size?: [number, number];
+  ending?: LivingEnding;
+  autonomy?: LivingAutonomy;
+  authored_until?: string;
+  opening?: string;
+}
+
+export const isLivingId = (id: string): boolean => id.startsWith(LIVING_PREFIX);
 
 export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];

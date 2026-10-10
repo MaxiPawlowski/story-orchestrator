@@ -47,6 +47,15 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    id: "living-apply",
+    order: 8,
+    run: ({ result, manager }) => {
+      void manager.living.applyAccepted({ boundary: result.boundary, messageId: result.context.lastMessageId })
+        .then(() => manager.living.compact())
+        .catch((error) => log.warn("living story apply failed", error));
+    },
+  },
+  {
     id: "scheduler-tick",
     order: 10,
     run: ({ result, scheduler }) => {
@@ -179,6 +188,14 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     when: ({ result, manager }) => Boolean(result.fired) && manager.meanwhile.due(result.boundary),
     run: ({ manager, scheduler }) => {
       manager.meanwhile.schedule("checkpoint", (job) => scheduler.schedule(job));
+    },
+  },
+  {
+    id: "living-director",
+    order: 67,
+    when: ({ manager }) => manager.living.due(),
+    run: ({ manager, scheduler }) => {
+      manager.living.schedule((job) => scheduler.schedule(job));
     },
   },
   {

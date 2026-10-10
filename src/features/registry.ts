@@ -4,6 +4,7 @@ import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
 import { LIFE_FEATURES } from "./lifeFeatures";
+import { LIVING_FEATURES } from "./livingFeatures";
 import { START_FEATURES } from "./startFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
@@ -68,7 +69,8 @@ const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLo
 const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   director: "characters", expressions: "images", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
-  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters", wardenVoice: "characters",
+  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters",
+  wardenVoice: "characters", divergence: "authoring",
 };
 
 const AUTHOR_FACING_USES: readonly JudgeUseKey[] = ["lookahead", "curatorFilter"];
@@ -447,7 +449,7 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

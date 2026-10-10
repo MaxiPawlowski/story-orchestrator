@@ -1,4 +1,4 @@
-import { agencyClauses, agencyForCheckpoint, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
+import { agencyClauses, agencyForCheckpoint, isLivingId, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
 import { gatePins } from "./paths";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
@@ -18,6 +18,11 @@ const storyContext = (story: NormalizedStoryV2): string[] => {
   ];
 };
 
+const livingStubLine = (story: NormalizedStoryV2, stubId: string): string[] => {
+  const stub = story.checkpointById[stubId];
+  return stub && isLivingId(stubId) ? [`This stretch follows what the player is doing: "${stub.name}" — ${stub.objective}. Let the beats follow that before they reach the target anchor.`] : [];
+};
+
 export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput): string {
   const target = story.checkpointById[input.candidate.targetAnchorId];
   const threshold = target ? thresholdFor(target) : 1;
@@ -31,6 +36,7 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
     `Generate scaffolding only. Do not write prose scenes.`,
     `Source checkpoint: ${checkpointLine(story, input.candidate.sourceCheckpointId)}`,
     `Stub: ${input.candidate.stubId}`,
+    ...livingStubLine(story, input.candidate.stubId),
     `Target anchor: ${checkpointLine(story, input.candidate.targetAnchorId)}`,
     `Write beats that carry the story from the source checkpoint to the target anchor's situation. Each beat's objective and guidance set up a situation ` +
       `for the cast to play; name only the cast above or people the facts already establish.`,
