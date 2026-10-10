@@ -155,7 +155,7 @@ export class SpriteStage {
 
   private publishHealth(): void {
     const chatId = spriteCast().chatId;
-    const issues = changedLookIssues(this.manager.getStory(), this.manager.getSnapshot().blackboard, this.settings(), spritesActive(this.activation()), this.actors);
+    const issues = changedLookIssues(this.manager.getStory(), this.manager.getCachedSnapshot().blackboard, this.settings(), spritesActive(this.activation()), this.actors);
     const looks = publishSpriteLookIssues(chatId, issues);
     const stage = publishSpriteStageHealth(chatId, {
       builtInExpressions: this.ready() && this.actors.length > 0 && spriteBuiltInExpressionsActive(),
@@ -247,7 +247,7 @@ export class SpriteStage {
   private lookKey = "";
 
   private lookStamp(): string {
-    const story = this.manager.getStory(), values = this.manager.getSnapshot().blackboard;
+    const story = this.manager.getStory(), values = this.manager.getCachedSnapshot().blackboard;
     return story?.cardFieldByQuality ? JSON.stringify(Object.entries(story.cardFieldByQuality).filter(([, field]) => field.visual).map(([key]) => [key, values[key]])) : "";
   }
 
@@ -259,7 +259,7 @@ export class SpriteStage {
 
   private direction(): StageDirection | null {
     const story = this.manager.getStory();
-    const id = this.manager.getSnapshot().activeCheckpointId;
+    const id = this.manager.getCachedSnapshot().activeCheckpointId;
     const effects = id ? story?.checkpointById[id]?.effects : undefined;
     return isRecord(effects) ? readStageDirection(effects.stage) : null;
   }
@@ -269,7 +269,7 @@ export class SpriteStage {
   }
 
   private place(): { location: string | null; checkpoint: string | null } {
-    const snapshot = this.manager.getSnapshot();
+    const snapshot = this.manager.getCachedSnapshot();
     const location = snapshot.blackboard?.location;
     return { location: typeof location === "string" ? location : null, checkpoint: snapshot.activeCheckpointId };
   }
@@ -299,7 +299,7 @@ export class SpriteStage {
   private chooseSets(text?: string): boolean {
     const place = this.place();
     const story = this.manager.getStory();
-    const values = this.manager.getSnapshot().blackboard;
+    const values = this.manager.getCachedSnapshot().blackboard;
     const key = `${place.location}|${place.checkpoint}`;
     const moved = key !== this.placeKey;
     this.placeKey = key;
@@ -353,7 +353,7 @@ export class SpriteStage {
     if (!story || !this.settings().onDemand) return;
     const member = story.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
     if (!member) return;
-    const fields = cardValues(story, this.manager.getSnapshot().blackboard, member.id, true);
+    const fields = cardValues(story, this.manager.getCachedSnapshot().blackboard, member.id, true);
     if (!Object.keys(fields).length || cardSet(actor.rules, fields)) return;
     if (!this.looks) {
       const ticket = this.loading;
@@ -364,11 +364,11 @@ export class SpriteStage {
       });
       return;
     }
-    const stamp = JSON.stringify(fields), label = actor.desiredLabel, storyId = this.manager.getSnapshot().storyId;
+    const stamp = JSON.stringify(fields), label = actor.desiredLabel, storyId = this.manager.getCachedSnapshot().storyId;
     if (actor.generatedLook === stamp && actor.set.startsWith("look_") && actor.packs.get(actor.set)?.has(label)) return;
     this.looks.request({ folder: actor.profile.folder, member: member.id, label, fields,
-      accepts: () => this.actors.includes(actor) && this.settings().onDemand && this.manager.getSnapshot().storyId === storyId
-        && JSON.stringify(cardValues(story, this.manager.getSnapshot().blackboard, member.id, true)) === stamp,
+      accepts: () => this.actors.includes(actor) && this.settings().onDemand && this.manager.getCachedSnapshot().storyId === storyId
+        && JSON.stringify(cardValues(story, this.manager.getCachedSnapshot().blackboard, member.id, true)) === stamp,
       apply: (set, files, frames) => { if (applyLookResult(actor, { set, label, stamp, files, frames })) this.notify(); },
       failed: (reason) => { actor.lookError = reason; this.notify(); },
     });

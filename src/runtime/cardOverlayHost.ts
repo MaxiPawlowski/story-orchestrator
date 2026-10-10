@@ -7,7 +7,7 @@ export function startCardOverlay(manager: RuntimeManager): () => void {
   let previous = "";
   const spec = INJECTION_REGISTRY.cardOverlay;
   const update = () => {
-    const snapshot = manager.getSnapshot();
+    const snapshot = manager.getCachedSnapshot();
     const story = manager.getStory();
     const enabled = new Set(manager.getEnabledCharacterIds());
     const rows = story && snapshot.ready && manager.getGlobalSettings().sprites.cardOverlay

@@ -43,7 +43,7 @@ export const startScene = (live: LiveParts, disposers: Disposers, judgeRuntime: 
     setScene: (record) => runtimeManager.recordSceneRead(record),
     inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
     applied: () => readInjectedPromptBlocks().find((block) => block.key === tracker.key)?.value ?? null,
-    withheldFields: () => sceneFieldsInConflict(runtimeManager.getSnapshot().memory.conflicts),
+    withheldFields: () => sceneFieldsInConflict(runtimeManager.getCachedSnapshot().memory.conflicts),
     journal: (summary, note) => runtimeManager.noteRecap(summary, note),
   });
   live.scene = scene;

@@ -94,6 +94,7 @@ const ownership: RunOwnership = {
 let stage = { framing: "thigh", cast: {} as Record<string, unknown> } as Record<string, unknown> | null;
 let settings: SpriteSettings = { ...defaultSpriteSettings(), enabled: true, explicit: true };
 let judgeAnswers: Record<string, unknown> | null = null;
+let snapshotBuilds = 0;
 
 const manager = {
   getGlobalSettings: () => ({
@@ -104,7 +105,8 @@ const manager = {
     checkpoints: [{ id: "cp1", effects: stage ? { stage } : {} }],
     checkpointById: { cp1: { id: "cp1", effects: stage ? { stage } : {} } },
   }),
-  getSnapshot: () => ({ activeCheckpointId: "cp1", blackboard: {} }),
+  getSnapshot: () => { snapshotBuilds += 1; return { activeCheckpointId: "cp1", blackboard: {} }; },
+  getCachedSnapshot: () => ({ activeCheckpointId: "cp1", blackboard: {} }),
   subscribe: (listener: () => void) => { storyListeners.push(listener); return () => {}; },
   getJudge: () => (judgeAnswers ? { ask: async () => ({ answers: judgeAnswers }) } : null),
   touch: () => undefined,
@@ -499,5 +501,19 @@ describe("sprite stage: missing sprites and the expression record", () => {
       .toEqual({ source: "llm", segments: 1, thinking: "enable_thinking=false", steps: [["llm", true]] });
     expect(face(sprites, "Ellie")).toBe("sad");
     expect(classify).not.toHaveBeenCalled();
+  });
+});
+
+describe("F17: the stage reads the shared snapshot, never builds its own", () => {
+  it("a streamed reply and a boundary build no snapshot of their own", async () => {
+    snapshotBuilds = 0;
+    await started();
+    emit("GROUP_MEMBER_DRAFTED", 0);
+    chat.push({ name: "Ellie", mes: REPLY });
+    for (let token = 0; token < 5; token += 1) emit("STREAM_TOKEN_RECEIVED", REPLY);
+    void emit("CHARACTER_MESSAGE_RENDERED", 0, "normal");
+    storyListeners.forEach((listener) => listener());
+    await flush();
+    expect(snapshotBuilds).toBe(0);
   });
 });

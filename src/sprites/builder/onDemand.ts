@@ -70,7 +70,7 @@ export class OnDemandLooks {
       const settings = this.manager.getGlobalSettings().sprites;
       const config = settings.builders[request.folder];
       if (!config || !settings.onDemand) throw new Error("Choose an expression reference pack in Studio before enabling on-demand look edits.");
-      const story = this.manager.getSnapshot().storyId;
+      const story = this.manager.getCachedSnapshot().storyId;
       if (!story) return;
       const discovery = await comfyDiscover(run.signal);
       const problems = recipeProblems(discovery, config.models);
