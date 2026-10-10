@@ -357,6 +357,11 @@ export class StoryEngine {
   // started after them (lastMessageId 7 over a chat of 1).
   // A queued write read the chat as it was. A mutation at or before the end of its read window changed
   // what it read, and a rollback that restores nothing never reaches `rollbackTo`'s flush.
+  discardPendingUnknown(): ApplyQueueEntry[] {
+    const story = this.requireStory();
+    return this.queue.discardUnknown((key) => Boolean(story.qualityByKey[key]));
+  }
+
   discardPendingFrom(messageId: number): ApplyQueueEntry[] {
     return Number.isFinite(messageId) ? this.queue.discardReadingFrom(messageId) : [];
   }

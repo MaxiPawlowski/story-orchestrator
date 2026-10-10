@@ -118,6 +118,13 @@ export function listGroupMembers(): string[] {
   return uniq(group.members.flatMap((member) => [memberStem(member), trim(characters.find((character) => character.avatar === member)?.name ?? "")]).filter(Boolean));
 }
 
+export function listGroupMemberNames(): string[] {
+  const group = activeGroupEntry();
+  if (!group) return [];
+  const characters = getContext().characters ?? [];
+  return uniq(group.members.map((member) => trim(characters.find((character) => character.avatar === member)?.name ?? "") || memberStem(member)).filter(Boolean));
+}
+
 export function listMutedGroupMembers(): string[] {
   const group = activeGroupEntry();
   if (!group) return [];

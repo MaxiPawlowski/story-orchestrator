@@ -1,5 +1,5 @@
 {
-  "$comment": "v2.3 plan 11 §Fault matrix. Seventeen stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8; v2.4 plan 05 added `wiEvidence`, v2.5 plan 01 `wiNormalize`, v2.6 plans 06/04/07 `inner`, `harnessTransport`, `agentBridge` and `chapterSeal`, v2.8 11 `curatorCreate`), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
+  "$comment": "v2.3 plan 11 §Fault matrix. Eighteen stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8; v2.4 plan 05 added `wiEvidence`, v2.5 plan 01 `wiNormalize`, v2.6 plans 06/04/07 `inner`, `harnessTransport`, `agentBridge` and `chapterSeal`, v2.8 11 `curatorCreate`, v2.8 22 `livingDirector`), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
   "cells": {
     "extraction|delayedSuccess": {
       "status": "covered",
@@ -710,6 +710,56 @@
     "curatorCreate|afterHostWrite": {"status": "covered", "evidence": "src/runtime/coordinators/curatorCreate.review.test.ts#a create interrupted after its write-ahead save is settled on reload by title: landed -> applied, absent -> written next boundary", "note": "A create whose host write landed but whose record did not is settled applied with its uid on reload; one that never landed goes back to accepted."},
     "curatorCreate|persistFailure": {"status": "na", "note": "As the stagecraft row: the create path performs no persist of its own; it writes its extras slice (proposals, the created ledger) and asks the manager to save, which the persistence package covers."},
     "curatorCreate|worldSwitched": {"status": "covered", "evidence": "src/runtime/coordinators/curatorCreate.review.test.ts#a rollback that outlives its chat deletes nothing", "note": "The created-entry revert: a rollback whose chat changes during the compare-and-set read deletes nothing from the shared lorebook. The pass itself is discarded the same way (a pass whose chat changed while the model answered is discarded and writes nothing)."},
-    "curatorCreate|aborted": {"status": "partial", "evidence": "src/runtime/coordinators/curatorCreate.review.test.ts#the lore call carries the chat's epoch signal, so a switch cancels the request", "note": "The Lore-creation call carries the epoch signal (asserted); the cancel itself is the transport's, covered by the stagecraft aborted row, and the discard after a switch by the pass-discard test."}
+    "curatorCreate|aborted": {"status": "partial", "evidence": "src/runtime/coordinators/curatorCreate.review.test.ts#the lore call carries the chat's epoch signal, so a switch cancels the request", "note": "The Lore-creation call carries the epoch signal (asserted); the cancel itself is the transport's, covered by the stagecraft aborted row, and the discard after a switch by the pass-discard test."},
+    "livingDirector|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#applies an accepted turning point at the next boundary",
+      "note": "The director's answer lands after the lazy unit and the model call, is recorded in its own chat and applied at the next boundary."
+    },
+    "livingDirector|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#a director call that fails writes nothing, rethrows for the breaker and leaves the story ready to ask again",
+      "note": "A failing call writes no proposal, rethrows (the scheduler's breaker sees transport failures, as for expansion) and clears the in-flight flag so the next boundary asks again."
+    },
+    "livingDirector|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#a malformed answer, twice, is recorded as a failed pass with its reasons and changes nothing",
+      "alsoEvidence": ["src/generation/living/living.test.ts#refuses an unknown reused value, a bad tension, a macro and an over-long name"],
+      "note": "The strict parser refuses the answer, one repair is asked with the reasons, and a second refusal is a failed pass in Author view; the graph is unchanged."
+    },
+    "livingDirector|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#a second apply at the same boundary writes nothing more",
+      "note": "Applying is keyed by the proposal status: an applied proposal is never applied again."
+    },
+    "livingDirector|backendUnavailable": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#a director call that fails writes nothing, rethrows for the breaker and leaves the story ready to ask again",
+      "note": "Same path as a delayed error: nothing written and rethrown; the role's failover and breaker are the model call's own (modelCall tests), not re-proven here."
+    },
+    "livingDirector|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#discards an answer built for a graph a rollback replaced, and withdraws a waiting card",
+      "note": "The director writes no host state; its write is the chat's graph. An answer built for a graph epoch that a rollback or an author update replaced is discarded before it is recorded, and an accepted one is re-checked against the current graph at the boundary."
+    },
+    "livingDirector|afterHostWrite": {
+      "status": "na",
+      "note": "No host write: the ops log and the rebuilt pinned copy live in the chat metadata, saved by the manager's persist (persistence package)."
+    },
+    "livingDirector|persistFailure": {
+      "status": "na",
+      "note": "As the stagecraft row: the director performs no persist of its own; it writes its extras slice and asks the manager to save, which the persistence package covers."
+    },
+    "livingDirector|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#discards an answer that lands after the chat moved",
+      "alsoEvidence": ["src/runtime/coordinators/livingCoordinator.review.test.ts#drops a divergence reading that lands after the chat moved", "src/runtime/coordinators/livingCoordinator.review.test.ts#saves nothing when the chat moved before the unit loaded"],
+      "note": "Every async unit mints a RunGuard before its await and writes nothing when the chat moved."
+    },
+    "livingDirector|aborted": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/livingCoordinator.review.test.ts#the director call carries the run's abort signal",
+      "note": "The call carries the run's signal (asserted); the cancel itself is the transport's, covered by the stagecraft aborted row."
+    }
   }
 }

@@ -34,6 +34,7 @@ export interface RollbackDeps {
   /** The expansion cache is built from the blackboard, which the rollback just restored. */
   revalidateExpansion: () => unknown;
   restoreExpansion: (boundary: number) => unknown;
+  restoreLiving?: (boundary: number) => unknown;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
   reapplyCheckpoint: (messageId: number) => Promise<void>;
@@ -148,6 +149,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const outcome = engine.rollbackTo(boundary);
   if (!outcome.ok) return unavailable(outcome.oldest);
   if (outcome.result !== "applied") return outcome;
+  deps.restoreLiving?.(engine.serialize().boundary);
   deps.notices.rollbackUnavailable = null;
   const current = deps.context();
   const window = getChatWindow(engine.serialize().checkpointStartedMessageId, current.lastMessageId);

@@ -1,7 +1,8 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { EXPANSION_CONTRACT } from "@generation/types";
 import { collectExpansionGateSources, insertedCheckpointIds, mergeExpansions } from "@generation/merge";
-import { findStubExpansionCandidate, planExpansion } from "@generation/planner";
+import { findStubExpansionCandidate, findStubExpansionCandidates, planExpansion } from "@generation/planner";
+import { isLivingId } from "@engine/index";
 import { revalidateExpansion } from "@generation/revalidate";
 import type { ExpansionCacheEntry, ExpansionRuntimeState, PlannedExpansionInput, StubExpansionCandidate } from "@generation/types";
 import { isSceneStale, LOOKAHEAD_PREGEN_P, type SceneReadRecord } from "@judge/index";
@@ -120,6 +121,12 @@ export class ExpansionCoordinator {
     if (changed) this.rebuildMergedStory();
   }
 
+  pruneMissing(story: NormalizedStoryV2): number {
+    const missing = Object.entries(this.entries).filter(([, entry]) => [entry.sourceCheckpointId, entry.stubId, entry.targetAnchorId].some((id) => !story.checkpointById[id]));
+    missing.forEach(([key]) => { delete this.entries[key]; this.liveJobs.delete(key); });
+    return missing.length;
+  }
+
   restoreStaledAfter(boundary: number): number {
     const restored = Object.entries(this.entries).filter(([, entry]) => entry.status === "stale" && entry.staledAt && entry.staledAt.boundary > boundary);
     restored.forEach(([key, { staledAt, ...entry }]) => {
@@ -158,6 +165,9 @@ export class ExpansionCoordinator {
     if (!story || !state) return false;
     const candidate = findStubExpansionCandidate(story, state.activeCheckpointId);
     const queued = candidate ? this.queue(candidate, "active", schedule) : false;
+    findStubExpansionCandidates(story, state.activeCheckpointId)
+      .filter((branch) => branch.stubId !== candidate?.stubId && isLivingId(branch.stubId))
+      .forEach((branch) => this.queue(branch, "active", schedule));
     this.scheduleLookahead(story, schedule);
     return queued;
   }

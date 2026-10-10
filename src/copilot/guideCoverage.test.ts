@@ -11,7 +11,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scene_read: "scene-read", lore_select: "lore-select", house_rules: "house-rules",
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
-  widgets: "widgets", clock: "character-life",
+  widgets: "widgets", clock: "character-life", living: "living-director",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -59,11 +59,11 @@ describe("v2.8 09 owner 2026-10-10: every authorable field has a readGuide topic
   });
 
   it("covers the newer authorable features by their own topic", () => {
-    for (const id of ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "chapters", "character-life", "living-cards"]) expect(Object.hasOwn(GUIDE_TOPICS, id)).toBe(true);
+    for (const id of ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "chapters", "character-life", "living-cards", "living-director", "branching"]) expect(Object.hasOwn(GUIDE_TOPICS, id)).toBe(true);
   });
 
   it("keeps a pending topic name reserved until its feature lands, then it must leave the pending list", () => {
     expect(Object.keys(PENDING_GUIDE_TOPICS).filter((id) => Object.hasOwn(GUIDE_TOPICS, id))).toEqual([]);
-    expect(readGuide("living-director")).toContain("not in this build yet");
+    expect(readGuide("living-director")).toContain("the story director writes the next one");
   });
 });

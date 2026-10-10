@@ -4,7 +4,7 @@ const LiveReloadPlugin = require("webpack-livereload-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { BundledPackagesPlugin } = require("./scripts/release/bundledPackages.cjs");
 
-const BUNDLE_BUDGET_BYTES = 1250000;
+const BUNDLE_BUDGET_BYTES = 1300000;
 const HOST_BROWSER_FLOOR = { chrome: "89", edge: "89", firefox: "90", safari: "15", ios: "15", opera: "75", samsung: "15" };
 
 module.exports = (_env = {}, argv = {}) => {

@@ -190,7 +190,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
@@ -230,6 +230,13 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
 const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   const source = isRecord(value) ? value : {};
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain) };
+};
+
+const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
+
+const livingFlags = (value: unknown): Record<(typeof LIVING_FLAGS)[number], boolean> => {
+  const stored = isRecord(value) ? value : {};
+  return Object.fromEntries(LIVING_FLAGS.map((key) => [key, typeof stored[key] === "boolean" ? stored[key] : true])) as Record<(typeof LIVING_FLAGS)[number], boolean>;
 };
 
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
@@ -287,6 +294,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       meanwhileAcceptMode: isRecord(value.stagecraft) && isMeanwhileAcceptMode(value.stagecraft.meanwhileAcceptMode)
         ? value.stagecraft.meanwhileAcceptMode
         : defaults.stagecraft.meanwhileAcceptMode,
+      ...livingFlags(value.stagecraft),
       createEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.createEnabled === "boolean" ? value.stagecraft.createEnabled : defaults.stagecraft.createEnabled,
       createRequireMeasured: isRecord(value.stagecraft) && typeof value.stagecraft.createRequireMeasured === "boolean"
         ? value.stagecraft.createRequireMeasured : defaults.stagecraft.createRequireMeasured,

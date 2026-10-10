@@ -23,7 +23,7 @@ export const TOPIC_GROUPS = [
   ["What the story tracks", ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"]],
   ["Scenes", ["checkpoints", "objective-agency", "open-stretches", "tension", "opening-scene"]],
   ["What a scene changes", ["guidance", "author-note", "world-info", "preset", "background", "scenario", "cast-changes", "npc-replies", "experimental-effects"]],
-  ["Moving between scenes", ["gates", "transitions", "convergence", "arc-bridges"]],
+  ["Moving between scenes", ["gates", "transitions", "convergence", "arc-bridges", "branching", "living-director"]],
   ["Lore and memory", ["stagecraft", "lore-select", "scene-read", "house-rules", "chapters"]],
   ["Game layer and display", ["presentation", "quests", "checks", "widgets", "clues-and-maps", "html-panels"]],
 ];

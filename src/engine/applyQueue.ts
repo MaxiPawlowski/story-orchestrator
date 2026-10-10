@@ -58,6 +58,16 @@ export class ApplyQueue {
     return stale;
   }
 
+  discardUnknown(known: (key: string) => boolean): ApplyQueueEntry[] {
+    const discarded: ApplyQueueEntry[] = [];
+    this.entries = this.entries.flatMap((entry) => {
+      const [kept, dropped] = splitEntry(entry, (delta) => known(delta.q));
+      if (dropped) discarded.push(dropped);
+      return kept ? [kept] : [];
+    });
+    return discarded;
+  }
+
   flush(): ApplyQueueEntry[] {
     const pending = this.entries;
     this.entries = [];

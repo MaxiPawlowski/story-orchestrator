@@ -4,6 +4,11 @@ import { REPAIR_PLAYER_COPY } from "@runtime/pipeline";
 import { playingLine, playingStory } from "@runtime/playingStory";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { ContinueList } from "./ContinueList";
+import type { LivingStartFields } from "./LivingStart";
+import { lazyRetry } from "@utils/lazyRetry";
+import { Lazy } from "@components/Lazy";
+
+const LivingStart = lazyRetry(() => import("./LivingStart"));
 
 export interface EntryPointsProps {
   snapshot: RuntimeSnapshot;
@@ -23,6 +28,7 @@ export interface EntryPointsProps {
   onOpenGroup?(): void;
   onOpenPlay?(row: ContinueRow): void;
   gettingStarted?: React.ReactNode;
+  onStartLiving?(fields: LivingStartFields): Promise<boolean>;
 }
 
 export const WIZARD_OFF_REASON = "Turn on the wizard under Authoring first.";
@@ -63,6 +69,7 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
 export default function EntryPoints(props: EntryPointsProps) {
   const {
     snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay, gettingStarted,
+    onStartLiving,
   } = props;
   const repair = viewerRepairStep(snapshot);
   const playing = playingStory(snapshot);
@@ -85,6 +92,7 @@ export default function EntryPoints(props: EntryPointsProps) {
           <button id="so-entry-import-toggle" type="button" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
         </div>
         <div className="text-xs opacity-70">{wizardOn ? "Build a story with the wizard, or bring your own JSON." : `Bring your own JSON. ${WIZARD_OFF_REASON}`}</div>
+        {onStartLiving && <Lazy fallback={null}><LivingStart busy={busy} onStart={onStartLiving} /></Lazy>}
         {gettingStarted}
       </Row>
       <Row title="Continue">

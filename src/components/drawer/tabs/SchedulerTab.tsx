@@ -4,6 +4,8 @@ import StagecraftPanel from "../StagecraftPanel";
 import ChaptersPanel from "../ChaptersPanel";
 import ModelCallsPanel from "../ModelCallsPanel";
 import InnerVoicePanel from "../InnerVoicePanel";
+import type { LivingActions } from "../LivingPanel";
+import { lazyRetry } from "@utils/lazyRetry";
 import { MessageCitation } from "../MessageCitation";
 
 const TALK_SOURCE_LABELS: Record<string, string> = {
@@ -76,6 +78,15 @@ const AuthorMovesPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   </div>
 );
 
+const LivingPanel = lazyRetry(() => import("../LivingPanel"));
+
+const livingActions = (manager: RuntimeManager): LivingActions => ({
+  decide: (id, status, edit) => manager.living.decide(id, status, edit),
+  regenerate: (id) => manager.living.regenerate(id),
+  runNow: () => manager.living.propose(),
+  save: (includeUnreached) => manager.living.saveAsStory({ includeUnreached }),
+});
+
 const takeAlternate = (manager: RuntimeManager, alternate: string | null | undefined) => (alternate ? manager.activateCheckpoint(alternate) : undefined);
 
 const percent = (value: number) => Math.round(value * 100);
@@ -88,6 +99,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
   <div className="flex flex-col gap-3">
     <AuthorMovesPanel snapshot={snapshot} />
     <ChaptersPanel snapshot={snapshot} manager={manager} />
+    {snapshot.living?.author ? <LivingPanel view={snapshot.living.author} canSave={snapshot.living.canSave} actions={livingActions(manager)} /> : null}
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />
     <InnerVoicePanel snapshot={snapshot} />

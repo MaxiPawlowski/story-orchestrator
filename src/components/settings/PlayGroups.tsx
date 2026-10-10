@@ -163,6 +163,12 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
           <option value="off">Do not propose</option>
         </select>
       </div>
+      <CheckRow id="so-living-enabled" setting="stagecraft.livingEnabled" checked={snapshot.stagecraft.settings.livingEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ livingEnabled: on })} />
+      <CheckRow id="so-branching-enabled" setting="stagecraft.branchingEnabled" checked={snapshot.stagecraft.settings.branchingEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ branchingEnabled: on })} />
+      <CheckRow id="so-prefetch-enabled" setting="stagecraft.prefetchEnabled" checked={snapshot.stagecraft.settings.prefetchEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ prefetchEnabled: on })} />
     </div>
   );
 };

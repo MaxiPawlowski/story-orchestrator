@@ -864,6 +864,42 @@
     "src/runtime/vectorYield.ts#yieldingVectorHost.vectorQuery": {
       "status": "local",
       "note": "F-B1c-2 (2026-10-09): waits for the judge to go quiet, then forwards the read to the host query; holds no state."
+    },
+    "src/generation/living/direct.ts#runDirector": {
+      "status": "local",
+      "note": "v2.8 22 (2026-10-10): `settleFinal` builds the returned draft from the parsed answer; nothing outside the return value is written. The living coordinator owns the write edge (LivingCoordinator.record is checked)."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.record": {
+      "status": "checked",
+      "note": "v2.8 22 (2026-10-10): the director's write edge. Receives the RunGuard its caller minted before the model call and returns before any write when it lapsed; then refuses an answer built on another graph epoch (a rollback or an author update in between), writes the proposal ring and the divergence state, journals, persists, and re-checks the run before notify. Cases: livingCoordinator.review.test.ts \"discards an answer that lands after the chat moved\" and \"discards an answer built for a graph a rollback replaced\"."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.propose": {
+      "status": "delegate",
+      "note": "v2.8 22: awaits LivingCoordinator.record, which owns the check; it mints the run before the lazy unit and the model call and hands it on. The only other write after the await is the in-memory inFlight flag in `finally`."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.proposeBranch": {
+      "status": "delegate",
+      "note": "v2.8 22 (divergence branching): awaits LivingCoordinator.record, which owns the check; same shape as propose. The only other write after the await is the in-memory inFlight flag in `finally`."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.checkDivergence": {
+      "status": "checked",
+      "note": "v2.8 22 (divergence branching): mints a RunGuard before the judge question and writes the divergence state only when the run still owns the chat and the active checkpoint is the one it asked about. Case: livingCoordinator.review.test.ts \"drops a divergence reading that lands after the chat moved\"."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.decide": {
+      "status": "checked",
+      "note": "v2.8 22: the author decision is written before the only await (persist); notify after it is re-checked against the run."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.applyAccepted": {
+      "status": "checked",
+      "note": "v2.8 22: boundary work living-apply. Mints the run first; the ops log, the proposal statuses and the rebuilt graph (setPlayedRaw, synchronous) are written before the only await (persist); notify after it is re-checked. Case: livingCoordinator.review.test.ts \"applies an accepted turning point at the next boundary\"."
+    },
+    "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.saveAsStory": {
+      "status": "checked",
+      "note": "v2.8 22: awaits only the lazy unit, then re-checks the run before projecting and writing the library record. Case: livingCoordinator.review.test.ts \"saves nothing when the chat moved before the unit loaded\"."
+    },
+    "src/runtime/livingPort.ts#LivingPort.afterBoundary": {
+      "status": "delegate",
+      "note": "v2.8 22 (bundle split): awaits LivingCoordinator.checkDivergence, which owns the check (after loading the lazy coordinator). The writes after the awaits only place scheduler jobs (`schedule`, `prefetch`); each job mints its own run when it starts (LivingCoordinator.propose / proposeBranch delegate to LivingCoordinator.record, checked). Case: livingPort.test.ts \"adopt loads the coordinator once; the boundary pass schedules, checks divergence only when nothing fired, then prefetches\"."
     }
   }
 }

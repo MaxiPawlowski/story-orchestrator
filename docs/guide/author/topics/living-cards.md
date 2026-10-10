@@ -13,4 +13,4 @@ Fields: `roster[].card` and `player.card` (`fields`, each `{quality, visual}`), 
 
 ---
 
-[Author's guide](../README.md) · previous: [Character life](character-life.md) · next: [Good practices and traps](../good-practices.md)
+[Author's guide](../README.md) · previous: [Branches that follow the player](branching.md) · next: [Good practices and traps](../good-practices.md)

@@ -190,6 +190,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onRepairCast={host.repairCast}
             onOpenGroup={host.openGroup}
             onOpenPlay={host.openPlay}
+            onStartLiving={snapshot.stagecraft.settings.livingEnabled === false ? undefined : async (fields) => manager.importStory(JSON.stringify(await manager.livingStory(fields)))}
             gettingStarted={<Lazy fallback={null}><GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} /></Lazy>}
           />

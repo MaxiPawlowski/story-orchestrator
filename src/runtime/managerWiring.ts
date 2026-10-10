@@ -31,6 +31,7 @@ import { createGamePort } from "./gamePort";
 import { landedMeanwhile } from "./agendaProposals";
 import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
+import { wireLiving } from "./livingWiring";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -96,6 +97,12 @@ export function wireCoordinators(port: ManagerPort) {
     },
     beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
   };
+  const refusing = () => {
+    const loaded = port.loaded();
+    const state = loaded ? engine.serialize() : null;
+    const turns = playerTurnIds(view.hosts.chat.chatRows());
+    return agencyRecovery(loaded?.story ?? null, state, loaded ? engine.stateLog : [], port.extras().extraction.audits, turns);
+  };
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({
     ...view,
     getStoryRaw: () => port.loaded()?.record.raw,
@@ -105,12 +112,7 @@ export function wireCoordinators(port: ManagerPort) {
     replaceStory: (story) => port.replaceStory(story),
     judge: () => port.judge(),
     getSceneRead: () => port.extras().judge.scene,
-    refusing: () => {
-      const loaded = port.loaded();
-      const state = loaded ? engine.serialize() : null;
-      const turns = playerTurnIds(view.hosts.chat.chatRows());
-      return agencyRecovery(loaded?.story ?? null, state, loaded ? engine.stateLog : [], port.extras().extraction.audits, turns) !== null;
-    },
+    refusing: () => refusing() !== null,
     setStatus: (status) => port.setStatus(status),
     ...lifecycle,
   });
@@ -179,17 +181,21 @@ export function wireCoordinators(port: ManagerPort) {
     ...view, extras: port.extras, ownership: lifecycle.ownership, updateInjection: () => memory.updateInjection(),
     journal: (summary, note) => port.journal("author", summary, note), persist: lifecycle.persist, notify: lifecycle.notify,
   });
+  const living = wireLiving({
+    view, lifecycle, engine, loaded: port.loaded, extras: port.extras, memory, expansion, replaceStory: (story) => port.replaceStory(story),
+    refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(),
+  });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
-    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), extras: () => port.extras(),
+    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), restoreLiving: (boundary) => living.restoreAfterRollback(boundary), extras: () => port.extras(),
     persist: lifecycle.persist, notify: lifecycle.notify, setStatus: (status) => port.setStatus(status),
   };
   const storyUpdateDeps: StoryUpdateDeps = {
     ...port.storyUpdate, getLoaded: () => port.loaded(), getState: () => (port.loaded() ? engine.serialize() : null),
     getHistory: () => (port.loaded() ? engine.serializeHistory() : null),
-    mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership,
+    mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership, living,
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps };
 }

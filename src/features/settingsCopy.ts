@@ -213,6 +213,22 @@ export const SETTING_COPY = {
     "For stories whose characters have plans: when the story moves on or a scene ends, the memory model proposes one short thing a character did off stage toward that plan. "
       + "Automatically: each one is accepted at once and reaches only that character at the next reply. I accept each one: it waits for you in Author view. Do not propose: no calls are made.",
   ),
+  "stagecraft.livingEnabled": copy(
+    "Living stories write ahead",
+    "For a story with a living premise: when play reaches its last written turning point, the story director writes the next one from the premise, the canon and "
+      + "the threads you opened. It never writes behind you or into memory, and a swipe takes back what a reply led to. Off: a living story stops at its last turning point.",
+  ),
+  "stagecraft.branchingEnabled": copy(
+    "Branch when the player goes off script",
+    "When what you do fits none of a turning point's ways forward (you refused them twice, or the judge says so twice in a row), the story director writes a short "
+      + "branch that follows you and rejoins the story further on. At most one branch per turning point; a swipe takes it back.",
+  ),
+  "stagecraft.prefetchEnabled": copy(
+    "Prepare one more way forward",
+    "When you reach a turning point that has ways forward, the story director writes one more way out of it in the background, before you need it, so going "
+      + "off script finds a road already there. Only for the turning point you are at, never further ahead, and it counts as that turning point's one branch. "
+      + "Needs branching on.",
+  ),
   "stagecraft.createEnabled": copy(
     "New lorebook entries",
     "The curator may also propose a NEW keyed entry for a person, place, group or thing that at least two established facts name and no entry covers yet. "
