@@ -84,7 +84,7 @@ test('status reports the key source, never the key', async () => {
     await plugin.createHandlers({ accountsEnabled: false, env: {}, now: () => 0 }).status({}, res);
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
-        limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 480, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 },
+        limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 1200, accountPerMinute: 1200, tokensPerSecond: 250_000, accountTokensPerSecond: 250_000 },
         adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
         refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
         served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {}, cancelled: 0 },
@@ -276,7 +276,7 @@ test('T0: the per-minute limit and in-flight cap come from the env, so N lanes c
     assert.equal(calls.total, 3);
     const status = fakeResponse();
     await handlers.status({}, status.res);
-    assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 });
+    assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3, accountPerMinute: 1200, tokensPerSecond: 250_000, accountTokensPerSecond: 250_000 });
 });
 
 test('T1-6: a call queued behind two in flight waits for a slot, and is refused only when none frees within the wait', async () => {
@@ -373,11 +373,14 @@ test('2026-10-02 limits: the documented 1,200/min account is the ceiling across 
 
 test('2026-10-02 limits: input tokens per second are a guard too, estimated from the request size, and a lone request over the budget still passes', async () => {
     let clock = 0;
-    const acquire = plugin.createLimiter({ tokensPerSecond: 1_000, accountTokensPerSecond: 1_500, maxInFlight: 8, now: () => clock });
+    const slept = [];
+    const sleep = async (ms) => { slept.push(ms); clock += ms; };
+    const acquire = plugin.createLimiter({ tokensPerSecond: 1_000, accountTokensPerSecond: 1_500, maxInFlight: 8, queueWaitMs: 500, now: () => clock, sleep });
     assert.equal(typeof (await acquire('u', 600)), 'function');
-    assert.equal(await acquire('u', 600), null, 'over the user\'s tokens in this second');
+    assert.equal(await acquire('u', 600), null, 'over the user\'s tokens in this second, and the window frees later than the wait allows');
     assert.equal(typeof (await acquire('v', 800)), 'function', 'another user has its own share');
     assert.equal(await acquire('w', 200), null, 'the account second is spent (600 + 800 + 200 > 1,500)');
+    assert.deepEqual(slept, [], 'a wait past the budget is refused at once, never slept');
     clock = 1_000;
     assert.equal(typeof (await acquire('u', 5_000)), 'function', 'alone in its window, an oversized request is not starved');
     assert.equal(plugin.estimateInputTokens({ state: { text: 'x'.repeat(3_488) } }), Math.ceil(JSON.stringify({ state: { text: 'x'.repeat(3_488) } }).length / 3.488));
@@ -718,4 +721,64 @@ test('F-B1c-2: a page that closes during the 600 ms busy retry gets no second up
     await call.done;
     assert.equal(upstream, 1);
     assert.equal(call.out.body, undefined);
+});
+
+test('F9: a burst over the per-user token second is paced inside the wait, not refused (C3 3090: every 429 was ours)', async () => {
+    let clock = 0;
+    const slept = [];
+    const sleep = async (ms) => { slept.push(ms); clock += ms; };
+    let refused = 0;
+    const acquire = plugin.createLimiter({ maxInFlight: 8, now: () => clock, sleep, onRefuse: () => { refused += 1; } });
+    const costs = [19_400, 19_400, 19_400, 19_400, 19_400, 18_000, 2_400, 1_700];
+    const granted = await Promise.all(costs.map((cost) => acquire('default-user', cost)));
+    assert.equal(granted.filter((release) => typeof release === 'function').length, costs.length);
+    assert.equal(refused, 0);
+    assert.ok(slept.length > 0 && Math.max(...slept) <= 1_000, `paced within one token window (${slept.join(', ')} ms)`);
+});
+
+test('F9 control: a wait past the queue budget is still refused with its Retry-After', async () => {
+    let clock = 0;
+    const sleep = async (ms) => { clock += ms; };
+    let retryAfter = null;
+    const acquire = plugin.createLimiter({ maxInFlight: 8, perMinute: 2, now: () => clock, sleep, onRefuse: (seconds) => { retryAfter = seconds; } });
+    assert.equal(typeof (await acquire('u')), 'function');
+    assert.equal(typeof (await acquire('u')), 'function');
+    assert.equal(await acquire('u'), null, 'the minute window frees in 60 s, past the 2 s wait');
+    assert.equal(retryAfter, 60);
+});
+
+test('F9: a page that closes while its call is paced frees the slot and is not refused', async () => {
+    let clock = 0;
+    let refused = 0;
+    const controller = new AbortController();
+    const sleep = async () => { controller.abort(); };
+    const acquire = plugin.createLimiter({ maxInFlight: 1, tokensPerSecond: 1_000, now: () => clock, sleep, onRefuse: () => { refused += 1; } });
+    const first = await acquire('u', 900);
+    first();
+    assert.equal(await acquire('u', 900, controller.signal), null);
+    assert.equal(refused, 0);
+    clock = 1_000;
+    assert.equal(typeof (await acquire('u', 900)), 'function', 'the slot was handed back');
+});
+
+test('F9: with SillyTavern user accounts off there is one user, so the per-user share is the whole account', async () => {
+    assert.deepEqual(plugin.limitsFromEnv({}, { users: 1 }), { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 1200, accountPerMinute: 1200, tokensPerSecond: 250_000, accountTokensPerSecond: 250_000 });
+    assert.equal(plugin.limitsFromEnv({ SO_JUDGE_ACCOUNT_TOKENS_PER_SEC: '83333' }, { users: 1 }).tokensPerSecond, 83_333, 'a lane keeps its share of the account');
+    assert.equal(plugin.limitsFromEnv({}).tokensPerSecond, 100_000, 'control: the default still assumes five users');
+    const single = fakeResponse();
+    await plugin.createHandlers({ accountsEnabled: false, env: {} }).status({}, single.res);
+    assert.equal(single.out.body.limits.tokensPerSecond, 250_000);
+    const shared = fakeResponse();
+    await plugin.createHandlers({ accountsEnabled: true, env: {} }).status({}, shared.res);
+    assert.equal(shared.out.body.limits.tokensPerSecond, 100_000);
+});
+
+test('F9: four lore-sized requests in one second through the handler all reach TypeSafe, the fourth paced', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-pace';
+    const { calls, fetchImpl } = countingFetch();
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, env: { SO_JUDGE_ACCOUNT_TOKENS_PER_SEC: '60000', SO_JUDGE_MAX_IN_FLIGHT: '8' } });
+    const lore = (index) => ({ state: { transcript: [{ speaker: 'Max', text: 'hello' }] }, questions: { [`e:${index}`]: { type: 'noul', instructions: `Entry ${index}: ${'x'.repeat(68_000)}` } } });
+    const codes = await Promise.all([0, 1, 2, 3].map(async (index) => { const out = fakeResponse(); await handlers.receive(pageRequest(lore(index)), out.res); return out.out.statusCode; }));
+    assert.deepEqual(codes, [200, 200, 200, 200]);
+    assert.equal(calls.total, 4);
 });

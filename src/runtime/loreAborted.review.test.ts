@@ -42,7 +42,7 @@ function harness(onAsk: (world: { switchChat(): void }) => Answer, onEntries: (w
   const forced: unknown[][] = [];
   let asked = 0;
   const selector = new LoreSelector({
-    judge: () => ({ active: () => true, ask: async () => { asked += 1; return onAsk(world); } }) as never,
+    judge: () => ({ active: () => true, coolingFor: () => 0, ask: async () => { asked += 1; return onAsk(world); } }) as never,
     getStory: () => story,
     getState: () => state,
     getWindow: () => [{ speaker: "Player", text: "We enter." }],
@@ -99,7 +99,7 @@ test("AE04-L1: a selection whose chat moved while the host was read is not cache
 
 test("AE04-L1: a judge call that did not answer is not cached as an empty pick, so the same message asks again", async () => {
   let calls = 0;
-  const h = harness(() => { calls += 1; return calls === 1 ? { answers: null, model: null, fallback: "timeout" } : picksTheVault(); });
+  const h = harness(() => { calls += 1; return calls === 1 ? { answers: null, model: null, fallback: "error" } : picksTheVault(); });
   expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [] });
   expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [{ uid: 1 }] });
   expect(h.asked()).toBe(2);
