@@ -11,6 +11,7 @@ import { ProfileOptions } from "@components/settings/ProfileOptions";
 import { comfyDiscover } from "@services/stHost/media";
 import { FAMILIES } from "./catalog";
 import GpuBrokerLine from "./GpuBrokerLine";
+import ModelSources from "./ModelSources";
 
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
@@ -145,6 +146,9 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             <FieldLabel htmlFor={routeId("negative")} setting="image.purposes.*.extraNegative" />
             <input id={routeId("negative")} className="text_pole" value={entry.extraNegative} onChange={(event) => route(selectedPurpose, { extraNegative: event.target.value })} />
           </fieldset>
+        </Advanced>
+        <Advanced id="so-image-model-sources" label="Model sources (Civitai, Hugging Face)">
+          <ModelSources />
         </Advanced>
         <Advanced id="so-image-cast" label="Fallback character looks">
           <p className="text-xs opacity-80">Used when the story has not described how this character looks.</p>

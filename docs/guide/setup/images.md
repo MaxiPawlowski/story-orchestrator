@@ -39,8 +39,8 @@ media plugin for owned render jobs and sprite edits:
 Restart SillyTavern after installation. The plugin talks to the ComfyUI address set in ST's Image Generation settings;
 a `comfyUrl` in the plugin's `config.json` overrides it, and without either it uses ComfyUI's default
 `http://127.0.0.1:8188`. The same file holds the model roots used for fingerprints. See
-`server-plugin/story-orchestrator-media/README.md`. Reuse your existing model folders; the plugin does not copy, move or
-download model weights. Without the plugin this route draws nothing, and Setup says so.
+`server-plugin/story-orchestrator-media/README.md`. Reuse your existing model folders; the plugin never copies or moves
+model weights, and downloads one only when you confirm it (below). Without the plugin this route draws nothing, and Setup says so.
 
 ### Picking models
 
@@ -63,6 +63,35 @@ Models known to work with these recipes, if you need one (download them yourself
 
 Hires uses an installed upscaler: the only one installed, else the only one with "anime" in its name; otherwise
 hires is refused with a reason. Embeddings a recipe names are dropped when ComfyUI does not have them.
+
+## Downloading models (Civitai, Hugging Face)
+
+With the media plugin installed, **Images → Image service → Model sources** downloads a model you are missing into
+your own model folders. It is admin-only, because it writes to the server's disk.
+
+1. Save a **Civitai token** and/or a **Hugging Face token** (needed for many Civitai files and for gated Hugging
+   Face repositories). They go into SillyTavern's secrets; the page only shows "set" or "not set" afterwards, and
+   **Test** asks the provider whether it accepts the token. The Hugging Face slot is SillyTavern's own, shared with its
+   other Hugging Face features.
+2. Enter a Civitai model version (its version number from the link, or the whole link) or a Hugging Face repository
+   and file, then **Check**. The card shows the file, its size, the source, a license link, an adult-content flag when
+   the source sets one, the folder it goes into and the free space there.
+3. Press **Download**. Progress shows below; **Stop** keeps the partial file, and the next download of the same file
+   resumes from it.
+
+What it never does: download on its own (not on import, not at a story start, not from a wizard step); download a file
+whose source gives no SHA256; write outside a folder you configured; overwrite a file of the same name; or send your
+token to any host other than the provider's own. Only `.safetensors` and `.gguf` are downloaded (`.ckpt`, `.pt` and
+`.bin` can run code when loaded; an admin can allow them with `downloads.allowPickle`).
+
+**Free space.** A download is refused when the folder's drive does not have the file's size plus a 2 GiB margin
+free, with the numbers in the message (`downloads.freeMarginBytes` changes the margin). It is checked when you open
+the card and again before and during the download.
+
+**Folders.** The plugin's `config.json` `modelRoots` names the folders per kind: `checkpoints`, `loras`,
+`upscaleModels`, `embeddings`, `vaes`, `diffusionModels`, `textEncoders`, `textModels`. Point them at the folders your
+ComfyUI already reads (its `extra_model_paths.yaml`), so a downloaded model shows up after **Discover installed image
+models**. A kind with no folder is refused; no default folder is assumed.
 
 ## GPU sharing (advanced, optional)
 

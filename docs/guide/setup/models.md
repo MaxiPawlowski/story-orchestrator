@@ -23,6 +23,9 @@ add a cloud profile: [Memory model](memory-model.md#use-a-cloud-model-for-a-task
 their defaults. You lose speed (every read competes with the next reply), some accuracy on reads and summaries, and
 the wizard's reliability; without the judge plugin its uses take their ordinary, slower paths.
 
+**Image models** are files, not connections: a missing checkpoint or LoRA can be downloaded from Civitai or Hugging
+Face into your model folders, verified by SHA256, after you confirm a card ([Illustrations](images.md#downloading-models-civitai-hugging-face)).
+
 ## What we tested on
 
 The extension was battle-tested on **TheDrummer's Artemis 31B v1.1**, GGUF Q4_K_M on llama.cpp's `llama-server`,

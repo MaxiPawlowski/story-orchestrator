@@ -127,3 +127,47 @@ ST `src/endpoints/secrets.js`; `docs/plans/v2.7/17-self-contained-images.md`; v2
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Owner decisions to confirm (2026-10-10, build)
+
+Owner approval 2026-10-10 (queue A11); each open decision took the plan's recommendation, recorded for the owner to
+confirm: (1) both providers in the first cut; (2) admin-only downloads (resolve/plan/download/cancel/jobs/test-key;
+"keys set?" is readable by any signed-in user); (3) a file with no source SHA256 is refused (Hugging Face non-LFS
+files included); (4) keys from ST secrets only, per user, no env/dotenv; (5) pickle formats refused unless
+`downloads.allowPickle`; (6) ST's own `api_key_huggingface` slot reused, Civitai in `so_civitai_token`.
+
+Changed from §D after the coordinator's message (2026-10-10): the owner wants dynamically loaded models on the fast
+disk (`C:/dev/models`, which ComfyUI's `extra_model_paths.yaml` already reads), and C: is nearly full. So no code or
+config rule refuses C:; instead every download checks the target drive's free space (`fs.statfs`) against the file
+plus a 2 GiB margin, at the card, before the transfer and every GiB when the size is unknown, and refuses with the
+numbers. Nothing was downloaded tonight. To confirm.
+
+Also decided while building, to confirm: Civitai CDN redirects are allowed only to `*.civitai.com` and Civitai's
+`civitai-delivery-worker-prod.*.r2.cloudflarestorage.com` bucket, Hugging Face to `*.huggingface.co` / `*.hf.co`;
+"already present" checks the target name (same size + SHA256), not every file under every root; the Repair-row entry
+point is not built (the main bundle sits at 1,249,994 of 1,250,000 bytes); the download form lives in Images →
+Image service → Model sources, which is lazy.
+
+## Gate record (2026-10-10, branch `v2.8-media-stack`)
+
+As built:
+- `server-plugin/story-orchestrator-media/downloads.mjs`: reference parsing (no URL or path), Civitai
+  `model-versions/{id}` and Hugging Face `HEAD …/resolve/…` resolvers, format and name checks, host allowlist,
+  plan cards (folder from `modelRoots[kind]`, present/conflict, free space), a per-user queue, `.part` + sidecar,
+  `Range` resume, full SHA256 verify, `link` into place (never overwrite), key test (`/api/v1/me`,
+  `/api/whoami-v2`). `downloadRoutes.mjs`: admin-only routes, body allowlists. `index.mjs`: keys via ST's
+  `secrets.js` `readSecret`.
+- Page: `stHost/modelDownloads.ts` (key write through ST's `writeSecret`, never read back), `src/image/ModelSources.tsx`
+  + `downloadCopy.ts` (cards, progress, Stop), inside Images → Image service → Model sources; catalog `Lora.hf` ref.
+- Docs: `setup/images.md` "Downloading models", `setup/models.md` pointer, media plugin README, registry
+  `model-downloads` (experimental).
+
+Gates: `npm run gates -- --no-storybook --jobs 2` all green (test 7446 passed / 1 skipped; test:plugin 213/213 incl.
+11 new download tests; test:release 119/119; typecheck:test, lint, build, test:debug, test:replay green). Storybook
+skipped; stories to run: `Settings/ModelSources` (3), `Settings/ImageGroup`. Download tests run against fake
+providers only: planted-key grep over every response and log line, signed-URL grep, path containment, redirect host
+policy (token only to the provider host), resume with `Range` honoured and ignored, SHA256 mismatch deletes `.part`,
+free-space refusal, pickle refusal, never-overwrite, admin-only 403, no URL/path accepted, ST-secrets-only keys.
+
+Not run: LI (one small real file per provider, interrupted and resumed, ×2) — needs a token from the owner and room
+on the target drive; nothing was downloaded. Open.

@@ -41,7 +41,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 |
 | A9 | GPU broker in the ST plugin | 28, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI/LT open |
 | A10 | Image workflows in stories | 29, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI open |
-| A11 | Model downloads (Civitai, Hugging Face) | 30, D8 (needs approval) |
+| A11 | Model downloads (Civitai, Hugging Face) | 30, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI open (needs a token; nothing downloaded) |
 | A12 | Smart-context harvest (E0 first, offline) | 21, D3 |
 | A13 | Inner voice L5 spike | v2.7 20, D3 |
 | A14 | TunnelVision pattern harvest (report) | 25, D9 (needs approval) |

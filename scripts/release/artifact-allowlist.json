@@ -38,6 +38,8 @@
     "server-plugin/story-orchestrator-media/jobs.mjs",
     "server-plugin/story-orchestrator-media/comfyTarget.mjs",
     "server-plugin/story-orchestrator-media/files.mjs",
+    "server-plugin/story-orchestrator-media/downloads.mjs",
+    "server-plugin/story-orchestrator-media/downloadRoutes.mjs",
     "server-plugin/story-orchestrator-media/package.json",
     "server-plugin/story-orchestrator-media/README.md",
     "server-plugin/story-orchestrator-harness/agentBridge.mjs",
