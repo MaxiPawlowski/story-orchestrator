@@ -1,4 +1,4 @@
-import type { QualityDisplayAs, QuestStatus, WidgetAccent, WidgetAudience, WidgetIcon } from "@engine/index";
+import type { QualityDisplayAs, QuestStatus, WidgetAccent, WidgetAudience, WidgetDrawerTab, WidgetIcon } from "@engine/index";
 
 export type QuestLane = Exclude<QuestStatus, "hidden">;
 
@@ -40,6 +40,7 @@ export interface SheetItemView {
   min?: number;
   max?: number;
   trend?: Trend;
+  changedAgo?: number;
 }
 
 export interface SheetGroupView {
@@ -89,9 +90,35 @@ export interface PinView {
   action?: string;
 }
 
+export interface RollHint {
+  label: string;
+  dice: string;
+  target: number;
+}
+
 export interface IntentView {
   id: string;
   text: string;
+  open?: WidgetDrawerTab;
+  roll?: RollHint;
+}
+
+export interface RosterRowView {
+  name: string;
+  status: string;
+  changedAgo?: number;
+}
+
+export interface TimelineStopView {
+  name: string;
+  date?: string;
+  here: boolean;
+  fresh: boolean;
+}
+
+export interface TimelineChapterView {
+  title: string | null;
+  stops: TimelineStopView[];
 }
 
 export type WidgetBody =
@@ -101,8 +128,10 @@ export type WidgetBody =
   | { kind: "meters"; groups: SheetGroupView[] }
   | { kind: "track"; main: MainLineView | null; quests: QuestView[] }
   | { kind: "log"; rows: LogRowView[] }
-  | { kind: "clock"; label: string; filled: number; segments: number; full: boolean }
-  | { kind: "board"; lanes: BoardLane[] };
+  | { kind: "clock"; label: string; filled: number; segments: number; full: boolean; changedAgo?: number }
+  | { kind: "board"; lanes: BoardLane[] }
+  | { kind: "roster"; rows: RosterRowView[] }
+  | { kind: "timeline"; chapters: TimelineChapterView[] };
 
 export interface WidgetView {
   id: string;
@@ -111,7 +140,19 @@ export interface WidgetView {
   synthesized: boolean;
   accent?: WidgetAccent;
   icon?: WidgetIcon;
+  actions?: IntentView[];
+  still?: true;
   body: WidgetBody;
+}
+
+export type ProvenanceWriter = "reader" | "story" | "author";
+
+export interface ProvenanceView {
+  label: string;
+  key: string;
+  writer?: ProvenanceWriter;
+  boundary?: number;
+  messageId?: number;
 }
 
 export interface GameView {
@@ -129,4 +170,5 @@ export interface GameAuthorView {
   quests: Array<{ id: string; title: string; status: QuestStatus }>;
   scopeOverflow: string[];
   widgets: WidgetView[];
+  provenance?: Record<string, ProvenanceView[]>;
 }

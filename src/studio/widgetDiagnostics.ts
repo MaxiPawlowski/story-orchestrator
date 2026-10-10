@@ -29,19 +29,20 @@ export const scopedKeys = (draft: StoryV2): Set<string> => {
   return keys;
 };
 
-const itemGates = (draft: StoryV2) => (draft.widgets ?? []).flatMap((widget, index) => [
-  ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, gate: widget.visible_when, what: `panel '${widget.id}'` }] : []),
-  ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, gate: clue.when, what: `clue '${clue.id}'` })),
-  ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, gate: pin.when, what: `pin '${pin.id}'` }] : [])),
+const itemGates = (draft: StoryV2): Array<{ path: string; keys: string[]; what: string }> => (draft.widgets ?? []).flatMap((widget, index) => [
+  ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, keys: gateKeys(widget.visible_when), what: `panel '${widget.id}'` }] : []),
+  ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: gateKeys(clue.when), what: `clue '${clue.id}'` })),
+  ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, keys: gateKeys(pin.when), what: `pin '${pin.id}'` }] : [])),
+  ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [row.quality, ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
 ]);
 
-export const widgetGateKeys = (draft: StoryV2): Set<string> => new Set(itemGates(draft).flatMap(({ gate }) => gateKeys(gate)));
+export const widgetGateKeys = (draft: StoryV2): Set<string> => new Set(itemGates(draft).flatMap(({ keys }) => keys));
 
 const checkNeverRead = ({ draft, push }: WidgetRun) => {
   const read = scopedKeys(draft);
   const extractor = new Set(draft.qualities.filter((quality) => quality.source === "extractor").map((quality) => quality.key));
-  itemGates(draft).forEach(({ path, gate, what }) => {
-    const unread = gateKeys(gate).filter((key) => extractor.has(key) && !read.has(key));
+  itemGates(draft).forEach(({ path, keys, what }) => {
+    const unread = keys.filter((key) => extractor.has(key) && !read.has(key));
     if (!unread.length) return;
     const names = unread.map((key) => `'${key}'`).join(", ");
     push("widget-item-never-read", "warning", path, `${what} waits for ${names}, which no gate, snapshot, card or quest reads, so it stays at its start value`);

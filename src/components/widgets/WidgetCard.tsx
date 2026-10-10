@@ -1,10 +1,13 @@
 import { useState } from "react";
+import type { WidgetDrawerTab } from "@engine/index";
 import type {
-  BoardLane, ClueLinkView, ClueView, LogRowView, MainLineView, PinView, QuestView, SheetGroupView, SheetItemView, WidgetBody, WidgetView,
+  BoardLane, ClueLinkView, ClueView, IntentView, LogRowView, MainLineView, PinView, ProvenanceView, QuestView, RosterRowView, SheetGroupView, SheetItemView, TimelineChapterView,
+  WidgetBody, WidgetView,
 } from "@runtime/gameTypes";
 import type { WriteResult } from "@utils/writeResult";
+import { requestDrawerTab } from "@runtime/drawerTab";
 import { GAME_TEXT } from "@features/gameCopy";
-import { WIDGET_TEXT } from "@features/widgetCopy";
+import { WIDGET_TEXT, changedAgoText, provenanceText, rollHintText } from "@features/widgetCopy";
 
 const ICON: Record<string, string> = {
   scroll: "fa-scroll", flag: "fa-flag", star: "fa-star", heart: "fa-heart", shield: "fa-shield-halved", hourglass: "fa-hourglass-half", compass: "fa-compass",
@@ -25,6 +28,8 @@ const Boxes = ({ filled, total }: { filled: number; total: number }) => (
   </span>
 );
 
+const Ago = ({ replies }: { replies?: number }) => (replies === undefined ? null : <span data-so="changed-ago" className="text-xs st-muted">{changedAgoText(replies)}</span>);
+
 const SheetItem = ({ item }: { item: SheetItemView }) => {
   const bounded = item.value !== undefined && item.max !== undefined;
   return (
@@ -33,6 +38,7 @@ const SheetItem = ({ item }: { item: SheetItemView }) => {
         <span>{item.label}</span>
         <span className="st-muted text-xs">{item.text}{item.trend ? ` ${TREND[item.trend]}` : ""}</span>
       </div>
+      <Ago replies={item.changedAgo} />
       {bounded && item.as === "meter" && <Bar value={item.value ?? 0} min={item.min} max={item.max ?? 0} />}
       {bounded && item.as === "boxes" && <Boxes filled={(item.value ?? 0) - (item.min ?? 0)} total={(item.max ?? 0) - (item.min ?? 0)} />}
     </li>
@@ -102,10 +108,48 @@ const Log = ({ rows }: { rows: LogRowView[] }) => (
   </ul>
 );
 
-const Clock = ({ label, filled, segments, full }: { label: string; filled: number; segments: number; full: boolean }) => (
-  <div data-so="clock" data-full={full} className="flex items-center gap-2" role="img" aria-label={`${label}: ${filled} of ${segments}`}>
-    <Boxes filled={filled} total={segments} />
-    <span className="text-xs st-muted">{full ? GAME_TEXT.clockFull : `${filled}/${segments}`}</span>
+const Clock = ({ label, filled, segments, full, changedAgo }: { label: string; filled: number; segments: number; full: boolean; changedAgo?: number }) => (
+  <div className="flex flex-col gap-0.5">
+    <div data-so="clock" data-full={full} className="flex items-center gap-2" role="img" aria-label={`${label}: ${filled} of ${segments}`}>
+      <Boxes filled={filled} total={segments} />
+      <span className="text-xs st-muted">{full ? GAME_TEXT.clockFull : `${filled}/${segments}`}</span>
+    </div>
+    <Ago replies={changedAgo} />
+  </div>
+);
+
+const Roster = ({ rows }: { rows: RosterRowView[] }) => (
+  <ul data-so="roster" className="flex flex-col gap-1 list-none p-0 m-0">
+    {rows.map((row, index) => (
+      <li key={index} data-so="roster-row" className="flex flex-col gap-0.5">
+        <div className="flex items-center justify-between gap-2">
+          <span>{row.name}</span>
+          <span className="st-muted text-xs">{row.status}</span>
+        </div>
+        <Ago replies={row.changedAgo} />
+      </li>
+    ))}
+  </ul>
+);
+
+const Timeline = ({ chapters }: { chapters: TimelineChapterView[] }) => (
+  <div data-so="timeline" className="flex flex-col gap-2">
+    {chapters.map((chapter, index) => (
+      <section key={index} data-so="timeline-chapter" aria-label={chapter.title ?? undefined} className="flex flex-col gap-1">
+        {chapter.title && <div className="text-xs font-medium">{chapter.title}</div>}
+        <ol className="flex flex-col gap-0.5 list-none p-0 m-0 text-xs">
+          {chapter.stops.map((stop, at) => (
+            <li key={at} data-so="timeline-stop" data-here={stop.here} data-fresh={stop.fresh} className={`so-game-clue pl-2${stop.fresh ? " so-game-fresh" : ""}`}>
+              <span aria-hidden="true">{stop.here ? "● " : "○ "}</span>
+              <span className={stop.here ? "font-medium" : undefined}>{stop.name}</span>
+              {stop.date && <span className="st-muted"> · {stop.date}</span>}
+              {stop.here && <span className="sr-only"> ({WIDGET_TEXT.timelineHere})</span>}
+              {stop.fresh && <span className="st-muted"> · {WIDGET_TEXT.fresh}</span>}
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
   </div>
 );
 
@@ -121,23 +165,55 @@ const Board = ({ lanes }: { lanes: BoardLane[] }) => (
 );
 
 export type WidgetAction = (text: string) => WriteResult;
+export type WidgetOpen = (tab: WidgetDrawerTab) => WriteResult;
 
-const ActionButton = ({ text, onAction }: { text: string; onAction?: WidgetAction }) => {
+export const drawerOpener = (openDrawer?: () => void): WidgetOpen | undefined => (openDrawer ? (tab) => {
+  openDrawer();
+  requestDrawerTab(tab);
+  return { ok: true };
+} : undefined);
+
+const ActionButton = ({ text, onAction, run, hint, kind = "text", note }: {
+  text: string; onAction?: WidgetAction; run?: () => WriteResult; hint?: string; kind?: "text" | "open" | "roll"; note?: string;
+}) => {
   const [refusal, setRefusal] = useState<string | null>(null);
-  if (!onAction) return null;
+  const act = run ?? (onAction ? () => onAction(text) : null);
+  if (!act) return null;
   return (
     <span className="flex flex-col gap-0.5">
-      <button type="button" data-so="widget-action" className="st-button secondary so-game-action text-xs self-start" title={WIDGET_TEXT.actionHint}
+      <button type="button" data-so="widget-action" data-intent={kind} className="st-button secondary so-game-action text-xs self-start" title={hint ?? WIDGET_TEXT.actionHint}
         onClick={() => {
-          const result = onAction(text);
+          const result = act();
           setRefusal(result.ok ? null : result.reason);
         }}>
-        {text}
+        {kind === "open" && <i className="fa-solid fa-route" aria-hidden="true" />}{kind === "roll" && <i className="fa-solid fa-dice" aria-hidden="true" />} {text}
       </button>
+      {note && <span data-so="widget-roll" className="text-xs st-muted">{note}</span>}
       {refusal && <span role="status" data-so="widget-action-refused" className="text-xs st-muted">{refusal}</span>}
     </span>
   );
 };
+
+export const IntentButtons = ({ intents, onAction, onOpen }: { intents: IntentView[]; onAction?: WidgetAction; onOpen?: WidgetOpen }) => {
+  const shown = intents.filter((intent) => (intent.open ? onOpen : onAction));
+  if (!shown.length) return null;
+  return (
+    <div data-so="widget-intents" className="flex flex-wrap gap-1">
+      {shown.map((intent) => {
+        const { open } = intent;
+        if (open) return <ActionButton key={intent.id} text={intent.text} kind="open" hint={WIDGET_TEXT.openHint} run={() => onOpen?.(open) ?? { ok: false, reason: WIDGET_TEXT.openRefused }} />;
+        if (intent.roll) return <ActionButton key={intent.id} text={intent.text} kind="roll" hint={WIDGET_TEXT.rollHint} note={rollHintText(intent.roll)} onAction={onAction} />;
+        return <ActionButton key={intent.id} text={intent.text} onAction={onAction} />;
+      })}
+    </div>
+  );
+};
+
+export const ProvenanceLines = ({ rows }: { rows?: ProvenanceView[] }) => (rows?.length ? (
+  <ul data-so="widget-provenance" aria-label={WIDGET_TEXT.provenance} className="flex flex-col gap-0.5 list-none p-0 m-0 text-xs st-muted border-t pt-2">
+    {rows.map((row) => <li key={row.key} data-so="provenance-row" data-key={row.key}>{provenanceText(row)}</li>)}
+  </ul>
+) : null);
 
 const Clues = ({ clues, links, onAction }: { clues: ClueView[]; links: ClueLinkView[]; onAction?: WidgetAction }) => (
   <div className="flex flex-col gap-2">
@@ -194,11 +270,22 @@ export const WidgetBodyView = ({ body, onAction }: { body: WidgetBody; onAction?
   if (body.kind === "track") return <Track main={body.main} quests={body.quests} />;
   if (body.kind === "log") return <Log rows={body.rows} />;
   if (body.kind === "clock") return <Clock {...body} />;
+  if (body.kind === "roster") return <Roster rows={body.rows} />;
+  if (body.kind === "timeline") return <Timeline chapters={body.chapters} />;
   return <Board lanes={body.lanes} />;
 };
 
-export const WidgetCard = ({ widget, heading = true, onAction }: { widget: WidgetView; heading?: boolean; onAction?: WidgetAction }) => (
-  <section data-so="widget" data-widget={widget.id} data-kind={widget.body.kind} data-accent={widget.accent ?? "default"} aria-label={widget.title} className="so-game-widget flex flex-col gap-1">
+export interface WidgetCardProps {
+  widget: WidgetView;
+  heading?: boolean;
+  onAction?: WidgetAction;
+  onOpen?: WidgetOpen;
+  provenance?: ProvenanceView[];
+}
+
+export const WidgetCard = ({ widget, heading = true, onAction, onOpen, provenance }: WidgetCardProps) => (
+  <section data-so="widget" data-widget={widget.id} data-kind={widget.body.kind} data-accent={widget.accent ?? "default"} data-motion={widget.still ? "off" : undefined}
+    aria-label={widget.title} className="so-game-widget flex flex-col gap-1">
     {heading && (
       <div className="flex items-center gap-1 text-xs font-medium">
         {widget.icon && <i className={`fa-solid ${ICON[widget.icon] ?? "fa-scroll"}`} aria-hidden="true" />}
@@ -206,6 +293,8 @@ export const WidgetCard = ({ widget, heading = true, onAction }: { widget: Widge
       </div>
     )}
     <WidgetBodyView body={widget.body} onAction={onAction} />
+    <IntentButtons intents={(widget.body.kind === "html" ? widget.body.source.actions : widget.actions) ?? []} onAction={onAction} onOpen={onOpen} />
+    <ProvenanceLines rows={provenance} />
   </section>
 );
 

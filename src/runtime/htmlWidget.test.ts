@@ -113,4 +113,16 @@ describe("the bridge answers only its whitelisted methods", () => {
     expect(journalWorthy({ at: 0, widgetId: "p", direction: "in", method: BRIDGE.intent, outcome: "ok" })).toBe(true);
     expect(journalWorthy({ at: 0, widgetId: "p", direction: "in", method: "x", outcome: "refused" })).toBe(true);
   });
+
+  test("an intent that opens a tab asks the host to open it, fills nothing, and is refused where the host cannot", () => {
+    const tabbed: WidgetView = { ...page, still: true, body: { ...page.body, kind: "html", template: "<p>board</p>", source, actions: [{ id: "notes", text: "Open my notes", open: "memory" }] } };
+    const opened: string[] = [];
+    const ctx = context({ widget: tabbed, open: (tab): WriteResult => { opened.push(tab); return { ok: true }; } });
+    expect(handleViewMessage(rpc(BRIDGE.initialize), ctx).reply?.result).toMatchObject({ hostContext: { motion: "off" } });
+    expect(handleViewMessage(rpc(BRIDGE.intent, { id: "notes" }), ctx).reply?.result).toEqual({ proposed: true });
+    expect(opened).toEqual(["memory"]);
+    expect(ctx.filled).toEqual([]);
+    const without = context({ widget: tabbed });
+    expect(handleViewMessage(rpc(BRIDGE.intent, { id: "notes" }), without).reply?.error).toEqual({ code: -32001, message: ERRORS.noOpen });
+  });
 });

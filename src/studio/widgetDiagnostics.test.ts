@@ -7,6 +7,8 @@ const story = (widgets: unknown[]): StoryV2 => ({
   qualities: [
     { key: "searched", type: "bool", source: "extractor", rubric: "Searched?" },
     { key: "orphan", type: "bool", source: "extractor", rubric: "Read by nothing but a clue." },
+    { key: "mood", type: "enum", source: "extractor", rubric: "Read by nothing but a roster.", values: ["calm", "tense"], player_labels: { calm: "Calm", tense: "Tense" },
+      display: { public: true, label: "Mood", as: "word" } },
     { key: "count", type: "int", source: "extractor", rubric: "Count.", display: { public: true, label: "Count", as: "meter", min: 0, max: 4 } },
   ],
   checkpoints: [
@@ -78,5 +80,17 @@ describe("the Studio's widget preview over a sample state", () => {
 
   test("an invalid story says so instead of guessing", () => {
     expect(previewWidget(story([{ id: "bad", kind: "clues", title: "Bad" }]), "bad", { values: {}, reached: [] })).toEqual({ status: "invalid", reason: PREVIEW_INVALID });
+  });
+
+  test("a roster row on a quality nothing reads is named, and the preview lists rows, stops and buttons", () => {
+    const party = { id: "party", kind: "roster", title: "Party", rows: [{ id: "x", label: "Someone", quality: "mood" }], actions: [{ id: "n", text: "My notes", open: "memory" }] };
+    const road = { id: "road", kind: "timeline", title: "Road", dates: { dock: "Day 2" } };
+    expect(codes([party]).map((entry) => [entry.code, entry.path])).toEqual([["widget-item-never-read", "widgets.0.rows.0"]]);
+    expect(previewKeys(party as never, story([party]))).toEqual(["mood"]);
+    expect(previewCheckpoints(road as never)).toEqual(["dock"]);
+    const shown = previewWidget(story([party, road]), "party", { values: { mood: "tense" }, reached: [] });
+    expect(shown.status === "shown" && shown.lines).toEqual(["Someone: Tense", "Button: My notes [opens the memory tab]"]);
+    const stops = previewWidget(story([party, road]), "road", { values: {}, reached: ["dock"] });
+    expect(stops).toEqual({ status: "hidden", reason: PREVIEW_HIDDEN });
   });
 });

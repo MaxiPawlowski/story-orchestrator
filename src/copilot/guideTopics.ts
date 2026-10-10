@@ -280,10 +280,11 @@ export const GUIDE_TOPICS = {
   },
   widgets: {
     title: "Stats and story panels",
-    fields: "qualities[].display, widgets[], bind, audience, display.journal, display.stat_sheet, display.widgets",
-    text: "display {public: true, label, as: item|count|meter|boxes|word, group, min, max, bands, hide_when_empty, trend} puts a quality on the Stat sheet; never on rel_* "
-      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board|clues|map|html, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
-      + "no markup. A player widget shows public qualities only; empty sections never render.",
+    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion",
+    text: "display {public, label, as: item|count|meter|boxes|word, group, min, max, bands, trend} puts a quality on the Stat sheet (never rel_* or gated lore keys). "
+      + "widgets [{id, kind: meters|track|log|clock|board|clues|map|html|roster|timeline, title, bind, audience}]; player widgets show public qualities only. "
+      + "roster rows [{id, member|label, quality: enum, when?}]; timeline: reached named checkpoints by chapter, dates {checkpointId: label}. "
+      + "actions [{id, text, open?: overview|memory, check?: public transition check}]: buttons. Values show \"changed N replies ago\"; display.motion false stops transitions.",
   },
   "clues-and-maps": {
     title: "Clue walls and maps",
@@ -295,7 +296,8 @@ export const GUIDE_TOPICS = {
   "html-panels": {
     title: "Story-made HTML panels",
     fields: "template, source, actions[], window.storyWidget",
-    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text}]. Runs in a sandboxed frame with no network and no access to SillyTavern; "
+    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text, open?, check?}]. "
+      + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
   "character-life": {

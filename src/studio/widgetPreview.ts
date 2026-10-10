@@ -2,7 +2,7 @@ import {
   StoryEngine, gateKeys, isValidationErrorList, parseStoryV2, type EngineState, type PrimitiveValue, type StoryV2, type StoryWidget,
 } from "@engine/index";
 import { composeGame } from "@runtime/widgets";
-import type { WidgetBody, WidgetView } from "@runtime/gameTypes";
+import type { IntentView, WidgetBody, WidgetView } from "@runtime/gameTypes";
 
 export interface WidgetSample {
   values: Readonly<Record<string, PrimitiveValue>>;
@@ -31,9 +31,13 @@ export const previewKeys = (widget: StoryWidget, draft: StoryV2): string[] => [.
   ...bindKeys(widget, draft),
   ...(widget.clues ?? []).flatMap((clue) => gateKeys(clue.when)),
   ...(widget.pins ?? []).flatMap((pin) => (pin.when ? gateKeys(pin.when) : [])),
+  ...(widget.rows ?? []).flatMap((row) => [row.quality, ...(row.when ? gateKeys(row.when) : [])]),
 ])].filter((key) => draft.qualities.some((quality) => quality.key === key));
 
-export const previewCheckpoints = (widget: StoryWidget): string[] => [...new Set((widget.pins ?? []).flatMap((pin) => (pin.checkpoint ? [pin.checkpoint] : [])))];
+export const previewCheckpoints = (widget: StoryWidget): string[] => [...new Set([
+  ...(widget.pins ?? []).flatMap((pin) => (pin.checkpoint ? [pin.checkpoint] : [])),
+  ...Object.keys(widget.dates ?? {}),
+])];
 
 const sampleState = (base: EngineState, sample: WidgetSample, known: ReadonlySet<string>): EngineState => {
   const reached = sample.reached.filter((id) => known.has(id) && id !== base.activeCheckpointId);
@@ -47,6 +51,14 @@ const sampleState = (base: EngineState, sample: WidgetSample, known: ReadonlySet
 };
 
 const pct = (value: number) => `${Math.round(value)}%`;
+
+const intentLine = (intent: IntentView): string => {
+  if (intent.open) return `${intent.text} [opens the ${intent.open} tab]`;
+  if (intent.roll) return `${intent.text} [asks for ${intent.roll.label}: ${intent.roll.dice} vs ${intent.roll.target}]`;
+  return intent.text;
+};
+
+export const describeView = (view: WidgetView): string[] => [...describeBody(view.body), ...(view.actions ?? []).map((intent) => `Button: ${intentLine(intent)}`)];
 
 export const describeBody = (body: WidgetBody): string[] => {
   switch (body.kind) {
@@ -67,9 +79,12 @@ export const describeBody = (body: WidgetBody): string[] => {
       ...body.quests.map((quest) => `Quest: ${quest.title} (${quest.statusLabel})`),
     ];
     case "log": return body.rows.map((row) => `Log: ${row.text}`);
+    case "roster": return body.rows.map((row) => `${row.name}: ${row.status}`);
+    case "timeline": return body.chapters.flatMap((chapter) => chapter.stops.map((stop) =>
+      `${chapter.title ? `${chapter.title}: ` : ""}${stop.name}${stop.date ? ` (${stop.date})` : ""}${stop.here ? " (you are here)" : ""}`));
     case "html": return [
       `HTML panel: ${body.template.length} characters, sandboxed, shown the view of '${body.source.id}'`,
-      ...body.actions.map((intent) => `Action ${intent.id}: ${intent.text}`),
+      ...body.actions.map((intent) => `Action ${intent.id}: ${intentLine(intent)}`),
       ...describeBody(body.source.body).map((line) => `Plain version: ${line}`),
     ];
   }
@@ -101,5 +116,5 @@ export function previewWidget(draft: StoryV2, widgetId: string, sample: WidgetSa
   const all = [...composed.player.widgets, ...composed.player.journal, ...(composed.player.statSheet ? [composed.player.statSheet] : []), ...composed.authorWidgets];
   all.push(...all.flatMap((entry) => (entry.body.kind === "html" ? [entry.body.source] : [])));
   const view = all.find((entry) => entry.id === widgetId && !entry.synthesized);
-  return view ? { status: "shown", view, lines: describeBody(view.body) } : { status: "hidden", reason: PREVIEW_HIDDEN };
+  return view ? { status: "shown", view, lines: describeView(view) } : { status: "hidden", reason: PREVIEW_HIDDEN };
 }

@@ -143,7 +143,10 @@ export const EDIT_TOOLS = {
     backedBy: "setWidgets",
     composes: ["addWidget", "updateWidget", "removeWidget"],
     doc: "Replace the story panels (the full list). A player panel binds only public qualities.",
-    args: { widgets: req("array", "[{id, kind: meters|track|log|clock|board|clues|map|html, title, bind?, audience?: player|author, options?, visible_when?}]") },
+    args: {
+      widgets: req("array", "[{id, kind: meters|track|log|clock|board|clues|map|html|roster|timeline, title, bind?, audience?: player|author, options?, visible_when?, "
+        + "actions?: [{id, text, open?: overview|memory, check?}], rows? (roster), dates? (timeline)}]"),
+    },
   },
   setQualityDisplay: {
     backedBy: "setQualityDisplay",

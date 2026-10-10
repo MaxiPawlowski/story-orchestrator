@@ -1,6 +1,6 @@
 # Plan 23: Story widgets (story-authored UI for its mechanics)
 
-**Status: BUILT 2026-10-10 on `v2.8-story-widgets` (deterministic tiers; see §Gate record).** Option A's first five kinds were
+**Status: BUILT 2026-10-10 on `v2.8-story-widgets`; follow-ups (queue A4) built 2026-10-10 on `v2.8-widgets-followups` (deterministic tiers; see §Gate record).** Option A's first five kinds were
 built in v2.7 36 (`meters`, `track`, `log`, `clock`, `board`); this branch adds `clues` and `map`, the Studio live preview,
 named player intents, and option B (sandboxed author HTML, kind `html`) shaped on MCP Apps, on by default per the owner's
 2026-10-10 rule (every built feature on). Was: DRAFT 2026-10-03 (user topic). Overview: `00-overview.md`. **Gate tiers:** implementation D;
@@ -237,7 +237,7 @@ workers, forms, popups, top navigation, parent access, cookies and storage are a
    authors use a latching bool per place. Recommended: keep.
 4. **The Adolion pilot widget (an arcs board via v2.8 02)** is not part of this branch (public repo; content reviewed by a
    second model per rule 11). Recommended: run it with v2.7 38's lab copy.
-5. **Follow-ups from §Prior art:** author provenance on values, player "changed N replies ago", drawer/roll intents,
+5. **Follow-ups from §Prior art** (all five built 2026-10-10, see the follow-ups Gate record; `roster`/`timeline` too): author provenance on values, player "changed N replies ago", drawer/roll intents,
    per-story motion toggle. Recommended: build provenance first (author view only, no player copy change).
 
 ## Gate record
@@ -315,3 +315,73 @@ by a failed run), fixed in the fixture. The one console error is the fixture map
 **Not run / owed**: Storybook interaction + a11y (above); the Adolion pilot widget (decision 4); a real-browser check
 that a hostile template's self-navigation request is the only channel (the story asserts closure, not the absence of the
 request).
+
+### 2026-10-10: follow-ups (queue A4) on `v2.8-widgets-followups` (from master `9b4572f4`), deterministic tiers + no-model lane
+
+Owner approval 2026-10-10. Every follow-up is on by default; widgets still add nothing to any prompt or read.
+
+**What was built**
+
+- **Author provenance** (`runtime/widgetHistory.ts`, lazy): in Author view `gameAuthor.provenance[widgetId]` lists, per value of a
+  meters, clock or roster widget (and the synthesized stat sheet), the quality key, who last wrote it (`reader` = an extractor or
+  reconciliation queue entry, `author` = a manual write, `story` = the story's own code) and the message id and boundary, read
+  from the boundary log; "unchanged in the turns this chat keeps" when the log holds no change. Rendered under the panel
+  (`[data-so="widget-provenance"]`) in the widget panels, the stat sheet and the Journal's author widgets. Composed only when
+  Author view is on; the player snapshot carries none.
+- **Player "changed N replies ago"** on meter items, clocks and roster rows (`changedAgo`, `[data-so="changed-ago"]`): the newest
+  boundary where what the player SEES changed (shown text and value, so a value moving past a meter's max is not a change),
+  counted in non-user, non-system chat rows after it. Derived from the boundary log and the chat, so rollback ≡ replay.
+- **Named intents** (`widgets[].actions[]` on every kind, was HTML-only): `{id, text}` fills the box as before;
+  `open: "overview" | "memory"` opens the story drawer at that tab (a `so-drawer-tab` window event that `DrawerTabs` listens to;
+  only the two player tabs validate); `check: "<id>"` names a public transition check (a hidden check and a checkpoint's own check
+  are refused at validation), shows "Climb: d20 vs 12" and fills the attempt line, and is in the view only while that check is
+  outgoing from the active checkpoint and not yet attempted. The HTML bridge's `story/propose-intent` handles `open` too
+  (`ERRORS.noOpen` when the host gives no opener) and `ui/initialize` adds `hostContext.motion`.
+- **Per-story motion toggle**: `display.motion: false` (in `STORY_DISPLAY_TOGGLES`, so story updates diff it) marks every view
+  `still`; `WidgetCard` renders `data-motion="off"` and the reduced-motion CSS block skips bars, boxes and fresh items under it.
+- **`roster` kind**: `rows: [{id, member | label, quality, when?}]`, the quality an enum (public on a player widget), the status its
+  `player_labels` word (the raw value on an author widget); a gated row shows only while its gate holds.
+- **`timeline` kind**: reached checkpoints with a `player_name`, in first-visit order, grouped under the chapter's player title when
+  the story has chapters, optional authored `dates: {checkpointId: label}`, `here` and `fresh`.
+- Studio: Widgets editor fields for rows, dates and actions on every kind; preview lines for roster, timeline and buttons;
+  `widget-item-never-read` also names a roster row on a quality nothing reads. The agent's `setWidgets` hint names the new fields.
+- Docs: `story-guide.md` topics `widgets` (fields, roster, timeline, actions, changed-ago, provenance, motion), `clues-and-maps`,
+  `html-panels`; compact twins in `guideTopics.ts`; player guide `drawer-and-hud.md`; `npm run docs:guide` regenerated.
+
+**Tests (jest)**: `runtime/widgetFollowups.test.ts` (20: validation refusals for rows, dates and intents, incl. hidden and checkpoint
+checks; changed-ago incl. the clamped-meter case; roster player and author; timeline with and without chapters, no unnamed
+checkpoint; intent availability before and after the attempt; motion; provenance writers, none in player compose; rollback ≡ replay
+at 5 cuts plus a negative control), `runtime/htmlWidget.test.ts` (+1: open intent and `hostContext.motion`),
+`studio/widgetDiagnostics.test.ts` (+1: unread roster row, preview lines), `test/goldens/arrival-findings.json` re-recorded (new
+fixture story, empty entry).
+
+**Commands (worktree)**
+- `npm run gates -- --no-storybook --jobs=2`: **all green in 378.0 s** (test 7443 pass / 1 skipped, test:replay 32 of 32 killed,
+  test:debug 1249 pass, test:plugin, test:release, build, lint, typecheck, typecheck:test, debug:typecheck).
+  `test-storybook:ci` SKIPPED (worktree). Note: `--jobs 2` (with a space) is ignored and runs 5 at once; one such run had three
+  timing-sensitive `agentBridge` plugin tests red under load, green on the `--jobs=2` re-run.
+- Main entry `dist/index.js` **1,249,743 B** (was 1,248,812; budget 1,250,000; headroom now 257 B). The kinds, provenance,
+  changed-ago, intents and copy are in the lazy game and panel chunks; the main entry gained the drawer-tab listener, the `motion`
+  display key, the panel props in `presenceUi` and one CSS rule.
+
+**Live D, no model** (lane 54, lanes root `C:\dev\so-lanes`, private ST copy `C:\dev\so-lanes\agent-st-widgets-fu` (a code copy,
+`data` and `node_modules` junctions read only), seeded with `SO_LANE_OFFLINE=1`; :8000, the real ST slot, the 3090 and pods
+untouched; `st-lanes.mts` caps lane numbers at 50, so lane 54 ran with the cap raised locally, not committed; the lane's data copy
+was deleted after): `test/scenarios/v28-23-widgets-followups.json --sandbox --group "Group: Arin, DM Narrator"` **19/19 green x2**
+(`C:\dev\so-lanes\54\debug\runs\2026-10-10T11-47-53-215Z-so-scenario-run`, `…11-49-43-319Z-…`): the stat sheet says "changed 1
+reply ago" after one more reply; Author view provenance names `supplies` written by `author`; the player snapshot has no
+`gameAuthor` and no keys; the roster panel's button opens the drawer at Memory; `data-motion="off"` is in the DOM; the roll button
+fills "I try to climb the wall." without sending and leaves the view once `tried_climb` is set (the check rolls, the timeline gains
+"The yard", here and new); a deleted message reverts every panel byte for byte; `assert-player-clean` 0 findings with three panels
+open; 0 page errors, 0 console errors. Regression: `v28-23-widgets.json` 17/17 green on the same lane.
+
+**Stories to run in Storybook (not run here)**: `Panels/WidgetCard` (new `Roster`, `Timeline`, `Intents`, `IntentsWithoutHost`,
+`AuthorProvenance`, `MotionOff`, `RosterPhone`, `TimelinePhone`, `IntentsPhone`; re-run the rest), `Panels/WidgetPanel`,
+`Panels/StatSheetPanel`, `Panels/JournalPanel`, `Panels/HtmlWidgetFrame`, `Studio/WidgetsEditor`, `Studio/GameEditor`.
+
+**Adolion**: worth using two, built by a second model per rule 11 (no campaign content here): `timeline` (free: reached named
+checkpoints by chapter, dates optional) next to the arcs board pilot of decision 4; author provenance comes with Author view.
+`roster` only if the campaign has per-member enum qualities; roll buttons only on public transition checks; motion stays on.
+
+**Not run / owed**: Storybook interaction and a11y (above); the gate docs' `--jobs 2` form (silently ignored); the 50-lane cap in
+`st-lanes.mts` against the coordinator's lane numbers above 50.

@@ -1,19 +1,24 @@
 import {
-  WIDGET_ACCENTS, WIDGET_AUDIENCES, WIDGET_ICONS, WIDGET_KINDS, type GateNode, type Quality, type StoryWidget, type ValidationError, type WidgetBind, type WidgetClue,
-  type WidgetClueLink, type WidgetKind, type WidgetPin,
+  WIDGET_ACCENTS, WIDGET_AUDIENCES, WIDGET_DRAWER_TABS, WIDGET_ICONS, WIDGET_KINDS, type Checkpoint, type GateNode, type Quality, type RosterMember, type StoryCheck,
+  type StoryWidget, type Transition, type ValidationError, type WidgetBind, type WidgetClue, type WidgetClueLink, type WidgetIntent, type WidgetKind, type WidgetPin,
+  type WidgetRosterRow,
 } from "../schema";
+import { checksById } from "../storyChecks";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
 import { readGate, validateGate } from "./gates";
 import { GAME_ID_PATTERN, readLabel } from "./checks";
 
-const WIDGET_KEYS = ["id", "kind", "title", "bind", "options", "visible_when", "audience", "accent", "icon", "clues", "links", "image", "pins", "template", "source", "actions"] as const;
+const WIDGET_KEYS = [
+  "id", "kind", "title", "bind", "options", "visible_when", "audience", "accent", "icon", "clues", "links", "image", "pins", "template", "source", "actions", "rows", "dates",
+] as const;
 const OPTION_KEYS = ["limit", "closed"] as const;
 const CLUE_KEYS = ["id", "text", "quality", "when", "action"] as const;
 const LINK_KEYS = ["from", "to", "label"] as const;
 const PIN_KEYS = ["id", "label", "x", "y", "checkpoint", "when", "action"] as const;
-const ITEM_KEYS = ["clues", "links", "image", "pins", "template", "source", "actions"] as const;
-const INTENT_KEYS = ["id", "text"] as const;
+const ROW_KEYS = ["id", "label", "member", "quality", "when"] as const;
+const ITEM_KEYS = ["clues", "links", "image", "pins", "template", "source", "rows", "dates"] as const;
+const INTENT_KEYS = ["id", "text", "open", "check"] as const;
 export const WIDGET_LIMIT_MAX = 50;
 export const CLOCK_SEGMENTS = { min: 2, max: 12 } as const;
 export const WIDGET_ITEMS_MAX = 40;
@@ -25,6 +30,9 @@ export interface WidgetRefs {
   qualityByKey: Record<string, Quality>;
   qualities: Quality[];
   checkpointIds: ReadonlySet<string>;
+  checkpoints?: readonly Pick<Checkpoint, "checks">[];
+  transitions?: readonly Pick<Transition, "check">[];
+  roster?: readonly Pick<RosterMember, "id">[];
 }
 
 const BIND_WORDS: Record<string, WidgetBind> = { quests: { quests: true }, path: { path: true }, arcs: { arcs: true } };
@@ -43,11 +51,11 @@ const readBind = (value: unknown, path: string, errors: ValidationError[]): Widg
 };
 
 const KIND_BINDS: Record<WidgetKind, ReadonlyArray<keyof WidgetBind | string>> = {
-  meters: ["quality", "qualities", "group"], track: ["path", "quests"], log: [], clock: ["quality"], board: ["quests", "arcs"], clues: [], map: [], html: [],
+  meters: ["quality", "qualities", "group"], track: ["path", "quests"], log: [], clock: ["quality"], board: ["quests", "arcs"], clues: [], map: [], html: [], roster: [], timeline: [],
 };
 
 const KIND_ITEMS: Record<WidgetKind, ReadonlyArray<(typeof ITEM_KEYS)[number]>> = {
-  meters: [], track: [], log: [], clock: [], board: [], clues: ["clues", "links"], map: ["image", "pins"], html: ["template", "source", "actions"],
+  meters: [], track: [], log: [], clock: [], board: [], clues: ["clues", "links"], map: ["image", "pins"], html: ["template", "source"], roster: ["rows"], timeline: ["dates"],
 };
 
 const DEFAULT_BIND: Partial<Record<WidgetKind, WidgetBind>> = { track: { path: true }, board: { quests: true } };
@@ -186,7 +194,7 @@ const readPin = (value: unknown, path: string, refs: WidgetRefs, errors: Validat
   return { id, label, x: value.x, y: value.y, ...(checkpoint ? { checkpoint } : {}), ...(when ? { when } : {}), ...(action ? { action } : {}) };
 };
 
-type WidgetItems = Pick<StoryWidget, "clues" | "links" | "image" | "pins" | "template" | "source" | "actions">;
+type WidgetItems = Pick<StoryWidget, "clues" | "links" | "image" | "pins" | "template" | "source" | "rows" | "dates">;
 
 const readClueItems = (value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
   const list = readList(value.clues, `${path}.clues`, "clues", WIDGET_ITEMS_MAX, errors);
@@ -211,13 +219,42 @@ const readMapItems = (value: Record<string, unknown>, path: string, refs: Widget
 export const HTML_TEMPLATE_MAX = 32000;
 export const WIDGET_INTENTS_MAX = 10;
 
-const readIntent = (value: unknown, path: string, errors: ValidationError[]): { id: string; text: string } | null => {
-  if (!isRecord(value)) return refuse(errors, path, "an action is {id, text}", null);
+type CheckRefs = { checks: ReadonlyMap<string, StoryCheck>; transitionChecks: ReadonlySet<string> };
+
+const intentTarget = (value: Record<string, unknown>, path: string, { checks, transitionChecks }: CheckRefs, errors: ValidationError[]): Pick<WidgetIntent, "open" | "check"> | null => {
+  if (value.open !== undefined && value.check !== undefined) return refuse(errors, path, "an action opens a drawer tab or asks for a roll, never both", null);
+  if (value.open !== undefined) {
+    return isOneOf(value.open, WIDGET_DRAWER_TABS) ? { open: value.open } : refuse(errors, `${path}.open`, `open is one of ${WIDGET_DRAWER_TABS.join(", ")}: the tabs every player has`, null);
+  }
+  if (value.check === undefined) return {};
+  const id = asString(value.check)?.trim() ?? "";
+  const check = checks.get(id);
+  if (!check) return refuse(errors, `${path}.check`, `'${id}' is not a check of this story`, null);
+  if (check.narrate !== "public") return refuse(errors, `${path}.check`, `'${id}' is a hidden check, so a player cannot be shown a button that asks for it`, null);
+  if (!transitionChecks.has(id)) return refuse(errors, `${path}.check`, `'${id}' rolls by itself when its checkpoint starts; an action can ask only for a transition's check`, null);
+  return { check: id };
+};
+
+const readIntent = (value: unknown, path: string, checks: CheckRefs, errors: ValidationError[]): WidgetIntent | null => {
+  if (!isRecord(value)) return refuse(errors, path, "an action is {id, text, open?, check?}", null);
   rejectUnknownKeys(value, INTENT_KEYS, path, errors);
   const id = asString(value.id)?.trim() ?? "";
   if (!GAME_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "an action id is a lowercase slug");
-  const text = readAction(value.text, `${path}.text`, errors) ?? refuse(errors, `${path}.text`, "an action needs the player's line", undefined);
-  return GAME_ID_PATTERN.test(id) && text ? { id, text } : null;
+  const text = readAction(value.text, `${path}.text`, errors) ?? refuse(errors, `${path}.text`, "an action needs its text: the player's line, or the button's words when it opens a tab", undefined);
+  const target = intentTarget(value, path, checks, errors);
+  return GAME_ID_PATTERN.test(id) && text && target ? { id, text, ...target } : null;
+};
+
+const readIntents = (value: unknown, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetIntent[] | undefined => {
+  if (value === undefined) return undefined;
+  const list = readList(value, path, "actions", WIDGET_INTENTS_MAX, errors) ?? [];
+  const checks = {
+    checks: checksById({ checkpoints: [...(refs.checkpoints ?? [])] as Checkpoint[], transitions: [...(refs.transitions ?? [])] as Transition[] }),
+    transitionChecks: new Set((refs.transitions ?? []).flatMap((transition) => (transition.check ? [transition.check.id] : []))),
+  };
+  const actions = list.map((entry, index) => readIntent(entry, `${path}.${index}`, checks, errors)).filter((intent): intent is WidgetIntent => intent !== null);
+  uniqueIds(actions, path, "action", errors);
+  return actions.length ? actions : undefined;
 };
 
 const readHtmlItems = (value: Record<string, unknown>, path: string, errors: ValidationError[]): WidgetItems | null => {
@@ -226,19 +263,56 @@ const readHtmlItems = (value: Record<string, unknown>, path: string, errors: Val
   if (!templateOk) addError(errors, `${path}.template`, `template is the panel's HTML, 1 to ${HTML_TEMPLATE_MAX} characters`);
   const source = asString(value.source)?.trim() ?? "";
   if (!GAME_ID_PATTERN.test(source)) addError(errors, `${path}.source`, "source names the ordinary widget whose view this panel shows, and that stands in when story-made panels are off");
-  const list = value.actions === undefined ? [] : readList(value.actions, `${path}.actions`, "actions", WIDGET_INTENTS_MAX, errors) ?? [];
-  const actions = list.map((entry, index) => readIntent(entry, `${path}.actions.${index}`, errors)).filter((intent): intent is { id: string; text: string } => intent !== null);
-  uniqueIds(actions, `${path}.actions`, "action", errors);
   if (!templateOk || !GAME_ID_PATTERN.test(source)) return null;
-  return { template, source, ...(actions.length ? { actions } : {}) };
+  return { template, source };
 };
 
-const readItems = (kind: WidgetKind, value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
+const readRow = (value: unknown, path: string, refs: WidgetRefs, audience: StoryWidget["audience"], errors: ValidationError[]): WidgetRosterRow | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a row is {id, member, quality} or {id, label, quality}, when?", null);
+  rejectUnknownKeys(value, ROW_KEYS, path, errors);
+  const id = asString(value.id)?.trim() ?? "";
+  if (!GAME_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "a row id is a lowercase slug");
+  if ((value.label === undefined) === (value.member === undefined)) return refuse(errors, path, "a row is named by exactly one of member (a roster id) or label", null);
+  const label = readLabel(value.label, `${path}.label`, errors);
+  const member = value.member === undefined ? undefined : asString(value.member)?.trim() ?? "";
+  if (member !== undefined && !refs.roster?.some((entry) => entry.id === member)) return refuse(errors, `${path}.member`, `'${member}' is not a cast member`, null);
+  const key = asString(value.quality)?.trim() ?? "";
+  const quality = refs.qualityByKey[key];
+  if (!quality) return refuse(errors, `${path}.quality`, `unknown quality '${key}'`, null);
+  if (quality.type !== "enum") return refuse(errors, `${path}.quality`, `'${key}' is not an enum, so it cannot name a status`, null);
+  if (audience === "player" && quality.display?.public !== true) return refuse(errors, `${path}.quality`, `'${key}' is not public, so a player widget cannot show it`, null);
+  const when = value.when === undefined ? undefined : readFoundWhen({ when: value.when }, path, refs, errors);
+  if (!GAME_ID_PATTERN.test(id) || (!label && !member) || (value.when !== undefined && !when)) return null;
+  return { id, ...(label ? { label } : {}), ...(member ? { member } : {}), quality: key, ...(when ? { when } : {}) };
+};
+
+const readRosterItems = (value: Record<string, unknown>, path: string, refs: WidgetRefs, audience: StoryWidget["audience"], errors: ValidationError[]): WidgetItems | null => {
+  const list = readList(value.rows, `${path}.rows`, "rows", WIDGET_ITEMS_MAX, errors);
+  if (!list) return null;
+  const rows = list.map((entry, index) => readRow(entry, `${path}.rows.${index}`, refs, audience, errors)).filter((row): row is WidgetRosterRow => row !== null);
+  uniqueIds(rows, `${path}.rows`, "row", errors);
+  return rows.length ? { rows } : null;
+};
+
+const readDates = (value: Record<string, unknown>, path: string, refs: WidgetRefs, errors: ValidationError[]): WidgetItems | null => {
+  if (value.dates === undefined) return {};
+  if (!isRecord(value.dates)) return refuse(errors, `${path}.dates`, "dates are {checkpointId: label}", null);
+  const dates = Object.entries(value.dates).flatMap(([id, label]): Array<[string, string]> => {
+    if (!refs.checkpointIds.has(id)) return refuse(errors, `${path}.dates.${id}`, `unknown checkpoint '${id}'`, []);
+    const text = readLabel(label, `${path}.dates.${id}`, errors);
+    return text ? [[id, text]] : [];
+  });
+  return dates.length ? { dates: Object.fromEntries(dates) } : {};
+};
+
+const readItems = (kind: WidgetKind, value: Record<string, unknown>, path: string, refs: WidgetRefs, audience: StoryWidget["audience"], errors: ValidationError[]): WidgetItems | null => {
   ITEM_KEYS.filter((field) => value[field] !== undefined && !KIND_ITEMS[kind].includes(field))
     .forEach((field) => addError(errors, `${path}.${field}`, `a ${kind} widget has no ${field}`));
   if (kind === "clues") return readClueItems(value, path, refs, errors);
   if (kind === "map") return readMapItems(value, path, refs, errors);
   if (kind === "html") return readHtmlItems(value, path, errors);
+  if (kind === "roster") return readRosterItems(value, path, refs, audience, errors);
+  if (kind === "timeline") return readDates(value, path, refs, errors);
   return {};
 };
 
@@ -273,14 +347,18 @@ const readWidget = (value: unknown, path: string, refs: WidgetRefs, errors: Vali
   const options = readOptions(value.options, `${path}.options`, errors);
   const look = readLook(value, path, errors);
   if (!GAME_ID_PATTERN.test(id) || !isOneOf(value.kind, WIDGET_KINDS) || !title) return null;
-  const items = readItems(value.kind, value, path, refs, errors);
-  if (!items) return null;
   const audience = isOneOf(value.audience, WIDGET_AUDIENCES) ? value.audience : "player";
+  const actions = readIntents(value.actions, `${path}.actions`, refs, errors);
+  const items = readItems(value.kind, value, path, refs, audience, errors);
+  if (!items) return null;
   const bind = readBind(value.bind, `${path}.bind`, errors) ?? DEFAULT_BIND[value.kind];
   if (!bind && (value.kind === "meters" || value.kind === "clock")) return refuse(errors, `${path}.bind`, `a ${value.kind} widget needs a bind`, null);
   const problem = bind ? bindProblem({ kind: value.kind, audience }, bind, qualityByKey, qualities) : null;
   if (problem) return refuse(errors, `${path}.bind`, problem, null);
-  return { id, kind: value.kind, title, audience, ...(bind ? { bind } : {}), ...(options ? { options } : {}), ...(visible ? { visible_when: visible } : {}), ...look, ...items };
+  return {
+    id, kind: value.kind, title, audience, ...(bind ? { bind } : {}), ...(options ? { options } : {}), ...(visible ? { visible_when: visible } : {}), ...look, ...items,
+    ...(actions ? { actions } : {}),
+  };
 };
 
 export const readWidgets = (value: unknown, refs: WidgetRefs, errors: ValidationError[]): StoryWidget[] | undefined => {
