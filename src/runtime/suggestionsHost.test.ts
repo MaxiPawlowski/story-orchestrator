@@ -140,3 +140,28 @@ describe("v2.7 33 W4: filling the box never sends, and never overwrites the play
     expect(fillSuggestion(outcome.ask, "I look around the hall.")).toEqual({ ok: false, reason: SUGGESTION_COPY.chatChanged });
   });
 });
+
+describe("v2.8 04 C5: a suggestion never names a scene the player has not reached", () => {
+  const gated = parseStoryV2OrThrow({
+    format: 2, id: "gated-host", title: "Host", description: "d",
+    qualities: [{ key: "secret_known", type: "bool", source: "extractor", rubric: "Known?" }],
+    checkpoints: [
+      { id: "a", name: "a-internal", player_name: "The Hall", objective: "Talk.", type: "anchor", start: true },
+      { id: "b", name: "b-internal", player_name: "The Sealed Vault", objective: "Open it.", type: "anchor" },
+    ],
+    transitions: [{ from: "a", to: "b", priority: 0, gate: { q: "secret_known", op: "==", v: true } }],
+    roster: [{ id: "guard", name: "Guard" }],
+  });
+  const reply = () => `${FOUR}\n- I search for the sealed vault.`;
+
+  it("drops the line naming the unreached scene and keeps the rest", async () => {
+    const outcome = await askSuggestions(manager(false, reply, [], { getStory: () => gated }));
+    expect(outcome.ok && outcome.suggestions).toEqual(["I ask the guard about the door.", "I look around the hall.", "Who else came here tonight?"]);
+  });
+
+  it("control: once the scene is reached the same line is kept", async () => {
+    const reached = { getStory: () => gated, getEngineState: () => ({ visitedPath: ["a"], activeCheckpointId: "b" }) as unknown as EngineState };
+    const outcome = await askSuggestions(manager(false, reply, [], reached));
+    expect(outcome.ok && outcome.suggestions).toContain("I search for the sealed vault.");
+  });
+});
