@@ -57,6 +57,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | F16 | Lore selection still costs about 5 judge calls per reply (263 candidates in chunks of 64); R12 saved about 0.1. Needs larger chunks or narrower book lists | R12 measurement |
 | F17 | Director timeouts: 36 of 155 calls over the 1500 ms budget (p50 about 960 ms) on the 3090 C3 run | warden fix record, v2.8 01 §B |
 | F18 | F1 send latency shares its cause with the warden timeouts (consolidation embeddings blocking ST's thread); re-measure M11 after the vector-yield fix (`runtime/vectorYield.ts`) before building more | warden fix 2026-10-09 |
+| F20 | Long local chats overflow the 32K profile: at turn ~71 a reply request carried 32,848 tokens with ST `max_context` 32768 (ST "Error counting tokens"); the controller answers 409 and tries to load `normal` | §3090 measurements 2026-10-10, item 3 (branch `v2.8-3090-measure`). **Investigated 2026-10-09** (`v2.8-small-fixes`): not ours. 32,848 is the controller's `prompt + n_predict + 256` (`backend.mjs` `forRequest`), so ST's own fill (≤ `max_context - amount_gen`) was 176 under 32768 and the 256-token gateway margin made it overflow; every story block is set before ST's budget pass and counted (ST source lines and a no-model lane 5 dry-run probe: prompt 165 / 168 tokens under budget). "Error counting tokens" is ST's `/tokenize` hitting the same 409. Margin rule in the debug skill: local `max_context` ≤ 32000. Owner option instead: drop the +256 from the controller's fast/normal decision |
 
 ## Develop
 
