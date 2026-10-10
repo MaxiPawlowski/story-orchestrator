@@ -1,6 +1,7 @@
 {
   "plan": "v2.8 09 live Q&A (tier CL)",
   "declared": "2026-10-10, before any run; floors never retuned (owner 2026-10-10: floors are informational, the feature ships on)",
+  "widened": "2026-10-10, after M18 (owner decision): a02 + author/transitions (the gate lives on the transition), a09 + feature/private-knowledge and author/character-life (a private agenda reaches only its holder's block), a20 + guide/setup/memory-model#options-in-the-same-group (the section documents Reply thinking); each is the sibling topic a model cited with a correct answer. The 17/20 floor itself is unchanged.",
   "profile": { "name": "deepseek 4.1 flash", "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847", "role": "authoring", "pass": "ask" },
   "routes": "owner 2026-10-10 (before any run, final word): DeepSeek is the wizard's model and the primary model for these runs (the profile above, the authoring role's default); never Artemis.",
   "story": {
@@ -26,14 +27,14 @@
     "floor": "at least 17 of 20 answers cite an accepted topic AND carry a correct Show me: the answer's Show me is the Show me of an accepted topic, or the row allows none and the answer has none",
     "questions": [
       { "id": "a01", "q": "How do I make a lorebook entry always on?", "accept": ["st/lorebook-activation", "author/world-info", "feature/story-lorebooks"], "showMeOptional": true },
-      { "id": "a02", "q": "Why didn't the story advance after the player paid the ferryman?", "accept": ["guide/player/troubleshooting#the-story-does-not-move", "guide/player/troubleshooting", "author/gates", "author/quality-rubric", "author/quality-reads", "feature/memory", "feature/diagnostics", "feature/stories"] },
+      { "id": "a02", "q": "Why didn't the story advance after the player paid the ferryman?", "accept": ["guide/player/troubleshooting#the-story-does-not-move", "guide/player/troubleshooting", "author/gates", "author/quality-rubric", "author/quality-reads", "feature/memory", "feature/diagnostics", "feature/stories", "author/transitions"] },
       { "id": "a03", "q": "What does Author view show?", "accept": ["feature/author-view", "guide/player/README#player-mode-and-author-view", "guide/author/studio#what-players-see"] },
       { "id": "a04", "q": "How do I choose the model that reads the chat and moves the story on?", "accept": ["feature/memory", "feature/models-per-task", "guide/setup/memory-model", "guide/setup/memory-model#choose-one"] },
       { "id": "a05", "q": "In my group chat every character posts a greeting when the chat opens. How do I stop that?", "accept": ["st/groups", "st/first-message", "author/opening-scene"], "showMeOptional": true },
       { "id": "a06", "q": "A character keeps knowing things they never saw. What can I do?", "accept": ["guide/player/troubleshooting#a-character-knows-something-they-should-not", "feature/private-knowledge", "guide/player/memory#private-knowledge"] },
       { "id": "a07", "q": "How do I split a long story into chapters with a recap?", "accept": ["author/chapters", "feature/chapters", "guide/player/memory#chapters"] },
       { "id": "a08", "q": "What is a latching quality and when should I use one?", "accept": ["author/latching", "author/qualities"] },
-      { "id": "a09", "q": "How do I give a character a private goal that only they are told?", "accept": ["author/drives-motives", "feature/inner-voice"] },
+      { "id": "a09", "q": "How do I give a character a private goal that only they are told?", "accept": ["author/drives-motives", "feature/inner-voice", "feature/private-knowledge", "author/character-life"] },
       { "id": "a10", "q": "How do I change the chat background when the story reaches a checkpoint?", "accept": ["author/background", "feature/backgrounds"] },
       { "id": "a11", "q": "How do I add side quests the player can find?", "accept": ["author/quests", "feature/quests", "feature/journal"] },
       { "id": "a12", "q": "How do I turn on the judge, and what does it send?", "accept": ["feature/judge", "guide/setup/judge", "guide/setup/judge#privacy", "guide/setup/judge#install", "guide/setup/judge#uses"] },
@@ -44,7 +45,7 @@
       { "id": "a17", "q": "How do I say who the player is in my story?", "accept": ["author/player", "feature/player-setup", "guide/player/playing#your-character"] },
       { "id": "a18", "q": "What should I fix in the story this chat plays?", "accept": ["feature/diagnostics", "author/qualities", "author/quality-rubric", "author/quality-reads", "author/roster", "author/gates", "guide/author/studio#diagnostics"] },
       { "id": "a19", "q": "How do I show a value like gold on the player's stat sheet?", "accept": ["feature/stat-sheet", "author/widgets", "author/qualities", "author/quests"] },
-      { "id": "a20", "q": "How do I make my chat model think less before each reply?", "accept": ["feature/reply-thinking"] }
+      { "id": "a20", "q": "How do I make my chat model think less before each reply?", "accept": ["feature/reply-thinking", "guide/setup/memory-model#options-in-the-same-group"] }
     ]
   },
   "player": {

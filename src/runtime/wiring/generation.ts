@@ -2,6 +2,7 @@ import {
   clearStoryExtensionPrompt,
   countTokens,
   getContext,
+  harnessOffersAgent,
   listConnectionProfiles,
   noteHostSettingsLoaded,
   profileExists,
@@ -82,7 +83,7 @@ const dispatch = (handlers: ReturnType<typeof intentHandlers>, intent: Generatio
 
 export const attachGenerationObservers = (live: LiveParts, disposers: Disposers, generation: GenerationLifecycle) => {
   disposers.push(generationWatch.attach(() => generation.snapshot().openedCount));
-  setRoleDefault((role) => roleDefaultFrom(listConnectionProfiles())(role));
+  setRoleDefault((role) => roleDefaultFrom(listConnectionProfiles(), harnessOffersAgent)(role));
   disposers.push(() => setRoleDefault(null));
   disposers.push(roleHealth.attach({
     settings: () => runtimeManager.getExtractionSettings(),

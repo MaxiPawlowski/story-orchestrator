@@ -1,8 +1,9 @@
 import { roleDefaultLabel, type PassRole } from "@extraction/passRole";
+import { routeLabel } from "@extraction/modelRoute";
 import type { PassProfiles } from "@runtime/passProfiles";
 import type { RoleRouteView } from "@runtime/roleHealth";
-import type { RouteMeter } from "@runtime/roleRouteEdits";
-import { HARNESS_KEY_PREFIX } from "@utils/harness";
+import { harnessVendor, type RouteMeter } from "@runtime/roleRouteEdits";
+import { HARNESS_KEY_PREFIX, parseHarnessKey } from "@utils/harness";
 import { effortLabel, isReasoningEffort, REASONING_EFFORTS, type ReasoningEffort } from "@utils/reasoningEffort";
 import { settingHelp } from "@features/settingsCopy";
 import { FieldLabel } from "./Field";
@@ -90,6 +91,22 @@ const meterText = (meter: RouteMeter): string =>
   `${String(meter.calls)} call${meter.calls === 1 ? "" : "s"} this chat (${String(meter.failed)} failed, ${String(meter.fallback)} fell back), ` +
   `${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
 
+const cloudVendor = (profileId: string | null, profiles: RoleProfileOption[]): string | null => {
+  if (!profileId) return null;
+  const harness = parseHarnessKey(profileId);
+  if (harness) return harnessVendor(harness.harness, harness.model);
+  const profile = profiles.find((entry) => entry.id === profileId);
+  return profile && profileLocality(profile) === "cloud" ? vendorLabel(profile.source) : null;
+};
+
+export const cloudTasksLine = (routes: RoleRouteView[], profiles: RoleProfileOption[]): string | null => {
+  const tasks = routes.flatMap((route) => {
+    const vendor = cloudVendor(route.profileId, profiles);
+    return vendor ? [`${route.label} (${vendor})`] : [];
+  });
+  return tasks.length ? `Sent to a cloud service from the machine running SillyTavern: ${tasks.join(", ")}. Every other task stays on your own models.` : null;
+};
+
 export const RoleProfilesGroup = ({
   routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen, authorView = false, measurements = {},
 }: RoleProfilesGroupProps) => {
@@ -102,7 +119,11 @@ export const RoleProfilesGroup = ({
     if (harnessRoutes[role]) onHarness?.(role, null);
     onAssign(role, value || null);
   };
+  const cloudLine = authorView ? null : cloudTasksLine(routes, profiles);
+  const profileName = (id: string) => profiles.find((profile) => profile.id === id)?.name ?? id;
   return (
+    <>
+    {cloudLine && <div data-so="role-cloud-tasks" className="text-xs opacity-80">{cloudLine}</div>}
     <details id="so-role-profiles" className="text-sm" onToggle={(event) => { if (event.currentTarget.open) onOpen?.(); }}>
       <summary className="cursor-pointer opacity-80">Models per task{setRoles ? ` (${String(setRoles)} set)` : ""}</summary>
       <div className="flex flex-col gap-2 pt-2">
@@ -123,7 +144,7 @@ export const RoleProfilesGroup = ({
               <FieldLabel htmlFor={`so-role-profile-${route.role}`} label={route.label} help={`${ROLE_EGRESS[route.role]}. ${settingHelp("extraction.profiles")}`} />
               <div className="flex flex-col gap-1">
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
-                  <option value="">{route.defaulted ? `Default: ${profiles.find((profile) => profile.id === route.profileId)?.name ?? route.profileId}` : roleDefaultLabel(route.role)}</option>
+                  <option value="">{route.defaulted ? `Default: ${routeLabel(route.profileId ?? "", profileName)}` : roleDefaultLabel(route.role)}</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
                   <ProfileOptions profiles={profiles} />
                   {(harnesses.length > 0 || (harness && !option)) && (
@@ -139,16 +160,18 @@ export const RoleProfilesGroup = ({
                   {MEASUREMENT_COPY[measured.state].text}
                 </div>
               )}
-              {cloud && (
+              {authorView && cloud && (
                 <div data-so="role-egress" data-locality="cloud" className="text-xs opacity-80">
                   {`${ROLE_EGRESS[route.role]} to ${vendorLabel(cloud.source)}, a cloud service, from the machine running SillyTavern.`}
                 </div>
               )}
               {harness && (
                 <>
-                  <div data-so="role-egress" className="text-xs opacity-80">
-                    {`${ROLE_EGRESS[route.role]} to ${option?.vendor ?? "the harness's vendor"} via ${option?.label ?? harness.key}, from the machine running SillyTavern.`}
-                  </div>
+                  {authorView && (
+                    <div data-so="role-egress" className="text-xs opacity-80">
+                      {`${ROLE_EGRESS[route.role]} to ${option?.vendor ?? "the harness's vendor"} via ${option?.label ?? harness.key}, from the machine running SillyTavern.`}
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-xs">
                     <FieldLabel htmlFor={`so-role-fallback-${route.role}`} setting="extraction.routes.*.onFailure.profileId" />
                     <select id={`so-role-fallback-${route.role}`} value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
@@ -192,5 +215,6 @@ export const RoleProfilesGroup = ({
         })}
       </div>
     </details>
+    </>
   );
 };

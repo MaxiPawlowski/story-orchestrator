@@ -4,7 +4,9 @@ The harness plugin lets a task run through a coding-agent login on the SillyTave
 or **opencode**, using the subscription you are already logged into there. Text goes in, text comes out; every tool
 of the agent is off. It is useful for heavier tasks such as summaries or the wizard.
 
-It is **off until you route a task to it** and offers nothing until its config file says so.
+It offers nothing until its config file says so. Once it offers opencode with `openai/gpt-6.1-sol` and the agent
+bridge, the wizard (and Ask) use it by default when you have not picked a model for **Wizard and road ahead**;
+every other task uses it only when you route that task to it.
 
 ## Install
 
@@ -30,8 +32,8 @@ opens it to every SillyTavern user.
 
 When **Wizard and road ahead** is routed to opencode, the wizard's agent runs as an opencode session that calls the
 wizard's own tools. Every change still goes through the same checks as a local run, and anything that creates a card,
-lorebook or group still waits for you. If the harness is not available, the wizard says so; it does not quietly fall
-back to a local profile.
+lorebook or group still waits for you. If a harness you picked is not available, the wizard says so; it does not quietly fall
+back to a local profile. The default route (no model picked) falls back to DeepSeek or the memory model instead.
 
 Details, every config field and the routes: `server-plugin/story-orchestrator-harness/README.md`.
 

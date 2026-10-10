@@ -65,6 +65,47 @@ export const WizardDefaultsToDeepSeek: Story = {
   },
 };
 
+export const WizardDefaultsToSol: Story = {
+  args: {
+    routes: allFallback.map((entry) => (entry.role === "authoring"
+      ? { ...route("authoring", "Wizard and road ahead", "untested", "harness:opencode:openai/gpt-6.1-sol", "Wizard and road ahead: not tested yet"), defaulted: true }
+      : entry)),
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByText(/Models per task/));
+    const select = canvasElement.querySelector("#so-role-profile-authoring") as HTMLSelectElement;
+    await expect(select.value).toBe("");
+    await expect(select.options[select.selectedIndex].textContent).toBe("Default: opencode · openai/gpt-6.1-sol");
+  },
+};
+
+export const CloudTasksOutsideAuthorView: Story = {
+  args: {
+    authorView: false,
+    profiles: [...profiles, { id: "ds", name: "deepseek 4.1 flash", model: "deepseek-v4-flash", kind: "chat", source: "deepseek" }],
+    assigned: { read: "ds" },
+    harnesses: [{ key: "harness:opencode:openai/gpt-6.1-sol", label: "opencode · openai/gpt-6.1-sol", vendor: "OpenAI" }],
+    harnessRoutes: { synthesis: { key: "harness:opencode:openai/gpt-6.1-sol", fallback: null } },
+    routes: allFallback.map((entry) => {
+      if (entry.role === "read") return route("read", "Story reads", "untested", "ds", "Story reads: not tested yet");
+      if (entry.role === "synthesis") return route("synthesis", "Summaries and canon", "untested", "harness:opencode:openai/gpt-6.1-sol", "Summaries and canon: not tested yet");
+      if (entry.role === "authoring") {
+        return { ...route("authoring", "Wizard and road ahead", "untested", "harness:opencode:openai/gpt-6.1-sol", "Wizard and road ahead: not tested yet"), defaulted: true };
+      }
+      return entry;
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    const line = canvasElement.querySelector('[data-so="role-cloud-tasks"]');
+    await expect(line?.textContent).toContain("Story reads (DeepSeek)");
+    await expect(line?.textContent).toContain("Summaries and canon (OpenAI)");
+    await expect(line?.textContent).toContain("Wizard and road ahead (OpenAI)");
+    await expect(line?.textContent).not.toContain("Speaker direction");
+    await userEvent.click(within(canvasElement).getByText(/Models per task/));
+    await expect(canvasElement.querySelector('[data-so="role-egress"]')).toBeNull();
+  },
+};
+
 export const LoreCreationNotMeasured: Story = {
   args: {
     routes: [...allFallback, route("lore", "Lore creation", "fallback", "memory", "Same as World Info curator")],

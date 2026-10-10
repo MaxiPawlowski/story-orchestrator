@@ -388,3 +388,56 @@ Owner questions:
 3. Should a zero-call refusal count as bridge evidence in `bridgeEvidenceProblems` (harness change, no product change)?
 4. Ask's three steady misses (a02, a09, a20) cite a sibling topic with the right content: widen those rows' accepted topics
    (a fixture change, after this run), or leave the floor as is?
+
+## Owner decisions 2026-10-10 (branch `v2.8-owner-decisions`)
+
+The recommendation above is **overruled**: the owner has an OpenAI subscription, while DeepSeek is pay per token once
+its quota runs out.
+
+- **Wizard default model.** With nothing picked for "Wizard and road ahead", the order is: (a) opencode
+  `openai/gpt-6.1-sol` through the harness tool bridge, when the harness plugin offers it (installed, offered, not
+  blocked, not logged out, agent bridge on, the model listed); (b) otherwise the first DeepSeek Chat Completion
+  profile, as before; (c) otherwise the memory model. A profile or harness the author assigns still wins.
+  `passProfiles.ts` (`AUTHORING_DEFAULT_HARNESS`, `RoleDefault` now returns ordered candidates, `defaultFallbackRoute`),
+  `harnessCache.ts` (`rowOffersAgent`, `harnessOffersAgent`, read from the status cache the startup plugin check fills;
+  the snapshot is re-composed once it lands), `studio/agentHost.ts` (`defaultHarnessRoute` ahead of the DeepSeek native
+  bridge, `fallback: true`). A default sol call that fails on transport/timeout/auth/quota is answered by the next
+  default (the DeepSeek profile, else the memory model) through `answerFallback`; an author-picked harness keeps its own
+  `onFailure` rule. The settings select reads "Default: opencode · openai/gpt-6.1-sol" (`routeLabel`).
+- **Ask** shares the authoring role, so it follows the same default. Player Ask too: **decided to keep it on the same
+  default** (one rule, no per-token cost on a subscription); the cost is ~25 s per player answer against ~3 s on
+  DeepSeek flash (M18), and an author who wants fast player answers picks the DeepSeek profile for the task. The road
+  ahead (generation, critic, suggestions) also rides the authoring role, so it moves to sol too.
+- **Done check** (question 1): an existing group whose members hold the whole cast (`draftCastNames`) is accepted,
+  whatever its name (`finish.ts` `castGroupExists`, the environment's new `groupCasts` from `stHost/provisioning.ts`
+  `listGroupCasts`). Test `copilot/agent/finishGroup.test.ts`, negative controls: a group missing one member, the cast
+  split over two groups, no member list.
+- **Step budgets** (question 2): 40 → 60 per premise and 24 → 36 per recipe task in `scripts/debug/so-wizard-agent.mts`.
+  The product's `DEFAULT_AGENT_BUDGET.maxSteps` (`copilot/agent/loop.ts`) is a separate constant that bounds every real
+  run (and each Continue slice); it was the same 40, so it moved to 60 too. The 36 per recipe task is harness only.
+- **Safety harness** (question 3): in `safety` only, a bridge session that opened, carried no tool call and ended with a
+  plain-text `done` is safe (nothing written; `w5Escapes` still checks the install and the replay):
+  `bridgeEvidenceProblems(..., { textRefusalSafe: true })`, `textOnlyRefusal`. `run`, `recipes` and `bridge-check` keep
+  the strict reading. node:test with controls (an unanswered call, no session, an `ended` stall).
+- **Ask golden** (question 4): accepted topics widened in `test/measurements/v2.8/09/ask-qa.json` (its `widened` key):
+  a02 + `author/transitions` (the gate the player could not pass lives on the transition), a09 +
+  `feature/private-knowledge` and `author/character-life` (a private agenda reaches only its holder's block), a20 +
+  `guide/setup/memory-model#options-in-the-same-group` (that section documents Reply thinking). Each is the sibling a
+  model cited with a correct answer in M18. The 17/20 floor is unchanged; a02's "cited nothing" misses stay misses.
+
+## Gate record (2026-10-10, owner decisions, branch `v2.8-owner-decisions` from master `f031637b`)
+
+- `npm run gates -- --no-storybook --jobs=2`: **all green**, 163.3 s: jest 652 suites, 7622 passed, 1 skipped; defect replay
+  32 of 32 killed; build, typecheck, typecheck:test, debug:typecheck, lint, test:debug, test:plugin, test:release ok.
+  Storybook skipped (`--no-storybook`); stories to re-run: `Settings/RoleProfilesGroup` (all, new `WizardDefaultsToSol`,
+  `CloudTasksOutsideAuthorView`; `HarnessRoute`, `GroupedBySource` still assert the egress line in Author view).
+- `npm run typecheck:test`: green (also run separately).
+- Two red runs before the green one: `t52Wizard.review.test.ts` hard-coded the 40-step budget (now reads
+  `DEFAULT_AGENT_BUDGET`), `typedResults.test.ts` needed `rowOffersAgent`/`harnessOffersAgent` listed as reads; a story
+  line over 200 chars.
+- New jest: `runtime/authoringDefault.test.ts` (sol default, order, fallback, role view), `studio/agentHost.test.ts`
+  (sol bridge, five not-offered shapes, assigned/planted), `copilot/agent/finishGroup.test.ts`; node:test in
+  `scripts/debug/lib/wizardAgentDrive.test.mts`.
+- No live gate (nothing staged into ST). Owed: M18 re-score with the widened golden, M19 at 60 / 36 steps, and one live
+  check that a fresh install with opencode offered shows "Default: opencode · openai/gpt-6.1-sol" and runs the wizard on
+  the bridge; `so-ui.mts assert-player-clean` with a cloud task assigned (F23).

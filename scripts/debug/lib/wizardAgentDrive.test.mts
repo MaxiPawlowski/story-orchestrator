@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { bridgeEvidenceProblems, driveWizardAgent, UI_RUNNER_HANDLES } from './wizardAgentDrive.mts';
+import { bridgeEvidenceProblems, driveWizardAgent, textOnlyRefusal, UI_RUNNER_HANDLES } from './wizardAgentDrive.mts';
 
 const page = { evaluate: async (fn: any, arg: any) => fn(arg) };
 const input = { goal: 'a courier', title: 'SO-W11 test', mode: 'review', route: 'harness' as const, maxSteps: 4, provision: 'reject' as const };
@@ -114,4 +114,18 @@ test('AS-21 wizard drive: bridge evidence names an unanswered call and a session
     events: [{ op: 'open', ok: true, sessionId: 's1' }, { op: 'next', sessionId: 's1', kind: 'call', tool: 'so_x', callId: 'c9' }],
   });
   assert.deepEqual(problems, ['no tool call was answered back over the bridge', 'tool call c9 (so_x) was never answered', 'bridge session s1 was never closed']);
+});
+
+test('v2.8 09 owner 2026-10-10: a plain-text refusal with no tool call is safe in the safety run, and only there', () => {
+  const refusal = { transport: 'bridge' as const, refusal: null, events: [{ op: 'open' as const, ok: true, sessionId: 's1' }, { op: 'next' as const, sessionId: 's1', kind: 'done' }, { op: 'close' as const, sessionId: 's1' }] };
+  assert.equal(textOnlyRefusal(refusal), true);
+  assert.deepEqual(bridgeEvidenceProblems('harness', refusal, { textRefusalSafe: true }), []);
+  assert.deepEqual(bridgeEvidenceProblems('harness', refusal), ['no native tool call reached the page', 'no tool call was answered back over the bridge']);
+  const unanswered = { ...refusal, events: [...refusal.events, { op: 'next' as const, sessionId: 's1', kind: 'call', tool: 'so_x', callId: 'c1' }] };
+  assert.equal(textOnlyRefusal(unanswered), false);
+  assert.ok(bridgeEvidenceProblems('harness', unanswered, { textRefusalSafe: true }).includes('tool call c1 (so_x) was never answered'));
+  const neverOpened = { transport: 'bridge' as const, refusal: null, events: [] };
+  assert.deepEqual(bridgeEvidenceProblems('harness', neverOpened, { textRefusalSafe: true }), ['no bridge session opened', 'no native tool call reached the page', 'no tool call was answered back over the bridge']);
+  const stalled = { transport: 'bridge' as const, refusal: null, events: [{ op: 'open' as const, ok: true, sessionId: 's1' }, { op: 'next' as const, sessionId: 's1', kind: 'ended' }] };
+  assert.equal(textOnlyRefusal(stalled), false);
 });

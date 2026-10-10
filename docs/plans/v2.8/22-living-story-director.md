@@ -496,6 +496,14 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
 5. Divergence thresholds: answered by L3 (§Director tune: 0.8 ×2 / 0.97, committed turns only); still not a calibration, M22 owed.
 6. The critic errs strict (spike). Keep it, soften it further, or let a stalled frontier fall back to `suggest`?
 
+**Owner answers 2026-10-10** (no code change; this is what is built):
+- Question 2: **keep.** A prepared way forward (prefetch) uses the checkpoint's one branch, so a prefetched checkpoint
+  does not branch again on divergence.
+- Question 3: **no per-story off switch for now.** Branching stays install-wide (`stagecraft.branchingEnabled`); no
+  `living.branching` key.
+- Question 4: **branches apply on their own** (`auto`) for authored stories too; nothing waits in Author view.
+- Questions 1, 5 and 6 stay open.
+
 ## Gate record (2026-10-10, branch `v2.8-living-director`, merged with master `84c23335`)
 
 - `npm run gates -- --no-storybook`: **RED at build only**:

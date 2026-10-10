@@ -8,8 +8,16 @@ something different, so splitting them is usually better and often cheaper.
 | **Replies** | Writes what the characters say. | Prose, voice, staying in character, a long context. An RP or storytelling finetune is a good fit. | TheDrummer's Artemis 31B | SillyTavern's own connection (the chat model) |
 | **Memory model** | Reads the chat after each reply: story facts, memories, summaries, whether a scene is over. | Following instructions and strict output formats, not prose flair. Needs its instruct template. | DeepSeek (Chat Completion) | **Memory → Memory model profile** |
 | **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin; experimental: decider-4b on this machine ([local judge](judge.md#local-judge-experimental)) | **Judge** section ([Judge](judge.md)) |
-| **Wizard and road ahead** | Builds stories from a premise through tool calls, and writes generated scenes. | Reliable tool calling and planning. | DeepSeek | **Memory → Models per task → Wizard and road ahead** |
+| **Wizard and road ahead** | Builds stories from a premise through tool calls, writes generated scenes, and answers Ask. | Reliable tool calling and planning. | opencode `openai/gpt-6.1-sol` on a subscription; DeepSeek pay-per-token | **Memory → Models per task → Wizard and road ahead** |
 | **Image prompts** | Turns a scene into a picture prompt. Optional. | Short, literal output. | any small instruct model | **Images → Image-prompt model** ([Illustrations](images.md)) |
+
+**The wizard's default.** Left on its default, **Wizard and road ahead** (and Ask, which shares it) uses, in order:
+opencode `openai/gpt-6.1-sol` through the [harness plugin](harness.md) when the plugin offers it with the wizard's
+tool bridge (the subscription case: no per-token bill); otherwise the first DeepSeek Chat Completion profile (pay per
+token once its quota runs out); otherwise the memory model. The select shows which one as "Default: …", and a profile
+or harness you pick there always wins. gpt-6.1-sol was the better author in our runs but much slower: about 25 s per
+Ask answer and close to half an hour per wizard run, against 3 s and 2 minutes on DeepSeek flash. If a default
+gpt-6.1-sol call fails, that call is retried on the next default (DeepSeek, or the memory model).
 
 An RP finetune is a poor wizard. It is tuned to stay in a scene and write prose, so it tends to narrate instead of
 calling a tool, invent arguments, or drift from the plan; the wizard needs a model that follows a tool schema exactly.

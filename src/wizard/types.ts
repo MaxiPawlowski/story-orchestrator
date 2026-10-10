@@ -43,6 +43,12 @@ export interface ProvisioningEnvironment {
   grantedLorebooks: string[];
   castNames: string[];
   personaNames: string[];
+  groupCasts?: GroupCast[];
+}
+
+export interface GroupCast {
+  name: string;
+  members: string[];
 }
 
 export interface ProvisioningResult {

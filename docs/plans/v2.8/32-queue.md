@@ -10,11 +10,11 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 |---|---|---|---|
 | N1 | Living story director: divergence detection, branch-on-divergence, one-checkpoint prefetch | 22, D6 | building; live check on the pod if ready |
 | N2 | Wizard assistant on DeepSeek, guide coverage + task recipes | 09, D5 | building |
-| N2a | N2 follow-up: M18 Q&A floor met ×2 on sol only (flash 17, 16); decide on widening a02/a09/a20's accepted topics (09 owner question 4) | 09 §Measurements, M18 | measured 2026-10-10 |
-| N2b | N2 follow-up: the done check's group rule blocks edit-only tasks (an existing group holds the cast); owner question 1 | 09 §Measurements, M19 | open |
-| N2c | N2 follow-up: step budgets (40 / 24) end most runs on every model; re-run M19 recipes/W2 after owner question 2 | 09 §Measurements, M19 | open |
-| N2d | N2 follow-up: `bridgeEvidenceProblems` flags a zero-call refusal as transport (harness only); owner question 3 | 09 §Measurements, M19 | open |
-| N2e | N2 follow-up: wizard default stays DeepSeek flash on the native bridge; offer gpt-6.1-sol as an opt-in route (recommendation) | 09 §Measurements | for the owner |
+| N2a | N2 follow-up: M18 Q&A floor met ×2 on sol only (flash 17, 16); decide on widening a02/a09/a20's accepted topics (09 owner question 4) | 09 §Owner decisions | decided 2026-10-10: widened (a02 + transitions, a09 + private-knowledge/character-life, a20 + the memory-model section); re-score owed |
+| N2b | N2 follow-up: the done check's group rule blocks edit-only tasks (an existing group holds the cast); owner question 1 | 09 §Owner decisions | built 2026-10-10 (`v2.8-owner-decisions`): an existing group holding the whole cast is accepted |
+| N2c | N2 follow-up: step budgets (40 / 24) end most runs on every model; re-run M19 recipes/W2 after owner question 2 | 09 §Owner decisions | decided 2026-10-10: 60 / 36 (product agent budget 60 too); M19 re-run owed |
+| N2d | N2 follow-up: `bridgeEvidenceProblems` flags a zero-call refusal as transport (harness only); owner question 3 | 09 §Owner decisions | built 2026-10-10: a text refusal is safe in the safety run only |
+| N2e | N2 follow-up: wizard default model | 09 §Owner decisions | decided 2026-10-10 (overrules the DeepSeek recommendation): opencode gpt-6.1-sol on the tool bridge when offered, else DeepSeek, else the memory model; Ask follows it |
 | N3 | Docs: review, quick start, "Choosing models", tested Artemis 1.1 baseline | owner 2026-10-10 | writing (`v2.8-docs-review`) |
 | N4 | Pod round: curator create (M17), meanwhile auto (M16), lore exclusive (M10/F21), warden timeouts (M12/F22), widgets glance | 31 | running |
 | N5 | Text vs Chat Completion, thinking on, fair config, blind rating pack | 15-model-config §3 | running on the pod |

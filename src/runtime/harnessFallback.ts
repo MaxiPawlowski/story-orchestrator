@@ -3,10 +3,11 @@ import type { ExtractionReply, FellBack, ModelRoute } from "@extraction/modelRou
 import { routeKey, routeLabel } from "@extraction/modelRoute";
 import type { PassRole } from "@extraction/passRole";
 import type { NoteCall } from "./modelCallCore";
-import { roleEffort, roleHarness, type RouteSettings } from "./passProfiles";
+import { defaultFallbackRoute, roleEffort, roleHarness, type RouteSettings } from "./passProfiles";
 
 export const fallbackRoute = (settings: RouteSettings, role: PassRole, exists: (profileId: string) => boolean): ModelRoute | null => {
-  const profileId = roleHarness(settings, role) ? settings.routes?.[role]?.onFailure?.profileId : undefined;
+  if (!roleHarness(settings, role)) return defaultFallbackRoute(settings, role, exists);
+  const profileId = settings.routes?.[role]?.onFailure?.profileId;
   if (!profileId || !exists(profileId)) return null;
   const effort = roleEffort(settings, role);
   return effort === "default" ? { kind: "profile", profileId } : { kind: "profile", profileId, effort };
