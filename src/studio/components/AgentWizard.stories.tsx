@@ -231,7 +231,7 @@ export const OutOfBudgetContinueGrantsAFreshSlice: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Out of budget");
-    await expect(canvasElement.querySelector('[data-so="agent-budget-note"]')).toHaveTextContent("Continue grants a fresh budget: 40 more steps, ~240k tokens.");
+    await expect(canvasElement.querySelector('[data-so="agent-budget-note"]')).toHaveTextContent("Continue grants a fresh budget: 60 more steps, ~240k tokens.");
     await userEvent.click(canvas.getByRole("button", { name: "Continue" }));
     await expect(await canvas.findByText(/Sharpened the opening beat\./)).toBeInTheDocument();
     await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Finished");
