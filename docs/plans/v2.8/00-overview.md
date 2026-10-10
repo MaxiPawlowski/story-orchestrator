@@ -93,6 +93,7 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 30 | `30-model-downloads-civitai-hf.md` | user idea 2026-10-07 | Civitai / Hugging Face keys in ST secrets; confirmed, verified model downloads | D | LI |
 | 31 | `31-v27-wrap-backlog.md` | v2.7 wrap 2026-10-09 | measure / fix / develop backlog from the v2.7 wrap (B1 batch 3, lorebook review); features on, floors informational | — | per row |
 | 32 | `32-queue.md` | owner 2026-10-10 | the ordered queue of every open feature, fix and measurement | — | per row |
+| 33 | `33-pose-library-and-avatars.md` | owner 2026-10-10 | mesh-avatar-studio review; shared pose library (skeleton-guided re-posing, cached per member × look × pose); layered looks that change with the story | D | LI |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -182,6 +183,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook owed |
 | 24 | written 2026-10-03 (test plan); runs last |
 | 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
+| 33 | written 2026-10-10 (research + options); needs owner pick; not built |
 
 ## Review 2026-10-03
 
