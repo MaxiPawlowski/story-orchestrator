@@ -3,10 +3,11 @@ import { validateProvisioningOp, type ProvisioningEnvironment } from "@wizard/in
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
 import { runDiagnostics, type DiagnosticsContext } from "../../studio/diagnostics";
+import { briefingSpoilerNames } from "../../studio/briefingDiagnostics";
 import type { ProvisioningOp } from "@wizard/index";
 import { setAppearance, setChapters, setHouseRules, setPlayer } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
-import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
+import { applyOp, applyOps, applyOpsChecked, BRIEFING_SPOILER_REFUSAL, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
@@ -243,10 +244,16 @@ export const recordUnparsed = (session: AgentSession, issues: string[], meta: St
     repaired: meta.repaired,
   });
 
+const briefingProblem = (draft: StoryV2, op: AgentOp): string | null => {
+  if (op.kind !== "setBriefing") return null;
+  const named = briefingSpoilerNames(applyOp(draft, op), op.briefing);
+  return named.length ? `${BRIEFING_SPOILER_REFUSAL} It names ${named.join(", ")}; rewrite it without them (diagnostic briefing-spoiler-risk).` : null;
+};
+
 const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
   if (isAgentOnly(op)) return agentOnlyProblem(draft, op);
   const issue = applyOpsChecked(draft, [op]).issues[0];
-  return issue ? issue.replace(/^ops\.0: /, "") : null;
+  return issue ? issue.replace(/^ops\.0: /, "") : briefingProblem(draft, op);
 };
 
 export const NO_CHANGE = "this changes nothing in the draft; send only the fields that change, or move on";

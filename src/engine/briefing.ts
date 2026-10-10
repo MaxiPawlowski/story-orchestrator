@@ -9,7 +9,7 @@ export interface BriefingView {
   tone: string | null;
   sections: BriefingSection[];
   startLabel: string;
-  source: "authored" | "intro";
+  source: "authored" | "intro" | "draft";
   chapterId: string | null;
 }
 
@@ -25,9 +25,10 @@ const viewOf = (briefing: StoryBriefing, title: string, chapterId: string | null
   chapterId,
 });
 
-export const composeBriefing = (story: BriefingStory | null): BriefingView | null => {
+export const composeBriefing = (story: BriefingStory | null, drafted?: BriefingSection[] | null): BriefingView | null => {
   if (!story) return null;
   if (story.briefing?.sections.length) return viewOf(story.briefing, story.title, null);
+  if (drafted?.length) return { ...viewOf({ sections: drafted }, story.title, null), source: "draft" };
   const intro = story.player_intro?.trim();
   return intro
     ? { title: story.title, image: null, tone: null, sections: [{ heading: BRIEFING_INTRO_HEADING, text: intro }], startLabel: BRIEFING_START_LABEL, source: "intro", chapterId: null }

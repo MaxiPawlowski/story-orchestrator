@@ -275,7 +275,7 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   extensionConflicts: extensionConflicts(sources.loaded?.story ?? null),
   briefing: briefingState({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
-    chatOpen: hasOpenChat(),
+    chatOpen: hasOpenChat(), hash: sources.loaded?.record?.hash,
   }),
   playerSetup: playerSetupView({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.playerSetup, persona: personaRead(),

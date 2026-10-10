@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { composeBriefing } from "@engine/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { BRIEFING_COPY } from "@features/helpCopy";
-import { BriefingHost } from "./BriefingHost";
+import { BRIEFING_DRAFT_COPY } from "@features/briefingDraftCopy";
+import { BriefingHost, type BriefingHostProps } from "./BriefingHost";
 
 const view = composeBriefing({ title: "The Road", player_intro: "You carry a sealed letter over the pass." });
 
@@ -63,6 +65,32 @@ export const BlockBeforeFirstReplyOpensAndCloses: Story = {
     await canvas.findByRole("dialog", { name: BRIEFING_COPY.beforeYouStart });
     await userEvent.click(canvas.getByRole("button", { name: BRIEFING_COPY.close }));
     await expect(canvasElement.querySelector("#so-briefing")).toBeNull();
+  },
+};
+
+const drafted = composeBriefing({ title: "The Road", player_intro: "You carry a sealed letter over the pass." }, [
+  { heading: "Where you are", text: "The foot of the pass, the night before the crossing." },
+  { heading: "How to play", text: "Write what you do and say; the characters answer." },
+]);
+
+const DraftArrives = (props: BriefingHostProps) => {
+  const [snapshot, setSnapshot] = useState(props.snapshot);
+  useEffect(() => {
+    const timer = setTimeout(() => setSnapshot({ ...snapshot, briefing: { storyId: "road", view: drafted, pending: true, enabled: true } } as RuntimeSnapshot), 50);
+    return () => clearTimeout(timer);
+  }, []);
+  return <BriefingHost {...props} snapshot={snapshot} />;
+};
+
+export const DraftReplacesTheIntroInTheOpenModal: Story = {
+  render: (args) => <DraftArrives {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole("dialog", { name: "The Road" });
+    await canvas.findByText("The foot of the pass, the night before the crossing.");
+    await expect(canvas.queryByText("You carry a sealed letter over the pass.")).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="briefing-drafted"]')).toHaveTextContent(BRIEFING_DRAFT_COPY.drafted);
+    await expect(dialog).toHaveAttribute("open");
   },
 };
 

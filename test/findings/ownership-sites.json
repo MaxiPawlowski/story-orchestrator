@@ -900,6 +900,10 @@
     "src/runtime/livingPort.ts#LivingPort.afterBoundary": {
       "status": "delegate",
       "note": "v2.8 22 (bundle split): awaits LivingCoordinator.checkDivergence, which owns the check (after loading the lazy coordinator). The writes after the awaits only place scheduler jobs (`schedule`, `prefetch`); each job mints its own run when it starts (LivingCoordinator.propose / proposeBranch delegate to LivingCoordinator.record, checked). Case: livingPort.test.ts \"adopt loads the coordinator once; the boundary pass schedules, checks divergence only when nothing fired, then prefetches\"."
+    },
+    "src/runtime/briefingDraftHost.ts#draftBriefing": {
+      "status": "checked",
+      "note": "v2.8 10 D2 (2026-10-10): the player's per-chat briefing draft. The RunGuard minted before the model call is checked right after it, before the draft is checked, journaled or written through setUiSettings (extras.briefing.draft); a chat switch while the model answers writes and journals nothing (briefingDraft.test.ts \"a chat switch while the model answers writes nothing\")."
     }
   }
 }

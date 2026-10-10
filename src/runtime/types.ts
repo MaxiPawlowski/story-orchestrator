@@ -201,6 +201,7 @@ export interface UiRuntimeSettings {
   announceTransitions: boolean;
   hudEnabled: boolean;
   briefing?: boolean;
+  briefingDraft?: boolean;
   playerSetup?: boolean;
   inline: InlineSettings;
   presence?: PresenceSettings;

@@ -25,7 +25,11 @@ opening scene still posts behind it; close it with the button at the bottom (**B
 Each chat shows it once, and remembers that across reloads, swipes and edits. **Restart story** shows it again. Re-open
 it any time with **Story briefing** at the bottom of the drawer's Overview, or `/story intro`. To stop it opening on
 its own, untick **Show the story briefing when a story starts** under **Playing**, or tick **Don't show briefings**
-on the page itself. A story without a briefing shows its introduction instead, if it has one.
+on the page itself. A story without a briefing shows its introduction instead, if it has one, and the wizard's model
+writes a briefing for this chat from the story's opening (who you play, where you start, who is with you). It arrives on
+the open page a few seconds later, marked as written for this chat; the opening scene never waits for it, and a draft
+that would give anything away is thrown out. Untick **Write a briefing when a story has none** to keep the
+introduction.
 
 ## Your character
 

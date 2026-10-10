@@ -118,6 +118,13 @@ export const namesTerms = (text: string, terms: Terms): string[] => {
 
 export const briefingTermsFor = (draft: StoryV2, startId: string): Terms => storyTerms(draft, startId);
 
+export const briefingSpoilerNames = (draft: StoryV2, briefing: StoryBriefing): string[] => {
+  const start = draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0];
+  if (!start) return [];
+  const terms = storyTerms(draft, start.id);
+  return unique(fields(briefing, "briefing").flatMap(([, text]) => namesTerms(text, terms)));
+};
+
 const checkFields = (briefing: StoryBriefing, path: string, terms: Terms, push: BriefingRun["push"]) => {
   fields(briefing, path).forEach(([at, text]) => {
     const found = namesTerms(text, terms);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { briefingParagraphs, type BriefingView } from "@engine/index";
 import { BRIEFING_COPY, ONBOARDING_LINES } from "@features/helpCopy";
+import { BRIEFING_DRAFT_COPY } from "@features/briefingDraftCopy";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
@@ -42,6 +43,7 @@ const BriefingBody = ({ view, level }: { view: BriefingView; level: "story" | "c
         <Paragraphs text={section.text} />
       </div>
     ))}
+    {view.source === "draft" && <p data-so="briefing-drafted" className="text-sm opacity-70">{BRIEFING_DRAFT_COPY.drafted}</p>}
   </section>
 );
 

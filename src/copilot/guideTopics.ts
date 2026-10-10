@@ -21,8 +21,9 @@ export const GUIDE_TOPICS = {
     title: "Briefing",
     fields: "briefing, chapters[].briefing",
     text: "Player copy shown once when the story first starts in a group chat: {title, image, sections: [{heading, text}], tone, start_label}, at most 6 sections of 1200 "
-      + "characters, plain text, no macros. Never sent to the model. Without it, player_intro shows as one section; description never does. A chapter's briefing opens that "
-      + "chapter. Write only what the player may know then: no later beat, outcome, or character the start keeps off stage.",
+      + "characters, plain text, no macros. The reply model never reads it. Without it, player_intro shows as one section (or a per-chat draft written from the opening "
+      + "only); description never does. A chapter's briefing opens that chapter. Propose it with setBriefing once the opening beat and its cast exist. Write only what the "
+      + "player may know then: no later beat, outcome, or character the start keeps off stage.",
   },
   player: {
     title: "Who the player is",
@@ -396,10 +397,10 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
-  qualities: ["quality-rubric", "latching", "chance-roll"],
+  qualities: ["quality-rubric", "latching", "chance-roll", "briefing"],
   checkpoints: ["checkpoints", "objective-agency"],
   transitions: ["gates", "transitions"],
-  effects: ["opening-scene", "drives-motives", "requirements"],
+  effects: ["opening-scene", "drives-motives", "requirements", "briefing"],
   provisioning: ["opening-scene", "requirements"],
 };
 

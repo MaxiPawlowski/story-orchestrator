@@ -51,6 +51,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "generation/generate.ts": [],
   "generation/living/direct.ts": [],
   "runtime/askHost.ts": ["authoring"],
+  "runtime/briefingDraftHost.ts": ["authoring"],
   "runtime/canonSynthesis.ts": ["synthesis"],
   "runtime/chapterSeal.ts": ["synthesis"],
   "runtime/coordinators/agendaProposalCoordinator.ts": ["curator"],
