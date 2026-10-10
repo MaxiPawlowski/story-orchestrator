@@ -1,6 +1,10 @@
-import { chainThresholdFor, gateKeys, GENERATED_CHECKPOINT_PREFIX, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
+import {
+  chainThresholdFor, gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, parseStoryV2, PLAYER_TURNS_KEY, progressQualityForAnchor,
+  type GateNode, type NormalizedStoryV2, type StoryV2, type Transition,
+} from "@engine/index";
 import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
+import { LIVING_BEAT_TURNS } from "./living/types";
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -37,6 +41,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
     const chapter = stub?.chapter;
     const stubWorldInfo = stub?.effects?.world_info;
     const exits = stubExits(raw.transitions, entry);
+    const paced = Boolean(raw.living) && isLivingId(entry.stubId);
     for (let index = transitions.length - 1; index >= 0; index -= 1) {
       if (transitions[index].from === entry.sourceCheckpointId && transitions[index].to === entry.stubId) transitions.splice(index, 1);
     }
@@ -84,6 +89,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         transitions.push(transition);
       });
       exits.forEach((exit, exitIndex) => transitions.push({ ...exit, from, priority: declared + exits.length - exitIndex }));
+      if (paced) transitions.push({ from, to: entry.targetAnchorId, priority: 0, gate: { q: PLAYER_TURNS_KEY, op: ">=", v: LIVING_BEAT_TURNS } });
     });
   });
   const parsed = parseStoryV2({ ...raw, checkpoints, transitions });

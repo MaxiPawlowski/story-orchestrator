@@ -292,7 +292,8 @@ export const GUIDE_TOPICS = {
     fields: "clues[], links[], image, pins[], action",
     text: "kind clues: clues [{id, text, quality (bool) | when (gate), action?}], links [{from, to, label?}]; a clue shows once found, a link once both ends show. "
       + "kind map: image (a SillyTavern background file name), pins [{id, label, x, y (0-100 %), checkpoint | when, action?}]; a checkpoint pin shows once reached and marks you-are-here. "
-      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads.",
+      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads. "
+      + "A clue read in a reply shows at the next reply; an author /cp set holds against a reading of the messages it already saw.",
   },
   "html-panels": {
     title: "Story-made HTML panels",
@@ -316,7 +317,7 @@ export const GUIDE_TOPICS = {
     text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
       + "when play reaches the last written anchor (authored_until in a hybrid), the story director writes the next one (liv_<n>, a stub before it, at most 2 new qualities, "
       + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
-      + "Limits: name 60 chars, objective 400 (over-long is cut at a sentence, else asked again). Save as story keeps reached turning points only.",
+      + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
   branching: {
     title: "Branches that follow the player",

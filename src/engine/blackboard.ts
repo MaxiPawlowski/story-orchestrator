@@ -7,6 +7,7 @@ export interface BlackboardDelta {
   strictUnlatch?: boolean;
   writer?: "card-entry" | "extractor" | "manual";
   boundary?: number;
+  evidenceAt?: number;
 }
 
 export type ApplyOutcome =
@@ -18,6 +19,7 @@ export interface BlackboardSnapshot {
   versions: Record<string, number>;
   latched: Record<string, boolean>;
   writerOf?: Record<string, { writer: "card-entry" | "extractor" | "manual"; boundary: number }>;
+  authoredAt?: Record<string, number>;
 }
 
 const cloneRecord = <T>(value: Record<string, T>): Record<string, T> => ({ ...value });
@@ -35,7 +37,9 @@ export class Blackboard {
   private versions: Record<string, number> = {};
   private latched: Record<string, boolean> = {};
   private writerOf: NonNullable<BlackboardSnapshot["writerOf"]> = {};
+  private authoredAt: Record<string, number> = {};
   private writeBoundary = 0;
+  private writeMessage = -1;
 
   constructor(private readonly story: Pick<NormalizedStoryV2, "qualityByKey" | "cardFieldByQuality">, snapshot?: BlackboardSnapshot) {
     if (snapshot) this.restore(snapshot);
@@ -84,10 +88,17 @@ export class Blackboard {
     }
 
     this.values[delta.q] = delta.v;
+    if (delta.writer === "manual") this.authoredAt[delta.q] = this.writeMessage;
     if (this.story.cardFieldByQuality?.[delta.q]) this.writerOf[delta.q] = { writer: delta.writer ?? "extractor", boundary: delta.boundary ?? this.writeBoundary };
     this.versions[delta.q] = (this.versions[delta.q] ?? 0) + 1;
     if (quality.latching && (quality.type !== "bool" || delta.v === true)) this.latched[delta.q] = true;
     return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
+  }
+
+  readBeforeAuthor(delta: BlackboardDelta, readTo: number | undefined): boolean {
+    const evidence = delta.evidenceAt ?? readTo;
+    const authored = this.authoredAt[delta.q];
+    return delta.writer !== "manual" && authored !== undefined && evidence !== undefined && evidence <= authored;
   }
 
   holdsAgainst(earlier: BlackboardDelta, later: BlackboardDelta): boolean {
@@ -102,6 +113,7 @@ export class Blackboard {
   // resetQuality and the step-back recovery, never by an extraction path.
   override(key: string, value: PrimitiveValue | undefined): void {
     delete this.latched[key];
+    delete this.authoredAt[key];
     this.versions[key] = (this.versions[key] ?? 0) + 1;
     if (value === undefined) delete this.values[key];
     else this.values[key] = value;
@@ -118,6 +130,7 @@ export class Blackboard {
       versions: cloneRecord(this.versions),
       latched: cloneRecord(this.latched),
       ...(Object.keys(this.writerOf).length ? { writerOf: Object.fromEntries(Object.entries(this.writerOf).map(([key, value]) => [key, { ...value }])) } : {}),
+      ...(Object.keys(this.authoredAt).length ? { authoredAt: cloneRecord(this.authoredAt) } : {}),
     };
   }
 
@@ -126,8 +139,12 @@ export class Blackboard {
     this.versions = cloneRecord(snapshot.versions);
     this.latched = cloneRecord(snapshot.latched);
     this.writerOf = Object.fromEntries(Object.entries(snapshot.writerOf ?? {}).map(([key, value]) => [key, { ...value }]));
+    this.authoredAt = cloneRecord(snapshot.authoredAt ?? {});
     this.seed();
   }
 
-  setWriteBoundary(boundary: number): void { this.writeBoundary = boundary; }
+  setWriteBoundary(boundary: number, messageId?: number): void {
+    this.writeBoundary = boundary;
+    if (messageId !== undefined) this.writeMessage = messageId;
+  }
 }

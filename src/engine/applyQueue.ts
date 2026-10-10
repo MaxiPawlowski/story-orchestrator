@@ -85,7 +85,8 @@ export class ApplyQueue {
         ...pending.slice(index + 1).filter((newer) => covers(newer.turnRange, entry.turnRange)),
         ...pending.slice(0, index).filter((earlier) => readsLater(earlier.turnRange, entry.turnRange)),
       ].flatMap((newer) => newer.deltas);
-      const [kept, dropped] = splitEntry(entry, (delta) => !rewrites.some((later) => later.q === delta.q && !blackboard.holdsAgainst(delta, later)));
+      const [kept, dropped] = splitEntry(entry, (delta) => !rewrites.some((later) => later.q === delta.q && !blackboard.holdsAgainst(delta, later))
+        && !(entry.source !== "mechanical" && blackboard.readBeforeAuthor(delta, entry.turnRange?.to)));
       if (dropped) discarded.push(dropped);
       if (!kept) return;
       const outcomes = kept.deltas.map((delta) => blackboard.applyDelta(delta));

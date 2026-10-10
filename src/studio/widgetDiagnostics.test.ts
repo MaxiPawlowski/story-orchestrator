@@ -41,6 +41,14 @@ describe("widget diagnostics (v2.8 23)", () => {
     expect(found.map((entry) => [entry.code, entry.path])).toEqual([["widget-item-never-read", "widgets.0.clues.1"], ["map-pin-unreachable", "widgets.1.pins.1.checkpoint"]]);
   });
 
+  test("F25: a clue written with the quality shorthand is checked, not a crash, and a string bind previews its key", () => {
+    const shorthand = { id: "wall", kind: "clues", title: "Wall", clues: [{ id: "a", text: "Prints.", quality: "searched" }, { id: "b", text: "Orphan.", quality: "orphan" }] };
+    expect(codes([shorthand]).map((entry) => [entry.code, entry.path])).toEqual([["widget-item-never-read", "widgets.0.clues.1"]]);
+    const draft = story([shorthand, { id: "count-clock", kind: "clock", title: "Count", bind: "quality:count" }]);
+    expect(previewKeys(draft.widgets![0], draft)).toEqual(["searched", "orphan"]);
+    expect(previewKeys(draft.widgets![1], draft)).toEqual(["count"]);
+  });
+
   test("a map picture the install lacks is named only when the install lists its backgrounds", () => {
     expect(codes([river], { backgroundNames: () => ["other.png"] }).map((entry) => entry.code)).toContain("map-image-missing");
     expect(codes([river], { backgroundNames: () => ["River.png"] }).map((entry) => entry.code)).not.toContain("map-image-missing");

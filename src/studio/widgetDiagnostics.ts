@@ -1,5 +1,6 @@
 import { gateKeys, type GateNode, type StoryV2 } from "@engine/index";
 import { boundCardQualities } from "@engine/cardFields";
+import { clueKeys } from "./widgetKeys";
 
 type WidgetCode = "widget-item-never-read" | "map-pin-unreachable" | "map-image-missing" | "html-widget-declared";
 
@@ -31,7 +32,7 @@ export const scopedKeys = (draft: StoryV2): Set<string> => {
 
 const itemGates = (draft: StoryV2): Array<{ path: string; keys: string[]; what: string }> => (draft.widgets ?? []).flatMap((widget, index) => [
   ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, keys: gateKeys(widget.visible_when), what: `panel '${widget.id}'` }] : []),
-  ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: gateKeys(clue.when), what: `clue '${clue.id}'` })),
+  ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: clueKeys(clue), what: `clue '${clue.id}'` })),
   ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, keys: gateKeys(pin.when), what: `pin '${pin.id}'` }] : [])),
   ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [row.quality, ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
 ]);

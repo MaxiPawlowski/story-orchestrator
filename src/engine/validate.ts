@@ -14,7 +14,7 @@ import { indexCardFields, validateCardEffects } from "./cardFields";
 import { checkStretches } from "./validate/stretch";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer } from "./validate/gameLayer";
-import { checkLiving, livingOpening, needsLivingOpening, readLiving } from "./validate/living";
+import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./validate/living";
 
 export { readChapters };
 
@@ -107,7 +107,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const living = readLiving(json.living, errors);
   const authoredCheckpoints = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
   const checkpoints = living && needsLivingOpening(living, authoredCheckpoints) ? [livingOpening(living, json.chapters), ...authoredCheckpoints] : authoredCheckpoints;
-  const baseQualities = readList(json.qualities, "qualities", readQuality, errors);
+  const baseQualities = addLivingQualities(living, readList(json.qualities, "qualities", readQuality, errors));
   const transitions = readList(json.transitions, "transitions", readTransition, errors);
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
