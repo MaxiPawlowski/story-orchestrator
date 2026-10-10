@@ -1,7 +1,8 @@
 # Plan 09 — The wizard as an in-app assistant
 
-**Status (2026-10-03): v2.8 plan 09 (was v2.7 plan 27). Decided (all five recommendations, answers below); not built;
-live Q&A set not written or run.** Overview: `00-overview.md`.
+**Status (2026-10-10): built on `v2.8-wizard-assistant`, on by default (owner 2026-10-10: every built feature on,
+floors informational; replaces §E's dev-only/off-by-default rollout).** A knowledge base, B Ask (author + player,
+`copilot.ask`), C Build a character, §F spike run (results and build decision in §Gate record). Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance CL (the `deepseek 4.1 flash` Chat Completion
 profile).
 

@@ -1160,6 +1160,32 @@ async function recordPlayerSurfaces(page, tab: string): Promise<PlayerSurfaceRec
   }, { surfaces: RECORDED_SURFACES, tab });
 }
 
+export const PLAYER_ASK_QUESTION = 'What happens next in the story, and who is hiding something?';
+
+export async function askInHelp(page, question: string, timeoutMs = 120000) {
+  return evaluateInST(page, async ({ question: asked, timeoutMs: limit }) => {
+    const box = document.querySelector('#so-panels-root #so-help-ask, #story-orchestrator-settings #so-help-ask') as HTMLElement | null;
+    const field = box?.querySelector('textarea[data-so="ask-question"]') as HTMLTextAreaElement | null;
+    if (!box || !field) return { asked: false, persona: null, status: null, text: null, topics: [] as string[] };
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    setter?.call(field, asked);
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    (box.querySelector('[data-so="ask-submit"]') as HTMLButtonElement | null)?.click();
+    const started = Date.now();
+    const settled = () => box.querySelector('[data-so="ask-text"], [data-so="ask-error"]');
+    while (!settled() && Date.now() - started < limit) await new Promise((resolve) => setTimeout(resolve, 100));
+    const answer = box.querySelector('[data-so="ask-text"]');
+    return {
+      asked: true,
+      persona: box.getAttribute('data-persona'),
+      status: answer?.getAttribute('data-status') ?? (box.querySelector('[data-so="ask-error"]') ? 'error' : 'timeout'),
+      text: (settled() as HTMLElement | null)?.innerText ?? null,
+      topics: Array.from(box.querySelectorAll('[data-so="ask-topic"]')).map((topic) => topic.getAttribute('data-topic') ?? ''),
+    };
+  }, { question, timeoutMs });
+}
+
 export async function assertPlayerClean(page) {
   await openStoryDrawer(page);
   const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
@@ -1204,6 +1230,8 @@ export async function assertPlayerClean(page) {
     for (let tries = 0; tries < 40 && !document.querySelector('#so-panels-root [data-so="help-panel"]'); tries += 1) await new Promise((resolve) => setTimeout(resolve, 50));
     return true;
   });
+  const ask = await askInHelp(page, PLAYER_ASK_QUESTION);
+  if (ask.asked && ask.persona !== 'player') findings.push({ tab: 'help', needle: `the Ask box answers as ${ask.persona} in player mode` });
   const helpHits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
   for (const hit of helpHits ?? []) {
     findings.push({ tab: 'help', needle: `${hit.selector} reachable in ${hit.surface}` });
@@ -1218,7 +1246,7 @@ export async function assertPlayerClean(page) {
   findings.push(...playerSurfaceFindings(records, tokens));
   findings.push(...await inlinePlayerSweep(page, tokens));
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
-  return { ok: findings.length === 0, tabs, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
+  return { ok: findings.length === 0, tabs, ask, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
 }
 
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {

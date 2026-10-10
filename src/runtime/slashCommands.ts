@@ -137,6 +137,7 @@ async function memCommand(manager: RuntimeManager, value: string | string[]) {
 export const NO_STORY_BRIEFING = "No story is playing in this chat.";
 export const NO_BRIEFING_WRITTEN = "This story has no briefing.";
 export const GUIDE_UNAVAILABLE = "The guide could not open here. Reload the page and try again.";
+export const ASK_USAGE = "Usage: /story ask <your question>";
 
 async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   const parts = partsOf(value);
@@ -161,6 +162,13 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     return lines.length ? dump(lines.join("\n")) : show(NO_STORY_BRIEFING);
   }
   if (command === "quests") return dump((await import("./gameSummary")).gameSummaryText(manager.getSnapshot().game));
+  if (command === "ask") {
+    const question = parts.slice(1).join(" ");
+    if (!question) return show(ASK_USAGE);
+    const host = await import("./askHost");
+    const outcome = await host.askInChat(manager, question);
+    return outcome.ok ? dump(host.answerText(outcome)) : show(outcome.reason);
+  }
   if (command === "guide") {
     const page = parts[1]?.replace(/^\/+/, "");
     return requestGuide(page ? (page.endsWith(".md") ? page : `${page}.md`) : undefined) ? "" : show(GUIDE_UNAVAILABLE);

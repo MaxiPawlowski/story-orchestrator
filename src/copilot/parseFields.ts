@@ -234,6 +234,9 @@ const readMotives = (value: unknown): Record<string, string> | undefined => {
   return kept.length ? Object.fromEntries(kept.map(([id, text]) => [id, text.trim()])) : undefined;
 };
 
+const isTalkControl = (value: unknown): boolean => isRecord(value)
+  && (value.speakers === undefined || (Array.isArray(value.speakers) && value.speakers.every(isRecord)));
+
 const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean]> = [
   ["name", "a string", (value) => typeof value === "string"],
   ["objective", "a string", (value) => typeof value === "string"],
@@ -243,7 +246,7 @@ const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean
   ["convergence_threshold", "a number", (value) => typeof value === "number"],
   ["tension_target", `one of ${TENSION_LEVELS.join(", ")}`, (value) => typeof value === "string" && (TENSION_LEVELS as readonly string[]).includes(value)],
   ["agency", "an object {protect_player_choice?, never_narrate_player_action?, objective_kind?, alternate?}", isRecord],
-  ["talk_control", "an object {speakers?, lead?, director?, …}", isRecord],
+  ["talk_control", "an object {speakers?: [{member, weight?}], lead?, director?, …}", (value) => isTalkControl(value)],
 ];
 
 const checkpointFieldIssues = (value: Record<string, unknown>, path: string): string[] => CHECKPOINT_FIELD_TYPES
@@ -262,7 +265,7 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (typeof value.convergence_threshold === "number") patch.convergence_threshold = value.convergence_threshold;
   if (typeof value.tension_target === "string" && (TENSION_LEVELS as readonly string[]).includes(value.tension_target)) patch.tension_target = value.tension_target as TensionLevel;
   if (isRecord(value.agency)) patch.agency = value.agency as Checkpoint["agency"];
-  if (isRecord(value.talk_control)) patch.talk_control = value.talk_control as Checkpoint["talk_control"];
+  if (isTalkControl(value.talk_control)) patch.talk_control = value.talk_control as Checkpoint["talk_control"];
   if (value.state_snapshot !== undefined) patch.state_snapshot = readSnapshot(value.state_snapshot, `${path}.state_snapshot`, issues);
   if (value.effects !== undefined) patch.effects = readEffects(value.effects, `${path}.effects`, issues);
   const motives = readMotives(value.motives);

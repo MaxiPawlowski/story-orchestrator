@@ -55,6 +55,9 @@ const memoryModelLimit = (profileId: string | null) => {
 };
 
 ui.global("storyOrchestratorRuntime", manager);
+ui.global("storyOrchestratorAsk", {
+  ask: async (question: string, persona?: "player" | "author") => (await import("@runtime/askHost")).askInChat(manager, question, persona),
+});
 void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
 void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_HARNESS }) => {
   ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
@@ -212,6 +215,7 @@ const StudioHost = () => {
         copilotEnabled={snapshot.copilot.enabled}
         runCopilotStage={(input) => manager.runCopilotStage(input)}
         agentModel={manager.model}
+        askEnabled={snapshot.copilot.ask}
         onSaved={applySavedStory}
         wizardHost={wizardHost}
         intent={studioIntent}

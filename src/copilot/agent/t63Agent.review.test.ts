@@ -115,6 +115,16 @@ describe("T6-3 MEDIUM: an invalid field value is refused with its reason, never 
     expect(object.steps[0].status).toBe("pending");
   });
 
+  it("refuses talk_control whose speakers is not a list of members, and applies a well-formed one (v2.8 09 §F spike)", () => {
+    for (const speakers of ["Arin", { member: "Arin" }, ["Arin"]]) {
+      const session = run(running(), "updateCheckpoint", { id: "start", patch: { talk_control: { speakers } } });
+      expect(session.steps[0].status).toBe("refused");
+      expect(session.steps[0].observation).toContain("talk_control");
+    }
+    const object = run(running(), "updateCheckpoint", { id: "start", patch: { talk_control: { speakers: [{ member: "arin" }] } } });
+    expect(object.steps[0].status).toBe("pending");
+  });
+
   it("refuses a card whose before and after read the same", () => {
     const session = run(running(), "setRequirements", { requirements: { members: ["Envoy Marrow", "Master Halden"] } });
     expect(session.steps[0].status).toBe("refused");

@@ -239,3 +239,31 @@ export const AgentSessionBelongsToItsDraft: Story = {
     await expect(canvasElement.querySelector("#so-agent-status")).toBeNull();
   },
 };
+
+export const AskAndBuildACharacterSitBesideTheWizard: Story = {
+  args: {
+    enabled: true,
+    runStage: stageRunner(VALID_RESPONSE),
+    runAgentTurn: async (session) => ({ session, apply: null }),
+    ask: async () => ({ status: "answered", answer: "Use readGuide topics.", topics: [], showMe: null }),
+    host: { environment: () => emptyEnvironment(), applyProvisioning: async () => ({ ok: true, message: "" }) },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const modes = [...canvasElement.querySelectorAll('[data-so="wizard-mode"]')].map((button) => button.getAttribute("data-mode"));
+    await expect(modes).toEqual(["staged", "agent", "ask", "character"]);
+    await userEvent.click(canvas.getByRole("button", { name: "Ask" }));
+    await expect(canvasElement.querySelector("#so-studio-ask")).not.toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Run stage" })).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Build a character" }));
+    await expect(canvasElement.querySelector("#so-character-tutorial")).not.toBeNull();
+  },
+};
+
+export const NoAskWithoutARunner: Story = {
+  args: { enabled: true, runStage: stageRunner(VALID_RESPONSE), host: { environment: () => emptyEnvironment(), applyProvisioning: async () => ({ ok: true, message: "" }) } },
+  play: async ({ canvasElement }) => {
+    const modes = [...canvasElement.querySelectorAll('[data-so="wizard-mode"]')].map((button) => button.getAttribute("data-mode"));
+    await expect(modes).toEqual(["staged", "character"]);
+  },
+};

@@ -179,6 +179,11 @@ export const SETTING_COPY = {
     "Enable the wizard",
     "Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it.",
   ),
+  "copilot.ask": copy(
+    "Ask questions",
+    "An Ask box in Help, in the wizard and /story ask: it answers questions about Story Orchestrator and SillyTavern, and about the story. "
+      + "It only reads, never changes anything. While you play it knows only what you have already seen. One authoring model call per question, a few at most.",
+  ),
   "worldInfo.gatingMode": copy(
     "How story lorebook entries switch on",
     "Per chat (the default): entries rest off in their lorebook files and each chat sees its own story's entries switched on. "

@@ -123,7 +123,7 @@ export const RoleProfilesGroup = ({
               <FieldLabel htmlFor={`so-role-profile-${route.role}`} label={route.label} help={`${ROLE_EGRESS[route.role]}. ${settingHelp("extraction.profiles")}`} />
               <div className="flex flex-col gap-1">
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
-                  <option value="">{roleDefaultLabel(route.role)}</option>
+                  <option value="">{route.defaulted ? `Default: ${profiles.find((profile) => profile.id === route.profileId)?.name ?? route.profileId}` : roleDefaultLabel(route.role)}</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
                   <ProfileOptions profiles={profiles} />
                   {(harnesses.length > 0 || (harness && !option)) && (

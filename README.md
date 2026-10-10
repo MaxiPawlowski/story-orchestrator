@@ -123,6 +123,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Authoring | Prepared road ahead | Writes the scenes between two turning points before play gets there. |  |
 | Authoring | Studio | Edit a story: its cast, turning points, goals and effects. |  |
 | Authoring | Story wizard | Builds a story from a premise and creates the cards, lore and group it needs. |  |
+| Authoring | Build a character | A step-by-step guide to one character: who they are, look, voice, greeting, examples, review. |  |
 | Authoring | Author view | Shows the story's internals for this chat: goals, state and what characters hide. |  |
 | Authoring | Story diagnostics | Says what each problem in a story costs it, before the technical detail. |  |
 | Authoring | Open stretches | Free play between two turning points, with no task. | Experimental |
@@ -130,6 +131,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
 | Setup | Help | This list: every feature, whether it is on, and where to find it. |  |
+| Setup | Ask | Ask a question about Story Orchestrator, SillyTavern or your story. It only reads. |  |
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials. | Experimental |
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |

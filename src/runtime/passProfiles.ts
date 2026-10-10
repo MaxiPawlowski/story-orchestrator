@@ -5,7 +5,8 @@ import { harnessKey, isHarnessId, type HarnessId } from "@utils/harness";
 import { isReasoningEffort, type ReasoningBudget, type ReasoningEffort } from "@utils/reasoningEffort";
 
 // Which Connection Manager profile each family of passes asks. An unset role uses the memory model
-// profile (the default for every role); a role set to a profile that no longer exists REFUSES, so a pass
+// profile (the default for every role but authoring, which takes the install's first DeepSeek Chat Completion
+// profile when there is one, owner 2026-10-10); a role set to a profile that no longer exists REFUSES, so a pass
 // never answers from a model the author did not choose.
 
 export type PassProfiles = Partial<Record<PassRole, string>>;
@@ -75,7 +76,25 @@ export function sanitizePassProfiles(value: unknown): PassProfiles | undefined {
   return entries.length ? Object.fromEntries(entries) : undefined;
 }
 
-export function resolveRoute(settings: RouteSettings, role: PassRole, exists: (profileId: string) => boolean, listed?: HarnessListed): RouteResolution {
+export const AUTHORING_DEFAULT_SOURCES: readonly string[] = ["deepseek"];
+
+export interface ProfileSourceRow { id: string; kind?: string; source?: string }
+
+export type RoleDefault = (role: PassRole) => string | null;
+
+export const isAuthoringDefaultSource = (profile: ProfileSourceRow | undefined): boolean =>
+  Boolean(profile && profile.kind === "chat" && profile.source && AUTHORING_DEFAULT_SOURCES.includes(profile.source));
+
+export const roleDefaultFrom = (profiles: ProfileSourceRow[]): RoleDefault => (role) =>
+  (role === "authoring" ? profiles.find(isAuthoringDefaultSource)?.id ?? null : null);
+
+let installDefault: RoleDefault | null = null;
+
+export const setRoleDefault = (next: RoleDefault | null): void => {
+  installDefault = next;
+};
+
+export function resolveRoute(settings: RouteSettings, role: PassRole, exists: (profileId: string) => boolean, listed?: HarnessListed, defaults: RoleDefault | null = installDefault): RouteResolution {
   const effort = roleEffort(settings, role);
   const withEffort = (route: ModelRoute): ModelRoute => (effort === "default" ? route : { ...route, effort });
   const harness = roleHarness(settings, role);
@@ -86,9 +105,11 @@ export function resolveRoute(settings: RouteSettings, role: PassRole, exists: (p
   }
   const assigned = settings.profiles?.[role];
   const route = (profileId: string): ModelRoute => withEffort({ kind: "profile", profileId });
+  const preferred = assigned ? null : defaults?.(role) ?? null;
+  if (preferred && exists(preferred)) return { ok: true, route: route(preferred), source: "default" };
   const inherits = ROLE_INHERITS[role];
   if (!assigned && inherits) {
-    const inherited = resolveRoute(settings, inherits, exists, listed);
+    const inherited = resolveRoute(settings, inherits, exists, listed, defaults);
     return inherited.ok ? { ...inherited, source: "fallback" } : inherited;
   }
   if (!assigned) return { ok: true, route: settings.profileId ? route(settings.profileId) : null, source: "fallback" };

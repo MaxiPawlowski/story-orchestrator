@@ -116,6 +116,11 @@ export const EDIT_TOOLS = {
     doc: "Set what one cast member wants at one beat, told only to that member. Empty text clears it. Never for the player.",
     args: { id: ID, member: req("string", "member id"), motive: req("string", "one line: what they want right now") },
   },
+  setAppearance: {
+    backedBy: "setAppearance",
+    doc: "Set how a cast member looks, for pictures and sprites (story illustrations, never the card). Empty text clears it.",
+    args: { id: req("string", "member id"), appearance: req("string", "what they look like: build, face, hair, clothes, one or two sentences") },
+  },
   setQuests: {
     backedBy: "setQuests",
     composes: ["addQuest", "updateQuest", "removeQuest"],
@@ -288,18 +293,25 @@ const readChaptersCall = (spec: AgentToolSpec, args: Record<string, unknown>): T
   return { ok: true, spec, op: { kind: "setChapters", chapters, assign: Object.fromEntries(Object.entries(assign).map(([checkpoint, chapter]) => [checkpoint, String(chapter).trim()])) } };
 };
 
-export const checkToolCall = (call: AgentToolCall): ToolCheck => {
-  const spec = Object.hasOwn(AGENT_TOOLS, call.tool) ? AGENT_TOOLS[call.tool] : undefined;
-  if (!spec) return { ok: false, message: `unknown tool "${call.tool}"${hint(call.tool, AGENT_TOOL_NAMES)}. Only the listed tools exist; there is no other way to change the story or the install.` };
+export const argProblems = (spec: AgentToolSpec, call: AgentToolCall): string | null => {
   const known = Object.keys(spec.args);
   const unknown = Object.keys(call.args).filter((key) => !known.includes(key));
-  if (unknown.length) return { ok: false, message: unknown.map((key) => `${call.tool}: unknown argument "${key}"${hint(key, known)}`).join("; ") };
+  if (unknown.length) return unknown.map((key) => `${call.tool}: unknown argument "${key}"${hint(key, known)}`).join("; ");
   const problems = Object.entries(spec.args).flatMap(([name, arg]) => {
     const value = call.args[name];
     if (value === undefined) return arg.required ? [`${call.tool}: missing argument "${name}"`] : [];
     return typeMatches(arg.type, value) ? [] : [`${call.tool}.${name}: expected ${arg.type}`];
   });
-  if (problems.length) return { ok: false, message: problems.join("; ") };
+  return problems.length ? problems.join("; ") : null;
+};
+
+export const toolHint = hint;
+
+export const checkToolCall = (call: AgentToolCall): ToolCheck => {
+  const spec = Object.hasOwn(AGENT_TOOLS, call.tool) ? AGENT_TOOLS[call.tool] : undefined;
+  if (!spec) return { ok: false, message: `unknown tool "${call.tool}"${hint(call.tool, AGENT_TOOL_NAMES)}. Only the listed tools exist; there is no other way to change the story or the install.` };
+  const argIssue = argProblems(spec, call);
+  if (argIssue) return { ok: false, message: argIssue };
   if (spec.family !== "edit" && spec.family !== "provision") return { ok: true, spec };
   if (call.tool === "setHouseRules") {
     const rules = (Array.isArray(call.args.rules) ? call.args.rules : []).filter((rule): rule is string => typeof rule === "string" && rule.trim().length > 0);
@@ -313,6 +325,7 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   }
   const text = (key: string) => String(call.args[key]).trim();
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
+  if (call.tool === "setAppearance") return { ok: true, spec, op: { kind: "setAppearance", id: text("id"), appearance: text("appearance") } };
   if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };
   if (call.tool === "setRosterView") {
     const view = text("view");

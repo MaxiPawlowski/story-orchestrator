@@ -139,6 +139,14 @@ Tools for writing stories. [More](../author/README.md)
 | **Outlines per gap** | Settings › Judge › Outlines for the road ahead | Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model. | 1 | `judge.expansion.variants` |
 | **Best outline picked by** | Settings › Judge › Outlines for the road ahead | Who picks the best outline: the judge's score, or the story model. | `code` | `judge.expansion.pick` |
 
+## Setup
+
+What SillyTavern features were found, and a copy for a bug report. [More](../setup/README.md)
+
+| Setting | Where | What it does | Default | Key |
+|---|---|---|---|---|
+| **Ask questions** | Settings › Setup › Ask questions | An Ask box in Help, in the wizard and /story ask: it answers questions about Story Orchestrator and SillyTavern, and about the story. It only reads, never changes anything. While you play it knows only what you have already seen. One authoring model call per question, a few at most. | On | `copilot.ask` |
+
 ---
 
 [Setup](README.md)

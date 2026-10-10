@@ -34,6 +34,32 @@ model). That task can also be routed to opencode on the SillyTavern server, thro
 [harness plugin](../setup/harness.md); then the agent calls its tools natively, and it does not fall back to the
 local profile when the harness is unavailable.
 
+## Ask
+
+**Ask** (a mode beside Step by step and Agent, and the Ask box in Help while Author view is on) answers questions
+instead of editing: "how do I make a lorebook entry always on?", "why didn't the story move on?", "what should I fix
+in this draft?". It reads the shipped knowledge (this guide, the author's guide and condensed SillyTavern know-how
+on cards, lorebooks, groups, profiles, images, regex and Quick Replies), the draft, and in a chat the live story
+state. "What should I fix" comes from the same checks as the Diagnostics tab, in plain words. Answers name the
+topics they used, and **Show me** opens the tab or guide page. Ask has no tool that writes: nothing it does can change
+the draft or the install. Without Author view, Ask in Help and `/story ask` are the player's: they see only what
+was played.
+
+## Build a character
+
+**Build a character** walks through one card: **Who are they** (name, role, a one-line concept), **Look** (what
+pictures and sprites draw), **Voice** (the description and personality, written as behaviour), **First message**
+(only for the opening scene's cast), **Example dialogue** and **Review**. Each step says why it matters and links its
+topic; **Draft it for me** asks the authoring model for that step, **I'll write it** leaves it to you.
+
+- **Review** checks the common card mistakes: a name that is taken or that SillyTavern would change, a name made of
+  everyday words (in a group every message would mention it), a thin or adjective-only description, a card over
+  about 2000 tokens, a greeting that speaks for the player, example blocks without a `{{char}}:` line.
+- The card itself is a provisioning card: it is created only when you press **Create it**, like every asset the
+  wizard makes.
+- The **Look** goes into the story (`illustrations.appearances`, by roster id), never onto the card. It is proposed
+  as a change you accept or reject, and adds the character to the cast first if needed.
+
 ## What it creates on your install
 
 The wizard only ever **creates**; it never edits or deletes a card, lorebook or group that already exists.

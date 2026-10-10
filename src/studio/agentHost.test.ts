@@ -16,6 +16,29 @@ const deps = (routed: boolean, agentBridge: boolean, status: HarnessStatus | nul
   bridge: async () => ({ open: jest.fn(), nextCall: jest.fn(), answer: jest.fn(), close: jest.fn() }),
 });
 
+describe("v2.8 09 owner 2026-10-10: a DeepSeek wizard route runs on native tool calls", () => {
+  const profiles = [{ id: "artemis", kind: "text", source: "llamacpp" }, { id: "gpt", kind: "chat", source: "openai" }, { id: "ds", kind: "chat", source: "deepseek" }];
+  const profileBridge = jest.fn(async () => ({ open: jest.fn(), nextCall: jest.fn(), answer: jest.fn(), close: jest.fn() }));
+  const native = (settings: Record<string, unknown>, planted = false): AgentHarnessDeps => ({
+    ...deps(false, true), settings: () => settings as never, profiles: () => profiles, profileBridge, planted: () => planted,
+  });
+
+  it("an authoring role on a DeepSeek profile gets the profile tool bridge, falling back to the text route on failure", async () => {
+    await expect(resolveAgentHarness(native({ profileId: "artemis", profiles: { authoring: "ds" } }))).resolves.toMatchObject({ target: { harness: "profile", model: "ds" }, fallback: true });
+    expect(profileBridge).toHaveBeenCalledWith("ds");
+  });
+
+  it("any other profile keeps the text route, and a planted copilot answer never reaches a live model", async () => {
+    await expect(resolveAgentHarness(native({ profileId: "artemis", profiles: { authoring: "gpt" } }))).resolves.toBeNull();
+    await expect(resolveAgentHarness(native({ profileId: "artemis" }))).resolves.toBeNull();
+    await expect(resolveAgentHarness(native({ profileId: "artemis", profiles: { authoring: "ds" } }, true))).resolves.toBeNull();
+  });
+
+  it("a harness route still wins over the profile", async () => {
+    await expect(resolveAgentHarness({ ...native({}), settings: deps(true, true).settings })).resolves.toMatchObject({ target: { harness: "opencode" } });
+  });
+});
+
 describe("the Studio's agent host (v2.6 plan 04 agent bridge)", () => {
   it("offers the bridge only when the Wizard role is routed to a harness that offers it", async () => {
     await expect(resolveAgentHarness(deps(true, true))).resolves.toMatchObject({ target: { harness: "opencode", model: "openai/gpt-6-astra" } });

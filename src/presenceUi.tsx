@@ -28,6 +28,7 @@ const ActivityPanel = lazyRetry(() => import("./components/panels/ActivityPanel"
 const GuideHost = lazyRetry(() => import("./guide/GuideHost"));
 const SuggestionsPanel = lazyRetry(() => import("./components/panels/SuggestionsPanel"));
 const suggestionsHost = () => import("@runtime/suggestionsHost");
+const askHost = () => import("@runtime/askHost");
 const JournalPanel = lazyRetry(() => import("./components/panels/JournalPanel"));
 const StatSheetPanel = lazyRetry(() => import("./components/panels/StatSheetPanel"));
 const WidgetPanel = lazyRetry(() => import("./components/panels/WidgetPanel"));
@@ -125,7 +126,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       <>
         {panels.includes("help") && (
           <Panel id="help" title={HELP_COPY.heading}>
-            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} /></Lazy>
+            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)}
+              ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>
           </Panel>
         )}
         {panels.includes("guide") && (

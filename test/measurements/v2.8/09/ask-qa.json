@@ -1,0 +1,65 @@
+{
+  "plan": "v2.8 09 live Q&A (tier CL)",
+  "declared": "2026-10-10, before any run; floors never retuned (owner 2026-10-10: floors are informational, the feature ships on)",
+  "profile": { "name": "deepseek 4.1 flash", "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847", "role": "authoring", "pass": "ask" },
+  "routes": "owner 2026-10-10 (before any run): primary = the authoring role routed to the opencode harness; optional comparison = a stock Gemma 4 31B instruct profile; never Artemis. The DeepSeek profile above is the CL cloud check. Runs wait for the integration phase.",
+  "story": {
+    "format": 2, "id": "so-v28-09-qa", "title": "SO-V28-09 Ferry", "description": "A night crossing; a synthetic story for the v2.8 09 Ask measurement.",
+    "player_intro": "You need to cross the river before dawn.",
+    "qualities": [
+      { "key": "ferry_paid", "type": "bool", "source": "extractor", "rubric": "Has the player paid the ferryman?" },
+      { "key": "traitor_known", "type": "bool", "source": "extractor", "rubric": "Does the player know who betrayed the crossing?" },
+      { "key": "weather", "type": "enum", "values": ["calm", "storm"], "source": "extractor", "rubric": "What is the weather on the river?" }
+    ],
+    "checkpoints": [
+      { "id": "dock", "name": "dock-internal", "player_name": "The Dock", "player_text": "Fog lies on the water.", "objective": "Pay the ferryman.", "type": "anchor", "start": true },
+      { "id": "crossing", "name": "crossing-internal", "player_name": "The Crossing", "objective": "Cross the river.", "type": "anchor" },
+      { "id": "vault", "name": "vault-internal", "player_name": "The Vault of Corvin", "objective": "Unmask Corvin the traitor.", "type": "anchor" }
+    ],
+    "transitions": [
+      { "from": "dock", "to": "crossing", "priority": 0, "gate": { "q": "ferry_paid", "op": "==", "v": true } },
+      { "from": "crossing", "to": "vault", "priority": 0, "gate": { "q": "traitor_known", "op": "==", "v": true } }
+    ],
+    "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" }]
+  },
+  "author": {
+    "floor": "at least 17 of 20 answers cite an accepted topic AND carry a correct Show me: the answer's Show me is the Show me of an accepted topic, or the row allows none and the answer has none",
+    "questions": [
+      { "id": "a01", "q": "How do I make a lorebook entry always on?", "accept": ["st/lorebook-activation", "author/world-info", "feature/story-lorebooks"], "showMeOptional": true },
+      { "id": "a02", "q": "Why didn't the story advance after the player paid the ferryman?", "accept": ["guide/player/troubleshooting#the-story-does-not-move", "guide/player/troubleshooting", "author/gates", "author/quality-rubric", "author/quality-reads", "feature/memory", "feature/diagnostics", "feature/stories"] },
+      { "id": "a03", "q": "What does Author view show?", "accept": ["feature/author-view", "guide/player/README#player-mode-and-author-view", "guide/author/studio#what-players-see"] },
+      { "id": "a04", "q": "How do I choose the model that reads the chat and moves the story on?", "accept": ["feature/memory", "feature/models-per-task", "guide/setup/memory-model", "guide/setup/memory-model#choose-one"] },
+      { "id": "a05", "q": "In my group chat every character posts a greeting when the chat opens. How do I stop that?", "accept": ["st/groups", "st/first-message", "author/opening-scene"], "showMeOptional": true },
+      { "id": "a06", "q": "A character keeps knowing things they never saw. What can I do?", "accept": ["guide/player/troubleshooting#a-character-knows-something-they-should-not", "feature/private-knowledge", "guide/player/memory#private-knowledge"] },
+      { "id": "a07", "q": "How do I split a long story into chapters with a recap?", "accept": ["author/chapters", "feature/chapters", "guide/player/memory#chapters"] },
+      { "id": "a08", "q": "What is a latching quality and when should I use one?", "accept": ["author/latching", "author/qualities"] },
+      { "id": "a09", "q": "How do I give a character a private goal that only they are told?", "accept": ["author/drives-motives", "feature/inner-voice"] },
+      { "id": "a10", "q": "How do I change the chat background when the story reaches a checkpoint?", "accept": ["author/background", "feature/backgrounds"] },
+      { "id": "a11", "q": "How do I add side quests the player can find?", "accept": ["author/quests", "feature/quests", "feature/journal"] },
+      { "id": "a12", "q": "How do I turn on the judge, and what does it send?", "accept": ["feature/judge", "guide/setup/judge", "guide/setup/judge#privacy", "guide/setup/judge#install", "guide/setup/judge#uses"] },
+      { "id": "a13", "q": "What does the lorebook curator do, and can it change entries I wrote myself?", "accept": ["feature/curator", "author/stagecraft", "feature/curator-markers", "feature/curator-create"] },
+      { "id": "a14", "q": "How should I name characters so mentions in a group chat work?", "accept": ["st/card-names", "st/groups"], "showMeOptional": true },
+      { "id": "a15", "q": "Why is my example dialogue ignored on a Chat Completion API?", "accept": ["st/example-dialogue"], "showMeOptional": true },
+      { "id": "a16", "q": "Can the wizard create the character cards and the group my story needs?", "accept": ["feature/wizard", "guide/author/wizard#what-it-creates-on-your-install", "guide/author/wizard", "guide/author/wizard#the-story-agent"] },
+      { "id": "a17", "q": "How do I say who the player is in my story?", "accept": ["author/player", "feature/player-setup", "guide/player/playing#your-character"] },
+      { "id": "a18", "q": "What should I fix in the story this chat plays?", "accept": ["feature/diagnostics", "author/qualities", "author/quality-rubric", "author/quality-reads", "author/roster", "author/gates", "guide/author/studio#diagnostics"] },
+      { "id": "a19", "q": "How do I show a value like gold on the player's stat sheet?", "accept": ["feature/stat-sheet", "author/widgets", "author/qualities", "author/quests"] },
+      { "id": "a20", "q": "How do I make my chat model think less before each reply?", "accept": ["feature/reply-thinking"] }
+    ]
+  },
+  "player": {
+    "floor": "8 of 8 answers name nothing the player has not reached: none of the unreached needles appears in the answer or its cited topics",
+    "played": { "visitedPath": ["dock"], "active": "dock" },
+    "unreached": ["Corvin", "Vault", "Unmask", "vault-internal", "crossing-internal", "dock-internal", "traitor_known", "ferry_paid", "The Crossing"],
+    "questions": [
+      { "id": "p01", "q": "How do I pin a memory so the story keeps it?" },
+      { "id": "p02", "q": "What is still open in my story right now?" },
+      { "id": "p03", "q": "How do I say something out of character?" },
+      { "id": "p04", "q": "The story seems stuck. What can I do?" },
+      { "id": "p05", "q": "Where am I right now, and what is my goal?" },
+      { "id": "p06", "q": "Who betrayed the crossing?", "unreached": true },
+      { "id": "p07", "q": "What happens after I get across the river?", "unreached": true },
+      { "id": "p08", "q": "How does the story end, and what are all the scenes?", "unreached": true }
+    ]
+  }
+}

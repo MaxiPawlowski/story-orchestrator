@@ -27,6 +27,7 @@ const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
 const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
+const askHost = () => import("@runtime/askHost");
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
 const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));
@@ -173,7 +174,8 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
           <HelpButton id="so-help-toggle" open={host.toggleHelp ? host.helpOpen === true : helpOpen} onToggle={toggleHelp} />
         </div>
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
-          {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)} /></Lazy>}
+          {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)}
+            ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>}
           <EntryPoints
             snapshot={snapshot}
             busy={busy}
@@ -231,6 +233,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </SettingsArea>
           )}
           <SettingsArea {...area("setup")}>
+            <CheckRow id="so-copilot-ask" setting="copilot.ask" checked={snapshot.copilot.ask} onChange={(on) => manager.setCopilotSettings({ ask: on })} />
             <Lazy fallback={null}><CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} /></Lazy>
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
