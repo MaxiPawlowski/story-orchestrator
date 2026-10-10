@@ -44,7 +44,14 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A11 | Model downloads (Civitai, Hugging Face) | 30, D8 (needs approval) |
 | A12 | Smart-context harvest (E0 first, offline) | 21, D3 |
 | A13 | Inner voice L5 spike | v2.7 20, D3 |
-| A14 | TunnelVision pattern harvest (report) | 25, D9 (needs approval) |
+| A14 | TunnelVision pattern harvest (report) | 25, D9; done 2026-10-10 (`25-tunnelvision-report.md` §Re-run) |
+| A15 | Curator create near-dup on meaning: vectors bands (0.82/0.55) else trigram at a declared threshold; "patch X instead" on the card. **Proposed, needs owner pick** | 25 rank 1, 11 |
+| A16 | `{{// so:created}}` stamp on applied creates; reaper offers to remove stamped entries of deleted chats. **Proposed, needs owner pick** | 25 rank 2, 11 |
+| A17 | Lorebook-writer census guard (every WI write site listed with its guard). **Proposed, needs owner pick** | 25 rank 3 (TV #55) |
+| A18 | Health check: a story book managed by TunnelVision → `degrades` finding. **Proposed, needs owner pick** | 25 rank 4 (P6) |
+| A19 | Curator ops on `constant` entries wait for review in `auto` mode (author decision). **Proposed, needs owner pick** | 25 rank 5 (P5), v2.7 02 C13 |
+| A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
+| A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
 
 ## Measurements (need a pod or a free 3090)
 
