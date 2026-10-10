@@ -60,6 +60,7 @@ export const ClueActionRefused: Story = {
 
 export const CluesReadOnly: Story = {
   args: { widget: cluesWidget },
+  parameters: { actions: { disable: true } },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-so="widget-action"]')).toBeNull();
   },

@@ -34,6 +34,7 @@ export const CluesPanel: Story = {
 
 export const MapPanel: Story = {
   args: { widget: mapWidget },
+  parameters: { actions: { disable: true } },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-widget-river-map [data-so='map']")).not.toBeNull();
     await expect(canvasElement.querySelector('[data-so="widget-action"]')).toBeNull();
