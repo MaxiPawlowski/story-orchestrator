@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn as spawnDefault } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { memorySnapshot } from './telemetry.mjs';
@@ -19,9 +19,14 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
 }
 
 export class NativeBackend {
-    constructor(config, { snapshot = memorySnapshot } = {}) {
+    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch } = {}) {
         this.config = config;
         this.snapshot = snapshot;
+        this.spawn = spawn;
+        this.fetch = fetchImpl;
+        this.killTree = killTree;
+        this.crashed = null;
+        this.stopping = null;
         this.url = `http://127.0.0.1:${config.backendPort}`;
         this.child = null;
         this.profile = null;
@@ -54,7 +59,7 @@ export class NativeBackend {
         const began = Date.now();
         await this.stopOwned();
         let occupied = false;
-        try { await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
+        try { await this.fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
         if (occupied) throw new Error('The backend port is owned by another server; it will not be stopped.');
         const snapshot = await this.snapshot();
         const gpu = snapshot.gpus[0];
@@ -66,11 +71,17 @@ export class NativeBackend {
         }
         await fs.mkdir(this.config.stateDir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
-        const child = spawn(this.config.binary, nativeArgs(this.config, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
+        this.crashed = null;
+        const child = this.spawn(this.config.binary, nativeArgs(this.config, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
         this.child = child;
         let spawnError;
         child.on('error', (error) => { spawnError = error; });
-        child.on('exit', () => { void log.close(); if (this.child === child) { this.child = null; this.profile = null; } });
+        child.on('exit', (code) => {
+            void log.close();
+            if (this.child !== child) return;
+            this.child = null; this.profile = null;
+            if (this.stopping !== child && this.loading === null) this.crashed = { code: code ?? null, at: new Date().toISOString() };
+        });
         const deadline = Date.now() + 240000;
         const admissionWindowMs = this.config.admissionWindowMs ?? 30000;
         let admissionUntil = null;
@@ -78,7 +89,7 @@ export class NativeBackend {
             if (spawnError) throw spawnError;
             if (child.exitCode !== null) throw new Error(`Native backend exited with ${child.exitCode}; read its local log.`);
             try {
-                if ((await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
+                if ((await this.fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
                     const after = await this.snapshot();
                     if (withinReserve(after, this.config.reserves)) {
                         this.profile = name;
@@ -108,18 +119,23 @@ export class NativeBackend {
         const child = this.child;
         if (!child) return;
         const ended = new Promise((resolve) => child.once('exit', resolve));
-        child.kill();
+        this.stopping = child;
+        if (this.killTree && child.pid) await this.killTree(child.pid);
+        else child.kill();
         await Promise.race([ended, new Promise((_, reject) => setTimeout(() => reject(new Error('The owned text process did not stop; no replacement will be started.')), 10000).unref())]);
         if (this.child === child) { this.child = null; this.profile = null; this.fitTarget = null; }
+        this.stopping = null;
     }
 
     async forRequest(body, signal) {
         await this.ensure(this.profile ?? this.config.defaultProfile);
+        const large = this.config.largeProfile ?? 'normal';
+        const small = this.config.smallProfile ?? 'fast';
         if (typeof body.prompt !== 'string') {
-            await this.switchFor('normal');
+            if (this.config.profiles?.[large]) await this.switchFor(large);
             return;
         }
-        const response = await fetch(`${this.url}/tokenize`, {
+        const response = await this.fetch(`${this.url}/tokenize`, {
             method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: body.prompt, add_special: true }), signal,
         });
         if (!response.ok) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
@@ -130,7 +146,7 @@ export class NativeBackend {
         if (!Number.isInteger(output) || output < 0 || output > limit) throw new Error('Set a bounded output budget before generating.');
         const required = data.tokens.length + output + 256;
         if (required > limit) throw new Error(`Prompt and output exceed the preserved ${limit}-token limit; no text was truncated.`);
-        if (required > 32768 && this.profile === 'fast') await this.switchFor('normal', `${required} tokens`);
+        if (required > (this.config.smallProfileTokens ?? 32768) && this.profile === small && this.config.profiles?.[large]) await this.switchFor(large, `${required} tokens`);
     }
 
     async switchFor(name, need = 'this request') {
@@ -147,5 +163,5 @@ export class NativeBackend {
         }
     }
 
-    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError }; }
+    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed }; }
 }

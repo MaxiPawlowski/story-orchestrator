@@ -3,8 +3,8 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
-import { nativeArgs } from './backend.mjs';
-import { FastTelemetry } from './fastTelemetry.mjs';
+import { nativeArgs } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
+import { FastTelemetry } from '../../server-plugin/story-orchestrator-gpu/broker/fastTelemetry.mjs';
 
 const usage = 'Usage: node scripts/local/residency-arms.mjs <config.json> resident|ffn|reload scene|portrait [runs] [--cpu-ffn N] [--comfy-reserve GB] [--comfy-arg X]';
 const [configFile, arm, familyName = 'scene', runsText = '2'] = process.argv.slice(2).filter((value, index, all) => !value.startsWith('--') && !all[index - 1]?.startsWith('--'));

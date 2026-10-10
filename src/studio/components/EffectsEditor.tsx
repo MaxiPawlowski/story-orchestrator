@@ -6,6 +6,8 @@ import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import type { DeclaredCardField } from "@engine/cardFields";
 import { isRecord } from "@utils/guards";
+import type { WorkflowMap } from "@engine/schema";
+import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
@@ -181,6 +183,18 @@ const CastSide: React.FC<{ label: string; names: string[]; roster: RosterMember[
   );
 };
 
+const WORKFLOW_HELP = "From this turning point on, these picture types use the named ComfyUI workflows (SillyTavern's ComfyUI source only). "
+  + "Later turning points without one keep it; the last one on the path wins.";
+
+const CheckpointWorkflows: React.FC<{ effects: CheckpointEffects; emit: (next: CheckpointEffects) => void }> = ({ effects, emit }) => {
+  const names = useWorkflowNames();
+  const change = (workflows: WorkflowMap | undefined) => emit({ ...effects, illustrations: { ...(workflows ? { workflows } : {}) } });
+  return <Section title="Picture workflows" help={WORKFLOW_HELP} enabled={effects.illustrations !== undefined}
+    onToggle={(on) => emit({ ...effects, illustrations: on ? {} : undefined })}>
+    <WorkflowMapEditor value={effects.illustrations?.workflows} names={names} inherited="Story default" onChange={change} />
+  </Section>;
+};
+
 const EffectsEditor: React.FC<{
   effects: CheckpointEffects;
   roster: RosterMember[];
@@ -267,6 +281,8 @@ const EffectsEditor: React.FC<{
           </datalist>
         </label>
       </Section>
+
+      <CheckpointWorkflows effects={effects} emit={emit} />
 
       <Section
         title="Scenario"

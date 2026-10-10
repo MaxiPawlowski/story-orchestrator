@@ -150,3 +150,49 @@ policy,models,footprints}.mjs`; `src/services/stHost/gpuBroker.ts`; `src/sprites
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer.
+
+## Owner decisions to confirm (2026-10-10, build)
+
+Owner approval 2026-10-10 (queue A9); each open decision took the plan's recommendation, recorded here for the owner
+to confirm: (1) in-process arbiter (A); (2) both `observe` and `supervise`, `observe` the recommended mode, `supervise`
+opt-in, and ComfyUI supervision opt-in separately (`comfy.supervise`); (3) the v2.7 31 split; (4) `managed` kept one
+release as a bridge; (5) reserves from a probe (10% of VRAM, min 1 GiB; 10% of RAM, min 2 GiB) unless the config pins
+them; (6) the warm sprite-batch lease back in the product, off by default (`retainBatches`). Also decided while
+building, to confirm: the `unsloth` adapter is renamed `observe` (no alias, no legacy compat); config writes are by
+hand only (no write route); a crashed supervised text server is not auto-restarted, an admin's Load text or Automatic
+restarts it.
+
+## Gate record (2026-10-10, branch `v2.8-media-stack`)
+
+As built:
+- Core moved with history (`git mv`) from `scripts/local/` to `server-plugin/story-orchestrator-gpu/broker/`:
+  scheduler, policy, models, footprints, estimate, gguf, safetensors, telemetry, fastTelemetry, backend, imageCache,
+  responseTiming, runtimeIdentity, controllerStatus, memory-probe.py, and their tests (now under `test:plugin`).
+- New `broker/arbiter.mjs` (the controller's wiring as a factory with injected spawn/fetch/telemetry, owned-child
+  registry, probe reserves, pass-through rules, `mayRetain`, plain `state`), `broker/gateway.mjs` (the text gateway),
+  `config.mjs` (validation), `index.mjs` adapters `none | observe | supervise | managed`, admin-only
+  `/control/:action`, tree-kill of owned children on `exit()`.
+- `scripts/local/controller.mjs` is now a thin host of the same arbiter + gateway (keeps the tray `cli.mjs` working
+  while the `managed` bridge lasts; its old ComfyUI flags moved into the controller's own call).
+- `NativeBackend`: injected spawn/fetch/killTree, crash detection, profile names `largeProfile`/`smallProfile`
+  (default `normal`/`fast`); `GpuGate` no longer defaults to this machine's upstream or model id; telemetry reads
+  Linux `/proc/meminfo` and falls back to `os` elsewhere.
+- Page: `gpuBroker.ts` knows the four adapters, `state`, `mayRetain`; `mayRetainBatch` trusts a supervising broker's
+  `mayRetain`; Images → Image service shows a **GPU sharing** line (`#so-gpu-broker`, `GpuBrokerLine`).
+- Docs: new guide page `setup/gpu-sharing.md` ("One GPU for text and images"), `setup/images.md` section shortened,
+  setup README row, plugin README rewritten; registry feature `gpu-sharing`; README feature table regenerated.
+
+Gates:
+- `npm run gates -- --no-storybook --jobs 2`: typecheck, typecheck:test, debug:typecheck, test (7424 passed, 1
+  skipped), build, lint, test:replay, test:debug green; test:plugin red on one harness flake (`agent.test.mjs` "a tool
+  the bridge does not own…", a 30 s session deadline hit under load: timeout instead of refused; passes alone),
+  test:release red on the guide machine-path guard (`D:/` paths in the new page's example; fixed to POSIX
+  placeholders). Re-run after the fix: `npm run test:plugin` 202/202, `npm run test:release` 119/119,
+  `node --test scripts/docs/guide-bundle.test.mjs` 9/9. Storybook skipped (`--no-storybook`); stories to run:
+  `Settings/GpuBrokerLine` (4), `Settings/ImageGroup`.
+- C: reached 0 bytes free for a few minutes during this gate window (coordinator alert); no ENOSPC appeared in the gate
+  log and the tree checks clean (`git fsck`: dangling objects only).
+
+Not run (owner GPU tonight belongs to another agent): LI + LT text → image → text ×2 with the in-process broker,
+clean-host without the plugin, tray entry switch (the tray still points at the standalone controller; the README
+documents the template). Acceptance stays open.

@@ -21,6 +21,7 @@ import { firedLoreKeys, visualLore } from "./lore";
 import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
 import { fnv1a } from "@runtime/hash";
 import { beginRun, type RunGuard } from "@runtime/runToken";
+const workflowKit = () => import("./workflowRender");
 
 export interface ImagePlan {
   backend: ImageSettings["backend"];
@@ -36,9 +37,10 @@ export interface ImagePlan {
   positive: string;
   negative: string;
   caption: string;
+  workflow: string | null;
 }
 export interface ImageCandidate { path: string; seed: number; width: number; height: number }
-export interface ImageStatus { jobs: ReturnType<ImageQueue["snapshot"]>; lastError: string | null; lastPlan: ImagePlan | null }
+export interface ImageStatus { jobs: ReturnType<ImageQueue["snapshot"]>; lastError: string | null; lastPlan: ImagePlan | null; workflowNote: string | null }
 export type ImageReviewer = (plan: ImagePlan, candidates: ImageCandidate[], rerender: (index: number) => Promise<ImageCandidate>) => Promise<number | null>;
 
 const current = (storyId?: string | null) => sanitizeImageChatState(imageChatSettings(), imageChat()?.id ?? "", storyId);
@@ -48,6 +50,7 @@ export class StoryImageDirector {
   reviewer: ImageReviewer | null = null;
   private lastError: string | null = null;
   private lastPlan: ImagePlan | null = null;
+  private workflowNote: string | null = null;
   private listeners = new Set<() => void>();
   private pending = new Set<string>();
   private pendingTargets = new Set<string>();
@@ -57,6 +60,13 @@ export class StoryImageDirector {
   settings(): ImageSettings { return getGlobalSettings().image; }
   updateSettings(patch: Partial<ImageSettings>): ImageSettings { const settings = setGlobalSettings({ image: patch }).image; void this.refreshHealth(); this.notify(); return settings; }
 
+  private async storyWorkflowHealth(source: string | null): Promise<ImageHealthView["storyWorkflows"]> {
+    const story = this.manager.getStory();
+    if (!story?.illustrations?.workflows && !story?.checkpoints.some((checkpoint) => checkpoint.effects?.illustrations)) return undefined;
+    const kit = await workflowKit();
+    return kit.storyWorkflowHealth(story, source, () => comfyDiscover().then((found) => Object.keys(found.nodes ?? {}), () => null));
+  }
+
   private async computeHealth(): Promise<ImageHealthView> {
     const settings = this.settings();
     const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode } as const;
@@ -64,7 +74,8 @@ export class StoryImageDirector {
     if (!settings.enabled) return { ...base, service: "unknown", detail: "Illustrations are off.", source: null, missingModels: [], broker };
     if (settings.backend === "st") {
       const ready = await stImageReadiness();
-      return { ...base, service: ready.ready ? "ready" : "absent", detail: ready.reason ?? "SillyTavern's image service is ready.", source: ready.source, missingModels: [], broker };
+      return { ...base, service: ready.ready ? "ready" : "absent", detail: ready.reason ?? "SillyTavern's image service is ready.", source: ready.source, missingModels: [], broker,
+        storyWorkflows: await this.storyWorkflowHealth(ready.source) };
     }
     const status = await mediaStatus();
     if (!status) return { ...base, service: "absent", detail: "The optional media plugin is not installed.", source: null, missingModels: [], broker };
@@ -96,7 +107,7 @@ export class StoryImageDirector {
     if (!saved.ok) throw new Error(saved.reason);
     this.notify();
   }
-  status(): ImageStatus { return { jobs: this.queue.snapshot(), lastError: this.lastError, lastPlan: this.lastPlan }; }
+  status(): ImageStatus { return { jobs: this.queue.snapshot(), lastError: this.lastError, lastPlan: this.lastPlan, workflowNote: this.workflowNote }; }
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
   private notify() { this.listeners.forEach((listener) => listener()); }
 
@@ -130,6 +141,8 @@ export class StoryImageDirector {
   }
 
   start(): () => void {
+    void workflowKit().then((kit) => { const reconciled = kit.reconcileComfyWorkflowSwap(); if (reconciled.note) { this.workflowNote = reconciled.note; this.notify(); } },
+      (error: unknown) => { this.lastError = error instanceof Error ? error.message : String(error); });
     void this.refreshHealth();
     let initialChat: string | null = null;
     const off = [
@@ -227,7 +240,7 @@ export class StoryImageDirector {
     if (!assembled.positive.trim()) throw new Error("There is nothing to draw.");
     const plan = {
       backend: settings.backend,
-      request, chatId: chat.id, folder: chat.folder, target: scene.target,
+      request, chatId: chat.id, folder: chat.folder, target: scene.target, workflow: await this.storyWorkflow(settings.backend, story, request.purpose),
       targetText: scene.target === null ? null : chat.messages[scene.target]?.mes ?? null,
       route, reply, scene, aspect, positive: assembled.positive, negative: assembled.negative,
       caption: reply?.caption || request.text.slice(0, 120) || scene.checkpoint || "Story illustration",
@@ -255,13 +268,25 @@ export class StoryImageDirector {
     }
   }
 
+  private async storyWorkflow(backend: ImageSettings["backend"], story: ReturnType<RuntimeManager["getStory"]>, purpose: ImageRequest["purpose"]): Promise<string | null> {
+    if (backend !== "st" || !story) return null;
+    return (await workflowKit()).workflowFor(story, this.manager.getEngineState()?.visitedPath ?? [], purpose);
+  }
+
+  private async renderSt(plan: ImagePlan): Promise<string> {
+    if (!plan.workflow) return renderStImage(plan.positive, plan.negative);
+    const rendered = await (await workflowKit()).renderWithStoryWorkflow(plan.workflow, plan.positive, plan.negative);
+    this.workflowNote = rendered.note;
+    return rendered.path;
+  }
+
   private async render(plan: ImagePlan, index: number, signal: AbortSignal, run: RunGuard, override?: number): Promise<ImageCandidate> {
     const seed = this.seed(plan, index, override);
     const size = plan.route.family.sizes[plan.aspect];
     if (plan.backend === "st") {
       signal.throwIfAborted();
       if (!run.stillOwns()) throw new Error("The story changed before the image could be drawn.");
-      const path = await renderStImage(plan.positive, plan.negative);
+      const path = await this.renderSt(plan);
       if (!run.stillOwns() || signal.aborted) { await imageDelete(path); throw new Error("The image was discarded because the story changed."); }
       signal.throwIfAborted();
       return { path, seed, ...size };

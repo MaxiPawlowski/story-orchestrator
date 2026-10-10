@@ -131,6 +131,20 @@ export interface CheckpointEffects {
   reasoning?: CheckpointReasoning;
   scenario?: string | null;
   card?: Record<string, Record<string, string>>;
+  illustrations?: CheckpointIllustrations;
+}
+
+export const ILLUSTRATION_PURPOSES = ["scene", "character", "portrait", "user", "background", "free"] as const;
+export type IllustrationPurpose = (typeof ILLUSTRATION_PURPOSES)[number];
+export type WorkflowMap = Partial<Record<IllustrationPurpose, string>>;
+
+export interface BundledWorkflow {
+  graph: Record<string, unknown>;
+  sha256: string;
+}
+
+export interface CheckpointIllustrations {
+  workflows?: WorkflowMap;
 }
 
 export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
@@ -408,6 +422,8 @@ export interface IllustrationLook {
 export interface StoryIllustrations extends IllustrationLook {
   checkpoints?: boolean;
   scenes?: boolean;
+  workflows?: WorkflowMap;
+  bundle?: Record<string, BundledWorkflow>;
 }
 
 // The scene read's vocabulary. The judge can only select, so a location is asked only

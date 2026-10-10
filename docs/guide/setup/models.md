@@ -27,6 +27,9 @@ the wizard's reliability; without the judge plugin its uses take their ordinary,
 default) can stand in for TypeSafe per use, so nothing leaves the machine. It is not measured yet, so every use routed
 to it keeps its usual path until it is: [Local judge](judge.md#local-judge-experimental).
 
+**Image models** are files, not connections: a missing checkpoint or LoRA can be downloaded from Civitai or Hugging
+Face into your model folders, verified by SHA256, after you confirm a card ([Illustrations](images.md#downloading-models-civitai-hugging-face)).
+
 ## What we tested on
 
 The extension was battle-tested on **TheDrummer's Artemis 31B v1.1**, GGUF Q4_K_M on llama.cpp's `llama-server`,

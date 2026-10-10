@@ -10,6 +10,8 @@ import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
 import { ProfileOptions } from "@components/settings/ProfileOptions";
 import { comfyDiscover } from "@services/stHost/media";
 import { FAMILIES } from "./catalog";
+import GpuBrokerLine from "./GpuBrokerLine";
+import ModelSources from "./ModelSources";
 
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
@@ -92,6 +94,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           <FieldLabel htmlFor="so-image-comfy-url" setting="image.comfyUrl" />
           <input id="so-image-comfy-url" className="text_pole" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />
         </div>
+        <GpuBrokerLine />
         <CheckRow id="so-image-safe-mode" setting="image.safeMode" checked={settings.safeMode} onChange={(on) => change({ safeMode: on })} />
         {guide && <a id="so-image-guide" className="text-xs underline" href={guide} target="_blank" rel="noreferrer">How illustrations are set up</a>}
         <Advanced id="so-image-routes" label="Picture types">
@@ -143,6 +146,9 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             <FieldLabel htmlFor={routeId("negative")} setting="image.purposes.*.extraNegative" />
             <input id={routeId("negative")} className="text_pole" value={entry.extraNegative} onChange={(event) => route(selectedPurpose, { extraNegative: event.target.value })} />
           </fieldset>
+        </Advanced>
+        <Advanced id="so-image-model-sources" label="Model sources (Civitai, Hugging Face)">
+          <ModelSources />
         </Advanced>
         <Advanced id="so-image-cast" label="Fallback character looks">
           <p className="text-xs opacity-80">Used when the story has not described how this character looks.</p>

@@ -38,6 +38,13 @@ jest.mock("@runtime/settingsStore", () => ({
   setGlobalSettings: (patch: { image: Partial<ImageSettings> }) => { host.settings = { ...host.settings, ...patch.image }; return { image: host.settings }; },
 }));
 jest.mock("@runtime/worldInfoGates", () => ({ worldInfoPlan: () => [] }));
+const workflowHost = { listed: ["Mine.json", "SO-Portrait.json"] as string[], text: "{\"6\":{\"inputs\":{\"text\":\"%prompt%\"}}}", swaps: [] as string[] };
+jest.mock("@services/stHost/comfyWorkflows", () => ({
+  listComfyWorkflows: async () => workflowHost.listed,
+  readComfyWorkflow: async (name: string, listed: string[]) => (listed.includes(name) ? workflowHost.text : null),
+  withComfyWorkflow: async (name: string, run: () => Promise<unknown>) => { workflowHost.swaps.push(name); return { value: await run(), restored: true, note: null }; },
+  reconcileComfyWorkflowSwap: () => ({ restored: false, note: null }),
+}));
 
 import { StoryImageDirector } from "./runtime";
 import { imageHealth } from "@runtime/imageHealth";
@@ -52,7 +59,8 @@ const harness = () => {
     ready: true, requirements: { ready: true }, storyId: "story", storyIdentity: { pinned: true }, boundary: 3,
     activeCheckpointId: "cp2", blackboard: {}, scene: null, lore: { fired: [] },
   };
-  const story = { illustrations: { checkpoints: true, scenes: true }, checkpointById: { cp2: { player_name: "The gate" } }, roster: [], requirements: {} };
+  const story = { illustrations: { checkpoints: true, scenes: true, workflows: { portrait: "SO-Portrait.json", scene: "SO-Missing.json" } },
+    checkpointById: { cp2: { player_name: "The gate" } }, checkpoints: [], roster: [], requirements: {} };
   const manager = {
     getSnapshot: () => snapshot, getStory: () => story, getEngineState: () => ({ visitedPath: [] }), ownsImageChat: () => true,
     getOwnership: () => ({ mint: () => ({}), check: () => ({ ok: true }) }), touch: () => undefined,
@@ -72,6 +80,7 @@ beforeEach(() => {
   host.media = null;
   host.checkpoints = [];
   jest.clearAllMocks();
+  workflowHost.swaps = [];
 });
 
 describe("plan 32 W4: a clean host never tries to render", () => {
@@ -156,6 +165,23 @@ describe("plan 32 W2: the ComfyUI route uses only discovered models", () => {
     await director.direct({ purpose: "scene", text: "a gate", messageId: null });
     const graph = (comfyRenderOwned.mock.calls[0] as unknown[])[0] as Record<string, { class_type: string; inputs: Record<string, unknown> }>;
     expect(Object.values(graph).find((node) => node.class_type === "CheckpointLoaderSimple")?.inputs.ckpt_name).toBe("novaAnimeIllustrious.safetensors");
+    stop();
+  });
+});
+
+describe("v2.8 29 B: a story's workflow is used for its renders only, and a missing one falls back", () => {
+  it("renders a portrait through the mapped workflow and a scene with the player's own, saying why", async () => {
+    host.stReady = true;
+    const { director, stop } = harness();
+    await director.direct({ purpose: "portrait", text: "Arin", messageId: null });
+    expect(workflowHost.swaps).toEqual(["SO-Portrait.json"]);
+    expect(director.status().lastPlan?.workflow).toBe("SO-Portrait.json");
+    await director.direct({ purpose: "scene", text: "a gate", messageId: null });
+    expect(workflowHost.swaps).toEqual(["SO-Portrait.json"]);
+    expect(renderStImage).toHaveBeenCalledTimes(2);
+    expect(director.status().workflowNote).toMatch(/SO-Missing.json is not installed/);
+    await director.refreshHealth();
+    expect(imageHealth()?.storyWorkflows).toEqual({ wanted: ["SO-Missing.json", "SO-Portrait.json"], missing: ["SO-Missing.json"], missingNodes: [], comfySource: true });
     stop();
   });
 });

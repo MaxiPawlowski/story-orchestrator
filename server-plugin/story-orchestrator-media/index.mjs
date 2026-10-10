@@ -1,10 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { createComfyTarget } from './comfyTarget.mjs';
 import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets, removeStorySprites, referencePack, referenceSets, spriteInventory, alphaRecipes,
     digest, recordReference, ownsReference, releaseReference, pruneReferences } from './files.mjs';
+import { createDownloads, SECRET_KEYS } from './downloads.mjs';
+import { mountDownloadRoutes } from './downloadRoutes.mjs';
 
 export const info = { id: 'story-orchestrator-media', name: 'Story Orchestrator media', description: 'Owned ComfyUI jobs and generated sprite files.' };
 const home = path.dirname(fileURLToPath(import.meta.url));
@@ -13,6 +15,21 @@ export const ALLOWED_NODES = Object.freeze(['LoadImage', 'UNETLoader', 'QwenImag
     'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha']);
 const allowedNodes = new Set(ALLOWED_NODES);
 export const unsupportedNode = (node) => !node || !allowedNodes.has(node.class_type) || !node.inputs || typeof node.inputs !== 'object';
+
+let secretsModule;
+export async function loadSecrets(here = home) {
+    if (secretsModule !== undefined) return secretsModule;
+    try { secretsModule = await import(pathToFileURL(path.resolve(here, '..', '..', 'src', 'endpoints', 'secrets.js')).href); }
+    catch { secretsModule = null; }
+    return secretsModule;
+}
+
+export const readProviderKey = async (req, provider, secrets = null) => {
+    const store = secrets ?? await loadSecrets();
+    if (typeof store?.readSecret !== 'function' || !req?.user?.directories || !SECRET_KEYS[provider]) return null;
+    const value = store.readSecret(req.user.directories, SECRET_KEYS[provider]);
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
+};
 
 export async function init(router) {
     const config = await fs.readFile(path.join(home, 'config.json'), 'utf8').then(JSON.parse).catch((error) => {
@@ -100,6 +117,8 @@ export async function init(router) {
     route('post', '/sprites/save', (req, root) => saveSprite(root, req.body));
     route('post', '/sprites/remove-story', (req, root) => removeStorySprites(root, req.body.story));
     route('post', '/sprites/delete', (req, root) => deleteSprite(root, req.body));
+    mountDownloadRoutes(router, { downloads: createDownloads({ config, log: (line) => console.log(`[story-orchestrator-media] ${line}`) }),
+        readKey: (req, provider) => readProviderKey(req, provider), log: (line) => console.log(`[story-orchestrator-media] ${line}`) });
     console.log('[story-orchestrator-media] owned render jobs ready');
 }
 

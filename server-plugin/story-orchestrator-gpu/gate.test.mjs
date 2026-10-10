@@ -49,7 +49,7 @@ before(async () => {
         res.end('{"queue_running":[],"queue_pending":[]}');
     });
     comfyUrl = await listen(comfy);
-    gate = new GpuGate({ upstream: upstreamUrl, comfy: comfyUrl, sleep: async () => {} });
+    gate = new GpuGate({ upstream: upstreamUrl, expected: 'TheDrummer/Artemis-31B-v1.1-GGUF', comfy: comfyUrl, sleep: async () => {} });
     proxy = http.createServer((req, res) => gate.forward(req, res));
     proxyUrl = await listen(proxy);
 });

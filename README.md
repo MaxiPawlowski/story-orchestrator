@@ -97,6 +97,9 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
+| Images | One GPU for text and images | A local text model and local pictures share one graphics card. | Off by default |
+| Images | Story image workflows | A story picks which of your ComfyUI workflows draws each kind of picture. |  |
+| Images | Downloading models | Download a model from Civitai or Hugging Face into your model folders, verified. | Experimental |
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |
 | Images | Animated faces | Blink and talking-mouth frames give sprites movement. | Experimental |
 | Judge | Judge | A second, fast model for yes/no and pick-one decisions. |  |

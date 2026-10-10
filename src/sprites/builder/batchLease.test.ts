@@ -15,6 +15,12 @@ describe("warm batch retention reads the broker's own reserves (v2.7 31 §B)", (
     expect(mayRetainBatch({ ...idle, reserveGpuMiB: 0, reserveRamMiB: 0, adapter: "none" })).toBe(false);
     expect(mayRetainBatch(null)).toBe(false);
   });
+  it("the in-plugin broker answers mayRetain itself; it is off unless the broker says yes (v2.8 28 decision 6)", () => {
+    const supervised = { adapter: "supervise", guarding: true, activeText: 0, waitingText: 0, gpuFreeMiB: 20000, ramAvailableMiB: 30000, reserveGpuMiB: 1, reserveRamMiB: 1 };
+    expect(mayRetainBatch(supervised)).toBe(false);
+    expect(mayRetainBatch({ ...supervised, mayRetain: false })).toBe(false);
+    expect(mayRetainBatch({ ...supervised, mayRetain: true })).toBe(true);
+  });
 });
 
 const fixture = () => {

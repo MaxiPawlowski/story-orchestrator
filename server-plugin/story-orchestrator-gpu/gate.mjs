@@ -1,11 +1,8 @@
 import http from 'node:http';
 import { randomUUID } from 'node:crypto';
 
-const UPSTREAM = 'http://127.0.0.1:8888';
-const EXPECTED = 'TheDrummer/Artemis-31B-v1.1-GGUF';
-
 export class GpuGate {
-    constructor({ request = http.request, fetchImpl = fetch, upstream = UPSTREAM, expected = EXPECTED, now = Date.now, comfy = 'http://127.0.0.1:8188', sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
+    constructor({ request = http.request, fetchImpl = fetch, upstream = null, expected = null, now = Date.now, comfy = 'http://127.0.0.1:8188', sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
         this.request = request;
         this.fetch = fetchImpl;
         this.upstream = upstream;
@@ -75,6 +72,7 @@ export class GpuGate {
 
     async hold() {
         if (this.phase !== 'text') throw new Error('The GPU is already reserved for an image.');
+        if (!this.upstream || !this.expected) throw new Error('The observed text server and its model id must be configured.');
         if (!this.authorization) throw new Error('No authenticated Artemis request has passed through this broker yet.');
         this.phase = 'reserving';
         try {

@@ -311,6 +311,27 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
   },
   {
+    id: "gpu-sharing", name: "One GPU for text and images", area: "images", audience: "setup",
+    oneLine: "A local text model and local pictures share one graphics card.",
+    what: "Replies wait while a picture renders, and the text model comes back after it.",
+    where: settingsAt("#so-gpu-broker", "Images › Image service › GPU sharing"),
+    settings: [], doc: "setup/gpu-sharing.md", status: "off-by-default", needs: ["comfyui"],
+  },
+  {
+    id: "story-workflows", name: "Story image workflows", area: "images", audience: "author",
+    oneLine: "A story picks which of your ComfyUI workflows draws each kind of picture.",
+    what: "Map each picture type to a ComfyUI workflow in Studio. Yours comes back after each story picture; a missing one falls back to yours.",
+    where: studioAt("#so-studio-modal", "Story › Illustrations › Workflows"),
+    settings: [], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", needs: ["comfyui", "story"],
+  },
+  {
+    id: "model-downloads", name: "Downloading models", area: "images", audience: "setup",
+    oneLine: "Download a model from Civitai or Hugging Face into your model folders, verified.",
+    what: "Store a token once, check a model, then confirm a card that shows its size, source, license and folder. Nothing downloads on its own.",
+    where: settingsAt("#so-model-sources", "Images › Image service › Model sources"),
+    settings: [], doc: "setup/images.md", status: "experimental", needs: ["comfyui"],
+  },
+  {
     id: "sprites", name: "Sprite stage", area: "images", audience: "player",
     oneLine: "Character sprites that change expression as replies stream.",
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",

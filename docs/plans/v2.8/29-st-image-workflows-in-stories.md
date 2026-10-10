@@ -140,3 +140,49 @@ ST `public/scripts/extensions/stable-diffusion/index.js` (`:340`, `:1335`, `:422
 ## Decided (user, 2026-10-07)
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. Decision 1: **image workflows** (ST ComfyUI workflows), not STscript/QR.
+
+## Owner decisions to confirm (2026-10-10, build)
+
+Owner approval 2026-10-10 (queue A10); each open decision took the plan's recommendation, recorded for the owner to
+confirm: (1) the primary reading, ComfyUI image workflows as ST stores them (not STscript/QR); (2) mapping by name and
+an optional bundle; (3) the route A in-memory switch (route B fallback not built; no race seen yet, unmeasured live);
+(4) a denylist of code/file nodes, shown, not overridable (`src/image/workflows.ts` `WORKFLOW_DENIED_NODES` + a name
+pattern; core nodes pass); (5) per-checkpoint overrides in the first cut. Also decided while building, to confirm:
+the swap ledger lives in the browser's localStorage (a settings or chat write would itself risk persisting the
+swapped value); bundled entries are shape-checked at parse and hash/node-checked only at install; one Setup check
+(`story-workflow-missing`, degrades) covers missing workflows and missing bundle nodes, because the main bundle had no
+room for two (1,249,994 of 1,250,000 bytes after this plan).
+
+## Gate record (2026-10-10, branch `v2.8-media-stack`)
+
+As built:
+- Schema: `illustrations.workflows` (picture type → ST workflow file), `illustrations.bundle` (`{graph, sha256}`,
+  sha256 of the compact JSON graph), checkpoint `effects.illustrations.workflows`; `ILLUSTRATION_PURPOSES` in the
+  schema (the catalog's six types). Validator names a bad name/type by path.
+- `src/image/workflows.ts` (pure): replay (story map, then each visited checkpoint, last wins), refusal matrix
+  (`decideWorkflow`: non-comfy source, not listed, unreadable, no `"%prompt%"`), graph check (node classes, missing,
+  denied, models), create-only install plan (suffixed name, never overwrite).
+- `stHost/comfyWorkflows.ts`: list/read/save through ST's `/api/sd/comfy/*`; existence is the `/workflows` list,
+  never a `/workflow` read (it answers a missing name with the default file); `withComfyWorkflow` switches
+  `extension_settings.sd.comfy_workflow` in memory only, restores compare-and-set in `finally`, never saves; a
+  write-ahead localStorage row restores the player's selection on start if a reload caught a swap that reached disk.
+- Image runtime (route A only): the plan carries the story's workflow for its purpose; renders go through the lazy
+  `workflowRender.ts`; a fallback reason is kept as `status().workflowNote`; health carries `storyWorkflows`.
+- Studio: Story tab Illustrations gets a per-type workflow picker (`WorkflowMapEditor`, fed by ST's list), Export
+  with workflows and install cards (`BundledWorkflowsPanel`: node classes, models, missing/denied nodes, create-only
+  install); EffectsEditor gets **Picture workflows** per checkpoint.
+- Setup check `story-workflow-missing` (degrades, player copy "Some pictures use your own image settings.").
+- Docs: user guide `setup/images.md` "Story workflows", author guide `presentation` topic (doc + compact twin),
+  registry feature `story-workflows`, README table regenerated.
+
+Gates: `npm run gates -- --no-storybook --jobs 2` all green (typecheck, typecheck:test, debug:typecheck, test, build,
+lint, test:release, test:debug, test:plugin, test:replay); Storybook skipped. Stories to run: `Studio/WorkflowMapEditor`
+(4), `Studio/BundledWorkflowsPanel` (3), `Settings/ImageGroup`. New tests: `src/image/workflows.test.ts`,
+`src/services/stHost/comfyWorkflows.test.ts`, `src/studio/workflowBundle.test.ts`, a case in `src/image/cleanHost.test.ts`.
+
+Not run (3090 busy): LI — a test story mapping two purposes to two `SO-` workflows, each render on its own workflow
+(ComfyUI history), the player's selection unchanged on disk, ×2; cleanup deletes only `SO-` workflows. Open.
+
+Adolion: not recommended for now. The campaign renders through the default route; a per-type workflow only pays once
+the owner has tuned workflows in ST's ComfyUI, and every Adolion player without them falls back to their own (Setup
+row). Revisit after the LI check and once a portrait/background workflow exists on the owner's install.
