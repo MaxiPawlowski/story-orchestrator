@@ -187,7 +187,8 @@ export function wireCoordinators(port: ManagerPort) {
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
-    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), restoreLiving: (boundary) => living.restoreAfterRollback(boundary), extras: () => port.extras(),
+    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), restoreLiving: (boundary) => living.restoreAfterRollback(boundary),
+    livingMovedAfter: (boundary) => living.movedAfter(boundary), extras: () => port.extras(),
     persist: lifecycle.persist, notify: lifecycle.notify, setStatus: (status) => port.setStatus(status),
   };
   const storyUpdateDeps: StoryUpdateDeps = {

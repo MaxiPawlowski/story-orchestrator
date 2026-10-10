@@ -35,6 +35,7 @@ export interface RollbackDeps {
   revalidateExpansion: () => unknown;
   restoreExpansion: (boundary: number) => unknown;
   restoreLiving?: (boundary: number) => unknown;
+  livingMovedAfter?: (boundary: number) => boolean;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
   reapplyCheckpoint: (messageId: number) => Promise<void>;
@@ -132,7 +133,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   // reaches past what the chat can reconstruct is the one case where "the engine did not act on it"
   // is not a reason to stay quiet.
   if (boundary === null) return unavailable(engine.historyFrom());
-  if (!engine.shouldRollbackFromMessage(messageId)) {
+  if (!engine.shouldRollbackFromMessage(messageId) && !deps.livingMovedAfter?.(boundary)) {
     quarantine();
     // A curator write applied at a boundary that consumed the edited message was proposed from the
     // old text, whether or not the engine moved. The blackboard did not move, so the expansion

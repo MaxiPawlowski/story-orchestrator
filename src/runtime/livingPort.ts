@@ -60,6 +60,10 @@ export class LivingPort {
     this.impl?.compact();
   }
 
+  movedAfter(boundary: number): boolean {
+    return (this.deps.getLiving()?.ops ?? []).some((op) => op.boundary > boundary);
+  }
+
   restoreAfterRollback(boundary: number): number {
     if (this.impl) return this.impl.restoreAfterRollback(boundary);
     if (this.tracks()) void this.load().then((coordinator) => coordinator.restoreAfterRollback(boundary));
