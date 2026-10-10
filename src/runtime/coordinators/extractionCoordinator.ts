@@ -89,12 +89,16 @@ export class ExtractionCoordinator {
     return this.deps.getExtraction();
   }
 
-  cardScope(): ScopeSourceContext {
+  scopeContext(): ScopeSourceContext {
     const story = this.deps.getStory();
     const owners = cardScopeOwners(story, this.deps.hosts.roster);
-    const cursor = this.state.cardScopeCursor ?? 0;
-    if (Object.keys(story?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = cursor + 4;
-    return { owners, cursor, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster), rotation: this.deps.getState()?.boundary ?? 0 };
+    return { owners, cursor: this.state.cardScopeCursor ?? 0, present: [...owners], drafted: activeSpeakerId(story, this.deps.hosts.roster), rotation: this.deps.getState()?.boundary ?? 0 };
+  }
+
+  cardScope(): ScopeSourceContext {
+    const context = this.scopeContext();
+    if (Object.keys(this.deps.getStory()?.cardFieldByQuality ?? {}).length > 12) this.state.cardScopeCursor = (context.cursor ?? 0) + 4;
+    return context;
   }
 
   private async save() {

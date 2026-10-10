@@ -55,6 +55,7 @@ import { cardSurface } from "./cardLedger";
 import type { PlaysIndex } from "./playsIndex";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
+import type { ScopeSourceContext } from "@extraction/scopeSources";
 import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
@@ -105,6 +106,7 @@ export interface SnapshotSources {
   chatId?: string | null;
   plays?: PlaysIndex;
   resting?: (text: string) => string;
+  scopeContext?: ScopeSourceContext;
 }
 
 export interface SnapshotPort {
@@ -124,6 +126,7 @@ export interface SnapshotPort {
   chat: readonly unknown[];
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   chatId?: string | null;
+  scopeContext?: ScopeSourceContext;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -152,6 +155,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   scenarioFrame: scenarioFrame(),
   chatId: port.loaded ? port.chatId ?? null : null,
   plays: readPlaysIndex(),
+  scopeContext: port.scopeContext,
 });
 
 const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
@@ -293,10 +297,10 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
   const { extras } = sources;
   return {
     ...gameSlices({
-      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView,
+      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
-    lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals),
+    lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
     presence: buildPresence({

@@ -111,6 +111,19 @@ export function deriveScopeWithSources(
   return { scope, sources: reads };
 }
 
+export type ScopeOverflow = Array<{ kind: ScopeSourceResult["kind"]; dropped: string[] }>;
+
+export const scopeOverflow = (
+  story: NormalizedStoryV2 | null, activeCheckpointId: string | null, blackboard: BlackboardSnapshot | null, context: ScopeSourceContext = {},
+): ScopeOverflow => (story && activeCheckpointId && blackboard
+  ? deriveScopeWithSources(story, activeCheckpointId, blackboard, [], context).sources.map((read) => ({ kind: read.kind, dropped: read.dropped })).filter((row) => row.dropped.length)
+  : []);
+
+export interface ScopeAt { activeCheckpointId: string; blackboard: BlackboardSnapshot; boundary: number }
+
+export const scopeDropped = (story: NormalizedStoryV2, at: ScopeAt, kind: ScopeSourceResult["kind"], context?: ScopeSourceContext): string[] =>
+  scopeOverflow(story, at.activeCheckpointId, at.blackboard, context ?? { rotation: at.boundary }).filter((row) => row.kind === kind).flatMap((row) => row.dropped);
+
 export function deriveScope(
   story: NormalizedStoryV2,
   activeCheckpointId: string,
