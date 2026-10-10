@@ -1,9 +1,10 @@
 import { applyGlobalSettings } from "./extras";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
+import type { BriefingDraft } from "./briefing";
 import type { TalkChainSettings } from "./settingsModel";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
-export type UiSettingsPatch = Partial<UiRuntimeSettings> & { briefingSeen?: true };
+export type UiSettingsPatch = Partial<UiRuntimeSettings> & { briefingSeen?: true; briefingDrafted?: BriefingDraft };
 
 export interface SettingsControlDeps {
   extras: () => RuntimeExtras;
@@ -56,11 +57,12 @@ export class SettingsControl {
   }
 
   ui(settings: UiSettingsPatch) {
-    const { authorView, briefingSeen, ...display } = settings;
+    const { authorView, briefingSeen, briefingDrafted, ...display } = settings;
     if (Object.keys(display).length) setGlobalSettings({ display });
     const extras = this.deps.extras();
     if (authorView !== undefined) extras.ui = { ...extras.ui, authorView };
-    if (briefingSeen && extras.briefing?.seen === false) extras.briefing = { seen: true };
+    if (briefingSeen && extras.briefing?.seen === false) extras.briefing = { ...extras.briefing, seen: true };
+    if (briefingDrafted && extras.briefing) extras.briefing = { ...extras.briefing, draft: briefingDrafted };
     this.refresh();
   }
 

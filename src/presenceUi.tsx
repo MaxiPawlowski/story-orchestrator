@@ -116,6 +116,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
   const fillSuggestion = (ask: SuggestionAsk, text: string): WriteResult =>
     host ? host.fillSuggestion(ask, text) : { ok: false as const, reason: PRESENCE_TEXT.suggestionsLoading };
 
+  const fill = (text: string) => fillChatInput(text, "");
   const htmlHost = { journal: (summary: string, detail: string) => manager.noteRecap(summary, detail, "author") };
 
   const PanelsHost = () => {
@@ -124,6 +125,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
     const activity = panels.includes("activity") && snapshot.ready && snapshot.ui.authorView;
     const suggestions = panels.includes("suggestions") && snapshot.ready && snapshot.presence?.shown.suggestions === true;
     const game = gamePanels(snapshot);
+    const author = snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null;
     return (
       <>
         {panels.includes("help") && (
@@ -149,17 +151,19 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         )}
         {game.game && game.journal && panels.includes("journal") && (
           <Panel id="journal" title={GAME_TEXT.journalTitle}>
-            <Lazy fallback={null}><JournalPanel game={game.game} author={snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null} /></Lazy>
+            <Lazy fallback={null}><JournalPanel game={game.game} author={author} /></Lazy>
           </Panel>
         )}
         {game.statSheet && panels.includes("stat-sheet") && (
           <Panel id="stat-sheet" title={GAME_TEXT.statSheetTitle}>
-            <Lazy fallback={null}><StatSheetPanel sheet={game.game?.statSheet ?? null} /></Lazy>
+            <Lazy fallback={null}><StatSheetPanel sheet={game.game?.statSheet ?? null} provenance={author?.provenance?.[game.game?.statSheet?.id ?? ""]}
+              onAction={fill} openDrawer={openDrawer} /></Lazy>
           </Panel>
         )}
         {game.widgets.filter((widget) => panels.includes(`widget-${widget.id}`)).map((widget) => (
           <Panel key={widget.id} id={`widget-${widget.id}`} title={widget.title}>
-            <Lazy fallback={null}><WidgetPanel widget={widget} onAction={(text) => fillChatInput(text, "")} html={snapshot.ui.presence?.htmlWidgets === false ? null : htmlHost} /></Lazy>
+            <Lazy fallback={null}><WidgetPanel widget={widget} onAction={fill} html={snapshot.ui.presence?.htmlWidgets === false ? null : htmlHost}
+              openDrawer={openDrawer} provenance={author?.provenance?.[widget.id]} /></Lazy>
           </Panel>
         ))}
       </>

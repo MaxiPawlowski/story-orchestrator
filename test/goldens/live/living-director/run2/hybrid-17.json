@@ -1,0 +1,79 @@
+{
+  "frontierId": "ford",
+  "raw": {
+    "format": 2,
+    "id": "mill-hybrid",
+    "title": "The Mill Road",
+    "description": "An authored act on a mill road, continued by the director after its end.",
+    "living": {
+      "premise": "A miller's road where a flood took the bridge; the authored act ends when the ford is found.",
+      "authored_until": "ford",
+      "autonomy": "suggest"
+    },
+    "qualities": [
+      {
+        "key": "ford_found",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has anyone found the ford?"
+      },
+      {
+        "key": "miller_mood",
+        "type": "enum",
+        "values": [
+          "wary",
+          "warm"
+        ],
+        "source": "extractor",
+        "rubric": "How does the miller treat the player?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "mill",
+        "name": "The Mill",
+        "objective": "The miller refuses to grind until the road is open.",
+        "type": "anchor",
+        "start": true
+      },
+      {
+        "id": "ford",
+        "name": "The Ford",
+        "objective": "The river is low enough to cross at the ford.",
+        "type": "anchor"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "mill",
+        "to": "ford",
+        "priority": 1,
+        "gate": {
+          "q": "ford_found",
+          "op": "==",
+          "v": true
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "miller",
+        "name": "Hask",
+        "role": "miller"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"The Far Bank at Dusk\",\"objective\":\"Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.\",\"tension\":\"stirring\",\"snapshot\":{},\"opens_when\":{\"new\":{\"key\":\"crossing_made\",\"rubric\":\"Did anyone reach the far bank of the river?\"}},\"new_qualities\":[],\"builds_on\":null,\"new_chapter\":false,\"chapter_title\":null,\"final\":false,\"reason\":\"Shifts the story from finding the ford to what waits beyond it, without deciding how or whether the player crosses.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

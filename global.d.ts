@@ -62,7 +62,9 @@ declare global {
   var storyOrchestratorDebugInnerResponse: string | null | undefined;
   var storyOrchestratorDebugSuggestionsResponse: string | null | undefined;
   var storyOrchestratorDebugLoreResponse: string | null | undefined;
+  var storyOrchestratorDebugLivingResponse: string | null | undefined;
   var storyOrchestratorDebugAskResponse: string | null | undefined;
+  var storyOrchestratorDebugBriefingResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorSpikes: ({
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };

@@ -36,7 +36,7 @@ export const tagIssues = (tags, version) => {
   return [`release mode but HEAD carries no tag v${version}${carried.length ? ` (it carries ${carried.join(", ")})` : ""}`];
 };
 
-export const BUNDLE_BUDGET_BYTES = 1250000;
+export const BUNDLE_BUDGET_BYTES = 1300000;
 
 export const budgetIssues = (manifest, budget = BUNDLE_BUDGET_BYTES) => {
   const bytes = manifest?.bundle?.bytes;

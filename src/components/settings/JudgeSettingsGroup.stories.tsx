@@ -301,6 +301,45 @@ export const RoutedToARefusedLocalProvider: Story = {
   },
 };
 
+export const RoutedToTheLocalJudge: Story = {
+  args: {
+    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, stallCheck: "systemone-local" } }, { stallCheck: true }),
+    status: {
+      ...ready,
+      providers: {
+        typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
+        "systemone-local": { configured: true, local: true, host: "127.0.0.1:8095", model: "decider-4b-v2.1-Q4_K_M", modelsDir: "C:/dev/models/so-judge", problem: null },
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const select = required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-stall-check"), "stall provider select");
+    await expect(select.value).toBe("systemone-local");
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("Local judge (this machine), not calibrated there");
+    const line = canvasElement.querySelector("#so-judge-local-systemone-local")?.textContent ?? "";
+    await expect(line).toContain("runs on this machine (127.0.0.1:8095)");
+    await expect(line).toContain("model decider-4b-v2.1-Q4_K_M");
+    await expect(line).toContain("models in C:/dev/models/so-judge");
+    await expect(canvasElement.querySelector("#so-judge-privacy-systemone-local")).toBeNull();
+  },
+};
+
+export const LocalJudgeNotStarted: Story = {
+  args: {
+    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, stallCheck: "systemone-local" } }, { stallCheck: true }),
+    status: {
+      ...ready,
+      providers: {
+        typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
+        "systemone-local": { configured: false, local: true, host: "127.0.0.1:8095", model: null, modelsDir: "C:/dev/models/so-judge", problem: "unreachable" },
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-local-systemone-local")?.textContent).toContain("start it from the tray");
+  },
+};
+
 // v2.6 plan 04 B17: exclusive lore selection is author-only, so its readiness concern stays out of the player's panel.
 export const ExclusiveLoreIsAuthorOnly: Story = {
   args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready },

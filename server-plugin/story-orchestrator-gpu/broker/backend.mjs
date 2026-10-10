@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn as spawnDefault } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { memorySnapshot } from './telemetry.mjs';
@@ -32,9 +32,14 @@ export class ContextRefusal extends Error {
 }
 
 export class NativeBackend {
-    constructor(config, { snapshot = memorySnapshot } = {}) {
+    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch } = {}) {
         this.config = config;
         this.snapshot = snapshot;
+        this.spawn = spawn;
+        this.fetch = fetchImpl;
+        this.killTree = killTree;
+        this.crashed = null;
+        this.stopping = null;
         this.url = `http://127.0.0.1:${config.backendPort}`;
         this.child = null;
         this.profile = null;
@@ -68,7 +73,7 @@ export class NativeBackend {
         const began = Date.now();
         await this.stopOwned();
         let occupied = false;
-        try { await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
+        try { await this.fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
         if (occupied) throw new Error('The backend port is owned by another server; it will not be stopped.');
         const snapshot = await this.snapshot();
         const gpu = snapshot.gpus[0];
@@ -80,11 +85,17 @@ export class NativeBackend {
         }
         await fs.mkdir(this.config.stateDir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
-        const child = spawn(this.config.binary, nativeArgs(this.config, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
+        this.crashed = null;
+        const child = this.spawn(this.config.binary, nativeArgs(this.config, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
         this.child = child;
         let spawnError;
         child.on('error', (error) => { spawnError = error; });
-        child.on('exit', () => { void log.close(); if (this.child === child) { this.child = null; this.profile = null; } });
+        child.on('exit', (code) => {
+            void log.close();
+            if (this.child !== child) return;
+            this.child = null; this.profile = null;
+            if (this.stopping !== child && this.loading === null) this.crashed = { code: code ?? null, at: new Date().toISOString() };
+        });
         const deadline = Date.now() + 240000;
         const admissionWindowMs = this.config.admissionWindowMs ?? 30000;
         let admissionUntil = null;
@@ -92,7 +103,7 @@ export class NativeBackend {
             if (spawnError) throw spawnError;
             if (child.exitCode !== null) throw new Error(`Native backend exited with ${child.exitCode}; read its local log.`);
             try {
-                if ((await fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
+                if ((await this.fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
                     const after = await this.snapshot();
                     if (withinReserve(after, this.config.reserves)) {
                         this.profile = name;
@@ -122,9 +133,12 @@ export class NativeBackend {
         const child = this.child;
         if (!child) return;
         const ended = new Promise((resolve) => child.once('exit', resolve));
-        child.kill();
+        this.stopping = child;
+        if (this.killTree && child.pid) await this.killTree(child.pid);
+        else child.kill();
         await Promise.race([ended, new Promise((_, reject) => setTimeout(() => reject(new Error('The owned text process did not stop; no replacement will be started.')), 10000).unref())]);
         if (this.child === child) { this.child = null; this.profile = null; this.fitTarget = null; }
+        this.stopping = null;
     }
 
     async forRequest(body, signal) {
@@ -143,14 +157,14 @@ export class NativeBackend {
         let prompt = body.prompt;
         if (typeof prompt !== 'string') {
             if (!Array.isArray(body.messages)) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
-            const rendered = await fetch(`${this.url}/apply-template`, {
+            const rendered = await this.fetch(`${this.url}/apply-template`, {
                 method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: body.messages }), signal,
             });
             if (!rendered.ok) throw new Error('Could not render the chat for counting; refusing to guess a smaller context.');
             prompt = (await rendered.json()).prompt;
             if (typeof prompt !== 'string') throw new Error('The chat template did not return a prompt.');
         }
-        const response = await fetch(`${this.url}/tokenize`, {
+        const response = await this.fetch(`${this.url}/tokenize`, {
             method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: prompt, add_special: true }), signal,
         });
         if (!response.ok) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
@@ -162,8 +176,8 @@ export class NativeBackend {
     usableProfiles(limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext) {
         const since = Date.now() - (this.config.contextRetryMs ?? 600000);
         return Object.entries(this.config.profiles)
-            .map(([name, profile]) => ({ name, profile, context: profileContext(profile) }))
-            .filter(({ profile, context }) => !profile.disabled && context !== null && context <= limit)
+            .map(([name, profile]) => ({ name, profile, context: profileContext(profile) ?? limit }))
+            .filter(({ profile, context }) => !profile.disabled && context <= limit)
             .filter(({ name }) => name === this.profile || !(this.failedAt.get(name) > since))
             .sort((x, y) => x.context - y.context);
     }
@@ -194,5 +208,5 @@ export class NativeBackend {
         }
     }
 
-    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, servedContext: this.servedContext() }; }
+    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

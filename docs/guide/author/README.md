@@ -21,7 +21,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 - [The setup wizard](wizard.md): from a premise to a playable story, and what it creates on your install.
 - [Macros and slash commands](macros-and-commands.md): story values in your cards and prompts, and the author commands.
 
-## The fields, one page per topic (44)
+## The fields, one page per topic (46)
 
 ### The story as a whole
 
@@ -73,6 +73,8 @@ Where the guide says "the reading model" it means the memory model that reads th
 - [Transitions](topics/transitions.md) (`transitions`)
 - [Convergence](topics/convergence.md) (`convergence`)
 - [Thread bridges](topics/arc-bridges.md) (`arc-bridges`)
+- [Living stories](topics/living-director.md) (`living-director`)
+- [Branches that follow the player](topics/branching.md) (`branching`)
 
 ### Lore and memory
 

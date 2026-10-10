@@ -161,7 +161,7 @@ describe("scoreAuthoring", () => {
   const thin = authoringCase(authoringFixture.cases.find((entry: { id: string }) => entry.id === "a04"));
   const add = (type: string) => ({ kind: "addQuality" as const, quality: { key: "alarm", type, source: "extractor", rubric: "Is the alarm tripped?" } }) as never;
   it("reads the allowed kinds from the stage prompt", () => {
-    expect(allowedStageKinds(renderStagePrompt("qualities", qualities.draft, "", []))).toEqual(["setStoryField", "addQuality", "updateQuality", "removeQuality"]);
+    expect(allowedStageKinds(renderStagePrompt("qualities", qualities.draft, "", []))).toEqual(["setStoryField", "addQuality", "updateQuality", "removeQuality", "setBriefing"]);
   });
   it("ok with the required kind and match is well-shaped", () => {
     expect(scoreAuthoring(qualities, "ok", [add("bool")], false, [])).toMatchObject({ valid: true, shape: true });
@@ -247,6 +247,11 @@ describe("recorded live goldens replay through the same run path", () => {
       overall: { validity: 12, opShape: 12, firstTry: 9 },
     },
   };
+  const KINDS_ADDED_AFTER_RECORDING = new Set(["setBriefing"]);
+  const asRecorded = <T,>(score: T): T => {
+    const kinds = (score as { allowedKinds?: unknown }).allowedKinds;
+    return Array.isArray(kinds) ? { ...score, allowedKinds: kinds.filter((kind) => !KINDS_ADDED_AFTER_RECORDING.has(kind)) } : score;
+  };
   const passedBy = (slice: { metrics: Record<string, { passed: number }> }) => Object.fromEntries(Object.entries(slice.metrics).map(([name, metric]) => [name, metric.passed]));
   for (const file of files) {
     it(`${file}: every case re-scores to the recorded score, and the summary to the recorded summary`, async () => {
@@ -271,7 +276,8 @@ describe("recorded live goldens replay through the same run path", () => {
         unrecorded.allow = golden.role === "authoring";
         unrecorded.prompts = [];
         let tick = 0;
-        const result = await runRoleCase(golden.role, entry.case, { profileId: "replay", now: () => (tick++ === 0 ? 0 : entry.latencyMs) });
+        const ran = await runRoleCase(golden.role, entry.case, { profileId: "replay", now: () => (tick++ === 0 ? 0 : entry.latencyMs) });
+        const result = { ...ran, score: asRecorded(ran.score) };
         unrecorded.allow = false;
         const change = changed?.cases[entry.id];
         expect(queued).toHaveLength(change?.unused ?? 0);

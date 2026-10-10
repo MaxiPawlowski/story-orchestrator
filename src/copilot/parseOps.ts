@@ -1,4 +1,5 @@
-import { type RosterMember } from "@engine/index";
+import { type RosterMember, type ValidationError } from "@engine/index";
+import { readBriefing } from "@engine/validate/briefing";
 import type { ProposalOp } from "./types";
 import { isRecord } from "@utils/guards";
 import {
@@ -113,6 +114,14 @@ const readSetSceneRead: OpReader = (value) => {
   return { kind: "setSceneRead", sceneRead: { locations: readStringList(source.locations), times: readStringList(source.times), ...(source.inject === false ? { inject: false } : {}) } };
 };
 
+const readSetBriefing: OpReader = (value, path, issues) => {
+  const errors: ValidationError[] = [];
+  const briefing = readBriefing(value.briefing, `${path}.briefing`, errors);
+  issues.push(...errors.map((error) => `${error.path}: ${error.message}`));
+  if (value.briefing === undefined) issues.push(`${path}.briefing: required { sections: [{ heading, text }] }`);
+  return briefing && !errors.length ? { kind: "setBriefing", briefing } : null;
+};
+
 const STORY_SHAPE_OPS: Record<string, OpReader> = {
   addRosterMember: (value, path, issues) => {
     const member = readRosterMember(value.member, `${path}.member`, issues);
@@ -141,6 +150,7 @@ const STORY_SHAPE_OPS: Record<string, OpReader> = {
   },
   setLoreSelect: readSetLoreSelect,
   setSceneRead: readSetSceneRead,
+  setBriefing: readSetBriefing,
 };
 
 const readCreateCharacterCard: OpReader = (value, path, issues) => {

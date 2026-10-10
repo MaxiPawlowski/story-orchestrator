@@ -7,7 +7,7 @@ something different, so splitting them is usually better and often cheaper.
 |---|---|---|---|---|
 | **Replies** | Writes what the characters say. | Prose, voice, staying in character, a long context. An RP or storytelling finetune is a good fit. | TheDrummer's Artemis 31B | SillyTavern's own connection (the chat model) |
 | **Memory model** | Reads the chat after each reply: story facts, memories, summaries, whether a scene is over. | Following instructions and strict output formats, not prose flair. Needs its instruct template. | DeepSeek (Chat Completion) | **Memory → Memory model profile** |
-| **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin | **Judge** section ([Judge](judge.md)) |
+| **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin; experimental: decider-4b on this machine ([local judge](judge.md#local-judge-experimental)) | **Judge** section ([Judge](judge.md)) |
 | **Wizard and road ahead** | Builds stories from a premise through tool calls, and writes generated scenes. | Reliable tool calling and planning. | DeepSeek | **Memory → Models per task → Wizard and road ahead** |
 | **Image prompts** | Turns a scene into a picture prompt. Optional. | Short, literal output. | any small instruct model | **Images → Image-prompt model** ([Illustrations](images.md)) |
 
@@ -22,6 +22,13 @@ add a cloud profile: [Memory model](memory-model.md#use-a-cloud-model-for-a-task
 **One model for everything** works as a fallback: point the memory model at your reply model and leave the rest on
 their defaults. You lose speed (every read competes with the next reply), some accuracy on reads and summaries, and
 the wizard's reliability; without the judge plugin its uses take their ordinary, slower paths.
+
+**A local judge** (decider-4b, about 6 GB of disk with its Python environment, in `dev/models/so-judge` on the system drive by
+default) can stand in for TypeSafe per use, so nothing leaves the machine. It is not measured yet, so every use routed
+to it keeps its usual path until it is: [Local judge](judge.md#local-judge-experimental).
+
+**Image models** are files, not connections: a missing checkpoint or LoRA can be downloaded from Civitai or Hugging
+Face into your model folders, verified by SHA256, after you confirm a card ([Illustrations](images.md#downloading-models-civitai-hugging-face)).
 
 ## What we tested on
 

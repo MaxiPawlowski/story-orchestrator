@@ -35,6 +35,7 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
     <Lazy fallback={null}><InlineControls snapshot={snapshot} manager={manager} /></Lazy>
     <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} onChange={(on) => manager.setUiSettings({ hudEnabled: on })} />
     <CheckRow id="so-briefing-enabled" setting="display.briefing" checked={snapshot.ui.briefing !== false} onChange={(on) => manager.setUiSettings({ briefing: on })} />
+    <CheckRow id="so-briefing-draft" setting="display.briefingDraft" checked={snapshot.ui.briefingDraft !== false} onChange={(on) => manager.setUiSettings({ briefingDraft: on })} />
     <CheckRow id="so-player-setup-enabled" setting="display.playerSetup" checked={snapshot.ui.playerSetup !== false} onChange={(on) => manager.setUiSettings({ playerSetup: on })} />
     <PresenceControls snapshot={snapshot} onChange={(presence) => manager.setUiSettings({ presence })} />
   </div>
@@ -163,6 +164,12 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
           <option value="off">Do not propose</option>
         </select>
       </div>
+      <CheckRow id="so-living-enabled" setting="stagecraft.livingEnabled" checked={snapshot.stagecraft.settings.livingEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ livingEnabled: on })} />
+      <CheckRow id="so-branching-enabled" setting="stagecraft.branchingEnabled" checked={snapshot.stagecraft.settings.branchingEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ branchingEnabled: on })} />
+      <CheckRow id="so-prefetch-enabled" setting="stagecraft.prefetchEnabled" checked={snapshot.stagecraft.settings.prefetchEnabled !== false}
+        onChange={(on) => manager.setStagecraftSettings({ prefetchEnabled: on })} />
     </div>
   );
 };

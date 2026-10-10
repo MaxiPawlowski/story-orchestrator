@@ -24,6 +24,7 @@ export const JUDGE_USE_KEYS = [
   "expressions",
   "attentionCheck",
   "wardenVoice",
+  "divergence",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -267,6 +268,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
       "A refusal or an in-character dodge counts as an answer. Not measured yet.",
     sends: "nothing beyond the warden's call: the character reply, your latest message and your persona name",
   },
+  divergence: {
+    label: "Branch when the player goes off script",
+    description: "At each turn of a checkpoint with ways forward, asks whether what you are doing fits any of them; two answers of \"none\" in a row, or one very sure one, "
+      + "let the story director write a branch that follows you and later comes back. Not measured yet.",
+    sends: "the last six chat messages, your persona name and a one-line description of each way forward from the current checkpoint",
+  },
   wardenVoice: {
     label: "In character (warden)",
     description: "After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note "
@@ -295,7 +302,10 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "expressions",
   "attentionCheck",
   "wardenVoice",
+  "divergence",
 ];
 
 // Steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = [
+  "expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice", "divergence",
+];

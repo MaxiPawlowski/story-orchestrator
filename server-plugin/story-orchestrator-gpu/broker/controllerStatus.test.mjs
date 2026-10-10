@@ -33,8 +33,9 @@ test('maxContext and the ComfyUI URL default to the documented values, and the p
     assert.deepEqual(CONTROLLER_DEFAULTS, { maxContext: 98304, comfyUrl: 'http://127.0.0.1:8188' });
 });
 
-test('the controller holds no machine value of its own', async () => {
-    const source = await fs.readFile(new URL('./controller.mjs', import.meta.url), 'utf8');
-    assert.doesNotMatch(source, /98304|'8188'|so-local\/trim|nativePoolTrim/);
-    assert.match(source, /controllerStatus\(\{ config/);
+test('the broker core holds no machine value of its own', async () => {
+    for (const name of ['arbiter', 'gateway', 'backend', 'scheduler']) {
+        const source = await fs.readFile(new URL(`./${name}.mjs`, import.meta.url), 'utf8');
+        assert.doesNotMatch(source, /98304|'8188'|Artemis|so-local\/trim|nativePoolTrim|\b[A-Z]:[\\/]/, name);
+    }
 });

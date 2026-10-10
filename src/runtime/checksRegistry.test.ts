@@ -36,7 +36,8 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   thinkingSilent: true,
   contextOverServer: { set: 98304, served: 32768, url: "http://127.0.0.1:18888" },
   imageStory: { checkpoints: true, scenes: false },
-  imageHealth: { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none" },
+  imageHealth: { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none",
+    storyWorkflows: { wanted: ["SO-Portrait.json"], missing: ["SO-Portrait.json"], missingNodes: ["FaceDetailer"], comfySource: true } },
   imageRetired: [{ where: "background", was: "flux1-dev-fp8.safetensors" }],
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
@@ -58,7 +59,7 @@ const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
   "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
-  "images-on-no-service", "image-model-missing", "image-model-retired", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
+  "images-on-no-service", "image-model-missing", "image-model-retired", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
 ];
 
 const duplicateIds = (registry: readonly Check[]): string[] =>

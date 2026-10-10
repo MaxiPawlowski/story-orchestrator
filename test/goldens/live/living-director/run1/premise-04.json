@@ -1,0 +1,182 @@
+{
+  "frontierId": "liv_2",
+  "raw": {
+    "format": 2,
+    "id": "lantern-coast-living",
+    "title": "Lantern Coast",
+    "description": "A living story on a fishing coast where the lanterns have started going out.",
+    "player": {
+      "role": "a newcomer who took a room above the harbour inn"
+    },
+    "living": {
+      "premise": "On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+      "tone": "quiet, salt-worn, a little uncanny",
+      "cast": [
+        "harbourmaster",
+        "innkeeper",
+        "keeper"
+      ],
+      "chapter_size": [
+        2,
+        3
+      ],
+      "ending": "director-proposes"
+    },
+    "qualities": [
+      {
+        "key": "trust_harbourmaster",
+        "type": "int",
+        "source": "extractor",
+        "rubric": "How far does the harbourmaster trust the player, from 0 to 3?"
+      },
+      {
+        "key": "lighthouse_lit",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has the lighthouse been lit again?"
+      },
+      {
+        "key": "liv_1_asked_about_lanterns",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player press any local about the lanterns going out?"
+      },
+      {
+        "key": "liv_2_player_helped_maren",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player take up Maren's offered task or rope?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "liv_1_way",
+        "name": "Toward The Second Lantern Fails",
+        "objective": "Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong.",
+        "type": "intermediate",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_1",
+        "name": "The Second Lantern Fails",
+        "objective": "Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong.",
+        "type": "anchor",
+        "tension_target": "stirring",
+        "state_snapshot": {
+          "trust_harbourmaster": 0,
+          "lighthouse_lit": true
+        },
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_2_way",
+        "name": "Toward Maren Coils the Rope",
+        "objective": "Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "type": "intermediate",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_2",
+        "name": "Maren Coils the Rope",
+        "objective": "Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "type": "anchor",
+        "tension_target": "tense",
+        "state_snapshot": {
+          "trust_harbourmaster": 1
+        },
+        "chapter": "liv_ch_1"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "liv_open",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_asked_about_lanterns",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "liv_1",
+        "to": "liv_2_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_2_player_helped_maren",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_2_way",
+        "to": "liv_2",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_2",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "harbourmaster",
+        "name": "Maren",
+        "role": "harbourmaster",
+        "drive": "keep the boats safe"
+      },
+      {
+        "id": "innkeeper",
+        "name": "Tobin",
+        "role": "innkeeper",
+        "drive": "keep the inn full"
+      },
+      {
+        "id": "keeper",
+        "name": "Ysolde",
+        "role": "lighthouse keeper",
+        "drive": "keep the light burning"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ],
+    "requirements": {
+      "members": [
+        "Maren",
+        "Tobin",
+        "Ysolde",
+        "Narrator"
+      ]
+    },
+    "chapters": [
+      {
+        "id": "liv_ch_1",
+        "title": "Chapter 1"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"The Wicks in the Store\",\"objective\":\"Down in the harbour store, the spare wicks Maren keeps are fewer than they should be, and the crate that held them has been prised open from beneath — salt-wet, splintered, as if something worked at it from the dark side of the wall. Maren sets the lantern down and waits to see what the newcomer makes of it.\",\"tension\":\"tense\",\"snapshot\":{\"trust_harbourmaster\":1},\"opens_when\":{\"new\":{\"key\":\"liv_3_ysolde_speaks_of_the_light\",\"rubric\":\"Did Ysolde say anything to the player about the lighthouse light or its going out?\"}},\"new_qualities\":[],\"builds_on\":\"liv_2_player_helped_maren\",\"new_chapter\":false,\"chapter_title\":null,\"final\":false,\"reason\":\"Maren's errand turns from a cover story into a discovery that pressures the newcomer toward the lighthouse, where the next piece waits.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

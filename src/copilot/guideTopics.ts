@@ -21,8 +21,9 @@ export const GUIDE_TOPICS = {
     title: "Briefing",
     fields: "briefing, chapters[].briefing",
     text: "Player copy shown once when the story first starts in a group chat: {title, image, sections: [{heading, text}], tone, start_label}, at most 6 sections of 1200 "
-      + "characters, plain text, no macros. Never sent to the model. Without it, player_intro shows as one section; description never does. A chapter's briefing opens that "
-      + "chapter. Write only what the player may know then: no later beat, outcome, or character the start keeps off stage.",
+      + "characters, plain text, no macros. The reply model never reads it. Without it, player_intro shows as one section (or a per-chat draft written from the opening "
+      + "only); description never does. A chapter's briefing opens that chapter. Propose it with setBriefing once the opening beat and its cast exist. Write only what the "
+      + "player may know then: no later beat, outcome, or character the start keeps off stage.",
   },
   player: {
     title: "Who the player is",
@@ -257,11 +258,12 @@ export const GUIDE_TOPICS = {
   },
   presentation: {
     title: "Illustrations and display",
-    fields: "illustrations, checkpoints[].illustrate, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",
-    text: "illustrations {checkpoints, scenes, style, appearances} asks for pictures of beats and scenes in one style, with each cast member's look; never describe a secret "
+    fields: "illustrations, checkpoints[].illustrate, effects.illustrations, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",
+    text: "illustrations {checkpoints, scenes, style, appearances} asks for pictures of beats and scenes in one style and cast looks; never describe a secret "
       + "form there. illustrate: false skips a beat's pictures; chapters[].illustrations {style, appearances} overrides the look for one chapter. A lore entry's look is "
       + "used once it has fired in the chat, or always from a \"Public appearance:\" line. effects.stage {framing, spotlight, cast} places sprites for a beat. "
-      + "display.lore_names_public shows lore names in the timeline; off when one spoils. display.continue_list|group_card|chapter_card|wand|roll_chips|suggestions false hides it.",
+      + "illustrations.workflows picks a ComfyUI workflow per picture type. "
+      + "display.lore_names_public shows lore names in the timeline. display.<presence item> false hides it.",
   },
   quests: {
     title: "Quests and milestones",
@@ -279,10 +281,11 @@ export const GUIDE_TOPICS = {
   },
   widgets: {
     title: "Stats and story panels",
-    fields: "qualities[].display, widgets[], bind, audience, display.journal, display.stat_sheet, display.widgets",
-    text: "display {public: true, label, as: item|count|meter|boxes|word, group, min, max, bands, hide_when_empty, trend} puts a quality on the Stat sheet; never on rel_* "
-      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board|clues|map|html, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
-      + "no markup. A player widget shows public qualities only; empty sections never render.",
+    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion",
+    text: "display {public, label, as: item|count|meter|boxes|word, group, min, max, bands, trend} puts a quality on the Stat sheet (never rel_* or gated lore keys). "
+      + "widgets [{id, kind: meters|track|log|clock|board|clues|map|html|roster|timeline, title, bind, audience}]; player widgets show public qualities only. "
+      + "roster rows [{id, member|label, quality: enum, when?}]; timeline: reached named checkpoints by chapter, dates {checkpointId: label}. "
+      + "actions [{id, text, open?: overview|memory, check?: public transition check}]: buttons. Values show \"changed N replies ago\"; display.motion false stops transitions.",
   },
   "clues-and-maps": {
     title: "Clue walls and maps",
@@ -294,7 +297,8 @@ export const GUIDE_TOPICS = {
   "html-panels": {
     title: "Story-made HTML panels",
     fields: "template, source, actions[], window.storyWidget",
-    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text}]. Runs in a sandboxed frame with no network and no access to SillyTavern; "
+    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text, open?, check?}]. "
+      + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
   "character-life": {
@@ -305,6 +309,22 @@ export const GUIDE_TOPICS = {
       + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
       + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
+  },
+  "living-director": {
+    title: "Living stories",
+    fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
+    text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
+      + "when play reaches the last written anchor (authored_until in a hybrid), the story director writes the next one (liv_<n>, a stub before it, at most 2 new qualities, "
+      + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
+      + "A player who leaves every exit gets a branch (topic branching). Save as story keeps reached turning points only.",
+  },
+  branching: {
+    title: "Branches that follow the player",
+    fields: "stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
+    text: "Nothing to declare: any turning point with exits and an anchor after them. Exits' extraction_hint says what fits. After a reply that moved nowhere, the "
+      + "judge reads whether the player fits an exit; 2 'none' in a row (p>=0.6) or one p>=0.9, or two refusals, is divergence. The director then writes "
+      + "liv_b<n>_way from here, rejoining the next anchor, applied at a boundary. Prefetch: one more way out of the turning point the player is at, written ahead. "
+      + "At most one branch per turning point; a swipe takes it back. All on by default; switch off branching, prefetch, or judge use divergence.",
   },
   "living-cards": {
     title: "Living cards",
@@ -380,10 +400,10 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
-  qualities: ["quality-rubric", "latching", "chance-roll"],
+  qualities: ["quality-rubric", "latching", "chance-roll", "briefing"],
   checkpoints: ["checkpoints", "objective-agency"],
   transitions: ["gates", "transitions"],
-  effects: ["opening-scene", "drives-motives", "requirements"],
+  effects: ["opening-scene", "drives-motives", "requirements", "briefing"],
   provisioning: ["opening-scene", "requirements"],
 };
 
@@ -397,9 +417,7 @@ export const renderStageGuide = (stage: CopilotStage): string =>
 
 const isTopic = (value: string): value is GuideTopicId => Object.hasOwn(GUIDE_TOPICS, value);
 
-export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {
-  "living-director": "the living story director (v2.8 plan 22)",
-};
+export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {};
 
 export const readGuide = (topic: unknown): string => {
   const typed = typeof topic === "string" ? topic.trim().toLowerCase() : "";

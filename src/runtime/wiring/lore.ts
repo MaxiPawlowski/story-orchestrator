@@ -60,6 +60,9 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
   void import("../cardOverlayHost").then(({ startCardOverlay }) => {
     if (!disposed) disposers.push(startCardOverlay(runtimeManager));
   });
+  void import("../briefingDraftHost").then(({ startBriefingDraft }) => {
+    if (!disposed) disposers.push(startBriefingDraft(runtimeManager));
+  });
   void import("../replyContextHost").then(({ startReplyContext }) => {
     if (!disposed) disposers.push(startReplyContext());
   });

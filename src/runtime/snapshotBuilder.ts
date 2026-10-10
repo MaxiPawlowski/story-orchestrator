@@ -49,6 +49,8 @@ import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
 import { lifeAuthorSlice } from "./lifeSnapshot";
+import { livingSlice } from "./livingSnapshot";
+import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
 import { imageHealth } from "./imageHealth";
@@ -277,7 +279,7 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   extensionConflicts: extensionConflicts(sources.loaded?.story ?? null),
   briefing: briefingState({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
-    chatOpen: hasOpenChat(),
+    chatOpen: hasOpenChat(), hash: sources.loaded?.record?.hash,
   }),
   playerSetup: playerSetupView({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.playerSetup, persona: personaRead(),
@@ -305,6 +307,11 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
+    living: livingSlice({
+      story, state, living: extras.living, authorView: extras.ui.authorView, enabled: extras.stagecraft.settings.livingEnabled !== false,
+      branching: extras.stagecraft.settings.branchingEnabled !== false,
+      epoch: extras.living ? graphEpoch(extras.living) : null,
+    }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
     presence: buildPresence({

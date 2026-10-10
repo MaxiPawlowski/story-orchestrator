@@ -1,0 +1,26 @@
+[
+  {
+    "arm": "systemone-local",
+    "model": "decider-4b-v2.1-Q4_K_M (Mapika/decider-4b-GGUF, decider-4b-v2.1-Q4_K_M.gguf, served by scripts/local/judgeServer.py --backend decider)",
+    "uses": ["director", "memory-verify", "memory-pairs", "scene", "lore", "curator-filter", "continuity", "backgrounds", "typed", "stall", "critic", "variants", "agency", "house-rules"],
+    "runs": 2,
+    "rotated": "one extra pass per fixture with options reversed (--rotate); the flip rate is reported, not scored against a floor",
+    "holdouts": "every -holdout twin (--holdout), including memory-verify-holdout and stall-holdout written 2026-10-10 before any provider answered them",
+    "thresholds": "the production thresholds in src/judge/policy.ts, unchanged; no per-provider threshold is fitted in this run (a later fit uses a tuning split only and is frozen before held-out rows are read)",
+    "floors": "each fixture's own floors, unchanged (test/fixtures/judge/*.json); a use counts only when it and its held-out twin pass twice",
+    "budget": "p95 inside the use's budget in src/judge/policy.ts (director/lore 1500 ms, scene/critic/variants 2500, memory 3000, warden/stall/curator 4000, typed 5000), latency read as measured, never retuned",
+    "hardware": "the 3090 when the owner grants a slot (SO_JUDGE_LOCAL_GPU_LAYERS=99 with a CUDA llama.cpp wheel), else CPU; recorded in the run's summary as the server's /health device",
+    "labels": "gold labels only; no TypeSafe answer is used as a label or for scaling (MCA 2.3)",
+    "committed": "v2.8-local-judge, the commit that adds this note (before any local answer exists)"
+  },
+  {
+    "arm": "typesafe",
+    "model": "jev-1.13.0",
+    "uses": ["director", "memory-verify", "memory-pairs", "scene", "lore", "curator-filter", "continuity", "backgrounds", "typed", "stall", "critic", "variants", "agency", "house-rules"],
+    "runs": 2,
+    "thresholds": "production thresholds, unchanged",
+    "budget": "as above",
+    "labels": "gold labels only",
+    "committed": "v2.8-local-judge, the commit that adds this note; the baseline column, run on the same fixtures and holdouts as the local arm"
+  }
+]

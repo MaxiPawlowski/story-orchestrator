@@ -4,7 +4,10 @@ import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
 import { LIFE_FEATURES } from "./lifeFeatures";
+import { LIVING_FEATURES } from "./livingFeatures";
 import { START_FEATURES } from "./startFeatures";
+import { chatAt, drawerAt, settingsAt, studioAt } from "./where";
+import { IMAGE_FEATURES } from "./imageFeatures";
 
 export const FEATURE_AREAS = ["play", "memory", "characters", "world", "images", "judge", "authoring", "setup"] as const;
 export type FeatureArea = (typeof FEATURE_AREAS)[number];
@@ -58,17 +61,14 @@ export interface Feature {
   isOn?: (settings: GlobalSettings) => boolean;
 }
 
-const settingsAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Settings › ${label}`, surface: "settings" });
-const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
-const chatAt = (selector: string, label: string): FeatureWhere => ({ selector, label, surface: "chat" });
-const studioAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Studio › ${label}`, surface: "studio" });
 
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
 const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   director: "characters", expressions: "images", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
-  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters", wardenVoice: "characters",
+  expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters",
+  wardenVoice: "characters", divergence: "authoring",
 };
 
 const AUTHOR_FACING_USES: readonly JudgeUseKey[] = ["lookahead", "curatorFilter"];
@@ -285,63 +285,7 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
     needs: ["memory-profile"],
   },
-  {
-    id: "backgrounds", name: "Backgrounds", area: "images", audience: "author",
-    oneLine: "A turning point can switch the chat background.",
-    what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",
-    where: studioAt("#so-studio-modal", "Turning point › Effects"),
-    settings: [], guideTopic: "background", doc: "author/topics/background.md", status: "shipped",
-  },
-  {
-    id: "story-scenario", name: "Story scenario", area: "world", audience: "author",
-    oneLine: "A turning point can set the chat's scenario text, in place of every character card's own.",
-    what: "A story can give a turning point a scenario: one short framing text that stands in for every member card's scenario in a group, and follows the "
-      + "story as it moves. A scenario typed into the chat by hand is left alone. When a story sets none, the author view names the cards whose scenarios frame the chat.",
-    where: studioAt("#so-studio-modal", "Turning point › Effects › Scenario"),
-    settings: [], guideTopic: "scenario", doc: "author/topics/scenario.md", status: "shipped", needs: ["group-chat", "story"],
-  },
-  {
-    id: "images", name: "Illustrations", area: "images", audience: "setup",
-    oneLine: "Draws scenes and characters through your image service.",
-    what: "Uses SillyTavern’s image service by default. Stories can ask for pictures, or you can draw by hand. An optional prompt model improves the scene description; a template works without it.",
-    where: settingsAt("#so-image-settings", "Images › Image service"),
-    settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", needs: ["group-chat"],
-    isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
-  },
-  {
-    id: "sprites", name: "Sprite stage", area: "images", audience: "player",
-    oneLine: "Character sprites that change expression as replies stream.",
-    what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",
-    where: settingsAt("#so-sprite-enabled", "Images › Sprite stage"),
-    settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "off-by-default", needs: ["sprite-pack"],
-    isOn: (settings) => settings.sprites.enabled,
-  },
-  {
-    id: "sprite-builder", name: "Build sprite packs", area: "authoring", audience: "author",
-    oneLine: "Edit a reference picture into expression sprites and animation frames.",
-    what: "Choose a cast member, reference and edit box in Studio. Preview each image before saving into a separate generated set. "
-      + "Use an existing expression pack as the reference for changed looks without rebuilding it. Existing artwork is protected.",
-    where: studioAt("#so-studio-tab-sprites", "Sprites"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["comfyui"],
-  },
-  {
-    id: "sprite-mouth-region", name: "Mouth replacement region", area: "authoring", audience: "author",
-    oneLine: "Replace the lips cleanly while leaving the rest of the expression intact.",
-    what: "Adjust the green mouth region inside the head box. Keep the old and new lip outlines in its opaque middle, with feathering on the surrounding skin. "
-      + "Closed-mouth neutral rest creates a corrected still in a separate set; review it before building speaking frames.",
-    where: studioAt("#so-sprite-mouth-region", "Sprites › Mouth replacement region"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["comfyui"],
-  },
-  {
-    id: "sprite-edit-resolution", name: "Sprite edit resolution", area: "authoring", audience: "author",
-    oneLine: "Compare smaller edits for faster sprite generation.",
-    what: "Choose 512, 768 or 1024 pixels for an edit. Smaller edits may be faster; review the face and expression before using them. The saved sprite keeps its original canvas size.",
-    where: studioAt("#so-sprite-edit-resolution", "Sprites › Edit resolution"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["comfyui"],
-  },
-  {
-    id: "sprite-animation", name: "Animated faces", area: "images", audience: "setup",
-    oneLine: "Blink and talking-mouth frames give sprites movement.",
-    what: "Packs with animation frames blink and move the speaker’s mouth while replies stream. Missing frames keep the static sprite. Reduced motion switches facial animation off.",
-    where: settingsAt("#so-sprite-mouth", "Images › Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
-  },
+  ...IMAGE_FEATURES,
   {
     id: "judge", name: "Judge", area: "judge", audience: "setup",
     oneLine: "A second, fast model for yes/no and pick-one decisions.",
@@ -350,6 +294,15 @@ const CORE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-judge-enabled", "Judge"),
     settings: ["judge.enabled", "judge.model", "judge.timeoutMs", "judge.noticesSeen"], doc: "setup/judge.md", status: "shipped", needs: ["judge-plugin"],
     isOn: (settings) => settings.judge.enabled,
+  },
+  {
+    id: "judge-local", name: "Local judge", area: "judge", audience: "setup",
+    oneLine: "An open model on this machine that can answer the judge's questions instead of TypeSafe.",
+    what: "A small open decision model runs on this computer, started from the tray, and nothing it is asked leaves the machine. "
+      + "Pick it per use in the provider list beside each use. Until a use has been measured on it, that use keeps its usual path.",
+    where: settingsAt("#so-judge-local-systemone-local", "Judge › Local judge (this machine)"),
+    settings: [], doc: "setup/judge.md", status: "experimental", needs: ["judge-plugin"],
+    isOn: (settings) => settings.judge.enabled && Object.values(settings.judge.provider).includes("systemone-local"),
   },
   {
     id: "road-ahead", name: "Prepared road ahead", area: "authoring", audience: "author",
@@ -462,7 +415,7 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

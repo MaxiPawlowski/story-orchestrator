@@ -1,7 +1,7 @@
 import { COPILOT_STAGES, type CopilotStage, type ProposalOp, type ProposalOpKind } from "./types";
 
 export const STAGE_OPS: Record<CopilotStage, readonly ProposalOpKind[]> = {
-  qualities: ["setStoryField", "addQuality", "updateQuality", "removeQuality"],
+  qualities: ["setStoryField", "addQuality", "updateQuality", "removeQuality", "setBriefing"],
   checkpoints: ["addCheckpoint", "updateCheckpoint", "setStartCheckpoint", "setCheckpointSnapshot"],
   transitions: ["addTransition", "updateTransition", "setTransitionGate"],
   effects: [
@@ -16,6 +16,7 @@ export const STAGE_OPS: Record<CopilotStage, readonly ProposalOpKind[]> = {
     "setArcTemplate",
     "setArcBridges",
     "setStoryField",
+    "setBriefing",
   ],
   provisioning: ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup"],
 };

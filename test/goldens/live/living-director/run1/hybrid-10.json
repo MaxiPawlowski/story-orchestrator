@@ -1,0 +1,119 @@
+{
+  "frontierId": "liv_1",
+  "raw": {
+    "format": 2,
+    "id": "mill-hybrid",
+    "title": "The Mill Road",
+    "description": "An authored act on a mill road, continued by the director after its end.",
+    "living": {
+      "premise": "A miller's road where a flood took the bridge; the authored act ends when the ford is found.",
+      "authored_until": "ford",
+      "autonomy": "suggest"
+    },
+    "qualities": [
+      {
+        "key": "ford_found",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has anyone found the ford?"
+      },
+      {
+        "key": "miller_mood",
+        "type": "enum",
+        "values": [
+          "wary",
+          "warm"
+        ],
+        "source": "extractor",
+        "rubric": "How does the miller treat the player?"
+      },
+      {
+        "key": "liv_1_hask_at_ford",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did Hask reach the ford with his cart?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "mill",
+        "name": "The Mill",
+        "objective": "The miller refuses to grind until the road is open.",
+        "type": "anchor",
+        "start": true
+      },
+      {
+        "id": "ford",
+        "name": "The Ford",
+        "objective": "The river is low enough to cross at the ford.",
+        "type": "anchor"
+      },
+      {
+        "id": "liv_1_way",
+        "name": "Toward Hask at the Ford",
+        "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "type": "intermediate"
+      },
+      {
+        "id": "liv_1",
+        "name": "Hask at the Ford",
+        "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "type": "anchor",
+        "tension_target": "stirring"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "mill",
+        "to": "ford",
+        "priority": 1,
+        "gate": {
+          "q": "ford_found",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "ford",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_hask_at_ford",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "miller",
+        "name": "Hask",
+        "role": "miller"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ]
+  },
+  "reply": "{\n  \"name\": \"The Ford Awash\",\n  \"objective\": \"The river is rising behind Hask without warning, and the ford he just tested is already changing—the crossing he found passable may not stay that way, and he must decide whether to press the cart across now or pull back.\",\n  \"tension\": \"tense\",\n  \"snapshot\": {\n    \"miller_mood\": \"wary\"\n  },\n  \"opens_when\": {\n    \"new\": {\n      \"key\": \"liv_2_river_rising\",\n      \"rubric\": \"Did the river rise noticeably at the ford while Hask or the player was present?\"\n    }\n  },\n  \"new_qualities\": [],\n  \"builds_on\": null,\n  \"new_chapter\": false,\n  \"chapter_title\": null,\n  \"final\": false,\n  \"reason\": \"Escalate the world at the ford itself—an unannounced rise in the water forces a decision from Hask and raises the stakes of the crossing he just declared passable.\"\n}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

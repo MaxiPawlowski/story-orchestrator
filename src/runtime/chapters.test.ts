@@ -118,6 +118,13 @@ describe("chapter diagnostics and mutations", () => {
     expect(codes(setChapterPolicy({ ...raw(), chapters: raw().chapters!.map((chapter) => ({ ...chapter, final: false })) }, "siege", {}))).toEqual(["chapter-no-exit", "story-dead-end"]);
   });
 
+  it("leaves the living frontier alone: the anchor the director continues from is no dead end", () => {
+    const open = { ...raw(), chapters: raw().chapters!.map((chapter) => ({ ...chapter, final: false })) };
+    const ends = open.checkpoints.filter((checkpoint) => !open.transitions.some((transition) => transition.from === checkpoint.id)).map((checkpoint) => checkpoint.id);
+    expect(codes({ ...open, living: { premise: "p", authored_until: ends[0] } })).toEqual([]);
+    expect(codes({ ...open, living: { premise: "p", authored_until: "elsewhere" } })).toEqual(["chapter-no-exit", "story-dead-end"]);
+  });
+
   it("names a re-entry, an unreachable chapter and a checkpoint with no chapter", () => {
     const draft = raw();
     draft.transitions.push({ from: "walls", to: "gate", priority: 0, gate: { all: [] } });

@@ -25,7 +25,11 @@ opening scene still posts behind it; close it with the button at the bottom (**B
 Each chat shows it once, and remembers that across reloads, swipes and edits. **Restart story** shows it again. Re-open
 it any time with **Story briefing** at the bottom of the drawer's Overview, or `/story intro`. To stop it opening on
 its own, untick **Show the story briefing when a story starts** under **Playing**, or tick **Don't show briefings**
-on the page itself. A story without a briefing shows its introduction instead, if it has one.
+on the page itself. A story without a briefing shows its introduction instead, if it has one, and the wizard's model
+writes a briefing for this chat from the story's opening (who you play, where you start, who is with you). It arrives on
+the open page a few seconds later, marked as written for this chat; the opening scene never waits for it, and a draft
+that would give anything away is thrown out. Untick **Write a briefing when a story has none** to keep the
+introduction.
 
 ## Your character
 
@@ -78,7 +82,8 @@ usual. To correct the story, edit the message instead.
 
 The lightbulb button in the story drawer (and **What could I do?** in the wand menu) asks the memory model for four
 things you could try next. It sees only what you have already seen: the scenes you reached, the drawer's Overview
-and the recent messages, never the story's later scenes or anything a character keeps from you. Pick one and it is
+(with the quests you are on) and the recent messages, never the story's later scenes, a quest you have not found or
+anything a character keeps from you. A suggestion that happens to name a place you have not reached yet is left out. Pick one and it is
 put in the box where you type; nothing is sent until you send it, and it never replaces something you started
 typing. **Other ideas** asks again. It calls the model only when you open it. A story can switch the button off, and
 so can you under **Playing**.

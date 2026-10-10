@@ -1,0 +1,757 @@
+{
+  "use": "stall",
+  "floors": {
+    "direct": 1,
+    "kept": 1
+  },
+  "labelledAt": "2026-10-10",
+  "source": "Held out (v2.8 plan 14, B8): 20 English cases written and labelled 2026-10-10 before any provider answered them, in a story none of the other fixtures use (the lighthouse at Gull Point). Same leaf shape and floors as stall.json: direct = a leaf the pre-check would write at STALL_DIRECT_P was really shown; kept = a shown leaf never falls under STALL_GENUINE_P.",
+  "rows": [
+    {
+      "id": "SH01",
+      "lang": "en",
+      "window": [
+        {
+          "id": 10,
+          "speaker": "Max",
+          "text": "I strike a match and touch it to the wick. The great lamp catches with a soft whump."
+        },
+        {
+          "id": 11,
+          "speaker": "Narrator",
+          "text": "Light swells inside the lens and sweeps out over the black water."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "lamp_lit",
+          "rubric": "Has the player lit the lighthouse lamp?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "lamp_lit",
+          "rubric": "Has the player lit the lighthouse lamp?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH02",
+      "lang": "en",
+      "window": [
+        {
+          "id": 14,
+          "speaker": "Bram",
+          "text": "\"Tide's turning. I can row you out to the wreck now, if you've the stomach for it.\""
+        },
+        {
+          "id": 15,
+          "speaker": "Max",
+          "text": "I shake my head. \"Not tonight, Bram. Not in this wind.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "boat_offer",
+          "rubric": "Has the player answered Bram's offer to take them out in his boat? accepted if they agree, declined if they refuse, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "declined",
+          "shown": true
+        },
+        {
+          "q": "boat_offer",
+          "rubric": "Has the player answered Bram's offer to take them out in his boat? accepted if they agree, declined if they refuse, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "accepted",
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH03",
+      "lang": "en",
+      "window": [
+        {
+          "id": 20,
+          "speaker": "Odile",
+          "text": "Odile presses an iron key into your palm. \"The lamp room. Don't lose it.\""
+        },
+        {
+          "id": 21,
+          "speaker": "Max",
+          "text": "I close my fingers round it and slip it into my coat pocket."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "has_lamp_key",
+          "rubric": "Does the player now carry the key to the lamp room?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "has_lamp_key",
+          "rubric": "Does the player now carry the key to the lamp room?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH04",
+      "lang": "en",
+      "window": [
+        {
+          "id": 25,
+          "speaker": "Odile",
+          "text": "\"Storm's coming in from the west before midnight. You'll want the shutters down.\""
+        },
+        {
+          "id": 26,
+          "speaker": "Max",
+          "text": "\"How bad?\" I ask, glancing at the barometer."
+        },
+        {
+          "id": 27,
+          "speaker": "Odile",
+          "text": "\"Bad enough.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "storm_warned",
+          "rubric": "Has someone warned the player that a storm is coming?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "storm_warned",
+          "rubric": "Has someone warned the player that a storm is coming?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        },
+        {
+          "q": "shutters_closed",
+          "rubric": "Has the player closed the shutters?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH05",
+      "lang": "en",
+      "window": [
+        {
+          "id": 30,
+          "speaker": "Max",
+          "text": "I run my thumb along the lens and feel the hairline crack before I see it."
+        },
+        {
+          "id": 31,
+          "speaker": "Narrator",
+          "text": "The flaw catches the light, a thin silver thread across the glass."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "lens_crack_found",
+          "rubric": "Has the player discovered the crack in the lens?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "lens_crack_found",
+          "rubric": "Has the player discovered the crack in the lens?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        },
+        {
+          "q": "lens_repaired",
+          "rubric": "Has the lens been repaired?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH06",
+      "lang": "en",
+      "window": [
+        {
+          "id": 35,
+          "speaker": "Bram",
+          "text": "\"I'll be back at dawn with the spare parts. Keep the light going till then.\""
+        },
+        {
+          "id": 36,
+          "speaker": "Narrator",
+          "text": "His lantern bobs away down the cliff path and is gone."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "bram_left",
+          "rubric": "Has Bram left the lighthouse?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "bram_left",
+          "rubric": "Has Bram left the lighthouse?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH07",
+      "lang": "en",
+      "window": [
+        {
+          "id": 40,
+          "speaker": "Max",
+          "text": "\"Odile, who was the keeper before you?\""
+        },
+        {
+          "id": 41,
+          "speaker": "Odile",
+          "text": "She is quiet a long moment. \"Someone I'd rather not talk about.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "former_keeper_named",
+          "rubric": "Has the name of the former keeper been revealed?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        },
+        {
+          "q": "former_keeper_named",
+          "rubric": "Has the name of the former keeper been revealed?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": true
+        }
+      ]
+    },
+    {
+      "id": "SH08",
+      "lang": "en",
+      "window": [
+        {
+          "id": 44,
+          "speaker": "Max",
+          "text": "I climb the last of the hundred and twelve steps, lungs burning, and push open the hatch to the gallery."
+        },
+        {
+          "id": 45,
+          "speaker": "Narrator",
+          "text": "Wind slams into you; far below, the sea throws itself at the rocks."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "reached_gallery",
+          "rubric": "Has the player reached the gallery at the top of the tower?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "reached_gallery",
+          "rubric": "Has the player reached the gallery at the top of the tower?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH09",
+      "lang": "en",
+      "window": [
+        {
+          "id": 50,
+          "speaker": "Bram",
+          "text": "\"Here, take the logbook. Read the last page.\""
+        },
+        {
+          "id": 51,
+          "speaker": "Max",
+          "text": "I set it on the table unopened. \"Later. I need to sleep.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "read_logbook",
+          "rubric": "Has the player read the last page of the logbook?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        },
+        {
+          "q": "read_logbook",
+          "rubric": "Has the player read the last page of the logbook?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": true
+        },
+        {
+          "q": "has_logbook",
+          "rubric": "Does the player have the logbook?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        }
+      ]
+    },
+    {
+      "id": "SH10",
+      "lang": "en",
+      "window": [
+        {
+          "id": 55,
+          "speaker": "Narrator",
+          "text": "A distress flare arcs up over the reef, red against the cloud."
+        },
+        {
+          "id": 56,
+          "speaker": "Max",
+          "text": "\"There's a ship out there,\" I breathe."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "flare_seen",
+          "rubric": "Has the player seen a distress flare?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "flare_seen",
+          "rubric": "Has the player seen a distress flare?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        },
+        {
+          "q": "ship_rescued",
+          "rubric": "Has the ship in distress been rescued?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH11",
+      "lang": "en",
+      "window": [
+        {
+          "id": 60,
+          "speaker": "Odile",
+          "text": "\"You can stay, or you can take the morning cart back to town. Your choice.\""
+        },
+        {
+          "id": 61,
+          "speaker": "Max",
+          "text": "I look out at the grey water and say nothing."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "stay_decision",
+          "rubric": "Has the player decided whether to stay at the lighthouse? stay if they choose to stay, go if they choose to leave, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "undecided",
+          "shown": true
+        },
+        {
+          "q": "stay_decision",
+          "rubric": "Has the player decided whether to stay at the lighthouse? stay if they choose to stay, go if they choose to leave, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "stay",
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH12",
+      "lang": "en",
+      "window": [
+        {
+          "id": 65,
+          "speaker": "Max",
+          "text": "I wind the clockwork that turns the lens, crank after crank, until the spring is tight."
+        },
+        {
+          "id": 66,
+          "speaker": "Narrator",
+          "text": "The great lens begins its slow, steady turn."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "clockwork_wound",
+          "rubric": "Has the player wound the clockwork that turns the lens?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "clockwork_wound",
+          "rubric": "Has the player wound the clockwork that turns the lens?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH13",
+      "lang": "en",
+      "window": [
+        {
+          "id": 70,
+          "speaker": "Bram",
+          "text": "\"Odile's not what she seems. Ask her about the drowned bell.\""
+        },
+        {
+          "id": 71,
+          "speaker": "Max",
+          "text": "\"I'll think about it.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "asked_about_bell",
+          "rubric": "Has the player asked Odile about the drowned bell?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        },
+        {
+          "q": "asked_about_bell",
+          "rubric": "Has the player asked Odile about the drowned bell?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": true
+        },
+        {
+          "q": "bell_rumour_heard",
+          "rubric": "Has the player heard about the drowned bell?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        }
+      ]
+    },
+    {
+      "id": "SH14",
+      "lang": "en",
+      "window": [
+        {
+          "id": 75,
+          "speaker": "Max",
+          "text": "I haul the oil drum up the stairs and fill the lamp's reservoir to the brim."
+        },
+        {
+          "id": 76,
+          "speaker": "Odile",
+          "text": "\"That'll see us through the week.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "lamp_refuelled",
+          "rubric": "Has the player refilled the lamp's oil?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "lamp_refuelled",
+          "rubric": "Has the player refilled the lamp's oil?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH15",
+      "lang": "en",
+      "window": [
+        {
+          "id": 80,
+          "speaker": "Narrator",
+          "text": "Something knocks at the door below. Three slow raps."
+        },
+        {
+          "id": 81,
+          "speaker": "Max",
+          "text": "I freeze on the stairs, listening."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "door_opened",
+          "rubric": "Has the player opened the door to whoever knocked?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        },
+        {
+          "q": "door_opened",
+          "rubric": "Has the player opened the door to whoever knocked?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": true
+        },
+        {
+          "q": "knock_heard",
+          "rubric": "Has the player heard a knock at the door?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        }
+      ]
+    },
+    {
+      "id": "SH16",
+      "lang": "en",
+      "window": [
+        {
+          "id": 85,
+          "speaker": "Max",
+          "text": "\"Fine. Row me out to the wreck at first light,\" I tell Bram."
+        },
+        {
+          "id": 86,
+          "speaker": "Bram",
+          "text": "\"First light it is.\""
+        }
+      ],
+      "leaves": [
+        {
+          "q": "boat_offer",
+          "rubric": "Has the player answered Bram's offer to take them out in his boat? accepted if they agree, declined if they refuse, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "accepted",
+          "shown": true
+        },
+        {
+          "q": "boat_offer",
+          "rubric": "Has the player answered Bram's offer to take them out in his boat? accepted if they agree, declined if they refuse, otherwise undecided.",
+          "type": "enum",
+          "op": "==",
+          "v": "declined",
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH17",
+      "lang": "en",
+      "window": [
+        {
+          "id": 90,
+          "speaker": "Odile",
+          "text": "\"Whatever you do, don't let the light go out tonight.\""
+        },
+        {
+          "id": 91,
+          "speaker": "Narrator",
+          "text": "Hours pass. The lamp burns on, steady as a heartbeat."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "light_went_out",
+          "rubric": "Did the lighthouse light go out?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        },
+        {
+          "q": "light_went_out",
+          "rubric": "Did the lighthouse light go out?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": true
+        }
+      ]
+    },
+    {
+      "id": "SH18",
+      "lang": "en",
+      "window": [
+        {
+          "id": 95,
+          "speaker": "Max",
+          "text": "I tear the page from the logbook and feed it to the stove."
+        },
+        {
+          "id": 96,
+          "speaker": "Narrator",
+          "text": "The paper curls, blackens, and is gone."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "page_burned",
+          "rubric": "Has the player destroyed the page from the logbook?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "page_burned",
+          "rubric": "Has the player destroyed the page from the logbook?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH19",
+      "lang": "en",
+      "window": [
+        {
+          "id": 100,
+          "speaker": "Bram",
+          "text": "\"There's a cave under the point. Smugglers used it, once.\""
+        },
+        {
+          "id": 101,
+          "speaker": "Max",
+          "text": "\"Show me on the map.\""
+        },
+        {
+          "id": 102,
+          "speaker": "Bram",
+          "text": "He jabs a thick finger at the chart."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "cave_location_known",
+          "rubric": "Does the player know where the smugglers' cave is?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "cave_location_known",
+          "rubric": "Does the player know where the smugglers' cave is?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        },
+        {
+          "q": "cave_entered",
+          "rubric": "Has the player entered the smugglers' cave?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": false
+        }
+      ]
+    },
+    {
+      "id": "SH20",
+      "lang": "en",
+      "window": [
+        {
+          "id": 105,
+          "speaker": "Odile",
+          "text": "\"I'm sorry,\" she says at last. \"I should have told you the keeper was my brother.\""
+        },
+        {
+          "id": 106,
+          "speaker": "Max",
+          "text": "I stare at her."
+        }
+      ],
+      "leaves": [
+        {
+          "q": "former_keeper_named",
+          "rubric": "Has the identity of the former keeper been revealed?",
+          "type": "bool",
+          "op": "==",
+          "v": true,
+          "shown": true
+        },
+        {
+          "q": "former_keeper_named",
+          "rubric": "Has the identity of the former keeper been revealed?",
+          "type": "bool",
+          "op": "==",
+          "v": false,
+          "shown": false
+        }
+      ]
+    }
+  ]
+}

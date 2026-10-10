@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { BriefingView } from "@engine/index";
 import { BRIEFING_COPY } from "@features/helpCopy";
+import { BRIEFING_DRAFT_COPY } from "@features/briefingDraftCopy";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import { BriefingModal } from "./BriefingModal";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
@@ -47,10 +48,21 @@ export const BriefingOnly: Story = {
     await expect(canvasElement.querySelectorAll('[data-so="briefing-section"]')).toHaveLength(4);
     await expect(canvasElement.querySelectorAll(".so-briefing-paragraph").length).toBeGreaterThan(4);
     await expect(canvasElement.querySelector('[data-so="briefing-before-you-start"]')).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="briefing-drafted"]')).toBeNull();
     await userEvent.click(canvas.getByLabelText(BRIEFING_COPY.optOut));
     await userEvent.click(canvas.getByRole("button", { name: "Begin" }));
     await expect(args.onClose).toHaveBeenCalledWith({ dontShow: true });
     await expect(dialog).not.toHaveAttribute("open");
+  },
+};
+
+export const DraftedBriefing: Story = {
+  args: { briefing: { ...briefing, tone: null, source: "draft", sections: briefing.sections.slice(1) } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole("dialog", { name: "The Road to Varn" });
+    await expect(canvasElement.querySelectorAll('[data-so="briefing-section"]')).toHaveLength(3);
+    await expect(canvasElement.querySelector('[data-so="briefing-drafted"]')).toHaveTextContent(BRIEFING_DRAFT_COPY.drafted);
   },
 };
 

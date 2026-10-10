@@ -1,8 +1,8 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { memorySnapshot, gpuMemory } from './telemetry.mjs';
-import { nativeArgs } from './backend.mjs';
+import { memorySnapshot, gpuMemory } from '../../server-plugin/story-orchestrator-gpu/broker/telemetry.mjs';
+import { nativeArgs } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 
 const configFile = process.argv[2];
 const profileName = process.argv[3] ?? 'normal';

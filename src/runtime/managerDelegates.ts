@@ -8,7 +8,8 @@ import {
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import type { LoreCreateOutcome } from "./loreCreator";
-import { type WIEntrySnapshot } from "@services/STAPI";
+import { listGroupMemberNames, type WIEntrySnapshot } from "@services/STAPI";
+import type { LivingStartInput } from "@generation/living/start";
 import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import type { wireCoordinators } from "./managerWiring";
 import type { MemoryMirrorSummary } from "./memoryMirror";
@@ -30,6 +31,11 @@ export abstract class CoordinatorDelegates {
   get chapters() { return this.co.memory.chapters; }
   get game() { return this.co.game; }
   get meanwhile() { return this.co.meanwhile; }
+  get living() { return this.co.living; }
+  async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
+    const { buildLivingStory } = await import("@generation/living/start");
+    return buildLivingStory({ ...input, members: listGroupMemberNames() });
+  }
   decideMeanwhile(id: string, status: "accepted" | "rejected", reason?: string) { return this.co.meanwhile.decide(id, status, reason); }
   refreshMemoryInjection() { this.co.memory.updateInjection(); }
 

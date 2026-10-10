@@ -46,13 +46,17 @@ export function sheetItem(quality: Quality, values: Readonly<Record<string, Prim
 
 export const groupOf = (display: QualityDisplay): string => display.group ?? (display.as === "item" ? INVENTORY_GROUP : STATUS_GROUP);
 
-export function sheetGroups(qualities: readonly Quality[], values: Readonly<Record<string, PrimitiveValue>>, previous: Readonly<Record<string, PrimitiveValue>> | null): SheetGroupView[] {
+export function sheetGroups(
+  qualities: readonly Quality[], values: Readonly<Record<string, PrimitiveValue>>, previous: Readonly<Record<string, PrimitiveValue>> | null,
+  ago?: (quality: Quality) => number | undefined,
+): SheetGroupView[] {
   const groups = new Map<string, SheetItemView[]>();
   for (const quality of qualities) {
     const item = quality.display ? sheetItem(quality, values, previous) : null;
     if (!item || !quality.display) continue;
     const label = groupOf(quality.display);
-    groups.set(label, [...(groups.get(label) ?? []), item]);
+    const changedAgo = ago?.(quality);
+    groups.set(label, [...(groups.get(label) ?? []), changedAgo === undefined ? item : { ...item, changedAgo }]);
   }
   return [...groups].filter(([, items]) => items.length).map(([label, items]) => ({ label, items }));
 }

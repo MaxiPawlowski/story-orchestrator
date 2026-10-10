@@ -1,0 +1,119 @@
+{
+  "frontierId": "liv_1",
+  "raw": {
+    "format": 2,
+    "id": "mill-hybrid",
+    "title": "The Mill Road",
+    "description": "An authored act on a mill road, continued by the director after its end.",
+    "living": {
+      "premise": "A miller's road where a flood took the bridge; the authored act ends when the ford is found.",
+      "authored_until": "ford",
+      "autonomy": "suggest"
+    },
+    "qualities": [
+      {
+        "key": "ford_found",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has anyone found the ford?"
+      },
+      {
+        "key": "miller_mood",
+        "type": "enum",
+        "values": [
+          "wary",
+          "warm"
+        ],
+        "source": "extractor",
+        "rubric": "How does the miller treat the player?"
+      },
+      {
+        "key": "liv_1_crossing_made",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did anyone reach the far bank of the river?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "mill",
+        "name": "The Mill",
+        "objective": "The miller refuses to grind until the road is open.",
+        "type": "anchor",
+        "start": true
+      },
+      {
+        "id": "ford",
+        "name": "The Ford",
+        "objective": "The river is low enough to cross at the ford.",
+        "type": "anchor"
+      },
+      {
+        "id": "liv_1_way",
+        "name": "Toward The Far Bank at Dusk",
+        "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "type": "intermediate"
+      },
+      {
+        "id": "liv_1",
+        "name": "The Far Bank at Dusk",
+        "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "type": "anchor",
+        "tension_target": "stirring"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "mill",
+        "to": "ford",
+        "priority": 1,
+        "gate": {
+          "q": "ford_found",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "ford",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_crossing_made",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "miller",
+        "name": "Hask",
+        "role": "miller"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"The Lantern Halts\",\"objective\":\"The lantern on the far bank stops moving, then swings low and still — the bearer has heard something across the water and now turns the light toward the crossing.\",\"tension\":\"tense\",\"snapshot\":{},\"opens_when\":{\"new\":{\"key\":\"lantern_bearer_speaks\",\"rubric\":\"Does the lantern-bearer call out or otherwise address anyone at the crossing?\"}},\"new_qualities\":[],\"builds_on\":null,\"new_chapter\":false,\"chapter_title\":null,\"final\":false,\"reason\":\"Escalates the far-bank watcher from unaware to attentive, pressing the moment without deciding what anyone at the crossing does.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

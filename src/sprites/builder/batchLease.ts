@@ -82,10 +82,11 @@ export class SpriteBatchLease {
 
 export interface BatchRetainStatus {
   adapter: string; guarding: boolean; activeText?: number; waitingText?: number;
-  gpuFreeMiB?: number; ramAvailableMiB?: number; reserveGpuMiB?: number; reserveRamMiB?: number;
+  gpuFreeMiB?: number; ramAvailableMiB?: number; reserveGpuMiB?: number; reserveRamMiB?: number; mayRetain?: boolean;
 }
 
 export const mayRetainBatch = (status: BatchRetainStatus | null): boolean => {
+  if (status?.adapter === "supervise") return status.mayRetain === true;
   if (status?.adapter !== "managed" || !status.guarding || status.activeText !== 0 || status.waitingText !== 0) return false;
   if (status.reserveGpuMiB === undefined || status.reserveRamMiB === undefined) return false;
   return (status.gpuFreeMiB ?? 0) >= status.reserveGpuMiB && (status.ramAvailableMiB ?? 0) >= status.reserveRamMiB;

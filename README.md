@@ -50,6 +50,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Stories | Play an authored story on top of an ordinary chat. |  |
 | Playing | Group story | A group can start every new chat with the same story. |  |
 | Playing | Story briefing | A short "Before you start" page the first time a story starts in a chat. |  |
+| Playing | Drafted briefing | A story with no briefing gets one written for this chat from its opening. |  |
 | Playing | Who you are in this story | A story that says who you play asks you once, at the start: keep your persona, choose another, or create one. |  |
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |
@@ -71,6 +72,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
+| Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |
@@ -91,11 +93,17 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
 | World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
+| World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
+| World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
+| Images | One GPU for text and images | A local text model and local pictures share one graphics card. | Off by default |
+| Images | Story image workflows | A story picks which of your ComfyUI workflows draws each kind of picture. |  |
+| Images | Downloading models | Download a model from Civitai or Hugging Face into your model folders, verified. | Experimental |
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |
 | Images | Animated faces | Blink and talking-mouth frames give sprites movement. | Experimental |
 | Judge | Judge | A second, fast model for yes/no and pick-one decisions. |  |
+| Judge | Local judge | An open model on this machine that can answer the judge's questions instead of TypeSafe. | Experimental |
 | Authoring | Build sprite packs | Edit a reference picture into expression sprites and animation frames. | Experimental |
 | Authoring | Mouth replacement region | Replace the lips cleanly while leaving the rest of the expression intact. | Experimental |
 | Authoring | Sprite edit resolution | Compare smaller edits for faster sprite generation. | Experimental |

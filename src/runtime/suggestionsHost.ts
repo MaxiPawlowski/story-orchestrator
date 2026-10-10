@@ -2,7 +2,7 @@ import { askText } from "@extraction/index";
 import { fillChatInput, getContext, getPlayerName, readChatInput } from "@services/STAPI";
 import { log } from "@utils/log";
 import { couldNot, type WriteResult } from "@utils/writeResult";
-import { playedProjection } from "./playerProjection";
+import { playedProjection, withheldNames } from "./playerProjection";
 import { nameForRosterId } from "./roster";
 import { beginRun, type RunGuard } from "./runToken";
 import type { RuntimeManager } from "./runtimeManager";
@@ -57,7 +57,8 @@ export async function askSuggestions(manager: SuggestionManager): Promise<Sugges
     return "";
   });
   if (!run.stillOwns() || openChatId() !== ask.chatId) return { ok: false, reason: SUGGESTION_COPY.stale };
-  const suggestions = parseSuggestions(text, projection);
+  const state = manager.getEngineState();
+  const suggestions = parseSuggestions(text, projection, withheldNames(manager.getStory(), state?.visitedPath ?? [], state?.activeCheckpointId ?? null));
   return suggestionsUsable(suggestions) ? { ok: true, suggestions, ask } : { ok: false, reason: SUGGESTION_COPY.failed };
 }
 

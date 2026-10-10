@@ -1,0 +1,119 @@
+{
+  "frontierId": "liv_1",
+  "raw": {
+    "format": 2,
+    "id": "mill-hybrid",
+    "title": "The Mill Road",
+    "description": "An authored act on a mill road, continued by the director after its end.",
+    "living": {
+      "premise": "A miller's road where a flood took the bridge; the authored act ends when the ford is found.",
+      "authored_until": "ford",
+      "autonomy": "suggest"
+    },
+    "qualities": [
+      {
+        "key": "ford_found",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has anyone found the ford?"
+      },
+      {
+        "key": "miller_mood",
+        "type": "enum",
+        "values": [
+          "wary",
+          "warm"
+        ],
+        "source": "extractor",
+        "rubric": "How does the miller treat the player?"
+      },
+      {
+        "key": "liv_1_hask_at_ford",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did Hask reach the ford with his cart?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "mill",
+        "name": "The Mill",
+        "objective": "The miller refuses to grind until the road is open.",
+        "type": "anchor",
+        "start": true
+      },
+      {
+        "id": "ford",
+        "name": "The Ford",
+        "objective": "The river is low enough to cross at the ford.",
+        "type": "anchor"
+      },
+      {
+        "id": "liv_1_way",
+        "name": "Toward Hask at the Ford",
+        "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "type": "intermediate"
+      },
+      {
+        "id": "liv_1",
+        "name": "Hask at the Ford",
+        "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "type": "anchor",
+        "tension_target": "stirring"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "mill",
+        "to": "ford",
+        "priority": 1,
+        "gate": {
+          "q": "ford_found",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "ford",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_hask_at_ford",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "miller",
+        "name": "Hask",
+        "role": "miller"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"The Ford's Far Bank\",\"objective\":\"The river runs low and clear over gravel, but a fresh scar of torn bank shows where the flood cut the far approach; Hask's cart stands at the water's edge, and the miller waits with his pole planted, watching the road behind.\",\"tension\":\"tense\",\"snapshot\":{},\"opens_when\":{\"new\":{\"key\":\"far_bank_crossed\",\"rubric\":\"Did anyone cross to the far bank of the ford?\"}},\"new_qualities\":[],\"builds_on\":null,\"new_chapter\":false,\"chapter_title\":null,\"final\":false,\"reason\":\"World pressure at the ford: the crossing is passable but the far approach is damaged, and Hask waits without forcing anyone's hand.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

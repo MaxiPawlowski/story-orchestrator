@@ -1,0 +1,269 @@
+{
+  "frontierId": "liv_4",
+  "raw": {
+    "format": 2,
+    "id": "lantern-coast-living",
+    "title": "Lantern Coast",
+    "description": "A living story on a fishing coast where the lanterns have started going out.",
+    "player": {
+      "role": "a newcomer who took a room above the harbour inn"
+    },
+    "living": {
+      "premise": "On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+      "tone": "quiet, salt-worn, a little uncanny",
+      "cast": [
+        "harbourmaster",
+        "innkeeper",
+        "keeper"
+      ],
+      "chapter_size": [
+        2,
+        3
+      ],
+      "ending": "director-proposes"
+    },
+    "qualities": [
+      {
+        "key": "trust_harbourmaster",
+        "type": "int",
+        "source": "extractor",
+        "rubric": "How far does the harbourmaster trust the player, from 0 to 3?"
+      },
+      {
+        "key": "lighthouse_lit",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Has the lighthouse been lit again?"
+      },
+      {
+        "key": "liv_1_noticed_lanterns_dark",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player observe a harbour lantern going out, or hear a specific account of one going out?"
+      },
+      {
+        "key": "liv_2_ysolde_spoke_of_the_light",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player hear Ysolde speak of the lighthouse light going unlit?"
+      },
+      {
+        "key": "liv_3_liv_3_shutters_closed",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player witness Tobin closing the shutters and barring the inn door for the night?"
+      },
+      {
+        "key": "liv_4_liv_4_player_saw_maren_count",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "rubric": "Did the player see or hear Maren counting the dark lanterns along the harbour?"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "liv_1_way",
+        "name": "Toward The Lamp Room, After Dark",
+        "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "type": "intermediate",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_1",
+        "name": "The Lamp Room, After Dark",
+        "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "type": "anchor",
+        "tension_target": "stirring",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_2_way",
+        "name": "Toward A Room Above the Harbour",
+        "objective": "Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow.",
+        "type": "intermediate",
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_2",
+        "name": "A Room Above the Harbour",
+        "objective": "Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow.",
+        "type": "anchor",
+        "tension_target": "tense",
+        "state_snapshot": {
+          "lighthouse_lit": false
+        },
+        "chapter": "liv_ch_1"
+      },
+      {
+        "id": "liv_3_way",
+        "name": "Toward The Common Room After Ysolde",
+        "objective": "Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark.",
+        "type": "intermediate",
+        "chapter": "liv_ch_2"
+      },
+      {
+        "id": "liv_3",
+        "name": "The Common Room After Ysolde",
+        "objective": "Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark.",
+        "type": "anchor",
+        "tension_target": "tense",
+        "chapter": "liv_ch_2"
+      },
+      {
+        "id": "liv_4_way",
+        "name": "Toward The Harbour, After Shutters",
+        "objective": "Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "type": "intermediate",
+        "chapter": "liv_ch_2"
+      },
+      {
+        "id": "liv_4",
+        "name": "The Harbour, After Shutters",
+        "objective": "Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "type": "anchor",
+        "tension_target": "tense",
+        "state_snapshot": {
+          "liv_3_liv_3_shutters_closed": true
+        },
+        "chapter": "liv_ch_2"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "liv_open",
+        "to": "liv_1_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_1_noticed_lanterns_dark",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_1_way",
+        "to": "liv_1",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_1",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "liv_1",
+        "to": "liv_2_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_2_ysolde_spoke_of_the_light",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_2_way",
+        "to": "liv_2",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_2",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "liv_2",
+        "to": "liv_3_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_3_liv_3_shutters_closed",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_3_way",
+        "to": "liv_3",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_3",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "liv_3",
+        "to": "liv_4_way",
+        "priority": 1,
+        "gate": {
+          "q": "liv_4_liv_4_player_saw_maren_count",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "liv_4_way",
+        "to": "liv_4",
+        "priority": 1,
+        "gate": {
+          "q": "progress_toward_liv_4",
+          "op": ">=",
+          "v": 1
+        }
+      }
+    ],
+    "roster": [
+      {
+        "id": "harbourmaster",
+        "name": "Maren",
+        "role": "harbourmaster",
+        "drive": "keep the boats safe"
+      },
+      {
+        "id": "innkeeper",
+        "name": "Tobin",
+        "role": "innkeeper",
+        "drive": "keep the inn full"
+      },
+      {
+        "id": "keeper",
+        "name": "Ysolde",
+        "role": "lighthouse keeper",
+        "drive": "keep the light burning"
+      },
+      {
+        "id": "narrator",
+        "name": "Narrator",
+        "role": "narrator",
+        "view": "omniscient"
+      }
+    ],
+    "requirements": {
+      "members": [
+        "Maren",
+        "Tobin",
+        "Ysolde",
+        "Narrator"
+      ]
+    },
+    "chapters": [
+      {
+        "id": "liv_ch_1",
+        "title": "Chapter 1"
+      },
+      {
+        "id": "liv_ch_2",
+        "title": "What the Tide Counts"
+      }
+    ]
+  },
+  "reply": "{\"name\":\"The Lantern That Burns\",\"objective\":\"Maren finishes her tally and stands still before the one lantern still burning — a lamp she did not light, on a post that was dark an hour ago. She does not touch it. She waits, as if expecting someone to come and claim it.\",\"tension\":\"peak\",\"snapshot\":{},\"opens_when\":{\"new\":{\"key\":\"player_approaches_lit_lantern\",\"rubric\":\"Does the player move toward the one lantern still burning on the quay while Maren waits beside it?\"}},\"new_qualities\":[],\"builds_on\":\"liv_4_liv_4_player_saw_maren_count\",\"new_chapter\":true,\"chapter_title\":\"The Lantern That Burns\",\"final\":false,\"reason\":\"Maren's wrong count becomes a physical, waiting presence on the quay, escalating the uncanny pressure and opening the next chapter on the one lantern that should not be lit.\"}",
+  "verdict": {
+    "parse": [],
+    "check": [],
+    "guard": []
+  }
+}

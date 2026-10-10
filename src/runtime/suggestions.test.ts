@@ -23,6 +23,13 @@ describe("v2.7 33 W4: the suggestion prompt and parser", () => {
     expect(suggestionsUsable(["a", "b", "c"])).toBe(true);
   });
 
+  it("v2.8 04: a line naming a withheld name the player has not seen is dropped; a name already shown stays", () => {
+    const text = ["- I ask about the Vault of Corvin.", "- I haggle.", "- I look for the vault-internal door.", "- I wait at the dock.", "- I watch the fog."].join("\n");
+    expect(parseSuggestions(text, projection, ["The Vault of Corvin", "Vault of Corvin", "vault-internal", "The Dock"])).toEqual(["I haggle.", "I wait at the dock.", "I watch the fog."]);
+    expect(parseSuggestions(text, projection)).toHaveLength(4);
+    expect(parseSuggestions(["- I vaulted the rail.", "- a", "- b"].join("\n"), projection, ["vault"])).toEqual(["I vaulted the rail.", "a", "b"]);
+  });
+
   it("fill-in truth table: same chat and an empty or unchanged box fills; a typed box or another chat refuses", () => {
     expect(fillRefusal({ chatAtAsk: "a", chatNow: "a", boxAtAsk: "", boxNow: "" })).toBeNull();
     expect(fillRefusal({ chatAtAsk: "a", chatNow: "a", boxAtAsk: "draft", boxNow: "draft" })).toBeNull();

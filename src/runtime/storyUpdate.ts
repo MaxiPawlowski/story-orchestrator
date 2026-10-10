@@ -31,7 +31,16 @@ export interface StoryUpdateDeps {
   ownership: RunOwnership;
   chatOpen: () => boolean;
   groupOpen?: () => boolean;
+  living?: LivingUpdatePort;
 }
+
+export interface LivingUpdatePort {
+  tracks: () => boolean;
+  refold: (authored: { raw: Record<string, unknown>; hash: string }) => { raw: Record<string, unknown>; story: NormalizedStoryV2 } | { broken: string[] };
+  commitAuthored: (authored: { raw: Record<string, unknown>; hash: string }) => void;
+}
+
+export const LIVING_UPDATE_BROKEN = "The update removes something the director's turning points depend on";
 
 export type StoryUpdateSource = "save" | "update";
 
@@ -118,7 +127,11 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   if (isValidationErrorList(parsed)) return emptyOutcome(`the saved story does not validate: ${parsed[0]?.message ?? "invalid"}`);
 
   const state = deps.getState();
-  const next = deps.mergeStory(record.raw, parsed.story);
+  const authored = { raw: record.raw, hash: record.hash };
+  const refolded = deps.living?.tracks() ? deps.living.refold(authored) : null;
+  if (refolded && "broken" in refolded) return livingBroken(deps, record, refolded.broken);
+  const playedRaw = refolded ? refolded.raw : record.raw;
+  const next = deps.mergeStory(playedRaw, refolded ? { ...refolded.story, id: record.id } : parsed.story);
   const diff = diffStories(loaded.story, next, state);
   const base: StoryUpdateOutcome = {
     applied: false,
@@ -160,8 +173,30 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   }
 
   const history = state ? pruneEngineHistory(deps.getHistory?.() ?? null, next, diff) : null;
-  await deps.swapStory({ record, story: next }, state ? pruneEngineState(state, next, diff) : null, Boolean(diff.reanchorTo), history);
+  if (refolded) deps.living?.commitAuthored(authored);
+  await deps.swapStory({ record: { ...record, raw: playedRaw }, story: next }, state ? pruneEngineState(state, next, diff) : null, Boolean(diff.reanchorTo), history);
   const outcome = { ...base, applied: true, choice };
+  deps.journal(outcome);
+  return outcome;
+}
+
+async function livingBroken(deps: StoryUpdateDeps, record: StoryLibraryRecord, broken: string[]): Promise<StoryUpdateOutcome> {
+  const base: StoryUpdateOutcome = { applied: false, classification: "invalidating", choice: null, storyId: record.id, dropped: [], at: new Date().toISOString() };
+  const run = beginRun(deps.ownership);
+  const description: StoryUpdateDescription = { title: record.title, invalidating: [LIVING_UPDATE_BROKEN, ...broken], keptCount: 0, source: "save" };
+  const choice = (await showChoicePopup<StoryUpdateChoice>((doc) => renderStoryUpdate(description, doc), {
+    okButton: { id: "restart", label: "Restart story" },
+    choices: [],
+    cancelButton: "Cancel",
+  })) ?? "cancel";
+  if (!run.stillOwns()) return { ...base, reason: `story update discarded: ${run.lapsedDetail()}` };
+  if (choice !== "restart") {
+    const outcome = { ...base, choice: "cancel" as const, reason: "the living chat kept its pinned copy: the update broke its generated turning points" };
+    deps.journal(outcome);
+    return outcome;
+  }
+  const restarted = await deps.restart();
+  const outcome = { ...base, applied: restarted, choice, reason: restarted ? "restarted on the library copy" : "restart declined" };
   deps.journal(outcome);
   return outcome;
 }

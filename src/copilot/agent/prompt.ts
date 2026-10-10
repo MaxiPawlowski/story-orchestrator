@@ -33,6 +33,7 @@ const RULES = [
   [
     "The player is the persona, never a cast member: if the premise or a greeting tells the player \"you are the pawnbroker\", there is no Pawnbroker card or roster member.",
     "Say who the player plays with setPlayer (role, summary, assumes; name.mode fixed only when the story cannot work under another name); the player picks or creates the persona at the start.",
+    "Once the opening beat and its cast exist, offer the page the player reads before the first line with setBriefing (readRecipe briefing).",
     "effects.background names a file from the backgrounds listed under INSTALL; when none fits, leave the background out.",
     "Every name in cast_changes and requirements.members needs a card on the install, and every story needs its group:",
     "stories play in group chats only, even a one-character story (its character plus a narrator).",

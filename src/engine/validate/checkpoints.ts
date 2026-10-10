@@ -9,6 +9,7 @@ import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 import { readStretch } from "./stretch";
 import { gameLayer } from "./gameLayer";
+import { readWorkflowMap } from "./illustrations";
 
 type Member = StoryV2["roster"][number];
 
@@ -85,6 +86,11 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
       addError(errors, `${path}.reasoning`, "reasoning must be off, low, medium or high");
       delete effects.reasoning;
     }
+  }
+  if (value.illustrations !== undefined) {
+    const workflows = readWorkflowMap(isRecord(value.illustrations) ? value.illustrations.workflows : value.illustrations, `${path}.illustrations.workflows`, errors);
+    if (workflows) effects.illustrations = { workflows };
+    else delete effects.illustrations;
   }
   if (value.scenario !== undefined) {
     if (value.scenario === null || typeof value.scenario === "string") effects.scenario = (value.scenario ?? "").trim();

@@ -1,6 +1,6 @@
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
-import { clearStoryExtensionPrompt, getPlayerName, judgeLlamaComplete, judgeStatus, judgeTransport, readInjectedPromptBlocks, setStoryExtensionPrompt } from "@services/STAPI";
+import { clearStoryExtensionPrompt, getPlayerName, judgeLlamaComplete, judgeLocalTransport, judgeStatus, judgeTransport, readInjectedPromptBlocks, setStoryExtensionPrompt } from "@services/STAPI";
 import type { JudgeTransport } from "@judge/index";
 import { SceneCoordinator } from "../coordinators/sceneCoordinator";
 import { JudgeRuntime } from "../judge";
@@ -17,7 +17,7 @@ export const startJudge = (live: LiveParts, { chatLastId }: WindowAccess) => {
   const judgeRuntime = new JudgeRuntime({
     getSettings: () => getGlobalSettings().judge,
     transport: judgeTransport,
-    providers: { "llama-logprob": llamaLogprob },
+    providers: { "llama-logprob": llamaLogprob, "systemone-local": judgeLocalTransport },
     status: judgeStatus,
     record: (record) => runtimeManager.recordJudgeCall(record),
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),

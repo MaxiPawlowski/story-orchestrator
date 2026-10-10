@@ -1,4 +1,4 @@
-import type { GameAuthorView, GameView, WidgetView } from "@runtime/gameTypes";
+import type { GameAuthorView, GameView, ProvenanceView, WidgetView } from "@runtime/gameTypes";
 
 const track: WidgetView = {
   id: "journal-track", title: "Journal", audience: "player", synthesized: true,
@@ -71,6 +71,40 @@ export const mapWidget: WidgetView = {
     ],
   },
 };
+
+export const rosterWidget: WidgetView = {
+  id: "party", title: "The party", audience: "player", synthesized: false, accent: "green", icon: "shield",
+  body: { kind: "roster", rows: [{ name: "Arin", status: "Wounded", changedAgo: 0 }, { name: "The Ferryman", status: "Wary", changedAgo: 3 }, { name: "Mira", status: "Fine" }] },
+  actions: [{ id: "notes", text: "What do I know about them?", open: "memory" }],
+};
+
+export const timelineWidget: WidgetView = {
+  id: "road", title: "The road so far", audience: "player", synthesized: false, icon: "hourglass",
+  body: {
+    kind: "timeline", chapters: [
+      { title: "The arrival", stops: [{ name: "The landing", date: "Day 1", here: false, fresh: false }, { name: "The market", here: false, fresh: false }] },
+      { title: "The flood", stops: [{ name: "The boathouse", date: "Day 3", here: true, fresh: true }] },
+    ],
+  },
+};
+
+export const intentsWidget: WidgetView = {
+  id: "alarm-intents", title: "The alarm", audience: "player", synthesized: false, accent: "red", icon: "hourglass",
+  body: { kind: "clock", label: "Alarm", filled: 2, segments: 6, full: false, changedAgo: 1 },
+  actions: [
+    { id: "hide", text: "I hide in the reeds." },
+    { id: "climb", text: "I try to climb the wall.", roll: { label: "Climb", dice: "d20", target: 12 } },
+    { id: "status", text: "Back to the story", open: "overview" },
+  ],
+};
+
+export const stillWidget: WidgetView = { ...cluesWidget, id: "still-wall", still: true };
+
+export const provenanceRows: ProvenanceView[] = [
+  { label: "Resolve", key: "resolve", writer: "reader", boundary: 4, messageId: 8 },
+  { label: "Mood", key: "mood", writer: "author", boundary: 5, messageId: 10 },
+  { label: "Coins", key: "coins" },
+];
 
 export const sampleGame = (): GameView => ({
   quests: track.body.kind === "track" ? track.body.quests : [],

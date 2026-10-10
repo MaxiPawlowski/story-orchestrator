@@ -26,11 +26,13 @@ export const checkChapters = (run: ChapterRun) => {
   const reachable = new Set([startId, ...reachableFrom(startId)]);
   const leaves = (id: string) => draft.transitions.some((transition) => chapterOf(transition.from) === id && chapterOf(transition.to) !== id);
   const hasExit = (checkpointId: string) => draft.transitions.some((transition) => transition.from === checkpointId);
+  const frontier = (checkpointId: string) => Boolean(draft.living) && (!draft.living?.authored_until || draft.living.authored_until === checkpointId);
+  const frontierChapter = (chapterId: string) => draft.checkpoints.some((checkpoint) => checkpoint.chapter === chapterId && !hasExit(checkpoint.id) && frontier(checkpoint.id));
   chapters.forEach((chapter, index) => {
     const members = draft.checkpoints.filter((checkpoint) => checkpoint.chapter === chapter.id);
     const path = `chapters.${index}`;
     if (!members.some((checkpoint) => reachable.has(checkpoint.id))) push("chapter-unreachable", "warning", path, `no checkpoint of chapter '${chapter.id}' is reachable from the start`);
-    else if (!chapter.final && !leaves(chapter.id)) push("chapter-no-exit", "warning", path, `no transition leaves chapter '${chapter.id}', and it is not final`);
+    else if (!chapter.final && !leaves(chapter.id) && !frontierChapter(chapter.id)) push("chapter-no-exit", "warning", path, `no transition leaves chapter '${chapter.id}', and it is not final`);
   });
   draft.transitions.forEach((transition, index) => {
     const from = order.get(chapterOf(transition.from) ?? "");
@@ -39,7 +41,7 @@ export const checkChapters = (run: ChapterRun) => {
   });
   draft.checkpoints.forEach((checkpoint, index) => {
     const chapter = chapters[order.get(checkpoint.chapter ?? "") ?? -1];
-    if (!chapter || chapter.final || hasExit(checkpoint.id)) return;
+    if (!chapter || chapter.final || hasExit(checkpoint.id) || frontier(checkpoint.id)) return;
     push("story-dead-end", "warning", `checkpoints.${index}`, `checkpoint '${checkpoint.id}' has no way on and chapter '${chapter.id}' is not final`);
   });
 };

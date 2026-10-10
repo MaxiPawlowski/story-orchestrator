@@ -62,7 +62,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings };
+  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -190,13 +190,13 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
+  display: { announceTransitions: false, hudEnabled: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT } },
@@ -232,6 +232,13 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain) };
 };
 
+const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
+
+const livingFlags = (value: unknown): Record<(typeof LIVING_FLAGS)[number], boolean> => {
+  const stored = isRecord(value) ? value : {};
+  return Object.fromEntries(LIVING_FLAGS.map((key) => [key, typeof stored[key] === "boolean" ? stored[key] : true])) as Record<(typeof LIVING_FLAGS)[number], boolean>;
+};
+
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
@@ -263,7 +270,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     pacing: { hintEnabled: pacing.hintEnabled !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
-      playerSetup: display.playerSetup !== false,
+      briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),
     },
@@ -287,6 +294,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       meanwhileAcceptMode: isRecord(value.stagecraft) && isMeanwhileAcceptMode(value.stagecraft.meanwhileAcceptMode)
         ? value.stagecraft.meanwhileAcceptMode
         : defaults.stagecraft.meanwhileAcceptMode,
+      ...livingFlags(value.stagecraft),
       createEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.createEnabled === "boolean" ? value.stagecraft.createEnabled : defaults.stagecraft.createEnabled,
       createRequireMeasured: isRecord(value.stagecraft) && typeof value.stagecraft.createRequireMeasured === "boolean"
         ? value.stagecraft.createRequireMeasured : defaults.stagecraft.createRequireMeasured,

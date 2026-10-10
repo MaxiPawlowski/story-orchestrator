@@ -36,6 +36,7 @@ export interface Lora {
   triggerWords: string[];
   weight: { default: number; min: number; max: number };
   civitai?: { modelId?: number; versionId?: number; sha256?: string };
+  hf?: { repo: string; file: string; revision?: string; sha256?: string };
 }
 
 const buckets: Record<Aspect, Size> = {

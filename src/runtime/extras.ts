@@ -13,6 +13,7 @@ import { createLore, sanitizeLore } from "./loreFired";
 import { createChance, sanitizeChance } from "./rolls";
 import { sanitizeChecks } from "./storyCheckDraws";
 import { sanitizeAgendaProposals } from "./agendaProposals";
+import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
@@ -353,8 +354,8 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  const { announceTransitions, hudEnabled, briefing, playerSetup, inline, presence } = global.display;
-  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, playerSetup, inline, presence };
+  const { announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence } = global.display;
+  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
@@ -429,6 +430,8 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
+  const living = sanitizeLivingState(extras.living);
+  if (living) extras.living = living; else delete extras.living;
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;

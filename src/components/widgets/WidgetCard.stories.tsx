@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { WidgetCard } from "./WidgetCard";
-import { boardWidget, clockWidget, cluesWidget, mapWidget, sampleGame } from "./gameViewFixtures";
+import {
+  boardWidget, clockWidget, cluesWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, stillWidget, timelineWidget,
+} from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof WidgetCard> = {
@@ -78,6 +80,65 @@ export const MapPins: Story = {
   },
 };
 
+export const Roster: Story = {
+  args: { widget: rosterWidget, onOpen: fn(() => ({ ok: true as const })) },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelectorAll('[data-so="roster-row"]')).toHaveLength(3);
+    await expect(canvas.getByText("just changed")).toBeVisible();
+    await expect(canvas.getByText("changed 3 replies ago")).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "What do I know about them?" }));
+    await expect(args.onOpen).toHaveBeenCalledWith("memory");
+  },
+};
+
+export const Timeline: Story = {
+  args: { widget: timelineWidget },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-so="timeline-chapter"]')).toHaveLength(2);
+    await expect(canvasElement.querySelector('[data-so="timeline-stop"][data-here="true"]')).toHaveTextContent("The boathouse");
+    await expect(within(canvasElement).getByText(/Day 3/)).toBeVisible();
+  },
+};
+
+export const Intents: Story = {
+  args: { widget: intentsWidget, onAction: fn(() => ({ ok: true as const })), onOpen: fn(() => ({ ok: true as const })) },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("changed 1 reply ago")).toBeVisible();
+    await expect(canvas.getByText("Climb: d20 vs 12")).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "I try to climb the wall." }));
+    await expect(args.onAction).toHaveBeenCalledWith("I try to climb the wall.");
+    await userEvent.click(canvas.getByRole("button", { name: "Back to the story" }));
+    await expect(args.onOpen).toHaveBeenCalledWith("overview");
+  },
+};
+
+export const IntentsWithoutHost: Story = {
+  args: { widget: intentsWidget },
+  parameters: { actions: { disable: true } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="widget-intents"]')).toBeNull();
+  },
+};
+
+export const AuthorProvenance: Story = {
+  args: { widget: sampleGame().statSheet ?? clockWidget, provenance: provenanceRows },
+  play: async ({ canvasElement }) => {
+    const list = within(canvasElement).getByRole("list", { name: "Where these values came from" });
+    await expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+    await expect(list).toHaveTextContent("Resolve (resolve): set by the reader at message #8, boundary 4");
+    await expect(list).toHaveTextContent("Coins (coins): unchanged in the turns this chat keeps");
+  },
+};
+
+export const MotionOff: Story = {
+  args: { widget: stillWidget },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="widget"]')).toHaveAttribute("data-motion", "off");
+  },
+};
+
 const primary = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="widget"]');
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, primary);
@@ -85,3 +146,6 @@ export const Tablet: Story = fitsAt(VIEWPORTS.tablet, primary);
 export const Wide: Story = fitsAt(VIEWPORTS.wide, primary);
 export const MapPhone: Story = { args: { widget: mapWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const CluesPhone: Story = { args: { widget: cluesWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
+export const RosterPhone: Story = { args: { widget: rosterWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
+export const TimelinePhone: Story = { args: { widget: timelineWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
+export const IntentsPhone: Story = { args: { widget: intentsWidget, onAction: fn(() => ({ ok: true as const })) }, ...fitsAt(VIEWPORTS.phone, primary) };

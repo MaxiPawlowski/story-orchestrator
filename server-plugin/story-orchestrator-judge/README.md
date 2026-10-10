@@ -17,6 +17,7 @@ path. User guide: [`docs/guide/setup/judge.md`](../../docs/guide/setup/judge.md)
 |---|---|---|
 | `typesafe` (default) | TypeSafe System One, models `jev-1.13.0` (default), `jev-latest`, `jev-preview` | `typesafe_api_key` |
 | `llama-logprob` | A llama-server you run, asked for log-probabilities (`n_predict` ≤ 4, `n_probs` ≤ 50) | `so_judge_llama_key` (optional) |
+| `systemone-local` | A System One server on 127.0.0.1 (`scripts/local/judge.mjs`, decider-4b first): the same wire as TypeSafe, nothing leaves the machine | `so_judge_local_key` (optional) |
 
 ## Where the key comes from
 
@@ -36,6 +37,10 @@ In order:
 | `TYPESAFE_BASE_URL` | `https://api.typesafe.ai` | the plugin calls `<base>/v1/systemone` |
 | `SO_JUDGE_LLAMA_URL` | | the llama-server for `llama-logprob`; never taken from the page |
 | `SO_JUDGE_LLAMA_KEY` | | llama-server key fallback |
+| `SO_JUDGE_LOCAL_URL` | | the local System One server for `systemone-local`; loopback only (`127.0.0.1`, `localhost`, `::1`), never taken from the page |
+| `SO_JUDGE_MODELS_DIR` | | the folder that holds the local judge's models (`C:/dev/models/so-judge` by the setup script's default); shown read-only in the panel |
+| `SO_JUDGE_LOCAL_MODEL` | | the served model id when the local server does not name one |
+| `SO_JUDGE_LOCAL_MAX_IN_FLIGHT` | 1 | concurrent calls to the local judge |
 | `SO_JUDGE_ACCOUNT_RATE_PER_MIN` | 1200 | the provider account's request ceiling |
 | `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC` | 250000 | the account's input-token ceiling |
 | `SO_JUDGE_RATE_PER_MIN` | the account (1200) with user accounts off; 2 × account / 5 (480) with them on | each SillyTavern user's share (input tokens per second follow the same rule) |
@@ -62,6 +67,10 @@ Under `/api/plugins/story-orchestrator-judge`, each requiring the `x-so-plugin: 
   (never the key), and the adaptive rate state.
 - `POST /systemone`: one TypeSafe System One request.
 - `POST /providers/llama-logprob/completion`: one llama-server completion with log-probabilities.
+- `POST /providers/systemone-local/systemone`: one System One request to the local judge. The plugin reads its
+  `/health` first (cached 30 s) and refuses 409 with a `problem` (`no-url`, `bad-url`, `not-loopback`, `unreachable`)
+  before sending; the page's `model` is dropped, and the answer carries the model the server names (or
+  `SO_JUDGE_LOCAL_MODEL`, else `systemone-local:unknown`, which never matches a calibration row).
 
 ## Tests
 

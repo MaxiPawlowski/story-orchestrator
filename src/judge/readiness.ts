@@ -166,6 +166,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: null,
     recommendation: "Not measured yet; on by default (owner decision 2026-10-09). Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
   },
+  divergence: {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Not measured yet: the false-divergence rate on labelled windows is owed. On by default (owner rule 2026-10-10); the branch it starts is reviewable in Author view.",
+  },
   wardenVoice: {
     calibration: null,
     latencyP50Ms: null,
@@ -188,6 +195,7 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   critic: ["expansionCritic"],
   warden: ["warden"],
   wardenLore: ["wardenLore"],
+  divergence: ["divergence"],
 };
 
 type ReadinessFacts = Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>;
@@ -237,9 +245,12 @@ const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
   ),
 };
 
+const SYSTEMONE_LOCAL_READINESS: ReadinessFacts = {};
+
 export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, ReadinessFacts> = {
   typesafe: withFixtureRevisions(JUDGE_READINESS, MEASURED_FIXTURE_REVISION),
   "llama-logprob": withFixtureRevisions(LLAMA_LOGPROB_READINESS, MEASURED_FIXTURE_REVISION),
+  "systemone-local": withFixtureRevisions(SYSTEMONE_LOCAL_READINESS, MEASURED_FIXTURE_REVISION),
 };
 
 export interface JudgeFixtureStale {

@@ -979,6 +979,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="journal-author"]', '[data-so="journal-hidden"]', '[data-so="journal-overflow"]',
   // v2.7 plan 37: feelings, moods, agendas, whereabouts and meanwhile proposals are Author view only.
   '#so-character-life', '[data-so^="life-"]',
+  '#so-living', '#so-living-run', '#so-living-author-save', '#so-living-include-unreached', '[data-so="living-proposal"]', '[data-so="living-branch-why"]',
+  '[data-so="living-summary"]', '[data-so="living-author-save"]', '[data-so="living-issues"]',
 ];
 
 const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];

@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow } from "@engine/index";
 import { buildNarrativeStatus, type NarrativeInput } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
-import { playedProjection, projectionText, startProjection, transcriptWindow, type ProjectionInput } from "./playerProjection";
+import { playedProjection, projectionText, startProjection, transcriptWindow, withheldNames, type ProjectionInput } from "./playerProjection";
 import { buildSuggestionPrompt, parseSuggestions } from "./suggestions";
 
 const story = parseStoryV2OrThrow({
@@ -109,6 +109,19 @@ describe("v2.7 33 W4: the player projection", () => {
     expect(internal.filter((needle) => `${JSON.stringify(projection)}\n${prompt}\n${echoed.join("\n")}`.includes(needle))).toEqual([]);
     expect(startProjection(unnamed, "Max", []).start).toEqual({ name: "Current scene", text: null });
     expect(playedProjection(input({ story: unnamed, visitedPath: ["dock", "gen_dock_1"], activeCheckpointId: "far" })).visited).toEqual(["The Far Bank"]);
+  });
+
+  it("v2.8 04: the active quests the drawer shows ride the projection, hidden ones never do", () => {
+    const projection = playedProjection(input({ narrative: narrativeAt({ quests: ["The ferryman's debt"] }) }));
+    expect(projection.sections.find((section) => section.id === "quests")?.lines).toEqual(["The ferryman's debt"]);
+    expect(projectionText(projection)).toContain("The ferryman's debt");
+    expect(playedProjection(input()).sections.some((section) => section.id === "quests")).toBe(false);
+  });
+
+  it("v2.8 04: withheld names are the unreached scenes' names and every quest title, short names left out", () => {
+    expect(withheldNames(story, ["dock"], "crossing")).toEqual(["The Vault of Corvin", "vault-internal"]);
+    expect(withheldNames(story, ["dock", "crossing"], "vault")).toEqual([]);
+    expect(withheldNames(null, [], null)).toEqual([]);
   });
 
   it("the start projection holds the title, intro, start scene and cast, nothing else", () => {

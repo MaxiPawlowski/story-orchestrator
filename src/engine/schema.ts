@@ -131,6 +131,20 @@ export interface CheckpointEffects {
   reasoning?: CheckpointReasoning;
   scenario?: string | null;
   card?: Record<string, Record<string, string>>;
+  illustrations?: CheckpointIllustrations;
+}
+
+export const ILLUSTRATION_PURPOSES = ["scene", "character", "portrait", "user", "background", "free"] as const;
+export type IllustrationPurpose = (typeof ILLUSTRATION_PURPOSES)[number];
+export type WorkflowMap = Partial<Record<IllustrationPurpose, string>>;
+
+export interface BundledWorkflow {
+  graph: Record<string, unknown>;
+  sha256: string;
+}
+
+export interface CheckpointIllustrations {
+  workflows?: WorkflowMap;
 }
 
 export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
@@ -408,6 +422,8 @@ export interface IllustrationLook {
 export interface StoryIllustrations extends IllustrationLook {
   checkpoints?: boolean;
   scenes?: boolean;
+  workflows?: WorkflowMap;
+  bundle?: Record<string, BundledWorkflow>;
 }
 
 // The scene read's vocabulary. The judge can only select, so a location is asked only
@@ -488,12 +504,43 @@ export interface StoryV2 {
   milestones?: Milestone[];
   widgets?: StoryWidget[];
   clock?: StoryClock;
+  living?: StoryLiving;
 }
+
+export const LIVING_PREFIX = "liv_";
+export const LIVING_OPENING_ID = "liv_open";
+export const LIVING_AUTONOMY = ["suggest", "auto"] as const;
+export type LivingAutonomy = (typeof LIVING_AUTONOMY)[number];
+export const LIVING_ENDING_MODES = ["open", "director-proposes"] as const;
+export type LivingEndingMode = (typeof LIVING_ENDING_MODES)[number];
+export type LivingEnding = LivingEndingMode | { when: GateNode };
+export const LIVING_HORIZON_MAX = 3;
+export const LIVING_CHAPTER_SIZE_MAX = 12;
+export const LIVING_PREMISE_MAX_CHARS = 2000;
+export const LIVING_TONE_MAX_CHARS = 200;
+export const LIVING_OPENING_MAX_CHARS = 600;
+export const LIVING_MAX_NAME_CHARS = 60;
+export const LIVING_MAX_OBJECTIVE_CHARS = 400;
+export const DEFAULT_LIVING_CHAPTER_SIZE: [number, number] = [3, 5];
+
+export interface StoryLiving {
+  premise: string;
+  tone?: string;
+  cast?: string[];
+  horizon?: number;
+  chapter_size?: [number, number];
+  ending?: LivingEnding;
+  autonomy?: LivingAutonomy;
+  authored_until?: string;
+  opening?: string;
+}
+
+export const isLivingId = (id: string): boolean => id.startsWith(LIVING_PREFIX);
 
 export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];
 
-export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets"] as const;
+export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
 
 export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {
