@@ -1,9 +1,20 @@
-import type { IllustrationLook, StoryIllustrations, ValidationError } from "../schema";
+import { ILLUSTRATION_PURPOSES, type BundledWorkflow, type IllustrationLook, type StoryIllustrations, type ValidationError, type WorkflowMap } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, rejectUnknownKeys } from "./common";
 
 const LOOK_KEYS = ["style", "appearances"] as const;
-const STORY_KEYS = ["checkpoints", "scenes", ...LOOK_KEYS] as const;
+const STORY_KEYS = ["checkpoints", "scenes", "workflows", "bundle", ...LOOK_KEYS] as const;
+export const isWorkflowFileName = (name: unknown): name is string => typeof name === "string" && /^[\w(][\w .()[\]+,;=!@#$%&'~-]{0,194}\.json$/i.test(name);
+
+export const readWorkflowMap = (value: unknown, path: string, errors: ValidationError[]): WorkflowMap | undefined => {
+  if (value === undefined) return undefined;
+  const map: Record<string, string> = {};
+  for (const [purpose, name] of Object.entries(isRecord(value) ? value : { "": value })) {
+    if ((ILLUSTRATION_PURPOSES as readonly string[]).includes(purpose) && isWorkflowFileName(name)) map[purpose] = name;
+    else addError(errors, purpose ? `${path}.${purpose}` : path, "needs a .json workflow name");
+  }
+  return Object.keys(map).length ? map : undefined;
+};
 
 const readLookFields = (image: Record<string, unknown>, path: string, errors: ValidationError[]): IllustrationLook => {
   if (image.style !== undefined && typeof image.style !== "string") addError(errors, `${path}.style`, "style must be text");
@@ -23,10 +34,15 @@ export const readStoryIllustrations = (image: unknown, errors: ValidationError[]
   for (const key of ["checkpoints", "scenes"] as const) {
     if (image[key] !== undefined && typeof image[key] !== "boolean") addError(errors, `illustrations.${key}`, `${key} must be true or false`);
   }
+  const workflows = readWorkflowMap(image.workflows, "illustrations.workflows", errors);
+  const bundle = image.bundle;
+  if (bundle !== undefined && !isRecord(bundle)) addError(errors, "illustrations.bundle", "bundle must be an object");
   const illustrations: StoryIllustrations = {
     ...(image.checkpoints === true ? { checkpoints: true } : {}),
     ...(image.scenes === true ? { scenes: true } : {}),
     ...readLookFields(image, "illustrations", errors),
+    ...(workflows ? { workflows } : {}),
+    ...(isRecord(bundle) ? { bundle: bundle as Record<string, BundledWorkflow> } : {}),
   };
   return Object.keys(illustrations).length ? illustrations : undefined;
 };

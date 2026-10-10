@@ -7,6 +7,10 @@ import PlayerEditor from "./PlayerEditor";
 import { composeBriefing } from "@engine/index";
 import { requestBriefing } from "@runtime/briefingRequest";
 import StoryDisplayEditor from "./StoryDisplayEditor";
+import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
+import BundledWorkflowsPanel from "./BundledWorkflowsPanel";
+import { bundleMapped, installBundled, mappedNames } from "../workflowBundle";
+import { comfyDiscover } from "@services/stHost/media";
 import { useDraftStore } from "../draft";
 import { slugifyStoryId } from "@engine/index";
 import {
@@ -237,9 +241,16 @@ const CuratorExclusions = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
   </div>;
 };
 
+const WORKFLOWS_HINT = "With SillyTavern's ComfyUI source, each picture type can use one of your ComfyUI workflows. "
+  + "A turning point can override these. A player without the workflow gets their own.";
+
+const readNodes = async (): Promise<string[] | null> => comfyDiscover().then((found) => Object.keys(found.nodes ?? {})).catch(() => null);
+
 const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
   const art = draft.illustrations;
   const update = (patch: NonNullable<Draft["illustrations"]>) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, ...patch }));
+  const names = useWorkflowNames();
+  const mapped = mappedNames([art?.workflows, ...draft.checkpoints.map((checkpoint) => checkpoint.effects?.illustrations?.workflows)]);
   return <div data-so="story-illustrations" className="st-subpanel flex flex-col gap-3 p-3">
     <div className="text-sm font-medium">Illustrations <span className="st-muted font-normal">— portable story direction</span></div>
     <div className="text-xs st-muted">Choose when this story asks for art. Automatic images also need the install-wide image service enabled; a player can pause them in this chat.</div>
@@ -253,6 +264,20 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
       <textarea className="text_pole st-input min-h-[4rem]" aria-label="Visual direction" value={art?.style ?? ""}
         placeholder="Lighting, palette and visual mood…" onChange={(event) => update({ style: event.target.value })} />
     </Field>
+    <Field label="Workflows" hint={WORKFLOWS_HINT}>
+      <WorkflowMapEditor value={art?.workflows} names={names} onChange={(workflows) => update({ workflows })} />
+    </Field>
+    <BundledWorkflowsPanel bundle={art?.bundle} mapped={mapped} nodes={null}
+      onBundle={async () => {
+        const { bundle, skipped } = await bundleMapped(mapped);
+        update({ bundle: Object.keys(bundle).length ? { ...art?.bundle, ...bundle } : art?.bundle });
+        return `${Object.keys(bundle).length} workflow(s) copied into the story.${skipped.length ? ` Not readable: ${skipped.join(", ")}.` : ""}`;
+      }}
+      onInstall={async (name, entry) => installBundled(name, entry, await readNodes())}
+      onDrop={(name) => {
+        const { [name]: _dropped, ...rest } = art?.bundle ?? {};
+        update({ bundle: Object.keys(rest).length ? rest : undefined });
+      }} />
     {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`} hint="Appearance the image-prompt model should preserve for this story's cast member.">
       <input className="text_pole st-input" aria-label={`${member.name ?? member.id} appearance`} value={art?.appearances?.[member.id] ?? ""}
         onChange={(event) => update({ appearances: { ...art?.appearances, [member.id]: event.target.value } })} />

@@ -93,7 +93,8 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
-| Images | One GPU for text and images | A local text model and local pictures share one graphics card without running out of memory. | Off by default |
+| Images | One GPU for text and images | A local text model and local pictures share one graphics card. | Off by default |
+| Images | Story image workflows | A story picks which of your ComfyUI workflows draws each kind of picture. |  |
 | Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |
 | Images | Animated faces | Blink and talking-mouth frames give sprites movement. | Experimental |
 | Judge | Judge | A second, fast model for yes/no and pick-one decisions. |  |

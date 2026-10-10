@@ -310,10 +310,17 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "gpu-sharing", name: "One GPU for text and images", area: "images", audience: "setup",
-    oneLine: "A local text model and local pictures share one graphics card without running out of memory.",
-    what: "The optional GPU plugin decides who holds the card: replies wait while a picture renders, and the text model comes back after it. Without the plugin pictures render as before.",
+    oneLine: "A local text model and local pictures share one graphics card.",
+    what: "Replies wait while a picture renders, and the text model comes back after it.",
     where: settingsAt("#so-gpu-broker", "Images › Image service › GPU sharing"),
     settings: [], doc: "setup/gpu-sharing.md", status: "off-by-default", needs: ["comfyui"],
+  },
+  {
+    id: "story-workflows", name: "Story image workflows", area: "images", audience: "author",
+    oneLine: "A story picks which of your ComfyUI workflows draws each kind of picture.",
+    what: "Map each picture type to a ComfyUI workflow in Studio. Yours comes back after each story picture; a missing one falls back to yours.",
+    where: studioAt("#so-studio-modal", "Story › Illustrations › Workflows"),
+    settings: [], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", needs: ["comfyui", "story"],
   },
   {
     id: "sprites", name: "Sprite stage", area: "images", audience: "player",

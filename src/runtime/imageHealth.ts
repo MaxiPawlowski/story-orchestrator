@@ -10,6 +10,7 @@ export interface ImageHealthView {
   source: string | null;
   missingModels: string[];
   broker: ImageBrokerAdapter | null;
+  storyWorkflows?: { wanted: string[]; missing: string[]; missingNodes: string[]; comfySource: boolean };
 }
 
 let current: ImageHealthView | null = null;

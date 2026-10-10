@@ -23,7 +23,7 @@ const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
 
 const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
   author_note: "author-note", preset: "preset", world_info: "world-info", cast_changes: "cast-changes", npc_replies: "npc-replies",
-  background: "background", reasoning: "experimental-effects", scenario: "scenario", card: "living-cards",
+  background: "background", reasoning: "experimental-effects", scenario: "scenario", card: "living-cards", illustrations: "presentation",
 };
 
 const TRANSITION: Record<keyof Transition, Covered> = {

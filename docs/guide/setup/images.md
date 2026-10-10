@@ -13,6 +13,22 @@ New installs draw automatically only at story-authored moments. Every-N automati
 is ready (ST's Image Generation is not set up, or its ComfyUI is stopped), automatic pictures are skipped without an
 error and Setup says why; Test render explains which step is missing.
 
+## Story workflows (SillyTavern's ComfyUI source)
+
+If SillyTavern's Image Generation uses **ComfyUI**, a story can name which of your ComfyUI workflows draws each picture
+type: portraits through a face-detailer workflow, backgrounds through a wide landscape one, a finale in a painted style.
+The author maps them in Studio (**Story → Illustrations → Workflows**, and **Picture workflows** on a turning point).
+
+- The story's workflow is used for that one picture only. Your own selected workflow comes back right after it, and
+  Story Orchestrator never saves a change to your Image Generation settings. If you change the workflow yourself while
+  a story picture renders, your choice is kept.
+- A workflow you do not have, a source other than ComfyUI, or a workflow without a `"%prompt%"` placeholder: the
+  picture uses your own workflow, and Setup says which one is missing.
+- A story can carry its workflows (**Export with workflows**). **Install in SillyTavern** in Studio shows the node
+  classes and model files each one uses, adds it under a new name if yours already has that name, and never overwrites
+  one of yours. Workflows with nodes that can run code or read files are never installed from a story, and Story
+  Orchestrator never installs custom nodes or models.
+
 ## Advanced ComfyUI recipes
 
 Choose **Advanced ComfyUI recipes** to let Story Orchestrator build the ComfyUI graph itself. Install the optional

@@ -252,6 +252,15 @@ export const IMAGE_CHECKS: readonly Check[] = [
       } : null;
     },
   }),
+  degrades({
+    id: "story-workflow-missing", area: "image", scope: "story", audience: "player",
+    detect: (snapshot) => {
+      const health = snapshot.imageHealth?.storyWorkflows;
+      const missing = [...health?.missing ?? [], ...(health?.missingNodes ?? []).map((node) => `node ${node}`)];
+      const copy = "Some pictures use your own image settings.";
+      return missing.length ? { consequence: copy, detail: `Missing: ${missing.join(", ")}.`, player: copy } : null;
+    },
+  }),
 ];
 
 export const INFO_SETUP_CHECKS: readonly Check[] = [
@@ -270,7 +279,7 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
     id: "gpu-broker-no-text-model", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
     detect: (snapshot) => (snapshot.imageHealth?.broker === "none" ? {
       consequence: "The GPU broker is installed but shares no text model, so image renders never pause a local model.",
-      detail: "Adapter: none. Images pass through while the local text model keeps its memory. Pick observe or supervise to share the card.",
+      detail: "Adapter: none; images pass through.",
     } : null),
   },
 ];
