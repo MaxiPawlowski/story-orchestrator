@@ -1,0 +1,45 @@
+{
+  "format": 2,
+  "id": "so-v28-23-widgets",
+  "title": "SO-V28-23 Widgets",
+  "description": "v2.8 plan 23 no-model fixture: a clue wall with a hidden clue, a map with a hidden pin, a clock and an HTML panel over the wall.",
+  "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" }],
+  "qualities": [
+    { "key": "found_ledger", "type": "bool", "source": "extractor", "rubric": "Did the party find the ledger page?" },
+    { "key": "searched_dock", "type": "bool", "source": "extractor", "rubric": "Did the party search the dock?" },
+    { "key": "secret_found", "type": "bool", "source": "extractor", "rubric": "Did the party learn the ferryman's secret?" },
+    { "key": "alarm", "type": "int", "source": "extractor", "rubric": "How loud the alarm is, 0-4.", "display": { "public": true, "label": "Alarm", "as": "boxes", "min": 0, "max": 4 } }
+  ],
+  "checkpoints": [
+    { "id": "harbour", "name": "The harbour", "player_name": "The harbour", "objective": "Search the harbour.", "type": "anchor", "start": true },
+    { "id": "dock", "name": "The dock", "player_name": "The dock", "objective": "Search the dock.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "harbour", "to": "dock", "priority": 0, "gate": { "all": [{ "q": "searched_dock", "op": "==", "v": true }, { "q": "found_ledger", "op": "==", "v": true }, { "q": "secret_found", "op": "!=", "v": true }, { "q": "alarm", "op": ">=", "v": 0 }] } }
+  ],
+  "widgets": [
+    {
+      "id": "wall", "kind": "clues", "title": "Clue wall", "accent": "violet", "icon": "key",
+      "clues": [
+        { "id": "ledger", "text": "A torn ledger page, signed M.", "quality": "found_ledger", "action": "I show the ledger page to Arin." },
+        { "id": "secret", "text": "SO-HIDDEN-CLUE-TEXT", "quality": "secret_found" },
+        { "id": "prints", "text": "Wet boot prints lead to the dock.", "quality": "searched_dock" }
+      ],
+      "links": [{ "from": "ledger", "to": "prints", "label": "same night" }, { "from": "prints", "to": "secret", "label": "SO-HIDDEN-LINK" }]
+    },
+    {
+      "id": "river", "kind": "map", "title": "The river", "image": "so-v28-23-river.png",
+      "pins": [
+        { "id": "harbour", "label": "The harbour", "x": 20, "y": 70, "checkpoint": "harbour" },
+        { "id": "dock", "label": "The dock", "x": 60, "y": 30, "checkpoint": "dock", "action": "I walk out along the dock." },
+        { "id": "vault", "label": "SO-HIDDEN-PIN", "x": 80, "y": 80, "when": { "q": "secret_found", "op": "==", "v": true } }
+      ]
+    },
+    { "id": "alarm-clock", "kind": "clock", "title": "The alarm", "bind": "quality:alarm" },
+    {
+      "id": "board", "kind": "html", "title": "Case board", "source": "wall",
+      "actions": [{ "id": "ask", "text": "I ask Arin about the ledger page." }],
+      "template": "<ul id=\"list\"></ul><script>storyWidget.onData(function(w){var l=document.getElementById('list');l.textContent='';w.body.clues.forEach(function(c){var li=document.createElement('li');li.textContent=c.text;l.appendChild(li);});});storyWidget.ready();</script>"
+    }
+  ]
+}

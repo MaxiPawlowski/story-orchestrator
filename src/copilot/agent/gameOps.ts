@@ -73,7 +73,7 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
 export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null => {
   const errors: ValidationError[] = [];
   const byKey = Object.fromEntries(draft.qualities.map((quality) => [quality.key, quality]));
-  if (op.kind === "setWidgets") readWidgets(op.widgets, byKey, draft.qualities, errors);
+  if (op.kind === "setWidgets") readWidgets(op.widgets, { qualityByKey: byKey, qualities: draft.qualities, checkpointIds: new Set(draft.checkpoints.map((checkpoint) => checkpoint.id)) }, errors);
   if (op.kind === "setQualityDisplay") {
     const quality = byKey[op.key];
     if (!quality) return `'${op.key}' is not a quality`;

@@ -50,7 +50,8 @@
         "suggestions": true,
         "journal": true,
         "statSheet": true,
-        "widgets": true
+        "widgets": true,
+        "htmlWidgets": true
       }
     },
     "copilot": {

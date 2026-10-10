@@ -111,6 +111,11 @@ export const SETTING_COPY = {
     "Story panels",
     "Extra panels a story adds, such as a clock that fills or a board of quests. Only what the author made public shows.",
   ),
+  "display.presence.htmlWidgets": copy(
+    "Story-made panels",
+    "Some stories bring a panel page of their own. It runs shut off from SillyTavern: it cannot read your chats or settings or fetch anything, it sees only what its plain panel shows, "
+      + "and it can only put one of the story's own lines in the box where you type. A panel that tries to open another page is closed at once. Switch this off to see the plain panel instead.",
+  ),
   "display.presence.suggestions": copy(
     "What could I do?",
     "A button in the story drawer and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "

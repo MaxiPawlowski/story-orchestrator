@@ -18,12 +18,13 @@ export const STORY_TOGGLE_KEYS: Record<PresenceToggle, StoryDisplayToggle> = {
 
 export interface PresenceSettings extends Record<PresenceToggle, boolean> {
   listBadges: boolean;
+  htmlWidgets: boolean;
 }
 
-export const PRESENCE_SETTING_KEYS = ["listBadges", ...PRESENCE_TOGGLES] as const;
+export const PRESENCE_SETTING_KEYS = ["listBadges", ...PRESENCE_TOGGLES, "htmlWidgets"] as const;
 
 export const defaultPresenceSettings = (): PresenceSettings => ({
-  listBadges: true, continueList: true, groupCard: true, chapterCard: true, wand: true, rollChips: true, suggestions: true, journal: true, statSheet: true, widgets: true,
+  listBadges: true, continueList: true, groupCard: true, chapterCard: true, wand: true, rollChips: true, suggestions: true, journal: true, statSheet: true, widgets: true, htmlWidgets: true,
 });
 
 export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
@@ -31,7 +32,7 @@ export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
   const on = (key: keyof PresenceSettings) => source[key] !== false;
   return {
     listBadges: on("listBadges"), continueList: on("continueList"), groupCard: on("groupCard"), chapterCard: on("chapterCard"), wand: on("wand"), rollChips: on("rollChips"),
-    suggestions: on("suggestions"), journal: on("journal"), statSheet: on("statSheet"), widgets: on("widgets"),
+    suggestions: on("suggestions"), journal: on("journal"), statSheet: on("statSheet"), widgets: on("widgets"), htmlWidgets: on("htmlWidgets"),
   };
 };
 

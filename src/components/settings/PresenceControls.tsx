@@ -19,6 +19,7 @@ const ID: Record<keyof PresenceSettings, string> = {
   journal: "so-presence-journal",
   statSheet: "so-presence-stat-sheet",
   widgets: "so-presence-widgets",
+  htmlWidgets: "so-presence-html-widgets",
 };
 
 export const PresenceControls = ({ snapshot, onChange }: PresenceControlsProps) => {

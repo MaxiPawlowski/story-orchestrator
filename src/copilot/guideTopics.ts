@@ -281,8 +281,21 @@ export const GUIDE_TOPICS = {
     title: "Stats and story panels",
     fields: "qualities[].display, widgets[], bind, audience, display.journal, display.stat_sheet, display.widgets",
     text: "display {public: true, label, as: item|count|meter|boxes|word, group, min, max, bands, hide_when_empty, trend} puts a quality on the Stat sheet; never on rel_* "
-      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
+      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board|clues|map|html, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
       + "no markup. A player widget shows public qualities only; empty sections never render.",
+  },
+  "clues-and-maps": {
+    title: "Clue walls and maps",
+    fields: "clues[], links[], image, pins[], action",
+    text: "kind clues: clues [{id, text, quality (bool) | when (gate), action?}], links [{from, to, label?}]; a clue shows once found, a link once both ends show. "
+      + "kind map: image (a SillyTavern background file name), pins [{id, label, x, y (0-100 %), checkpoint | when, action?}]; a checkpoint pin shows once reached and marks you-are-here. "
+      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads.",
+  },
+  "html-panels": {
+    title: "Story-made HTML panels",
+    fields: "template, source, actions[], window.storyWidget",
+    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text}]. Runs in a sandboxed frame with no network and no access to SillyTavern; "
+      + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
   "character-life": {
     title: "Character life",
@@ -353,6 +366,10 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   "stage-sprite-unknown": "presentation",
+  "widget-item-never-read": "clues-and-maps",
+  "map-pin-unreachable": "clues-and-maps",
+  "map-image-missing": "clues-and-maps",
+  "html-widget-declared": "html-panels",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
