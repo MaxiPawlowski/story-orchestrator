@@ -359,6 +359,7 @@ export interface ExtractionRuntimeSettings {
 
 export interface ExtractionRuntimeState {
   cardScopeCursor?: number;
+  scopeReads?: number;
   settings: ExtractionRuntimeSettings;
   audits: SharedReadAudit[];
   reconciliationEvents: ReconciliationEvent[];

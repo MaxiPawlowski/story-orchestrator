@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseStoryV2OrThrow, readsByStep, resolveStep, stepWord, type Quality } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
+import { STEP_READ_HEADER } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
 import { parseSharedReadResponse } from "./parse";
 import { applyRatingGrounding } from "./ratingGuard";
@@ -26,10 +27,10 @@ describe("v2.8 31 F6: a stepped relationship is read as a direction, never a lev
     const run = buildFixtureRun({ story: raw, transcript });
     const rel = run.prompt.split("\n").filter((entry) => entry.startsWith("- rel_"));
     expect(rel.length).toBeGreaterThan(0);
-    for (const entry of rel) {
-      expect(entry).toContain("type=direction;");
-      expect(entry).toContain(STEP_READ_RULE);
-    }
+    for (const entry of rel) expect(entry).toContain("type=direction;");
+    expect(run.prompt.split(STEP_READ_RULE)).toHaveLength(2);
+    expect(run.prompt.split("\n")).toContain(STEP_READ_HEADER);
+    expect(run.prompt.indexOf(STEP_READ_HEADER)).toBeLessThan(run.prompt.indexOf(rel[0]));
     const quality = story().qualityByKey[relKey()];
     const holder = story().roster.find((member) => relKey().startsWith(`rel_${member.id}_`));
     expect(quality.rubric).toContain(holder?.name ?? "missing");
@@ -46,6 +47,7 @@ describe("v2.8 31 F6: a stepped relationship is read as a direction, never a lev
       transitions: [{ from: "a", to: "b", priority: 0, gate: { q: "found", op: ">=", v: 1 } }],
     };
     expect(buildFixtureRun({ story: plain, transcript }).prompt).not.toContain(STEP_READ_REMINDER);
+    expect(buildFixtureRun({ story: plain, transcript }).prompt).not.toContain(STEP_READ_RULE);
   });
 
   it("control: an int without a step rule and the cycling clock keep their own type", () => {

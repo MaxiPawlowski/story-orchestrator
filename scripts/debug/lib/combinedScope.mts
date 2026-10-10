@@ -44,8 +44,10 @@ export function scoreCombined(row: CombinedRow, { members, baseline, combined, b
   const both = { tokensMean: meanTokens(ok(combined)), latencyP50: percentile(ok(combined).map((read) => read.ms), 0.5) };
   const tokens = growth(both.tokensMean, base.tokensMean);
   const latency = growth(both.latencyP50, base.latencyP50);
-  const firstQuest = combined[0]?.sources.find((source) => source.kind === 'quest');
-  const activeQuestKeys = firstQuest ? firstQuest.keys.length + firstQuest.dropped.length : 0;
+  const activeQuestKeys = Math.max(0, ...combined.map((read) => {
+    const quest = read.sources.find((source) => source.kind === 'quest');
+    return quest ? quest.keys.length + quest.dropped.length : 0;
+  }));
   const cardPulls = Math.max(0, ...combined.map((read) => read.sources.find((source) => source.kind === 'card')?.keys.length ?? 0));
   const relationshipPulls = Math.max(0, ...combined.map((read) => read.sources.find((source) => source.kind === 'relationship')?.keys.length ?? 0));
   const quest = waits(combined, 'quest');
@@ -63,7 +65,7 @@ export function scoreCombined(row: CombinedRow, { members, baseline, combined, b
   };
   const incomplete = [
     ...(members < MIN_MEMBERS ? [`a ${members}-member cast, the row needs ${MIN_MEMBERS}`] : []),
-    ...(activeQuestKeys < MIN_ACTIVE_QUEST_KEYS ? [`${activeQuestKeys} active quest key(s) in the first read, the row needs >= ${MIN_ACTIVE_QUEST_KEYS} active quests`] : []),
+    ...(activeQuestKeys < MIN_ACTIVE_QUEST_KEYS ? [`${activeQuestKeys} active quest key(s) the scope admits in any read, the row needs >= ${MIN_ACTIVE_QUEST_KEYS} active quests`] : []),
     ...(!cardPulls ? ['no card pull in any read: card pulls must share the reads'] : []),
     ...(!relationshipPulls ? ['no relationship axis in any read'] : []),
     ...(combined.some((read) => read.error) || baseline.some((read) => read.error) ? [`${[...combined, ...baseline].filter((read) => read.error).length} read(s) errored`] : []),
