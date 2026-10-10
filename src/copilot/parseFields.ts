@@ -142,6 +142,10 @@ export const readQualityPatch = (value: Record<string, unknown>, path?: string, 
   if (typeof value.read_as === "string" && (QUALITY_READ_AS as readonly string[]).includes(value.read_as)) patch.read_as = value.read_as as QualityReadAs;
   if (isRecord(value.criteria)) patch.criteria = value.criteria as QualityCriteria;
   if (typeof value.commit_evidence === "string" && value.commit_evidence.trim()) patch.commit_evidence = value.commit_evidence;
+  if (isRecord(value.commit_evidence)) {
+    const perValue = Object.fromEntries(Object.entries(value.commit_evidence).filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0));
+    if (Object.keys(perValue).length) patch.commit_evidence = perValue;
+  }
   if (typeof value.evidence_from === "string" && (EVIDENCE_FROM as readonly string[]).includes(value.evidence_from)) patch.evidence_from = value.evidence_from as Quality["evidence_from"];
   const labels = readPlayerLabels(value.player_labels);
   if (labels) patch.player_labels = labels;

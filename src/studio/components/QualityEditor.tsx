@@ -4,6 +4,7 @@ import { useDraftStore } from "../draft";
 import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "../mutations";
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
 import QualityReadEditor from "./QualityReadEditor";
+import QualityCommitEvidence from "./QualityCommitEvidence";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -209,23 +210,7 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
       </select>
     </Field>
 
-    {selected.source === "extractor" ? (
-      <Field label="Commitment evidence (regex)">
-        <input
-          data-so="quality-commit-evidence"
-          className="text_pole st-input"
-          value={selected.commit_evidence ?? ""}
-          disabled={isReserved}
-          placeholder="take|accept|sign|I swear"
-          onChange={(event) => patch({ commit_evidence: event.target.value || undefined })}
-        />
-        <span className="text-[10px] st-muted">
-          A reading only sets this quality when a line the player wrote, in the window it read,
-          matches without a negation before it ("we won't take it" does not) and is about the value; an NPC or the narrator saying so never counts. Use it for one-way commitments
-          (taking a posting, swearing an oath) so a scene aside can never advance the story.
-        </span>
-      </Field>
-    ) : null}
+    {selected.source === "extractor" ? <QualityCommitEvidence quality={selected} disabled={isReserved} patch={patch} /> : null}
 
     {rollable(selected) && !isReserved ? <QualityRollFields selected={selected} patch={patch} /> : null}
 
@@ -284,6 +269,7 @@ const QualityEditor: React.FC = () => {
       change.criteria = undefined;
     }
     if (!(ROLL_TYPES as readonly string[]).includes(type)) change.roll = undefined;
+    if (typeof selected?.commit_evidence === "object" && type !== selected.type) change.commit_evidence = undefined;
     patch(change);
   };
 

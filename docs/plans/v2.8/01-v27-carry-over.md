@@ -148,6 +148,10 @@ calls, journal, score records, lane server logs, probe results and the attributi
 - The first gates run, on `8b46324f` before the version pin was bumped, was red at `pluginVersionCheck.test.ts`: the
   page still expected judge plugin 1.6.0. `src/utils/pluginVersions.ts` now expects 1.7.0 (in `dca285e5`).
 
+### A3 Gate record (WIP 2026-10-10, stopped on owner quota, gates not run)
+
+Done: C12 per-scene lore score memo (`runtime/loreSelect.ts`, tests), C11-F1 rating guard on the whole source message, C11-F2 per-value `commit_evidence` (schema, validator, guard, Studio field + story, guide text). In progress: C11-F7 (`talkControl.ts` edited, 2 talk tests red). Next: fix F7 tests, R4 story-level `reasoning` + Studio control, C13-b measurement arm, plan sections, docs:guide, gates.
+
 ## C. SP2 re-commit after edit, v2 — option A (approved)
 
 **Absorbed (2026-10-07): built as v2.7 33 W1 (floors V0–V8 verbatim there); its live rows run in v2.7 39 (C4 J6 with W1

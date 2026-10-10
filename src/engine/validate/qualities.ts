@@ -17,25 +17,55 @@ const readCriterion = (value: unknown): string | QualityCriterion | null => {
   return { what: value.what.trim(), ...(typeof value.not_for === "string" && value.not_for.trim() ? { not_for: value.not_for.trim() } : {}), ...(examples.length ? { examples } : {}) };
 };
 
-const readCommitEvidence = (value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "commit_evidence"> => {
+const validPattern = (pattern: string, path: string, errors: ValidationError[]): boolean => {
+  try {
+    new RegExp(pattern);
+    return true;
+  } catch (error) {
+    log.warn(`commit_evidence on ${path} is not a valid regular expression`, error);
+    addError(errors, path, "commit_evidence must be a valid regular expression");
+    return false;
+  }
+};
+
+const commitValues = (type: Quality["type"], values: string[] | undefined): string[] | null =>
+  type === "enum" ? values ?? [] : type === "bool" ? ["true", "false"] : null;
+
+const readCommitEvidence = (
+  value: Record<string, unknown>, type: Quality["type"], values: string[] | undefined, source: Quality["source"], path: string, errors: ValidationError[],
+): Pick<Quality, "commit_evidence"> => {
   if (value.commit_evidence === undefined) return {};
+  if (source !== "extractor") {
+    addError(errors, `${path}.commit_evidence`, "only extractor qualities read evidence");
+    return {};
+  }
+  if (isRecord(value.commit_evidence)) {
+    const allowed = commitValues(type, values);
+    if (!allowed) {
+      addError(errors, `${path}.commit_evidence`, "a pattern per value needs an enum or bool quality; use one pattern for every value");
+      return {};
+    }
+    const entries = Object.entries(value.commit_evidence).map(([key, pattern]) => [key, asString(pattern)] as const);
+    if (!entries.length) return {};
+    const unknown = entries.filter(([key]) => !allowed.includes(key)).map(([key]) => key);
+    if (unknown.length) {
+      addError(errors, `${path}.commit_evidence`, `commit_evidence names ${unknown.join(", ")}, not a value of this quality (${allowed.join(", ")})`);
+      return {};
+    }
+    const empty = entries.filter(([, pattern]) => !pattern).map(([key]) => key);
+    if (empty.length) {
+      addError(errors, `${path}.commit_evidence`, `commit_evidence for ${empty.join(", ")} must be a non-empty pattern`);
+      return {};
+    }
+    if (!entries.every(([key, pattern]) => validPattern(pattern as string, `${path}.commit_evidence.${key}`, errors))) return {};
+    return { commit_evidence: Object.fromEntries(entries as Array<readonly [string, string]>) };
+  }
   const pattern = asString(value.commit_evidence);
   if (!pattern) {
     addError(errors, `${path}.commit_evidence`, "commit_evidence must be a non-empty pattern");
     return {};
   }
-  if (source !== "extractor") {
-    addError(errors, `${path}.commit_evidence`, "only extractor qualities read evidence");
-    return {};
-  }
-  try {
-    new RegExp(pattern);
-  } catch (error) {
-    log.warn(`commit_evidence on ${path} is not a valid regular expression`, error);
-    addError(errors, `${path}.commit_evidence`, "commit_evidence must be a valid regular expression");
-    return {};
-  }
-  return { commit_evidence: pattern };
+  return validPattern(pattern, `${path}.commit_evidence`, errors) ? { commit_evidence: pattern } : {};
 };
 
 const readRoll = (value: Record<string, unknown>, type: Quality["type"], source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "roll"> => {
@@ -195,7 +225,7 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     ...(ledgerBinding ? { ledger_binding: ledgerBinding } : {}),
     ...readQualityRead(value, type, source, rubric, values, path, errors),
     ...readEvidenceFrom(value, source, path, errors),
-    ...readCommitEvidence(value, source, path, errors),
+    ...readCommitEvidence(value, type, values, source, path, errors),
     ...readRoll(value, type, source, path, errors),
   };
 };

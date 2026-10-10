@@ -1,4 +1,4 @@
-import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
 import { log } from "@utils/log";
 import type { EvidenceMessage } from "./evidence";
 import { evidenceCut, type EvidenceCut } from "./evidenceCut";
@@ -233,6 +233,11 @@ const playerReading = (matcher: RegExp, relevance: Relevance, messages: readonly
   return closest ? { commits: false, playerLine: closest.line, reason: closest.reason ?? HOLD_REASONS.noMatch } : { commits: false, reason: HOLD_REASONS.noPlayerLine };
 };
 
+export const commitPattern = (quality: Pick<Quality, "commit_evidence"> | undefined, value: PrimitiveValue): string | undefined => {
+  const pattern = quality?.commit_evidence;
+  return typeof pattern === "string" ? pattern : pattern?.[String(value)];
+};
+
 const gatePartners = (story: CommitStory, key: string): Set<string> => new Set(story.transitions
   .map((transition) => gateLeaves(transition.gate).map((leaf) => leaf.q))
   .filter((keys) => keys.includes(key))
@@ -249,7 +254,7 @@ export const applyCommitEvidence = (
   const held: HeldCommitDelta[] = [];
   let messages: readonly EvidenceMessage[] | null = null;
   for (const delta of deltas) {
-    const matcher = compile(story.qualityByKey[delta.delta.q]?.commit_evidence, "i");
+    const matcher = compile(commitPattern(story.qualityByKey[delta.delta.q], delta.delta.v), "i");
     if (matcher) {
       const partners = gatePartners(story, delta.delta.q);
       const partnerValues = [...deltas.filter((other) => partners.has(other.delta.q)).map((other) => other.delta.v),

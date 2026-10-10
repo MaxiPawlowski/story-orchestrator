@@ -1,7 +1,7 @@
 import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
-import { storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
+import { fnv1a, storyRevision } from "./hash";
+import { buildLoreRequests, loreCandidates, loreKey, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
@@ -59,6 +59,7 @@ export function memberNames(story: NormalizedStoryV2, card: string | null): stri
 export class LoreSelector {
   private cache: { key: string; entries: HostScannableEntry[]; picks: LoreSelection["picks"]; left: LoreSelection["left"] } | null = null;
   private complete: CompleteLoreSelection | null = null;
+  private scored: { key: string; p: Map<string, number | null> } | null = null;
 
   constructor(private readonly deps: LoreSelectDeps) {}
 
@@ -125,7 +126,10 @@ export class LoreSelector {
       return reason === null;
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
-    const chunks = buildLoreRequests(rated, { checkpointName: checkpoint.name, objective: checkpoint.objective, window: this.deps.getWindow() });
+    const window = this.deps.getWindow();
+    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}`;
+    const known = new Map(this.scored?.key === sceneKey ? this.scored.p : []);
+    const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))), { checkpointName: checkpoint.name, objective: checkpoint.objective, window });
     const ask = async (chunk: (typeof chunks)[number]) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,
@@ -142,10 +146,19 @@ export class LoreSelector {
     const retry = missed && cooling <= LORE_RETRY_WAIT_MS && run.stillOwns();
     if (retry && cooling > 0) await (this.deps.wait ?? sleep)(cooling);
     const answered = await Promise.all(first.map(async (outcome, index) => (outcome.retry && retry && run.stillOwns() ? (await ask(chunks[index])).scored : outcome.scored)));
-    const picked: LorePick[] = pickLore(answered.flatMap((scored) => scored ?? []), pickScope);
+    answered.forEach((scored, index) => {
+      if (!scored) return;
+      const p = new Map(scored.map((pick) => [loreKey(pick.entry), pick.p]));
+      for (const asked of chunks[index].entries) known.set(loreKey(asked), p.get(loreKey(asked)) ?? null);
+    });
+    if (run.stillOwns()) this.scored = { key: sceneKey, p: known };
+    const picked: LorePick[] = pickLore(rated.flatMap((candidate) => {
+      const p = known.get(loreKey(candidate));
+      return typeof p === "number" ? [{ entry: candidate, p }] : [];
+    }), pickScope);
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
-    const everyAnswered = answered.every((scored) => scored !== null);
+    const everyAnswered = rated.every((candidate) => known.has(loreKey(candidate)));
     if (run.stillOwns() && everyAnswered) this.cache = { key, entries, picks, left };
     if (!(await this.forced(entries, run))) return null;
     if (everyAnswered) record(picks, left);

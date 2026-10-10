@@ -134,6 +134,8 @@ interface ChainState {
   aborted: boolean;
   hold: boolean;
   speakers: string[];
+  offScript: number;
+  expected: string | null;
 }
 
 export class TalkController {
@@ -208,10 +210,14 @@ export class TalkController {
     if (!control) return;
     // The first intercept of a loud, non-forced group pass opens this turn's chain.
     if (!this.chain) {
-      this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [] };
+      this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [], offScript: 0, expected: null };
     }
     const decision = await this.ensureDecision(control, this.passKey());
     if (decision.kind === "pass") return;
+    if (decision.kind === "member" && this.chain.spokeCount === 0) {
+      this.chain.expected = decision.rosterId;
+      this.chain.offScript = control.chain && control.chain.mode === "scripted" && decision.source === "mention" ? 1 : 0;
+    }
     if (decision.kind === "silence" || decision.kind === "player") {
       abort(false);
       return;
@@ -265,16 +271,18 @@ export class TalkController {
     const config = this.chainConfig(control);
     if (!config || !config.enabled) { this.endChain(); return; }
     chain.spokeCount += 1;
-    const lastSpeaker = this.host.getLastSpeakerRosterId();
+    const lastSpeaker = this.host.getLastSpeakerRosterId() ?? chain.expected;
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
+    chain.expected = null;
     if (chain.spokeCount >= config.max) { this.endChain(); return; }
     if (this.sceneMoves(chain, config)) { this.endChain(); return; }
     const run = beginRun(this.host.ownership, this.window());
     const next = config.mode === "scripted"
-      ? this.scriptedSpeaker(config, chain.spokeCount)
+      ? this.scriptedSpeaker(config, chain.spokeCount - chain.offScript)
       : await this.decideChainSpeaker(control, config, chain);
     if (this.chain !== chain || chain.aborted) return;
     if (!next || !run.stillOwns() || this.sceneMoves(chain, config)) { this.endChain(); return; }
+    chain.expected = findCandidate(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), next)?.rosterId ?? null;
     if (!chain.hold && config.holdExtraction) {
       chain.hold = true;
       this.host.setExtractionHold?.(true);
@@ -394,10 +402,13 @@ export class TalkController {
   private async computeDecision(control: TalkControl): Promise<Decision> {
     const window = this.host.getWindow();
     const { line, members } = this.addressed(window);
-    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), line === window.length - 1 ? members : []);
+    const addressedNow = line === window.length - 1 ? members : [];
+    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), addressedNow);
     if (!candidates.length) return { kind: "pass" };
     // A scripted chain fixes the voice order: the first is the first line of the sequence.
     const scripted = control.chain && control.chain.mode === "scripted" ? findCandidate(candidates, control.chain.sequence?.[0]) : null;
+    const [addressee] = addressedNow.length === 1 ? addressedNow : [];
+    if (scripted && addressee && addressee.rosterId !== scripted.rosterId) return { kind: "member", rosterId: addressee.rosterId, name: addressee.name, source: "mention" };
     if (scripted) return { kind: "member", rosterId: scripted.rosterId, name: scripted.name, source: "rules" };
     const judged = await this.runJudge(control, candidates, window, false);
     if (judged) return judged;
