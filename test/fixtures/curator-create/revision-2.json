@@ -1,0 +1,191 @@
+{
+  "_about": "v2.8 plan 11, contract B (create-B): a create card survives only when its title or its first key is named by >= 2 distinct live facts, and no listed or hidden entry already holds that title or key. Revision 2, written and labelled 2026-10-09 BEFORE any model answer was read (v2.3 plan-10 audit rule); new ids (p16+, n17+) so no revision-1 record can be read as theirs. English only (v2.6 W25), synthetic (no campaign text). A 'propose' case has an entity named by >= 2 distinct facts and no entry; the sample passes when >= 1 create card survives the shipped guards AND names the case's entity. A 'none' case passes only when no create card survives. `hidden` rows are entries the curator is never shown (a stagecraft.exclude row, or an entry a checkpoint's world_info gates): a card must not recreate them beside the original. Floors carried from v2.3 plan 10 and never retuned: propose >= 0.90 of samples, none = 1.00 of samples, in both runs. Do not edit a label after a run; add a case under a new id and bump the revision instead. The sha256 of this file is pinned in src/stagecraft/createCandidate.test.ts.",
+  "revision": "2",
+  "contract": "create-B",
+  "frozenAt": "2026-10-09",
+  "floors": { "propose": 0.9, "none": 1.0 },
+  "samples": 3,
+  "cases": [
+    {
+      "id": "p16", "lang": "en", "label": "propose", "why": "established", "entity": "Tamsin",
+      "story": "The Lantern Coast", "checkpoint": "The harbour at dusk", "book": "Lantern Coast Lore", "roster": ["Edda", "Corvin"],
+      "entries": [{ "uid": 0, "comment": "The Harbour", "keys": ["harbour", "quay"], "content": "A stone harbour lit by oil lanterns. Fishing boats tie up three deep at the quay." }],
+      "facts": ["Tamsin runs the lantern shop on the quay and sells oil by the cup.", "Tamsin refused to sell oil to the customs men.", "The tide turns two hours after dusk."],
+      "canon": "Edda and Corvin reached the harbour as the lanterns were lit."
+    },
+    {
+      "id": "p17", "lang": "en", "label": "propose", "why": "established", "entity": "Greywater Mill",
+      "story": "The Lantern Coast", "checkpoint": "Up the river", "book": "Lantern Coast Lore", "roster": ["Edda", "Corvin"],
+      "entries": [{ "uid": 0, "comment": "The River Road", "keys": ["river road"], "content": "A cart track along the river, muddy after rain." }],
+      "facts": ["Greywater Mill grinds grain for every village on the river.", "The miller at Greywater Mill hides smuggled salt under the flour sacks.", "Corvin's boots are soaked through."],
+      "canon": "The pair followed the river road inland."
+    },
+    {
+      "id": "p18", "lang": "en", "label": "propose", "why": "established", "entity": "Orrin",
+      "story": "Ashfall", "checkpoint": "The ember camp", "book": "Ashfall Lore", "roster": ["Kael", "Isolde"],
+      "entries": [{ "uid": 0, "comment": "The Ember Camp", "keys": ["camp", "embers"], "content": "Refugees shelter in tents downwind of the burning ridge." }],
+      "facts": ["Orrin is the camp's only healer and trades poultices for news.", "Orrin lost his left hand in the first ashfall.", "The ridge has burned for nine days."],
+      "canon": "Kael and Isolde arrived at the ember camp with the wounded scout."
+    },
+    {
+      "id": "p19", "lang": "en", "label": "propose", "why": "established", "entity": "Sable Company",
+      "story": "Ashfall", "checkpoint": "The ember camp", "book": "Ashfall Lore", "roster": ["Kael", "Isolde"],
+      "entries": [{ "uid": 0, "comment": "The Ember Camp", "keys": ["camp", "embers"], "content": "Refugees shelter in tents downwind of the burning ridge." }],
+      "facts": ["Sable Company is a mercenary band hired to hold the pass.", "Sable Company takes payment only in silver.", "Isolde keeps her blade wrapped in oilcloth."],
+      "canon": "Word came that someone had hired soldiers to hold the pass."
+    },
+    {
+      "id": "p20", "lang": "en", "label": "propose", "why": "established-key", "entity": "Velloc",
+      "story": "Station Nine", "checkpoint": "The hydroponics deck", "book": "Station Nine Lore", "roster": ["Juno", "Pell"],
+      "entries": [{ "uid": 0, "comment": "Hydroponics Deck", "keys": ["hydroponics", "greenhouse"], "content": "Racks of algae and beans under violet lamps. The air is wet and warm." }],
+      "facts": ["Chief Engineer Velloc sealed the lower decks after the leak.", "Velloc keeps the only override key on a lanyard.", "The beans are ready to harvest."],
+      "canon": "Juno and Pell found the hydroponics deck still running."
+    },
+    {
+      "id": "p21", "lang": "en", "label": "propose", "why": "established", "entity": "the Glass Choir",
+      "story": "Station Nine", "checkpoint": "The observation ring", "book": "Station Nine Lore", "roster": ["Juno", "Pell"],
+      "entries": [{ "uid": 0, "comment": "Observation Ring", "keys": ["observation ring", "windows"], "content": "A slow-turning ring of windows facing the gas giant." }],
+      "facts": ["The Glass Choir is a cult that meets in the observation ring at shift change.", "The Glass Choir believes the gas giant sings to them.", "Pell's suit radio crackles near the windows."],
+      "canon": "Strange singing drifted from the observation ring."
+    },
+    {
+      "id": "p22", "lang": "en", "label": "propose", "why": "established", "entity": "Wren",
+      "story": "The Thornwood", "checkpoint": "The woodcutter's clearing", "book": "Thornwood Lore", "roster": ["Alder", "Brisa"],
+      "entries": [{ "uid": 0, "comment": "The Thornwood", "keys": ["thornwood", "forest"], "content": "Old forest where the paths move after dark." }],
+      "facts": ["Wren is the woodcutter's daughter and knows which paths stay still.", "Wren traded Brisa a sprig of rowan for a copper.", "The clearing smells of fresh sap."],
+      "canon": "Alder and Brisa reached a woodcutter's clearing."
+    },
+    {
+      "id": "p23", "lang": "en", "label": "propose", "why": "established", "entity": "Hollow Bell",
+      "story": "The Thornwood", "checkpoint": "The old chapel", "book": "Thornwood Lore", "roster": ["Alder", "Brisa"],
+      "entries": [{ "uid": 0, "comment": "The Old Chapel", "keys": ["chapel"], "content": "A roofless chapel overgrown with ivy." }],
+      "facts": ["The Hollow Bell rings by itself when the paths shift.", "Alder found the Hollow Bell hanging from a dead oak.", "Brisa will not step inside the chapel."],
+      "canon": "A bell rang somewhere in the trees."
+    },
+    {
+      "id": "p24", "lang": "en", "label": "propose", "why": "established", "entity": "Magistrate Hollis",
+      "story": "Inkwell", "checkpoint": "The courthouse steps", "book": "Inkwell Lore", "roster": ["Nell", "Fitch"],
+      "entries": [{ "uid": 0, "comment": "The Courthouse", "keys": ["courthouse", "court"], "content": "A marble courthouse with a cracked dome." }],
+      "facts": ["Magistrate Hollis signs warrants without reading them.", "Magistrate Hollis owes the printers' guild a large debt.", "Nell keeps a list of every warrant served this month."],
+      "canon": "Nell and Fitch waited on the courthouse steps."
+    },
+    {
+      "id": "p25", "lang": "en", "label": "propose", "why": "established", "entity": "The Blue Press",
+      "story": "Inkwell", "checkpoint": "The printers' quarter", "book": "Inkwell Lore", "roster": ["Nell", "Fitch"],
+      "entries": [{ "uid": 0, "comment": "Printers' Quarter", "keys": ["printers' quarter", "presses"], "content": "Narrow streets loud with presses day and night." }],
+      "facts": ["The Blue Press prints the pamphlets the magistrate wants burned.", "Fitch hid a crate of type at The Blue Press.", "Ink stains every doorstep in the quarter."],
+      "canon": "Nell and Fitch slipped into the printers' quarter."
+    },
+    {
+      "id": "p26", "lang": "en", "label": "propose", "why": "established-empty-book", "entity": "Marrow Ferry",
+      "story": "Saltmarsh", "checkpoint": "The reed banks", "book": "Saltmarsh Lore", "roster": ["Odo", "Lisbet"],
+      "entries": [],
+      "facts": ["The Marrow Ferry is a flat raft poled across the saltmarsh at low tide.", "Odo paid the Marrow Ferry's pilot with a dried eel.", "Fog lies on the reeds every morning."],
+      "canon": "Odo and Lisbet reached the reed banks."
+    },
+    {
+      "id": "p27", "lang": "en", "label": "propose", "why": "established-with-near-miss", "entity": "Dunmore",
+      "story": "Saltmarsh", "checkpoint": "The reed banks", "book": "Saltmarsh Lore", "roster": ["Odo", "Lisbet"],
+      "entries": [{ "uid": 0, "comment": "The Saltmarsh", "keys": ["saltmarsh", "marsh"], "content": "Tidal flats and reed beds that flood twice a day." }],
+      "facts": ["Dunmore is a drowned village whose bell tower still shows at low tide.", "Lisbet's grandmother was born in Dunmore.", "Someone named Grell sold Odo a lantern."],
+      "canon": "The pair could see a tower standing out of the water."
+    },
+    {
+      "id": "n17", "lang": "en", "label": "none", "why": "named-once", "entity": "Marisol",
+      "story": "The Lantern Coast", "checkpoint": "The harbour at dusk", "book": "Lantern Coast Lore", "roster": ["Edda", "Corvin"],
+      "entries": [{ "uid": 0, "comment": "The Harbour", "keys": ["harbour", "quay"], "content": "A stone harbour lit by oil lanterns. Fishing boats tie up three deep at the quay." }],
+      "facts": ["Marisol mended Corvin's net for free.", "The harbour master rings a bell at curfew.", "Edda bought a bag of salted fish."],
+      "canon": "Edda and Corvin rested on the quay."
+    },
+    {
+      "id": "n18", "lang": "en", "label": "none", "why": "named-once", "entity": "Captain Rook",
+      "story": "Ashfall", "checkpoint": "The ember camp", "book": "Ashfall Lore", "roster": ["Kael", "Isolde"],
+      "entries": [{ "uid": 0, "comment": "The Ember Camp", "keys": ["camp", "embers"], "content": "Refugees shelter in tents downwind of the burning ridge." }],
+      "facts": ["Captain Rook once commanded the pass garrison.", "The ridge has burned for nine days.", "Isolde sharpened her blade at the fire."],
+      "canon": "The camp settled for the night."
+    },
+    {
+      "id": "n19", "lang": "en", "label": "none", "why": "named-once-generic-key", "entity": "Pilar",
+      "story": "Station Nine", "checkpoint": "The hydroponics deck", "book": "Station Nine Lore", "roster": ["Juno", "Pell"],
+      "entries": [{ "uid": 0, "comment": "Hydroponics Deck", "keys": ["hydroponics", "greenhouse"], "content": "Racks of algae and beans under violet lamps. The air is wet and warm." }],
+      "facts": ["Pilar left a toolbox by the hatch.", "A toolbox went missing from stores.", "Juno borrowed a toolbox for the pumps."],
+      "canon": "Juno and Pell checked the airlock seals."
+    },
+    {
+      "id": "n20", "lang": "en", "label": "none", "why": "roster", "entity": "Brisa",
+      "story": "The Thornwood", "checkpoint": "The woodcutter's clearing", "book": "Thornwood Lore", "roster": ["Alder", "Brisa"],
+      "entries": [{ "uid": 0, "comment": "The Thornwood", "keys": ["thornwood", "forest"], "content": "Old forest where the paths move after dark." }],
+      "facts": ["Brisa carries a sprig of rowan against the paths.", "Brisa refused to enter the chapel.", "Brisa can whistle like a thrush."],
+      "canon": "Alder and Brisa reached a woodcutter's clearing."
+    },
+    {
+      "id": "n21", "lang": "en", "label": "none", "why": "roster-bystander", "entity": "Fitch",
+      "story": "Inkwell", "checkpoint": "The printers' quarter", "book": "Inkwell Lore", "roster": ["Nell", "Fitch"],
+      "entries": [{ "uid": 0, "comment": "Printers' Quarter", "keys": ["printers' quarter", "presses"], "content": "Narrow streets loud with presses day and night." }],
+      "facts": ["Fitch owes rent to three landlords.", "Fitch can read type backwards.", "A courier called Dorran handed Fitch a sealed letter."],
+      "canon": "Nell and Fitch walked through the printers' quarter."
+    },
+    {
+      "id": "n22", "lang": "en", "label": "none", "why": "covered", "entity": "Tamsin",
+      "story": "The Lantern Coast", "checkpoint": "The harbour at dusk", "book": "Lantern Coast Lore", "roster": ["Edda", "Corvin"],
+      "entries": [
+        { "uid": 0, "comment": "The Harbour", "keys": ["harbour", "quay"], "content": "A stone harbour lit by oil lanterns." },
+        { "uid": 1, "comment": "Tamsin", "keys": ["Tamsin", "lantern shop"], "content": "Tamsin runs the lantern shop on the quay and sells oil by the cup." }
+      ],
+      "facts": ["Tamsin runs the lantern shop on the quay.", "Tamsin refused to sell oil to the customs men."],
+      "canon": "Edda bought oil from the lantern shop."
+    },
+    {
+      "id": "n23", "lang": "en", "label": "none", "why": "covered-other-title", "entity": "Brannoc",
+      "story": "Saltmarsh", "checkpoint": "The lighthouse", "book": "Saltmarsh Lore", "roster": ["Odo", "Lisbet"],
+      "entries": [
+        { "uid": 0, "comment": "The Lighthouse Keeper", "keys": ["lighthouse keeper", "keeper"], "content": "Brannoc keeps the saltmarsh lighthouse. He is deaf in one ear and trades news for tobacco." }
+      ],
+      "facts": ["Brannoc keeps the lighthouse on the point.", "Brannoc traded Odo news of the tides for tobacco."],
+      "canon": "Odo and Lisbet climbed to the lighthouse."
+    },
+    {
+      "id": "n24", "lang": "en", "label": "none", "why": "near-dup", "entity": "Orrin the Healer",
+      "story": "Ashfall", "checkpoint": "The ember camp", "book": "Ashfall Lore", "roster": ["Kael", "Isolde"],
+      "entries": [
+        { "uid": 0, "comment": "Orrin, Camp Healer", "keys": ["healer", "poultice"], "content": "Orrin the healer trades poultices for news and lost his left hand in the first ashfall." }
+      ],
+      "facts": ["Orrin the healer trades poultices for news.", "Orrin the healer lost his left hand in the first ashfall."],
+      "canon": "Kael brought the wounded scout to the healer."
+    },
+    {
+      "id": "n25", "lang": "en", "label": "none", "why": "nothing-new", "entity": null,
+      "story": "The Thornwood", "checkpoint": "The old chapel", "book": "Thornwood Lore", "roster": ["Alder", "Brisa"],
+      "entries": [
+        { "uid": 0, "comment": "The Old Chapel", "keys": ["chapel"], "content": "A roofless chapel overgrown with ivy." },
+        { "uid": 1, "comment": "The Thornwood", "keys": ["thornwood", "forest"], "content": "Old forest where the paths move after dark." }
+      ],
+      "facts": ["The old chapel has no roof.", "The paths of the Thornwood move after dark."],
+      "canon": "Alder waited by the chapel while the light faded."
+    },
+    {
+      "id": "n26", "lang": "en", "label": "none", "why": "excluded", "entity": "Velloc",
+      "story": "Station Nine", "checkpoint": "The hydroponics deck", "book": "Station Nine Lore", "roster": ["Juno", "Pell"],
+      "entries": [{ "uid": 0, "comment": "Hydroponics Deck", "keys": ["hydroponics", "greenhouse"], "content": "Racks of algae and beans under violet lamps." }],
+      "hidden": [{ "uid": 1, "comment": "Velloc", "keys": ["Velloc", "chief engineer"], "content": "The author keeps this entry for themselves.", "why": "exclude" }],
+      "facts": ["Chief Engineer Velloc sealed the lower decks after the leak.", "Velloc keeps the only override key on a lanyard."],
+      "canon": "Juno and Pell found the lower decks sealed."
+    },
+    {
+      "id": "n27", "lang": "en", "label": "none", "why": "gated", "entity": "Vault of Cinders",
+      "story": "Ashfall", "checkpoint": "The burning ridge", "book": "Ashfall Lore", "roster": ["Kael", "Isolde"],
+      "entries": [{ "uid": 0, "comment": "The Ember Camp", "keys": ["camp", "embers"], "content": "Refugees shelter in tents downwind of the burning ridge." }],
+      "hidden": [{ "uid": 2, "comment": "Vault of Cinders", "keys": ["vault", "cinders"], "content": "Switched on by a later checkpoint.", "why": "gated" }],
+      "facts": ["The Vault of Cinders lies under the burning ridge.", "Kael found the door to the Vault of Cinders warm to the touch."],
+      "canon": "Kael and Isolde climbed toward the ridge."
+    },
+    {
+      "id": "n28", "lang": "en", "label": "none", "why": "excluded-other-title", "entity": "Sefa",
+      "story": "The Lantern Coast", "checkpoint": "The harbour at dusk", "book": "Lantern Coast Lore", "roster": ["Edda", "Corvin"],
+      "entries": [{ "uid": 0, "comment": "The Harbour", "keys": ["harbour", "quay"], "content": "A stone harbour lit by oil lanterns." }],
+      "hidden": [{ "uid": 3, "comment": "Mother Sefa", "keys": ["Sefa", "harbour witch"], "content": "The author keeps this entry for themselves.", "why": "exclude" }],
+      "facts": ["Sefa reads the tides from fish bones.", "Sefa warned Edda not to sail at dawn."],
+      "canon": "An old woman watched Edda from the harbour wall."
+    }
+  ]
+}

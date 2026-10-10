@@ -119,7 +119,7 @@ export class StagecraftCoordinator {
     this.creator = new LoreCreator({
       getStory: deps.getStory, getState: deps.getState, state: () => this.state, patch: (next) => this.patch(next), save: () => this.save(),
       journal: deps.journal, ownership: () => deps.ownership, model: deps.model, getCanon: deps.getCanon, getOpenArcs: deps.getOpenArcs,
-      readScope: () => this.readScope(), uniqueId: (base) => uniqueRecordId(base, this.state.proposals), ...(deps.lore ? { lore: deps.lore } : {}),
+      host: () => deps.hosts.curator, uniqueId: (base) => uniqueRecordId(base, this.state.proposals), ...(deps.lore ? { lore: deps.lore } : {}),
     });
   }
 

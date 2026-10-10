@@ -267,6 +267,16 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
   },
   {
+    id: "curator-create", name: "New lorebook entries", area: "world", audience: "author",
+    oneLine: "The curator proposes a new keyed entry for something play has established.",
+    what: "When at least two established facts name a person, place, group or thing that no entry covers, the curator drafts a new entry for the story's own lorebook. "
+      + "Each one waits for you, can be edited first, counts against the story's limit per chat, and a rollback deletes it unless you changed it. Its model is the Lore creation task.",
+    where: settingsAt("#so-curator-create", "World › Background helpers"),
+    settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: "author/topics/stagecraft.md", status: "shipped",
+    needs: ["memory-profile"],
+    isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.createEnabled && settings.stagecraft.acceptMode !== "off",
+  },
+  {
     id: "curator-markers", name: "Protected and auto lore", area: "world", audience: "author",
     oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
@@ -416,7 +426,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "models-per-task", name: "Models per task", area: "memory", audience: "setup",
     oneLine: "Send each kind of background work to its own model.",
-    what: "Story reads, summaries, the wizard, speaker direction, the curator and the inner voice can each use their own profile, or a cloud harness through the harness plugin. "
+    what: "Story reads, summaries, the wizard, speaker direction, the curator, lore creation and the inner voice can each use their own profile, or a cloud harness through the harness plugin. "
       + "Profiles are grouped by provider and labelled local or cloud, and a task on a cloud profile says what it sends.",
     where: settingsAt("#so-role-profiles", "Memory › Models per task"),
     settings: ["extraction.profiles", "extraction.routes", "extraction.reasoningBudget"], doc: "setup/memory-model.md", status: "shipped",

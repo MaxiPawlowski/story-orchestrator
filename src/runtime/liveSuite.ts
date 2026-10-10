@@ -180,7 +180,7 @@ export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["r
   return async (entry) => {
     const context = caseContext(entry);
     const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
-    const rawResponse = await askText(liveModel(manager), prompt, { role: "curator", pass: "curator", maxTokens: 512 });
+    const rawResponse = await askText(liveModel(manager), prompt, { role: "lore", pass: "loreCreate", maxTokens: 512 });
     return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
   };
 }

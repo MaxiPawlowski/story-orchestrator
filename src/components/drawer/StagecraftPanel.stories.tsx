@@ -188,6 +188,56 @@ export const DeclinedDropped: Story = {
   },
 };
 
+const createOp = (status: CuratorOpRecord["status"] = "pending"): CuratorOpRecord => ({
+  op: { kind: "create", lorebook: "Xentar Checkpoints", comment: "Warden Hale", keys: ["Hale", "warden"], text: "The warden takes bribes in tobacco and wears the master key." },
+  status,
+  message: 'Create "Warden Hale" in Xentar Checkpoints',
+  nearDups: [{ comment: "The Warden", score: 0.87 }],
+  created: { keys: ["Hale", "warden"] },
+  ...(status === "applied" ? { after: { content: "The warden takes bribes in tobacco and wears the master key.", disabled: false }, target: { lorebookFileId: "Xentar Checkpoints", uid: 9 } } : {}),
+});
+
+const loreSnapshot = (ops: CuratorOpRecord[]) => {
+  const base = snapshot({ proposals: [{ ...proposal(ops), id: "lore-4-6", reason: "lore creation", summary: 'New lorebook entries proposed: "Warden Hale"', dropped: [] }] });
+  return { ...base, stagecraft: { ...base.stagecraft, settings: { ...base.stagecraft.settings, createEnabled: true } } } as RuntimeSnapshot;
+};
+
+// v2.8 11: a new entry is one card with one decision, its likely duplicate named, its keys and
+// text editable; "Create it" sends exactly what the author left in the fields.
+export const CreateCardNearDup: Story = {
+  args: { snapshot: loreSnapshot([createOp()]), manager: fakeManager() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/new entry “Warden Hale” in Xentar Checkpoints/)).toBeInTheDocument();
+    await expect(canvas.getByText(/may duplicate “The Warden” \(87% alike\)/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="lore-create-status"]')?.textContent).toContain("each waits for you");
+    const keys = canvas.getByRole("textbox", { name: /Keys/ });
+    await userEvent.clear(keys);
+    await userEvent.type(keys, "Hale");
+    await userEvent.click(canvas.getByRole("button", { name: "Create it" }));
+    await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("lore-4-6", 0, "accepted", expect.objectContaining({ kind: "create", keys: ["Hale"] }));
+  },
+};
+
+export const CreateCardNeedsKeys: Story = {
+  args: { snapshot: loreSnapshot([createOp()]), manager: fakeManager() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.clear(canvas.getByRole("textbox", { name: /Keys/ }));
+    await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
+  },
+};
+
+export const CreateCardCreated: Story = {
+  args: { snapshot: loreSnapshot([createOp("applied")]) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/· created$/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Create it" })).toBeNull();
+    await expect(canvas.getByText(/keys: Hale, warden/)).toBeInTheDocument();
+  },
+};
+
 const wardenNote = (status: CuratorOpRecord["status"], message?: string): CuratorProposalRecord => ({
   id: "warden-5-7",
   curator: "warden",

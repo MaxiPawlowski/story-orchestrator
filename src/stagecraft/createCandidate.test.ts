@@ -1,7 +1,9 @@
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCuratorResponse } from "./parse";
-import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, CREATE_MIN_FACTS, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
+import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, factsNaming, CREATE_MIN_FACTS, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
+import { CREATE_CONTRACT_ID, CREATE_FIXTURE_REVISION, CREATE_FLOORS } from "./createEligibility";
 
 const ROOT = join(__dirname, "../..");
 const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/curator-create/cases.json"), "utf-8")) as { frozenAt: string; floors: { propose: number; none: number }; samples: number; cases: Array<CreateCase & { lang: string; why: string }> };
@@ -31,6 +33,55 @@ describe("F5 Phase A fixture (labels frozen before any model answer)", () => {
       expect(entry.entries.some((row) => row.comment.toLowerCase() === entity)).toBe(false);
     }
     for (const entry of fixture.cases.filter((row) => row.why === "roster")) expect(entry.roster).toContain(entry.entity);
+  });
+});
+
+describe("v2.8 11 fixture revision 2 (contract B, frozen 2026-10-09 before any model answer)", () => {
+  const raw = readFileSync(join(ROOT, "test/fixtures/curator-create/revision-2.json"), "utf-8").replace(/\r\n/g, "\n");
+  const r2 = JSON.parse(raw) as { revision: string; contract: string; frozenAt: string; floors: { propose: number; none: number }; samples: number; cases: Array<CreateCase & { lang: string; why: string }> };
+
+  it("is the frozen file the plan measures: hash pinned, revision and contract match the eligibility rows", () => {
+    expect(createHash("sha256").update(raw, "utf-8").digest("hex")).toBe("da7450898e42cde3e0da6e4da39a553efdac4ebadf3058af21f2a8e753aeb759");
+    expect(r2.revision).toBe(CREATE_FIXTURE_REVISION);
+    expect(r2.contract).toBe(CREATE_CONTRACT_ID);
+    expect(r2.floors).toEqual(CREATE_FLOORS);
+    expect(r2.samples).toBe(3);
+  });
+
+  it("has >= 22 English cases, >= 10 of each label, and ids no revision-1 record can claim", () => {
+    const old = new Set(fixture.cases.map((entry) => entry.id));
+    expect(r2.cases.length).toBeGreaterThanOrEqual(22);
+    expect(r2.cases.every((entry) => entry.lang === "en" && !old.has(entry.id))).toBe(true);
+    expect(new Set(r2.cases.map((entry) => entry.id)).size).toBe(r2.cases.length);
+    expect(r2.cases.filter((entry) => entry.label === "propose").length).toBeGreaterThanOrEqual(10);
+    expect(r2.cases.filter((entry) => entry.label === "none").length).toBeGreaterThanOrEqual(10);
+    for (const entry of r2.cases) expect(Number(entry.id.slice(1))).toBeGreaterThanOrEqual(entry.label === "propose" ? 16 : 17);
+  });
+
+  it("covers every negative the plan names, the hidden-entry ones included", () => {
+    const whys = new Set(r2.cases.filter((entry) => entry.label === "none").map((entry) => entry.why));
+    for (const why of ["named-once", "named-once-generic-key", "roster", "roster-bystander", "covered", "near-dup", "nothing-new", "excluded", "gated"]) expect(whys).toContain(why);
+    for (const entry of r2.cases.filter((row) => row.why === "excluded" || row.why === "gated" || row.why === "excluded-other-title")) expect(entry.hidden?.length).toBeGreaterThan(0);
+  });
+
+  it("a positive's entity is named by >= 2 distinct facts and nothing listed or hidden holds it; a named-once negative's entity by one", () => {
+    for (const entry of r2.cases.filter((row) => row.label === "propose")) {
+      const op = { comment: entry.entity as string, keys: [] };
+      expect({ id: entry.id, naming: factsNaming(entry.facts, op) >= CREATE_MIN_FACTS }).toEqual({ id: entry.id, naming: true });
+      expect(entry.entries.some((row) => row.comment.toLowerCase() === (entry.entity as string).toLowerCase())).toBe(false);
+      expect(entry.hidden ?? []).toEqual([]);
+    }
+    for (const entry of r2.cases.filter((row) => row.why.startsWith("named-once"))) expect(factsNaming(entry.facts, { comment: entry.entity as string, keys: [] })).toBe(1);
+    for (const entry of r2.cases.filter((row) => row.why.startsWith("roster"))) expect(entry.roster).toContain(entry.entity);
+  });
+
+  it("the shipped guards refuse a card that recreates a hidden entry, by title or through its keys", () => {
+    const excluded = r2.cases.find((entry) => entry.id === "n28") as CreateCase;
+    expect(scoreCreateSample(excluded, `[create] ${excluded.book} || Sefa || Sefa, tides || Reads the tides from fish bones.`).pass).toBe(true);
+    const gated = r2.cases.find((entry) => entry.id === "n27") as CreateCase;
+    expect(scoreCreateSample(gated, `[create] ${gated.book} || The Vault of Cinders || vault, cinders || A vault under the ridge.`).pass).toBe(true);
+    const positive = r2.cases.find((entry) => entry.id === "p16") as CreateCase;
+    expect(scoreCreateSample(positive, `[create] ${positive.book} || Tamsin || Tamsin, lantern shop || Sells lantern oil on the quay.`).pass).toBe(true);
   });
 });
 

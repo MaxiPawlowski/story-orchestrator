@@ -162,8 +162,10 @@ export const setRequirements = (draft: StoryDraft, requirements: StoryRequiremen
 export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): StoryDraft => {
   const lorebooks = stagecraft.lorebooks ?? [];
   const exclude = ("exclude" in stagecraft ? stagecraft.exclude : draft.stagecraft?.exclude) ?? [];
+  const createCap = "createCap" in stagecraft ? stagecraft.createCap : draft.stagecraft?.createCap;
   const { stagecraft: _dropped, ...rest } = draft;
-  return lorebooks.length || exclude.length ? { ...rest, stagecraft: { lorebooks, ...(exclude.length ? { exclude } : {}) } } : rest;
+  if (!lorebooks.length && !exclude.length) return rest;
+  return { ...rest, stagecraft: { lorebooks, ...(exclude.length ? { exclude } : {}), ...(createCap !== undefined ? { createCap } : {}) } };
 };
 
 // The scene tracker's vocabulary, kept as typed (the parser trims on load), so a new

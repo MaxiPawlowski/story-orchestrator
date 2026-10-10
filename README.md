@@ -108,6 +108,7 @@ From a release zip, copy the chosen companion folders from `server-plugin/` into
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |
 | World | Lorebook curator | Proposes updates to the story's lorebook as play overtakes it. |  |
+| World | New lorebook entries | The curator proposes a new keyed entry for something play has established. |  |
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
 | Images | Backgrounds | A turning point can switch the chat background. |  |

@@ -934,6 +934,7 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-guide [data-audience="author"]', '[data-so="guide-page"][data-doc^="author/"]', '[data-so="guide-nav-item"][data-page^="author/"]',
   '#so-edit-story', '#so-update-story', '#so-fix-with-wizard', '#so-stagecraft',
   '[data-so="curator-proposal"]', '[data-so="curator-op"]', '[data-so="curator-accept"]', '[data-so="curator-reject"]',
+  '[data-so="curator-near-dup"]', '[data-so="curator-create-keys"]', '[data-so="lore-create-status"]', '[data-so="lore-create-last"]',
   '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',
   '[aria-label="Driver suggestions"]', '[aria-label="Driver report"]', '[aria-label="Active nudge"]',
   '[aria-label="Driver unavailable"]', '[aria-label="Talk decisions"]',

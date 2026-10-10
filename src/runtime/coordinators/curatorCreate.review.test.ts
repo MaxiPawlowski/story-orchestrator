@@ -1,5 +1,6 @@
 import { textModel } from "../../../test/support/modelCall";
 import type { ModelAsk } from "@extraction/modelRoute";
+import { ModelCallError } from "@extraction/modelError";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { createEligibility, type CreateEligibilityRow, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
@@ -63,7 +64,7 @@ const story = (createCap?: number): NormalizedStoryV2 => parseStoryV2OrThrow({
   ],
   transitions: [],
   roster: [{ id: "mira", name: "Mira" }],
-  stagecraft: { lorebooks: ["Story Lore"], exclude: [{ lorebook: "Story Lore", comments: ["The Ferryman"] }], ...(createCap !== undefined ? { createCap } : {}) },
+  stagecraft: { lorebooks: ["Story Lore"], exclude: [{ lorebook: "Story Lore", comments: ["The Ferryman", "Ghost Pier"] }], ...(createCap !== undefined ? { createCap } : {}) },
 });
 
 const FACTS = ["Oskar the boatwright patched the ferry at dawn.", "Oskar charges one silver to mend a hull.", "Garrick sold rope once."];
@@ -88,6 +89,7 @@ const harness = (options: Options = {}) => {
   const journal: string[] = [];
   let chatId = "chat-a";
   let lastMessageId = 24;
+  const epoch = new AbortController();
   const model = jest.fn(async (_prompt: string, ask: ModelAsk): Promise<string> => ask.debugResponse ?? "NONE");
   const context = (): RunContext => ({ chatId, storyId: "create-fixture", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const deps = {
@@ -107,12 +109,12 @@ const harness = (options: Options = {}) => {
     journal: (summary: string) => journal.push(summary),
     persist: async () => undefined,
     notify: () => undefined,
-    ownership: { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) },
+    ownership: { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token), signal: () => epoch.signal },
   } as StagecraftCoordinatorDeps;
   const coordinator = new StagecraftCoordinator(deps);
   const creates = () => state.proposals.flatMap((record) => record.ops.map((entry, index) => ({ record, entry, index }))).filter(({ entry }) => entry.op.kind === "create");
   return {
-    coordinator, journal, model, read: () => state, creates,
+    coordinator, journal, model, read: () => state, creates, epoch,
     switchChat: () => { chatId = "chat-b"; },
     at: (id: number) => { lastMessageId = id; },
   };
@@ -157,8 +159,9 @@ describe("v2.8 11: the curator create op, end to end through the coordinator", (
   it.each([
     ["named by one fact only (contract B)", "[create] Story Lore || Garrick || Garrick || A rope seller.", "only one live fact names"],
     ["a cast member", "[create] Story Lore || Mira || Mira || The heroine.", "cast member"],
-    ["an excluded title, recreated beside it", "[create] Story Lore || The Ferryman || Oskar, ferry || Oskar runs the ferry.", "excluded from the curator"],
-    ["a checkpoint-gated title, recreated beside it", "[create] Story Lore || Sealed Vault || Oskar, vault || Oskar knows the vault.", "switched by checkpoint effects"],
+    ["an excluded entry, recreated beside it", "[create] Story Lore || The Ferryman || Oskar, ferry || Oskar runs the ferry.", "which this story keeps from the curator"],
+    ["a checkpoint-gated entry, recreated beside it", "[create] Story Lore || Sealed Vault || Oskar, vault || Oskar knows the vault.", "which this story keeps from the curator"],
+    ["a hidden entry, recreated under another title through its key", "[create] Story Lore || The old ferry || ferry, Oskar || Oskar's ferry.", "would duplicate \"The Ferryman\""],
     ["a book off the allowlist", "[create] Other Lore || Oskar || Oskar || The boatwright.", "not on this story's stagecraft allowlist"],
     ["a curator marker in the new text", "[create] Story Lore || Oskar || Oskar || {{// so:auto}} The boatwright.", "adds a curator marker"],
   ])("refuses %s at plan time, and nothing reaches the ring as a card", async (_label, response, reason) => {
@@ -166,6 +169,13 @@ describe("v2.8 11: the curator create op, end to end through the coordinator", (
     await env.coordinator.runCreatePass("checkpoint", response);
     expect(env.creates()).toEqual([]);
     expect(env.read().proposals[0]?.dropped.join(" ")).toContain(reason);
+  });
+
+  it("an excluded title with no entry yet is still refused at plan time", async () => {
+    const env = harness({ facts: ["The Ghost Pier rots at the delta mouth.", "Oskar will not moor at the Ghost Pier."] });
+    await env.coordinator.runCreatePass("checkpoint", "[create] Story Lore || Ghost Pier || pier || A rotten pier.");
+    expect(env.creates()).toEqual([]);
+    expect(env.read().proposals[0].dropped.join(" ")).toContain("excluded from the curator");
   });
 
   it("never runs in off mode, with the switch off, or with fewer than two facts; no model call is sent", async () => {
@@ -241,6 +251,28 @@ describe("v2.8 11: the curator create op, end to end through the coordinator", (
       expect(await env.coordinator.applyAccepted()).toBe(0);
       expect(env.creates()[0].entry.status).toBe("failed");
     }
+    expect(calls.create).toBe(0);
+  });
+
+  it("the write edge refuses a card edited into a book off the allowlist, even one that exists", async () => {
+    books.set("Other Lore", {});
+    const env = harness();
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const [card] = env.creates();
+    await env.coordinator.setOpDecision(card.record.id, card.index, "accepted", { kind: "create", lorebook: "Other Lore", comment: "Oskar", keys: ["Oskar"], text: "x" });
+    expect(await env.coordinator.applyAccepted()).toBe(0);
+    expect(env.creates()[0].entry).toMatchObject({ status: "failed", message: expect.stringContaining("not on this story's stagecraft allowlist") });
+    expect(books.get("Other Lore")).toEqual({});
+  });
+
+  it("the write edge holds the cap even when the ledger filled after the proposal", async () => {
+    const env = harness({ cap: 1 });
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const [card] = env.creates();
+    await env.coordinator.setOpDecision(card.record.id, card.index, "accepted");
+    env.read().created?.push({ lorebook: "Story Lore", lorebookFileId: "Story Lore", uid: 0, comment: "The Delta", proposalId: "x", messageId: 1, at: "t" });
+    expect(await env.coordinator.applyAccepted()).toBe(0);
+    expect(env.creates()[0].entry).toMatchObject({ status: "failed", message: "this story's limit of 1 new entry is reached" });
     expect(calls.create).toBe(0);
   });
 
@@ -323,6 +355,39 @@ describe("v2.8 11: the curator create op, end to end through the coordinator", (
     expect(await env.coordinator.reconcileWriteAhead()).toEqual({ applied: 1, retry: 1, left: 0 });
     expect(env.read().proposals[0].ops.map((entry) => entry.status)).toEqual(["applied", "accepted"]);
     expect(env.read().created).toEqual([expect.objectContaining({ comment: "Landed", uid: 9 })]);
+  });
+
+  it("a lore call that fails is recorded and play continues", async () => {
+    const env = harness();
+    env.model.mockRejectedValueOnce(new Error("profile is gone"));
+    expect(await env.coordinator.runCreatePass("checkpoint")).toEqual({ ran: true, record: null });
+    expect(env.read().lastError).toBe("profile is gone");
+    expect(env.creates()).toEqual([]);
+  });
+
+  it("a backend that does not answer is rethrown for the breaker after the owned error is recorded", async () => {
+    const env = harness();
+    env.model.mockRejectedValueOnce(new ModelCallError("transport", "API request failed"));
+    await expect(env.coordinator.runCreatePass("checkpoint")).rejects.toThrow("API request failed");
+    expect(env.read().lastError).toBe("API request failed");
+  });
+
+  it("a second apply of the same accepted card writes nothing more", async () => {
+    const env = harness();
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const [card] = env.creates();
+    await env.coordinator.setOpDecision(card.record.id, card.index, "accepted");
+    const [first, second] = await Promise.all([env.coordinator.applyAccepted(), env.coordinator.applyAccepted()]);
+    expect(first + second).toBe(1);
+    expect(calls.create).toBe(1);
+    expect(env.read().created).toHaveLength(1);
+  });
+
+  it("the lore call carries the chat's epoch signal, so a switch cancels the request", async () => {
+    const env = harness();
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const ask = env.model.mock.calls[0][1];
+    expect(ask.signal).toBe(env.epoch.signal);
   });
 
   it("the created ledger survives persistence and hydrate", () => {

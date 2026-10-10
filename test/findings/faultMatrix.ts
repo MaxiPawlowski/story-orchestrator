@@ -25,6 +25,7 @@ export const FAULT_PACKAGES = [
   "harnessTransport",
   "agentBridge",
   "chapterSeal",
+  "curatorCreate",
 ] as const;
 
 export const FAULT_SHAPES = [

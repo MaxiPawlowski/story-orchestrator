@@ -17,6 +17,7 @@ import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./
 import { FallbackProfileField } from "./FallbackProfileField";
 import { ProfileOptions } from "./ProfileOptions";
 import { ReplyThinkingField } from "./ReplyThinkingField";
+import { loreEligibility } from "@runtime/loreRoute";
 import { log } from "@utils/log";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
@@ -194,6 +195,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onFallback={setRoleFallback}
         onOpen={() => setAskHarness(true)}
         authorView={snapshot.ui.authorView}
+        measurements={{ lore: loreEligibility() }}
       />
       </Advanced>
     </div>

@@ -142,6 +142,11 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
           <option value="off">Never apply: only show me what it would do</option>
         </select>
       </div>
+      <CheckRow id="so-curator-create" setting="stagecraft.createEnabled" checked={snapshot.stagecraft.settings.createEnabled}
+        disabled={!snapshot.stagecraft.settings.curatorEnabled} onChange={(on) => manager.setStagecraftSettings({ createEnabled: on })} />
+      <CheckRow id="so-curator-create-measured" setting="stagecraft.createRequireMeasured" checked={snapshot.stagecraft.settings.createRequireMeasured}
+        disabled={!snapshot.stagecraft.settings.curatorEnabled || !snapshot.stagecraft.settings.createEnabled}
+        onChange={(on) => manager.setStagecraftSettings({ createRequireMeasured: on })} />
       {snapshot.stagecraft.settings.curatorEnabled && snapshot.ready && snapshot.stagecraftScope.length === 0 && (
         <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
       )}

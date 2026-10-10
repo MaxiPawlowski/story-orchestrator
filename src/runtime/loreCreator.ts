@@ -3,9 +3,10 @@ import { failureClass } from "@extraction/breaker";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import {
-  buildCreateCandidatePrompt, capProposalRing, createCapFor, curatorHasScope, curatorLorebooks, isCreateOp, newEntriesText, planCreateProposal,
+  buildCreateCandidatePrompt, capProposalRing, createCapFor, curatorHasScope, curatorLorebooks, entriesForScope, isCreateOp, isCuratorHidden, newEntriesText, planCreateProposal,
   type CreateEligibility, type CuratorEntryView, type CuratorPassOutcome, type CuratorProposalRecord,
 } from "@stagecraft/index";
+import type { CuratorWiHost } from "./hostPorts";
 import type { RunOwnership, RunToken } from "./runToken";
 import type { StagecraftRuntimeState } from "./types";
 
@@ -29,7 +30,7 @@ export interface LoreCreatorDeps {
   model: ModelCall;
   getCanon: () => string;
   getOpenArcs: () => string[];
-  readScope: () => Promise<CuratorEntryView[]>;
+  host: () => Pick<CuratorWiHost, "loadLorebook">;
   uniqueId: (base: string) => string;
   lore?: {
     facts: () => string[];
@@ -61,6 +62,16 @@ export class LoreCreator {
     return null;
   }
 
+  private async readBooks(story: NormalizedStoryV2): Promise<{ shown: CuratorEntryView[]; hidden: CuratorEntryView[] }> {
+    const views: CuratorEntryView[] = [];
+    for (const lorebook of curatorLorebooks(story)) {
+      const loaded = await this.deps.host().loadLorebook(lorebook);
+      if (loaded?.entries) views.push(...entriesForScope(lorebook, Object.values(loaded.entries)));
+    }
+    const hidden = views.filter((view) => isCuratorHidden(story, view.lorebook, view.comment));
+    return { shown: views.filter((view) => !hidden.includes(view)), hidden };
+  }
+
   private declined(state: EngineState) {
     return this.deps.state().proposals.filter((record) => record.checkpointId === state.activeCheckpointId && record.boundary >= (state.checkpointStartedBoundary ?? 0))
       .flatMap((record) => record.ops.flatMap((entry) => (entry.status === "rejected" && isCreateOp(entry.op) ? [entry.op] : [])));
@@ -84,9 +95,9 @@ export class LoreCreator {
     const hold = { token: ownership.mint() };
     this.hold = hold;
     try {
-      const scoped = await this.deps.readScope();
+      const { shown: scoped, hidden } = await this.readBooks(story);
       const checkpoint = story.checkpointById[state.activeCheckpointId];
-      const context = { allowlist: curatorLorebooks(story), entries: scoped, roster: lore.roster(), facts: lore.facts() };
+      const context = { allowlist: curatorLorebooks(story), entries: scoped, hidden, roster: lore.roster(), facts: lore.facts() };
       const prompt = buildCreateCandidatePrompt({
         storyTitle: story.title, checkpointName: checkpoint?.name ?? state.activeCheckpointId, objective: checkpoint?.objective ?? "",
         canon: this.deps.getCanon(), openArcs: this.deps.getOpenArcs(), entries: scoped,

@@ -17,6 +17,7 @@ export interface CreateCandidateContext {
   entries: CuratorEntryView[];
   roster: string[];
   facts: string[];
+  hidden?: CuratorEntryView[];
 }
 
 export interface CreateVerdict {
@@ -83,6 +84,13 @@ const mentions = (text: string, name: string) => {
   return needle.length > 0 && ` ${plain(text)} `.includes(` ${needle} `);
 };
 
+const bare = (value: string) => plain(value).replace(/^(the|a|an) /, "");
+
+export const hiddenTwin = (hidden: CuratorEntryView[], op: Pick<CreateCandidateOp, "comment" | "keys">): CuratorEntryView | undefined => {
+  const names = [op.comment, op.keys[0] ?? ""].map(bare).filter(Boolean);
+  return hidden.find((entry) => [entry.comment, ...entry.keys].map(bare).some((name) => name && names.includes(name)));
+};
+
 export const factsNaming = (facts: string[], op: Pick<CreateCandidateOp, "comment" | "keys">): number => {
   const names = [op.comment, op.keys[0] ?? ""].filter((name) => plain(name).length > 0);
   return new Set(facts.filter((fact) => names.some((name) => mentions(fact, name))).map(plain)).size;
@@ -99,6 +107,8 @@ export function validateCreate(op: CreateCandidateOp, context: CreateCandidateCo
   if (!context.allowlist.includes(op.lorebook)) return refuse(`"${op.lorebook}" is not on this story's stagecraft allowlist`);
   if (!op.comment) return refuse("a new entry needs a title");
   if (context.entries.some((entry) => entry.lorebook === op.lorebook && plain(entry.comment) === plain(op.comment))) return refuse(`"${op.comment}" already exists in ${op.lorebook}`);
+  const twin = hiddenTwin(context.hidden ?? [], op);
+  if (twin) return refuse(`"${op.comment}" would duplicate "${twin.comment}", which this story keeps from the curator`);
   if (!op.keys.length) return refuse(`"${op.comment}" has no keys, so it would never fire`);
   const castKey = op.keys.find((key) => context.roster.some((name) => plain(name) === plain(key) || plain(name).split(" ").includes(plain(key))));
   if (castKey) return refuse(`"${castKey}" is a cast member's name; as a key it would fire every turn`);
@@ -125,6 +135,7 @@ export interface CreateCase {
   book: string;
   roster: string[];
   entries: Array<{ uid: number; comment: string; keys: string[]; content: string }>;
+  hidden?: Array<{ uid: number; comment: string; keys: string[]; content: string; why?: string }>;
   facts: string[];
   story: string;
   checkpoint: string;
@@ -143,7 +154,10 @@ export const caseScope = (entry: CreateCase): CuratorScope => ({
   entries: caseEntries(entry),
 });
 
-export const caseContext = (entry: CreateCase): CreateCandidateContext => ({ allowlist: [entry.book], entries: caseEntries(entry), roster: entry.roster, facts: entry.facts });
+export const caseContext = (entry: CreateCase): CreateCandidateContext => ({
+  allowlist: [entry.book], entries: caseEntries(entry), roster: entry.roster, facts: entry.facts,
+  ...(entry.hidden?.length ? { hidden: entry.hidden.map((row) => ({ lorebook: entry.book, comment: row.comment, keys: row.keys, content: row.content, disabled: false, uid: row.uid })) } : {}),
+});
 
 export function scoreCreateSample(entry: CreateCase, raw: string): CreateCaseSample {
   const verdicts = parseCreateLines(raw).map((op) => validateCreate(op, caseContext(entry)));

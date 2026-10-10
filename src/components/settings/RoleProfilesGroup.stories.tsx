@@ -44,6 +44,26 @@ export const SameAsMemoryModel: Story = {
   },
 };
 
+// v2.8 11: the Lore creation row defaults to the curator's route and says whether that model
+// was measured for new entries.
+export const LoreCreationNotMeasured: Story = {
+  args: {
+    routes: [...allFallback, route("lore", "Lore creation", "fallback", "memory", "Same as World Info curator")],
+    measurements: { lore: { state: "not-measured", detail: "deepseek:deepseek-chat has not been measured on create-B revision 2" } },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Models per task/));
+    const lore = canvasElement.querySelector('[data-role="lore"]') as HTMLElement;
+    const select = lore.querySelector("#so-role-profile-lore") as HTMLSelectElement;
+    await expect(select.selectedOptions[0].textContent).toBe("Same as World Info curator");
+    await expect(within(lore).getByText("not measured for new entries")).toBeVisible();
+    await expect(canvasElement.querySelector('[data-role="curator"] [data-so="role-measurement"]')).toBeNull();
+    await userEvent.selectOptions(select, "fast");
+    await expect(args.onAssign).toHaveBeenCalledWith("lore", "fast");
+  },
+};
+
 export const RoutedAndFailing: Story = {
   args: {
     assigned: { director: "fast", curator: "gone" },
