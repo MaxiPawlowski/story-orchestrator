@@ -15,7 +15,7 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     expect(g.ended([5])).toEqual([]);
     expect(g.ended([5])).toEqual([{ kind: "reapply", chid: 2 }]);
     expect(g.snapshot().outermost).toEqual({ type: "normal", watermark: 4 });
-    expect(g.rendered(5, "normal")).toEqual([{ kind: "closed", reason: "rendered" }, { kind: "settled", rendered: true }]);
+    expect(g.rendered(5, "normal")).toEqual([{ kind: "closed", reason: "rendered" }, { kind: "settled", rendered: true, messageId: 5 }]);
     expect(g.snapshot()).toEqual({ outermost: null, nested: [], awaitingRender: null, draftedChid: null, openedCount: 1 });
   });
 
@@ -75,7 +75,7 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     expect(kinds(g.started(["normal", {}, false], 6))).toEqual(["opened"]);
     expect(kinds(g.ended([7]))).toEqual(["closed:ended"]);
     expect(g.rendered(6, "first_message")).toEqual([]);
-    expect(g.rendered(6, "normal")).toEqual([{ kind: "settled", rendered: true }]);
+    expect(g.rendered(6, "normal")).toEqual([{ kind: "settled", rendered: true, messageId: 6 }]);
     expect(g.rendered(6, "normal")).toEqual([]);
   });
 

@@ -1,5 +1,5 @@
 import {
-  EMPTY_REPLY_ASKED, EMPTY_REPLY_LEFT, EMPTY_REPLY_NOT_ASKED, EMPTY_REPLY_PLAYER_TEXT, EmptyReplyRecovery, isThoughtOnlyReply, residueTags, thoughtOnlyMessageIds, visibleReplyText,
+  EMPTY_REPLY_ASKED, EMPTY_REPLY_LEFT, EMPTY_REPLY_NOT_ASKED, EMPTY_REPLY_PLAYER_TEXT, EmptyReplyRecovery, isThoughtOnlyReply, residueTags, settledOnReply, thoughtOnlyMessageIds, visibleReplyText,
   type EmptyReplyDeps,
 } from "./emptyReply";
 import { composeInlineTimeline, type InlineSources } from "./inlineTimeline";
@@ -228,5 +228,20 @@ describe("the player's note on an empty reply", () => {
     const view = composeInlineTimeline(sources([1]));
     expect(view.byMessage[1]).toEqual([expect.objectContaining({ category: "health", persona: "player", text: EMPTY_REPLY_PLAYER_TEXT })]);
     expect(composeInlineTimeline(sources([])).byMessage[1]).toBeUndefined();
+  });
+});
+
+describe("settledOnReply (F8: the warden's rendered reply)", () => {
+  const chat = [{ is_user: true, mes: "Hello." }, thought(), { name: "Kayla", is_user: false, mes: "Hi.", extra: {} }];
+
+  it("a thought-only reply does not settle the warden's note as rendered", () => {
+    expect(settledOnReply(true, 1, chat)).toBe(false);
+    expect(settledOnReply(true, 1, [chat[0], thought({ mes: "<channel|>" })])).toBe(false);
+  });
+
+  it("a reply with visible text still settles it, and a reply-less close never does", () => {
+    expect(settledOnReply(true, 2, chat)).toBe(true);
+    expect(settledOnReply(false, 2, chat)).toBe(false);
+    expect(settledOnReply(true, undefined, chat)).toBe(true);
   });
 });

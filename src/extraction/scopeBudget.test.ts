@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot, type StoryV2 } from "@engine/index";
-import { deriveScopeExplained, deriveScopeWithSources } from "./scope";
+import { deriveScopeExplained, deriveScopeWithSources, scopeOverflow } from "./scope";
 import { fitScopeBudget, SCOPE_EXTRA_BUDGET, scopeSlots } from "./scopeBudget";
-import { CARD_SOURCE, QUEST_SCOPE_CAP, QUEST_SOURCE, readScopeSource, readScopeSources, RELATIONSHIP_SOURCE, REL_AXES_PER_READ, SCOPE_SOURCES, type ScopeSource } from "./scopeSources";
+import { CARD_MIN_SHARE, CARD_SOURCE, QUEST_SCOPE_CAP, QUEST_SOURCE, readScopeSource, readScopeSources, RELATIONSHIP_SOURCE, REL_AXES_PER_READ, SCOPE_SOURCES, type ScopeSource } from "./scopeSources";
 
 const empty: BlackboardSnapshot = { values: {}, versions: {}, latched: {} };
 const MEMBERS = Array.from({ length: 7 }, (_, at) => `m${at + 1}`);
@@ -103,7 +103,7 @@ describe("S-17 combined scope budget: 7-member cast, 4 active quests, relationsh
     const relationship = reads.find((read) => read.kind === "relationship");
     const card = reads.find((read) => read.kind === "card");
     expect(relationship?.keys).toEqual(expect.arrayContaining(["rel_m1_player_trust", ...draftedKeys]));
-    const others = Math.min(REL_AXES_PER_READ - 1 - draftedKeys.length, SCOPE_EXTRA_BUDGET + MEMBERS.length - QUESTS - draftedKeys.length);
+    const others = Math.min(REL_AXES_PER_READ - 1 - draftedKeys.length, SCOPE_EXTRA_BUDGET + MEMBERS.length - QUESTS - draftedKeys.length - CARD_MIN_SHARE);
     expect(relationship?.keys.filter(isOtherAxis)).toHaveLength(others);
     expect(card?.keys).toEqual(["hair_m1", "hair_m2", "hair_m3", "hair_m4", "hair_m5", "hair_m6", "hair_m7"].slice(0, SCOPE_EXTRA_BUDGET + MEMBERS.length - QUESTS - draftedKeys.length - others));
     expect(card?.dropped.length).toBeGreaterThan(0);
@@ -145,6 +145,30 @@ describe("S-17 combined scope budget: 7-member cast, 4 active quests, relationsh
     }
     expect([...candidates].every((key) => lastSeen.has(key))).toBe(true);
     expect(worst).toBeLessThanOrEqual(3);
+  });
+
+  it("card pulls keep a rotating minimum share, so every card field is read within as many reads as there are cards (F3: 1 of 7, always the same, before)", () => {
+    const cards = MEMBERS.map((id) => `hair_${id}`);
+    const lastSeen = new Map<string, number>();
+    let worst = 0;
+    for (let rotation = 0; rotation < 3 * cards.length; rotation += 1) {
+      const kept = scopeKeys(rotation).filter((key) => cards.includes(key));
+      expect(kept.length).toBeGreaterThanOrEqual(CARD_MIN_SHARE);
+      for (const key of kept) {
+        worst = Math.max(worst, rotation - (lastSeen.get(key) ?? -1) - 1);
+        lastSeen.set(key, rotation);
+      }
+    }
+    expect(cards.every((key) => lastSeen.has(key))).toBe(true);
+    expect(worst).toBeLessThanOrEqual(Math.ceil(cards.length / CARD_MIN_SHARE) - 1);
+  });
+
+  it("the author overflow names what the budget left out, not only what a source cap cut", () => {
+    const capOnly = readScopeSource(RELATIONSHIP_SOURCE, STORY, empty, context(0)).dropped;
+    const overflow = scopeOverflow(STORY, "a", empty, context(0));
+    const relationship = overflow.find((row) => row.kind === "relationship")?.dropped ?? [];
+    expect(relationship).toEqual(expect.arrayContaining(capOnly));
+    expect(overflow.find((row) => row.kind === "card")?.dropped).toHaveLength(MEMBERS.length - CARD_MIN_SHARE);
   });
 
   it("with fewer game keys the leftover slots go back to card pulls", () => {

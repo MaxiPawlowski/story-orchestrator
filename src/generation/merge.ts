@@ -35,6 +35,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
     if (!target) return;
     const stub = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.stubId);
     const chapter = stub?.chapter;
+    const stubWorldInfo = stub?.effects?.world_info;
     const exits = stubExits(raw.transitions, entry);
     for (let index = transitions.length - 1; index >= 0; index -= 1) {
       if (transitions[index].from === entry.sourceCheckpointId && transitions[index].to === entry.stubId) transitions.splice(index, 1);
@@ -50,6 +51,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         tension_target: beat.tension_target,
         ...(beat.state_snapshot ? { state_snapshot: beat.state_snapshot } : {}),
         ...(chapter ? { chapter } : {}),
+        ...(index === 0 && stubWorldInfo ? { effects: { world_info: clone(stubWorldInfo) } } : {}),
       });
     });
     transitions.push({ ...sourceTransition, to: generatedId(entry, 0), priority: sourceTransition.priority + 0.001 });

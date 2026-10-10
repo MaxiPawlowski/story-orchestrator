@@ -1,6 +1,6 @@
 import { parseStoryV2OrThrow, questClosedKey, type StoryV2 } from "@engine/index";
-import { deriveScopeExplained } from "./scope";
-import { CARD_SOURCE, QUEST_SCOPE_CAP, QUEST_SOURCE, scopeOverflow } from "./scopeSources";
+import { deriveScopeExplained, scopeOverflow } from "./scope";
+import { CARD_SOURCE, QUEST_SCOPE_CAP, QUEST_SOURCE } from "./scopeSources";
 
 const empty = { values: {}, versions: {}, latched: {} };
 
@@ -26,13 +26,13 @@ describe("quest scope sources", () => {
     const story = parseStoryV2OrThrow(withQuests());
     const keys = deriveScopeExplained(story, "a", empty).map((entry) => entry.key);
     expect(keys.filter((key) => key.startsWith("k"))).toHaveLength(QUEST_SCOPE_CAP);
-    expect(scopeOverflow(story, empty)).toEqual([{ kind: "quest", dropped: ["k5"] }]);
+    expect(scopeOverflow(story, "a", empty)).toEqual([{ kind: "quest", dropped: ["k5"] }]);
   });
 
   test("a closed quest frees its slot for the next one", () => {
     const story = parseStoryV2OrThrow(withQuests());
     const closed = { ...empty, values: { [questClosedKey("q0")]: "done" } };
     expect(QUEST_SOURCE.keys(story, closed, {})).toEqual(["k1", "k2", "k3", "k4", "k5"]);
-    expect(scopeOverflow(story, closed)).toEqual([]);
+    expect(scopeOverflow(story, "a", closed)).toEqual([]);
   });
 });

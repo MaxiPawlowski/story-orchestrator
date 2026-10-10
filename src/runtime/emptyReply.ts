@@ -33,6 +33,9 @@ export function isThoughtOnlyReply(row: unknown, tags: readonly string[] = REASO
 export const thoughtOnlyMessageIds = (chat: readonly unknown[], tags: readonly string[] = REASONING_RESIDUE_TAGS): number[] =>
   chat.flatMap((row, index) => (isThoughtOnlyReply(row, tags) ? [index] : []));
 
+export const settledOnReply = (rendered: boolean, messageId: number | undefined, chat: readonly unknown[] | undefined, tags: readonly string[] = REASONING_RESIDUE_TAGS): boolean =>
+  rendered && !(messageId !== undefined && isThoughtOnlyReply(chat?.[messageId], tags));
+
 export type EmptyReplyOutcome = "asked-again" | "left" | "not-asked" | "could-not" | "lapsed";
 
 export interface EmptyReplyRecord {

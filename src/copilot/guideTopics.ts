@@ -143,7 +143,8 @@ export const GUIDE_TOPICS = {
     fields: "effects.world_info",
     text: "{enable: [{lorebook, comments: [entry titles]}], disable: [...]} switches lorebook entries on and off along the story's path. Entries any beat names belong to the "
       + "story: they rest off and are rebuilt per chat from the path, so a reopened chat matches a continuous one. The curator never writes a gated entry. Name entries by "
-      + "their exact title (comment).",
+      + "their exact title (comment). Transitions carry no beat lore; an intermediate expanded into a generated stretch has its world_info played by the stretch's "
+      + "first generated beat, so disable a passed scene there or it stays on through the downtime.",
   },
   preset: {
     title: "Preset",

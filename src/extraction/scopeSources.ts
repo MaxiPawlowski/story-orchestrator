@@ -6,6 +6,7 @@ import type { ScopePull } from "./types";
 
 export const QUEST_SCOPE_CAP = 5;
 export const REL_AXES_PER_READ = 8;
+export const CARD_MIN_SHARE = 1;
 
 export interface ScopeSourceContext {
   owners?: string[];
@@ -90,6 +91,7 @@ export const readScopeSources = (
         { read, tier: { keys: all.filter((key) => !lead.has(key)), ...capOf(read, active.length) } },
       ];
     }),
+    ...ofKind("card").map((read) => ({ read, tier: { keys: read.keys, rotate: true, cap: CARD_MIN_SHARE } })),
     ...ofKind("relationship").flatMap((read) => {
       const lead = leadOf(read);
       const drafted = read.keys.filter((key) => lead.has(key));
@@ -115,8 +117,3 @@ export const readScopeSources = (
     return { ...read, keys: all.filter((key) => keep.has(key)), dropped: all.filter((key) => !keep.has(key)) };
   });
 };
-
-type Overflow = Array<{ kind: ScopeSource["kind"]; dropped: string[] }>;
-
-export const scopeOverflow = (story: NormalizedStoryV2 | null, blackboard: BlackboardSnapshot | null, sources: readonly ScopeSource[] = SCOPE_SOURCES): Overflow =>
-  (story && blackboard ? sources.map((source) => ({ kind: source.kind, dropped: readScopeSource(source, story, blackboard, {}).dropped })).filter((row) => row.dropped.length) : []);

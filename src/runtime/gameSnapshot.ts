@@ -1,5 +1,6 @@
 import { hasChecks, hasGameLayer, questStatus, valueReader, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { scopeOverflow } from "@extraction/scopeSources";
+import { scopeDropped } from "@extraction/scope";
+import type { ScopeSourceContext } from "@extraction/scopeSources";
 import type { GameAuthorView, GameView } from "./gameTypes";
 import type { GameSources } from "./widgets";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
@@ -21,6 +22,7 @@ export interface GameSliceInput {
   chat: readonly unknown[];
   castNames: Record<string, string>;
   authorView: boolean;
+  scopeContext?: ScopeSourceContext;
 }
 
 export const storyHasGame = (story: NormalizedStoryV2 | null): boolean => hasGameLayer(story) || hasChecks(story);
@@ -34,7 +36,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
-    scopeOverflow: scopeOverflow(story, state.blackboard).filter((row) => row.kind === "quest").flatMap((row) => row.dropped),
+    scopeOverflow: scopeDropped(story, state, "quest", input.scopeContext),
     widgets: composed?.authorWidgets ?? [],
   } : null;
   return { game: composed?.player ?? null, gameAuthor };

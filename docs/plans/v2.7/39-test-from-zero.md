@@ -1113,6 +1113,17 @@ overruns it; no active quest left out; 8 active quests rotate with every key rea
 Not re-measured: S-17 and 37-S17 stay FAIL until a CL re-run on this build; card pulls lose slots in a crowded read (the jest
 fixture keeps 1 of 7), which the re-run should report.
 
+**Addendum 2026-10-09 (v2.8 31 F3, branch `v2.8-small-fixes`).** Card pulls keep `CARD_MIN_SHARE` = **1** rotating slot, paid
+right after the quest source and before the relationship tiers (`scopeSources.ts`), so the fixture's 7 card fields are each read
+within 7 reads instead of `hair_m1` alone forever. It comes out of the same slots, so the budget (and the S-17 token cost) is
+unchanged; it takes no slot from others' axes in the S-17 fixture (12 slots: 4 quests, 1 card, 2 drafted, 5 others). The author
+overflow checks now read the budgeted scope (`scope.ts` `scopeOverflow`, with the read's own present/drafted/rotation), so a key
+the budget left out is named, not only one a source cap cut. **`REL_AXES_PER_READ` stays 8.** 37-M2's 4 was measured with no shared
+budget (8 axes alone +14.4 %); under the budget a read adds at most 5 keys whatever the cap (5 × ~57 tokens ≈ +10.3 % over the
+2,761-token baseline, under 37 M2's +12 %), so the cap no longer sets the cost. At 4 the drafted member's three keys leave one slot
+for everyone else's axes, and the 18 other pairs of the S-17 fixture wait far past the 3-read fairness bar (`scopeBudget.test.ts`
+fails at 4: the order and others'-axes fairness cases). Still owed: the CL re-run of S-17 / 37-S17 on this build.
+
 **F-B1c-3 (SP6 carried check) fixed.** The per-turn eval in both journeys (`test/journeys/spikes/sp6-complications.journey.json`
 and the campaign lab journey, `adolion-campaign` `c5f513bf`, pinned in `adolion-fresh.pin.json`) read `captures[length - 1]`,
 which is the OLDEST capture of the newest-first ring of 5, not the turn's last. It now takes every capture whose `messageId` is past
