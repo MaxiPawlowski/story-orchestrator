@@ -164,3 +164,17 @@ export const saveGeneratedSprite = async () => ({ ok: false, reason: "No uploads
 export const deleteGeneratedSprite = async () => ({ ok: false, reason: "No deletions in Storybook." });
 export const stImageReadiness = async () => ({ ready: false, reason: "No image backend in Storybook.", source: null });
 export const renderStImage = async () => { throw new Error("No image backend in Storybook."); };
+export const MODEL_PROVIDERS = ["civitai", "huggingface"] as const;
+export const listComfyWorkflows = async () => ["SO-portrait.json", "SO-background.json"];
+export const readComfyWorkflow = async () => null;
+export const saveNewComfyWorkflow = async () => ({ ok: false, reason: "No workflow writes in Storybook." });
+export const reconcileComfyWorkflowSwap = async () => undefined;
+export const withComfyWorkflow = async <T,>(_name: string | null, run: () => Promise<T>) => run();
+export const modelKeyStatus = async () => ({ civitai: false, huggingface: false });
+export const testModelKey = async () => ({ ok: false, reason: "No downloads in Storybook." });
+export const planModelDownload = async () => { throw new Error("No downloads in Storybook."); };
+export const startModelDownload = async () => { throw new Error("No downloads in Storybook."); };
+export const modelDownloads = async () => [];
+export const cancelModelDownload = async () => ({ ok: false, reason: "No downloads in Storybook." });
+export const writeModelKey = async () => ({ ok: false, reason: "No secrets in Storybook." });
+export const PROVIDER_SECRET_KEYS = { civitai: "so_civitai_token", huggingface: "api_key_huggingface" };

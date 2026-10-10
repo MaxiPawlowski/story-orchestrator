@@ -16,7 +16,8 @@ export const MapsAPictureType: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText("Portraits workflow")).toHaveValue("SO-Portrait.json");
-    await userEvent.type(canvas.getByLabelText("Backgrounds workflow"), "Wide.json");
+    await userEvent.click(canvas.getByLabelText("Backgrounds workflow"));
+    await userEvent.paste("Wide.json");
     await expect(args.onChange).toHaveBeenLastCalledWith(expect.objectContaining({ portrait: "SO-Portrait.json", background: "Wide.json" }));
     await expect(canvas.queryByText(/Not installed here/)).toBeNull();
   },
