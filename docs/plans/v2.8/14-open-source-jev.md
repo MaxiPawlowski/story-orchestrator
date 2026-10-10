@@ -452,3 +452,44 @@ Branch `v2.8-local-judge` (worktree `C:\dev\so-local-judge`), from master `9b457
    --rotate --prereg test/measurements/v2.8/14-local-judge/prereg-decider-4b.json`.
 4. Rows that pass ×2 with their twins go into `JUDGE_READINESS_BY_PROVIDER["systemone-local"]` (measuredOn
    `decider-4b-v2.1-Q4_K_M`, fixture revision bound), dev-only until the play-load check (RP) passes.
+
+## Gate record (calibration on pod 2, 2026-10-10, branch `v2.8-pod2`)
+
+**Hardware: an RTX PRO 4500 Blackwell 32 GB RunPod pod (`27f66m9327okh8`, EU-RO-1), not the 3090.** The server's `/health` device:
+`gpu-layers:99`, load 6.1 s. Artemis's llama-server was stopped for the run. The pod's sshd forwards only `127.0.0.1:8080`, so
+`judgeServer.py` served on pod :8080 through the existing tunnel (local 18082); Artemis was restarted after.
+
+- Setup on the pod's container disk `/root/so-judge`: `uv venv` (Python 3.12), `decider-ai[gguf]` with the cu124 llama-cpp-python
+  wheel (`llama_cpp 0.3.36`, GPU offload true), `hf download Mapika/decider-4b-GGUF decider-4b-v2.1-Q4_K_M.gguf`. The first start
+  failed: decider's GGUF engine loads its HF tokenizer from the model folder, and setup fetched only the `.gguf`. Fetching
+  `tokenizer.json`, `tokenizer_config.json` and `decider_config.json` fixed it. Fixed in setup: F28 (`e64ead2a`).
+- Command (worktree at master `51cdebe5`, prereg `prereg-decider-4b.json` as committed): `SO_JUDGE_LOCAL_URL=http://127.0.0.1:18082
+  SO_JUDGE_MODELS_DIR=/root/so-judge node --no-warnings --experimental-transform-types scripts/spike/typesafe/matrix.mts --arm
+  systemone-local --use all --holdout --runs 2 --rotate --prereg test/measurements/v2.8/14-local-judge/prereg-decider-4b.json`.
+  16:18–16:29Z, exit 0. Summary: `test/measurements/v2.8/14-local-judge/pod2-2026-10-10-decider-4b-summary.json`. Calls and rows
+  are private: `so-sessions:evidence/phase-c/pod2-2026-10-10/rows/judge/`.
+- Result per fixture (right/total run 1, run 2; floor; p95 vs budget). The rotated pass is in the summary.
+
+| Use | Fixture ×2 | Held-out twin ×2 | p95 / budget ms | Counts? |
+|---|---|---|---|---|
+| memory-pairs | 26/29 ok, ok | 10/11 ok, ok | 386 / 3000 | **yes** (rotation flips 0) |
+| curator-filter | 10/18 ok, ok | no twin in the corpus | 751 / 4000 | floor ×2 only |
+| memory-verify | 35/36 ok, ok | 22/24 MISS ×2 | 513 / 3000 | no |
+| stall | 75/77 MISS ×2 | 31/31 ok ×2 | 478 / 4000 | no |
+| scene | 178/214 MISS ×2 | 20/20 ok ×2 | 867 / 2500 | no |
+| director | 20/25 MISS, 23/25 ok (floor 0.85; 4 fallbacks run 1) | — | 539 / 1500 | no |
+| lore | 36/51 MISS ×2 | 10/20 MISS ×2 | **3,420 / 1500** | no (also over budget) |
+| continuity | 60/67 MISS ×2 | 16/18 MISS ×2 | 333 / 4000 | no |
+| backgrounds | 13/19 MISS ×2 | — | 570 / 2500 | no |
+| typed | 87/120 MISS ×2 | — | 482 / 5000 | no |
+| critic | 118/136 MISS ×2 | — | 587 / 2500 | no |
+| variants | 15/16 MISS ×2 | — | 535 / 2500 | no |
+| agency | 24/41 MISS ×2 | — | 483 / 4000 | no |
+| house-rules | 76/80 MISS ×2 | — | 438 / 4000 | no |
+
+- Verdict: one use, **memory-pairs**, meets its floor with its held-out twin twice, inside budget. curator-filter meets its floor
+  twice but has no twin. The rest miss.
+- No readiness row was added: `JUDGE_READINESS_BY_PROVIDER["systemone-local"]` stays empty, and every local route is still
+  refused. memory-pairs would be the first row (`measuredOn` `decider-4b-v2.1-Q4_K_M`). It stays dev-only until the play-load
+  check (RP), which was not run. That is the owner's call.
+- The TypeSafe baseline column was not re-run here.

@@ -1,0 +1,2830 @@
+{
+  "finishedAt": "2026-10-10T16:29:34.347Z",
+  "head": "51cdebe507cc",
+  "summaries": [
+    {
+      "arm": "systemone-local",
+      "use": "director",
+      "fixture": "director",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 20,
+      "total": 25,
+      "rate": 0.8,
+      "families": [],
+      "floor": 0.85,
+      "floorOk": false,
+      "p50LatencyMs": 398,
+      "p95LatencyMs": 453,
+      "budgetMs": 1500,
+      "withinBudget": true,
+      "fallbacks": 4,
+      "requests": 25,
+      "questionsPerRequest": 8,
+      "linked": true,
+      "brier": 0.19871491333333333,
+      "ece": 0.3656285714285713,
+      "auroc": 0.15,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "director",
+      "fixture": "director",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 23,
+      "total": 25,
+      "rate": 0.92,
+      "families": [],
+      "floor": 0.85,
+      "floorOk": true,
+      "p50LatencyMs": 438,
+      "p95LatencyMs": 539,
+      "budgetMs": 1500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 25,
+      "questionsPerRequest": 8,
+      "linked": true,
+      "brier": 0.20217535720000004,
+      "ece": 0.33866,
+      "auroc": 0.3695652173913043,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "director",
+      "fixture": "director",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 23,
+      "total": 25,
+      "rate": 0.92,
+      "families": [],
+      "floor": 0.85,
+      "floorOk": true,
+      "p50LatencyMs": 399,
+      "p95LatencyMs": 450,
+      "budgetMs": 1500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 25,
+      "questionsPerRequest": 8,
+      "linked": true,
+      "brier": 0.20322888210016696,
+      "ece": 0.35011854065406534,
+      "auroc": 0.34782608695652173,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 21,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 35,
+      "total": 36,
+      "rate": 0.9722,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 353,
+      "p95LatencyMs": 512,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 9,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.0641675722222222,
+      "ece": 0.17065555555555556,
+      "auroc": 0.2714285714285714,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 35,
+      "total": 36,
+      "rate": 0.9722,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 342,
+      "p95LatencyMs": 513,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 9,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.0641675722222222,
+      "ece": 0.17065555555555556,
+      "auroc": 0.2714285714285714,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 35,
+      "total": 36,
+      "rate": 0.9722,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 364,
+      "p95LatencyMs": 511,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 9,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.0641675722222222,
+      "ece": 0.17065555555555556,
+      "auroc": 0.2714285714285714,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 36,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 22,
+      "total": 24,
+      "rate": 0.9167,
+      "families": [],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 354,
+      "p95LatencyMs": 419,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 4.8,
+      "linked": true,
+      "brier": 0.09432761624999998,
+      "ece": 0.12912916666666674,
+      "auroc": 0.4090909090909091,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 22,
+      "total": 24,
+      "rate": 0.9167,
+      "families": [],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 353,
+      "p95LatencyMs": 360,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 4.8,
+      "linked": true,
+      "brier": 0.09432761624999998,
+      "ece": 0.12912916666666674,
+      "auroc": 0.4090909090909091,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-verify",
+      "fixture": "memory-verify-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 22,
+      "total": 24,
+      "rate": 0.9167,
+      "families": [],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 356,
+      "p95LatencyMs": 360,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 4.8,
+      "linked": true,
+      "brier": 0.09432761624999998,
+      "ece": 0.12912916666666674,
+      "auroc": 0.4090909090909091,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 24,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 26,
+      "total": 29,
+      "rate": 0.8966,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 241,
+      "p95LatencyMs": 386,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 29,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.11756225675507359,
+      "ece": 0.15254478477386163,
+      "auroc": 0.7435897435897436,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 26,
+      "total": 29,
+      "rate": 0.8966,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 277,
+      "p95LatencyMs": 349,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 29,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.11756225675507359,
+      "ece": 0.15254478477386163,
+      "auroc": 0.7435897435897436,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 24,
+      "total": 29,
+      "rate": 0.8276,
+      "families": [],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 237,
+      "p95LatencyMs": 391,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 29,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.12077304624123424,
+      "ece": 0.08383371786037164,
+      "auroc": 0.8666666666666667,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 2,
+        "compared": 29,
+        "rate": 0.06896551724137931
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 11,
+      "rate": 0.9091,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 290,
+      "p95LatencyMs": 393,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.07813143545454547,
+      "ece": 0.10835454545454544,
+      "auroc": 0.9,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 11,
+      "rate": 0.9091,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 237,
+      "p95LatencyMs": 351,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.07813143545454547,
+      "ece": 0.10835454545454544,
+      "auroc": 0.9,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "memory-pairs",
+      "fixture": "memory-pairs-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 11,
+      "rate": 0.9091,
+      "families": [],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 235,
+      "p95LatencyMs": 345,
+      "budgetMs": 3000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 2,
+      "linked": true,
+      "brier": 0.07134870528405755,
+      "ece": 0.10396739673967394,
+      "auroc": 1,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 11,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 178,
+      "total": 214,
+      "rate": 0.8318,
+      "families": [
+        {
+          "family": "present",
+          "right": 46,
+          "total": 70,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "location",
+          "right": 24,
+          "total": 26,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "time",
+          "right": 25,
+          "total": 26,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "heading",
+          "right": 50,
+          "total": 52,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "break",
+          "right": 22,
+          "total": 22,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 11,
+          "total": 18,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 614,
+      "p95LatencyMs": 867,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 66,
+      "questionsPerRequest": 6.893939393939394,
+      "linked": true,
+      "brier": 0.1806753944186651,
+      "ece": 0.21180327898958426,
+      "auroc": 0.647003745318352,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 178,
+      "total": 214,
+      "rate": 0.8318,
+      "families": [
+        {
+          "family": "present",
+          "right": 46,
+          "total": 70,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "location",
+          "right": 24,
+          "total": 26,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "time",
+          "right": 25,
+          "total": 26,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "heading",
+          "right": 50,
+          "total": 52,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "break",
+          "right": 22,
+          "total": 22,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 11,
+          "total": 18,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 625,
+      "p95LatencyMs": 858,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 66,
+      "questionsPerRequest": 6.893939393939394,
+      "linked": true,
+      "brier": 0.1806753944186651,
+      "ece": 0.21180327898958426,
+      "auroc": 0.647003745318352,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 176,
+      "total": 214,
+      "rate": 0.8224,
+      "families": [
+        {
+          "family": "present",
+          "right": 46,
+          "total": 70,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "location",
+          "right": 24,
+          "total": 26,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "time",
+          "right": 23,
+          "total": 26,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "heading",
+          "right": 50,
+          "total": 52,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "break",
+          "right": 22,
+          "total": 22,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 11,
+          "total": 18,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 626,
+      "p95LatencyMs": 878,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 66,
+      "questionsPerRequest": 6.893939393939394,
+      "linked": true,
+      "brier": 0.20177718537033895,
+      "ece": 0.24213216378324406,
+      "auroc": 0.6217105263157895,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 57,
+        "compared": 214,
+        "rate": 0.26635514018691586
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 20,
+      "total": 20,
+      "rate": 1,
+      "families": [
+        {
+          "family": "break",
+          "right": 10,
+          "total": 10,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 10,
+          "total": 10,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 441,
+      "p95LatencyMs": 633,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 5,
+      "linked": true,
+      "brier": 0.1332228934228133,
+      "ece": 0.33705468775214686,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 20,
+      "total": 20,
+      "rate": 1,
+      "families": [
+        {
+          "family": "break",
+          "right": 10,
+          "total": 10,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 10,
+          "total": 10,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 359,
+      "p95LatencyMs": 633,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 5,
+      "linked": true,
+      "brier": 0.1332228934228133,
+      "ece": 0.33705468775214686,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "scene",
+      "fixture": "scene-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 20,
+      "total": 20,
+      "rate": 1,
+      "families": [
+        {
+          "family": "break",
+          "right": 10,
+          "total": 10,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 10,
+          "total": 10,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 319,
+      "p95LatencyMs": 645,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 5,
+      "linked": true,
+      "brier": 0.1633510828367099,
+      "ece": 0.3810011923433118,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 1,
+        "compared": 20,
+        "rate": 0.05
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 36,
+      "total": 51,
+      "rate": 0.7059,
+      "families": [
+        {
+          "family": "recall",
+          "right": 18,
+          "total": 30,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 18,
+          "total": 21,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 2969,
+      "p95LatencyMs": 3141,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 42.27272727272727,
+      "linked": true,
+      "brier": 0.2394769652941177,
+      "ece": 0.1980607843137254,
+      "auroc": 0.5944444444444444,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 36,
+      "total": 51,
+      "rate": 0.7059,
+      "families": [
+        {
+          "family": "recall",
+          "right": 18,
+          "total": 30,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 18,
+          "total": 21,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 2980,
+      "p95LatencyMs": 3420,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 42.27272727272727,
+      "linked": true,
+      "brier": 0.2394769652941177,
+      "ece": 0.1980607843137254,
+      "auroc": 0.5944444444444444,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 36,
+      "total": 51,
+      "rate": 0.7059,
+      "families": [
+        {
+          "family": "recall",
+          "right": 18,
+          "total": 30,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 18,
+          "total": 21,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 2956,
+      "p95LatencyMs": 3108,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 11,
+      "questionsPerRequest": 42.27272727272727,
+      "linked": true,
+      "brier": 0.2394769652941177,
+      "ece": 0.1980607843137254,
+      "auroc": 0.5944444444444444,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 51,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 20,
+      "rate": 0.5,
+      "families": [
+        {
+          "family": "recall",
+          "right": 5,
+          "total": 14,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 5,
+          "total": 6,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 2977,
+      "p95LatencyMs": 3259,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 4,
+      "questionsPerRequest": 66,
+      "linked": true,
+      "brier": 0.24652553100000008,
+      "ece": 0.030309999999999948,
+      "auroc": 0.82,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 20,
+      "rate": 0.5,
+      "families": [
+        {
+          "family": "recall",
+          "right": 5,
+          "total": 14,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 5,
+          "total": 6,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 3006,
+      "p95LatencyMs": 3083,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 4,
+      "questionsPerRequest": 66,
+      "linked": true,
+      "brier": 0.24652553100000008,
+      "ece": 0.030309999999999948,
+      "auroc": 0.82,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "lore",
+      "fixture": "lore-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 20,
+      "rate": 0.5,
+      "families": [
+        {
+          "family": "recall",
+          "right": 5,
+          "total": 14,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "precision",
+          "right": 5,
+          "total": 6,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 2993,
+      "p95LatencyMs": 3075,
+      "budgetMs": 1500,
+      "withinBudget": false,
+      "fallbacks": 0,
+      "requests": 4,
+      "questionsPerRequest": 66,
+      "linked": true,
+      "brier": 0.24652553100000008,
+      "ece": 0.030309999999999948,
+      "auroc": 0.82,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 20,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "curator-filter",
+      "fixture": "curator-filter",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 18,
+      "rate": 0.5556,
+      "families": [
+        {
+          "family": "recall",
+          "right": 10,
+          "total": 10,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "narrowed",
+          "right": 0,
+          "total": 8,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 501,
+      "p95LatencyMs": 751,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 3,
+      "questionsPerRequest": 6,
+      "linked": true,
+      "brier": 0.24749640111111118,
+      "ece": 0.03765555555555555,
+      "auroc": 0.575,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "curator-filter",
+      "fixture": "curator-filter",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 18,
+      "rate": 0.5556,
+      "families": [
+        {
+          "family": "recall",
+          "right": 10,
+          "total": 10,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "narrowed",
+          "right": 0,
+          "total": 8,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 534,
+      "p95LatencyMs": 604,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 3,
+      "questionsPerRequest": 6,
+      "linked": true,
+      "brier": 0.24749640111111118,
+      "ece": 0.03765555555555555,
+      "auroc": 0.575,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "curator-filter",
+      "fixture": "curator-filter",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 10,
+      "total": 18,
+      "rate": 0.5556,
+      "families": [
+        {
+          "family": "recall",
+          "right": 10,
+          "total": 10,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "narrowed",
+          "right": 0,
+          "total": 8,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 501,
+      "p95LatencyMs": 502,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 3,
+      "questionsPerRequest": 6,
+      "linked": true,
+      "brier": 0.24749640111111118,
+      "ece": 0.03765555555555555,
+      "auroc": 0.575,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 18,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 60,
+      "total": 67,
+      "rate": 0.8955,
+      "families": [
+        {
+          "family": "reply",
+          "right": 21,
+          "total": 23,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 12,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 28,
+          "total": 32,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 241,
+      "p95LatencyMs": 333,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 23,
+      "questionsPerRequest": 1.9130434782608696,
+      "linked": true,
+      "brier": 0.10853772820895517,
+      "ece": 0.17461044776119417,
+      "auroc": 0.6678571428571428,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 60,
+      "total": 67,
+      "rate": 0.8955,
+      "families": [
+        {
+          "family": "reply",
+          "right": 21,
+          "total": 23,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 12,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 28,
+          "total": 32,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 238,
+      "p95LatencyMs": 307,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 23,
+      "questionsPerRequest": 1.9130434782608696,
+      "linked": true,
+      "brier": 0.10853772820895517,
+      "ece": 0.17461044776119417,
+      "auroc": 0.6678571428571428,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 60,
+      "total": 67,
+      "rate": 0.8955,
+      "families": [
+        {
+          "family": "reply",
+          "right": 21,
+          "total": 23,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 12,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 28,
+          "total": 32,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 240,
+      "p95LatencyMs": 409,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 23,
+      "questionsPerRequest": 1.9130434782608696,
+      "linked": true,
+      "brier": 0.10853772820895517,
+      "ece": 0.17461044776119417,
+      "auroc": 0.6678571428571428,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 67,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 16,
+      "total": 18,
+      "rate": 0.8889,
+      "families": [
+        {
+          "family": "reply",
+          "right": 5,
+          "total": 5,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 4,
+          "total": 4,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 7,
+          "total": 9,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 339,
+      "p95LatencyMs": 375,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 2.6,
+      "linked": true,
+      "brier": 0.14445607722222223,
+      "ece": 0.2928499999999999,
+      "auroc": 0.0625,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 16,
+      "total": 18,
+      "rate": 0.8889,
+      "families": [
+        {
+          "family": "reply",
+          "right": 5,
+          "total": 5,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 4,
+          "total": 4,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 7,
+          "total": 9,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 266,
+      "p95LatencyMs": 312,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 2.6,
+      "linked": true,
+      "brier": 0.14445607722222223,
+      "ece": 0.2928499999999999,
+      "auroc": 0.0625,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "continuity",
+      "fixture": "continuity-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 16,
+      "total": 18,
+      "rate": 0.8889,
+      "families": [
+        {
+          "family": "reply",
+          "right": 5,
+          "total": 5,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 4,
+          "total": 4,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 7,
+          "total": 9,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 273,
+      "p95LatencyMs": 363,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 5,
+      "questionsPerRequest": 2.6,
+      "linked": true,
+      "brier": 0.14445607722222223,
+      "ece": 0.2928499999999999,
+      "auroc": 0.0625,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 18,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "backgrounds",
+      "fixture": "backgrounds",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 13,
+      "total": 19,
+      "rate": 0.6842,
+      "families": [
+        {
+          "family": "pick",
+          "right": 10,
+          "total": 16,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "none",
+          "right": 3,
+          "total": 3,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 270,
+      "p95LatencyMs": 570,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 19,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.09471339595967461,
+      "ece": 0.23864484987839166,
+      "auroc": 0.9871794871794872,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "backgrounds",
+      "fixture": "backgrounds",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 13,
+      "total": 19,
+      "rate": 0.6842,
+      "families": [
+        {
+          "family": "pick",
+          "right": 10,
+          "total": 16,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "none",
+          "right": 3,
+          "total": 3,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 276,
+      "p95LatencyMs": 371,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 19,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.09471339595967461,
+      "ece": 0.23864484987839166,
+      "auroc": 0.9871794871794872,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "backgrounds",
+      "fixture": "backgrounds",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 12,
+      "total": 19,
+      "rate": 0.6316,
+      "families": [
+        {
+          "family": "pick",
+          "right": 9,
+          "total": 16,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "none",
+          "right": 3,
+          "total": 3,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 260,
+      "p95LatencyMs": 281,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 19,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.17898769086509547,
+      "ece": 0.09621488226133924,
+      "auroc": 0.7738095238095238,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 19,
+        "compared": 19,
+        "rate": 1
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "typed",
+      "fixture": "typed",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 87,
+      "total": 120,
+      "rate": 0.725,
+      "families": [
+        {
+          "family": "answered",
+          "right": 42,
+          "total": 45,
+          "floor": 0.95,
+          "ok": false
+        },
+        {
+          "family": "coverage",
+          "right": 45,
+          "total": 75,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 284,
+      "p95LatencyMs": 476,
+      "budgetMs": 5000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 54,
+      "questionsPerRequest": 1.462962962962963,
+      "linked": true,
+      "brier": 0.14411912199691385,
+      "ece": 0.065715250866548,
+      "auroc": 0.8483106931382793,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "typed",
+      "fixture": "typed",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 87,
+      "total": 120,
+      "rate": 0.725,
+      "families": [
+        {
+          "family": "answered",
+          "right": 42,
+          "total": 45,
+          "floor": 0.95,
+          "ok": false
+        },
+        {
+          "family": "coverage",
+          "right": 45,
+          "total": 75,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 241,
+      "p95LatencyMs": 482,
+      "budgetMs": 5000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 54,
+      "questionsPerRequest": 1.462962962962963,
+      "linked": true,
+      "brier": 0.14411912199691385,
+      "ece": 0.065715250866548,
+      "auroc": 0.8483106931382793,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "typed",
+      "fixture": "typed",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 92,
+      "total": 122,
+      "rate": 0.7541,
+      "families": [
+        {
+          "family": "answered",
+          "right": 45,
+          "total": 47,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "coverage",
+          "right": 47,
+          "total": 75,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 222,
+      "p95LatencyMs": 465,
+      "budgetMs": 5000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 54,
+      "questionsPerRequest": 1.462962962962963,
+      "linked": true,
+      "brier": 0.11704788837365813,
+      "ece": 0.07311803580078345,
+      "auroc": 0.8960144927536232,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 46,
+        "compared": 116,
+        "rate": 0.39655172413793105
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 75,
+      "total": 77,
+      "rate": 0.974,
+      "families": [
+        {
+          "family": "direct",
+          "right": 20,
+          "total": 20,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 55,
+          "total": 57,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 274,
+      "p95LatencyMs": 478,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 47,
+      "questionsPerRequest": 2.5106382978723403,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 75,
+      "total": 77,
+      "rate": 0.974,
+      "families": [
+        {
+          "family": "direct",
+          "right": 20,
+          "total": 20,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 55,
+          "total": 57,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 242,
+      "p95LatencyMs": 358,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 47,
+      "questionsPerRequest": 2.5106382978723403,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 75,
+      "total": 77,
+      "rate": 0.974,
+      "families": [
+        {
+          "family": "direct",
+          "right": 20,
+          "total": 20,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 55,
+          "total": 57,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 246,
+      "p95LatencyMs": 452,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 47,
+      "questionsPerRequest": 2.5106382978723403,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 77,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall-holdout",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 31,
+      "total": 31,
+      "rate": 1,
+      "families": [
+        {
+          "family": "direct",
+          "right": 8,
+          "total": 8,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 23,
+          "total": 23,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 231,
+      "p95LatencyMs": 336,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 2.35,
+      "linked": true,
+      "brier": 0.03583219548387096,
+      "ece": 0.12781935483870996,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall-holdout",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 31,
+      "total": 31,
+      "rate": 1,
+      "families": [
+        {
+          "family": "direct",
+          "right": 8,
+          "total": 8,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 23,
+          "total": 23,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 238,
+      "p95LatencyMs": 333,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 2.35,
+      "linked": true,
+      "brier": 0.03583219548387096,
+      "ece": 0.12781935483870996,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "stall",
+      "fixture": "stall-holdout",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 31,
+      "total": 31,
+      "rate": 1,
+      "families": [
+        {
+          "family": "direct",
+          "right": 8,
+          "total": 8,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 23,
+          "total": 23,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": true,
+      "p50LatencyMs": 236,
+      "p95LatencyMs": 339,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 2.35,
+      "linked": true,
+      "brier": 0.03583219548387096,
+      "ece": 0.12781935483870996,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 31,
+        "rate": 0
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "critic",
+      "fixture": "critic",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 118,
+      "total": 136,
+      "rate": 0.8676,
+      "families": [
+        {
+          "family": "verdict",
+          "right": 32,
+          "total": 34,
+          "floor": 1,
+          "ok": false
+        },
+        {
+          "family": "contradicts",
+          "right": 24,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "advances",
+          "right": 30,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "newCharacter",
+          "right": 32,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 451,
+      "p95LatencyMs": 568,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 34,
+      "questionsPerRequest": 3.7058823529411766,
+      "linked": true,
+      "brier": 0.29493331806670325,
+      "ece": 0.3854932508140207,
+      "auroc": 0.5866290018832392,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "critic",
+      "fixture": "critic",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 118,
+      "total": 136,
+      "rate": 0.8676,
+      "families": [
+        {
+          "family": "verdict",
+          "right": 32,
+          "total": 34,
+          "floor": 1,
+          "ok": false
+        },
+        {
+          "family": "contradicts",
+          "right": 24,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "advances",
+          "right": 30,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "newCharacter",
+          "right": 32,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 438,
+      "p95LatencyMs": 587,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 34,
+      "questionsPerRequest": 3.7058823529411766,
+      "linked": true,
+      "brier": 0.29493331806670325,
+      "ece": 0.3854932508140207,
+      "auroc": 0.5866290018832392,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "critic",
+      "fixture": "critic",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 118,
+      "total": 136,
+      "rate": 0.8676,
+      "families": [
+        {
+          "family": "verdict",
+          "right": 32,
+          "total": 34,
+          "floor": 1,
+          "ok": false
+        },
+        {
+          "family": "contradicts",
+          "right": 24,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "advances",
+          "right": 30,
+          "total": 34,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "newCharacter",
+          "right": 32,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 450,
+      "p95LatencyMs": 569,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 34,
+      "questionsPerRequest": 3.7058823529411766,
+      "linked": true,
+      "brier": 0.29493331806670325,
+      "ece": 0.3854932508140207,
+      "auroc": 0.5866290018832392,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 28,
+        "compared": 136,
+        "rate": 0.20588235294117646
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "variants",
+      "fixture": "variants",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 15,
+      "total": 16,
+      "rate": 0.9375,
+      "families": [
+        {
+          "family": "pick",
+          "right": 8,
+          "total": 8,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "rejected",
+          "right": 7,
+          "total": 8,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 454,
+      "p95LatencyMs": 535,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 24,
+      "questionsPerRequest": 4,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "variants",
+      "fixture": "variants",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 15,
+      "total": 16,
+      "rate": 0.9375,
+      "families": [
+        {
+          "family": "pick",
+          "right": 8,
+          "total": 8,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "rejected",
+          "right": 7,
+          "total": 8,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 444,
+      "p95LatencyMs": 533,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 24,
+      "questionsPerRequest": 4,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "variants",
+      "fixture": "variants",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 15,
+      "total": 16,
+      "rate": 0.9375,
+      "families": [
+        {
+          "family": "pick",
+          "right": 8,
+          "total": 8,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "rejected",
+          "right": 7,
+          "total": 8,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 462,
+      "p95LatencyMs": 596,
+      "budgetMs": 2500,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 24,
+      "questionsPerRequest": 4,
+      "linked": false,
+      "brier": null,
+      "ece": null,
+      "auroc": null,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 6,
+        "compared": 16,
+        "rate": 0.375
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "agency",
+      "fixture": "agency",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 24,
+      "total": 41,
+      "rate": 0.5854,
+      "families": [
+        {
+          "family": "writes",
+          "right": 1,
+          "total": 18,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "clean",
+          "right": 23,
+          "total": 23,
+          "floor": 0.95,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 360,
+      "p95LatencyMs": 472,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 41,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.24921077383447962,
+      "ece": 0.14405953229998553,
+      "auroc": 0.5955882352941176,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "agency",
+      "fixture": "agency",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 24,
+      "total": 41,
+      "rate": 0.5854,
+      "families": [
+        {
+          "family": "writes",
+          "right": 1,
+          "total": 18,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "clean",
+          "right": 23,
+          "total": 23,
+          "floor": 0.95,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 346,
+      "p95LatencyMs": 483,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 41,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.24921077383447962,
+      "ece": 0.14405953229998553,
+      "auroc": 0.5955882352941176,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "agency",
+      "fixture": "agency",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 24,
+      "total": 41,
+      "rate": 0.5854,
+      "families": [
+        {
+          "family": "writes",
+          "right": 1,
+          "total": 18,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "clean",
+          "right": 23,
+          "total": 23,
+          "floor": 0.95,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 348,
+      "p95LatencyMs": 522,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 41,
+      "questionsPerRequest": 1,
+      "linked": true,
+      "brier": 0.24921077383447962,
+      "ece": 0.14405953229998553,
+      "auroc": 0.5955882352941176,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 2,
+        "compared": 41,
+        "rate": 0.04878048780487805
+      }
+    },
+    {
+      "arm": "systemone-local",
+      "use": "house-rules",
+      "fixture": "house-rules",
+      "run": 1,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 76,
+      "total": 80,
+      "rate": 0.95,
+      "families": [
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 15,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "kept",
+          "right": 11,
+          "total": 11,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "untouched",
+          "right": 54,
+          "total": 54,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 333,
+      "p95LatencyMs": 437,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.07050180800000001,
+      "ece": 0.15336999999999992,
+      "auroc": 0.8289473684210527,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "house-rules",
+      "fixture": "house-rules",
+      "run": 2,
+      "rotated": false,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 76,
+      "total": 80,
+      "rate": 0.95,
+      "families": [
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 15,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "kept",
+          "right": 11,
+          "total": 11,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "untouched",
+          "right": 54,
+          "total": 54,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 295,
+      "p95LatencyMs": 438,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.07050180800000001,
+      "ece": 0.15336999999999992,
+      "auroc": 0.8289473684210527,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0
+    },
+    {
+      "arm": "systemone-local",
+      "use": "house-rules",
+      "fixture": "house-rules",
+      "run": 1,
+      "rotated": true,
+      "model": "decider-4b-v2.1-Q4_K_M",
+      "right": 76,
+      "total": 80,
+      "rate": 0.95,
+      "families": [
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 15,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "kept",
+          "right": 11,
+          "total": 11,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "untouched",
+          "right": 54,
+          "total": 54,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "floor": null,
+      "floorOk": false,
+      "p50LatencyMs": 293,
+      "p95LatencyMs": 446,
+      "budgetMs": 4000,
+      "withinBudget": true,
+      "fallbacks": 0,
+      "requests": 20,
+      "questionsPerRequest": 4,
+      "linked": true,
+      "brier": 0.07050180800000001,
+      "ece": 0.15336999999999992,
+      "auroc": 0.8289473684210527,
+      "twins": {
+        "agree": 0,
+        "pairs": 0,
+        "rate": null
+      },
+      "costPer1kDecisions": 0,
+      "rotation": {
+        "flips": 0,
+        "compared": 80,
+        "rate": 0
+      }
+    }
+  ]
+}
