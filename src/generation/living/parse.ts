@@ -9,6 +9,23 @@ import type { DirectorDraft } from "./types";
 
 export type DirectorParse = { ok: true; draft: DirectorDraft } | { ok: false; issues: string[] };
 
+export const LIVING_MAX_RUBRIC_CHARS = 240;
+
+export const wordsFor = (chars: number): number => Math.max(1, Math.floor(chars / 7 / 5) * 5);
+
+const SENTENCE = /[^.!?]+[.!?]+["'\u201d\u2019)\]]*\s*/g;
+
+export function trimToSentences(value: string, max: number): string | null {
+  const sentences = value.match(SENTENCE) ?? [];
+  let kept = "";
+  for (const sentence of sentences) {
+    if ((kept + sentence).trim().length > max) break;
+    kept += sentence;
+  }
+  const trimmed = kept.trim();
+  return trimmed && trimmed.length <= max ? trimmed : null;
+}
+
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 
 const KEY = /^[a-z][a-z0-9_]{0,31}$/;
@@ -31,7 +48,7 @@ const text = (value: unknown, path: string, max: number, issues: string[]): stri
     return "";
   }
   const trimmed = value.trim();
-  if (trimmed.length > max) issues.push(`${path} is longer than ${max} characters`);
+  if (trimmed.length > max) issues.push(`${path} is longer than ${max} characters (it has ${trimmed.length}; about ${wordsFor(max)} words at most)`);
   if (/\{\{[^}]*\}\}/.test(trimmed)) issues.push(`${path} holds a macro`);
   return trimmed;
 };
@@ -79,7 +96,11 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
   if (!isRecord(parsed)) return { ok: false, issues: ["the answer was not one JSON object"] };
   const issues: string[] = [];
   const name = text(parsed.name, "name", LIVING_MAX_NAME_CHARS, issues);
-  const objective = text(parsed.objective, "objective", LIVING_MAX_OBJECTIVE_CHARS, issues);
+  const repaired: string[] = [];
+  const written = typeof parsed.objective === "string" ? parsed.objective.trim() : parsed.objective;
+  const cut = typeof written === "string" && written.length > LIVING_MAX_OBJECTIVE_CHARS ? trimToSentences(written, LIVING_MAX_OBJECTIVE_CHARS) : null;
+  if (cut && typeof written === "string") repaired.push(`objective trimmed at a sentence boundary from ${written.length} to ${cut.length} characters`);
+  const objective = text(cut ?? written, "objective", LIVING_MAX_OBJECTIVE_CHARS, issues);
   const tension = (TENSION_LEVELS as readonly string[]).includes(String(parsed.tension)) ? parsed.tension as TensionLevel : null;
   if (!tension) issues.push(`tension must be one of ${TENSION_LEVELS.join(", ")}`);
   const opens = parsed.opens_when;
@@ -87,7 +108,7 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
   if (isRecord(opens) && isRecord(opens.new)) {
     const key = typeof opens.new.key === "string" ? opens.new.key.trim().toLowerCase() : "";
     if (!KEY.test(key)) issues.push("opens_when.new.key must be a short snake_case key");
-    const rubric = text(opens.new.rubric, "opens_when.new.rubric", 240, issues);
+    const rubric = text(opens.new.rubric, "opens_when.new.rubric", LIVING_MAX_RUBRIC_CHARS, issues);
     opensWhen = { kind: "new", key, rubric };
   } else if (isRecord(opens) && opens.reuse !== undefined) {
     const gate = readReuseGate(opens.reuse, story, issues);
@@ -104,7 +125,7 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
       if (!KEY.test(key)) issues.push(`new_qualities.${index}.key must be a short snake_case key`);
       const type = entry.type === "int" ? "int" : entry.type === "bool" ? "bool" : null;
       if (!type) issues.push(`new_qualities.${index}.type must be bool or int`);
-      const rubric = text(entry.rubric, `new_qualities.${index}.rubric`, 240, issues);
+      const rubric = text(entry.rubric, `new_qualities.${index}.rubric`, LIVING_MAX_RUBRIC_CHARS, issues);
       if (type) newQualities.push({ key, type, rubric });
     });
   }
@@ -122,6 +143,7 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
       newChapter: parsed.new_chapter === true,
       ...(chapterTitle ? { chapterTitle } : {}),
       reason: typeof parsed.reason === "string" ? parsed.reason.trim().slice(0, 300) : "",
+      ...(repaired.length ? { repaired } : {}),
     },
   };
 }

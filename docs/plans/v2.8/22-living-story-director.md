@@ -317,6 +317,7 @@ Owner design input, folded in as built:
    - a new judge use `divergence`: one choice question over the active checkpoint's exits, "fits one of them / fits none".
      It reads each exit's `extraction_hint`, else its label, else the gate's rubric, against the last 6 messages.
    Debounce: 2 consecutive "none" readings at p ≥ 0.6, or one at p ≥ 0.9; a refusal diverges at once.
+   **Superseded 2026-10-10 by §Director tune**: committed turns only, 0.8 x2 / 0.97 x1, the refusal no longer branches.
    The reading runs off-path after a boundary that moved nowhere (`fired === null`), timeout 4 s, and is ringed like every judge call.
 2. **Branch on divergence (B).** The director writes a branch from the current checkpoint that follows what the player
    is doing and rejoins the nearest downstream anchor (BFS over exits). It is one stub `liv_b<n>_way` with its own new
@@ -428,6 +429,34 @@ Reads come from `storyOrchestratorRuntime`: `getSnapshot().living` (Author view 
   2. Expect ops after the restored boundary dropped (journal), then reopen the chat.
   3. Expect the pinned copy equal to the fold of `extras.living` (journal has no "rebuilt from its history" line) and the same active checkpoint.
 
+## Director tune (2026-10-10, branch `v2.8-director-tune`, from master `95354446`)
+
+Fixes the live Artemis findings (pod run 2026-10-10, adolion-adventurer at guild-hall, master `a11cb81e`).
+
+| Finding | Cause | Fix |
+|---|---|---|
+| L3 false positives: 8 on-script turns branched in both runs. Readings ≥ 0.6 for "none": run 1 3 of 7 (0.61, 0.77, 0.95), run 2 2 of 9 (0.63, 0.75 back to back) | (a) The `fit` question cannot tell a question about a posting from walking away from it, so pay and supply questions read as "none". (b) The thresholds sat below the false readings. (c) In a group each member reply is a boundary, so one player line was read twice: run 2 has 9 readings for 8 turns. | (a) The same judge call asks a second question, `commits` (noul): does the latest player message commit to an action or a direction? Only a turn at p ≥ 0.5 counts. An uncounted turn neither counts nor resets the run. Before any call, a cheap pre-check skips a question-only line and an OOC line (`isOocText`). (b) `DIVERGENCE_NONE_P` 0.8 ×`DIVERGENCE_STREAK` 2, `DIVERGENCE_SURE_P` 0.97 (`judge/policy.ts`, with the reason). The pair must clear every false pair seen (0.77/0.75) and the single must clear the highest false reading (0.95). (c) One reading per player turn (`divergence.lastTurn`, reset by a rollback). |
+| L2: a branch after one 0.75 reading | The pod agent's second look: it was not divergence. The branch applied at the chat's first boundary was a PREFETCH proposal (`prepared ahead…`) while `prefetchEnabled` was false. Both L2 runs came right after an L4 run (prefetch on) on the same lane, and both produced the same branch name. A `living:prefetch` job placed in the previous chat ran after the switch: `proposeBranch` minted its RunOwnership when the job STARTED, so nothing tied the job to the chat that placed it. Separately, the agency-recovery refusal used to branch at once, and the L3 shape (pursuing without opening) is exactly what raises it. | Every living job (director pass, divergence branch, prefetch) carries a `RunGuard` minted when it is PLACED, plus the checkpoint it was placed for (`PlacedJob`). The body returns before reading anything when the guard has lapsed or the checkpoint moved; `record` re-checks it before every write. The job re-reads its switch at run time (`branching`, `prefetchDue`, `enabled`). The refusal no longer branches by itself and keeps its own author recovery. |
+| L1: on a premise story every checkpoint branched in turn (liv_open → b1 → b2 → b3 → b4); no `liv_<n>` was reached in 12 turns | Divergence and prefetch ran where the director already follows the player. L1 run 2 also refused 4 director passes on "objective is longer than 400 characters" (DeepSeek on authoring), and branches filled the stalled frontier. | **Skip, not feed.** No divergence reading and no prefetch where the director writes (`followsPlayer`: a premise-only story, a `liv_` checkpoint of a hybrid) or on a branch stub (the pod log has a branch from `liv_b1_way`). Feeding a divergence into the next turning point would need a second input path into the director prompt, plus a rule for when it is consumed. Skipping needs one predicate, and the director's own prompt already reads the open threads and the recent turns. Length: the director and branch prompts state every limit (name 60 chars, two to six words; objective 400, about 55 words; rubric 240). An over-long objective is cut at the last whole sentence that fits, recorded in `draft.repaired`. One that cannot be cut is asked again, naming the limit and the length written. The director does not write `living.opening` (600), so that limit is validated only at import. A failed pass records `refusal {stage: parse|ops|guard|critic|capped, reasons [{code, field}]}` on the proposal, and the journal note starts with `[stage] field:code`. |
+
+Tests (jest, deterministic):
+- `runtime/coordinators/livingCoordinator.review.test.ts`:
+  - the live L3 goldens `test/goldens/live/living-divergence/run{1,2}.json` replay to **0 branches**, also with every turn forced to read as committed (thresholds alone hold). The old rule branches on both, as a control;
+  - the constructed `true-positive.json` still branches once;
+  - a single 0.76 reading never branches, with or without a refusal;
+  - a second reply to the same line asks nothing;
+  - question-only and OOC lines are not read;
+  - a living story gets no reading and no prefetch;
+  - jobs placed in chat A write nothing in chat B: prefetch, divergence branch and director pass, each with the unswitched job as the control. A prefetch switched off after placing writes nothing;
+  - the director length golden `test/goldens/live/living-director-repair/deepseek-overlong.json` (constructed in DeepSeek's answer shape: the raw L1 answers were not archived, only the refusal): trimmed and landed, or re-asked and landed on the second answer; two unsplittable answers fail with `refusal {parse, [too-long, objective]}`.
+- Ownership census: `propose` and `proposeBranch` promoted from delegate to checked; the `LivingPort.afterBoundary` note updated. `rollback ≡ replay` property green.
+
+Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek authoring, judge on, curator off):
+- L3 ×2 (adolion-adventurer at guild-hall, prefetch off): expect 0 branches. Record per turn the `fit` and `commits` readings (`extras.judge.calls`, use `divergence`, summary `{fit, commits}`) and the skipped question-only turns.
+- L2 ×2 on a **fresh lane, or after a reload**, not straight after L4: expect a branch only after 2 committed off-script turns at ≥ 0.8 (or one at ≥ 0.97), and no `prepared` proposal while prefetch is off.
+- L4 then L2 back to back on one lane: the regression for the cross-chat prefetch job. Expect no proposal in the L2 chat before its own readings.
+- L1 ×2 premise start: expect no `living:branch` / `living:prefetch` job, at least 2 `liv_<n>` reached in 12 turns, and each failed pass's `refusal` counted by `stage` and `code`.
+
 ## Decisions for the owner (2026-10-10)
 
 1. **Bundle budget.** Plan 22 adds ~18 KB to the main entry after moving the director, its unit, the judge code and the
@@ -442,7 +471,7 @@ Reads come from `storyOrchestratorRuntime`: `getSnapshot().living` (Author view 
    authors who want a fixed graph?
 4. Branch autonomy follows the story's `living.autonomy` (author view) and is `auto` for players and for stories with no
    `living` block. Should authored stories' branches wait in Author view (suggest)?
-5. Divergence thresholds (0.6 ×2 / 0.9) are predeclared, not calibrated: calibrate on L3 before tuning?
+5. Divergence thresholds: answered by L3 (§Director tune: 0.8 ×2 / 0.97, committed turns only); still not a calibration, M22 owed.
 6. The critic errs strict (spike). Keep it, soften it further, or let a stalled frontier fall back to `suggest`?
 
 ## Gate record (2026-10-10, branch `v2.8-living-director`, merged with master `84c23335`)
@@ -470,3 +499,17 @@ Reads come from `storyOrchestratorRuntime`: `getSnapshot().living` (Author view 
 - Guards updated: ownership census (+9 rows), fault matrix (package `livingDirector`, 10 cells),
   `architecture.test.ts` (the director's isolation), errorCopy, the arrival golden, passProfiles.
 - No live gate: nothing staged into ST (the owner is playing on :8000). The live rows are listed above and owed (31 M21–M24).
+
+## Gate record (2026-10-10, director tune, branch `v2.8-director-tune` from master `95354446`)
+
+- `npm run gates -- --no-storybook --jobs=2`: **all green**, 180.3 s:
+  - jest 648 suites, 7591 passed, 1 skipped;
+  - defect replay 32 of 32 killed;
+  - build within the 1,250,000 B main-entry budget (F1);
+  - test:debug 1193 pass, test:plugin 218 pass, test:release 119 pass, 0 fail.
+  Storybook skipped (`--no-storybook`): no component changed.
+- `npm run typecheck:test`: green.
+- Two runs before the green one were red:
+  - code-health ratchets: new over-budget lines, and a policy comment that read "x2" as a citation. Fixed.
+  - the `docs/guide/author` drift check: `npm run docs:guide` had not been re-run. Re-run.
+- No live gate here; the pod rows are listed in §Director tune.

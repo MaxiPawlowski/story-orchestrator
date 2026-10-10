@@ -874,12 +874,12 @@
       "note": "v2.8 22 (2026-10-10): the director's write edge. Receives the RunGuard its caller minted before the model call and returns before any write when it lapsed; then refuses an answer built on another graph epoch (a rollback or an author update in between), writes the proposal ring and the divergence state, journals, persists, and re-checks the run before notify. Cases: livingCoordinator.review.test.ts \"discards an answer that lands after the chat moved\" and \"discards an answer built for a graph a rollback replaced\"."
     },
     "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.propose": {
-      "status": "delegate",
-      "note": "v2.8 22: awaits LivingCoordinator.record, which owns the check; it mints the run before the lazy unit and the model call and hands it on. The only other write after the await is the in-memory inFlight flag in `finally`."
+      "status": "checked",
+      "note": "v2.8 22 (director tune 2026-10-10, L2 pod finding): a scheduled pass carries the RunGuard minted when `schedule` PLACED the job, and returns before reading anything when it lapsed (a job placed in one chat that runs after a switch); an on-demand pass mints its own. The guard is handed to LivingCoordinator.record, which re-checks it before every write. The only other write after the await is the in-memory inFlight flag in `finally`. Case: livingCoordinator.review.test.ts \"a job placed in one chat writes nothing when it runs after a switch (L2: a prefetch from the previous chat)\"."
     },
     "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.proposeBranch": {
-      "status": "delegate",
-      "note": "v2.8 22 (divergence branching): awaits LivingCoordinator.record, which owns the check; same shape as propose. The only other write after the await is the in-memory inFlight flag in `finally`."
+      "status": "checked",
+      "note": "v2.8 22 (director tune 2026-10-10, L2 pod finding: a prefetch placed in the previous chat applied a branch in the next one): a divergence or prefetch job carries the RunGuard and checkpoint minted when it was PLACED (`PlacedJob`); the body returns before reading anything when that guard lapsed or the active checkpoint is no longer the one it was placed for, and the job re-reads its switch at run time (`branching`, `prefetchDue`). The guard is handed to LivingCoordinator.record, which re-checks it before every write. Cases: livingCoordinator.review.test.ts \"a job placed in one chat writes nothing when it runs after a switch (L2: a prefetch from the previous chat)\" (with the same job unswitched as the control) and \"a prefetch job re-reads the switch when it runs: turned off after placing, it writes nothing\"."
     },
     "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.checkDivergence": {
       "status": "checked",
@@ -899,7 +899,7 @@
     },
     "src/runtime/livingPort.ts#LivingPort.afterBoundary": {
       "status": "delegate",
-      "note": "v2.8 22 (bundle split): awaits LivingCoordinator.checkDivergence, which owns the check (after loading the lazy coordinator). The writes after the awaits only place scheduler jobs (`schedule`, `prefetch`); each job mints its own run when it starts (LivingCoordinator.propose / proposeBranch delegate to LivingCoordinator.record, checked). Case: livingPort.test.ts \"adopt loads the coordinator once; the boundary pass schedules, checks divergence only when nothing fired, then prefetches\"."
+      "note": "v2.8 22 (bundle split): awaits LivingCoordinator.checkDivergence, which owns the check (after loading the lazy coordinator). The writes after the awaits only place scheduler jobs (`schedule`, `prefetch`); each job carries the RunGuard minted when it was placed and is refused at start when it lapsed (LivingCoordinator.propose / proposeBranch, checked). Case: livingPort.test.ts \"adopt loads the coordinator once; the boundary pass schedules, checks divergence only when nothing fired, then prefetches\"."
     },
     "src/runtime/briefingDraftHost.ts#draftBriefing": {
       "status": "checked",

@@ -1,0 +1,90 @@
+{
+  "run": "L3 run 2",
+  "turns": [
+    {
+      "text": "I walk up to the clerk's desk.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I look over the escort posting.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "\"How much for the escort, all told? Half up front? And who pays for the mules' feed?\"",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.63,
+          "recorded": true
+        },
+        {
+          "none": true,
+          "p": 0.75,
+          "recorded": true
+        }
+      ]
+    },
+    {
+      "text": "I count the coins in my purse.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I ask the clerk to tell me more about the road.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I glance at the other adventurers in the hall.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I read the fine print at the bottom of the posting.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I hum and weigh the job.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    }
+  ]
+}

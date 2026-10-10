@@ -11,18 +11,20 @@ export interface DivergenceState {
   checkpointId: string | null;
   streak: number;
   lastBoundary: number;
+  lastTurn: number;
   last: DivergenceReading | null;
   branchedFrom: string[];
 }
 
 export interface DivergenceReading {
-  source: "judge" | "refusal";
+  turn: number;
   none: boolean;
-  p: number | null;
+  p: number;
+  commits: number | null;
   boundary: number;
 }
 
-export const createDivergenceState = (): DivergenceState => ({ checkpointId: null, streak: 0, lastBoundary: -1, last: null, branchedFrom: [] });
+export const createDivergenceState = (): DivergenceState => ({ checkpointId: null, streak: 0, lastBoundary: -1, lastTurn: -1, last: null, branchedFrom: [] });
 
 export const LIVING_PREFETCH_WHY = "prepared ahead: one more way forward the player might take instead of the written ones";
 
@@ -65,6 +67,19 @@ export interface DirectorDraft {
   newChapter: boolean;
   chapterTitle?: string;
   reason: string;
+  repaired?: string[];
+}
+
+export type RefusalStage = "parse" | "ops" | "guard" | "critic" | "capped";
+
+export interface RefusalReason {
+  code: string;
+  field: string | null;
+}
+
+export interface DirectorRefusal {
+  stage: RefusalStage;
+  reasons: RefusalReason[];
 }
 
 export type ProposalStatus = "proposed" | "accepted" | "applied" | "rejected" | "withdrawn" | "failed";
@@ -78,6 +93,7 @@ export interface DirectorProposal {
   draft: DirectorDraft | null;
   ops: LivingOpPayload[];
   issues: string[];
+  refusal?: DirectorRefusal;
   reason: string;
   boundary: number;
   messageId: number;

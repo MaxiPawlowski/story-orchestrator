@@ -1,0 +1,79 @@
+{
+  "run": "L3 run 1",
+  "turns": [
+    {
+      "text": "I study the board and the postings pinned to it.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "\"The caravan job: what does it pay, and who's the client?\"",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.61,
+          "recorded": true
+        }
+      ]
+    },
+    {
+      "text": "I nod and read the caravan posting again.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "\"Does the guild front the supplies, or do we buy our own?\"",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.77,
+          "recorded": true
+        }
+      ]
+    },
+    {
+      "text": "\"And rations? How many days out is the pass?\"",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.95,
+          "recorded": true
+        }
+      ]
+    },
+    {
+      "text": "I lean on the counter and listen to the clerk.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "I tap the posting and think it over.",
+      "readings": [
+        {
+          "none": false,
+          "p": 0.2,
+          "recorded": false
+        }
+      ]
+    },
+    {
+      "text": "\"Who else signed up for it?\"",
+      "readings": []
+    }
+  ]
+}

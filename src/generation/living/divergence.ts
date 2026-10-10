@@ -1,11 +1,12 @@
-import { gateLeaves, type NormalizedStoryV2 } from "@engine/index";
-import { choice, choiceAnswer, type JudgeAnswer, type JudgeRequest } from "@judge/index";
+import { gateLeaves, isLivingId, isOocText, isPlayerLine, type NormalizedStoryV2 } from "@engine/index";
+import {
+  choice, choiceAnswer, DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, noul, noulAnswer,
+  type JudgeAnswer, type JudgeRequest,
+} from "@judge/index";
 import { isRecord } from "@utils/guards";
 import { LIVING_BRANCH_PREFIX, LIVING_STUB_SUFFIX, type DivergenceReading, type DivergenceState } from "./types";
 
-export const DIVERGENCE_NONE_P = 0.6;
-export const DIVERGENCE_SURE_P = 0.9;
-export const DIVERGENCE_STREAK = 2;
+export { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, DIVERGENCE_TIMEOUT_MS } from "@judge/index";
 export const DIVERGENCE_WINDOW = 6;
 export const DIVERGENCE_NONE = "none";
 
@@ -15,17 +16,62 @@ export interface DivergenceStep {
   reason: string | null;
 }
 
+export interface DivergenceAnswer {
+  none: boolean;
+  p: number;
+  commits: number | null;
+}
+
+export interface PlayerTurn {
+  id: number;
+  text: string;
+}
+
+export type DivergenceSkip = "no-turn" | "same-turn" | "ooc" | "inquiry";
+
+export const directorLeads = (story: NormalizedStoryV2, activeId: string): boolean =>
+  Boolean(story.living) && (!story.living?.authored_until || isLivingId(activeId));
+
+export const followsPlayer = (story: NormalizedStoryV2, activeId: string): boolean => directorLeads(story, activeId) || isBranchStub(activeId);
+
+export function latestPlayerTurn(rows: readonly unknown[]): PlayerTurn | null {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index];
+    if (!isPlayerLine(row)) continue;
+    return { id: index, text: isRecord(row) && typeof row.mes === "string" ? row.mes.trim() : "" };
+  }
+  return null;
+}
+
+const SENTENCE_END = /(?<=[.!?])\s+/;
+const TRAILING_MARKS = /["'\u201d\u2019*_)\]\s]+$/;
+
+export const isQuestionOnly = (text: string): boolean => {
+  const sentences = text.split(SENTENCE_END).map((sentence) => sentence.replace(TRAILING_MARKS, "")).filter(Boolean);
+  return sentences.length > 0 && sentences.every((sentence) => sentence.endsWith("?"));
+};
+
+export function divergenceSkip(turn: PlayerTurn | null, lastTurn: number): DivergenceSkip | null {
+  if (!turn || !turn.text) return "no-turn";
+  if (turn.id <= lastTurn) return "same-turn";
+  if (isOocText(turn.text)) return "ooc";
+  if (isQuestionOnly(turn.text)) return "inquiry";
+  return null;
+}
+
+export const commitsToAction = (reading: DivergenceReading): boolean => (reading.commits ?? 0) >= DIVERGENCE_COMMIT_P;
+
 export function stepDivergence(previous: DivergenceState, checkpointId: string, reading: DivergenceReading): DivergenceStep {
   const fresh = previous.checkpointId === checkpointId ? previous : { ...previous, checkpointId, streak: 0 };
-  const base = { ...fresh, lastBoundary: reading.boundary, last: reading };
-  if (fresh.branchedFrom.includes(checkpointId)) return { state: { ...base, streak: 0 }, diverged: false, reason: null };
-  if (reading.source === "refusal") return { state: { ...base, streak: 0 }, diverged: true, reason: "the player refused every prepared way out of this checkpoint" };
-  const p = reading.p ?? 0;
-  if (!reading.none || p < DIVERGENCE_NONE_P) return { state: { ...base, streak: 0 }, diverged: false, reason: null };
-  if (p >= DIVERGENCE_SURE_P) return { state: { ...base, streak: 0 }, diverged: true, reason: `the player's last action fits none of this checkpoint's exits (p ${p.toFixed(2)})` };
+  const base = { ...fresh, lastBoundary: reading.boundary, lastTurn: Math.max(fresh.lastTurn, reading.turn), last: reading };
+  const hold = (streak: number): DivergenceStep => ({ state: { ...base, streak }, diverged: false, reason: null });
+  if (fresh.branchedFrom.includes(checkpointId)) return hold(0);
+  if (!commitsToAction(reading)) return hold(fresh.streak);
+  if (!reading.none || reading.p < DIVERGENCE_NONE_P) return hold(0);
+  if (reading.p >= DIVERGENCE_SURE_P) return { state: { ...base, streak: 0 }, diverged: true, reason: `the player's last action fits none of this checkpoint's exits (p ${reading.p.toFixed(2)})` };
   const streak = fresh.streak + 1;
-  if (streak >= DIVERGENCE_STREAK) return { state: { ...base, streak: 0 }, diverged: true, reason: `${streak} readings in a row fit none of this checkpoint's exits` };
-  return { state: { ...base, streak }, diverged: false, reason: null };
+  if (streak >= DIVERGENCE_STREAK) return { state: { ...base, streak: 0 }, diverged: true, reason: `${streak} actions in a row fit none of this checkpoint's exits` };
+  return hold(streak);
 }
 
 export const markBranched = (state: DivergenceState, checkpointId: string): DivergenceState =>
@@ -54,7 +100,6 @@ export interface DivergenceWindowLine {
   player: boolean;
 }
 
-export const DIVERGENCE_TIMEOUT_MS = 4000;
 const LINE_CHARS = 600;
 
 export function windowLines(rows: readonly unknown[], size = DIVERGENCE_WINDOW): DivergenceWindowLine[] {
@@ -76,15 +121,22 @@ export function buildDivergenceRequest(exits: readonly ExitDescription[], window
     },
     questions: {
       fit: choice(`Read ${playerName}'s latest messages. Which of these ways forward does what ${playerName} is actually doing pursue?`, criteria),
+      commits: noul(
+        `Does ${playerName}'s latest message commit to an action or a direction: they go somewhere, do something, or decide something?`,
+        {
+          true: `${playerName} acts or decides: goes somewhere, takes something on, refuses, leaves, attacks, follows someone`,
+          false: `${playerName} only asks, talks, haggles, looks around, hesitates or speaks out of character`,
+        },
+      ),
     },
   };
 }
 
-export function readDivergence(answers: Record<string, JudgeAnswer> | null | undefined): { none: boolean; p: number } | null {
+export function readDivergence(answers: Record<string, JudgeAnswer> | null | undefined): DivergenceAnswer | null {
   const answer = answers ? choiceAnswer(answers, "fit") : null;
-  if (!answer) return null;
+  if (!answers || !answer) return null;
   const p = answer.probabilities[DIVERGENCE_NONE] ?? (answer.choice === DIVERGENCE_NONE ? answer.confidence : 0);
-  return { none: answer.choice === DIVERGENCE_NONE, p };
+  return { none: answer.choice === DIVERGENCE_NONE, p, commits: noulAnswer(answers, "commits") };
 }
 
 export function branchTarget(story: NormalizedStoryV2, activeId: string): string | null {

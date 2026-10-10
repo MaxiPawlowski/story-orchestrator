@@ -18,6 +18,7 @@ const sanitizeDivergence = (value: unknown): DivergenceState | undefined => {
     checkpointId: typeof value.checkpointId === "string" ? value.checkpointId : null,
     streak: typeof value.streak === "number" && Number.isFinite(value.streak) ? value.streak : 0,
     lastBoundary: typeof value.lastBoundary === "number" && Number.isFinite(value.lastBoundary) ? value.lastBoundary : -1,
+    lastTurn: typeof value.lastTurn === "number" && Number.isFinite(value.lastTurn) ? value.lastTurn : -1,
     branchedFrom: Array.isArray(value.branchedFrom) ? value.branchedFrom.filter((id): id is string => typeof id === "string") : [],
   };
 };

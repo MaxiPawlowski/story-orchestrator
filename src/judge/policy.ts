@@ -109,6 +109,16 @@ export const STALL_GENUINE_P = 0.1;
 // path, so a longer budget costs nothing a player can feel.
 export const TYPED_TIMEOUT_MS = 5000;
 
+// Divergence: at 0.6 twice or 0.9 once, ordinary questioning about a posting branched once per ~8
+// on-script turns on the live run (false "none" readings 0.61, 0.77, 0.95 and 0.63, 0.75).
+// Only a turn that commits to an action counts; a pair must clear every false pair seen, one
+// reading must clear the highest false one.
+export const DIVERGENCE_NONE_P = 0.8;
+export const DIVERGENCE_SURE_P = 0.97;
+export const DIVERGENCE_STREAK = 2;
+export const DIVERGENCE_COMMIT_P = 0.5;
+export const DIVERGENCE_TIMEOUT_MS = 4000;
+
 export const CRITIC_CONTRADICTS_MAX = 0.3;
 export const CRITIC_ADVANCES_MIN = 0.5;
 export const CRITIC_NEW_CHARACTER_MAX = 0.5;

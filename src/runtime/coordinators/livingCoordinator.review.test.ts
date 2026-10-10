@@ -4,6 +4,7 @@ import { parseStoryV2OrThrow, StoryEngine, type NormalizedStoryV2 } from "@engin
 import { diffStories } from "@engine/storyDiff";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import { compactOps, graphEpoch, livingRaw } from "@generation/living/fold";
+import { directorLeads, followsPlayer, type DivergenceAnswer } from "@generation/living/divergence";
 import type { LivingRuntimeState } from "@generation/living/types";
 import { mintToken, tokenMatches, type RunContext } from "../runToken";
 import type { LivingInputs } from "../livingInputs";
@@ -17,16 +18,19 @@ const answer = (index: number, patch: Record<string, unknown> = {}) => JSON.stri
   ...patch,
 });
 
-const inputs = (): LivingInputs => ({
-  canon: "", openThreads: [], resolvedThreads: [], plans: [], refused: null, playerNames: ["Max"], tension: null, restatesSecret: () => false, scrub: (text) => text,
+const inputs = (refused: string | null = null): LivingInputs => ({
+  canon: "", openThreads: [], resolvedThreads: [], plans: [], refused, playerNames: ["Max"], tension: null, restatesSecret: () => false, scrub: (text) => text,
 });
+
+const OFF_SCRIPT = "I walk away from the ford and follow the miller's dog into the reeds.";
 
 interface RigOptions {
   story?: string;
   authorView?: boolean;
   answers?: string[];
-  judge?: Array<{ none: boolean; p: number } | null>;
+  judge?: Array<DivergenceAnswer | null>;
   prefetch?: boolean;
+  refused?: string | null;
 }
 
 const rig = (options: RigOptions = {}) => {
@@ -38,9 +42,11 @@ const rig = (options: RigOptions = {}) => {
   const extras: { living?: LivingRuntimeState; authorView: boolean } = { authorView: options.authorView ?? false };
   const answers = [...(options.answers ?? [])];
   const judge = [...(options.judge ?? [])];
-  const calls = { persist: 0, notify: 0, journal: [] as string[], saved: [] as unknown[], prompts: [] as string[] };
+  const calls = { persist: 0, notify: 0, journal: [] as string[], notes: [] as string[], saved: [] as unknown[], prompts: [] as string[] };
   const hooks: { duringModel?: () => void; duringJudge?: () => void; onMint?: () => void } = {};
   let message = 0;
+  const rows: Array<Record<string, unknown>> = [{ name: "Narrator", is_user: false, mes: "The mill wheel stands still." }];
+  const judgeCalls = { count: 0 };
   const model = (async (prompt: string) => {
     if (prompt.startsWith("Review one generated turning point")) return { text: JSON.stringify({ pass: true, issues: [] }), finish: "stop" as const };
     calls.prompts.push(prompt);
@@ -67,20 +73,22 @@ const rig = (options: RigOptions = {}) => {
     prefetch: () => options.prefetch ?? true,
     authorView: () => extras.authorView,
     sealsOn: () => true,
-    inputs,
+    inputs: () => inputs(options.refused ?? null),
     recentTurns: async () => ["Max: I walk away from the ford and follow the miller's dog into the reeds."],
-    askDivergence: async () => { hooks.duringJudge?.(); return judge.shift() ?? null; },
+    chatRows: () => rows,
+    askDivergence: async () => { judgeCalls.count += 1; hooks.duringJudge?.(); return judge.shift() ?? null; },
     saveRecord: (story) => { calls.saved.push(story); return { ok: true, id: String(story.id), title: story.title }; },
     storyIdTaken: () => false,
     model,
     ownership: { mint: () => { const token = mintToken(context); hooks.onMint?.(); return token; }, check: (token) => tokenMatches(context, token) },
-    journal: (summary) => { calls.journal.push(summary); },
+    journal: (summary, note) => { calls.journal.push(summary); calls.notes.push(note); },
     persist: async () => { calls.persist += 1; },
     notify: () => { calls.notify += 1; },
   });
   coordinator.adopt("activate");
-  const commit = async () => {
-    message += 2;
+  const commit = async (said: string = OFF_SCRIPT) => {
+    rows.push({ name: "Max", is_user: true, mes: said }, { name: "Narrator", is_user: false, mes: "The reeds hiss." });
+    message = rows.length - 1;
     const result = engine.commitBoundary({ lastMessageId: message, chatLength: message + 1 });
     await coordinator.applyAccepted({ boundary: result.boundary, messageId: message });
     coordinator.compact();
@@ -88,7 +96,14 @@ const rig = (options: RigOptions = {}) => {
   };
   const set = (q: string, v: string | number | boolean, source: "extractor" | "mechanical" = "extractor") =>
     engine.enqueue({ source, blackboardVersionSum: 0, deltas: [{ q, v, source: source === "mechanical" ? "code" : "extractor" }] });
-  return { engine, loaded, extras, coordinator, calls, context, hooks, commit, set, raw };
+  const reply = async () => {
+    rows.push({ name: "Miller", is_user: false, mes: "The miller shrugs." });
+    message = rows.length - 1;
+    const result = engine.commitBoundary({ lastMessageId: message, chatLength: message + 1 });
+    await coordinator.applyAccepted({ boundary: result.boundary, messageId: message });
+    return result;
+  };
+  return { engine, loaded, extras, coordinator, calls, context, hooks, commit, reply, set, raw, judgeCalls, at: () => ({ boundary: engine.serialize().boundary, messageId: message }) };
 };
 
 const played = (rigged: ReturnType<typeof rig>) => JSON.stringify(rigged.loaded.record.raw);
@@ -301,9 +316,49 @@ describe("v2.8 22 living director at runtime", () => {
   });
 });
 
+describe("v2.8 22 director length limits (L1 run 2: four refusals for an over-long objective)", () => {
+  const overlong = JSON.parse(readFileSync(join(process.cwd(), "test/goldens/live/living-director-repair/deepseek-overlong.json"), "utf8")) as Record<string, string>;
+
+  it("the prompt states every length limit it is held to, with a word count", async () => {
+    const rigged = rig({ answers: [overlong.compliant] });
+    await rigged.coordinator.propose();
+    expect(rigged.calls.prompts[0]).toContain("name at most 60 characters (two to six words)");
+    expect(rigged.calls.prompts[0]).toContain("objective at most 400 characters (about 55 words");
+    expect(rigged.calls.prompts[0]).toContain("each rubric at most 240 characters");
+  });
+
+  it("an over-long objective that ends on whole sentences is trimmed at a sentence boundary and lands", async () => {
+    const rigged = rig({ answers: [overlong.trimmable] });
+    const proposal = await rigged.coordinator.propose();
+    expect(proposal?.status).toBe("accepted");
+    expect(proposal?.attempts).toBe(1);
+    expect(proposal?.draft?.anchor.objective.length).toBeLessThanOrEqual(400);
+    expect(proposal?.draft?.anchor.objective).toMatch(/still in the grate\.$/);
+    expect(proposal?.draft?.repaired?.[0]).toMatch(/^objective trimmed at a sentence boundary from 477 to \d+ characters$/);
+    await rigged.commit();
+    expect(rigged.loaded.story.checkpointById.liv_1).toMatchObject({ name: "The Lantern Keeper's Ledger" });
+  });
+
+  it("one sentence over the limit is re-asked naming the limit, and the second answer lands", async () => {
+    const rigged = rig({ answers: [overlong.unsplittable, overlong.compliant] });
+    const proposal = await rigged.coordinator.propose();
+    expect(proposal).toMatchObject({ status: "accepted", attempts: 2 });
+    expect(rigged.calls.prompts[1]).toContain("objective is longer than 400 characters (it has 436; about 55 words at most)");
+  });
+
+  it("a refusal is recorded as a structured reason in the proposal ring and the journal", async () => {
+    const rigged = rig({ answers: [overlong.unsplittable, overlong.unsplittable] });
+    const proposal = await rigged.coordinator.propose();
+    expect(proposal?.status).toBe("failed");
+    expect(proposal?.refusal).toEqual({ stage: "parse", reasons: [{ code: "too-long", field: "objective" }] });
+    expect(rigged.calls.journal).toContain("living director wrote nothing");
+    expect(rigged.calls.notes.at(-1)).toMatch(/^\[parse\] objective:too-long: objective is longer than 400 characters/);
+  });
+});
+
 describe("v2.8 22 divergence branching", () => {
-  const atMill = async (judge: Array<{ none: boolean; p: number } | null>, answers: string[] = [], prefetch = true) => {
-    const rigged = rig({ story: "living-hybrid", judge, answers, prefetch });
+  const atMill = async (judge: Array<DivergenceAnswer | null>, answers: string[] = [], prefetch = true, refused: string | null = null) => {
+    const rigged = rig({ story: "living-hybrid", judge, answers, prefetch, refused });
     await rigged.commit();
     return rigged;
   };
@@ -312,21 +367,125 @@ describe("v2.8 22 divergence branching", () => {
     return { jobs, place: (job: SchedulerJob) => { jobs.push(job); } };
   };
 
-  it("needs two 'none' readings in a row, or one very sure one", async () => {
-    const rigged = await atMill([{ none: true, p: 0.7 }, { none: false, p: 0.1 }, { none: true, p: 0.7 }, { none: true, p: 0.8 }]);
+  const act = (p: number, commits = 0.9): DivergenceAnswer => ({ none: p >= 0.5, p, commits });
+
+  it("branches on two counted 'none' readings in a row at p >= 0.8, or one at p >= 0.97", async () => {
+    const rigged = await atMill([act(0.85), act(0.1), act(0.85), act(0.9)]);
     const sink = placed();
-    const at = { boundary: 1, messageId: 2 };
-    expect(await rigged.coordinator.checkDivergence(at, sink.place)).toBe(false);
-    expect(await rigged.coordinator.checkDivergence(at, sink.place)).toBe(false);
-    expect(await rigged.coordinator.checkDivergence(at, sink.place)).toBe(false);
-    expect(await rigged.coordinator.checkDivergence(at, sink.place)).toBe(true);
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(true);
     expect(sink.jobs.map((job) => job.reason)).toEqual(["living:branch:mill"]);
-    const sure = await atMill([{ none: true, p: 0.95 }]);
-    expect(await sure.coordinator.checkDivergence(at, placed().place)).toBe(true);
+    const sure = await atMill([act(0.98)]);
+    expect(await sure.coordinator.checkDivergence(sure.at(), placed().place)).toBe(true);
+  });
+
+  it("never branches on a single reading below the sure line, with or without a refusal (L2)", async () => {
+    for (const refused of [null, "the player refused the prepared route"]) {
+      const rigged = await atMill([act(0.76), act(0.96)], [], false, refused);
+      const sink = placed();
+      expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+      expect(rigged.extras.living?.divergence?.streak).toBe(0);
+      await rigged.commit();
+      expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+      expect(rigged.extras.living?.divergence?.streak).toBe(1);
+      expect(sink.jobs).toEqual([]);
+    }
+  });
+
+  it("reads each player turn once: a second reply to the same line asks nothing", async () => {
+    const rigged = await atMill([act(0.9), act(0.9)]);
+    const sink = placed();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    await rigged.reply();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    expect(rigged.judgeCalls.count).toBe(1);
+    expect(rigged.extras.living?.divergence?.streak).toBe(1);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(true);
+  });
+
+  it("a question-only or out-of-character line is not read, and a turn the judge says commits to nothing neither counts nor resets", async () => {
+    const asked = await atMill([act(0.99)]);
+    for (const line of ["\"What does the caravan job pay?\"", "*leans in* \"And who buys the rations?\"", "((OOC: brb))"]) {
+      await asked.commit(line);
+      expect(await asked.coordinator.checkDivergence(asked.at(), placed().place)).toBe(false);
+    }
+    expect(asked.judgeCalls.count).toBe(0);
+    const rigged = await atMill([act(0.85), act(0.99, 0.1), act(0.85)]);
+    const sink = placed();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(false);
+    expect(rigged.extras.living?.divergence?.streak).toBe(1);
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(true);
+  });
+
+  interface GoldenTurn { text: string; readings: Array<{ none: boolean; p: number; commits?: number }> }
+  const golden = (name: string): GoldenTurn[] => JSON.parse(readFileSync(join(process.cwd(), "test/goldens/live/living-divergence", `${name}.json`), "utf8")).turns;
+  const replay = async (turns: GoldenTurn[], commitsWhenUnread: number) => {
+    const answers = turns.flatMap((turn) => turn.readings.map((reading) => ({ none: reading.none, p: reading.p, commits: reading.commits ?? commitsWhenUnread })));
+    const rigged = rig({ story: "living-hybrid", judge: answers, prefetch: false });
+    const sink = placed();
+    for (const turn of turns) {
+      await rigged.commit(turn.text);
+      for (let index = 0; index < Math.max(1, turn.readings.length); index += 1) {
+        if (index > 0) await rigged.reply();
+        await rigged.coordinator.checkDivergence(rigged.at(), sink.place);
+      }
+    }
+    return sink.jobs.length;
+  };
+
+  it("live L3 goldens: 0 branches on both on-script runs, even if every turn were read as committing", async () => {
+    for (const name of ["run1", "run2"]) {
+      expect(await replay(golden(name), 0.9)).toBe(0);
+      expect(await replay(golden(name).map((turn) => ({ ...turn, text: "I go on." })), 1)).toBe(0);
+    }
+  });
+
+  it("live L3 goldens: the old rule branched on both runs", () => {
+    const oldRule = (turns: GoldenTurn[]) => {
+      let streak = 0;
+      for (const reading of turns.flatMap((turn) => turn.readings)) {
+        if (!reading.none || reading.p < 0.6) { streak = 0; continue; }
+        if (reading.p >= 0.9 || ++streak >= 2) return true;
+      }
+      return false;
+    };
+    expect(oldRule(golden("run1"))).toBe(true);
+    expect(oldRule(golden("run2"))).toBe(true);
+  });
+
+  it("a player who commits to walking away from every exit still branches", async () => {
+    expect(await replay(golden("true-positive"), 0.9)).toBe(1);
+  });
+
+  it("on a living story the director leads: no divergence reading, no prefetch", async () => {
+    const premise = rig({ answers: [answer(1)], judge: [act(0.99)] });
+    await premise.coordinator.propose();
+    await premise.commit();
+    const story = premise.loaded.story;
+    const activeId = premise.engine.serialize().activeCheckpointId;
+    expect(directorLeads(story, activeId)).toBe(true);
+    expect((story.outgoingByCheckpoint[activeId] ?? []).length).toBeGreaterThan(0);
+    expect(premise.coordinator.prefetchDue()).toBe(false);
+    expect(await premise.coordinator.checkDivergence(premise.at(), placed().place)).toBe(false);
+    expect(premise.judgeCalls.count).toBe(0);
+    const hybrid = rig({ story: "living-hybrid" });
+    expect(directorLeads(hybrid.loaded.story, "mill")).toBe(false);
+    expect(directorLeads(hybrid.loaded.story, "liv_1")).toBe(true);
+    expect(followsPlayer(hybrid.loaded.story, "liv_b1_way")).toBe(true);
+    expect(followsPlayer(hybrid.loaded.story, "mill")).toBe(false);
   });
 
   it("writes one branch from the current checkpoint that rejoins the next anchor, applied at a boundary, and never a second at the same checkpoint", async () => {
-    const rigged = await atMill([{ none: true, p: 0.95 }, { none: true, p: 0.95 }], [answer(1, { name: "Into the Reeds", objective: "The miller's dog leads into the reeds, where a boat waits." })]);
+    const rigged = await atMill([{ none: true, p: 0.98, commits: 0.9 }, { none: true, p: 0.98, commits: 0.9 }], [answer(1, { name: "Into the Reeds", objective: "The miller's dog leads into the reeds, where a boat waits." })]);
     const sink = placed();
     expect(await rigged.coordinator.checkDivergence({ boundary: 1, messageId: 2 }, sink.place)).toBe(true);
     await sink.jobs[0].run?.();
@@ -343,7 +502,7 @@ describe("v2.8 22 divergence branching", () => {
   });
 
   it("drops a divergence reading that lands after the chat moved", async () => {
-    const rigged = await atMill([{ none: true, p: 0.95 }]);
+    const rigged = await atMill([{ none: true, p: 0.98, commits: 0.9 }]);
     const sink = placed();
     rigged.hooks.duringJudge = () => { rigged.context.chatId = "c2"; };
     expect(await rigged.coordinator.checkDivergence({ boundary: 1, messageId: 2 }, sink.place)).toBe(false);
@@ -353,7 +512,7 @@ describe("v2.8 22 divergence branching", () => {
   it("prefetch prepares one more way forward from the checkpoint the player is at, and it counts as that checkpoint's one branch", async () => {
     const off = await atMill([], [], false);
     expect(off.coordinator.prefetchDue()).toBe(false);
-    const rigged = await atMill([{ none: true, p: 0.95 }], [answer(1, { name: "Along the Weir", objective: "The weir path along the millrace leads downstream." })]);
+    const rigged = await atMill([{ none: true, p: 0.98, commits: 0.9 }], [answer(1, { name: "Along the Weir", objective: "The weir path along the millrace leads downstream." })]);
     expect(rigged.coordinator.prefetchDue()).toBe(true);
     const sink = placed();
     expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
@@ -369,6 +528,49 @@ describe("v2.8 22 divergence branching", () => {
     expect(rigged.calls.journal).toContain("living director wrote another way forward");
   });
 
+  it("a job placed in one chat writes nothing when it runs after a switch (L2: a prefetch from the previous chat)", async () => {
+    const control = await atMill([], [answer(1, { name: "The Guildmaster's Office" })]);
+    const controlSink = placed();
+    expect(control.coordinator.prefetch(controlSink.place)).toBe(true);
+    await controlSink.jobs[0].run?.();
+    expect(control.extras.living?.proposals.at(-1)).toMatchObject({ kind: "branch", prepared: true });
+
+    const rigged = await atMill([], [answer(1, { name: "The Guildmaster's Office" })]);
+    const sink = placed();
+    expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
+    rigged.context.chatId = "c2";
+    await sink.jobs[0].run?.();
+    expect(rigged.calls.prompts).toEqual([]);
+    expect(rigged.extras.living?.proposals ?? []).toEqual([]);
+
+    const branched = await atMill([{ none: true, p: 0.98, commits: 0.9 }], [answer(1)]);
+    const branchSink = placed();
+    expect(await branched.coordinator.checkDivergence(branched.at(), branchSink.place)).toBe(true);
+    branched.context.chatId = "c2";
+    await branchSink.jobs[0].run?.();
+    expect(branched.calls.prompts).toEqual([]);
+
+    const director = rig({ answers: [answer(1)] });
+    const directorSink = placed();
+    expect(director.coordinator.schedule(directorSink.place)).toBe(true);
+    director.context.chatId = "c2";
+    await directorSink.jobs[0].run?.();
+    expect(director.calls.prompts).toEqual([]);
+    expect(director.extras.living?.proposals ?? []).toEqual([]);
+  });
+
+  it("a prefetch job re-reads the switch when it runs: turned off after placing, it writes nothing", async () => {
+    const options = { story: "living-hybrid", answers: [answer(1)], prefetch: true };
+    const rigged = rig(options);
+    await rigged.commit();
+    const sink = placed();
+    expect(rigged.coordinator.prefetch(sink.place)).toBe(true);
+    options.prefetch = false;
+    await sink.jobs[0].run?.();
+    expect(rigged.calls.prompts).toEqual([]);
+    expect(rigged.extras.living?.proposals ?? []).toEqual([]);
+  });
+
   it("prefetch never prepares before the first reply, nor ahead of the checkpoint the player is at", async () => {
     const fresh = rig({ story: "living-hybrid" });
     expect(fresh.coordinator.prefetchDue()).toBe(false);
@@ -380,7 +582,7 @@ describe("v2.8 22 divergence branching", () => {
   });
 
   it("a rollback that takes a branch back lets the checkpoint branch again", async () => {
-    const rigged = await atMill([{ none: true, p: 0.95 }, { none: true, p: 0.95 }], [answer(1), answer(2)]);
+    const rigged = await atMill([{ none: true, p: 0.98, commits: 0.9 }, { none: true, p: 0.98, commits: 0.9 }], [answer(1), answer(2)]);
     const sink = placed();
     await rigged.coordinator.checkDivergence({ boundary: 1, messageId: 2 }, sink.place);
     await sink.jobs[0].run?.();

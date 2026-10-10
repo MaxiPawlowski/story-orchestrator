@@ -1,0 +1,35 @@
+{
+  "run": "constructed off-script",
+  "turns": [
+    {
+      "text": "\"None of these are for me.\" I turn my back on the board.",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.86,
+          "commits": 0.8
+        }
+      ]
+    },
+    {
+      "text": "I shoulder my pack and walk out of the guild hall, heading for the docks instead.",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.9,
+          "commits": 0.95
+        }
+      ]
+    },
+    {
+      "text": "At the docks I ask for passage on the first ship leaving.",
+      "readings": [
+        {
+          "none": true,
+          "p": 0.92,
+          "commits": 0.9
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,11 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
-import { branchTarget, hasLiveBranch, markBranched, nextBranchId, stepDivergence, unmarkBranched } from "@generation/living/divergence";
+import { refusalLine, refusalOf } from "@generation/living/refusal";
+import {
+  branchTarget, divergenceSkip, followsPlayer, hasLiveBranch, latestPlayerTurn, markBranched, nextBranchId, stepDivergence, unmarkBranched,
+  type DivergenceAnswer,
+} from "@generation/living/divergence";
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
 import { findFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
@@ -9,7 +13,7 @@ import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
   type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
 } from "@generation/living/types";
-import { beginRun, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import type { LivingInputs } from "../livingInputs";
 
 export { livingAuthorView } from "../livingAuthorView";
@@ -43,7 +47,8 @@ export interface LivingCoordinatorDeps {
   sealsOn: () => boolean;
   inputs: () => LivingInputs;
   recentTurns: () => Promise<string[]>;
-  askDivergence: (story: NormalizedStoryV2, activeId: string) => Promise<{ none: boolean; p: number } | null>;
+  chatRows: () => readonly unknown[];
+  askDivergence: (story: NormalizedStoryV2, activeId: string) => Promise<DivergenceAnswer | null>;
   saveRecord: (raw: StoryV2) => { ok: true; id: string; title: string } | { ok: false; reason: string };
   storyIdTaken: (id: string) => boolean;
   model: ModelCall;
@@ -63,6 +68,11 @@ export interface LivingSaveOutcome {
   reason?: string;
 }
 
+export interface PlacedJob {
+  run: RunGuard;
+  from: string;
+}
+
 type ProposalBase = Omit<DirectorProposal, "status" | "anchorId" | "draft" | "ops" | "issues" | "reason" | "attempts">;
 
 const now = () => new Date().toISOString();
@@ -79,8 +89,12 @@ const proposalFrom = (outcome: DirectorOutcome | BranchOutcome, base: ProposalBa
     return { ...base, status, anchorId, draft: outcome.draft, ops: outcome.ops, issues: [], reason: outcome.draft.reason, attempts: outcome.attempts };
   }
   const issues = outcome.status === "capped" ? [outcome.reason] : outcome.issues;
-  return { ...base, status: "failed", anchorId: "", draft: null, ops: [], issues, reason: outcome.status, attempts: outcome.status === "capped" ? 0 : outcome.attempts };
+  const refusal = outcome.status === "capped" ? refusalOf("capped", issues) : outcome.refusal;
+  return { ...base, status: "failed", anchorId: "", draft: null, ops: [], issues, refusal, reason: outcome.status, attempts: outcome.status === "capped" ? 0 : outcome.attempts };
 };
+
+const repairedNote = (proposal: DirectorProposal): string =>
+  (proposal.draft?.repaired?.length ? `; repaired: ${proposal.draft.repaired.join("; ")}` : "");
 
 const capProposals = (proposals: DirectorProposal[]): DirectorProposal[] => {
   const settled = proposals.filter((proposal) => !isWaiting(proposal)).slice(-LIVING_PROPOSAL_LIMIT);
@@ -150,7 +164,8 @@ export class LivingCoordinator {
 
   schedule(place: (job: SchedulerJob) => unknown): boolean {
     if (!this.due()) return false;
-    place({ priority: LIVING_JOB_PRIORITY, reason: `living:${this.frontier() ?? "?"}`, run: async () => { await this.propose(); } });
+    const placed = beginRun(this.deps.ownership);
+    place({ priority: LIVING_JOB_PRIORITY, reason: `living:${this.frontier() ?? "?"}`, run: async () => { if (this.deps.enabled()) await this.propose(null, placed); } });
     return true;
   }
 
@@ -172,7 +187,9 @@ export class LivingCoordinator {
     const verb = base.autonomy === "auto" ? "wrote" : "proposed";
     this.deps.journal(
       proposal.status === "failed" ? "living director wrote nothing" : `living director ${verb} ${what}`,
-      proposal.status === "failed" ? proposal.issues.join("; ") : `after ${base.frontierId}: ${proposal.draft?.anchor.name ?? ""}${base.why ? ` (${base.why})` : ""}`,
+      proposal.status === "failed"
+        ? `${proposal.refusal ? `${refusalLine(proposal.refusal)}: ` : ""}${proposal.issues.join("; ")}`
+        : `after ${base.frontierId}: ${proposal.draft?.anchor.name ?? ""}${base.why ? ` (${base.why})` : ""}${repairedNote(proposal)}`,
     );
     await this.deps.persist();
     if (run.stillOwns()) this.deps.notify();
@@ -183,13 +200,14 @@ export class LivingCoordinator {
     return { id: `liv_p${this.state.passes + 1}`, epoch: graphEpoch(this.state), frontierId, boundary: state.boundary, messageId: state.lastMessageId, autonomy: this.autonomy(story), at: now() };
   }
 
-  async propose(debugResponse?: string | null): Promise<DirectorProposal | null> {
+  async propose(debugResponse?: string | null, placed?: RunGuard): Promise<DirectorProposal | null> {
+    if (placed && !placed.stillOwns()) return null;
     const story = this.deps.getStory();
     const state = this.deps.getState();
     const loaded = this.deps.loaded();
     const frontierId = this.frontier();
     if (!story?.living || !state || !loaded || !frontierId || this.inFlight) return null;
-    const run = beginRun(this.deps.ownership);
+    const run = placed ?? beginRun(this.deps.ownership);
     const base = this.baseFor(story, state, frontierId);
     this.inFlight = true;
     try {
@@ -209,20 +227,19 @@ export class LivingCoordinator {
     const state = this.deps.getState();
     if (!this.deps.branching() || this.inFlight || !story || !state || this.atCap() || this.waitingNow()) return false;
     const activeId = state.activeCheckpointId;
-    if (!(story.outgoingByCheckpoint[activeId] ?? []).length || hasLiveBranch(story, activeId) || !branchTarget(story, activeId)) return false;
+    if (followsPlayer(story, activeId) || !(story.outgoingByCheckpoint[activeId] ?? []).length || hasLiveBranch(story, activeId) || !branchTarget(story, activeId)) return false;
+    const turn = latestPlayerTurn(this.deps.chatRows());
+    if (!turn || divergenceSkip(turn, this.divergence.lastTurn)) return false;
     const run = beginRun(this.deps.ownership);
-    const refused = this.deps.inputs().refused;
-    const judged = refused ? null : await this.deps.askDivergence(story, activeId);
-    if (!run.stillOwns() || this.deps.getState()?.activeCheckpointId !== activeId) return false;
-    const reading: DivergenceReading | null = refused
-      ? { source: "refusal", none: true, p: null, boundary: at.boundary }
-      : judged ? { source: "judge", none: judged.none, p: judged.p, boundary: at.boundary } : null;
-    if (!reading) return false;
+    const judged = await this.deps.askDivergence(story, activeId);
+    if (!run.stillOwns() || this.deps.getState()?.activeCheckpointId !== activeId || !judged) return false;
+    const reading: DivergenceReading = { turn: turn.id, none: judged.none, p: judged.p, commits: judged.commits, boundary: at.boundary };
     const step = stepDivergence(this.divergence, activeId, reading);
     this.write({ ...this.state, divergence: step.state });
     if (!step.diverged || !step.reason) return false;
     const why = step.reason;
-    place({ priority: LIVING_JOB_PRIORITY, reason: `living:branch:${activeId}`, run: async () => { await this.proposeBranch(why); } });
+    const job: PlacedJob = { run: beginRun(this.deps.ownership), from: activeId };
+    place({ priority: LIVING_JOB_PRIORITY, reason: `living:branch:${activeId}`, run: async () => { if (this.deps.branching()) await this.proposeBranch(why, null, false, job); } });
     return true;
   }
 
@@ -231,26 +248,30 @@ export class LivingCoordinator {
     const state = this.deps.getState();
     if (!this.deps.branching() || !this.deps.prefetch() || this.inFlight || !story || !state || this.atCap() || this.waitingNow()) return false;
     const activeId = state.activeCheckpointId;
-    if (state.boundary < 1 || this.divergence.branchedFrom.includes(activeId) || !(story.outgoingByCheckpoint[activeId] ?? []).length) return false;
+    if (state.boundary < 1 || followsPlayer(story, activeId) || this.divergence.branchedFrom.includes(activeId) || !(story.outgoingByCheckpoint[activeId] ?? []).length) return false;
     return !hasLiveBranch(story, activeId) && Boolean(branchTarget(story, activeId));
   }
 
   prefetch(place: (job: SchedulerJob) => unknown): boolean {
     if (!this.prefetchDue()) return false;
     const activeId = this.deps.getState()?.activeCheckpointId ?? "?";
-    place({ priority: LIVING_JOB_PRIORITY, reason: `living:prefetch:${activeId}`, run: async () => { await this.proposeBranch(LIVING_PREFETCH_WHY, null, true); } });
+    const job: PlacedJob = { run: beginRun(this.deps.ownership), from: activeId };
+    const run = async () => { if (this.prefetchDue()) await this.proposeBranch(LIVING_PREFETCH_WHY, null, true, job); };
+    place({ priority: LIVING_JOB_PRIORITY, reason: `living:prefetch:${activeId}`, run });
     return true;
   }
 
-  async proposeBranch(why: string, debugResponse?: string | null, prepared = false): Promise<DirectorProposal | null> {
+  async proposeBranch(why: string, debugResponse?: string | null, prepared = false, job?: PlacedJob): Promise<DirectorProposal | null> {
+    if (job && !job.run.stillOwns()) return null;
     const story = this.deps.getStory();
     const state = this.deps.getState();
     const loaded = this.deps.loaded();
     if (!story || !state || !loaded || this.inFlight) return null;
     const sourceId = state.activeCheckpointId;
+    if (job && job.from !== sourceId) return null;
     const targetId = branchTarget(story, sourceId);
     if (!targetId || hasLiveBranch(story, sourceId)) return null;
-    const run = beginRun(this.deps.ownership);
+    const run = job?.run ?? beginRun(this.deps.ownership);
     const base: ProposalBase = { ...this.baseFor(story, state, sourceId), kind: "branch", convergeTo: targetId, why, ...(prepared ? { prepared: true } : {}) };
     this.inFlight = true;
     try {
@@ -362,7 +383,7 @@ export class LivingCoordinator {
     if (!this.tracks()) return 0;
     const { state, dropped } = dropOpsAfter(this.state, boundary);
     const droppedBranches = state.proposals.filter((proposal) => proposal.kind === "branch" && dropped.some((op) => op.proposalId === proposal.id)).map((proposal) => proposal.frontierId);
-    const divergence = { ...unmarkBranched(this.divergence, droppedBranches), streak: 0 };
+    const divergence = { ...unmarkBranched(this.divergence, droppedBranches), streak: 0, lastTurn: -1 };
     this.write({ ...state, divergence, epochBumps: state.epochBumps + (dropped.length ? 0 : 1) });
     this.withdraw("a rollback changed the story's future");
     if (!dropped.length) return 0;

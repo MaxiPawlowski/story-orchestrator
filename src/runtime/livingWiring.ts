@@ -58,12 +58,17 @@ export function wireLiving(wiring: LivingWiring): LivingPort {
       const { windowLines, windowText } = await divergence();
       return windowText(windowLines(wiring.chatRows()));
     },
+    chatRows: () => wiring.chatRows(),
     askDivergence: async (story, activeId) => {
       const judge = wiring.judge();
       if (!judge?.active("divergence")) return null;
       const { buildDivergenceRequest, DIVERGENCE_TIMEOUT_MS, exitDescriptions, readDivergence, windowLines } = await divergence();
       const request = buildDivergenceRequest(exitDescriptions(story, activeId), windowLines(wiring.chatRows()), getPlayerName() || "the player");
-      const result = await judge.ask("divergence", request, { timeoutMs: DIVERGENCE_TIMEOUT_MS, summarize: (answers) => ({ fit: readDivergence(answers)?.p ?? "none" }) });
+      const summarize = (answers: Parameters<typeof readDivergence>[0]) => {
+        const read = readDivergence(answers);
+        return { fit: read?.p ?? "none", commits: read?.commits ?? "none" };
+      };
+      const result = await judge.ask("divergence", request, { timeoutMs: DIVERGENCE_TIMEOUT_MS, summarize });
       return readDivergence(result.answers);
     },
     authorView: () => wiring.extras().ui.authorView,

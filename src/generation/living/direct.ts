@@ -5,7 +5,8 @@ import { guardDraft, type DraftGuardDeps } from "./guard";
 import { parseDirectorDraft } from "./parse";
 import { buildBranchOps, buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import { renderBranchPrompt, renderDirectorCriticPrompt, renderDirectorPrompt, type BranchContext, type DirectorInput } from "./prompt";
-import type { DirectorDraft, LivingOpPayload } from "./types";
+import { refusalOf } from "./refusal";
+import type { DirectorDraft, DirectorRefusal, LivingOpPayload, RefusalStage } from "./types";
 
 export const DIRECTOR_ATTEMPTS = 2;
 export const DIRECTOR_MAX_TOKENS = 1024;
@@ -25,7 +26,7 @@ export interface DirectorRun {
 
 export type DirectorOutcome =
   | { status: "ok"; draft: DirectorDraft; ops: LivingOpPayload[]; anchorId: string; attempts: number; raw: string; criticIssues: string[] }
-  | { status: "refused"; issues: string[]; attempts: number; raw: string }
+  | { status: "refused"; issues: string[]; refusal: DirectorRefusal; attempts: number; raw: string }
   | { status: "capped"; reason: string };
 
 export const endingFor = (story: NormalizedStoryV2, values: Record<string, PrimitiveValue>): { finalAllowed: boolean; finalRequired: boolean } => {
@@ -47,6 +48,7 @@ export async function runDirector(run: DirectorRun, model: ModelCall, ask: Model
   const probe = planChapter(run.story, run.frontierId, { sealsOn: run.sealsOn, final: ending.finalRequired, newChapter: false });
   if (probe.capped) return { status: "capped", reason: "the chapter cap for an install without chapter seals is reached" };
   let retry: string[] = [];
+  let stage: RefusalStage = "parse";
   let raw = "";
   for (let attempt = 1; attempt <= DIRECTOR_ATTEMPTS; attempt += 1) {
     const prompt = renderDirectorPrompt({ ...run.input, ending, ...(retry.length ? { retry } : {}) });
@@ -54,6 +56,7 @@ export async function runDirector(run: DirectorRun, model: ModelCall, ask: Model
     const parsed = parseDirectorDraft(raw, run.story);
     if (!parsed.ok) {
       retry = parsed.issues;
+      stage = "parse";
       continue;
     }
     const draft = settleFinal(parsed.draft, ending);
@@ -61,20 +64,23 @@ export async function runDirector(run: DirectorRun, model: ModelCall, ask: Model
     if (plan.capped) return { status: "capped", reason: "the chapter cap for an install without chapter seals is reached" };
     const built = buildDirectorOps(run.story, run.frontierId, draft, plan);
     const checked = checkDirectorOps({ raw: run.raw, story: run.story, frontierId: run.frontierId, ops: built.ops, values: run.values, latched: run.latched });
-    const issues = [...built.issues, ...checked.issues, ...guardDraft(draft, run.guard)];
+    const guarded = guardDraft(draft, run.guard);
+    const issues = [...built.issues, ...checked.issues, ...guarded];
     if (issues.length) {
       retry = issues;
+      stage = built.issues.length || checked.issues.length ? "ops" : "guard";
       continue;
     }
     const criticIssues = run.critic && !isPlanted(model, ask) ? await critique(run, draft, model, ask) : [];
     if (criticIssues.length && attempt < DIRECTOR_ATTEMPTS) {
       retry = criticIssues;
+      stage = "critic";
       continue;
     }
-    if (criticIssues.length) return { status: "refused", issues: criticIssues, attempts: attempt, raw };
+    if (criticIssues.length) return { status: "refused", issues: criticIssues, refusal: refusalOf("critic", criticIssues), attempts: attempt, raw };
     return { status: "ok", draft, ops: built.ops, anchorId: built.anchorId, attempts: attempt, raw, criticIssues };
   }
-  return { status: "refused", issues: retry, attempts: DIRECTOR_ATTEMPTS, raw };
+  return { status: "refused", issues: retry, refusal: refusalOf(stage, retry), attempts: DIRECTOR_ATTEMPTS, raw };
 }
 
 export interface BranchRun extends Omit<DirectorRun, "sealsOn"> {
@@ -85,35 +91,40 @@ export interface BranchRun extends Omit<DirectorRun, "sealsOn"> {
 
 export type BranchOutcome =
   | { status: "ok"; draft: DirectorDraft; ops: LivingOpPayload[]; stubId: string; attempts: number; raw: string }
-  | { status: "refused"; issues: string[]; attempts: number; raw: string };
+  | { status: "refused"; issues: string[]; refusal: DirectorRefusal; attempts: number; raw: string };
 
 export async function runBranch(run: BranchRun, model: ModelCall, ask: ModelAsk): Promise<BranchOutcome> {
   let retry: string[] = [];
+  let stage: RefusalStage = "parse";
   let raw = "";
   for (let attempt = 1; attempt <= DIRECTOR_ATTEMPTS; attempt += 1) {
     raw = await askText(model, renderBranchPrompt({ ...run.input, ...(retry.length ? { retry } : {}) }, run.context), { ...ask, maxTokens: DIRECTOR_MAX_TOKENS });
     const parsed = parseDirectorDraft(raw, run.story);
     if (!parsed.ok) {
       retry = parsed.issues;
+      stage = "parse";
       continue;
     }
     const draft = { ...parsed.draft, anchor: { ...parsed.draft.anchor, final: false, snapshot: {} }, newQualities: [], newChapter: false };
     const built = buildBranchOps(run.story, run.frontierId, run.targetId, run.branchId, draft);
     const checked = checkDirectorOps({ raw: run.raw, story: run.story, frontierId: run.frontierId, ops: built.ops, values: run.values, latched: run.latched, convergeTo: run.targetId });
-    const issues = [...built.issues, ...checked.issues, ...guardDraft(draft, run.guard)];
+    const guarded = guardDraft(draft, run.guard);
+    const issues = [...built.issues, ...checked.issues, ...guarded];
     if (issues.length) {
       retry = issues;
+      stage = built.issues.length || checked.issues.length ? "ops" : "guard";
       continue;
     }
     const criticIssues = run.critic && !isPlanted(model, ask) ? await critique(run, draft, model, ask) : [];
     if (criticIssues.length && attempt < DIRECTOR_ATTEMPTS) {
       retry = criticIssues;
+      stage = "critic";
       continue;
     }
-    if (criticIssues.length) return { status: "refused", issues: criticIssues, attempts: attempt, raw };
+    if (criticIssues.length) return { status: "refused", issues: criticIssues, refusal: refusalOf("critic", criticIssues), attempts: attempt, raw };
     return { status: "ok", draft, ops: built.ops, stubId: built.stubId, attempts: attempt, raw };
   }
-  return { status: "refused", issues: retry, attempts: DIRECTOR_ATTEMPTS, raw };
+  return { status: "refused", issues: retry, refusal: refusalOf(stage, retry), attempts: DIRECTOR_ATTEMPTS, raw };
 }
 
 async function critique(run: Pick<DirectorRun, "input" | "guard">, draft: DirectorDraft, model: ModelCall, ask: ModelAsk): Promise<string[]> {

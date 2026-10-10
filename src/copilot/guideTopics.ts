@@ -316,15 +316,15 @@ export const GUIDE_TOPICS = {
     text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
       + "when play reaches the last written anchor (authored_until in a hybrid), the story director writes the next one (liv_<n>, a stub before it, at most 2 new qualities, "
       + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
-      + "A player who leaves every exit gets a branch (topic branching). Save as story keeps reached turning points only.",
+      + "Limits: name 60 chars, objective 400 (over-long is cut at a sentence, else asked again). Save as story keeps reached turning points only.",
   },
   branching: {
     title: "Branches that follow the player",
     fields: "stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
-    text: "Nothing to declare: any turning point with exits and an anchor after them. Exits' extraction_hint says what fits. After a reply that moved nowhere, the "
-      + "judge reads whether the player fits an exit; 2 'none' in a row (p>=0.6) or one p>=0.9, or two refusals, is divergence. The director then writes "
-      + "liv_b<n>_way from here, rejoining the next anchor, applied at a boundary. Prefetch: one more way out of the turning point the player is at, written ahead. "
-      + "At most one branch per turning point; a swipe takes it back. All on by default; switch off branching, prefetch, or judge use divergence.",
+    text: "Authored turning points with exits and an anchor after them; never where the living director writes. Exits' extraction_hint says what fits. "
+      + "Once per player turn that moved nowhere, the judge reads whether it fits an exit; only a turn that commits to an action counts (questions, talk, OOC "
+      + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
+      + "Prefetch: one more way out, written ahead. One branch per turning point; a swipe takes it back.",
   },
   "living-cards": {
     title: "Living cards",

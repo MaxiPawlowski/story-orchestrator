@@ -1,4 +1,10 @@
 import { renderAgencyPolicy, DEFAULT_AGENCY, LIVING_MAX_NAME_CHARS, LIVING_MAX_OBJECTIVE_CHARS, type PrimitiveValue, type TensionLevel } from "@engine/index";
+import { LIVING_MAX_RUBRIC_CHARS, wordsFor } from "./parse";
+
+export const LENGTH_LIMITS = `- Length limits, each one enforced (an answer over any of them is refused): `
+  + `name at most ${LIVING_MAX_NAME_CHARS} characters (two to six words); `
+  + `objective at most ${LIVING_MAX_OBJECTIVE_CHARS} characters (about ${wordsFor(LIVING_MAX_OBJECTIVE_CHARS)} words, one or two sentences); `
+  + `each rubric at most ${LIVING_MAX_RUBRIC_CHARS} characters (one short question). Count before you answer; shorter is better.`;
 import { LIVING_MAX_NEW_QUALITIES } from "./types";
 
 export interface DirectorQualityLine {
@@ -75,6 +81,7 @@ export function renderDirectorPrompt(input: DirectorInput): string {
     `- Build on what the player actually pursued, above all the open threads; a refusal is something the world answers, not a road to force again.`,
     `- The name is a short scene heading of two to six words (at most ${LIVING_MAX_NAME_CHARS} characters) that names a place or situation, never an outcome.`,
     `- The objective is one or two sentences (at most ${LIVING_MAX_OBJECTIVE_CHARS} characters).`,
+    LENGTH_LIMITS,
     `- "opens_when" says what must happen in play before the story heads there. It must NOT already be true now, and play must be able to make it true.`,
     `  Either reuse a story value: {"reuse":{"q":"<key>","op":"==|!=|>=|<=|>|<|in","v":<literal>}} (only keys listed above with a reader that is not locked against it),`,
     `  or declare one new yes/no value: {"new":{"key":"short_snake_key","rubric":"Did <something observable> happen?"}}.`,
@@ -146,6 +153,7 @@ export function renderBranchPrompt(input: DirectorInput, branch: BranchContext):
     `- "opens_when" declares one new yes/no value whose rubric asks whether the player is pursuing this, in words a reader of the chat can check: `
       + `{"new":{"key":"short_snake_key","rubric":"Is the player ...?"}}.`,
     `- Never put anything private (a character's hidden plan or secret) in the name, the objective or the rubric.`,
+    LENGTH_LIMITS,
     `Agency policy:\n${renderAgencyPolicy(DEFAULT_AGENCY)}`,
     ...(input.retry?.length ? [`Your previous answer was refused: ${input.retry.join("; ")}. Fix exactly that.`] : []),
     `Return exact JSON only: {"name":"...","objective":"...","tension":"calm|stirring|tense|critical|peak",`
