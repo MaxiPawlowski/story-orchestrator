@@ -1,5 +1,5 @@
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
-import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
+import { createJudgeGate, defaultJudgeSettings, JudgeBusyError, LORE_CONTENT_CHARS, LORE_RETRY_WAIT_MS, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
 import { LoreSelector } from "./loreSelect";
@@ -41,16 +41,22 @@ const setup = (options: {
   buffer?: (type?: string) => ScanBufferView | null;
   drafted?: () => string | null;
   roster?: unknown[];
+  refuse?: (request: JudgeRequest, sent: number) => Error | null;
+  wait?: (ms: number) => Promise<void>;
 } = {}) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, loreSelect: true, ...options.uses } };
   let lastMessageId = 4;
   const requests: JudgeRequest[] = [];
   const records: Array<{ use: string; p?: Record<string, number | string> }> = [];
+  let skew = 0;
   const judge = new JudgeRuntime({ ownership: testOwnership(),
+    gate: createJudgeGate({ now: () => Date.now() + skew }),
     getSettings: () => settings,
     transport: async (request) => {
       requests.push(request);
       if (options.fail) throw new Error("down");
+      const refused = options.refuse?.(request, requests.length);
+      if (refused) throw refused;
       return { model: "jev-1.13.0", answers: Object.fromEntries(Object.entries(request.questions).map(([id, question]) => [id, { type: "noul" as const, noul: Object.entries(P).find(([title]) => question.instructions.includes(`"${title}"`))?.[1] ?? 0.1 }])) };
     },
     status: async () => ({ configured: true }),
@@ -75,6 +81,7 @@ const setup = (options: {
     ownership,
     ...(options.buffer ? { getScanBuffer: options.buffer } : {}),
     ...(options.drafted ? { getDrafted: options.drafted } : {}),
+    ...(options.wait ? { wait: async (ms: number) => { skew += ms; await options.wait?.(ms); } } : {}),
   });
   return {
     selector, requests, records, forced, context,
@@ -276,8 +283,50 @@ describe("R12: entries ST's own scan already settles never reach the judge", () 
     const selection = await after.selector.select("GENERATION_STARTED");
     const rated = (env: ReturnType<typeof setup>) => env.requests.reduce((sum, request) => sum + Object.keys(request.questions).length, 0);
     expect({ before: { candidates: rated(before), calls: before.requests.length }, after: { candidates: rated(after), calls: after.requests.length } })
-      .toEqual({ before: { candidates: 267, calls: 5 }, after: { candidates: 240, calls: 4 } });
+      .toEqual({ before: { candidates: 267, calls: 1 }, after: { candidates: 240, calls: 1 } });
     expect(selection?.left.filter((item) => item.reason === "keyword")).toHaveLength(26);
     expect(selection?.left.filter((item) => item.reason === "self")).toHaveLength(1);
+  });
+});
+
+describe("F21: a chunk the plugin turned away is asked once more, so exclusive mode gets a complete selection", () => {
+  const library = Array.from({ length: 263 }, (_, index) => entry("Story Lore", index + 1, { comment: `Story Lore ${index + 1}`, content: "x".repeat(LORE_CONTENT_CHARS) }));
+  const secondChunk = (request: JudgeRequest) => Object.values(request.questions).some((question) => question.instructions.includes('"Story Lore 263"'));
+  const waits: number[] = [];
+  const wait = async (ms: number) => { waits.push(ms); };
+
+  it("re-asks only the refused chunk after the cool-down and records the complete selection", async () => {
+    waits.length = 0;
+    const env = setup({ entries: library, wait, refuse: (request, sent) => (secondChunk(request) && sent <= 2 ? new JudgeBusyError(429, 700) : null) });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.requests.filter(secondChunk)).toHaveLength(2);
+    expect(env.requests.filter((request) => !secondChunk(request))).toHaveLength(1);
+    expect(waits).toHaveLength(1);
+    expect(waits[0]).toBeGreaterThan(0);
+    expect(waits[0]).toBeLessThanOrEqual(LORE_RETRY_WAIT_MS);
+    expect(env.selector.completeSelection()?.picks).toEqual([{ world: "Story Lore", uid: 3 }, { world: "Story Lore", uid: 1 }]);
+  });
+
+  it("control: refused twice, the selection stays incomplete and the keyword scan stands", async () => {
+    const env = setup({ entries: library, wait, refuse: (request) => (secondChunk(request) ? new JudgeBusyError(429, 700) : null) });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.requests.filter(secondChunk)).toHaveLength(2);
+    expect(env.selector.completeSelection()).toBeNull();
+  });
+
+  it("control: a cool-down longer than the reply path can wait is not waited out", async () => {
+    waits.length = 0;
+    const env = setup({ entries: library, wait, refuse: (request, sent) => (secondChunk(request) && sent <= 2 ? new JudgeBusyError(429, LORE_RETRY_WAIT_MS + 2000) : null) });
+    await env.selector.select("MESSAGE_SENT");
+    expect(waits).toEqual([]);
+    expect(env.requests.filter(secondChunk)).toHaveLength(1);
+    expect(env.selector.completeSelection()).toBeNull();
+  });
+
+  it("control: a judge error is not retried", async () => {
+    const env = setup({ entries: library, wait, refuse: (request) => (secondChunk(request) ? new Error("bad answer") : null) });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.requests.filter(secondChunk)).toHaveLength(1);
+    expect(env.selector.completeSelection()).toBeNull();
   });
 });

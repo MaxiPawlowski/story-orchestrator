@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildCuratorFilterRequest, curatorFilterKeep, runCuratorFilterCalibration, type CuratorFilterCase } from "./curatorFilter";
-import { buildLoreRequests, loreCandidates, loreKey, loreTopK, pickLore, readLore, type LoreEntry } from "./lore";
+import { buildLoreRequests, loreCandidates, loreChunks, loreKey, loreTopK, pickLore, readLore, type LoreEntry } from "./lore";
 import { resolveLoreCases, runLoreCalibration, type LoreCalibrationFixture } from "./loreCalibration";
-import { LORE_CHUNK, LORE_CONTENT_CHARS } from "./policy";
-import { validateJudgeRequest } from "./questions";
+import { LORE_CONTENT_CHARS } from "./policy";
+import { estimateJudgeTotalTokens, validateJudgeRequest } from "./questions";
+import { JUDGE_MAX_ESTIMATED_TOTAL_TOKENS } from "./types";
 import { judgeFamilyScores } from "./selfTest";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 
@@ -18,14 +19,37 @@ describe("lore-select core (v2.2 plan 04)", () => {
     expect(loreCandidates(entries, [])).toEqual([]);
   });
 
-  it("asks one question per entry over one scene state, chunked at 64 and clipped at 600 chars", () => {
-    const many = Array.from({ length: LORE_CHUNK + 2 }, (_, index) => entry(index, { content: "x".repeat(LORE_CONTENT_CHARS + 50) }));
+  it("asks one question per entry over one scene state, clipped at 600 chars, in one request while it fits", () => {
+    const many = Array.from({ length: 66 }, (_, index) => entry(index, { content: "x".repeat(LORE_CONTENT_CHARS + 50) }));
     const chunks = buildLoreRequests(many, scene);
-    expect(chunks.map((chunk) => chunk.entries.length)).toEqual([LORE_CHUNK, 2]);
+    expect(chunks.map((chunk) => chunk.entries.length)).toEqual([66]);
     expect(chunks[0].request.state).toEqual({ scene: { name: "The Guild", goal: "Sign up." }, transcript: [{ id: "msg_1", speaker: "Max", text: "Who is the receptionist?" }] });
-    expect(chunks[1].request.questions["e:1"].instructions).toContain(`Entry "Entry ${LORE_CHUNK + 1}"`);
+    expect(chunks[0].request.questions["e:65"].instructions).toContain('Entry "Entry 65"');
     expect(chunks[0].request.questions["e:0"].instructions).toContain(`${"x".repeat(LORE_CONTENT_CHARS)}…`);
     chunks.forEach((chunk) => expect(validateJudgeRequest(chunk.request)).toEqual([]));
+  });
+
+  it("F16: 263 lore-sized candidates take two even requests inside TypeSafe's whole-request limit, not five of 64", () => {
+    const window = Array.from({ length: 12 }, (_, index) => ({ speaker: index % 2 ? "Guide" : "Max", text: "y".repeat(400) }));
+    const many = Array.from({ length: 263 }, (_, index) => entry(index, { comment: `Entry ${index} of the realm`, content: "x".repeat(LORE_CONTENT_CHARS + 50) }));
+    const chunks = buildLoreRequests(many, { ...scene, window });
+    expect(chunks).toHaveLength(2);
+    expect(Math.abs(chunks[0].entries.length - chunks[1].entries.length)).toBeLessThanOrEqual(1);
+    expect(chunks.flatMap((chunk) => chunk.entries.map((item) => item.uid))).toEqual(many.map((item) => item.uid));
+    chunks.forEach((chunk) => {
+      expect(validateJudgeRequest(chunk.request)).toEqual([]);
+      expect(estimateJudgeTotalTokens(chunk.request)).toBeLessThanOrEqual(JUDGE_MAX_ESTIMATED_TOTAL_TOKENS);
+      expect(Object.keys(chunk.request.questions)).toEqual(chunk.entries.map((_, index) => `e:${index}`));
+    });
+    expect(buildLoreRequests(many, { ...scene, window }, 20_000).length).toBeGreaterThan(2);
+  });
+
+  it("packs to the limit and splits evenly only when that takes no extra request", () => {
+    expect(loreChunks([5, 5, 5, 5, 5], 100)).toEqual([[0, 1, 2, 3, 4]]);
+    expect(loreChunks([4, 4, 4, 4, 4], 12)).toEqual([[0, 1, 2], [3, 4]]);
+    expect(loreChunks([3, 3, 3, 3], 9)).toEqual([[0, 1], [2, 3]]);
+    expect(loreChunks([50, 1], 10)).toEqual([[0], [1]]);
+    expect(loreChunks([], 10)).toEqual([]);
   });
 
   it("picks by p over the floor, capped at top_k (default 4, max 12)", () => {
@@ -71,8 +95,11 @@ describe("curator pre-filter core (v2.2 plan 04)", () => {
 describe("lore calibration (real answers, production shape)", () => {
   const replay = (name: string) => {
     const golden = JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge", name), "utf8")) as { model: string; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
-    const byRequest = new Map(golden.calls.map((call) => [JSON.stringify([call.state, call.questions]), call.answers]));
-    return async (request: JudgeRequest) => ({ answers: byRequest.get(JSON.stringify([request.state, request.questions])) ?? null, model: golden.model, latencyMs: 0, stateChars: 0, questionCount: Object.keys(request.questions).length, cached: false });
+    const byQuestion = new Map(golden.calls.flatMap((call) => Object.entries(call.questions as Record<string, unknown>).map(([id, question]) => [JSON.stringify([call.state, question]), call.answers[id]] as const)));
+    return async (request: JudgeRequest) => {
+      const answers = Object.entries(request.questions).map(([id, question]) => [id, byQuestion.get(JSON.stringify([request.state, question]))] as const);
+      return { answers: answers.every(([, answer]) => answer) ? Object.fromEntries(answers) as Record<string, JudgeAnswer> : null, model: golden.model, latencyMs: 0, stateChars: 0, questionCount: answers.length, cached: false };
+    };
   };
   const fixture = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", name), "utf8"));
 
@@ -83,7 +110,7 @@ describe("lore calibration (real answers, production shape)", () => {
     expect(report.rows.some((row) => row.id.endsWith(".precision:SO-J11 Adolion World.1"))).toBe(false);
   });
 
-  it("held-out windows (66 entries, two calls each): recall and precision at their floors", async () => {
+  it("held-out windows (66 entries, recorded as two calls of 64 + 2, replayed per question as one): recall and precision at their floors", async () => {
     const data = fixture("lore-holdout.json") as LoreCalibrationFixture & { floors: Record<string, number> };
     const report = await runLoreCalibration(replay("lore-holdout.json"), resolveLoreCases(data));
     expect(judgeFamilyScores(report, data.floors).every((row) => row.ok)).toBe(true);

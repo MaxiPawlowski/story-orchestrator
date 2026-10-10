@@ -1,3 +1,5 @@
+import { JUDGE_MAX_ESTIMATED_TOTAL_TOKENS } from "./types";
+
 export const JUDGE_DEFAULT_MODEL = "jev-1.13.0";
 export const JUDGE_DEFAULT_TIMEOUT_MS = 1500;
 export const JUDGE_CALL_RING_LIMIT = 300;
@@ -63,8 +65,11 @@ export const LORE_MIN_P = 0.6;
 export const LORE_TOP_K = 4;
 export const LORE_MAX_TOP_K = 12;
 export const LORE_CHUNK = 64;
+export const LORE_REQUEST_TOKENS = JUDGE_MAX_ESTIMATED_TOTAL_TOKENS;
 export const LORE_CONTENT_CHARS = 600;
 export const LORE_TIMEOUT_MS = 1500;
+export const LORE_RETRY_FALLBACKS: readonly string[] = ["busy", "timeout"];
+export const LORE_RETRY_WAIT_MS = 1000;
 
 export const CURATOR_FILTER_TIMEOUT_MS = 4000;
 export const CURATOR_FILTER_P = 0.2;

@@ -1,7 +1,7 @@
 import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
+import { buildLoreRequests, loreCandidates, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
@@ -20,6 +20,7 @@ export interface LoreSelectDeps {
   force: (entries: HostScannableEntry[]) => Promise<WriteResult<{ entries: number }>>;
   getScanBuffer?: (generationType?: string) => ScanBufferView | null;
   getDrafted?: () => string | null;
+  wait?: (ms: number) => Promise<void>;
   // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
 }
@@ -40,6 +41,8 @@ export interface LoreSelection {
   picks: Array<{ world: string; uid: number; comment: string; p: number }>;
   left: Array<{ world: string; uid: number; comment: string; reason: "keyword" | "self" }>;
 }
+
+const sleep = (ms: number) => new Promise<void>((resolve) => { setTimeout(resolve, ms); });
 
 const sameBook = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
 
@@ -123,7 +126,7 @@ export class LoreSelector {
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
     const chunks = buildLoreRequests(rated, { checkpointName: checkpoint.name, objective: checkpoint.objective, window: this.deps.getWindow() });
-    const answered = await Promise.all(chunks.map(async (chunk) => {
+    const ask = async (chunk: (typeof chunks)[number]) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,
         summarize: (answers): Record<string, number | string> => ({
@@ -131,8 +134,14 @@ export class LoreSelector {
           ...Object.fromEntries((answers ? pickLore(readLore(answers, chunk.entries), pickScope) : []).map((pick) => [pick.entry.comment || `${pick.entry.world}.${pick.entry.uid}`, pick.p]))
         }),
       });
-      return result.answers ? readLore(result.answers, chunk.entries) : null;
-    }));
+      return { scored: result.answers ? readLore(result.answers, chunk.entries) : null, retry: !result.answers && LORE_RETRY_FALLBACKS.includes(result.fallback ?? "") };
+    };
+    const first = await Promise.all(chunks.map(ask));
+    const missed = first.some((outcome) => outcome.retry);
+    const cooling = missed ? judge.coolingFor() : 0;
+    const retry = missed && cooling <= LORE_RETRY_WAIT_MS && run.stillOwns();
+    if (retry && cooling > 0) await (this.deps.wait ?? sleep)(cooling);
+    const answered = await Promise.all(first.map(async (outcome, index) => (outcome.retry && retry && run.stillOwns() ? (await ask(chunks[index])).scored : outcome.scored)));
     const picked: LorePick[] = pickLore(answered.flatMap((scored) => scored ?? []), pickScope);
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));

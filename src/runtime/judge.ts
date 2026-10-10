@@ -72,6 +72,10 @@ export class JudgeRuntime {
     this.availability = null;
   }
 
+  coolingFor(): number {
+    return this.gate.coolingFor();
+  }
+
   private async currentStatus(): Promise<JudgeStatusLike | null> {
     const settings = this.deps.getSettings();
     const key = `${settings.enabled}:${settings.model}`;
