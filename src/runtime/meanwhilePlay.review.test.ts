@@ -93,9 +93,10 @@ describe("v2.8 agenda proposals in play: cadence", () => {
     expect(meanwhileDue(state, { ...open, boundary: 10 + MEANWHILE_MIN_GAP })).toBe(true);
   });
 
-  it("the default install proposes (review), and a stored mode outside review/off falls back to it", () => {
-    expect(defaultGlobalSettings().stagecraft.meanwhileAcceptMode).toBe("review");
-    expect(sanitizeGlobalSettings({ stagecraft: { meanwhileAcceptMode: "auto" } }).stagecraft.meanwhileAcceptMode).toBe("review");
+  it("the default install proposes and accepts automatically, and a stored mode outside auto/review/off falls back to it", () => {
+    expect(defaultGlobalSettings().stagecraft.meanwhileAcceptMode).toBe("auto");
+    expect(sanitizeGlobalSettings({ stagecraft: { meanwhileAcceptMode: "always" } }).stagecraft.meanwhileAcceptMode).toBe("auto");
+    expect(sanitizeGlobalSettings({ stagecraft: { meanwhileAcceptMode: "review" } }).stagecraft.meanwhileAcceptMode).toBe("review");
     expect(sanitizeGlobalSettings({ stagecraft: { meanwhileAcceptMode: "off" } }).stagecraft.meanwhileAcceptMode).toBe("off");
   });
 
@@ -140,6 +141,18 @@ describe("v2.8 agenda proposals in play: cadence", () => {
 });
 
 describe("v2.8 agenda proposals in play: propose only, applied at a boundary", () => {
+  it("in auto mode a pass accepts its own proposals through the decide path, and they land at the next boundary", async () => {
+    const run = rig({ mode: "auto" });
+    const jobs: SchedulerJob[] = [];
+    run.port.schedule("checkpoint", (job) => jobs.push(job));
+    await jobs[0].run?.();
+    expect(run.calls.decide).toEqual(["p1:accepted"]);
+    expect(run.extras.agendaProposals?.proposals.map((entry) => entry.status)).toEqual(["accepted"]);
+    expect(run.calls.injection).toBe(0);
+    expect(await run.port.land({ boundary: 11, messageId: 22 })).toBe(1);
+    expect(landedMeanwhile(run.extras.agendaProposals, "arin")).toHaveLength(1);
+  });
+
   it("a pass stores proposals as proposed; nothing reaches a private block and no injection is refreshed", async () => {
     const run = rig();
     const jobs: SchedulerJob[] = [];

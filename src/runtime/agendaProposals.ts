@@ -6,9 +6,9 @@ export const MEANWHILE_PASS_CAP = 64;
 export const MEANWHILE_MIN_GAP = 8;
 export const PROPOSAL_STATUSES = ["proposed", "accepted", "applied", "rejected"] as const;
 export type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
-export const MEANWHILE_ACCEPT_MODES = ["review", "off"] as const;
+export const MEANWHILE_ACCEPT_MODES = ["auto", "review", "off"] as const;
 export type MeanwhileAcceptMode = (typeof MEANWHILE_ACCEPT_MODES)[number];
-export const DEFAULT_MEANWHILE_ACCEPT_MODE: MeanwhileAcceptMode = "review";
+export const DEFAULT_MEANWHILE_ACCEPT_MODE: MeanwhileAcceptMode = "auto";
 
 export interface ProposalLanding {
   boundary: number;

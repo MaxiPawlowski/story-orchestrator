@@ -202,7 +202,7 @@ export const SETTING_COPY = {
   "stagecraft.meanwhileAcceptMode": copy(
     "Off-stage events",
     "For stories whose characters have plans: when the story moves on or a scene ends, the memory model proposes one short thing a character did off stage toward that plan. "
-      + "Each one waits for you in Author view and, once accepted, reaches only that character at the next reply. Do not propose: no calls are made.",
+      + "Automatically: each one is accepted at once and reaches only that character at the next reply. I accept each one: it waits for you in Author view. Do not propose: no calls are made.",
   ),
   "stagecraft.createEnabled": copy(
     "New lorebook entries",

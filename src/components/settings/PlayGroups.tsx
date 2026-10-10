@@ -158,6 +158,7 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => {
           value={snapshot.stagecraft.settings.meanwhileAcceptMode ?? DEFAULT_MEANWHILE_ACCEPT_MODE}
           onChange={(event) => manager.setStagecraftSettings({ meanwhileAcceptMode: isMeanwhileAcceptMode(event.target.value) ? event.target.value : DEFAULT_MEANWHILE_ACCEPT_MODE })}
         >
+          <option value="auto">Propose and accept them automatically</option>
           <option value="review">Propose them; I accept each one</option>
           <option value="off">Do not propose</option>
         </select>

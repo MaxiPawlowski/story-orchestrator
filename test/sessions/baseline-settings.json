@@ -108,7 +108,7 @@
       "wardenEnabled": true,
       "wardenAcceptMode": "review",
       "agencyAcceptMode": "auto",
-      "meanwhileAcceptMode": "review",
+      "meanwhileAcceptMode": "auto",
       "createEnabled": true,
       "createRequireMeasured": false
     },

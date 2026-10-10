@@ -51,7 +51,7 @@ describe("v2.7 33 W2: the agency family has its own accept mode", () => {
   it("defaults to auto, and an install that never stored the key reads auto beside its stored shared mode", () => {
     expect(defaultGlobalSettings().stagecraft.agencyAcceptMode).toBe("auto");
     const migrated = sanitizeGlobalSettings({ stagecraft: { curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" } }).stagecraft;
-    expect(migrated).toEqual({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", meanwhileAcceptMode: "review", createEnabled: true, createRequireMeasured: false });
+    expect(migrated).toEqual({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto", meanwhileAcceptMode: "auto", createEnabled: true, createRequireMeasured: false });
     expect(sanitizeGlobalSettings({ stagecraft: { agencyAcceptMode: "review" } }).stagecraft.agencyAcceptMode).toBe("review");
     expect(sanitizeGlobalSettings({ stagecraft: { agencyAcceptMode: "sometimes" } }).stagecraft.agencyAcceptMode).toBe("auto");
   });

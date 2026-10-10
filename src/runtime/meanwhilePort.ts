@@ -45,7 +45,11 @@ export function createMeanwhilePort(deps: MeanwhilePortDeps) {
         priority: MEANWHILE_JOB_PRIORITY,
         reason: `meanwhile:${trigger}`,
         run: async () => {
-          if (mode() !== "off") await proposer?.propose();
+          if (mode() === "off" || !proposer) return;
+          await proposer.propose();
+          if (mode() !== "auto") return;
+          const waiting = (deps.extras().agendaProposals?.proposals ?? []).filter((proposal) => proposal.status === "proposed");
+          for (const proposal of waiting) await proposer.decide(proposal.id, "accepted", "accepted automatically");
         },
       });
       return true;
