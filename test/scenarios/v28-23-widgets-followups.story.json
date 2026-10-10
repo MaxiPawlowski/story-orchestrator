@@ -1,0 +1,40 @@
+{
+  "format": 2,
+  "id": "so-v28-23-widgets-followups",
+  "title": "SO-V28-23 Widget follow-ups",
+  "description": "v2.8 plan 23 A4 no-model fixture: a meter and a roster that say when they changed, a timeline with dates, panel buttons that open a drawer tab or ask for a public check, and motion off.",
+  "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" }],
+  "display": { "motion": false },
+  "qualities": [
+    { "key": "supplies", "type": "int", "source": "extractor", "rubric": "How many supplies the party has, 0-10.", "display": { "public": true, "label": "Supplies", "as": "meter", "min": 0, "max": 10 } },
+    {
+      "key": "arin_status", "type": "enum", "source": "extractor", "rubric": "How Arin is.", "values": ["fine", "hurt"], "player_labels": { "fine": "Fine", "hurt": "Wounded" },
+      "display": { "public": true, "label": "Arin", "as": "word" }
+    },
+    { "key": "tried_climb", "type": "bool", "source": "extractor", "rubric": "Did the player try to climb the wall?" },
+    { "key": "climb_ok", "type": "bool", "source": "code", "rubric": "The climb check's result." },
+    { "key": "secret_found", "type": "bool", "source": "extractor", "rubric": "SO-HIDDEN-RUBRIC" }
+  ],
+  "checkpoints": [
+    { "id": "gate", "name": "The gate", "player_name": "The gate", "objective": "Get over the wall.", "type": "anchor", "start": true },
+    { "id": "yard", "name": "The yard", "player_name": "The yard", "objective": "Cross the yard.", "type": "anchor" },
+    { "id": "vault", "name": "SO-HIDDEN-CHECKPOINT", "objective": "Hidden.", "type": "anchor" }
+  ],
+  "transitions": [
+    {
+      "from": "gate", "to": "yard", "priority": 0, "gate": { "all": [{ "q": "tried_climb", "op": "==", "v": true }, { "q": "climb_ok", "op": "==", "v": true }] },
+      "check": { "id": "climb", "label": "Climb", "quality": "climb_ok", "roll": { "sides": 20, "target": 1 }, "narrate": "public" }
+    },
+    { "from": "yard", "to": "vault", "priority": 0, "gate": { "q": "secret_found", "op": "==", "v": true } }
+  ],
+  "widgets": [
+    {
+      "id": "stock", "kind": "meters", "title": "Stock", "bind": { "qualities": ["supplies"] }
+    },
+    {
+      "id": "party", "kind": "roster", "title": "The party", "icon": "shield", "rows": [{ "id": "arin", "member": "arin", "quality": "arin_status" }],
+      "actions": [{ "id": "notes", "text": "Open what I know", "open": "memory" }, { "id": "climb", "text": "I try to climb the wall.", "check": "climb" }]
+    },
+    { "id": "road", "kind": "timeline", "title": "The road", "dates": { "gate": "Night 1", "yard": "Night 1, late" } }
+  ]
+}

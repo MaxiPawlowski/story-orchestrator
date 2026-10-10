@@ -3,18 +3,20 @@ import type { WidgetView } from "@runtime/gameTypes";
 import {
   FRAME_HEIGHT, FRAME_SANDBOX, buildSrcdoc, dataNotification, frameData, handleViewMessage, teardownNotification, type AuditEntry, type BridgeState,
 } from "@runtime/htmlWidget";
+import type { WidgetDrawerTab } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
 import { WIDGET_TEXT } from "@features/widgetCopy";
 
 export interface HtmlWidgetFrameProps {
   widget: WidgetView;
   onIntent: (text: string) => WriteResult;
+  onOpen?: (tab: WidgetDrawerTab) => WriteResult;
   onAudit: (entry: AuditEntry) => void;
   onNavigatedAway: () => void;
   now?: () => number;
 }
 
-export const HtmlWidgetFrame = ({ widget, onIntent, onAudit, onNavigatedAway, now = Date.now }: HtmlWidgetFrameProps) => {
+export const HtmlWidgetFrame = ({ widget, onIntent, onOpen, onAudit, onNavigatedAway, now = Date.now }: HtmlWidgetFrameProps) => {
   const frame = useRef<HTMLIFrameElement>(null);
   const loads = useRef(0);
   const bridge = useRef<BridgeState>({ lastIntentAt: null });
@@ -24,15 +26,17 @@ export const HtmlWidgetFrame = ({ widget, onIntent, onAudit, onNavigatedAway, no
   const dataKey = JSON.stringify(frameData(widget));
   const latest = useRef(widget);
   latest.current = widget;
-  const handlers = useRef({ onIntent, onAudit, onNavigatedAway, now });
-  handlers.current = { onIntent, onAudit, onNavigatedAway, now };
+  const handlers = useRef({ onIntent, onOpen, onAudit, onNavigatedAway, now });
+  handlers.current = { onIntent, onOpen, onAudit, onNavigatedAway, now };
 
   useEffect(() => {
     const node = frame.current;
     const listen = (event: MessageEvent) => {
       const view = node?.contentWindow;
       if (!view || event.source !== view) return;
-      const outcome = handleViewMessage(event.data, { widget: latest.current, now: handlers.current.now(), state: bridge.current, fill: (text) => handlers.current.onIntent(text) });
+      const outcome = handleViewMessage(event.data, { widget: latest.current, now: handlers.current.now(), state: bridge.current, fill: (text) => handlers.current.onIntent(text),
+        ...(handlers.current.onOpen ? { open: handlers.current.onOpen } : {}),
+      });
       bridge.current = outcome.state;
       handlers.current.onAudit(outcome.audit);
       if (outcome.height !== undefined) setHeight(outcome.height);

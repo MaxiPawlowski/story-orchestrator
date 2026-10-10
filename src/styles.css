@@ -813,6 +813,7 @@ dialog#so-briefing::backdrop {
   :is(#so-panels-root, #drawer-manager) .so-game-box { transition: background-color 300ms ease-out; }
   :is(#so-panels-root, #drawer-manager) .so-game-clue.so-game-fresh { animation: so-game-reveal 500ms ease-out; }
   :is(#so-panels-root, #drawer-manager) .so-game-pin.so-game-fresh { animation: so-game-pin-drop 500ms ease-out; }
+  :is(#so-panels-root, #drawer-manager) [data-motion="off"] :is(.so-game-bar-fill, .so-game-box, .so-game-fresh) { transition: none; animation: none; }
 }
 
 #so-panels-root [data-accent="gold"] { --so-game-accent: #c9a227; }

@@ -1,6 +1,7 @@
 import React from "react";
 import {
   WIDGET_ACCENTS, WIDGET_AUDIENCES, WIDGET_ICONS, WIDGET_KINDS, type StoryWidget, type WidgetBind, type WidgetClue, type WidgetClueLink, type WidgetIntent, type WidgetOptions, type WidgetPin,
+  type WidgetRosterRow,
 } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
@@ -8,8 +9,8 @@ import { addWidget, removeWidget, updateWidget } from "../gameMutations";
 import { JsonField, OptionalGate, TextField, optionalText } from "./GameFields";
 import WidgetPreview from "./WidgetPreview";
 
-const HELP = "A story panel shows qualities, quests, the path, a clock, a wall of clues or a map with pins. A player panel may bind only public qualities; "
-  + "clues and pins stay hidden until found; an author panel shows only in Author view.";
+const HELP = "A story panel shows qualities, quests, the path, a clock, a wall of clues, a map with pins, a roster of statuses or a timeline. A player panel may bind only public qualities; "
+  + "clues and pins stay hidden until found; an author panel shows only in Author view. Buttons put the player's line in the box, open a drawer tab or ask for a public check.";
 
 interface ChoiceProps<T extends string> {
   label: string;
@@ -71,10 +72,17 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
             <textarea className="text_pole st-input font-mono text-xs" rows={6} aria-label={`${name} template`} value={widget.template ?? ""}
               onChange={(event) => patch({ template: event.target.value || undefined })} />
           </label>
-          <JsonField label={`${name} actions`} hint='[{"id", "text"}]: the only lines the panel may put in the box' value={widget.actions}
-            onChange={(actions) => patch({ actions: actions as WidgetIntent[] | undefined })} />
         </>
       )}
+      {widget.kind === "roster" && (
+        <JsonField label={`${name} rows`} hint='[{"id", "member" or "label", "quality": an enum, "when"?}]' value={widget.rows}
+          onChange={(rows) => patch({ rows: rows as WidgetRosterRow[] | undefined })} />
+      )}
+      {widget.kind === "timeline" && (
+        <JsonField label={`${name} dates`} hint='{"checkpointId": "Day 3"}' value={widget.dates} onChange={(dates) => patch({ dates: dates as Record<string, string> | undefined })} />
+      )}
+      <JsonField label={`${name} actions`} hint='[{"id", "text", "open"?: "overview" | "memory", "check"?: a public transition check}]: the buttons this panel offers' value={widget.actions}
+        onChange={(actions) => patch({ actions: actions as WidgetIntent[] | undefined })} />
       <OptionalGate label={`${name} visible when`} gate={widget.visible_when} qualities={qualities} onChange={(visible_when) => patch({ visible_when })} />
       <WidgetPreview widget={widget} />
     </div>

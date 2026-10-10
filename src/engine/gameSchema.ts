@@ -114,7 +114,7 @@ export interface Milestone {
   secret?: boolean;
 }
 
-export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html"] as const;
+export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html", "roster", "timeline"] as const;
 export type WidgetKind = (typeof WIDGET_KINDS)[number];
 export const WIDGET_AUDIENCES = ["player", "author"] as const;
 export type WidgetAudience = (typeof WIDGET_AUDIENCES)[number];
@@ -160,6 +160,14 @@ export interface WidgetPin {
   action?: string;
 }
 
+export interface WidgetRosterRow {
+  id: string;
+  label?: string;
+  member?: string;
+  quality: string;
+  when?: GateNode;
+}
+
 export interface StoryWidget {
   id: string;
   kind: WidgetKind;
@@ -177,11 +185,18 @@ export interface StoryWidget {
   template?: string;
   source?: string;
   actions?: WidgetIntent[];
+  rows?: WidgetRosterRow[];
+  dates?: Record<string, string>;
 }
+
+export const WIDGET_DRAWER_TABS = ["overview", "memory"] as const;
+export type WidgetDrawerTab = (typeof WIDGET_DRAWER_TABS)[number];
 
 export interface WidgetIntent {
   id: string;
   text: string;
+  open?: WidgetDrawerTab;
+  check?: string;
 }
 
 export const questRewardKey = (questId: string): string => `quest_${questId}_rewarded`;

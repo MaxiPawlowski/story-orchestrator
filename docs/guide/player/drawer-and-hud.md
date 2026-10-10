@@ -65,9 +65,12 @@ its own panel you can move and resize.
 - **Journal**: the quests you have found, their steps and progress, what a quest gives you when the story shows it,
   the main line so far, milestones and a short log. A quest you have not found is not listed.
 - **Stat sheet**: what you carry and the meters the story shows in the open.
-- **Story panels**: a clock filling up, a quest board, a wall of clues, a map. A clue wall lists what you have found;
-  a map marks the places you reached, with "you are here". Something found at the last turn is marked new. A clue or
-  a place can carry a button that puts a line in the box where you type; nothing is sent until you send it.
+- **Story panels**: a clock filling up, a quest board, a wall of clues, a map, your party's state, the road so far. A clue
+  wall lists what you have found; a map marks the places you reached, with "you are here"; a timeline lists the places
+  you reached, by chapter. Something found at the last turn is marked new, and a meter, a clock or a party row says how
+  many replies ago it last changed. A clue, a place or a panel can carry a button that puts a line in the box where you
+  type (nothing is sent until you send it), opens the drawer at Overview or Memory, or offers a roll the story shows in
+  the open, with its dice. A story can turn the panels' movement off.
 - **Story-made panels**: a panel page the story brings. It runs shut off from SillyTavern: it sees only what its plain
   panel shows, cannot read your chats or settings or fetch anything, and can only put one of the story's own lines in
   the box. A page that tries to open another page is closed at once.

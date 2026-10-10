@@ -15,7 +15,7 @@ const AuthorQuests = ({ author }: { author: GameAuthorView }) => {
       <div className="font-medium">{GAME_TEXT.authorHeading}</div>
       {hidden.length > 0 && <div data-so="journal-hidden">{GAME_TEXT.authorHidden}: {hidden.map((quest) => `${quest.title} (${quest.id})`).join(", ")}</div>}
       {author.scopeOverflow.length > 0 && <div data-so="journal-overflow">{GAME_TEXT.authorOverflow}: {author.scopeOverflow.join(", ")}</div>}
-      {author.widgets.map((widget) => <WidgetCard key={widget.id} widget={widget} />)}
+      {author.widgets.map((widget) => <WidgetCard key={widget.id} widget={widget} provenance={author.provenance?.[widget.id]} />)}
     </section>
   );
 };

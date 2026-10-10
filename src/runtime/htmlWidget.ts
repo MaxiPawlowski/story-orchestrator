@@ -1,4 +1,5 @@
 import { isRecord } from "@utils/guards";
+import type { WidgetDrawerTab } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
 import type { IntentView, WidgetView } from "./gameTypes";
 
@@ -74,6 +75,7 @@ export interface BridgeContext {
   now: number;
   state: BridgeState;
   fill: (text: string) => WriteResult;
+  open?: (tab: WidgetDrawerTab) => WriteResult;
   theme?: "light" | "dark";
 }
 
@@ -91,6 +93,7 @@ export const ERRORS = {
   unknownIntent: "this panel declares no such action",
   tooSoon: "one action at a time: wait a moment",
   badHeight: "height is a number",
+  noOpen: "this panel cannot open the story drawer here",
 } as const;
 
 const clip = (value: unknown): string | undefined => {
@@ -126,7 +129,7 @@ export function handleViewMessage(raw: unknown, context: BridgeContext): BridgeO
     const result = {
       protocolVersion: BRIDGE_PROTOCOL, hostInfo: { name: "Story Orchestrator" },
       hostCapabilities: { intents: declared(widget).map((intent) => intent.id) },
-      hostContext: { displayMode: "inline", theme: context.theme ?? "dark" }, widget: frameData(widget),
+      hostContext: { displayMode: "inline", theme: context.theme ?? "dark", motion: widget.still ? "off" : "on" }, widget: frameData(widget),
     };
     return { reply: ok(result), audit: audit(raw.method, "ok"), state };
   }
@@ -139,7 +142,7 @@ export function handleViewMessage(raw: unknown, context: BridgeContext): BridgeO
   const intent = declared(widget).find((entry) => entry.id === params.id);
   if (!intent) return { reply: fail(-32602, ERRORS.unknownIntent), audit: audit(raw.method, "refused", params.id), state };
   if (state.lastIntentAt !== null && now - state.lastIntentAt < INTENT_INTERVAL_MS) return { reply: fail(-32000, ERRORS.tooSoon), audit: audit(raw.method, "refused", ERRORS.tooSoon), state };
-  const result = context.fill(intent.text);
+  const result = intent.open ? context.open?.(intent.open) ?? { ok: false as const, reason: ERRORS.noOpen } : context.fill(intent.text);
   const next = { lastIntentAt: now };
   const reply = result.ok ? ok({ proposed: true }) : fail(-32001, result.reason);
   return { reply, audit: audit(raw.method, result.ok ? "ok" : "refused", result.ok ? intent.id : `${intent.id}: ${result.reason}`), intent: { intent, result }, state: next };

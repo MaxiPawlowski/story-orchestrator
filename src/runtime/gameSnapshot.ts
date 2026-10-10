@@ -31,13 +31,14 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const { story, state } = input;
   if (!story || !state || !storyHasGame(story)) return { game: null, gameAuthor: null };
   const composed = composer?.({
-    story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], threads: input.threads, chat: input.chat, castNames: input.castNames,
+    story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
   }) ?? null;
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
     scopeOverflow: scopeDropped(story, state, "quest", input.scopeContext),
     widgets: composed?.authorWidgets ?? [],
+    provenance: composed?.provenance,
   } : null;
   return { game: composed?.player ?? null, gameAuthor };
 }

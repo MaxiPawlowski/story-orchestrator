@@ -1,12 +1,14 @@
 import {
-  checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState, type GateReader, type NormalizedStoryV2,
-  type PrimitiveValue, type Quest, type QuestProgress, type StoryWidget,
+  checkAttempted, checkDice, checksAt, checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState,
+  type GateReader, type NormalizedStoryV2, type PrimitiveValue, type Quality, type Quest, type QuestProgress, type StoryWidget, type WidgetIntent,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type {
-  BoardLane, GameView, LogRowView, MainLineView, MilestoneView, ProgressView, QuestLane, QuestView, SheetGroupView, WidgetBody, WidgetView,
+  BoardLane, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
+  WidgetBody, WidgetView,
 } from "./gameTypes";
 import { previousValues, sheetGroups } from "./gameSheet";
+import { changedAgo, provenanceOf, shownItem } from "./widgetHistory";
 import { checkLabel, type CheckRecord } from "./storyCheckDraws";
 import { questMoveText } from "@features/gameCopy";
 
@@ -22,11 +24,13 @@ export interface GameSources {
   threads: { open: string[]; resolved: string[] };
   chat: readonly unknown[];
   castNames: Record<string, string>;
+  authorView?: boolean;
 }
 
 export interface GameCompose {
   player: GameView;
   authorWidgets: WidgetView[];
+  provenance: Record<string, ProvenanceView[]>;
 }
 
 const STATUS_LABELS: Record<QuestLane, string> = { offered: "Offered", active: "Active", done: "Done", failed: "Failed" };
@@ -115,14 +119,18 @@ const composeLog = (sources: GameSources): LogRowView[] => {
     .slice(0, LOG_LIMIT);
 };
 
-const metersFor = (widget: StoryWidget, sources: GameSources, sheet: SheetGroupView[]): SheetGroupView[] => {
-  const bind = widget.bind;
-  if (!bind || !("quality" in bind || "qualities" in bind || "group" in bind)) return sheet;
-  const grouped = (group: string) => sources.story.qualities.filter((quality) => quality.display?.group === group).map((quality) => quality.key);
+const meterQualities = (widget: StoryWidget | null, story: NormalizedStoryV2): Quality[] => {
+  const bind = widget?.bind;
+  if (!bind || !("quality" in bind || "qualities" in bind || "group" in bind)) return story.qualities.filter((quality) => quality.display);
+  const grouped = (group: string) => story.qualities.filter((quality) => quality.display?.group === group).map((quality) => quality.key);
   const keys = "quality" in bind ? [bind.quality] : "qualities" in bind ? bind.qualities : grouped(bind.group);
-  const qualities = keys.map((key) => sources.story.qualityByKey[key]).filter((quality) => quality?.display);
-  return sheetGroups(qualities, sources.state.blackboard.values, previousValues(sources.boundaryLog));
+  return keys.map((key) => story.qualityByKey[key]).filter((quality) => quality?.display);
 };
+
+const agoOf = (sources: GameSources) => (quality: Quality) => changedAgo(sources.boundaryLog, sources.chat, shownItem(quality));
+
+const sheetOf = (qualities: Quality[], sources: GameSources): SheetGroupView[] =>
+  sheetGroups(qualities, sources.state.blackboard.values, previousValues(sources.boundaryLog), agoOf(sources));
 
 const boardLanes = (widget: StoryWidget, quests: QuestView[], threads: GameSources["threads"]): BoardLane[] => {
   if (widget.bind && "arcs" in widget.bind) return [{ label: "Open", cards: threads.open }, { label: "Resolved", cards: threads.resolved }].filter((lane) => lane.cards.length);
@@ -141,9 +149,57 @@ const clockBody = (widget: StoryWidget, sources: GameSources): WidgetBody | null
   if (!quality || !display || display.min === undefined || display.max === undefined) return null;
   const raw = sources.state.blackboard.values[quality.key];
   const segments = display.max - display.min;
-  const filled = Math.min(segments, Math.max(0, (typeof raw === "number" ? raw : display.min) - display.min));
-  return { kind: "clock", label: display.label, filled, segments, full: filled >= segments };
+  const fill = (value: PrimitiveValue | undefined) => Math.min(segments, Math.max(0, (typeof value === "number" ? value : display.min ?? 0) - (display.min ?? 0)));
+  const filled = fill(raw);
+  const ago = changedAgo(sources.boundaryLog, sources.chat, (values) => String(fill(values[quality.key])));
+  return { kind: "clock", label: display.label, filled, segments, full: filled >= segments, ...(ago !== undefined ? { changedAgo: ago } : {}) };
 };
+
+const statusText = (quality: Quality, value: PrimitiveValue | undefined, author: boolean): string =>
+  (value === undefined ? "—" : quality.player_labels?.[String(value)] ?? (author ? String(value) : "—"));
+
+const rosterBody = (widget: StoryWidget, sources: GameSources): WidgetBody => {
+  const reader = valueReader(sources.state.blackboard.values);
+  const author = widget.audience === "author";
+  const rows = (widget.rows ?? []).flatMap((row): RosterRowView[] => {
+    const quality = sources.story.qualityByKey[row.quality];
+    const name = row.label ?? (row.member ? sources.castNames[row.member] : undefined);
+    if (!quality || !name || (row.when && !evaluateGate(row.when, reader))) return [];
+    const ago = changedAgo(sources.boundaryLog, sources.chat, (values) => statusText(quality, values[quality.key], author));
+    return [{ name, status: statusText(quality, sources.state.blackboard.values[quality.key], author), ...(ago !== undefined ? { changedAgo: ago } : {}) }];
+  });
+  return { kind: "roster", rows };
+};
+
+const timelineBody = (widget: StoryWidget, story: NormalizedStoryV2, state: EngineState, before: EngineState | null): WidgetBody => {
+  const earlier = before ? new Set([...before.visitedPath, before.activeCheckpointId]) : null;
+  const ids = [...new Set([...state.visitedPath, state.activeCheckpointId])].filter((id) => story.checkpointById[id]?.player_name);
+  const chapters = ids.reduce<TimelineChapterView[]>((groups, id) => {
+    const chapterId = story.chapterByCheckpoint?.[id];
+    const chapter = chapterId ? story.chapterById?.[chapterId] : undefined;
+    const title = chapter ? chapter.player_title ?? chapter.title : null;
+    const date = widget.dates?.[id];
+    const stop = { name: story.checkpointById[id]?.player_name ?? "", ...(date ? { date } : {}), here: id === state.activeCheckpointId, fresh: Boolean(earlier && !earlier.has(id)) };
+    const last = groups.at(-1);
+    if (last && last.title === title) last.stops.push(stop);
+    else groups.push({ title, stops: [stop] });
+    return groups;
+  }, []);
+  return { kind: "timeline", chapters };
+};
+
+const intentOf = (intent: WidgetIntent, sources: GameSources): IntentView[] => {
+  const base = { id: intent.id, text: intent.text };
+  if (intent.open) return [{ ...base, open: intent.open }];
+  if (!intent.check) return [base];
+  const { story, state } = sources;
+  const active = checksAt(story, state.activeCheckpointId).find(({ check }) => check.id === intent.check);
+  if (!active?.transition || active.check.narrate !== "public" || checkAttempted(active, valueReader(state.blackboard.values))) return [];
+  const dice = checkDice(active.check);
+  return [{ ...base, roll: { label: checkLabel(story, active.check), dice: `${dice > 1 ? dice : ""}d${active.check.roll.sides}`, target: active.check.roll.target } }];
+};
+
+const intentsOf = (widget: StoryWidget, sources: GameSources): IntentView[] => (widget.actions ?? []).flatMap((intent) => intentOf(intent, sources));
 
 const foundClues = (widget: StoryWidget, state: EngineState) => {
   const reader = valueReader(state.blackboard.values);
@@ -185,7 +241,9 @@ const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: 
   const before = sources.boundaryLog.at(-1)?.before ?? null;
   if (widget.kind === "clues") return cluesBody(widget, sources.state, before);
   if (widget.kind === "map") return mapBody(widget, sources.state, before);
-  if (widget.kind === "meters") return { kind: "meters", groups: metersFor(widget, sources, parts.sheet) };
+  if (widget.kind === "roster") return rosterBody(widget, sources);
+  if (widget.kind === "timeline") return timelineBody(widget, sources.story, sources.state, before);
+  if (widget.kind === "meters") return { kind: "meters", groups: widget.bind ? sheetOf(meterQualities(widget, sources.story), sources) : parts.sheet };
   if (widget.kind === "track") return widget.bind && "quests" in widget.bind ? { kind: "track", main: null, quests: parts.quests } : { kind: "track", main: parts.main, quests: [] };
   if (widget.kind === "log") return { kind: "log", rows: limit ? parts.log.slice(0, limit) : parts.log };
   if (widget.kind === "board") return { kind: "board", lanes: boardLanes(widget, parts.quests, sources.threads) };
@@ -194,46 +252,71 @@ const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: 
 
 const emptyBody = (body: WidgetBody): boolean =>
   (body.kind === "meters" && !body.groups.length) || (body.kind === "log" && !body.rows.length) || (body.kind === "board" && !body.lanes.length) || (body.kind === "clues" && !body.clues.length)
-  || (body.kind === "track" && !body.quests.length && !body.main?.current && !body.main?.done.length);
+  || (body.kind === "track" && !body.quests.length && !body.main?.current && !body.main?.done.length)
+  || (body.kind === "roster" && !body.rows.length) || (body.kind === "timeline" && !body.chapters.length);
 
-const viewOf = (widget: StoryWidget, body: WidgetBody): WidgetView => ({
+const viewOf = (widget: StoryWidget, body: WidgetBody, actions: IntentView[], still: boolean): WidgetView => ({
   id: widget.id, title: widget.title, audience: widget.audience, synthesized: false, body, ...(widget.accent ? { accent: widget.accent } : {}), ...(widget.icon ? { icon: widget.icon } : {}),
+  ...(actions.length && body.kind !== "html" ? { actions } : {}), ...(still ? { still: true as const } : {}),
 });
 
-const synthesized = (id: string, title: string, body: WidgetBody): WidgetView => ({ id, title, audience: "player", synthesized: true, body });
+const synthesized = (id: string, title: string, body: WidgetBody, still: boolean): WidgetView => ({
+  id, title, audience: "player", synthesized: true, body, ...(still ? { still: true as const } : {}),
+});
+
+const valueKeys = (widget: StoryWidget, story: NormalizedStoryV2, body: WidgetBody): Array<{ label: string; key: string }> => {
+  if (body.kind === "meters") return meterQualities(widget, story).map((quality) => ({ label: quality.display?.label ?? quality.key, key: quality.key }));
+  if (body.kind === "clock" && widget.bind && "quality" in widget.bind) return [{ label: body.label, key: widget.bind.quality }];
+  if (body.kind === "roster") return (widget.rows ?? []).map((row) => ({ label: row.label ?? row.member ?? row.id, key: row.quality }));
+  return [];
+};
+
+const provenanceFor = (widgets: StoryWidget[], views: WidgetView[], sources: GameSources): Record<string, ProvenanceView[]> => {
+  const byId = new Map(widgets.map((widget) => [widget.id, widget]));
+  const sheet = sources.story.qualities.filter((quality) => quality.display).map((quality) => ({ label: quality.display?.label ?? quality.key, key: quality.key }));
+  return Object.fromEntries(views.flatMap((view) => {
+    const shown = view.body.kind === "html" ? view.body.source : view;
+    const widget = byId.get(shown.id);
+    const keys = widget ? valueKeys(widget, sources.story, shown.body) : shown.body.kind === "meters" ? sheet : [];
+    return keys.length ? [[view.id, keys.map(({ label, key }) => provenanceOf(sources.boundaryLog, label, key))]] : [];
+  }));
+};
 
 export function composeGame(sources: GameSources): GameCompose {
   const { story, state } = sources;
   const values = state.blackboard.values;
   const reader = valueReader(values);
+  const still = story.display?.motion === false;
   const parts = {
-    quests: visibleQuests(story, reader, values, sources.castNames), sheet: sheetGroups(story.qualities, values, previousValues(sources.boundaryLog)),
+    quests: visibleQuests(story, reader, values, sources.castNames), sheet: sheetOf(story.qualities, sources),
     main: mainLine(story, state), log: composeLog(sources),
   };
   const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
   const ordinary = visible.filter((widget) => widget.kind !== "html").flatMap((widget) => {
     const body = widgetBody(widget, sources, parts);
-    return body && !emptyBody(body) ? [viewOf(widget, body)] : [];
+    return body && !emptyBody(body) ? [viewOf(widget, body, intentsOf(widget, sources), still)] : [];
   });
   const byId = new Map(ordinary.map((view) => [view.id, view]));
   const html = visible.flatMap((widget) => {
     const source = widget.kind === "html" && widget.source ? byId.get(widget.source) : undefined;
-    return source && widget.template ? [viewOf(widget, { kind: "html", template: widget.template, actions: (widget.actions ?? []).map(({ id, text }) => ({ id, text })), source })] : [];
+    return source && widget.template ? [viewOf(widget, { kind: "html", template: widget.template, actions: intentsOf(widget, sources), source }, [], still)] : [];
   });
   const backing = new Set(html.flatMap((view) => (view.body.kind === "html" ? [view.body.source.id] : [])));
   const authored = [...ordinary, ...html];
   const player = authored.filter((widget) => widget.audience === "player");
   const kinds = (kind: WidgetBody["kind"]) => player.filter((widget) => widget.body.kind === kind);
   const fallback = (view: WidgetView) => [view].filter((widget) => !emptyBody(widget.body));
-  const track = kinds("track").length ? kinds("track") : fallback(synthesized("journal-track", "Quests", { kind: "track", main: parts.main, quests: parts.quests }));
-  const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }));
+  const track = kinds("track").length ? kinds("track") : fallback(synthesized("journal-track", "Quests", { kind: "track", main: parts.main, quests: parts.quests }, still));
+  const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
-  const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }) : null);
+  const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
+  const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {
       quests: parts.quests, mainLine: parts.main, sheet: parts.sheet, milestones: milestones(story, reader), log: parts.log, journal: [...track, ...log], statSheet,
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
+    provenance,
   };
 }
