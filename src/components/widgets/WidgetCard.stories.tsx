@@ -116,6 +116,7 @@ export const Intents: Story = {
 
 export const IntentsWithoutHost: Story = {
   args: { widget: intentsWidget },
+  parameters: { actions: { disable: true } },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-so="widget-intents"]')).toBeNull();
   },
