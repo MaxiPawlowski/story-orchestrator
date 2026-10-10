@@ -6,6 +6,7 @@ import {
   profileExists,
   readExtensionPromptBlocks,
   readPromptBudget,
+  readReasoningTags,
   setStoryExtensionPrompt,
   subscribeToHostEvents,
   tokenizerIdentity,
@@ -21,6 +22,7 @@ import { roleHealth } from "../roleHealth";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
+import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
@@ -61,7 +63,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     live.talk?.onGenerationEnded();
   },
   settled: (intent: IntentOf<"settled">) => {
-    runtimeManager.commitContinuityNote(intent.rendered);
+    runtimeManager.commitContinuityNote(settledOnReply(intent.rendered, intent.messageId, getContext().chat as unknown[] | undefined, residueTags(readReasoningTags())));
     lore.loreWatch.settled(intent.rendered);
   },
 });

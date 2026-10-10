@@ -9,7 +9,7 @@ export type GenerationIntent =
   | { kind: "nested"; type: string | null; params: Record<string, unknown> | undefined; withholds: boolean }
   | { kind: "reapply"; chid: number | null }
   | { kind: "closed"; reason: "rendered" | "ended" | "stopped" | "chat-changed" }
-  | { kind: "settled"; rendered: boolean };
+  | { kind: "settled"; rendered: boolean; messageId?: number };
 
 export interface GenerationLifecycleSnapshot {
   outermost: { type: string | null; watermark: number } | null;
@@ -94,11 +94,11 @@ export class GenerationLifecycle {
     if (id === null || !this.isTurn(type)) return [];
     if (this.outermost && id >= this.outermost.watermark) {
       this.reset();
-      return [{ kind: "closed", reason: "rendered" }, { kind: "settled", rendered: true }];
+      return [{ kind: "closed", reason: "rendered" }, { kind: "settled", rendered: true, messageId: id }];
     }
     if (this.awaitingRender === null || id < this.awaitingRender) return [];
     this.awaitingRender = null;
-    return [{ kind: "settled", rendered: true }];
+    return [{ kind: "settled", rendered: true, messageId: id }];
   }
 
   wrapperFinished(): GenerationIntent[] {
