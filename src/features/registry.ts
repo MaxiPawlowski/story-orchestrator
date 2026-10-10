@@ -309,6 +309,13 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
   },
   {
+    id: "gpu-sharing", name: "One GPU for text and images", area: "images", audience: "setup",
+    oneLine: "A local text model and local pictures share one graphics card without running out of memory.",
+    what: "The optional GPU plugin decides who holds the card: replies wait while a picture renders, and the text model comes back after it. Without the plugin pictures render as before.",
+    where: settingsAt("#so-gpu-broker", "Images › Image service › GPU sharing"),
+    settings: [], doc: "setup/gpu-sharing.md", status: "off-by-default", needs: ["comfyui"],
+  },
+  {
     id: "sprites", name: "Sprite stage", area: "images", audience: "player",
     oneLine: "Character sprites that change expression as replies stream.",
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",

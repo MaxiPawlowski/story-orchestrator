@@ -2,10 +2,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { transform } from 'esbuild';
-import { renderSignature } from './policy.mjs';
-import { memorySnapshot, gpuMemory } from './telemetry.mjs';
-import { bytesToMiB, estimateGpuMiB } from './estimate.mjs';
-import { readSafetensorsBytes } from './safetensors.mjs';
+import { renderSignature } from '../../server-plugin/story-orchestrator-gpu/broker/policy.mjs';
+import { memorySnapshot, gpuMemory } from '../../server-plugin/story-orchestrator-gpu/broker/telemetry.mjs';
+import { bytesToMiB, estimateGpuMiB } from '../../server-plugin/story-orchestrator-gpu/broker/estimate.mjs';
+import { readSafetensorsBytes } from '../../server-plugin/story-orchestrator-gpu/broker/safetensors.mjs';
 
 const configFile = process.argv[2];
 const mode = process.argv[3] ?? 'solo';
@@ -46,7 +46,7 @@ if (['edit', 'sprite'].includes(familyName)) {
         reference: edit.reference, steps: 8, seed, instruction: editInstruction(familyName === 'sprite' ? 'expression' : 'look', familyName === 'sprite' ? 'happy' : 'a blue scarf') });
     modelFiles = [{ kind: 'diffusionModels', name: edit.diffusion }, { kind: 'textEncoders', name: edit.encoder }, { kind: 'vaes', name: edit.vae }];
 }
-const { estimateNeedMiB } = await import('./models.mjs');
+const { estimateNeedMiB } = await import('../../server-plugin/story-orchestrator-gpu/broker/models.mjs');
 const estimatedMiB = config.modelDirs ? await estimateNeedMiB({ modelDirs: config.modelDirs, files: modelFiles, ...size, hires: familyName === 'hires' })
     : estimateGpuMiB({ weightsMiB: bytesToMiB((await readSafetensorsBytes(checkpointPath)).bytes), ...size, hires: familyName === 'hires' });
 const url = `http://127.0.0.1:${config.gatewayPort}`;

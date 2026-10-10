@@ -270,7 +270,7 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
     id: "gpu-broker-no-text-model", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
     detect: (snapshot) => (snapshot.imageHealth?.broker === "none" ? {
       consequence: "The GPU broker is installed but shares no text model, so image renders never pause a local model.",
-      detail: "Adapter: none. Images pass through while the local text model keeps its memory.",
+      detail: "Adapter: none. Images pass through while the local text model keeps its memory. Pick observe or supervise to share the card.",
     } : null),
   },
 ];

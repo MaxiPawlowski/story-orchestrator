@@ -27,8 +27,13 @@ export interface GpuRequest {
   signal?: AbortSignal;
 }
 
-export interface GpuBrokerStatus { adapter: "none" | "unsloth" | "managed"; guarding: boolean; activeText?: number; waitingText?: number;
-  gpuFreeMiB?: number; ramAvailableMiB?: number; reserveGpuMiB?: number; reserveRamMiB?: number }
+export const BROKER_ADAPTERS = ["none", "observe", "supervise", "managed"] as const;
+export const BROKER_STATES = ["idle", "text-loaded", "image", "waiting", "held", "degraded"] as const;
+export type BrokerState = (typeof BROKER_STATES)[number];
+
+export interface GpuBrokerStatus { adapter: (typeof BROKER_ADAPTERS)[number]; guarding: boolean; activeText?: number; waitingText?: number;
+  gpuFreeMiB?: number; ramAvailableMiB?: number; reserveGpuMiB?: number; reserveRamMiB?: number;
+  state?: BrokerState; mayRetain?: boolean; lastError?: string; listenPort?: number }
 
 export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
   let response: Response;
@@ -37,7 +42,7 @@ export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
   } catch { return null; }
   if (!response.ok) return null;
   const data: unknown = await response.json().catch(() => null);
-  if (!isRecord(data) || typeof data.adapter !== "string" || !["none", "unsloth", "managed"].includes(data.adapter)) return null;
+  if (!isRecord(data) || typeof data.adapter !== "string" || !(BROKER_ADAPTERS as readonly string[]).includes(data.adapter)) return null;
   const telemetry = isRecord(data.telemetry) ? data.telemetry : {};
   const host = isRecord(telemetry.host) ? telemetry.host : {};
   const gpu = Array.isArray(telemetry.gpus) && isRecord(telemetry.gpus[0]) ? telemetry.gpus[0] : {};
@@ -49,7 +54,11 @@ export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
     ...(typeof gpu.freeMiB === "number" ? { gpuFreeMiB: gpu.freeMiB } : {}),
     ...(typeof host.availableMiB === "number" ? { ramAvailableMiB: host.availableMiB } : {}),
     ...(mib(reserves.gpuMiB) ? { reserveGpuMiB: reserves.gpuMiB } : {}),
-    ...(mib(reserves.ramMiB) ? { reserveRamMiB: reserves.ramMiB } : {}) };
+    ...(mib(reserves.ramMiB) ? { reserveRamMiB: reserves.ramMiB } : {}),
+    ...(typeof data.state === "string" && (BROKER_STATES as readonly string[]).includes(data.state) ? { state: data.state as BrokerState } : {}),
+    ...(typeof data.mayRetain === "boolean" ? { mayRetain: data.mayRetain } : {}),
+    ...(typeof data.lastError === "string" && data.lastError ? { lastError: data.lastError } : {}),
+    ...(typeof data.listenPort === "number" ? { listenPort: data.listenPort } : {}) };
 }
 
 export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
@@ -63,7 +72,10 @@ export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservati
   }
   if (response.status === 404 || response.status === 501) return { lease: null, brokered: false };
   const data: unknown = await response.json().catch(() => null);
-  if (response.ok && isRecord(data) && data.brokered === false && data.lease === null) return { lease: null, brokered: false };
+  if (response.ok && isRecord(data) && data.brokered === false && data.lease === null) {
+    if (typeof data.warning === "string") log.info("GPU broker passed the image through", data.warning);
+    return { lease: null, brokered: false };
+  }
   if (!response.ok) throw new Error(isRecord(data) && typeof data.error === "string" ? data.error : "The local GPU broker refused the image lease.");
   if (!isRecord(data) || typeof data.lease !== "string" || !data.lease) throw new Error("The GPU broker did not grant an image lease.");
   return { lease: data.lease, brokered: true };

@@ -39,7 +39,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A6 | Open stretches (engine half, then M1/M2) | 19 |
 | A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 |
 | A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 |
-| A9 | GPU broker in the ST plugin | 28, D8 (needs approval) |
+| A9 | GPU broker in the ST plugin | 28, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI/LT open |
 | A10 | Image workflows in stories | 29, D8 (needs approval) |
 | A11 | Model downloads (Civitai, Hugging Face) | 30, D8 (needs approval) |
 | A12 | Smart-context harvest (E0 first, offline) | 21, D3 |

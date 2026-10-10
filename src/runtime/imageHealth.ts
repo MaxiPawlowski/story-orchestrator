@@ -1,5 +1,5 @@
 export type ImageServiceState = "ready" | "absent" | "unknown";
-export type ImageBrokerAdapter = "none" | "unsloth" | "managed";
+export type ImageBrokerAdapter = "none" | "observe" | "supervise" | "managed";
 
 export interface ImageHealthView {
   enabled: boolean;

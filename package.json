@@ -34,7 +34,7 @@
     "plugin:install": "node scripts/plugin-install.mjs",
     "plugins:install": "node scripts/plugin-install.mjs",
     "sessions:archive": "node scripts/lib/sessionsArchive.mjs",
-    "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs server-plugin/story-orchestrator-gpu/gate.test.mjs server-plugin/story-orchestrator-gpu/managed.test.mjs server-plugin/story-orchestrator-harness/plugin.test.mjs server-plugin/story-orchestrator-harness/agent.test.mjs server-plugin/story-orchestrator-media/media.test.mjs server-plugin/story-orchestrator-media/comfyTarget.test.mjs",
+    "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs server-plugin/story-orchestrator-gpu/gate.test.mjs server-plugin/story-orchestrator-gpu/managed.test.mjs server-plugin/story-orchestrator-gpu/broker.test.mjs \"server-plugin/story-orchestrator-gpu/broker/*.test.mjs\" server-plugin/story-orchestrator-harness/plugin.test.mjs server-plugin/story-orchestrator-harness/agent.test.mjs server-plugin/story-orchestrator-media/media.test.mjs server-plugin/story-orchestrator-media/comfyTarget.test.mjs",
     "test:debug": "node --test \"scripts/debug/**/*.test.mts\" \"scripts/local/*.test.mjs\" \"scripts/lib/*.test.mjs\"",
     "typecheck:test": "tsc -p tsconfig.test.json",
     "mutate": "node scripts/mutate.mjs",

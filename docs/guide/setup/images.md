@@ -50,15 +50,10 @@ hires is refused with a reason. Embeddings a recipe names are dropped when Comfy
 
 ## GPU sharing (advanced, optional)
 
-Only local text and image models using the same graphics card need coordination. Cloud and RunPod reply models do
-not use the local image GPU, and most installs never need this. The GPU broker is an optional plugin (`--with gpu`);
-without it, every image renders without coordination, as it would anyway.
-
-With the plugin, `config.json` picks an adapter. `none` passes images through. `unsloth` coordinates an Unsloth text
-model and needs an explicit upstream, model and ComfyUI URL. `managed` forwards to an external controller and needs
-its `controllerUrl`; without one the plugin refuses to start and images keep rendering uncoordinated. No address of
-any particular machine is assumed. A local llama-server adapter needs its own verified unload/reload interface before
-it can be enabled. See `server-plugin/story-orchestrator-gpu/README.md`.
+Only a local text model and local image generation on the same graphics card need coordination. The optional GPU
+plugin (`--with gpu`) shares the card: replies wait while a picture renders, and the text model comes back after it.
+Without the plugin every picture renders uncoordinated, as it would anyway. Setup and modes:
+[One GPU for text and images](gpu-sharing.md).
 
 ## Privacy
 

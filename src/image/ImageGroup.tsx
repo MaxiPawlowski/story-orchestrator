@@ -10,6 +10,7 @@ import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
 import { ProfileOptions } from "@components/settings/ProfileOptions";
 import { comfyDiscover } from "@services/stHost/media";
 import { FAMILIES } from "./catalog";
+import GpuBrokerLine from "./GpuBrokerLine";
 
 const PURPOSES: Purpose[] = ["scene", "character", "portrait", "user", "background", "free"];
 const PLACEMENTS: Placement[] = ["inline", "message", "background"];
@@ -92,6 +93,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           <FieldLabel htmlFor="so-image-comfy-url" setting="image.comfyUrl" />
           <input id="so-image-comfy-url" className="text_pole" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />
         </div>
+        <GpuBrokerLine />
         <CheckRow id="so-image-safe-mode" setting="image.safeMode" checked={settings.safeMode} onChange={(on) => change({ safeMode: on })} />
         {guide && <a id="so-image-guide" className="text-xs underline" href={guide} target="_blank" rel="noreferrer">How illustrations are set up</a>}
         <Advanced id="so-image-routes" label="Picture types">

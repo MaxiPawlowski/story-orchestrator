@@ -1,10 +1,10 @@
-import { spawn } from 'node:child_process';
+import { spawn as spawnDefault } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { memorySnapshot } from './telemetry.mjs';
 import { performance } from 'node:perf_hooks';
 
 export class FastTelemetry {
-    constructor(python) {
+    constructor(python, { spawn = spawnDefault } = {}) {
         this.latest = null;
         this.listeners = new Set();
         this.error = null;

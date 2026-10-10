@@ -8,6 +8,7 @@ Only one thing is required: a **memory model**. Everything else is optional, and
 | A model for each job | Better results: a prose model for replies, a strict one for reads, a tool-calling one for the wizard | [Choosing models](models.md) |
 | Judge plugin + a TypeSafe key | Faster, more careful choices: speaker picks, lore selection, memory checks, scene tracking | [Judge](judge.md) |
 | An image service | Illustrations and sprites | [Illustrations](images.md), [Sprites](sprites.md) |
+| GPU plugin | A local text model and local images sharing one graphics card | [One GPU for text and images](gpu-sharing.md) |
 | Harness plugin | Running tasks through Claude Code, Codex or opencode logins on the server | [Harness](harness.md) |
 
 ## The settings panel
