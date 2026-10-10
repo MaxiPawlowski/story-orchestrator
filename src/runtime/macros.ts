@@ -2,14 +2,11 @@ import { MEMORY_TIERS, sceneFieldsInConflict } from "@memory/index";
 import { confirmedSceneFacts } from "@judge/index";
 import { getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/STAPI";
 import { renderBlackboardMemo } from "./blackboardMemo";
+import { currentCheckpointText } from "./stretchTurns";
 import { createQualityMacroSync, QUALITY_ARG_MACRO, QUALITY_MACRO_PREFIX, renderQualityArg } from "./qualityMacros";
 import type { RuntimeManager } from "./runtimeManager";
 
-const renderCurrentCheckpoint = (manager: RuntimeManager): string => {
-  const snapshot = manager.getCachedSnapshot();
-  if (!snapshot.activeCheckpointName) return "(none)";
-  return snapshot.activeObjective ? `${snapshot.activeCheckpointName} — ${snapshot.activeObjective}` : snapshot.activeCheckpointName;
-};
+const renderCurrentCheckpoint = (manager: RuntimeManager): string => currentCheckpointText(manager.getStory(), manager.getCachedSnapshot());
 
 const renderPastCheckpoints = (manager: RuntimeManager): string => {
   const names = manager.getCachedSnapshot().checkpoints.filter((checkpoint) => checkpoint.visited && !checkpoint.active).map((checkpoint) => checkpoint.name);

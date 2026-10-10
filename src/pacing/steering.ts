@@ -63,14 +63,16 @@ export const getSteeringHint = (
 export const OPEN_STRETCH_LINE = `Open stretch: there is no task here. Follow what ${PLAYER_REF} starts (a detour, a talk, a rest) `
   + `and let the world answer it; ${PLAYER_REF} alone decides when to move on.`;
 
-const PULL_LINES: Record<PullStage, string> = {
-  gentle: "Now and then let the next place make itself felt (a mention, a turn in the weather), as a hook, never a push.",
-  steady: "Let most replies carry one hook toward the next place.",
-  strong: "Let the world press toward the next place plainly in this reply, as a deadline or someone urging.",
+const PULL_LINES: Record<PullStage, (place: string) => string> = {
+  gentle: (place) => `Now and then let ${place} make itself felt (a mention, a turn in the weather), as a hook, never a push.`,
+  steady: (place) => `Let most replies carry one hook toward ${place}.`,
+  strong: (place) => `Let the world press toward ${place} plainly in this reply, as a deadline or someone urging.`,
 };
 
-export const pullLine = (stage: PullStage | null): string =>
-  (stage ? `${OPEN_STRETCH_LINE} ${PULL_LINES[stage]} Never move the party there or narrate the decision to go.` : OPEN_STRETCH_LINE);
+const nextPlace = (destination: string | null): string => (destination ? `the next place (${destination})` : "the next place");
+
+export const pullLine = (stage: PullStage | null, destination: string | null = null): string =>
+  (stage ? `${OPEN_STRETCH_LINE} ${PULL_LINES[stage](nextPlace(destination))} Never move the party there or narrate the decision to go.` : OPEN_STRETCH_LINE);
 
 export const getGenerationBias = (smoothed: number | null, expected: number | null): GenerationBias | null => {
   if (smoothed === null || expected === null) return null;

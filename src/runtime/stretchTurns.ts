@@ -1,4 +1,4 @@
-import { PLAYER_TURNS_KEY, playerTurnsBetween, type DerivedQualityView, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { isOpenStretch, PLAYER_TURNS_KEY, playerTurnsBetween, type DerivedQualityView, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { playerTurnIds } from "./agencyRecovery";
 import type { ChanceSeams } from "./chance";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -17,3 +17,12 @@ export const deriveQualities = (chance: ChanceSeams, story: () => NormalizedStor
     const life = loaded?.life ? gameLayer()?.life.deriveLife(loaded, view, chat()) ?? [] : [];
     return [...chance.derive(view), ...playerTurnValues(loaded, view, chat()), ...life];
   };
+
+export const currentCheckpointText = (
+  story: Pick<NormalizedStoryV2, "checkpointById"> | null,
+  snapshot: { activeCheckpointId: string | null; activeCheckpointName: string | null; activeObjective: string | null },
+): string => {
+  if (!snapshot.activeCheckpointName) return "(none)";
+  if (isOpenStretch(story?.checkpointById?.[snapshot.activeCheckpointId ?? ""]) || !snapshot.activeObjective) return snapshot.activeCheckpointName;
+  return `${snapshot.activeCheckpointName} — ${snapshot.activeObjective}`;
+};
