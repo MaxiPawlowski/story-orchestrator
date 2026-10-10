@@ -7,6 +7,10 @@ export interface StoredRead {
   face: string;
   src: string;
   at: string;
+  pose?: string;
+  poseKeyword?: string;
+  poseScope?: string;
+  poseSource?: "judge" | "llm" | "none";
 }
 
 export interface StoredReadRecord {

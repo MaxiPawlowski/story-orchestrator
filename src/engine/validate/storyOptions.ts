@@ -7,6 +7,7 @@ import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readStoryIllustrations } from "./illustrations";
+import { gameLayer } from "./gameLayer";
 import { readBriefing } from "./briefing";
 
 const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
@@ -222,8 +223,10 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const houseRules = json.house_rules !== undefined ? readHouseRules(json.house_rules, errors) : undefined;
   const objectiveBlock = readObjectiveBlock(json.objective_block, errors);
   const display = readDisplay(json.display, errors);
+  const poses = gameLayer()?.poses.readStoryPoses(json.poses, errors);
   const kind = readKind(json.kind, errors);
   return {
+    ...(poses ? { poses } : {}),
     ...(kind ? { kind } : {}),
     ...(playerIntro ? { player_intro: playerIntro } : {}),
     ...(briefing ? { briefing } : {}),

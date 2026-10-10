@@ -5,13 +5,15 @@ import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
 import type * as CoreMutations from "../../studio/mutations";
 import type * as InnerVoiceMutations from "../../studio/innerVoiceMutations";
+import type * as PoseMutations from "../../studio/poseMutations";
+import { POSE_AGENT_KINDS, readPoseCall } from "./poseOps";
 import type * as GameMutations from "../../studio/gameMutations";
 import { GAME_AGENT_KINDS, readGameCall } from "./gameOps";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
 
-type Mutations = typeof CoreMutations & typeof InnerVoiceMutations & typeof GameMutations;
+type Mutations = typeof CoreMutations & typeof InnerVoiceMutations & typeof GameMutations & typeof PoseMutations;
 
 export type AgentArgType = "string" | "number" | "boolean" | "object" | "array" | "value";
 
@@ -47,6 +49,12 @@ const CHAPTER = "[{id, title, player_title?, kind?: chapter|interlude, final?: b
 type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
 
 export const EDIT_TOOLS = {
+setPoses: { backedBy: "setPoses", doc: "Set the story pose library. Read poses and pose-skeletons first. No render or download.", args: { poses: req("object",
+    "{use?: pose ids or tags[], custom?: PoseEntry[]}") } },
+setMemberPoses: { backedBy: "setMemberPoses", doc: "Set a member's default pose and allowed pose ids.", args: { id: req("string", "roster id"), sprites: req("object",
+    "{pose?: id, poses?: id[]}") } },
+setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and character layers. Read poses first.", args: { id: req("string", "roster id"), card: req("object",
+    "{fields: {field: {quality, visual?, layer?: base|face|decal, rebase?, region?: {x,y,width,height}}}}") } },
   setStoryField: {
     backedBy: "setStoryField",
     doc: "Set the story title, description, or objective_block (auto|off).",
@@ -65,8 +73,8 @@ export const EDIT_TOOLS = {
   setStartCheckpoint: { backedBy: "setStartCheckpoint", doc: "Make this beat the start.", args: { id: ID } },
   setCheckpointSnapshot: { backedBy: "setCheckpointSnapshot", doc: "Values the blackboard takes when the beat starts.", args: { id: ID, snapshot: req("object", "{qualityKey: value}") } },
   setCheckpointEffects: {
-    backedBy: "setCheckpointEffects",
-    doc: "Replace a beat's effects: author_note, world_info, cast_changes, npc_replies, background, scenario.",
+    backedBy: "setCheckpointEffects", composes: ["setStagePose"],
+    doc: "Replace a beat's effects: author_note, world_info, cast_changes, npc_replies, background, scenario, card, stage (member to pose/framing).",
     args: { id: ID, effects: req("object", "the whole effects block") },
   },
   addTransition: { backedBy: "addTransition", doc: "Connect two beats with a gate.", args: { transition: req("object", `{from, to, gate: ${GATE}, priority, extraction_hint?}`) } },
@@ -343,6 +351,10 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   }
   if (call.tool === "setChapters") return readChaptersCall(spec, call.args);
   if (call.tool === "setPlayer") return readPlayerCall(spec, call.args);
+  if (POSE_AGENT_KINDS.has(call.tool)) {
+    const pose = readPoseCall(call.tool, call.args);
+    return pose.ok ? { ok: true, spec, op: pose.op } : pose;
+  }
   if (GAME_AGENT_KINDS.has(call.tool)) {
     const game = readGameCall(call.tool, call.args);
     return game.ok ? { ok: true, spec, op: game.op } : game;

@@ -95,7 +95,11 @@ export class ComfyJobs {
         } else {
             const image = Object.values(item.outputs ?? {}).flatMap((output) => output.images ?? []).find((image) => ['output', 'temp'].includes(image.type));
             if (!image || typeof image.filename !== 'string') { job.status = 'failed'; job.error = 'The recipe returned no saved image.'; }
-            else { job.output = image; job.status = 'complete'; }
+            else {
+                job.output = image; job.status = 'complete';
+                const pose = Object.values(item.outputs ?? {}).flatMap((output) => output.openpose_json ?? []).find((value) => typeof value === 'string' && value.length <= 2 * 1024 * 1024);
+                if (pose) job.pose = JSON.parse(pose);
+            }
         }
         job.at = this.now();
         return this.view(job);
@@ -108,6 +112,6 @@ export class ComfyJobs {
         const response = await this.request(`/view?${query}`);
         const bytes = Buffer.from(await response.arrayBuffer());
         if (bytes.length > 32 * 1024 * 1024) throw new Error('The rendered image is too large.');
-        return { data: bytes.toString('base64'), format: 'png' };
+        return { data: bytes.toString('base64'), format: 'png', ...(job.pose ? { pose: job.pose } : {}) };
     }
 }

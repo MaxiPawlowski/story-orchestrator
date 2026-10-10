@@ -136,7 +136,7 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
       {view.actors.map((actor, index) => (
         <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
           talking={view.talker === actor.name} budget={budget} stage={stage}
-          framing={view.framing === "close" && view.actors.length > 1 && !actor.spotlight ? "thigh" : view.framing} share={share}
+          framing={actor.framing ?? (view.framing === "close" && view.actors.length > 1 && !actor.spotlight ? "thigh" : view.framing)} share={share}
           focus={settings.focus && view.actors.length > 1} breathing={settings.breathing} crossfadeMs={settings.crossfadeMs} reducedMotion={view.reducedMotion} />
       ))}
     </div>

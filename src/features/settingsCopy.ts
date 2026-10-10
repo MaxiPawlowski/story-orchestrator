@@ -341,6 +341,7 @@ export const SETTING_COPY = {
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
   "sprites.cardOverlay": copy("Current character state in replies",
     "Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged."),
+  "sprites.poses": { label: "Pose library", help: "Choose body poses from scene directions, sticky keywords and reply picks. Bodies render when needed." },
   "sprites.onDemand": copy("Generate changed looks when needed",
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
   "sprites.mouth": copy("Mouth movement",

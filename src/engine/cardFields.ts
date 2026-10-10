@@ -44,7 +44,9 @@ export function indexCardFields(roster: RosterMember[], player: StoryV2["player"
       }
       if (index[binding.quality]) { errors.push({ path: location, message: "a quality may bind to only one card field" }); continue; }
       if (binding.visual !== undefined && typeof binding.visual !== "boolean") errors.push({ path: location, message: "visual must be boolean" });
-      index[binding.quality] = { owner, field, visual: binding.visual === true };
+      index[binding.quality] = { owner, field, visual: binding.visual === true,
+        ...(binding.layer !== undefined ? { layer: binding.layer } : {}), ...(binding.rebase !== undefined ? { rebase: binding.rebase } : {}),
+        ...(binding.region !== undefined ? { region: binding.region } : {}) };
     }
   }
   return index;

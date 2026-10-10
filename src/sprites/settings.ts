@@ -28,6 +28,8 @@ export interface SpriteSettings {
   mouth: "off" | "simple" | "smooth";
   cardOverlay: boolean;
   onDemand: boolean;
+  poses: boolean;
+  customPoses: import("@engine/poseSchema").PoseEntry[];
   renderPreset: RenderPreset;
   builders: Record<string, { baseSet: string; box: { x: number; y: number; width: number; height: number };
     models: { diffusion: string; encoder: string; vae: string }; steps: number; resolution?: number }>;
@@ -48,6 +50,8 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   mouth: "simple",
   cardOverlay: true,
   onDemand: true,
+  poses: true,
+  customPoses: [],
   renderPreset: "standard",
   builders: {},
 });
@@ -72,6 +76,8 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     mouth: value.mouth === "off" || value.mouth === "smooth" || value.mouth === "simple" ? value.mouth : d.mouth,
     cardOverlay: value.cardOverlay !== false,
     onDemand: value.onDemand !== false,
+    poses: value.poses !== false,
+    customPoses: Array.isArray(value.customPoses) ? value.customPoses.slice(0, 256) as SpriteSettings["customPoses"] : [],
     renderPreset: value.renderPreset === "fast" ? "fast" : d.renderPreset,
     builders: Object.fromEntries(Object.entries(isRecord(value.builders) ? value.builders : {}).flatMap(([folder, entry]) => {
       if (!isRecord(entry) || typeof entry.baseSet !== "string" || (entry.baseSet !== "" && !/^[a-z0-9_]+$/.test(entry.baseSet)) || !isRecord(entry.box) || !isRecord(entry.models)) return [];

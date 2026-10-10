@@ -33,7 +33,7 @@ const CardFieldsEditor: React.FC<{
   const eligible = qualities.filter(cardQualityEligible);
   const bound = boundCardQualities(roster, player);
   const selectable = (name: string) => eligible.filter((quality) => !bound.has(quality.key) || fields[name]?.quality === quality.key);
-  const put = (name: string, binding: { quality: string; visual?: boolean }) => onChange({ fields: { ...fields, [name]: binding } });
+  const put = (name: string, binding: CardBinding["fields"][string]) => onChange({ fields: { ...fields, [name]: binding } });
   const remove = (name: string) => {
     const next = { ...fields };
     delete next[name];
@@ -77,6 +77,18 @@ const CardFieldsEditor: React.FC<{
               onChange={(event) => put(name, { ...binding, visual: event.target.checked || undefined })} />
             changes the picture
           </label>
+          {binding.visual && <>
+            <label>Picture layer<select aria-label={`Field ${index + 1} layer`} className="text_pole" value={binding.layer ?? "base"}
+              onChange={(event) => put(name, { ...binding, layer: event.target.value as "base" | "face" | "decal", rebase: undefined, region: undefined })}>
+              <option value="base">Whole look</option><option value="face">Face</option><option value="decal">Small mark</option></select></label>
+            {(binding.layer ?? "base") === "base" && <label><input type="checkbox" aria-label={`Field ${index + 1} rebase`} checked={binding.rebase === true}
+              onChange={(event) => put(name, { ...binding, rebase: event.target.checked || undefined })} /> Start again from card art</label>}
+            {binding.layer === "decal" && <fieldset><legend>Mark region (0–1; empty uses the head)</legend>
+              {(["x", "y", "width", "height"] as const).map((axis) => <label key={axis}>{axis}<input aria-label={`Field ${index + 1} region ${axis}`} className="text_pole"
+                type="number" min={0} max={1} step={0.01} value={binding.region?.[axis] ?? ""} onChange={(event) => put(name, { ...binding,
+                  region: event.target.value === "" ? undefined : { x: 0, y: 0, width: 0.2, height: 0.2, ...binding.region, [axis]: Number(event.target.value) } })} /></label>)}
+            </fieldset>}
+          </>}
           <button type="button" className="st-button danger" aria-label={`Remove field ${index + 1}`} onClick={() => remove(name)}>×</button>
         </div>
       ))}

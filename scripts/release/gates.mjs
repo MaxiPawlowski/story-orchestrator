@@ -41,7 +41,7 @@ export function gateSteps(argv = []) {
   if (argv.includes("--no-storybook")) skip.add("test-storybook:ci");
   const unknown = [...skip].filter((step) => !GATE_STEPS.includes(step));
   const serial = argv.includes("--serial");
-  const jobsArg = argv.find((arg) => arg.startsWith("--jobs="));
+  const jobsArg = argv.find((arg) => arg.startsWith("--jobs=")) ?? (argv.includes("--jobs") ? `--jobs=${argv[argv.indexOf("--jobs") + 1]}` : undefined);
   const jobs = serial ? 1 : Math.max(1, Number(jobsArg?.slice(7)) || DEFAULT_JOBS);
   const steps = GATE_STEPS.filter((step) => !skip.has(step));
   return { steps, skipped: GATE_STEPS.filter((step) => skip.has(step)), unknown, serial, jobs, help: argv.includes("--help") };
