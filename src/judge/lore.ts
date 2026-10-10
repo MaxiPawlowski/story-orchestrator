@@ -46,7 +46,10 @@ export function loreCandidates(entries: LoreEntry[], lorebooks: string[]): LoreE
 
 const clip = (text: string) => (text.length <= LORE_CONTENT_CHARS ? text : `${text.slice(0, LORE_CONTENT_CHARS).trimEnd()}…`);
 
-const loreQuestion = (entry: LoreEntry): JudgeNoulQuestion => noul(`Does the next reply in \`transcript\` need the specific facts in this lore entry? Entry "${entry.comment}": ${clip(entry.content)}`, { ...LORE_QUESTION_CRITERIA });
+const loreQuestion = (entry: LoreEntry): JudgeNoulQuestion => noul(
+  `Does the next reply in \`transcript\` need the specific facts in this lore entry? Entry "${entry.comment}": ${clip(entry.content)}`,
+  { ...LORE_QUESTION_CRITERIA },
+);
 
 const questionId = (index: number) => `e:${index}`;
 
