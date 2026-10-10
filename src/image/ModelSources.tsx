@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import * as hostApi from "@services/stHost/modelDownloads";
 import { MODEL_PROVIDERS, type DownloadCard, type DownloadJob, type ModelProvider } from "@services/stHost/modelDownloads";
+import { POSE_DOWNLOADS } from "./poseDownloads";
 import { cardLines, jobLine, readModelRef } from "./downloadCopy";
 
 export type ModelSourcesApi = Pick<typeof hostApi, "modelKeyStatus" | "testModelKey" | "writeModelKey" | "planModelDownload" | "startModelDownload" | "modelDownloads" | "cancelModelDownload">;
 
 const LABEL: Record<ModelProvider, string> = { civitai: "Civitai token", huggingface: "Hugging Face token" };
-const KINDS = ["", "checkpoints", "loras", "upscaleModels", "embeddings", "vaes", "diffusionModels", "textEncoders", "textModels"];
+const KINDS = ["", "checkpoints", "loras", "upscaleModels", "embeddings", "vaes", "diffusionModels", "textEncoders", "textModels", "poseModels"];
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi }) {
@@ -33,6 +34,10 @@ export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi 
   return <div id="so-model-sources" className="flex flex-col gap-2">
     <p className="text-xs opacity-80">Tokens are stored in SillyTavern's secrets and read only by the media plugin; this page never sees them again.
       Nothing downloads unless you press Download on a card. Downloads are admin-only.</p>
+    <label>DWPose catalogue<select aria-label="DWPose catalogue" className="text_pole" defaultValue="" onChange={(event) => {
+      const entry = POSE_DOWNLOADS.find((entry) => entry.file === event.target.value);
+      if (entry) { setProvider("huggingface"); setFields({ version: "", repo: entry.repo, file: entry.file, revision: entry.revision, kind: "poseModels" }); setCard(null); }
+    }}><option value="">Choose an approved estimator file</option>{POSE_DOWNLOADS.map((entry) => <option key={entry.file} value={entry.file}>{entry.label}</option>)}</select></label>
     {MODEL_PROVIDERS.map((id) => <div key={id} className="flex flex-col gap-1" data-so={`model-key-${id}`}>
       <label className="text-xs" htmlFor={`so-model-key-${id}`}>{LABEL[id]} <span className="opacity-70">({keys ? (keys[id] ? "set" : "not set") : "unknown"})</span></label>
       <div className="flex gap-1">

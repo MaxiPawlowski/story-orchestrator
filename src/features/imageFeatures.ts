@@ -12,6 +12,13 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.sprites.liveHead,
   },
   {
+    id: "pose-library", name: "Poses and character layers", area: "images", audience: "author",
+    oneLine: "Direct a body pose and let looks change with the story.",
+    what: "Choose from 40 original skeletons, add story or install poses, and bind visual card fields to base, face or decal edits. Bodies render on first need and swipes restore the applied choice.",
+    where: studioAt("#so-studio-poses", "Sprites › Poses"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"), status: "shipped",
+    needs: ["sprite-pack"], isOn: (settings) => settings.sprites.poses,
+  },
+  {
     id: "backgrounds", name: "Backgrounds", area: "images", audience: "author",
     oneLine: "A turning point can switch the chat background.",
     what: "A story can name a background for each turning point; it is applied when the story gets there and again when the chat reopens.",

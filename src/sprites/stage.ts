@@ -5,20 +5,20 @@ import {
 } from "@services/stHost/sprites";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { beginRun } from "@runtime/runToken";
-import type { LiveHeadRef } from "./liveHeadRefs";
 import { actorHeadRef, castHeadStatus } from "./liveHeadStage";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionRead } from "./classify";
 import { cardSet, keywordSet, placeSet, resolveSprite, unionLabels } from "./profile";
+import { StagePoses } from "./poses/stageBodies";
 import { cardValues } from "@engine/cardFields";
 import { segmentText, visibleReply, type Segment } from "./segment";
 import type { SpriteActivation, SpriteSettings } from "./settings";
 import { spriteActivation, spritesActive, storyDirectsStage } from "./activation";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
-import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type Framing, type StageDirection } from "./direction";
-import { StreamActivity, type AnimationFrames } from "./animation";
+import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
+import { StreamActivity } from "./animation";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
 import { changedLookIssues } from "./lookHealth";
@@ -29,44 +29,8 @@ import { stagePackIssues } from "./stageHealth";
 import { ExpressionCallRing, expressionDeps, type ExpressionCallTrace } from "./expressionCalls";
 export { storedReads, type StoredRead } from "./storedReads";
 
-export interface StageActor {
-  name: string;
-  avatar: string;
-  label: string;
-  path: string;
-  set: string;
-  spotlight: boolean;
-  frames?: AnimationFrames;
-  liveHead?: LiveHeadRef;
-}
-
-export type StagePlacement = "vn" | "strip";
-
-export interface StageView {
-  visible: boolean;
-  placement: StagePlacement;
-  waitsForVn: boolean;
-  actors: StageActor[];
-  speaking: string | null;
-  talker: string | null;
-  framing: Framing;
-  settings: SpriteSettings;
-  activation: SpriteActivation;
-  capability: CapabilityState | "checking";
-  reducedMotion: boolean;
-  headSession: string;
-}
-
-interface Stream {
-  chatId: string | null;
-  speaker: string;
-  segments: Segment[];
-  reads: Map<string, ExpressionRead>;
-  classifying: Promise<void>;
-  streamed: boolean;
-  final: boolean;
-  visibleText?: string;
-}
+export type { StageActor, StagePlacement, StageView } from "./stageTypes";
+import type { StageView, Stream } from "./stageTypes";
 
 const PASSAGE_KEY = 48;
 const keyOf = (text: string) => text.slice(0, PASSAGE_KEY);
@@ -86,6 +50,7 @@ export class SpriteStage {
   private capability: CapabilityState | "checking" = "checking";
   private hinted = new Set<string>();
   private looks: import("./builder/onDemand").OnDemandLooks | null = null;
+  private bodies: StagePoses | null = null;
   private lookModule: Promise<void> | null = null;
   private membership: string | null = null;
   private packIssues: SpriteStageIssue[] = [];
@@ -139,6 +104,7 @@ export class SpriteStage {
     const actors = this.actors
       .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking }, direction))
       .map((actor) => ({ name: actor.name, avatar: actor.avatar, label: actor.label, path: actor.path, set: actor.set,
+        pose: actor.pose, framing: memberDirection(direction, actor.keys).framing,
         frames: actor.frames.get(actor.set)?.get(actor.label), spotlight: isSpotlit(direction, actor.keys),
         liveHead: actorHeadRef(actor, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs) }));
     return {
@@ -220,7 +186,7 @@ export class SpriteStage {
       document.removeEventListener("click", click);
       this.stopPlayback();
       this.activity.stop();
-      this.looks?.close();
+      this.looks?.close(); this.bodies?.close();
       spriteHideBuiltInExpressions(false);
     };
   }
@@ -235,6 +201,7 @@ export class SpriteStage {
 
   async reload(): Promise<void> {
     this.activity.stop();
+    this.bodies?.close(); this.bodies = null;
     this.looks?.close(); this.looks = null; this.lookModule = null;
     const ticket = ++this.loading;
     this.capability = await capabilityState("sprites");
@@ -250,6 +217,8 @@ export class SpriteStage {
     }
     const loaded = await loadCast(cast.members, {
       list: (folder) => this.lists.get(cast.chatId, folder), keysFor: (name) => this.keysFor(name), builders: this.settings().builders,
+...(Object.keys(this.settings().builders).length ? { bodies: async (folder: string) => (await import("@services/stHost/media")).generatedSpriteSets(folder),
+        storyId: this.manager.getCachedSnapshot().storyId ?? undefined } : {}),
     });
     if (ticket !== this.loading) return;
     this.actors = loaded.actors;
@@ -306,7 +275,7 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
-    this.looks?.revalidate();
+    this.looks?.revalidate(); this.bodies?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;
     if (this.castChanged()) this.notify();
@@ -334,6 +303,8 @@ export class SpriteStage {
       const stamp = JSON.stringify(fields);
       if (actor.lookStamp !== stamp) { actor.lookError = undefined; actor.lookStamp = stamp; }
       const look = cardSet(actor.rules, fields);
+      if (moved && directed.face) actor.desiredLabel = directed.face;
+      if (this.chooseBody(actor)) { changed = true; continue; }
       this.requestLook(actor);
       const cached = actor.generatedLook === JSON.stringify(fields) && actor.set.startsWith("look_") ? actor.set : null;
       const pending = Object.keys(fields).length && !look && this.settings().onDemand ? actor.set : null;
@@ -370,6 +341,7 @@ export class SpriteStage {
   private requestLook(actor: Actor): void {
     const story = this.manager.getStory();
     if (!story || !this.settings().onDemand) return;
+    if (this.settings().poses) { this.chooseBody(actor); return; }
     const member = story.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
     if (!member) return;
     const fields = cardValues(story, this.manager.getCachedSnapshot().blackboard, member.id, true);
@@ -393,8 +365,19 @@ export class SpriteStage {
     });
   }
 
-  private apply(read: { who: string; face: string }, speaker: string): void {
+  private poseController(): StagePoses {
+    return this.bodies ??= new StagePoses({ manager: this.manager, actors: () => this.actors, settings: this.settings,
+      direction: () => this.direction(), notify: this.notify });
+  }
+  private chooseBody(actor: Actor): boolean { return this.poseController().choose(actor); }
+
+  private apply(read: ExpressionRead | StoredRead | { who: string; face: string }, speaker: string): void {
     const who = read.who === NARRATION ? speaker : read.who;
+    const actor = this.actor(who);
+    if (actor && "poseScope" in read && read.poseScope) {
+      actor.poseReads = [...(actor.poseReads ?? []), read];
+      this.chooseBody(actor);
+    }
     if (this.actor(who)) {
       this.setFace(who, read.face);
       this.speaking = who;
@@ -409,6 +392,16 @@ export class SpriteStage {
     this.stopPlayback();
     if (!this.stream || this.stream.final) this.talker = null;
     const direction = this.direction();
+    for (const actor of this.actors) actor.poseReads = [];
+    for (let id = 0; id < spriteChatLength(); id += 1) {
+      const message = spriteMessage(id);
+      if (!message || message.isUser || message.isSystem) continue;
+      for (const read of readsOf(message)) {
+        const actor = this.actor(read.who === NARRATION ? message.name : read.who);
+        if (actor) actor.poseReads?.push(read);
+      }
+    }
+    this.chooseSets();
     for (const actor of this.actors) this.setFace(actor.name, this.directedFace(actor, direction));
     const seen = new Set<string>();
     let speaking: string | null = null;
@@ -468,6 +461,7 @@ export class SpriteStage {
     const base = stream.segments.length - segments.length;
     const trace: ExpressionCallTrace = { steps: [], thinking: null };
     const started = Date.now();
+    const run = beginRun(this.manager.getOwnership());
     const reads = await classifyExpressions({
       speaker: stream.speaker,
       cast: this.actors.map((actor) => actor.name),
@@ -476,6 +470,12 @@ export class SpriteStage {
       fallbackLabel: this.actor(stream.speaker)?.profile.default ?? profiles[0]?.default ?? "neutral",
       segments: segments.map((segment, offset) => ({ index: base + offset + 1, text: segment.text })),
     }, expressionDeps(this.manager, trace));
+    if (this.settings().poses) for (let at = 0; at < reads.length; at += 1) {
+      if (!run.stillOwns() || spriteCast().chatId !== stream.chatId) { run.release(); return; }
+      await this.poseController().pick(reads[at], segments[at].text, stream.speaker, trace, run);
+    }
+    if (!run.stillOwns()) { run.release(); return; }
+    run.release();
     this.expressionCalls.record({
       at: started, chatId: stream.chatId, segments: segments.length, source: reads[0]?.source ?? "speaker", latencyMs: Date.now() - started, steps: trace.steps, thinking: trace.thinking,
     });
@@ -513,7 +513,9 @@ export class SpriteStage {
     const finals = segmentText(text, this.settings().segmentChars, true);
     const reads: StoredRead[] = finals.flatMap((segment, index) => {
       const read = stream.reads.get(keyOf(segment.text));
-      return read ? [{ i: index + 1, who: read.who, face: read.face, src: read.source, at: keyOf(segment.text) }] : [];
+      return read ? [{ i: index + 1, who: read.who, face: read.face, src: read.source, at: keyOf(segment.text),
+        ...(read.pose ? { pose: read.pose } : {}), ...(read.poseKeyword ? { poseKeyword: read.poseKeyword } : {}),
+        ...(read.poseScope ? { poseScope: read.poseScope, poseSource: read.poseSource } : {}) }] : [];
     });
     if (this.stream === stream) {
       if (!stream.streamed) {

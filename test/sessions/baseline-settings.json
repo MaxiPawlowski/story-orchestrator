@@ -212,7 +212,9 @@
       "cardOverlay": true,
       "onDemand": true,
       "renderPreset": "standard",
-      "builders": {}
+      "builders": {},
+      "poses": true,
+      "customPoses": []
     },
     "spikes": {
       "swipeBackCache": true,

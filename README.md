@@ -97,6 +97,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Live close-shot head | A rigged close shot breathes, blinks and talks as a reply streams. | Experimental |
+| Images | Poses and character layers | Direct a body pose and let looks change with the story. |  |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |
 | Images | One GPU for text and images | A local text model and local pictures share one graphics card. | Off by default |

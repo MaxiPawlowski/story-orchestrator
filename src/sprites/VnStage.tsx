@@ -139,14 +139,15 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
   if (!view.visible) return null;
   const { settings } = view;
   const budget = frameBudget(view.actors.filter((actor) => actor.frames).length);
-  const headActor = view.actors.find((actor) => actor.spotlight) ?? view.actors.find((actor) => actor.name === view.speaking) ?? view.actors[0];
+  const closeActors = view.actors.filter((actor) => (actor.framing ?? view.framing) === "close");
+  const headActor = closeActors.find((actor) => actor.spotlight) ?? closeActors.find((actor) => actor.name === view.speaking) ?? closeActors[0];
   return (
     <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement}>
       {view.actors.map((actor, index) => (
         <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
           talking={view.talker === actor.name} budget={budget} stage={stage}
-          liveHead={settings.liveHead && view.framing === "close" && actor === headActor}
-          framing={view.framing === "close" && view.actors.length > 1 && actor !== headActor ? "thigh" : view.framing} share={share}
+          liveHead={settings.liveHead && (actor.framing ?? view.framing) === "close" && actor === headActor}
+          framing={actor.framing ?? (view.framing === "close" && view.actors.length > 1 && actor !== headActor ? "thigh" : view.framing)} share={share}
           focus={settings.focus && view.actors.length > 1} breathing={settings.breathing} crossfadeMs={settings.crossfadeMs} reducedMotion={view.reducedMotion} />
       ))}
     </div>

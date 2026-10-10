@@ -178,3 +178,54 @@ not executed: this Python has Pillow, lacks NumPy and OpenCV; nothing installed.
 Node packaging tested against owned synthetic layers. No model calls, GPU work,
 downloads, owner ST/browser playtest or deployment. **Storybook CI not run**: its
 junctioned runner resolves the main checkout; interaction/a11y execution owed there.
+
+## Master merge gate record
+
+2026-10-10 · `C:\dev\so-live-head` · `v2.8-live-head` merges local master
+`c82e065f41936a728baa6bb6000494c8913c50a7` (plan 33). Both deterministic features retained.
+
+`stage.ts` keeps the pose controller, body selection, replay and per-member framing;
+its composed actor binds a head from the selected set's neutral artwork. Extracted
+`stageTypes.ts` carries pose/framing plus live-head references and session identity.
+`VnStage.tsx` chooses at most one close actor (spotlight, speaker, first close actor),
+including per-member close framing, and mounts the head above the selected image.
+Missing rigs retain the posed/static image. Regression cases cover coat/armor/replay,
+rig absence, explicit framing, precedence and one mounted head.
+
+Settings/defaults/sanitation and feature registry are unions. The gate runner keeps
+the existing support for both jobs spellings; both sides' tests remain. Finding
+inventories union all sites (216 error-copy rows, 239 ownership sites); the shared
+classify site retains plan 33's guarded classification. Both census guards passed.
+README, queue and plan 33 retain both tracks; prior recommendations remain beside
+the accepted decisions. Generated files regenerated, never hand-merged.
+
+| Exact command | Observed result |
+|---|---|
+| `npm run docs:guide` | `wrote 12 pages to docs/guide/author`; `guide: 32 pages, 1 images` |
+| `npm run docs:settings` | settings reference/README regenerated; `guide: 32 pages, 1 images` |
+| `npm run gates -- --no-storybook --jobs 2` | `gates: all green in 252.5s`; exit 0; ten steps below |
+| `npm run typecheck:test` (standalone, final source) | `tsc -p tsconfig.test.json`; exit 0, no diagnostics |
+
+```text
+  ok   test (103.6s, started at 0s)
+  ok   test:replay (129.8s, started at 0s)
+  ok   build (29.9s, started at 103.9s)
+  ok   test:debug (46.6s, started at 133.8s)
+  ok   typecheck (54.5s, started at 129.8s)
+  ok   lint (47.3s, started at 184.4s)
+  ok   typecheck:test (51.2s, started at 180.9s)
+  ok   test:plugin (11.4s, started at 232.1s)
+  ok   debug:typecheck (20.1s, started at 231.6s)
+  ok   test:release (9.0s, started at 243.5s)
+  SKIPPED: test-storybook:ci (say so in the gate record)
+```
+
+Jest: `Test Suites: 1 skipped, 668 passed, 668 of 669 total`; `Tests: 1 skipped,
+7733 passed, 7734 total`. Replay: `32 of 32 killed in 128.8s`. Debug: 1197 passed,
+zero failures. Release: 123 passed, zero failures, 14 skips. Lint: zero errors,
+existing `BriefingHost.stories.tsx:81` hook-dependency warning.
+
+Main **1,293,100 B / 1,300,000 B**, headroom **6,900 B**. No budgets,
+floors or defaults changed. Changed source files retain CRLF; diff checks pass.
+No GPU, downloads, model calls, owner ST or browser work. Storybook CI skipped by
+request; plan 33 S0/CL/LI and plan 36 LI/vision acceptance remain owed.

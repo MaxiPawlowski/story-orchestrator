@@ -48,6 +48,7 @@ export function SpriteSettingsView({
         <option value="vn">With Visual Novel mode (/vn)</option>
         <option value="always">Always</option>
       </select>
+      <CheckRow id="so-sprite-poses" setting="sprites.poses" checked={settings.poses} onChange={(poses) => onChange({ poses })} />
       <Advanced id="so-sprite-advanced">
         <FieldLabel htmlFor="so-sprite-profile" setting="sprites.profileId" />
         <select id="so-sprite-profile" value={settings.profileId} onChange={(event) => onChange({ profileId: event.target.value })}>
