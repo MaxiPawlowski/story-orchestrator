@@ -37,6 +37,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 - [Drives and motives](topics/drives-motives.md) (`drives-motives`)
 - [Speaker direction](topics/talk-control.md) (`talk-control`)
 - [Character life](topics/character-life.md) (`character-life`)
+- [Living cards](topics/living-cards.md) (`living-cards`)
 
 ### What the story tracks
 
@@ -89,10 +90,6 @@ Where the guide says "the reading model" it means the memory model that reads th
 - [Stats and story panels](topics/widgets.md) (`widgets`)
 - [Clue walls and maps](topics/clues-and-maps.md) (`clues-and-maps`)
 - [Story-made HTML panels](topics/html-panels.md) (`html-panels`)
-
-### More topics
-
-- [Living cards](topics/living-cards.md) (`living-cards`)
 
 ## For contributors
 

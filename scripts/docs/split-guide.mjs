@@ -19,7 +19,7 @@ const HAND_WRITTEN = [
 
 export const TOPIC_GROUPS = [
   ["The story as a whole", ["story-basics", "briefing", "player", "arc-template", "requirements"]],
-  ["Characters", ["roster", "drives-motives", "talk-control", "character-life"]],
+  ["Characters", ["roster", "drives-motives", "talk-control", "character-life", "living-cards"]],
   ["What the story tracks", ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"]],
   ["Scenes", ["checkpoints", "objective-agency", "open-stretches", "tension", "opening-scene"]],
   ["What a scene changes", ["guidance", "author-note", "world-info", "preset", "background", "scenario", "cast-changes", "npc-replies", "experimental-effects"]],
