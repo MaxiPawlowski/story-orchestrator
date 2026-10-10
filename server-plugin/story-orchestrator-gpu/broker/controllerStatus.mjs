@@ -1,7 +1,14 @@
 export const CONTROLLER_DEFAULTS = Object.freeze({ maxContext: 98304, comfyUrl: 'http://127.0.0.1:8188' });
 
+export function defaultProfileContext(config) {
+    const args = config.profiles?.[config.defaultProfile]?.args ?? [];
+    const at = args.indexOf('--ctx-size');
+    const value = at >= 0 ? Number(args[at + 1]) : NaN;
+    return Number.isInteger(value) && value > 0 ? value : null;
+}
+
 export function withControllerDefaults(config) {
-    return { ...config, maxContext: config.maxContext ?? CONTROLLER_DEFAULTS.maxContext, comfyUrl: config.comfyUrl ?? CONTROLLER_DEFAULTS.comfyUrl };
+    return { ...config, maxContext: config.maxContext ?? defaultProfileContext(config) ?? CONTROLLER_DEFAULTS.maxContext, comfyUrl: config.comfyUrl ?? CONTROLLER_DEFAULTS.comfyUrl };
 }
 
 export function comfyPort(config) {

@@ -41,7 +41,7 @@ models work, but they have not been measured.
 | Instruct and reasoning template | Gemma 4 (thinking on, the thought opened after the speaker's name) |
 | Reply thinking | **Medium**: a 400-token thinking budget per reply (Off sends a budget of 1) |
 | Sampler | temperature 1, `min_p` 0.05 moved first in the sampler order, DRY 0.8 over the last 4096 tokens, adaptive-P off |
-| Context | 196,608 tokens shared by 4 slots with a q8_0 KV cache on a 32 GB GPU (98,304 per request); a 32K, one-slot setup on a 24 GB card for lighter checks |
+| Context | 196,608 tokens shared by 4 slots with a q8_0 KV cache on a 32 GB GPU (98,304 per request); a 32K, one-slot setup on a 24 GB card for lighter checks (TheDrummer's own Q4_K_M of the same v1.1 weights, see below) |
 | Memory model | DeepSeek over Chat Completion, with Artemis as the fallback |
 
 Why:
@@ -56,6 +56,17 @@ Why:
   words that penalties caused by pushing the right word below the filter.
 - **The thought opens after the name.** With thinking switched on but the prompt ending on the speaker's name, the
   model never opened a thought and its replies degraded; with the thought opened after the name they were clean.
+
+**Set the context to what the server holds.** The shipped Artemis presets say 98,304, which is right for the 32 GB
+setup. On a 24 GB card the model holds 32,768 tokens at full speed (a larger context spills layers to the CPU and
+replies at under 1 token a second), so set the preset's context to 32,768, or tick **Derive context size from
+backend** in SillyTavern's connection settings. With a larger context, a long chat stops getting replies once it
+outgrows what the server holds (the server refuses the request), and Story Orchestrator says so in the drawer's
+setup list. The memory model's reads are always sized to what its server reports.
+
+The 24 GB rows ran TheDrummer's own Q4_K_M (`TheDrummer/Artemis-31B-v1.1-GGUF`, files named `v1m`, 18.7 GB); the
+32 GB rows ran bartowski's imatrix Q4_K_M of the same v1.1 weights (19.6 GB). Same model, different quantization:
+compare local and 32 GB numbers with that in mind.
 
 Text Completion is the tested and rated route. Chat Completion works with this model but is not tuned or rated yet;
 it needs `chat_template_kwargs.enable_thinking` set in the profile's additional parameters (or replies can come back

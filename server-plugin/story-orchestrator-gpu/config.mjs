@@ -65,7 +65,7 @@ export function validateConfig(raw = {}) {
         }
         config.arbiter = {
             model: text.model, binary: text.binary, backendPort: text.port, modelAlias: text.alias ?? 'local', profiles: text.profiles, defaultProfile,
-            maxContext: text.maxContext ?? 32768, largeProfile: text.largeProfile, smallProfile: text.smallProfile, modelLoadMode: text.loadMode,
+            maxContext: text.maxContext ?? 32768, fitMarginMiB: text.fitMarginMiB, modelLoadMode: text.loadMode,
             reserves: raw.reserves ? { gpuMiB: raw.reserves.gpuMiB, ramMiB: raw.reserves.ramMiB } : undefined,
             comfyUrl, comfySupervise: comfy.supervise === true, comfyPython: comfy.python, comfyRoot: comfy.root, comfyExtraArgs: comfy.extraArgs ?? [],
             stateDir: raw.stateDir, modelDirs: raw.modelDirs, modelCacheRoot: raw.modelCacheRoot, telemetryPython: raw.telemetryPython,

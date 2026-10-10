@@ -2,6 +2,7 @@ import http from 'node:http';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { ResponseTiming } from './responseTiming.mjs';
+import { ContextRefusal } from './backend.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
 const GENERATION_ROUTES = ['/completion', '/v1/completions', '/v1/chat/completions'];
@@ -47,11 +48,16 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 return;
             }
             if (req.method === 'GET' && route === '/v1/models') {
-                answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: config.maxContext } }] });
+                answer(res, 200, { object: 'list', data: [{ id: config.modelAlias, object: 'model', owned_by: 'llamacpp', meta: { n_ctx_train: arbiter.backend.servedContext() } }] });
                 return;
             }
             if (req.method === 'GET' && route === '/props') {
-                answer(res, 200, { default_generation_settings: { n_ctx: config.maxContext }, total_slots: 1 });
+                const backend = arbiter.backend;
+                let props = {};
+                if (backend.status().pid && !backend.status().loading) {
+                    try { const reply = await fetchImpl(`${backend.url}/props`, { signal: AbortSignal.timeout(2000) }); if (reply.ok) props = await reply.json(); } catch {}
+                }
+                answer(res, 200, { chat_template: '', ...props, default_generation_settings: { ...(props.default_generation_settings ?? {}), n_ctx: backend.servedContext() }, total_slots: 1 });
                 return;
             }
             if (!TEXT_ROUTES.includes(route)) { answer(res, 404, { error: 'Unknown route.' }); return; }
@@ -72,7 +78,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
-        } catch (error) { answer(res, 409, { error: { message: error.message, type: 'local_residency' } }); }
+        } catch (error) {
+            if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });
+            else answer(res, 409, { error: { message: error.message, type: 'local_residency' } });
+        }
     });
     return {
         server,

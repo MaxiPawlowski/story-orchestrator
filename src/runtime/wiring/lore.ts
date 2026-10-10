@@ -63,6 +63,9 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
   void import("../briefingDraftHost").then(({ startBriefingDraft }) => {
     if (!disposed) disposers.push(startBriefingDraft(runtimeManager));
   });
+  void import("../replyContextHost").then(({ startReplyContext }) => {
+    if (!disposed) disposers.push(startReplyContext());
+  });
 };
 
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {

@@ -3,6 +3,7 @@ import { getContext } from "./context";
 import type { HostConnectApiMap } from "./hostTypes";
 import { isRecord } from "@utils/guards";
 import { log } from "@utils/log";
+import { servedContextFor } from "./servedContextPort";
 
 const PRESET_CONTEXT_KEY: Record<string, string> = {
   textgenerationwebui: "max_length",
@@ -110,7 +111,19 @@ const chatPreset = (presetName: string, read: () => ContextLimit, table: (why: s
   return table(limit.reason ?? `the preset "${presetName}" gave no context size`) ?? limit;
 };
 
+export function clampToServed(limit: ContextLimit, served: number | null, url: string): ContextLimit {
+  if (served === null || served >= limit.value) return limit;
+  return { value: served, source: "source", reason: `${url} serves ${served}` };
+}
+
 export function readProfileContextLimit(profileId: string | null | undefined): ContextLimit {
+  const limit = readPresetContextLimit(profileId);
+  const profile = limit.source === "default" ? null : findProfile(profileId ?? "");
+  const url = isRecord(profile) && profile.api === "llamacpp" ? profile["api-url"] : null;
+  return typeof url === "string" ? clampToServed(limit, servedContextFor(url), url) : limit;
+}
+
+function readPresetContextLimit(profileId: string | null | undefined): ContextLimit {
   try {
     if (!profileId) return defaultContextLimit("no memory model profile is selected");
     const context = getContext();

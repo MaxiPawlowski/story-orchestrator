@@ -3,7 +3,9 @@ const mockHost: { context: Record<string, unknown> } = { context: {} };
 jest.mock("./context", () => ({ getContext: () => mockHost.context }));
 
 import { inputBudget } from "@extraction/inputBudget";
-import { CONTEXT_TABLE, contextLimitFromPreset, contextLimitFromTable, readProfileContextLimit } from "./contextLimit";
+import { CONTEXT_TABLE, clampToServed, contextLimitFromPreset, contextLimitFromTable, readProfileContextLimit } from "./contextLimit";
+import { servedContext, servedContextOf } from "./servedContext";
+import { readServedContextWith } from "./servedContextPort";
 
 const PRESETS: Record<string, Record<string, Record<string, unknown>>> = {
   textgenerationwebui: { "Artemis Extraction": { max_length: 98304, temp: 0.1 }, Bare: { temp: 0.7 } },
@@ -128,5 +130,38 @@ describe("v2.4 plan 03 H12: the extraction profile's context limit", () => {
     expect(contextLimitFromPreset("openai", "c", { openai_max_context: 0 })).toMatchObject({ value: 8192, source: "default" });
     expect(contextLimitFromPreset("textgenerationwebui", "d", { max_length: "8192" })).toMatchObject({ value: 8192, source: "default" });
     expect(contextLimitFromPreset(undefined, "e", { max_length: 4096 })).toMatchObject({ source: "default" });
+  });
+});
+
+describe("v2.8 F20: a llama.cpp profile is budgeted against what its server serves", () => {
+  const realFetch = globalThis.fetch;
+  afterEach(() => { globalThis.fetch = realFetch; });
+
+  it("clamps the preset's context to the server's n_ctx once the server answered, and names why", async () => {
+    const calls: unknown[] = [];
+    globalThis.fetch = (async (url: string, init: { body: string }) => {
+      calls.push([url, JSON.parse(init.body)]);
+      return { ok: true, json: async () => ({ default_generation_settings: { n_ctx: 32768 } }) };
+    }) as unknown as typeof fetch;
+    mockHost.context = { ...host([{ id: "loc", api: "llamacpp", "api-url": "http://127.0.0.1:18888", preset: "Artemis Extraction" }]), getRequestHeaders: () => ({}) };
+    (globalThis as { SillyTavern?: unknown }).SillyTavern = { getContext: () => mockHost.context };
+    const stop = readServedContextWith(servedContext);
+    expect(readProfileContextLimit("loc")).toEqual({ value: 98304, source: "preset" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(readProfileContextLimit("loc")).toEqual({ value: 32768, source: "source", reason: "http://127.0.0.1:18888 serves 32768" });
+    expect(calls).toEqual([["/api/backends/text-completions/props", { api_server: "http://127.0.0.1:18888", api_type: "llamacpp" }]]);
+    stop();
+    expect(readProfileContextLimit("loc")).toEqual({ value: 98304, source: "preset" });
+  });
+
+  it("never raises a preset's context, and a server that does not answer leaves the preset alone", () => {
+    expect(clampToServed({ value: 16384, source: "preset" }, 32768, "u")).toEqual({ value: 16384, source: "preset" });
+    expect(clampToServed({ value: 16384, source: "preset" }, null, "u")).toEqual({ value: 16384, source: "preset" });
+  });
+
+  it("reads n_ctx only when it is a positive integer", () => {
+    expect(servedContextOf({ default_generation_settings: { n_ctx: 32768 } })).toBe(32768);
+    expect(servedContextOf({ default_generation_settings: { n_ctx: "32768" } })).toBeNull();
+    expect(servedContextOf({})).toBeNull();
   });
 });

@@ -11,6 +11,7 @@ import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
 import type { BriefingRecord, BriefingState } from "./briefing";
 import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
+import type { ContextOverServer } from "./replyContext";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
@@ -503,6 +504,8 @@ export interface RuntimeSnapshot {
   /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */
   secretsHeld?: boolean;
   thinkingSilent?: boolean;
+  /** The reply connection asks for more context than its llama.cpp server serves. */
+  contextOverServer?: ContextOverServer | null;
   competingScenarios?: string[];
   briefing?: BriefingState | null;
   playerSetup?: PlayerSetupView | null;

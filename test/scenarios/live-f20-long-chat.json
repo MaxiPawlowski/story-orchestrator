@@ -1,0 +1,40 @@
+{
+  "name": "live-f20-long-chat",
+  "objective": "v2.8 31 F20 (queue X1), live on the local controller: a group chat whose history is longer than the 32K the 3090 serves. Arm A keeps the connection's context at 98304 (the shipped Artemis preset): the controller must refuse the reply request cleanly (400 exceed_context_size_error; the wrapper reads the controller's load count and profile before and after, which the page cannot: the controller sends no CORS headers) and the context-over-server check must name it. Arm B sets the context to the served 32768: ST trims the history, prompt + reply stay under 32768, the request is answered (a thought-only reply is the model's own B1-EMPTY shape, left to the product's recovery, so the arm asserts the answered request, not the text), and the memory model's read is budgeted against the served context, not the preset's 98304.",
+  "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "why": "real replies through the local controller on 127.0.0.1:18888 (lane started with --allow-local); the reply connection and the memory profile both point there"},
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (ctx.mainApi !== 'textgenerationwebui' || ctx.textCompletionSettings.type !== 'llamacpp') throw new Error(`the reply connection is ${ctx.mainApi}/${ctx.textCompletionSettings.type}, not llama.cpp`); const server = ctx.getTextGenServer('llamacpp'); if (!/127\\.0\\.0\\.1:18888/.test(server)) throw new Error(`the reply connection points at ${server}, not the local controller`); const sentence = (i, k) => `At dune ${i * 70 + k} the caravan halted while Arin counted the water skins, and the narrator described the copper sky, the salt wind and a broken pillar half buried in sand.`; const text = (i) => `Day ${i}. ` + Array.from({ length: 70 }, (_, k) => sentence(i, k)).join(' '); for (let i = 0; i < 30; i += 1) { const user = i % 3 === 0; ctx.chat.push({ name: user ? ctx.name1 : (i % 2 ? 'Arin' : 'DM Narrator'), is_user: user, is_system: false, mes: text(i), send_date: new Date().toISOString(), extra: {} }); } await ctx.saveChat(); await ctx.reloadCurrentChat(); await new Promise((resolve) => setTimeout(resolve, 3000)); const rows = []; const real = globalThis.__f20Fetch ?? globalThis.fetch; globalThis.__f20Fetch = real; globalThis.__f20 = { rows }; globalThis.fetch = async (url, init) => { const reply = await real(url, init); if (String(url).includes('/api/backends/text-completions/generate')) { let body = {}; try { body = JSON.parse(init.body); } catch {} const copy = reply.clone(); const head = reply.ok ? '' : (await copy.text()).slice(0, 600); rows.push({ status: reply.status, prompt: body.prompt, n: Number(body.n_predict ?? body.max_new_tokens ?? body.max_tokens), truncation: body.truncation_length, head }); } return reply; }; return { messages: ctx.chat.length };",
+      "log": true
+    },
+    {
+      "eval": "$('#amount_gen').val(400).trigger('input'); $('#max_context_unlocked').prop('checked', true).trigger('change'); $('#max_context').val(98304).trigger('input'); await new Promise((resolve) => setTimeout(resolve, 500)); return { maxContext: SillyTavern.getContext().maxContext };",
+      "log": true
+    },
+    { "send_generate": { "text": "We make camp by the broken pillar. What do we see as night falls?", "timeoutMs": 600000 }, "log": true },
+    {
+      "eval": "const rows = globalThis.__f20.rows; const row = rows.at(-1); if (!row) throw new Error('no reply request was recorded'); if (row.status === 200) throw new Error('the over-long request was answered: it should have been refused'); if (!/exceed_context_size_error|must stay under the 32768-token context/.test(row.head)) throw new Error(`not a clean context refusal: ${row.status} ${row.head}`); const tokens = await SillyTavern.getContext().getTokenCountAsync(row.prompt, 0); const rt = globalThis.storyOrchestratorRuntime; rt.getSnapshot(); await new Promise((resolve) => setTimeout(resolve, 2000)); rt.notify?.(); const over = rt.getSnapshot().contextOverServer; if (!over || over.served !== 32768 || over.set !== 98304) throw new Error(`the check did not see the mismatch: ${JSON.stringify(over)}`); globalThis.__f20.armA = { status: row.status, promptTokens: tokens, n: row.n, truncation: row.truncation, over }; return globalThis.__f20.armA;",
+      "log": true
+    },
+    {
+      "eval": "$('#max_context').val(32768).trigger('input'); await new Promise((resolve) => setTimeout(resolve, 500)); return { maxContext: SillyTavern.getContext().maxContext };",
+      "log": true
+    },
+    { "send_generate": { "text": "I keep the first watch and listen to the wind. What do I hear?", "timeoutMs": 900000 }, "log": true },
+    {
+      "eval": "const rows = globalThis.__f20.rows; const row = rows.at(-1); if (!row || row.status !== 200) throw new Error(`the fitted request was not answered: ${JSON.stringify(row && { status: row.status, head: row.head })}`); const tokens = await SillyTavern.getContext().getTokenCountAsync(row.prompt, 0); if (tokens + row.n >= 32768) throw new Error(`prompt ${tokens} + reply ${row.n} does not stay under 32768`); if (tokens < 28000) throw new Error(`prompt ${tokens}: the history did not fill the context, so the arm proves nothing`); const rt = globalThis.storyOrchestratorRuntime; const over = rt.getSnapshot().contextOverServer; if (over) throw new Error(`the check still fires at 32768: ${JSON.stringify(over)}`); const last = SillyTavern.getContext().chat.at(-1); globalThis.__f20.armB = { promptTokens: tokens, n: row.n, sum: tokens + row.n, truncation: row.truncation, replyChars: String(last?.mes ?? '').length, thought: Boolean(last?.extra?.reasoning), speaker: last?.name }; return globalThis.__f20.armB;",
+      "log": true
+    },
+    { "wait": { "schedulerIdle": true, "quietMs": 5000, "timeoutMs": 900000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'manual'); const audits = rt.getExtractionAudits(); const budgeted = audits.filter((audit) => audit.budget?.contextLimit); const last = budgeted.at(-1); if (!last) throw new Error(`no read recorded a budget (${audits.length} reads)`); if (last.budget.contextLimit.value > 32768) throw new Error(`the memory read was budgeted at ${last.budget.contextLimit.value}, more than the server serves`); return { reads: audits.length, contextLimit: last.budget.contextLimit, armA: globalThis.__f20.armA, armB: globalThis.__f20.armB };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      { "eval": "if (globalThis.__f20Fetch) globalThis.fetch = globalThis.__f20Fetch; return true;" }
+    ]
+  }
+}

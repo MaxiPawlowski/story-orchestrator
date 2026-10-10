@@ -15,7 +15,20 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', '512', '--sleep-idle-seconds', '-1',
-        '--fit', 'on', '--fit-target', String(fitTargetMiB), ...args];
+        '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0)), ...args];
+}
+
+export function profileContext(profile) {
+    const at = profile.args?.indexOf('--ctx-size') ?? -1;
+    const value = at >= 0 ? Number(profile.args[at + 1]) : NaN;
+    return Number.isInteger(value) && value > 0 ? value : null;
+}
+
+export class ContextRefusal extends Error {
+    constructor(promptTokens, outputTokens, context) {
+        super(`The request needs ${promptTokens + outputTokens} tokens (prompt ${promptTokens} + reply ${outputTokens}), and prompt + reply must stay under the ${context}-token context this machine serves. Set the connection's context to ${context} or less; nothing was loaded or truncated.`);
+        Object.assign(this, { promptTokens, outputTokens, context });
+    }
 }
 
 export class NativeBackend {
@@ -36,6 +49,7 @@ export class NativeBackend {
         this.lastError = null;
         this.loadMs = null;
         this.loads = 0;
+        this.failedAt = new Map();
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -129,24 +143,54 @@ export class NativeBackend {
 
     async forRequest(body, signal) {
         await this.ensure(this.profile ?? this.config.defaultProfile);
-        const large = this.config.largeProfile ?? 'normal';
-        const small = this.config.smallProfile ?? 'fast';
-        if (typeof body.prompt !== 'string') {
-            if (this.config.profiles?.[large]) await this.switchFor(large);
-            return;
+        const limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext;
+        const output = Number(body.n_predict ?? body.max_tokens ?? 1400);
+        if (!Number.isInteger(output) || output < 0 || output > limit) throw new Error('Set a bounded output budget before generating.');
+        const prompt = await this.promptTokens(body, signal);
+        const required = prompt + output;
+        const name = this.profileFor(required + 1, limit);
+        if (!name) throw new ContextRefusal(prompt, output, this.servedContext(limit));
+        if (name !== this.profile) await this.switchFor(name, `${required} tokens`);
+    }
+
+    async promptTokens(body, signal) {
+        let prompt = body.prompt;
+        if (typeof prompt !== 'string') {
+            if (!Array.isArray(body.messages)) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
+            const rendered = await this.fetch(`${this.url}/apply-template`, {
+                method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: body.messages }), signal,
+            });
+            if (!rendered.ok) throw new Error('Could not render the chat for counting; refusing to guess a smaller context.');
+            prompt = (await rendered.json()).prompt;
+            if (typeof prompt !== 'string') throw new Error('The chat template did not return a prompt.');
         }
         const response = await this.fetch(`${this.url}/tokenize`, {
-            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: body.prompt, add_special: true }), signal,
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: prompt, add_special: true }), signal,
         });
         if (!response.ok) throw new Error('Could not count the prompt; refusing to guess a smaller context.');
         const data = await response.json();
         if (!Array.isArray(data.tokens)) throw new Error('Tokenizer did not return tokens.');
-        const limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext;
-        const output = Number(body.n_predict ?? body.max_tokens ?? 1400);
-        if (!Number.isInteger(output) || output < 0 || output > limit) throw new Error('Set a bounded output budget before generating.');
-        const required = data.tokens.length + output + 256;
-        if (required > limit) throw new Error(`Prompt and output exceed the preserved ${limit}-token limit; no text was truncated.`);
-        if (required > (this.config.smallProfileTokens ?? 32768) && this.profile === small && this.config.profiles?.[large]) await this.switchFor(large, `${required} tokens`);
+        return data.tokens.length;
+    }
+
+    usableProfiles(limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext) {
+        const since = Date.now() - (this.config.contextRetryMs ?? 600000);
+        return Object.entries(this.config.profiles)
+            .map(([name, profile]) => ({ name, profile, context: profileContext(profile) ?? limit }))
+            .filter(({ profile, context }) => !profile.disabled && context <= limit)
+            .filter(({ name }) => name === this.profile || !(this.failedAt.get(name) > since))
+            .sort((x, y) => x.context - y.context);
+    }
+
+    profileFor(required, limit) {
+        const usable = this.usableProfiles(limit).filter(({ context }) => context >= required);
+        if (usable.some(({ name }) => name === this.profile)) return this.profile;
+        return usable[0]?.name ?? null;
+    }
+
+    servedContext(limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext) {
+        const usable = this.usableProfiles(limit);
+        return usable.length ? usable[usable.length - 1].context : limit;
     }
 
     async switchFor(name, need = 'this request') {
@@ -155,13 +199,14 @@ export class NativeBackend {
         const previousFit = this.fitTarget;
         const previousDesired = this.desiredProfile;
         this.desiredProfile = name;
-        try { await this.ensure(name); }
+        try { await this.ensure(name); this.failedAt.delete(name); }
         catch (error) {
+            this.failedAt.set(name, Date.now());
             this.desiredProfile = previous ?? previousDesired;
             if (previous) await this.load(previous, { fitTarget: previousFit }).catch((reload) => { this.lastError = `${error.message} Reloading ${previous} also failed: ${reload.message}`; });
             throw new Error(`${need} needs the ${name} profile, which could not load: ${error.message}${previous ? ` ${previous} is loaded again.` : ''}`);
         }
     }
 
-    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed }; }
+    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

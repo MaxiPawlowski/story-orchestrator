@@ -2,6 +2,10 @@
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
   "closed": true,
   "rows": [
+    { "site": "src/services/stHost/servedContext.ts#probe", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A llama.cpp server that does not answer /props leaves the served context unknown (null), so the preset's context stands and no setup row is raised on a guess." },
+    { "site": "src/services/stHost/servedContext.ts#readReplyContext", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A host context that cannot be read reads as no llama.cpp reply connection, so the context-over-server check stays quiet rather than guessing." },
     { "site": "src/generation/living/export.ts#projectLivingExport", "kind": 2, "template": "`the saved story would not load: ${parsed[0]?.message ?? \"invalid\"}`",
       "surface": "author", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "Our validator's message for a Save as story projection that would not load; journaled and returned to the panel that asked." },
     { "site": "src/generation/living/parse.ts#jsonObject", "kind": 3, "template": "catch {} #1",
