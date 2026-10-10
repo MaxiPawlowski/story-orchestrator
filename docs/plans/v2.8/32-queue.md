@@ -25,7 +25,7 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | # | Item | Source |
 |---|---|---|
 | X1 | Long local chats overflow the 32K profile at ~turn 70; controller refuses and tries `normal` | F20. **Done** (`v2.8-local-3090`, commit in the backlog's §Local controller 2026-10-10) |
-| X2 | Send latency on the 3090: the player's line waits behind other model calls (10–14 s worst); re-measure after the vector-yield fix, then fix what is left | F1, F18, F19, M11 |
+| X2 | Send latency on the 3090: the player's line waits behind other model calls (10–14 s worst); fix: token counting bypasses the GPU broker queue (`v2.8-local-3090`). **Live re-measure owed on the next free 3090 slot** (owner 2026-10-10: GPU freed first) | F1, F18, F19, M11 |
 | X3 | Model-file parity: 3090 runs v1m, pods v1.1 | F12. **Done 2026-10-10**: same v1.1 weights, different quantizer (TheDrummer's vs bartowski's Q4_K_M); 3090 serves 32768 |
 | X4 | Owner flags from play | F14 |
 | X5 | K3 lab check assumes one boundary per turn (real 1.4–1.6) | F4 |
