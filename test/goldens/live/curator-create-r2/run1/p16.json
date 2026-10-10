@@ -1,0 +1,21 @@
+{
+  "id": "p16",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Lantern Coast Lore || Tamsin || Tamsin, lantern shop, oil || Tamsin runs the lantern shop on the quay, selling oil by the cup. Tamsin refused to sell oil to the customs men.\n[why] Tamsin is named twice in the established facts (shop owner, refusal) and no existing entry covers her, so a lorebook entry is now warranted.",
+    "[patch] #0 \"The Harbour\" || A stone harbour lit by oil lanterns. || tie up three deep at the quay. || A stone harbour lit by oil lanterns, its quay lined with a lantern shop. Fishing boats tie up three deep at the quay.\n\n[create] Lantern Coast Lore || Tamsin || Tamsin, lantern shop, oil by the cup || Tamsin runs the lantern shop on the quay and sells oil by the cup; she has refused to sell oil to the customs men.\n\n[why] Tamsin and her shop are now established at the harbour, so her entry is needed and the Harbour entry should place the lantern shop on the quay.",
+    "[create] Lantern Coast Lore || Tamsin || Tamsin, lantern shop, oil || Tamsin runs the lantern shop on the quay and sells oil by the cup. She has refused to sell oil to the customs men.\n[why] The established facts name Tamsin twice as a person in the harbour, so she now warrants her own lorebook entry."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

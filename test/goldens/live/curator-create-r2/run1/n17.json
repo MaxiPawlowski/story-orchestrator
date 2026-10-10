@@ -1,0 +1,21 @@
+{
+  "id": "n17",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Lantern Coast Lore || Marisol || Marisol, net mender || Marisol mends fishing nets at the Lantern Coast harbour, doing some work for free.\n[why] Marisol is named twice in the established facts (as the subject and via Corvin's net) and no existing entry covers her.",
+    "[enable] #0 \"The Harbour\"\n[why] The story is now at the harbour at dusk, so the harbour entry should be switched on.",
+    "[why] The established facts mention only the harbour and quay, which entry #0 already covers; no listed entry needs enabling, disabling, or correcting, and no twice-stated new subject warrants a creation."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "n19",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] No entries require changes: the hydroponics deck entry still matches the story's location, and the toolbox facts do not justify editing or creating any listed entry.",
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae || warm. || Racks of algae and beans under violet lamps. The air is wet and warm. A hatch at the far end sits beside a left toolbox, its seals recently checked.\n[why] The story moved to the hydroponics deck and established a hatch with checked seals and a toolbox left by it, so the deck entry now needs to reflect that.",
+    "[patch] #0 \"Hydroponics Deck\" || Racks of algae and beans under violet lamps. || wet and warm. || Racks of algae and beans under violet lamps. The air is wet and warm. Juno and Pell recently checked the airlock seals here.{{// so:protect}} {{// so:end}}\n[why] The pair's airlock-seal check took place on the hydroponics deck, so the deck entry now needs to reflect that current story fact."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

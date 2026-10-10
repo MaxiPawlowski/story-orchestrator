@@ -1,0 +1,21 @@
+{
+  "id": "p19",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0\n[why] The pass has become the camp's central concern after word arrived of hired soldiers, so the camp lore now matters to play.",
+    "[create] Ashfall Lore || Sable Company || Sable Company, mercenary, silver || Sable Company is a mercenary band hired to hold the pass. They take payment only in silver.\n[why] Word of soldiers hired to hold the pass connects to the established Sable Company facts, which no current entry covers.",
+    "[create] Ashfall Lore || Sable Company || Sable Company, mercenaries, silver || The Sable Company is a mercenary band currently hired to hold the pass. They take payment only in silver.\n[why] The established facts introduce Sable Company, a mercenary group named and described twice but not covered by any existing entry."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    true,
+    true
+  ]
+}

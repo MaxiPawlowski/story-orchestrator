@@ -1,0 +1,21 @@
+{
+  "id": "n18",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[enable] #0 \"The Ember Camp\"\n[why] The story has moved to the ember camp, so its lore entry is now relevant and should be active.",
+    "[patch] #0 \"The Ember Camp\" || Refugees shelter in tents || the burning ridge. || Refugees shelter in tents downwind of the burning ridge. The camp has settled for the night.\n[why] The camp settling for the night is a new state the entry should reflect.",
+    "[enable] #0\n[disable] #0\n[why] NONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

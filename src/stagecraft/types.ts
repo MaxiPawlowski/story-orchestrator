@@ -28,7 +28,22 @@ export type WiCuratorOp =
   | (WiCuratorTarget & { kind: "rewrite"; text: string })
   // ST-Copilot's small-model-safe partial edit: the anchor names the first and last words of the
   // span to replace ("first words || last words"), so the model never restates a whole entry.
-  | (WiCuratorTarget & { kind: "patch"; anchor: string; replace: string });
+  | (WiCuratorTarget & { kind: "patch"; anchor: string; replace: string })
+  | (WiCuratorTarget & { kind: "create"; keys: string[]; text: string });
+
+export type CreateCuratorOp = Extract<WiCuratorOp, { kind: "create" }>;
+
+export const isCreateOp = (op: CuratorOp): op is CreateCuratorOp => op.kind === "create";
+
+export interface CreatedEntry {
+  lorebook: string;
+  lorebookFileId: string;
+  uid: number;
+  comment: string;
+  proposalId: string;
+  messageId: number;
+  at: string;
+}
 
 /**
  * One broken fact, with the record it came from — so the author's review card can say
@@ -102,6 +117,8 @@ export interface CuratorOpRecord {
    * Apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate. */
   writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
+  nearDups?: Array<{ comment: string; score: number }>;
+  created?: { keys: string[] };
 }
 
 // A pass that never ran and a pass that found nothing are different answers, and a caller (or an

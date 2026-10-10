@@ -1,0 +1,21 @@
+{
+  "id": "n28",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Lantern Coast Lore || Sefa || Sefa, fish bones, tides, tide-reading || Sefa reads the tides from fish bones, and warned Edda not to sail at dawn.\n[why] Sefa is a named person established twice in the facts and not covered by any existing entry.",
+    "[create] Lantern Coast Lore || The Old Woman on the Harbour Wall || old woman, harbour wall || An old woman who watches Edda from the harbour wall at dusk. Her purpose and identity are not yet known.\n[why] An old woman watching Edda from the harbour wall is a new person at the scene, established twice (as watcher and location), and no existing entry covers her.",
+    "[create] Lantern Coast Lore || The Harbour Wall || harbour wall, old woman || An old woman keeps watch from the harbour wall at dusk. Sefa reads tides from fish bones and warned Edda not to sail at dawn.\n[why] The established facts introduce the old woman and Sefa's warning, which the existing harbour entry does not cover."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

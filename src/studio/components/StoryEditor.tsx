@@ -1,5 +1,5 @@
 import React from "react";
-import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
+import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, STAGECRAFT_CREATE_CAP_DEFAULT, STAGECRAFT_CREATE_CAP_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
 import BriefingEditor from "./BriefingEditor";
@@ -190,8 +190,25 @@ const StagecraftSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
       onChange={(lorebooks) => mutate((current) => setStagecraft(current, { ...current.stagecraft, lorebooks }))}
     />
     <CuratorExclusions draft={draft} mutate={mutate} />
+    <CreateCapField draft={draft} mutate={mutate} />
   </div>
 );
+
+const CREATE_CAP_HELP = "How many new entries the curator may create in one chat, at most "
+  + `${String(STAGECRAFT_CREATE_CAP_MAX)}. Leave empty for ${String(STAGECRAFT_CREATE_CAP_DEFAULT)}; 0 means it never proposes one. Every new entry waits for you.`;
+
+const CreateCapField = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
+  const cap = draft.stagecraft?.createCap;
+  const write = (raw: string) => {
+    const value = raw.trim() === "" ? undefined : Math.max(0, Math.min(STAGECRAFT_CREATE_CAP_MAX, Math.round(Number(raw))));
+    mutate((current) => setStagecraft(current, { lorebooks: current.stagecraft?.lorebooks ?? [], createCap: Number.isFinite(value) ? value : undefined }));
+  };
+  return <label data-so="stagecraft-create-cap" className="flex items-center gap-2 text-xs st-muted">
+    New entries per chat<HelpTooltip title={CREATE_CAP_HELP} />
+    <input type="number" min={0} max={STAGECRAFT_CREATE_CAP_MAX} className="text_pole st-input w-20" aria-label="New entries per chat"
+      placeholder={String(STAGECRAFT_CREATE_CAP_DEFAULT)} value={cap ?? ""} onChange={(event) => write(event.target.value)} />
+  </label>;
+};
 
 const EXCLUDE_HELP = "Entries in a curator lorebook that the curator is never shown and may never write, such as a house-style entry. "
   + "Name each entry by its title (comment); separate several with commas.";

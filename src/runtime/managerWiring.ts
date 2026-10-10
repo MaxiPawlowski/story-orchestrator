@@ -11,6 +11,7 @@ import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createWarden, establishedFacts } from "./continuity";
 import { enabledCharacterIds, rosterMemberName } from "./roster";
 import { createCuratorFilter } from "./curatorFilter";
+import { loreEligibility } from "./loreRoute";
 import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
@@ -156,6 +157,11 @@ export function wireCoordinators(port: ManagerPort) {
         return (story?.roster ?? []).filter((member) => enabled.has(member.id)).map(rosterMemberName);
       },
     }),
+    lore: {
+      facts: () => restingTexts(memory, memory.getFacts()).map((fact) => fact.text),
+      roster: () => (view.getStory()?.roster ?? []).map(rosterMemberName),
+      eligibility: () => loreEligibility(),
+    },
     journal: (summary, note) => port.journal("stagecraft", summary, note),
     ...lifecycle,
   });

@@ -337,6 +337,26 @@
       "status": "checked",
       "note": "AE-01 (2026-09-25): was `partial` on \"its caller checks the token before every call\", the census blind spot, since that check preceded both awaits in here. The RunGuard is now threaded in and checked immediately after the write-edge read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `updateWIEntryByUid`, its one host write). A lapse returns `lapsed` and records nothing: after a switch, state and save both resolve to the chat that replaced this one. A lapse after the write-ahead save leaves the departed chat's op `accepted` with its pending marker, the same row a crash before the host call leaves; nothing reconciles that marker on hydrate, and the op's next boundary in its own chat re-reads the entry and writes it (stagecraftCoordinator.test.ts, AE-01 block)."
     },
+    "src/runtime/curatorWriter.ts#CuratorWriter.writeCreate": {
+      "status": "checked",
+      "note": "v2.8 11 (curator create op): the write edge of a create. The RunGuard writeOp received is checked immediately after the existing-title read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `createWIEntry`, its one host write). A lapse returns `lapsed` and records nothing; a lapse after the write-ahead save leaves the pending marker, which `reconcileWriteAhead` settles by title on hydrate (created -> applied with its uid, absent -> accepted for the next boundary). Tests: coordinators/curatorCreate.review.test.ts."
+    },
+    "src/runtime/curatorWriter.ts#CuratorWriter.revertCreate": {
+      "status": "checked",
+      "note": "v2.8 11: the rollback of a create is a delete under compare-and-set. The RunGuard is checked immediately after the uid read (before `deleteWIEntryAt`, its one host write); an entry whose title, text, flag or keys changed since the create is kept and marked externally-edited. Tests: coordinators/curatorCreate.review.test.ts."
+    },
+    "src/runtime/curatorWriter.ts#CuratorWriter.revertCreateStep": {
+      "status": "delegate",
+      "note": "v2.8 11: awaits CuratorWriter.revertCreate, which checks the run before its one host write; this step only turns that answer into the op list and counters the caller merges. awaits CuratorWriter.revertCreate"
+    },
+    "src/runtime/loreCreator.ts#LoreCreator.readBooks": {
+      "status": "local",
+      "note": "v2.8 11: pushes into a function-local array it returns (the scope read split into shown and hidden); the caller owns the write, the same as StagecraftCoordinator.readScope."
+    },
+    "src/runtime/loreCreator.ts#LoreCreator.run": {
+      "status": "checked",
+      "note": "v2.8 11: the Lore-creation pass. Mints before the scope read and the model call and checks the token after the call, before the plan, the ring patch, the journal and the save; a lapse journals the discard and writes nothing else. The catch path checks again before the lastError write. The hold field is the in-flight marker (cleared in finally only while it is still this run's). Tests: coordinators/curatorCreate.review.test.ts."
+    },
     "src/runtime/effectHost.ts#restoreCastFlags": {
       "status": "partial",
       "note": "PARTIAL, same guard as restoreEffectTarget (T1 item 7): the caller's compare-and-set. `EffectsApplier.restoreEffects` folds only the cast rows whose group still holds what this chat wrote into one batch per group; refused rows never reach here. One stHost seam (`setGroupMemberFlags`, one save + read-back) whose own result is the answer, so a batch lands whole or is marked revert-failed whole."

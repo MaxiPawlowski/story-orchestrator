@@ -1,0 +1,21 @@
+{
+  "id": "n18",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] Isolde sharpened her blade at the fire, so the ember camp is where she is present.\n[why] The story says only that Isolde sharpened her blade at the fire; it does not establish a person, place, group, or thing appearing at least twice.",
+    "[enable] #0 The Ember Camp\n[why] The story has moved to the ember camp, so the entry describing it now matters.",
+    "[why] The established facts introduce Captain Rook, the burning ridge's duration, and Isolde's blade at the fire, but none of these details are covered or contradicted by the only entry, so no lorebook change is warranted."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

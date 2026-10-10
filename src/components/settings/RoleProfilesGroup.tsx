@@ -1,4 +1,4 @@
-import type { PassRole } from "@extraction/passRole";
+import { roleDefaultLabel, type PassRole } from "@extraction/passRole";
 import type { PassProfiles } from "@runtime/passProfiles";
 import type { RoleRouteView } from "@runtime/roleHealth";
 import type { RouteMeter } from "@runtime/roleRouteEdits";
@@ -22,6 +22,18 @@ export interface RoleHarnessRoute {
   fallback: string | null;
 }
 
+export interface RoleMeasurement {
+  state: "measured" | "below-floor" | "not-measured" | "unknown-model";
+  detail: string;
+}
+
+const MEASUREMENT_COPY: Record<RoleMeasurement["state"], { text: string; tone: string }> = {
+  measured: { text: "measured: passed its create floor", tone: "so-success-text" },
+  "below-floor": { text: "measured below its create floor", tone: "so-warning-text" },
+  "not-measured": { text: "not measured for new entries", tone: "so-warning-text" },
+  "unknown-model": { text: "not measured: this route names no model", tone: "so-warning-text" },
+};
+
 export interface RoleProfilesGroupProps {
   routes: RoleRouteView[];
   assigned: PassProfiles;
@@ -37,6 +49,7 @@ export interface RoleProfilesGroupProps {
   onFallback?: (role: PassRole, profileId: string | null) => void;
   onOpen?: () => void;
   authorView?: boolean;
+  measurements?: Partial<Record<PassRole, RoleMeasurement>>;
 }
 
 const STATE_COPY: Record<RoleRouteView["state"], { text: string; tone: string }> = {
@@ -59,6 +72,7 @@ export const ROLE_EGRESS: Record<PassRole, string> = {
   director: "Speaker direction sends the roster and the recent turns, before every group reply (a harness adds 2-7 s)",
   curator: "The curator sends its lorebook entries and the recent turns",
   inner: "The inner voice sends the drafted character's private knowledge and the recent turns, before that character speaks",
+  lore: "Lore creation sends the story's curator lorebook entries, the cast names and the established memory facts",
 };
 
 export const TESTING_TEXT = "testing…";
@@ -77,7 +91,7 @@ const meterText = (meter: RouteMeter): string =>
   `${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
 
 export const RoleProfilesGroup = ({
-  routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen, authorView = false,
+  routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen, authorView = false, measurements = {},
 }: RoleProfilesGroupProps) => {
   const setRoles = routes.filter((route) => route.state !== "fallback").length;
   const choose = (role: PassRole, value: string) => {
@@ -103,12 +117,13 @@ export const RoleProfilesGroup = ({
           const meter = harness ? meters.find((entry) => entry.route === harness.key) : null;
           const chosen = !harness && value ? profiles.find((profile) => profile.id === value) : undefined;
           const cloud = chosen && profileLocality(chosen) === "cloud" ? chosen : undefined;
+          const measured = measurements[route.role];
           return (
             <div key={route.role} data-so="role-profile" data-role={route.role} data-state={route.state} className="flex flex-col gap-1">
               <FieldLabel htmlFor={`so-role-profile-${route.role}`} label={route.label} help={`${ROLE_EGRESS[route.role]}. ${settingHelp("extraction.profiles")}`} />
               <div className="flex flex-col gap-1">
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
-                  <option value="">Same as memory model</option>
+                  <option value="">{roleDefaultLabel(route.role)}</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
                   <ProfileOptions profiles={profiles} />
                   {(harnesses.length > 0 || (harness && !option)) && (
@@ -119,6 +134,11 @@ export const RoleProfilesGroup = ({
                   )}
                 </select>
               </div>
+              {measured && (
+                <div data-so="role-measurement" data-measurement={measured.state} className={`text-xs ${MEASUREMENT_COPY[measured.state].tone}`} title={measured.detail}>
+                  {MEASUREMENT_COPY[measured.state].text}
+                </div>
+              )}
               {cloud && (
                 <div data-so="role-egress" data-locality="cloud" className="text-xs opacity-80">
                   {`${ROLE_EGRESS[route.role]} to ${vendorLabel(cloud.source)}, a cloud service, from the machine running SillyTavern.`}

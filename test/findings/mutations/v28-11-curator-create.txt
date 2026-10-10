@@ -1,0 +1,41 @@
+v2.8 plan 11 curator create op, mutations 2026-10-09 (branch v2.8-curator-create after 878b9424; each mutant applied alone as an exact-text replacement to one file, CRLF-normalised match, original bytes restored after its run; suites: runtime/coordinators/curatorCreate.review.test.ts, stagecraft/createCandidate.test.ts, services/stHost/worldInfo.test.ts).
+The four F5 built-op mutations of v2.4 plan 06 are M1 (created dropped from stripGlobalSettings), M2 (create in auto), M3 (create through bulk accept), M4 (revert deletes an edited entry). The B1 eligibility skip is M5.
+First sweep: M8 (write edge skips the scope re-check) and M10 (write edge skips the cap) SURVIVED. Tests 'the write edge refuses a card edited into a book off the allowlist, even one that exists' and 'the write edge holds the cap even when the ledger filled after the proposal' were added; M15 (hidden-entry twin) was added with the guard. The rerun below kills all fifteen.
+
+baseline: 116 tests, 0 failing
+- M1 stripGlobalSettings drops the created ledger: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator the created ledger survives persistence and hydrate"
+- M2 a create in auto mode is accepted on the spot: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator auto mode never creates on its own: the card still waits, and the boundary writes nothing"
+- M3 bulk accept reaches a create: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator bulk accept never reaches a create: only the card's own accept does"
+- M4 rollback deletes an entry edited since the create: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator a created entry the author edited after the write is kept by the rollback and marked externally-edited"
+- M5 the measured-route check is skipped: KILLED, 2 of 116
+    "v2.8 11 B1: eligibility (route model x create-B x fixture revision 2) with measurement required, an unmeasured route is refused before any call and the refusal is journaled"
+    "v2.8 11 B1: eligibility (route model x create-B x fixture revision 2) with measurement required, a measured route runs; a repointed profile stops it again"
+- M6 contract B falls back to one fact: KILLED, 5 of 116
+    "F5 code guards contract B: a title or first key named by only one live fact is refused, and the refusal says so"
+    "F5 code guards contract B: a generic second key never lifts a named-once title over the bar (n12 shape)"
+    "F5 code guards contract B: the first key named in two facts passes, and one fact repeated counts once"
+- M7 an excluded or gated title is not refused at plan time: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator an excluded title with no entry yet is still refused at plan time"
+- M8 the write edge skips the scope re-check: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator the write edge refuses a card edited into a book off the allowlist, even one that exists"
+- M9 the write edge skips the existing-title read: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator the write edge refuses a title that appeared in the book since the proposal, and never edits it"
+- M10 the write edge skips the cap: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator the write edge holds the cap even when the ledger filled after the proposal"
+- M11 a marker in a new entry is not refused: KILLED, 2 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator refuses a curator marker in the new text at plan time, and nothing reaches the ring as a card"
+    "v2.8 11: the curator create op, end to end through the coordinator the write edge refuses an edited card whose title is excluded or gated, and one carrying a marker"
+- M12 createWIEntry overwrites an existing title: KILLED, 1 of 116
+    "createWIEntry / deleteWIEntryAt (v2.8 11, curator create op) never converts to an edit: an existing title is refused and the entry is untouched"
+- M13 deleteWIEntryAt skips the read-back: KILLED, 1 of 116
+    "createWIEntry / deleteWIEntryAt (v2.8 11, curator create op) reports a delete the server lost"
+- M15 a card recreating a hidden entry is not refused: KILLED, 4 of 116
+    "v2.8 11 fixture revision 2 (contract B, frozen 2026-10-09 before any model answer) the shipped guards refuse a card that recreates a hidden entry, by title or through its keys"
+    "v2.8 11: the curator create op, end to end through the coordinator refuses an excluded entry, recreated beside it at plan time, and nothing reaches the ring as a card"
+    "v2.8 11: the curator create op, end to end through the coordinator refuses a checkpoint-gated entry, recreated beside it at plan time, and nothing reaches the ring as a card"
+- M14 the lore pass asks on the curator role: KILLED, 1 of 116
+    "v2.8 11: the curator create op, end to end through the coordinator asks the model on the lore role with the create prompt"

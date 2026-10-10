@@ -1,0 +1,21 @@
+{
+  "id": "n24",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "NONE\n[why] The established facts match the existing entry exactly; the story has not yet overtaken Orrin's lore, so no switch, patch, or creation is warranted.",
+    "NONE",
+    "NONE"
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -1,6 +1,6 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
-  HOUSE_RULE_MAX_CHARS, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
+  HOUSE_RULE_MAX_CHARS, STAGECRAFT_CREATE_CAP_MAX, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
   STORY_DISPLAY_TOGGLES, type StoryDisplay, STORY_KINDS, type StoryKind,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
@@ -11,7 +11,7 @@ import { readBriefing } from "./briefing";
 
 const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
 
-const STAGECRAFT_KEYS = ["lorebooks", "exclude"] as const;
+const STAGECRAFT_KEYS = ["lorebooks", "exclude", "createCap"] as const;
 
 const EXCLUSION_KEYS = ["lorebook", "comments"] as const;
 
@@ -48,7 +48,14 @@ const readStagecraft = (value: unknown, errors: ValidationError[]): StoryStagecr
   rejectUnknownKeys(value, STAGECRAFT_KEYS, "stagecraft", errors);
   const lorebooks = readRequirementList(value.lorebooks);
   const exclude = value.exclude === undefined ? [] : readExclusions(value.exclude, errors);
-  return lorebooks.length || exclude.length ? { lorebooks, ...(exclude.length ? { exclude } : {}) } : undefined;
+  const createCap = value.createCap === undefined ? undefined : readCreateCap(value.createCap, errors);
+  return lorebooks.length || exclude.length ? { lorebooks, ...(exclude.length ? { exclude } : {}), ...(createCap !== undefined ? { createCap } : {}) } : undefined;
+};
+
+const readCreateCap = (value: unknown, errors: ValidationError[]): number | undefined => {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= STAGECRAFT_CREATE_CAP_MAX) return value;
+  addError(errors, "stagecraft.createCap", `createCap must be a whole number from 0 to ${String(STAGECRAFT_CREATE_CAP_MAX)}`);
+  return undefined;
 };
 
 const readExclusions = (value: unknown, errors: ValidationError[]): StagecraftExclusion[] => {

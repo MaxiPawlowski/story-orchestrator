@@ -7,7 +7,7 @@ import { buildSceneSummaryPrompt } from "@memory/contract";
 import { draftCastNames, emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
 
-export type CalibrationRole = Exclude<PassRole, "read" | "inner">;
+export type CalibrationRole = Exclude<PassRole, "read" | "inner" | "lore">;
 
 export interface DirectorCalibrationCase {
   id: string;

@@ -1,0 +1,21 @@
+{
+  "id": "p25",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #0 \"Printers' Quarter\" || Narrow streets loud with presses || day and night. || Narrow streets loud with presses day and night. Ink stains every doorstep.\n[why] The established fact that ink stains every doorstep in the quarter is now part of the settled lore and should be reflected in the quarter's entry.",
+    "[enable] #0 Printers' Quarter\n[why] Nell and Fitch have entered the printers' quarter, so its lore entry is now needed.",
+    "[patch] #0 \"Printers' Quarter\" || Narrow streets loud with presses || day and night. || Narrow streets loud with presses day and night. Ink stains every doorstep in the quarter.\n[create] Inkwell Lore || The Blue Press || Blue Press, magistrate's pamphlets, burned pamphlets || The Blue Press prints the pamphlets the magistrate wants burned, and Fitch once hid a crate of type here.\n[why] Entering the printers' quarter made the ink-stained doorsteps and The Blue Press's role newly relevant to the story."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    false,
+    false,
+    true
+  ]
+}

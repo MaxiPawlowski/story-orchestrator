@@ -204,6 +204,16 @@ export const SETTING_COPY = {
     "For stories whose characters have plans: when the story moves on or a scene ends, the memory model proposes one short thing a character did off stage toward that plan. "
       + "Each one waits for you in Author view and, once accepted, reaches only that character at the next reply. Do not propose: no calls are made.",
   ),
+  "stagecraft.createEnabled": copy(
+    "New lorebook entries",
+    "The curator may also propose a NEW keyed entry for a person, place, group or thing that at least two established facts name and no entry covers yet. "
+      + "Only in the lorebooks the story lists, never beside an excluded or checkpoint-switched entry, at most the story's limit per chat. "
+      + "Every new entry waits for you, whatever the curator setting, and a rollback deletes it unless you edited it. Its model is the Lore creation task.",
+  ),
+  "stagecraft.createRequireMeasured": copy(
+    "Only on a measured model",
+    "Propose new entries only when the Lore creation model has passed the create measurement. Off: any model may propose, and the card says it is unmeasured.",
+  ),
   "stagecraft.wardenEnabled": copy(
     "Continuity warden",
     "After each character reply, the judge checks it against the story's established facts; when it breaks one, the next reply's prompt restates that fact once. "

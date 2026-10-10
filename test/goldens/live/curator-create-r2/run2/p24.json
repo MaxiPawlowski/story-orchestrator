@@ -1,0 +1,21 @@
+{
+  "id": "p24",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Inkwell Lore || Magistrate Hollis || magistrate hollis, hollis, magistrate || A magistrate who signs warrants without reading them. He owes the printers' guild a large debt.\n[why] The established facts introduce Magistrate Hollis as a recurring figure with two specific facts, and no existing entry covers him.",
+    "[disable] #0 The Courthouse\n[create] Inkwell Lore || Magistrate Hollis || magistrate hollis, Hollis || Signs warrants without reading them; owes the printers' guild a large debt.\n[why] The scene has moved to the courthouse steps and the story now centers on Magistrate Hollis, who is established twice but had no entry.",
+    "[enable] #0\n[why] The story is now set at the courthouse, so the courthouse entry has become relevant and should be switched on."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    false
+  ]
+}

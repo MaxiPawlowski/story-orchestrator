@@ -35,6 +35,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M14 | Phase C ×2 from zero on one build | symbolic now; runs when there is budget | pod |
 | M15 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, funded thinking A/B | unchanged | pod |
 | M16 | D2 agenda proposals in real play: a character-life story in a group, real memory model (no `debugResponse`), Author view; play past a checkpoint change and a scene break; check one pass per trigger and none within `MEANWHILE_MIN_GAP` (8) boundaries or while a proposal waits, the proposal stays `proposed` until accepted, an accepted one lands at the next reply (`appliedAt`) and appears only in the holder's private block (`getAppliedEpistemicBlock` / payload capture with `onMemberDrafted`), never in a player surface (`so-ui.mts assert-player-clean`); swipe the landing reply (back to `accepted`, lands again); cost per pass (one curator call, 300 tokens max). Re-run 37-L3 (`so-b1-meanwhile.mts`) on the shipped build | built 2026-10-09 (`v2.8-agenda-proposals`), jest + no-model only; the 3090 was busy, so no real-model run | pod or 3090 |
+| M17 | v2.8 11 J8 create checks ×2 (positive with the activation proof first, then unestablished name, createCap, auto never creates, excluded/gated title refused at the write edge, unmeasured route refused with "Only on a measured model" on), group chat, curator + main reply on cloud profiles | not run (needs the reply model and a staged build) | cloud + reply model |
 
 ## Fix
 

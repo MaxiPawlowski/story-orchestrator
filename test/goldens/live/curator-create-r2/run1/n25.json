@@ -1,0 +1,21 @@
+{
+  "id": "n25",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #1 \"The Thornwood\" || Old forest where the paths move after dark. || || {{// so:protect}}The paths of the Thornwood move after dark.{{// so:end}}\n[why] The story established the paths move after dark as a concrete fact, so the Thornwood entry should state it directly rather than generically.",
+    "[why] The story remains at the old chapel and nothing has overtaken the existing entries, so no lorebook change is needed.",
+    "[disable] #0\n[why] The story has moved on from the old chapel; the roofless chapel entry no longer matters."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

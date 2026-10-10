@@ -3,7 +3,7 @@ import {
   createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
   ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
   hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, listPersonas, loadLorebook, readInjectedPromptBlocks,
-  readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, unbindChatLorebook, updateWIEntryByUid,
+  readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, unbindChatLorebook, updateWIEntryByUid, createWIEntry, deleteWIEntryAt,
   upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
@@ -30,7 +30,7 @@ const rosterHost: RosterHost = { getActiveGroup, resolveGroupMemberId, chatRows,
 
 const playerHost: PlayerHost = { getPlayerName };
 
-const curatorHost: CuratorWiHost = { readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, loadLorebook };
+const curatorHost: CuratorWiHost = { readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, loadLorebook, createWIEntry, deleteWIEntryAt };
 
 const provisioningHost: ProvisioningHost = {
   createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks,

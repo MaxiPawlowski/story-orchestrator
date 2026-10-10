@@ -108,7 +108,9 @@
       "wardenEnabled": true,
       "wardenAcceptMode": "review",
       "agencyAcceptMode": "auto",
-      "meanwhileAcceptMode": "review"
+      "meanwhileAcceptMode": "review",
+      "createEnabled": true,
+      "createRequireMeasured": false
     },
     "judge": {
       "enabled": true,

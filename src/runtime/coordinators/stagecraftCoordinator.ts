@@ -11,13 +11,15 @@ import {
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts,
+  capRefusal, createCapFor, isCreateOp, newEntriesText, type CreateEligibility, type CreatedEntry,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
-import { CuratorWriter } from "../curatorWriter";
+import { CuratorWriter, createdEntryOf } from "../curatorWriter";
+import { LoreCreator, type LoreCreateOutcome } from "../loreCreator";
 import { withholds } from "../generationLifecycle";
 import { log } from "@utils/log";
 
@@ -42,6 +44,11 @@ export interface StagecraftCoordinatorDeps {
     voice?: (speaker: string) => WardenCheckInput["voice"] | null;
     scene?: (speaker: string) => Pick<NonNullable<WardenCheckInput["houseRuleContext"]>["scene"], "speakerRole" | "groupMembers">;
     nudgeActive: () => boolean;
+  };
+  lore?: {
+    facts: () => string[];
+    roster: () => string[];
+    eligibility: () => CreateEligibility;
   };
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
@@ -102,11 +109,17 @@ export class StagecraftCoordinator {
   private carriedNote: { recordId: string; indices: number[] } | null = null;
   private applying: Promise<unknown> = Promise.resolve();
   private readonly writer: CuratorWriter;
+  private readonly creator: LoreCreator;
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {
     this.writer = new CuratorWriter({
       getStory: () => deps.getStory(), state: () => this.state, patch: (next) => this.patch(next), updateOps: (id, update) => this.updateOps(id, update),
       save: () => this.save(), journal: (summary) => deps.journal(summary), ownership: () => deps.ownership, host: () => deps.hosts.curator,
+    });
+    this.creator = new LoreCreator({
+      getStory: deps.getStory, getState: deps.getState, state: () => this.state, patch: (next) => this.patch(next), save: () => this.save(),
+      journal: deps.journal, ownership: () => deps.ownership, model: deps.model, getCanon: deps.getCanon, getOpenArcs: deps.getOpenArcs,
+      host: () => deps.hosts.curator, uniqueId: (base) => uniqueRecordId(base, this.state.proposals), ...(deps.lore ? { lore: deps.lore } : {}),
     });
   }
 
@@ -244,6 +257,10 @@ export class StagecraftCoordinator {
     }
   }
 
+  runCreatePass(reason = "curator", debugResponse?: string): Promise<LoreCreateOutcome> {
+    return this.creator.run(reason, debugResponse);
+  }
+
   getProposals(): CuratorProposalRecord[] {
     return this.state.proposals;
   }
@@ -265,8 +282,9 @@ export class StagecraftCoordinator {
   }
 
   async decideProposal(id: string, status: "accepted" | "rejected") {
-    this.recordDeclines(this.state.proposals.find((record) => record.id === id)?.ops.filter((entry) => entry.status === "pending") ?? [], status);
-    this.updateOps(id, (record) => ({ ...record, ops: record.ops.map((entry) => (entry.status === "pending" ? { ...entry, status, op: decidedOp(entry, status) } : entry)) }));
+    const bulk = (entry: CuratorOpRecord) => entry.status === "pending" && !isCreateOp(entry.op);
+    this.recordDeclines(this.state.proposals.find((record) => record.id === id)?.ops.filter(bulk) ?? [], status);
+    this.updateOps(id, (record) => ({ ...record, ops: record.ops.map((entry) => (bulk(entry) ? { ...entry, status, op: decidedOp(entry, status) } : entry)) }));
     await this.save();
   }
 
@@ -296,6 +314,8 @@ export class StagecraftCoordinator {
     if (!story || !this.state.proposals.some((record) => acceptedOps(record).length)) return 0;
     if (run.lapsed()) return 0;
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
+    const cap = createCapFor(story);
+    const created: CreatedEntry[] = [];
     let applied = 0;
     const updated = new Map<string, CuratorProposalRecord>();
     for (const record of [...this.state.proposals]) {
@@ -307,17 +327,24 @@ export class StagecraftCoordinator {
           ops.push(entry);
           continue;
         }
+        if (isCreateOp(entry.op) && (this.state.created ?? []).length + created.length >= cap) {
+          ops.push({ ...entry, status: "failed", message: capRefusal(cap) });
+          continue;
+        }
         const result = await this.writer.writeOp(story, entry, run, messageId, async (pending) => this.writer.markWriteAhead(record.id, index, pending));
         if (result.lapsed) return applied;
         if (result.ok) applied += 1;
+        const row = result.ok ? createdEntryOf(record, result.record, new Date().toISOString()) : null;
+        if (row) created.push(row);
         ops.push(result.record);
       }
       updated.set(record.id, { ...record, ops, appliedAt: new Date().toISOString(), messageId });
     }
     if (run.lapsed()) return applied;
     const proposals = this.state.proposals.map((record) => updated.get(record.id) ?? record);
-    this.patch({ proposals });
+    this.patch({ proposals, ...(created.length ? { created: [...(this.state.created ?? []), ...created] } : {}) });
     if (applied) this.deps.journal(`World Info curator applied ${applied} change(s)`, proposals[proposals.length - 1]?.summary);
+    if (created.length) this.deps.journal(`World Info curator created ${newEntriesText(created.length)}`, created.map((row) => `"${row.comment}" in ${row.lorebook}`).join(", "));
     await this.save();
     return applied;
   }

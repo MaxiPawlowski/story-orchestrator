@@ -52,6 +52,13 @@ export const opTargetKey = (op: WiCuratorOp): string => `${op.lorebook.toLowerCa
 // What an op would do to the entry it names, decided without touching the host: the review card
 // shows this, and the boundary applier writes exactly it.
 export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | undefined): { ok: boolean; message: string; content?: string; disabled?: boolean } {
+  if (op.kind === "create") {
+    if (entry) return { ok: false, message: `"${op.comment}" already exists in ${op.lorebook}` };
+    if (!op.keys.length) return { ok: false, message: `"${op.comment}" has no keys, so it would never fire` };
+    if (!op.text.trim()) return { ok: false, message: `"${op.comment}" has no content` };
+    if (op.text.length > CURATOR_MAX_TEXT) return { ok: false, message: `the new entry is longer than ${CURATOR_MAX_TEXT} characters` };
+    return { ok: true, message: `Create "${op.comment}" in ${op.lorebook}`, content: op.text, disabled: false };
+  }
   if (!entry) return { ok: false, message: `"${op.comment}" is not an entry in ${op.lorebook}` };
   if (op.kind === "enable") return entry.disabled ? { ok: true, message: `Switch "${entry.comment}" on`, disabled: false } : { ok: false, message: `"${entry.comment}" is already on` };
   if (op.kind === "disable") return entry.disabled ? { ok: false, message: `"${entry.comment}" is already off` } : { ok: true, message: `Switch "${entry.comment}" off`, disabled: true };
@@ -69,9 +76,9 @@ export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | unde
 
 // Rewrites and patches go first, then the on/off flips: `upsertWIEntry` re-enables whatever it
 // writes, so a disable that follows a rewrite is the one order where both survive.
-const ORDER: Record<WiCuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1 };
+const ORDER: Record<WiCuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1, create: 2 };
 
-const opText = (op: WiCuratorOp) => (op.kind === "rewrite" ? op.text : op.kind === "patch" ? `${op.anchor} => ${op.replace}` : "");
+const opText = (op: WiCuratorOp) => (op.kind === "rewrite" ? op.text : op.kind === "patch" ? `${op.anchor} => ${op.replace}` : op.kind === "create" ? `${op.keys.join(", ")} => ${op.text}` : "");
 
 export const declineKey = (op: WiCuratorOp): string => `${op.kind}:${opTargetKey(op)}:${normalize(opText(op))}`;
 

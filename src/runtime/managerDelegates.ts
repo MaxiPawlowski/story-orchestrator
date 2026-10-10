@@ -7,6 +7,7 @@ import {
   type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair,
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
+import type { LoreCreateOutcome } from "./loreCreator";
 import { type WIEntrySnapshot } from "@services/STAPI";
 import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import type { wireCoordinators } from "./managerWiring";
@@ -141,6 +142,7 @@ export abstract class CoordinatorDelegates {
   getStagecraftState(): StagecraftRuntimeState { return this.co.stagecraft.getState(); }
   curatorDueForRun(): boolean { return this.co.stagecraft.dueForRun(); }
   async runWiCuratorPass(reason?: string, debugResponse?: string): Promise<CuratorPassOutcome> { return this.co.stagecraft.runCuratorPass(reason, debugResponse); }
+  async runLoreCreatePass(reason?: string, debugResponse?: string): Promise<LoreCreateOutcome> { return this.co.stagecraft.runCreatePass(reason, debugResponse); }
   async setCuratorOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) { await this.co.stagecraft.setOpDecision(id, index, status, op); }
   async decideCuratorProposal(id: string, status: "accepted" | "rejected") { await this.co.stagecraft.decideProposal(id, status); }
   async applyCuratorProposals(): Promise<number> { return this.co.stagecraft.applyAccepted(); }

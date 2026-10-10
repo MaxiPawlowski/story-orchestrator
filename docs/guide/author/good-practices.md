@@ -40,7 +40,7 @@ Each item names where it was learned: a test session, the bundled campaign, or a
 
 **Lore**
 
-23. **The World Info curator has no create op.** Seed its book with every entry play should keep current. (Memory note `story-authoring-traps.md`; `src/stagecraft/types.ts` `WiCuratorOp`.)
+23. **The World Info curator creates only what play established twice.** A new entry needs two live facts naming it and the author's accept; seed its book with every entry play should keep current. (Memory note `story-authoring-traps.md`; `src/stagecraft/createPlan.ts`, v2.8 11.)
 24. **Checkpoint-gated lore and curator scope never overlap.** Gated entries are rebuilt from the path each beat, so the curator is refused there. (`stagecraft/scope.ts`; campaign `INTEGRATION.md`.)
 25. **A gated secret is never a constant entry with no character filter.** (Findings, T3-1.)
 26. **Every book the story relies on is under `requirements.lorebooks`**: beat lore, lore select and the curator book. (Diagnostic `lore-select-inactive`; campaign `INTEGRATION.md`.)

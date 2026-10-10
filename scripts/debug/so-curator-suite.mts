@@ -6,12 +6,15 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 
-const USAGE = `Usage: node scripts/debug/so-curator-suite.mts run [--samples 3] [--filter <id>] [--record] [--expect-count 22]
+const USAGE = `Usage: node scripts/debug/so-curator-suite.mts run [--revision 2] [--samples 3] [--filter <id>] [--record] [--expect-count 24]
 
-v2.4 plan 06 F5 Phase A. Runs every case of test/fixtures/curator-create/cases.json through the
-curator's model (the memory profile, via globalThis.storyOrchestratorLiveSuite.runCuratorCreate):
-the candidate create prompt, the create parser and the code guards (allowlist, existing title,
-empty keys, cast-name keys, a live fact naming the entity). Nothing is written to any lorebook.
+v2.8 plan 11 (was v2.4 plan 06 F5 Phase A). Runs every case of the curator-create fixture through the
+Lore creation role's route (globalThis.storyOrchestratorLiveSuite.runCuratorCreate, role "lore", which
+falls back to the curator's route when unset): the candidate create prompt, the create parser and the
+shipped contract-B guards (allowlist, existing title, a hidden entry recreated, empty keys, cast-name keys,
+>= 2 live facts naming the title or first key). Nothing is written to any lorebook. --revision 1 reruns
+the frozen v2.4/v2.6 fixture (cases.json); the default, 2, is the contract-B fixture (revision-2.json).
+Two passing runs on one route make an eligibility row (src/stagecraft/createEligibility.ts).
 
 Scored end to end, after the code guards, against the floors the fixture declares (propose >= 0.90
 of samples yield a valid card naming the case's entity; none = 1.00 of samples yield no valid card).
@@ -23,8 +26,9 @@ op is NOT built, and no floor is retuned. Capture a run header first (so-run-hea
   --record            write test/goldens/live/curator-create/<id>.json (raw responses; replayed in jest)
   --expect-count <n>  fail unless exactly n cases ran`;
 
-const CASES = join(PROJECT_ROOT, 'test/fixtures/curator-create/cases.json');
-const GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/live/curator-create');
+const REVISION = argValue('--revision', '2');
+const CASES = join(PROJECT_ROOT, REVISION === '1' ? 'test/fixtures/curator-create/cases.json' : 'test/fixtures/curator-create/revision-2.json');
+const GOLDEN_DIR = join(PROJECT_ROOT, REVISION === '1' ? 'test/goldens/live/curator-create' : 'test/goldens/live/curator-create-r2');
 
 function argValue(name: string, fallback: string) {
   const index = process.argv.indexOf(name);
@@ -74,6 +78,8 @@ async function runSuite(page, { samples, filter, record, expectCount }: { sample
     ...(expectCount !== null && rows.length !== expectCount ? [`ran ${rows.length} case(s), expected ${expectCount}`] : []),
   ];
   const report = {
+    revision: fixture.revision ?? '1',
+    contract: fixture.contract ?? 'create-A',
     frozenAt: fixture.frozenAt,
     floors: fixture.floors,
     samples: perCase,

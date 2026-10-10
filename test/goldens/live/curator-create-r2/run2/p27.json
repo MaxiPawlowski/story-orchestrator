@@ -1,0 +1,21 @@
+{
+  "id": "p27",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Saltmarsh Lore || Dunmore || Dunmore, bell tower, drowned village || A drowned village whose bell tower still shows at low tide. Lisbet's grandmother was born there.\n[why] The story has reached a visible tower in the reed banks, making Dunmore's surviving landmark newly relevant and worth its own entry.",
+    "[create] Saltmarsh Lore || Dunmore || dunmore, drowned village, bell tower || A drowned village whose bell tower still shows at low tide. Lisbet's grandmother was born there.\n[why] The story has reached the tower standing out of the water, making the established facts about Dunmore newly relevant, and no entry covers it.",
+    "[create] Saltmarsh Lore || Dunmore || dunmore, bell tower, drowned village || A drowned village whose bell tower still shows at low tide. Lisbet's grandmother was born there.\n[why] The story has reached the reed banks with the tower visible, making Dunmore newly relevant, and the established facts name it twice."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

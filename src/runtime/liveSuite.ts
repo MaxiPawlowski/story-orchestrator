@@ -101,7 +101,7 @@ export const liveReadTiers = (parsed: ReturnType<typeof parseSharedReadResponse>
   ledger: parsed.ledger.map((entry) => ({ entity: entry.entity, entityType: entry.entityType, field: entry.field, value: entry.value })),
 });
 
-const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner" };
+const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner", lore: "loreCreate" };
 
 const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
 
@@ -180,7 +180,7 @@ export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["r
   return async (entry) => {
     const context = caseContext(entry);
     const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
-    const rawResponse = await askText(liveModel(manager), prompt, { role: "curator", pass: "curator", maxTokens: 512 });
+    const rawResponse = await askText(liveModel(manager), prompt, { role: "lore", pass: "loreCreate", maxTokens: 512 });
     return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
   };
 }

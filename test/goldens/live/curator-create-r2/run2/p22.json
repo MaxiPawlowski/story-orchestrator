@@ -1,0 +1,21 @@
+{
+  "id": "p22",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[disable] #0 \"The Thornwood\"\n[create] Thornwood Lore || Wren, the Woodcutter's Daughter || Wren, woodcutter's daughter || Young woman of the Thornwood who knows which paths stay still. Trades charms and directions for copper; gave Brisa a sprig of rowan.\n[why] The story has left the dark path-moving wood for the known clearing, and Wren has become a fact worth recording.",
+    "[create] Thornwood Lore || Wren, the Woodcutter's Daughter || wren, woodcutter's daughter || Wren is the woodcutter's daughter; she knows which paths in the Thornwood stay still. She trades charms from the forest for small coins—a sprig of rowan for a copper.\n[create] Thornwood Lore || The Woodcutter's Clearing || woodcutter's clearing, clearing || A clearing in the Thornwood where a woodcutter works; the air smells of fresh sap.\n[why] Wren and the woodcutter's clearing have each been established by the facts and are not covered by any existing entry.",
+    "[create] Thornwood Lore || Wren || wren, woodcutter's daughter || The woodcutter's daughter; knows which paths in the Thornwood stay still. Traded Brisa a sprig of rowan for a copper.\n[why] Wren is now a named, established person in the story, referenced twice, and no existing entry covers her."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

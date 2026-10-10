@@ -1,0 +1,21 @@
+{
+  "id": "p23",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #0 \"The Old Chapel\" || A roofless chapel overgrown with ivy. || || A roofless chapel overgrown with ivy, its stone floor scattered with fallen leaves.\n[create] Thornwood Lore || The Hollow Bell || hollow bell, bell || A bell that hangs from a dead oak and rings by itself when the paths shift.\n[why] The bell rang in the trees, tying the already-established Hollow Bell lore to the current chapel scene and grounding the shifting paths in this location.",
+    "[create] Thornwood Lore || The Hollow Bell || Hollow Bell, bell || A bell that rings by itself when the paths of the Thornwood shift. Alder found it hanging from a dead oak.\n[why] The Hollow Bell is named twice in the established facts and no existing entry covers it.",
+    "[create] Thornwood Lore || The Hollow Bell || Hollow Bell, bell || A bronze bell found by Alder hanging from a dead oak. It rings on its own when the paths of the Thornwood shift.\n[why] The Hollow Bell is established twice in the facts and is not covered by any existing entry, and its ringing here signals the paths have shifted."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

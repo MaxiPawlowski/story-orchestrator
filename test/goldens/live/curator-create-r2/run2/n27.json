@@ -1,0 +1,21 @@
+{
+  "id": "n27",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[disable] #0 \"The Ember Camp\"\n[why] The story has moved from the camp to the burning ridge, so the camp entry no longer matters.",
+    "[disable] #0 \"The Ember Camp\"\n[create] Ashfall Lore || The Vault of Cinders || Vault of Cinders, burning ridge || A sealed vault hidden beneath the burning ridge. Kael found its door warm to the touch.\n[why] The story has moved from the camp to the burning ridge, where the Vault of Cinders has become the active focus.",
+    "[disable] The Ember Camp\n[why] The story has moved up to the burning ridge, away from the camp, so the Ember Camp entry no longer matters."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

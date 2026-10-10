@@ -1,0 +1,21 @@
+{
+  "id": "n23",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[patch] #0 \"The Lighthouse Keeper\" || trades news for tobacco. || deaf in one ear and trades news for tobacco. || He is deaf in one ear. {{// so:protect}}Brannoc keeps the saltmarsh lighthouse{{// so:end}} on the point, and trades news of the tides for tobacco.\n[why] Odo and Lisbet have reached the lighthouse where Brannoc keeps it, making his location on the point and his presence current facts worth pinning to the entry.",
+    "[why] Nothing in the established facts has changed the lighthouse keeper entry; Odo and Lisbet climbing to the lighthouse and Brannoc's existing facts require no toggles, rewrites, or new entries.",
+    "[patch] #0 \"The Lighthouse Keeper\" || Brannoc keeps the saltmarsh lighthouse. || He is deaf in one ear and trades news for tobacco. || Brannoc keeps the saltmarsh lighthouse on the point.\n[why] The story moved the setting to the lighthouse itself, so the keeper entry now needs to note the lighthouse's location on the point."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

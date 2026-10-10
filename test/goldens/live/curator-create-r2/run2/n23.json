@@ -1,0 +1,21 @@
+{
+  "id": "n23",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] The established facts add no new information about Brannoc beyond what entry #0 already contains, so nothing needs changing.",
+    "[enable] #0 \"The Lighthouse Keeper\"\n[why] Odo and Lisbet have climbed to the lighthouse, so the keeper entry now matters and should be switched on.",
+    "[why] Nothing in the established facts contradicts or extends the existing entry; Odo and Lisbet's climb and Brannoc's trades are already covered, so no changes are needed."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

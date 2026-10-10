@@ -1,0 +1,21 @@
+{
+  "id": "n25",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "NONE",
+    "[patch] #0 \"The Old Chapel\" || A roofless chapel || ivy. || A roofless chapel overgrown with ivy. Its broken walls stand open to the night sky, and no roof shelters those who wait within.\n[why] The story's location at the old chapel and the fading light emphasize its rooflessness as a present, shelterless condition rather than mere description.",
+    "[patch] #1 \"The Thornwood\" || Old forest where || move after dark. || Old forest whose paths shift after dark; a traveler who stops walking may find the way changed when they move again.\n[why] The established fact that the paths of the Thornwood move after dark now directly matters in the current scene at the old chapel, so the Thornwood entry was sharpened to reflect that the shifting paths affect a traveler who waits."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

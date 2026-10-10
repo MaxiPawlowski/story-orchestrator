@@ -1,0 +1,21 @@
+{
+  "id": "n21",
+  "label": "none",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[why] Nothing in the story has changed what the Printers' Quarter entry already covers, and no established fact has shifted scope or gone obsolete.",
+    "[enable] #0 \"Printers' Quarter\"\n[why] The story has moved into the printers' quarter, so its lore entry now matters and should be active.",
+    "[create] Inkwell Lore || Dorran the Courier || Dorran, courier || A courier in the printers' quarter, known for carrying sealed letters.\n[why] A courier called Dorran was established as handing Fitch a sealed letter, and no entry covers him."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

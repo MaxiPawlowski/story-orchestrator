@@ -1,0 +1,21 @@
+{
+  "id": "p22",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Thornwood Lore || Wren || wren, woodcutter's daughter || The woodcutter's daughter who knows which paths stay still. Trades charms like rowan sprigs for copper.\n[why] Wren is established twice in the facts (daughter, and her trade) and no existing entry covers her, so she warrants a new Thornwood Lore entry.",
+    "[create] Thornwood Lore || Wren, the Woodcutter's Daughter || wren, woodcutter's daughter || The woodcutter's daughter. She knows which paths in the Thornwood stay still, and trades charms like rowan sprigs with travelers.\n[create] Thornwood Lore || The Woodcutter's Clearing || clearing, woodcutter's clearing || A clearing in the Thornwood where a woodcutter and his daughter Wren live. It smells of fresh sap.\n[why] The story reached the woodcutter's clearing and introduced Wren, both facts established more than once and covered by no existing entry.",
+    "[create] Thornwood Lore || Wren || Wren, woodcutter's daughter || The woodcutter's daughter; knows which paths in the Thornwood stay still.\n[create] Thornwood Lore || Woodcutter's Clearing || woodcutter's clearing, clearing || A clearing in the Thornwood that smells of fresh sap.\n[why] Two facts recur in the established facts—Wren and the clearing—and no listed entry covers either."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

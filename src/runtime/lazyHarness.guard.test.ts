@@ -5,7 +5,6 @@ const HARNESS = [
   "src/runtime/liveSuite.ts",
   "src/runtime/judgeHarness.ts",
   "src/runtime/roleCalibration.ts",
-  "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
 ];

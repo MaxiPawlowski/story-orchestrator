@@ -51,7 +51,7 @@ const ruleFinding: WardenCheckFinding = { family: "house-rule", text: `House rul
 const continuityFinding: WardenCheckFinding = { family: "continuity", text: "Continuity: established — The bridge fell. Keep the next reply consistent with it.", facts: ["The bridge fell."] };
 
 const harness = (options: { continuity?: boolean; mode?: "auto" | "review" | "off"; agency?: boolean; houseRules?: string[]; findings?: WardenCheckFinding[] | null } = {}) => {
-  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity ?? false, wardenAcceptMode: options.mode ?? "auto" } };
+  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { createEnabled: false, createRequireMeasured: false, curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity ?? false, wardenAcceptMode: options.mode ?? "auto" } };
   const inputs: WardenCheckInput[] = [];
   const families = { agency: options.agency ?? false, houseRules: options.houseRules ?? [] };
   const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: host, curator: host } as never, ownership: testOwnership(),

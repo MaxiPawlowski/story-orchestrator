@@ -1,11 +1,12 @@
 import { useState } from "react";
 import {
-  CURATOR_OP_REVERTED, decidedOp, isNoteOp, previewCuratorOp, repetitionText, wardenFamilyMode, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord,
+  CURATOR_OP_REVERTED, decidedOp, isCreateOp, isNoteOp, previewCuratorOp, repetitionText, wardenFamilyMode, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord,
 } from "@stagecraft/index";
 import { wordDiff } from "@utils/wordDiff";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { MessageCitation } from "./MessageCitation";
+import { CreateCard } from "./CreateCard";
 
 const STATUS_LABELS: Record<CuratorOpRecord["status"], string> = {
   pending: "waiting for you",
@@ -60,6 +61,7 @@ const describe = (op: CuratorOp): string => {
   if (op.kind === "enable") return `switch on "${op.comment}"`;
   if (op.kind === "disable") return `switch off "${op.comment}"`;
   if (op.kind === "rewrite") return `rewrite "${op.comment}"`;
+  if (op.kind === "create") return `new entry "${op.comment}" in ${op.lorebook}`;
   return `patch "${op.comment}" at “${op.anchor}”`;
 };
 
@@ -157,7 +159,8 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
 // Author-only: a curator is system machinery, and what it proposes names lorebook entries and future
 // scenes — squarely on the author side of the spoiler checklist.
 export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => {
-  const { settings, proposals, lastPass, lastError } = snapshot.stagecraft;
+  const { settings, proposals, lastPass, lastError, lastCreatePass } = snapshot.stagecraft;
+  const created = snapshot.stagecraft.created?.length ?? 0;
   const scope = snapshot.stagecraftScope ?? [];
   const records = [...proposals].reverse();
   return (
@@ -187,6 +190,18 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
         <div data-so="repetition" className="opacity-70">{repetitionText(snapshot.repetition)}</div>
       )}
       {lastError && <div className="so-error-text">{lastError}</div>}
+      {settings.curatorEnabled && settings.createEnabled && scope.length > 0 && (
+        <div data-so="lore-create-status" className="opacity-70">
+          New entries · {settings.acceptMode === "off" ? "not proposed while the curator only observes" : "proposed for what play has established, each waits for you"}
+          {created ? ` · ${String(created)} created in this chat` : ""}
+        </div>
+      )}
+      {lastCreatePass && (
+        <div data-so="lore-create-last" title={lastCreatePass.rawResponse || "(empty response)"} className="opacity-70">
+          Last lore read {lastCreatePass.reason}: {lastCreatePass.proposed ? `${String(lastCreatePass.proposed)} new entry card(s)` : "nothing new"}
+          {lastCreatePass.dropped.length ? ` · ${String(lastCreatePass.dropped.length)} refused` : ""}
+        </div>
+      )}
       {lastPass && (
         <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-70">
           Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}
@@ -201,7 +216,9 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
           <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-white/10 mt-1 pt-1">
             <div className="opacity-100">{record.curator === "warden" ? (record.reason === "continuity" ? "Continuity warden: " : "Warden: ") : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
-            {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} onOpenFact={onOpenFact} />)}
+            {record.ops.map((entry, index) => (isCreateOp(entry.op)
+              ? <CreateCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} op={entry.op} manager={manager} />
+              : <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} onOpenFact={onOpenFact} />))}
             {record.dropped.map((line) => <div key={line} className="opacity-70">dropped — {line}</div>)}
           </div>
         ))

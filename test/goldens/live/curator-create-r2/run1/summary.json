@@ -1,0 +1,286 @@
+{
+  "model": "deepseek-flash",
+  "revision": "2",
+  "contract": "create-B",
+  "route": "offline: DeepSeek API direct, one user message, max_tokens 1024, effort default, thinking off",
+  "at": "2026-10-10T01:11:43.338Z",
+  "floors": {
+    "propose": 0.9,
+    "none": 1
+  },
+  "endToEnd": {
+    "propose": 0.4444,
+    "none": 1
+  },
+  "ok": false,
+  "modelAlone": {
+    "proposeCreated": 0.5,
+    "noneCreated": 0.1667
+  },
+  "rows": [
+    {
+      "id": "p16",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3
+    },
+    {
+      "id": "p17",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        false,
+        false,
+        true
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "p18",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        false,
+        false,
+        false
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "p19",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        false,
+        true,
+        false
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "p20",
+      "label": "propose",
+      "why": "established-key",
+      "passes": [
+        false,
+        false,
+        false
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "p21",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        false,
+        true
+      ],
+      "modelCreated": 2
+    },
+    {
+      "id": "p22",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3
+    },
+    {
+      "id": "p23",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        false,
+        false
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "p24",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        false,
+        false,
+        false
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "p25",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        false,
+        false,
+        true
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "p26",
+      "label": "propose",
+      "why": "established-empty-book",
+      "passes": [
+        true,
+        true,
+        false
+      ],
+      "modelCreated": 3
+    },
+    {
+      "id": "p27",
+      "label": "propose",
+      "why": "established-with-near-miss",
+      "passes": [
+        true,
+        true,
+        false
+      ],
+      "modelCreated": 2
+    },
+    {
+      "id": "n17",
+      "label": "none",
+      "why": "named-once",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "n18",
+      "label": "none",
+      "why": "named-once",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n19",
+      "label": "none",
+      "why": "named-once-generic-key",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n20",
+      "label": "none",
+      "why": "roster",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 2
+    },
+    {
+      "id": "n21",
+      "label": "none",
+      "why": "roster-bystander",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 1
+    },
+    {
+      "id": "n22",
+      "label": "none",
+      "why": "covered",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n23",
+      "label": "none",
+      "why": "covered-other-title",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n24",
+      "label": "none",
+      "why": "near-dup",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n25",
+      "label": "none",
+      "why": "nothing-new",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n26",
+      "label": "none",
+      "why": "excluded",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n27",
+      "label": "none",
+      "why": "gated",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0
+    },
+    {
+      "id": "n28",
+      "label": "none",
+      "why": "excluded-other-title",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 2
+    }
+  ]
+}

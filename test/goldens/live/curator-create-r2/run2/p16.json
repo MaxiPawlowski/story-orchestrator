@@ -1,0 +1,21 @@
+{
+  "id": "p16",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Lantern Coast Lore || Tamsin's Lantern Shop || Tamsin, lantern shop, oil || The lantern shop on the quay, run by Tamsin. Sells oil by the cup. Tamsin has refused to sell oil to the customs men.\n[enable] Tamsin's Lantern Shop\n[why] The established facts introduce Tamsin's lantern shop and its oil trade, which now matters at the harbour where Edda and Corvin have arrived, so a dedicated entry is created and switched on.",
+    "[create] Lantern Coast Lore || Tamsin || Tamsin, lantern shop, oil by the cup || Tamsin runs the lantern shop on the quay and sells oil by the cup. Tamsin refused to sell oil to the customs men.\n[why] Tamsin is named twice in the established facts as a person in the harbour and no listed entry covers her, so a lorebook entry is now needed.",
+    "[patch] #0 \"The Harbour\" || A stone harbour lit by oil lanterns. || Fishing boats tie up three deep at the quay. || Tamsin's lantern shop stands on the quay, selling oil by the cup; the harbour is lit by oil lanterns. Fishing boats tie up three deep at the quay.\n[why] The story placed Tamsin's lantern shop on the quay, so the harbour entry should reflect that the shop is part of the scene."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    true,
+    false
+  ]
+}

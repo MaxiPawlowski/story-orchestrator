@@ -1,0 +1,21 @@
+{
+  "id": "p21",
+  "label": "propose",
+  "revision": "2",
+  "model": "deepseek-flash",
+  "responses": [
+    "[create] Station Nine Lore || The Glass Choir || glass choir, cult, singing || A cult that meets in the observation ring at shift change, believing the gas giant sings to them.\n[why] The established facts name the Glass Choir and its belief, which no existing entry covers.",
+    "[enable] #0 Observation Ring\n[why] The story has moved to the observation ring, where strange singing was heard, so its lore entry now matters and should be active.",
+    "[create] Station Nine Lore || The Glass Choir || Glass Choir, cult, singing || A cult that gathers in the observation ring at shift change, believing the gas giant sings to them.\n[why] The established facts introduce the Glass Choir as a recurring group with no existing entry covering them."
+  ],
+  "finishes": [
+    "stop",
+    "stop",
+    "stop"
+  ],
+  "passes": [
+    true,
+    false,
+    true
+  ]
+}

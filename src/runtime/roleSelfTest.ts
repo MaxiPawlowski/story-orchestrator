@@ -3,6 +3,7 @@ import { askText, profileRoute, routedModel, stripChannelNoise, PASS_ROLE_LABELS
 import { runAuthoringStage } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt } from "@talk/index";
 import { buildWiCuratorPrompt, parseCuratorResponse, type CuratorScope } from "@stagecraft/index";
+import { buildCreateCandidatePrompt, parseCreateLines, validateCreate, type CreateCandidateContext } from "@stagecraft/createCandidate";
 import { buildSceneSummaryPrompt } from "@memory/contract";
 import { INNER_BEAT_MAX_TOKENS, parseInnerBeat, renderInnerBeatPrompt } from "@memory/innerBeat";
 import { runModelSelfTest } from "./selfTest";
@@ -140,6 +141,20 @@ const runCurator: Run = async (profileId, answer) => {
   return { passed: proposal.ops.length > 0, detail: `the curator fixture (the party left camp for the tunnel) gave ${String(proposal.ops.length)} usable op(s)` };
 };
 
+const LORE_CONTEXT: CreateCandidateContext = {
+  allowlist: ["Self-test"],
+  entries: CURATOR_SCOPE.entries,
+  roster: ["Bel"],
+  facts: ["Old Marn keeps the tunnel's only map and sells copies for a silver each.", "Bel bought Old Marn's map before the party left camp.", "The tunnel floods past the second gate."],
+};
+
+const runLore: Run = async (profileId, answer) => {
+  const prompt = buildCreateCandidatePrompt(CURATOR_SCOPE, LORE_CONTEXT);
+  const raw = await askText(routedModel(profileRoute(profileId)), prompt, { role: "lore", pass: "loreCreate", maxTokens: 512, debugResponse: answer(0) });
+  const valid = parseCreateLines(raw).filter((op) => validateCreate(op, LORE_CONTEXT).ok);
+  return { passed: valid.length > 0, detail: `the lore fixture (a map-seller two facts name) gave ${String(valid.length)} usable new entry card(s)` };
+};
+
 const runSynthesis: Run = async (profileId, answer) => {
   const raw = await askText(routedModel(profileRoute(profileId)), buildSceneSummaryPrompt(SCENE_TEXT), { role: "synthesis", pass: "sceneSummary", maxTokens: 256, debugResponse: answer(0) });
   const summary = stripChannelNoise(raw).trim();
@@ -176,7 +191,7 @@ const runInner: Run = async (profileId, answer) => {
   return { passed: beat !== null, detail: beat ? "wrote a usable BEAT line" : "no usable BEAT line came back" };
 };
 
-const RUNS: Record<PassRole, Run> = { read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator, inner: runInner };
+const RUNS: Record<PassRole, Run> = { read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator, inner: runInner, lore: runLore };
 
 export async function runRoleSelfTest(role: PassRole, options: RoleSelfTestOptions): Promise<RoleSelfTestResult> {
   const ranAt = new Date().toISOString();

@@ -14,7 +14,7 @@ import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
-import type { CuratorDecline, CuratorPassAudit, CuratorProposalRecord, RepetitionReport, StagecraftAcceptMode } from "@stagecraft/index";
+import type { CreatedEntry, CuratorDecline, CuratorPassAudit, CuratorProposalRecord, RepetitionReport, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
 import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -128,6 +128,8 @@ export interface StagecraftSettings {
   wardenAcceptMode: StagecraftAcceptMode;
   agencyAcceptMode?: StagecraftAcceptMode;
   meanwhileAcceptMode?: MeanwhileAcceptMode;
+  createEnabled: boolean;
+  createRequireMeasured: boolean;
 }
 
 export interface StagecraftRuntimeState {
@@ -137,6 +139,9 @@ export interface StagecraftRuntimeState {
   lastPass: CuratorPassAudit | null;
   lastRunBoundary: number;
   lastError: string | null;
+  created?: CreatedEntry[];
+  lastCreatePass?: CuratorPassAudit | null;
+  lastCreateBoundary?: number;
 }
 
 export interface RuntimeExtras {
