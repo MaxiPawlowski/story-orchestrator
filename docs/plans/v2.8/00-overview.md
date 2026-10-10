@@ -166,7 +166,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
 | 09 | written; decided; not built |
 | 10 | written 2026-10-03 from v2.7 05 decision 1; decided in principle; contract not reviewed by the user; not built |
-| 11 | written; decided (build B); not built; fixtures not frozen |
+| 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17) |
 | 12 | written; decided (option C); not built |
 | 13 | written; decided; not built; no Phase A run in v2.8 yet |
 | 14 | written; decided; not built; jevbench read, our evals not run |

@@ -34,6 +34,8 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 | M13 | Keyword-scan recall on the lore lab after the campaign key tightening | 0.25 → 0.26 | none |
 | M14 | Phase C ×2 from zero on one build | symbolic now; runs when there is budget | pod |
 | M15 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, funded thinking A/B | unchanged | pod |
+| M16 | v2.8 11 curator create, fixture revision 2 ×2 through the shipped ST route (`so-curator-suite run --revision 2 --expect-count 24 --record` on a lane, Lore creation role on the route under test, run header diffed) | offline DeepSeek flash (thinking off, direct API) 2026-10-10: none 1.00 / 1.00, propose 0.444 / 0.694, below the 0.90 floor; not run through ST because staging this branch would have replaced the extension every lane and :8000 serve | cloud (lane) |
+| M17 | v2.8 11 J8 create checks ×2 (positive with the activation proof first, then unestablished name, createCap, auto never creates, excluded/gated title refused at the write edge, unmeasured route refused with "Only on a measured model" on), group chat, curator + main reply on cloud profiles | not run (needs the reply model and a staged build) | cloud + reply model |
 
 ## Fix
 

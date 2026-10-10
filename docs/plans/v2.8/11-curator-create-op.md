@@ -1,7 +1,9 @@
 # Plan 11 — Curator `create` op
 
-**Status (2026-10-03): v2.8 plan 11 (was v2.7 plan 12). Decided: build contract B, review-only, with its own model
-selector (the "Lore creation" role). Not built; fixture revision 2 not frozen; no measurement run.**
+**Status (2026-10-10): BUILT on `v2.8-curator-create`, on by default (owner 2026-10-09: private plugin, floors
+informational). Contract B, review-only, Lore creation role. Fixture revision 2 frozen; measured offline ×2 on
+DeepSeek flash: none 1.00 ×2, propose 0.444 / 0.694, BELOW the 0.90 floor (recorded, not retuned). Owed: the ST-route
+run and the J8 create checks (31 M16, M17). Gate record at the end.** (Was 2026-10-03: decided, not built.)
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "Curator `create` op". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance CL (frozen-fixture runs and the J8 create
 checks on the cloud curator route; no pod).
@@ -197,3 +199,71 @@ shipped curator route; any other model needs its own row, step 6.)
   `stagecraft.exclude` and gated entries).
 - Also: line refs touched re-verified (`types.ts:24-30`, `liveSuite.ts:51,81`, `settingsModel.ts:173`,
   `createCandidate.ts:62-87`); measurements ×2 per v2.8 rule 9; registry gate (B10); references version-qualified.
+
+## Gate record (2026-10-10, branch `v2.8-curator-create`)
+
+Owner context 2026-10-09: private plugin, every built feature on by default, floors informational. That replaces
+Recommendation step 5's "only past floor ×2 ... off by default" and step 3's "the runtime refuses" (see Deviations).
+
+### What was built, per step
+
+| Step | Built | Where |
+|---|---|---|
+| 1 Contract B | `validateCreate` refuses a title or first key that fewer than 2 distinct live facts name (`factsNaming`, `CREATE_MIN_FACTS`); also refuses a card that recreates a hidden entry (title or first key equal to an excluded or checkpoint-gated entry's title or any key, leading article ignored: `hiddenTwin`) and one carrying a `{{// so:…}}` marker. v2.6 goldens replay: every propose verdict unchanged, the 7 none-misses refused | `stagecraft/createCandidate.ts` |
+| 2 Lore-creation role | seventh pass role `lore` ("Lore creation"), pass `loreCreate`; unset, it takes the curator's route (`ROLE_INHERITS`, shown as "Same as World Info curator"); any profile or harness route; self-test case; role-route census row | `extraction/passRole.ts`, `runtime/passProfiles.ts`, `roleSelfTest.ts`, `RoleProfilesGroup.tsx` |
+| 3 Eligibility | rows keyed route model (`source:model`, or `harness:model`) × `create-B` × revision `2`, ≥ 2 runs at floor; states measured / below-floor / not-measured / unknown-model; shown on the Lore creation picker row (`[data-so="role-measurement"]`) and in each pass's journal line. Refusal before any call only with `stagecraft.createRequireMeasured` (default off) | `stagecraft/createEligibility.ts`, `runtime/loreRoute.ts` |
+| 4 Fixture revision 2 | 24 cases (12/12), p16–p27 / n17–n28, English, synthetic, every negative the plan names (incl. excluded and gated hidden entries), hash pinned in jest | `test/fixtures/curator-create/revision-2.json` |
+| 5 Build | `create` op in `WiCuratorOp`; `LoreCreator` delegated unit (own pass after each curator pass, own hold, ownership-checked, journaled); plan-time guards (`planCreateProposal`: contract B, hidden title, proposed twice, declined at this checkpoint, marker, cap); every card `pending` in every mode (auto never creates), `decideProposal` bulk accept skips creates; write edge (`CuratorWriter.writeCreate`: scope re-check, marker, existing title re-read, cap, write-ahead, `createWIEntry` never creates a book and never edits); rollback deletes under compare-and-set (title, text, flag, keys) via `deleteWIEntryAt`, an edited entry kept `externally-edited`; write-ahead reconciled by title on reload; `extras.stagecraft.created` ledger (persisted, sanitized, trimmed on rollback); `stagecraft.createCap` (0–20, default 5, Studio field); `stagecraft.createEnabled` on by default | `runtime/loreCreator.ts`, `runtime/curatorWriter.ts`, `stagecraft/createPlan.ts`, `services/stHost/worldInfo.ts`, `StoryEditor.tsx` |
+| Ring cards | `CreateCard`: title + book, near-dup warnings ("may duplicate X (87% alike)"), editable keys and text, "Create it" (disabled without keys or text) / Decline; status line and last lore read in the panel | `components/drawer/CreateCard.tsx`, `StagecraftPanel.tsx` |
+| Registry / Help / guide | feature `curator-create`, setting copy for both switches, settings reference and README table regenerated, story guide + compact topic | `features/*`, `docs/authoring/story-guide.md` |
+
+### Gates
+
+- `npm run gates -- --no-storybook`: **all green in 187.5 s** (typecheck, typecheck:test, debug:typecheck, test
+  7195 passed / 1 skipped, lint, build, test:plugin, test:release, test:debug 1231/0, test:replay 32 of 32 killed).
+  **Storybook SKIPPED** (`--no-storybook`). Re-run in the main checkout: `Drawer/StagecraftPanel` →
+  `CreateCardNearDup`, `CreateCardNeedsKeys`, `CreateCardCreated` (and the existing ones); `Settings/RoleProfilesGroup`
+  → `LoreCreationNotMeasured`, `SameAsMemoryModel` (now 7 roles in real routes; the story's own list is unchanged).
+- New jest: `runtime/coordinators/curatorCreate.review.test.ts` (34), `stagecraft/createCandidate.test.ts`
+  (revision-2 block + contract B guards + both replays), `services/stHost/worldInfo.test.ts` (create/delete host block),
+  `roleHealth.test.ts` (lore inherits the curator).
+- Ownership census: `CuratorWriter.writeCreate`, `.revertCreate` (checked), `.revertCreateStep` (delegate),
+  `LoreCreator.run` (checked), `.readBooks` (local). Fault matrix: new package `curatorCreate`, ten cells (9 covered/partial,
+  persistFailure na); the created-entry revert is `curatorCreate|worldSwitched` plus the compare-and-set test.
+- Mutations: `test/findings/mutations/v28-11-curator-create.txt`, 15 of 15 killed (the four F5 built-op mutations, the
+  B1 eligibility skip, contract B, plan-time and write-edge refusals, host create/delete). Two survived the first sweep
+  (write-edge scope, write-edge cap); tests added, rerun kills them.
+- No live gate: nothing was staged into ST (staging this branch replaces the extension that :8000 and every lane
+  serve). `so-ui assert-player-clean` gained the new `[data-so]` selectors, not run live.
+
+### Measurement (CL, offline)
+
+| Run | Route | propose | none | model alone (propose / none created) |
+|---|---|---|---|---|
+| 1 (2026-10-10 01:11Z) | DeepSeek API direct, `deepseek-flash`, thinking disabled, max_tokens 1024, the shipped prompt and guards | 0.444 | **1.000** | 0.50 / 0.17 |
+| 2 (01:12Z) | same | 0.694 | **1.000** | 0.69 / 0.25 |
+
+Floors (propose ≥ 0.90, none = 1.00 ×2): **below floor** on propose; not retuned. Contract B did what it was for: the
+model proposed a create in 17–25 % of none samples and the guards refused every one. Misses are under-proposal (NONE or an
+edit instead of a create), not wrong creates. Goldens `test/goldens/live/curator-create-r2/run{1,2}/` replay in jest; the
+row `deepseek:deepseek-flash` ships as below-floor, so the picker says so. With thinking on (DeepSeek's default) at the
+curator budget (384–1024 tokens) every reply was empty: all budget went to reasoning. The scorer was aligned with the
+shipped path after run 1 (a marker in a new entry is refused inside `validateCreate`); that only lowered run 1's propose
+(0.472 → 0.444).
+
+### Deviations
+
+- Default on (owner) instead of off until floor ×2; eligibility informs instead of refusing unless
+  `createRequireMeasured` is on.
+- The hidden-entry twin guard is part of contract B as frozen with revision 2 (written before any model answer).
+- Measurement ran offline through the DeepSeek API, not through ST's Connection Manager on a lane; the ST-route run ×2
+  and the J8 create checks are owed (`31-v27-wrap-backlog.md` M16, M17).
+
+### Decisions for the user
+
+1. Propose is below floor on DeepSeek flash (0.44 / 0.69): keep creation on by default anyway (owner context), or default
+   `createRequireMeasured` on so it stays dormant until a route passes?
+2. Try another route for a passing row (DeepSeek v4-pro, a Claude/GPT profile, opencode), or a prompt change (a new
+   contract and revision 3; the prompt sentence is part of the measured shape)?
+3. Thinking routes: a Lore creation route on a thinking model needs a low effort or thinking off, or every pass comes back
+   empty. Add a check (an `unknown`/empty-reply warning on the role row), or leave it to the role's effort setting?
