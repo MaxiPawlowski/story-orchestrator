@@ -3,6 +3,8 @@ import { buildWiCuratorPrompt } from "./prompt";
 import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorScope } from "./types";
 
 export const CREATE_NEAR_DUP_THRESHOLD = 0.85;
+export const CREATE_CONTRACT = "create-B";
+export const CREATE_MIN_FACTS = 2;
 
 export interface CreateCandidateOp {
   lorebook: string;
@@ -82,6 +84,11 @@ const mentions = (text: string, name: string) => {
   return needle.length > 0 && ` ${plain(text)} `.includes(` ${needle} `);
 };
 
+export const factsNaming = (facts: string[], op: Pick<CreateCandidateOp, "comment" | "keys">): number => {
+  const names = [op.comment, op.keys[0] ?? ""].filter((name) => plain(name).length > 0);
+  return new Set(facts.filter((fact) => names.some((name) => mentions(fact, name))).map(plain)).size;
+};
+
 export function validateCreate(op: CreateCandidateOp, context: CreateCandidateContext): CreateVerdict {
   const nearDups = context.entries
     .filter((entry) => context.allowlist.includes(entry.lorebook))
@@ -97,7 +104,9 @@ export function validateCreate(op: CreateCandidateOp, context: CreateCandidateCo
   const castKey = op.keys.find((key) => context.roster.some((name) => plain(name) === plain(key) || plain(name).split(" ").includes(plain(key))));
   if (castKey) return refuse(`"${castKey}" is a cast member's name; as a key it would fire every turn`);
   if (context.roster.some((name) => plain(name) === plain(op.comment))) return refuse(`"${op.comment}" is a cast member`);
-  if (!context.facts.some((fact) => mentions(fact, op.comment) || op.keys.some((key) => mentions(fact, key)))) return refuse(`no live fact names "${op.comment}"`);
+  const naming = factsNaming(context.facts, op);
+  if (!naming) return refuse(`no live fact names "${op.comment}"`);
+  if (naming < CREATE_MIN_FACTS) return refuse(`only one live fact names "${op.comment}"; a new entry needs ${String(CREATE_MIN_FACTS)}`);
   if (!op.content) return refuse(`"${op.comment}" has no content`);
   return { op, ok: true, nearDups };
 }

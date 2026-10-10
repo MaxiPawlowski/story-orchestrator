@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCuratorResponse } from "./parse";
-import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
+import { buildCreateCandidatePrompt, caseContext, caseEntries, caseScope, createSuiteVerdict, parseCreateLines, scoreCreateSample, trigramJaccard, validateCreate, CREATE_MIN_FACTS, CREATE_NEAR_DUP_THRESHOLD, type CreateCase } from "./createCandidate";
 
 const ROOT = join(__dirname, "../..");
 const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/curator-create/cases.json"), "utf-8")) as { frozenAt: string; floors: { propose: number; none: number }; samples: number; cases: Array<CreateCase & { lang: string; why: string }> };
@@ -75,6 +75,24 @@ describe("F5 code guards", () => {
     expect(validateCreate({ ...op, ...patch }, context)).toMatchObject({ ok: false, reason });
   });
 
+  it("contract B: a title or first key named by only one live fact is refused, and the refusal says so", () => {
+    expect(CREATE_MIN_FACTS).toBe(2);
+    const once = { ...context, facts: ["Garrick sold the boat at dawn.", "The delta flooded twice this year."] };
+    expect(validateCreate({ ...op, comment: "Garrick", keys: ["Garrick"] }, once)).toMatchObject({ ok: false, reason: 'only one live fact names "Garrick"; a new entry needs 2' });
+  });
+
+  it("contract B: a generic second key never lifts a named-once title over the bar (n12 shape)", () => {
+    const once = { ...context, facts: ["Garrick sold the boat at dawn.", "A boat sank at the pier.", "The boat had no name."] };
+    expect(validateCreate({ ...op, comment: "Garrick", keys: ["Garrick", "boat"] }, once)).toMatchObject({ ok: false });
+  });
+
+  it("contract B: the first key named in two facts passes, and one fact repeated counts once", () => {
+    const keyed = { ...context, facts: ["The old ferryman sang.", "Ask the ferryman for the channel."] };
+    expect(validateCreate({ ...op, comment: "Oskar", keys: ["ferryman"] }, keyed)).toMatchObject({ ok: true });
+    const twice = { ...context, facts: ["Garrick sold the boat.", "Garrick sold the boat."] };
+    expect(validateCreate({ ...op, comment: "Garrick", keys: ["Garrick"] }, twice)).toMatchObject({ ok: false });
+  });
+
   it("a cast member's first name as a key is refused too", () => {
     const ember = caseContext(byId("n06"));
     expect(validateCreate({ lorebook: "Ember Keep Lore", comment: "Reyes' oath", keys: ["Reyes"], content: "Captain Reyes refused the ultimatum." }, ember)).toMatchObject({ ok: false });
@@ -116,11 +134,15 @@ describe("F5 scoring (end to end, after the code guards)", () => {
 
   const goldenDir = join(ROOT, "test/goldens/live/curator-create");
   const goldens = existsSync(goldenDir) ? readdirSync(goldenDir).filter((file) => file.endsWith(".json")) : [];
-  it(`replays the recorded live responses (${goldens.length} recorded)`, () => {
-    for (const file of goldens) {
-      const golden = JSON.parse(readFileSync(join(goldenDir, file), "utf-8")) as { id: string; responses: Array<string | null>; passes: boolean[] };
-      const entry = byId(golden.id);
-      expect(golden.responses.map((raw) => (raw === null ? false : scoreCreateSample(entry, raw).pass))).toEqual(golden.passes);
-    }
+  it(`replays the recorded v2.6 responses under contract B (${goldens.length} recorded): every propose verdict unchanged, every none-miss now refused`, () => {
+    const replayed = goldens.map((file) => {
+      const golden = JSON.parse(readFileSync(join(goldenDir, file), "utf-8")) as { id: string; label: "propose" | "none"; responses: Array<string | null>; passes: boolean[] };
+      return { ...golden, b: golden.responses.map((raw) => (raw === null ? false : scoreCreateSample(byId(golden.id), raw).pass)) };
+    });
+    expect(replayed.length).toBe(22);
+    for (const row of replayed.filter((entry) => entry.label === "propose")) expect(row.b).toEqual(row.passes);
+    for (const row of replayed.filter((entry) => entry.label === "none")) expect(row.b).toEqual([true, true, true]);
+    expect(replayed.filter((entry) => entry.label === "none").flatMap((entry) => entry.passes).filter((pass) => !pass).length).toBe(7);
+    expect(createSuiteVerdict(replayed.map((row) => ({ label: row.label, passes: row.b })), fixture.floors)).toMatchObject({ none: 1, ok: true });
   });
 });
