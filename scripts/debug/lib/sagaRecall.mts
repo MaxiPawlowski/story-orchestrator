@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { AUTHOR_SLASH_PATTERN, authorSlashInPage } from './authorSlash.mts';
+import { authorSlashArgs, authorSlashInPage } from './authorSlash.mts';
 import { acceptRegex, type SagaMessage, type SagaNeedle, type SagaNeedles, type SagaStory, type SagaTranscript, type SagaVariant, VARIANTS } from './sagaCorpus.mts';
 
 export const RECIPE_PATH = 'test/measurements/v2.6-07/recipe.json';
@@ -339,7 +339,7 @@ export function evaluateFloors(recipe: SagaRecipe, runs: Record<string, ArmRun>)
 }
 
 export function pageHost(page: { evaluate: (fn: (arg: any) => any, arg?: any) => Promise<any>; waitForTimeout: (ms: number) => Promise<void> }, { postTimeoutMs = 120000, settleQuietMs = 3000, settleTimeoutMs = 600000, askTimeoutMs = 300000 } = {}): SagaHost {
-  const slash = (command: string) => page.evaluate(authorSlashInPage, { cmd: command, pattern: AUTHOR_SLASH_PATTERN });
+  const slash = (command: string) => page.evaluate(authorSlashInPage, authorSlashArgs(command));
   const runtime = () => page.evaluate(() => {
     const rt = (globalThis as any).storyOrchestratorRuntime;
     const snap = rt?.getSnapshot?.();

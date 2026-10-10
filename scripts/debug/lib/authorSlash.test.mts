@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AUTHOR_SLASH_PATTERN, authorSlashInPage, needsAuthorView } from './authorSlash.mts';
+import { readFileSync } from 'node:fs';
+import { AUTHOR_SLASH_PATTERN, JUMP_PROMPT_TEXT, JUMP_SKIP_LABEL, authorSlashArgs, authorSlashInPage, needsAuthorView } from './authorSlash.mts';
 
 test('the author commands are recognised, alone or after a pipe; others and look-alikes are not', () => {
   for (const command of ['/cp set leg 3', '/cp', '/checkpoint activate road', '/so-mem list', '/echo x | /cp state']) assert.equal(needsAuthorView(command), true, command);
@@ -30,4 +31,37 @@ test('Author view already on, or a player command, is left alone', async () => {
   const player = fakeHost(false);
   await authorSlashInPage({ cmd: '/story recap', pattern: AUTHOR_SLASH_PATTERN });
   assert.deepEqual([calls, player], [['run:/cp list:true'], ['run:/story recap:false']]);
+});
+
+const jumpHost = (popup: boolean) => {
+  const clicks: string[] = [];
+  let release: () => void = () => {};
+  const buttons = ['Seal it, then jump', JUMP_SKIP_LABEL, 'Cancel'].map((label) => ({ textContent: label, click: () => { clicks.push(label); release(); } }));
+  const dialog = { textContent: `Jumping to B leaves the chapter A. A jump is not proof the chapter was played, so it is ${JUMP_PROMPT_TEXT}.`, querySelectorAll: () => buttons };
+  (globalThis as any).document = { querySelectorAll: () => (popup && !clicks.length ? [dialog] : []) };
+  (globalThis as any).storyOrchestratorRuntime = { getSnapshot: () => ({ ui: { authorView: true } }), setUiSettings: () => {} };
+  (globalThis as any).SillyTavern = { getContext: () => ({ executeSlashCommandsWithOptions: (cmd: string) => (popup ? new Promise((resolve) => { release = () => resolve({ pipe: cmd }); }) : Promise.resolve({ pipe: cmd })) }) };
+  return clicks;
+};
+
+test('a scripted /cp activate that raises the chapter-jump prompt jumps without sealing instead of waiting forever', async () => {
+  const clicks = jumpHost(true);
+  const result = await authorSlashInPage(authorSlashArgs('/cp activate natalia-named'));
+  assert.deepEqual([clicks, result.jumpPromptsSkipped, result.ok], [[JUMP_SKIP_LABEL], 1, true]);
+  delete (globalThis as any).document;
+});
+
+test('no prompt, or a command that is not a jump, clicks nothing', async () => {
+  const quiet = jumpHost(false);
+  assert.equal((await authorSlashInPage(authorSlashArgs('/cp activate road'))).jumpPromptsSkipped, 0);
+  const other = jumpHost(false);
+  assert.equal('jumpPromptsSkipped' in (await authorSlashInPage(authorSlashArgs('/cp set leg 3'))), false);
+  assert.deepEqual([quiet, other], [[], []]);
+  delete (globalThis as any).document;
+});
+
+test('the prompt text and the skip label are the product\'s own (src/runtime/chapterKit.ts)', () => {
+  const source = readFileSync(new URL('../../../src/runtime/chapterKit.ts', import.meta.url), 'utf8');
+  assert.ok(source.includes(JUMP_PROMPT_TEXT));
+  assert.ok(source.includes(`label: "${JUMP_SKIP_LABEL}"`));
 });
