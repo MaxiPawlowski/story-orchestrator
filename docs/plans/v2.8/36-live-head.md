@@ -229,3 +229,112 @@ Main **1,293,100 B / 1,300,000 B**, headroom **6,900 B**. No budgets,
 floors or defaults changed. Changed source files retain CRLF; diff checks pass.
 No GPU, downloads, model calls, owner ST or browser work. Storybook CI skipped by
 request; plan 33 S0/CL/LI and plan 36 LI/vision acceptance remain owed.
+
+## A1 Gate record
+
+2026-10-10. Handoff A1 on `v2.8-live-head`, merged master `11955810` first.
+**LI3/LI4/LI6 PASS twice; LI1 FAIL/PASS, not accepted.** Floors unchanged.
+
+Fix: a binding/import change now replaces the canvas DOM node. Previously the
+effect destroyed its WebGL context and reused that same lost canvas on rebind;
+keyboard rig import could report success while no live head returned. Both final
+browser runs exercise successful keyboard import and look switching after the fix.
+
+Fixture: `test/scenarios/live-head/story.json` (three synthetic members),
+`rig.json` (owned Storybook geometric rig recipe, two looks), reusable
+`scripts/debug/so-live-head-check.mts`. Production components, loader, renderer,
+stage and ownership run in the lane; no separately bundled mock component.
+Candidate `dist/` served by lane browser routes; owner's staged copy untouched
+during measurement. PNG layers are routed locally; marked static sprites/cards
+are real lane assets. LI4's scripted stream adapter updates a temporary host reply
+and emits real ST token events; the sprite stream driver must report active.
+
+Machine: **DESKTOP-NP0HG32**, Windows, Intel Core i9-9900 @ 3.10 GHz; DPR **1**;
+Chromium **145.0.0.0** (UA reports HeadlessChrome). GL:
+`ANGLE (NVIDIA, NVIDIA GeForce RTX 3090 (0x00002204) Direct3D11 vs_5_0 ps_5_0, D3D11)`.
+This is the available **desktop, not the predeclared mid laptop**. No text/image
+GPU workload, controller start, model download or inference was used.
+
+Frozen served main **1,293,100 B**, SHA256
+`48f8e7a4f5182130c76d91dd405245ebfd896b7097306ddc4e5b180344ab4a97`;
+same build and fixture in both consecutive runs. Budget remains 1,300,000 B.
+
+- Run 1, `measured1`: LI1 **5,229 frames**, timestamp span **59,997.2 ms**,
+  p50 **8.6 ms**, p95 **18.6 ms**, maximum **51.8 ms**, **2** intervals >33.34 ms:
+  **FAIL**. No samples discarded.
+- Run 2, `measured2`: LI1 **5,243 frames**, timestamp span **60,002.9 ms**,
+  p50 **8.6 ms**, p95 **17.9 ms**, maximum **29.3 ms**, **0** over-floor intervals:
+  **PASS**. One passing rerun does not erase the miss.
+- LI3 both: **9/9** failures/switches pass; static visible at next animation frame,
+  **0 stale canvas publications**: rejected fetch, corrupt JSON/image, hash mismatch,
+  WebGL absent, actual context loss, member/look/chat changes during held layer decode.
+  A look crossfade counts the already visible outgoing static image.
+- LI4 both: OS CDP reduced motion, ST reduced motion, story motion off, each idle
+  and streaming for **10 s**. **6/6** arms per run: **1** unchanged uploaded mesh
+  vector and mouth uniform **0** throughout. Run 1 frame counts (idle/stream):
+  OS **825/846**, ST **850/845**, story **924/949**; run 2:
+  OS **934/836**, ST **861/745**, story **897/913**.
+- LI6 both: widths **390/768/1440**, scroll widths exactly **390/768/1440**;
+  current/peak contexts **1/1**, one canvas. Keyboard Tab/Enter rig import passes.
+  Real hidden tab: draw counts **12,385→12,385** / **12,510→12,510** across **1.5 s**,
+  `document.hidden` true at both ends. Teardown: **0 contexts, 0 resources**.
+- Model/judge requests **0** in both final runs; cleanup **clean**, **0** leaked
+  marked assets. Offline plugin capability probes produce expected 404s, offline
+  backend status/props produce 500s, and injected fetch/decode faults are retained
+  in page capture; **0 page errors**. No real-model gate is relevant to these rows.
+
+Exact measurement commands, in order (worktree):
+
+```bash
+SO_LANE_OFFLINE=1 node scripts/debug/st-lanes.mts seed 30 --slim
+node scripts/debug/st-lanes.mts restore-model 30
+node scripts/debug/st-lanes.mts no-model 30
+node scripts/debug/st-lanes.mts start 30
+node scripts/debug/st-lanes.mts stop 30
+node scripts/debug/st-lanes.mts start 30 --headed
+ST_DEBUG_VIEWPORT=1440x844 node scripts/debug/st-lanes.mts run 30 -- scripts/debug/so-live-head-check.mts --row all --label measured1 --candidate
+ST_DEBUG_VIEWPORT=1440x844 node scripts/debug/st-lanes.mts run 30 -- scripts/debug/so-live-head-check.mts --row all --label measured2 --candidate
+```
+
+Offline seed already held the key backup, so the first `no-model 30` refused;
+restore/no-model above completed before starting the server. Earlier probes kept:
+LI1 maximum 35.3 ms (1 miss), 120.1 ms (3 misses), 48.3 ms (2 misses).
+No floor retuned and no evidence selected away. Harness fixes: reset publication
+count after context readiness; hold/release every layer; restore selected speaker
+after reload; include outgoing static crossfade; dismiss fresh-chat briefing.
+Playwright focus emulation prevents real hidden tabs: the hidden arm disconnects
+it, activates another tab through raw CDP, observes visibility/draw counts, then
+reconnects. Lifecycle freeze and minimizing with Playwright attached were not proof.
+
+Evidence archived privately by
+`node scripts/debug/so-evidence.mts archive --label v28-a1-live-head-20261010 --lanes 30 --pods none`:
+**500 files, 44,971,140 B, 0 problems**. Archive root:
+`test/sessions/evidence/phase-c/v28-a1-live-head-20261010` in so-sessions;
+records/frames/parameter samples/screenshots under `lane-30/debug/runs/live-head-measured1`
+and `live-head-measured2`, plus original runner/page/server logs under `runs/`.
+No evidence or private inventory committed publicly.
+
+Deterministic commands:
+
+- `npm run build`: webpack compiled successfully, main **1,293,100 B**.
+- `npm run debug:typecheck`: exit 0, no diagnostics.
+- `npm run gates:quick`: **green in 88.6 s**, 7 related suites / 48 tests,
+  replay **32/32 killed**. New intentional useMemo identity-dependency warning;
+  no lint errors.
+- First `npm run gates -- --no-storybook --jobs 2`: **RED** on arrival-golden
+  corpus parity for the added story. Added its independently verified empty
+  finding row; no assertions relaxed.
+- Second `npm run gates -- --no-storybook --jobs 2`: **all green in 117.4 s**;
+  all ten deterministic steps exit 0; **Storybook skipped here**. Master full
+  Storybook-inclusive gate/deployment recorded below when complete.
+- `npm run debug:typecheck && npm run typecheck:test && npm run test:release`
+  after final harness/docs edits: exit 0; release **123 pass, 0 fail, 14 skipped**.
+- `node scripts/debug/st-lanes.mts stop 30`: lane server/browser stopped.
+- Private evidence commit **eb6c8749**, pushed. Explicit archive path staged;
+  `npm run sessions:archive` was not used because its `add -A` would include
+  three pre-existing owner changes outside this archive.
+
+Owed: LI1 two passes on the named mid laptop; present desktop miss remains
+informational and live acceptance **not green**. LI2 network/initial-chunk check,
+LI5 vision rigs and authoring costs remain separate tasks. No campaign change:
+this task fixes binding lifecycle and measures owned synthetic geometry only.
