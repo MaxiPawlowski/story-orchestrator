@@ -369,3 +369,9 @@ Main-checkout module numbering differs from the worktree: main **1,293,117 B**,
 SHA256 `2307b5ecc61779f83b91b4326345b1dd3d7f59b1b1ffd39546c3dd438d2802fd`.
 The renderer change stays in its lazy chunk. Browser numbers above describe the
 frozen worktree production artifact; no claim of LI1 acceptance on either artifact.
+
+Deployment: merge **7fea4ee9** pushed with `git push origin master`.
+`node scripts/release/manifest.mjs && npm run stage && npm run plugins:install`:
+**159 files staged**, all four plugins **unchanged**, **restartNeeded: false**.
+Owner reloads the ST page. Lane 30 is stopped; only its synthetic assets were
+removed. A1 measurements and regression fix delivered; LI1 acceptance remains owed.
