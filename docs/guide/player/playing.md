@@ -2,16 +2,13 @@
 
 ## Pick a story for a chat
 
-A story plays in one group chat at a time, a group with the story's characters. Stories play in group chats only: in
-a one-on-one chat the story stays off and the panel offers **Make a group for this story**.
-
-1. Open the group chat (a story needs an open group chat; with no chat open, an imported story is only saved to the
-   library: "Open a chat to play it."; in a one-on-one chat it is saved and the panel offers to make a group).
+1. Open a **group chat** with the story's characters. Stories play only in group chats: in a one-on-one chat the
+   story stays off and the panel offers **Make a group for this story**. With no chat open, an imported story is only
+   saved to the library.
 2. Open **Extensions → Story Orchestrator**. The panel starts with four tasks:
    - **Start**: **New story (wizard)** builds one from a premise; **Import a story** takes a story file (JSON).
-   - **Continue**: says what this chat plays ("No story is playing in this chat yet." or `Playing "<title>".`).
-     **Choose a story** picks one from your library.
-   - **Repair**: the one thing still missing, if any, with **Show me the setting** or **Show me the group**.
+   - **Continue**: says what this chat plays. **Choose a story** picks one from your library.
+   - **Repair**: the one thing still missing, if any, with a **Show me** button.
    - **Author**: Author view and the Studio, for writing stories.
 3. Write your first message. The story follows from there.
 
@@ -27,7 +24,7 @@ opening scene still posts behind it; close it with the button at the bottom (**B
 
 Each chat shows it once, and remembers that across reloads, swipes and edits. **Restart story** shows it again. Re-open
 it any time with **Story briefing** at the bottom of the drawer's Overview, or `/story intro`. To stop it opening on
-its own, untick **Show the story briefing when a story starts** under **Display**, or tick **Don't show briefings**
+its own, untick **Show the story briefing when a story starts** under **Playing**, or tick **Don't show briefings**
 on the page itself. A story without a briefing shows its introduction instead, if it has one.
 
 ## Your character
@@ -47,7 +44,7 @@ started as. To play someone else, **Restart story** and choose again. A story th
 persona with that name is chosen.
 
 **Your character in this story** at the bottom of the drawer's Overview, or `/story who`, shows it again. To skip the
-question and always keep your current persona, untick **Ask who you are when a story starts** under **Display**.
+question and always keep your current persona, untick **Ask who you are when a story starts** under **Playing**.
 
 ## Each chat keeps its own copy
 
@@ -84,7 +81,16 @@ things you could try next. It sees only what you have already seen: the scenes y
 and the recent messages, never the story's later scenes or anything a character keeps from you. Pick one and it is
 put in the box where you type; nothing is sent until you send it, and it never replaces something you started
 typing. **Other ideas** asks again. It calls the model only when you open it. A story can switch the button off, and
-so can you under Display.
+so can you under **Playing**.
+
+## Asking a question
+
+The **Ask** box at the top of Help (the "?" button) answers questions about Story Orchestrator and about the story
+you are playing: "how do I pin a memory?", "what is still open?". `/story ask <question>` does the same from the chat
+box. While you play it knows only what you have already seen: the scenes you reached, the drawer's Overview and the
+recent messages. Ask it about something you have not reached and it says it can only talk about what you have
+played. When the answer names a setting, **Show me** takes you there. It only reads; it never changes anything. It
+uses the authoring model, one or a few calls per question, and can be switched off under **Setup → Ask questions**.
 
 ## Branches
 
@@ -101,19 +107,8 @@ Hover or focus the icon for a card with the story, its chapter, where you are an
 first; **Open** takes you straight to it. The list fills in as you open chats, and once in the background after
 an update. A chat keeps its row while it still plays its story, even after the story leaves your library.
 
-Each of these can be switched off under Display, and a story can switch its own off; a story can never turn one
+Each of these can be switched off under **Playing**, and a story can switch its own off; a story can never turn one
 on that you switched off.
-
-## Journal, stat sheet and story panels
-
-A story with side quests gives you a **Journal**: the quests you have found, their steps and progress, what a
-quest gives you when the story shows it, the main line so far, milestones you have earned, and a short log. A quest
-you have not found yet is not listed at all. A story that shows some of your stats gives you a **Stat sheet**, and a
-story can add its own panels (a clock filling up, a quest board). Open them from the buttons under the drawer's
-Overview or from the wand menu; each opens in its own panel you can move and resize. **Journal**, **Stat sheet** and
-**Story panels** in the settings turn each off, and the author can switch them off for one story.
-
-A swipe or an edit of the reply that finished a quest takes the quest, and whatever it gave you, back with it.
 
 ## Coming back after a break
 
@@ -136,6 +131,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story quests` | The quests you have found and where each stands. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
+| `/story ask <question>` | Answers a question about the plugin or the story, from what you have already played. |
 
 `/so-mem list`, `/so-mem pin <n> on|off` and `/so-mem exclude <n>` manage memories from the chat box (see
 [Memory](memory.md)). `/cp` is an author tool and works only in Author view.

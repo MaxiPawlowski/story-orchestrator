@@ -194,7 +194,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
   return createMemory();
 };
 
-export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
+export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true, ask: true });
 export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings() });
 export const createStagecraft = (): StagecraftRuntimeState => ({
   settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null, created: [], lastCreatePass: null, lastCreateBoundary: -1,

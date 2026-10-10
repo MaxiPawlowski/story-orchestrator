@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { FEATURES, visibleFeatures } from "@features/registry";
+import { AskBox } from "@components/studio/AskBox";
 import { HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 
 const HOME = "https://github.com/MaxiPawlowski/story-orchestrator";
@@ -81,3 +82,44 @@ export const OpensTheGuide: Story = {
     await expect(args.onOpenDoc).toHaveBeenCalledWith("player/memory.md");
   },
 };
+
+const playerAsk = fn(async () => ({
+  status: "answered" as const, answer: "Open the drawer's Memory tab and pin the fact.", topics: [{ id: "feature/memory-tab", title: "Memory tab" }],
+  showMe: { kind: "feature" as const, target: "memory-tab" },
+}));
+
+export const AskBoxForAPlayer: Story = {
+  args: { ask: <AskBox persona="player" onAsk={playerAsk} onShowMe={fn()} /> },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const ask = canvasElement.querySelector("#so-help-ask") as HTMLElement;
+    await expect(ask).toHaveAttribute("data-persona", "player");
+    await expect(canvasElement.querySelector('[data-so="help-feature"][data-audience="author"]')).toBeNull();
+    await userEvent.type(within(ask).getByLabelText("Your question"), "How do I pin a memory?");
+    await userEvent.click(within(ask).getByRole("button", { name: "Ask" }));
+    await expect(await canvas.findByText(/pin the fact/)).toBeInTheDocument();
+    await expect(within(ask).getByRole("button", { name: "Show me" })).toBeInTheDocument();
+  },
+};
+
+export const AskBoxForAnAuthor: Story = {
+  args: {
+    features: FEATURES, guideTopics: TOPICS,
+    ask: <AskBox persona="author" onAsk={fn(async () => ({ status: "answered" as const, answer: "Tick Constant.", topics: [], showMe: null }))} />,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const ask = canvasElement.querySelector("#so-help-ask") as HTMLElement;
+    await expect(ask).toHaveAttribute("data-persona", "author");
+    await userEvent.type(within(ask).getByLabelText("Your question"), "How do I make a lorebook entry always on?");
+    await userEvent.click(within(ask).getByRole("button", { name: "Ask" }));
+    await expect(await canvas.findByText("Tick Constant.")).toBeInTheDocument();
+    await expect(within(ask).queryByRole("button", { name: "Show me" })).toBeNull();
+  },
+};
+
+export const AskPhone: Story = { args: { ask: <AskBox persona="player" onAsk={playerAsk} /> }, parameters: { testViewport: { width: 390, height: 844 } } };
+
+export const AskTablet: Story = { args: { ask: <AskBox persona="player" onAsk={playerAsk} /> }, parameters: { testViewport: { width: 768, height: 1024 } } };
+
+export const AskWide: Story = { args: { ask: <AskBox persona="author" onAsk={playerAsk} /> }, parameters: { testViewport: { width: 1440, height: 900 } } };

@@ -11,6 +11,7 @@ const mockWired = new Map<string, (...args: unknown[]) => unknown>();
 const mockHost = { addsUserMessage: false };
 
 jest.mock("@services/STAPI", () => ({
+  listConnectionProfiles: () => [],
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),

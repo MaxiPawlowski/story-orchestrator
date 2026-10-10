@@ -19,6 +19,7 @@ import { control, must } from "../../test/findings/ledger";
 // startRuntime touches a wide slice of the host, so the whole surface it imports is stubbed. The
 // point is to run the REAL function: a narrower mock only proves the mock works.
 jest.mock("@services/STAPI", () => ({
+  listConnectionProfiles: () => [],
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),

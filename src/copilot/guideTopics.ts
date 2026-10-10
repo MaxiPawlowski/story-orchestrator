@@ -281,8 +281,21 @@ export const GUIDE_TOPICS = {
     title: "Stats and story panels",
     fields: "qualities[].display, widgets[], bind, audience, display.journal, display.stat_sheet, display.widgets",
     text: "display {public: true, label, as: item|count|meter|boxes|word, group, min, max, bands, hide_when_empty, trend} puts a quality on the Stat sheet; never on rel_* "
-      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
+      + "or a gated lore key. widgets [{id, kind: meters|track|log|clock|board|clues|map|html, title, bind, audience}] bind by reference (\"quality:key\", {qualities}, {group}, quests, path, arcs); "
       + "no markup. A player widget shows public qualities only; empty sections never render.",
+  },
+  "clues-and-maps": {
+    title: "Clue walls and maps",
+    fields: "clues[], links[], image, pins[], action",
+    text: "kind clues: clues [{id, text, quality (bool) | when (gate), action?}], links [{from, to, label?}]; a clue shows once found, a link once both ends show. "
+      + "kind map: image (a SillyTavern background file name), pins [{id, label, x, y (0-100 %), checkpoint | when, action?}]; a checkpoint pin shows once reached and marks you-are-here. "
+      + "action is the player's own line, put in the box, never sent. A panel never asks the reading model for anything: gate on qualities the story already reads.",
+  },
+  "html-panels": {
+    title: "Story-made HTML panels",
+    fields: "template, source, actions[], window.storyWidget",
+    text: "kind html: template (HTML, at most 32000 characters), source (an ordinary widget id), actions [{id, text}]. Runs in a sandboxed frame with no network and no access to SillyTavern; "
+      + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
   "character-life": {
     title: "Character life",
@@ -293,7 +306,7 @@ export const GUIDE_TOPICS = {
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
       + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
   },
-  living: {
+  "living-director": {
     title: "Living stories",
     fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
     text: "living {premise, tone, cast, horizon 1-3, chapter_size [min, max], ending open|director-proposes|{when: gate}, autonomy suggest|auto, authored_until, opening}: "
@@ -308,6 +321,13 @@ export const GUIDE_TOPICS = {
       + "judge reads whether the player fits an exit; 2 'none' in a row (p>=0.6) or one p>=0.9, or two refusals, is divergence. The director then writes "
       + "liv_b<n>_way from here, rejoining the next anchor, applied at a boundary. Prefetch: one more way out of the turning point the player is at, written ahead. "
       + "At most one branch per turning point; a swipe takes it back. All on by default; switch off branching, prefetch, or judge use divergence.",
+  },
+  "living-cards": {
+    title: "Living cards",
+    fields: "roster[].card, player.card, fields, quality, visual, checkpoints[].effects.card",
+    text: "card {fields: {hair: {quality, visual}}} lets a card field change in this chat only: each field binds one non-latching extractor string or enum quality the reader keeps current; "
+      + "a swipe takes it back, a new chat starts from the card. visual sends it to pictures and sprites. checkpoints[].effects.card {owner: {field: value}} sets a field when the beat starts "
+      + "(owner a roster id or player, a value the quality allows). Never a latching or code quality, never two fields on one quality.",
   },
 } as const satisfies Record<string, GuideTopic>;
 
@@ -369,6 +389,10 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   "stage-sprite-unknown": "presentation",
+  "widget-item-never-read": "clues-and-maps",
+  "map-pin-unreachable": "clues-and-maps",
+  "map-image-missing": "clues-and-maps",
+  "html-widget-declared": "html-panels",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
@@ -389,9 +413,12 @@ export const renderStageGuide = (stage: CopilotStage): string =>
 
 const isTopic = (value: string): value is GuideTopicId => Object.hasOwn(GUIDE_TOPICS, value);
 
+export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {};
+
 export const readGuide = (topic: unknown): string => {
   const typed = typeof topic === "string" ? topic.trim().toLowerCase() : "";
   if (isTopic(typed)) return renderGuideTopic(typed);
+  if (Object.hasOwn(PENDING_GUIDE_TOPICS, typed)) return `Guide topic "${typed}" is kept for ${PENDING_GUIDE_TOPICS[typed]}, which is not in this build yet. Do not author it.`;
   const near = typed ? nearestKey(typed, GUIDE_TOPIC_IDS) : null;
   const known = `Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`;
   if (!typed) return `Name a topic. ${known}`;

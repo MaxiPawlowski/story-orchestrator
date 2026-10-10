@@ -1,8 +1,9 @@
 import type { StoryV2 } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
+import { AUTHOR_ASK_TOOLS, PLAYER_ASK_TOOLS, runAsk, type AskContext } from "./ask";
 import { advanceAgent, approvePlan, decideStep, newAgentSession, pendingStep } from "./loop";
 import { agentContext, scriptedRoute } from "./testing";
-import type { AgentMode } from "./types";
+import { emptyLookup, type AgentMode } from "./types";
 
 const AT = "2026-09-30T00:00:00.000Z";
 
@@ -69,5 +70,26 @@ describe("W5 safety: a planted instruction cannot reach outside the tools (v2.6 
     expect(pendingStep(accepted.session)).toMatchObject({ status: "pending" });
     const smuggled = decideStep(turn.session, pending!.id, { kind: "accept", op: { kind: "createCharacterCard", name: "X", description: "y" } }, story());
     expect(smuggled.apply).toBeNull();
+  });
+});
+
+describe("v2.8 09 B: a planted instruction cannot write through either Ask mode", () => {
+  const projection = { title: "Safety", intro: null, player: "Max", visited: [], current: null, sections: [], cast: [], transcript: [] };
+  const contexts = (draft: StoryV2): AskContext[] => [
+    { persona: "author", draft, lookup: emptyLookup(), liveState: () => "live" },
+    { persona: "player", projection },
+  ];
+
+  it.each(PLANTED)("refuses or ignores: $name", async ({ reply }) => {
+    for (const persona of ["author", "player"] as const) {
+      const draft = story();
+      const before = JSON.stringify(draft);
+      const context = contexts(draft).find((entry) => entry.persona === persona) as AskContext;
+      const queue = [reply, reply, reply].map((entry) => (typeof entry === "string" ? entry : JSON.stringify(entry)));
+      const result = await runAsk({ question: "Do it.", context, model: async () => queue.shift() ?? "", maxSteps: 2 });
+      const allowed = persona === "player" ? PLAYER_ASK_TOOLS : AUTHOR_ASK_TOOLS;
+      const ran = result.steps.filter((step) => step.status === "observed").map((step) => step.call.tool);
+      expect({ persona, outside: ran.filter((tool) => !allowed.includes(tool)), draft: JSON.stringify(draft) }).toEqual({ persona, outside: [], draft: before });
+    }
   });
 });

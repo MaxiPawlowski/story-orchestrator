@@ -23,6 +23,7 @@ export interface RoleRouteView {
   effort: ReasoningEffort;
   reasoning?: ReasoningMeter;
   fallback?: string;
+  defaulted?: boolean;
 }
 
 export interface RoleRouteInput {
@@ -38,7 +39,7 @@ export const reasoningExhaustedDetail = (label: string): string =>
 
 const stateOf = (input: RoleRouteInput, role: PassRole, label: string, route: RouteResolution & { ok: true }, effort: ReasoningEffort): [RoleRouteState, string] => {
   const profileId = resolvedProfileId(route);
-  const health = profileId && route.source === "role" ? input.health(profileId) : null;
+  const health = profileId && route.source !== "fallback" ? input.health(profileId) : null;
   const call = input.calls?.[role];
   if (health?.kind === "config") return ["not-configured", `${label}: ${health.detail}`];
   if (call?.outcome === "auth" && call.profileId === profileId) return ["not-logged-in", `${label}: ${call.detail}`];
@@ -59,8 +60,8 @@ const routeOf = (input: RoleRouteInput, role: PassRole): RoleRouteView => {
   const profileId = resolvedProfileId(route);
   const [state, detail] = stateOf(input, role, label, route, effort);
   const call = input.calls?.[role];
-  const view: RoleRouteView = { role, label, profileId, state, detail, effort };
-  const health = profileId && route.source === "role" && ROLE_OUTAGE_STATES.has(state) ? input.health(profileId) : null;
+  const view: RoleRouteView = { role, label, profileId, state, detail, effort, ...(route.source === "default" ? { defaulted: true } : {}) };
+  const health = profileId && route.source !== "fallback" && ROLE_OUTAGE_STATES.has(state) ? input.health(profileId) : null;
   if (health?.kind === "transport" && health.fallback) view.fallback = health.fallback;
   if (call?.outcome === "answered" && call.meter && call.profileId === profileId && call.effort === effort) view.reasoning = call.meter;
   return view;

@@ -307,3 +307,166 @@ the agent loop), v2.6 plan 07 chapter seals (dependency), v2.9 03 new game plus 
   `storyDiff.ts:230,283-288`.
 
 Round 3 (Sol): R3-11, R3-12, R3-18 applied.
+
+## Divergence branching (owner input 2026-10-10)
+
+Owner design input, folded in as built:
+
+1. **Trigger.** Divergence is read, never guessed. Two signals:
+   - the agency-recovery refusal: two gate boundaries with nothing fired at a checkpoint that declares exits;
+   - a new judge use `divergence`: one choice question over the active checkpoint's exits, "fits one of them / fits none".
+     It reads each exit's `extraction_hint`, else its label, else the gate's rubric, against the last 6 messages.
+   Debounce: 2 consecutive "none" readings at p ≥ 0.6, or one at p ≥ 0.9; a refusal diverges at once.
+   The reading runs off-path after a boundary that moved nowhere (`fired === null`), timeout 4 s, and is ringed like every judge call.
+2. **Branch on divergence (B).** The director writes a branch from the current checkpoint that follows what the player
+   is doing and rejoins the nearest downstream anchor (BFS over exits). It is one stub `liv_b<n>_way` with its own new
+   yes/no gate, which must not hold on arrival, at a lower priority than every authored exit, and one convergence
+   transition into that anchor. The anchor's own expansion fills the road as usual. A living story with no anchor ahead
+   is the ordinary director case, so it writes the next anchor rather than a branch. Branches are propose-only, applied
+   at a boundary, journaled, `rollback ≡ replay`, and `RunOwnership` is checked before every write. Author view shows
+   "The story branched because …". At most one branch per checkpoint (`divergence.branchedFrom`); a rollback that takes
+   the branch back clears that mark.
+3. **Prefetch (A, lighter).** For the checkpoint the player stands on (never further ahead), once it has exits and no
+   branch, the director writes one more way forward in the background. It counts as that checkpoint's one branch, so a
+   prefetched checkpoint does not branch again on divergence (owner question 2).
+4. **Settings.** `stagecraft.branchingEnabled` (on), `stagecraft.prefetchEnabled` (on; the cap is one per checkpoint) and the
+   judge use `divergence` (on, like every use). Branching works on authored stories too: it does not need a `living` block.
+5. **Measurable later.** False-divergence rate (CL, judge) and the RP play check are owed: `31-v27-wrap-backlog.md` M21–M23.
+
+## As built (2026-10-10, branch `v2.8-living-director`)
+
+- **M1 core.** Schema `living` block (`engine/schema.ts`, `validate/living.ts`, `liv_` ids reserved, `liv_open`
+  opening, hybrid `authored_until`); the director unit (`generation/living/`: plan, prompt, strict parse, guard, critic,
+  build + check ops, fold, export, divergence, start); graph-op history in `extras.living` (authored copy, folded, ops,
+  proposals, epoch). Played raw = fold(authored, folded, ops); compaction at the engine's history floor; an author
+  update is refolded under the ops and diffed against the authored copy (R3-11). Rollback runs right after the engine
+  rollback and before the expansion restore: it drops ops after the boundary, prunes expansion entries toward removed
+  checkpoints, discards pending writes for undeclared keys, and calls `ensureActiveCheckpoint`.
+- **Runtime split for the bundle.** `runtime/livingPort.ts` is the main-entry door (relevance check, accepted-only apply, rollback,
+  refold, the off-path boundary pass, UI actions). `coordinators/livingCoordinator.ts`, `livingUnit.ts`, the author half of
+  the snapshot (`livingAuthorView.ts`) and the divergence judge code load lazily (adopt preloads them). Boundary work:
+  `living-apply` (order 8, before expansion) and `living-director` (order 67: director when due, divergence when
+  nothing fired, prefetch).
+- **M2/M3 UI.** Author: `LivingPanel` in the Scheduler tab (`#so-living`: summary, "Write the next turning point now",
+  proposal cards with Accept / Reject / Edit / "Write it again", branch reasons, Save as story with
+  `#so-living-include-unreached`). Player: "Save this run as a story" (`#so-living-save`, drawer Overview). Settings: "Start from a
+  premise" in the Start row (`#so-living-start`; the cast is the group) and the three switches (`#so-living-enabled`,
+  `#so-branching-enabled`, `#so-prefetch-enabled`). Stories: `Drawer/LivingPanel`, `Drawer/LivingSave`,
+  `Settings/LivingStart`.
+- **Autonomy.** `suggest` waits in Author view; `auto` applies at the next boundary; a player in player mode always gets
+  `auto`. Defaults: a hybrid (`authored_until`) suggests, a premise-only story is auto. With chapter seals off, a run stops after 3 chapters.
+- **Guide.** Topics `living-director` (replaces the wizard's reserved stub, `PENDING_GUIDE_TOPICS` now empty) and `branching`,
+  in `docs/authoring/story-guide.md` and `src/copilot/guideTopics.ts` (drift test green); generated pages, settings reference,
+  feature registry rows (`living-story`, `story-branching`, `save-run-as-story`).
+
+Deviations:
+- Not dev-only/off-by-default (§Rollout): owner rule 2026-10-10, every built feature on by default, floors informational.
+- The critic prompt was revised once, after spike run 0 and before the measurement. It now names the player and the cast, says
+  the cast's actions and a moved-on scene are allowed, and fails only on the player's own act, a direct canon contradiction or a
+  name that states the ending. Run 0 refused 5 of 9 critic calls, most of them on cast actions read as the player's. Runs 1–2 are on the
+  revised prompt.
+- M1 ran offline: DeepSeek API direct (`deepseek-flash`, thinking disabled, 1024 tokens, the shipped prompts, guards and
+  critic), the lane-free coordinator harness, synthetic stories (`test/fixtures/living-premise|living-hybrid.story.json`),
+  no reply model, empty canon. The lane run with Artemis is owed (M21).
+
+## M1 spike (CL, offline, 2026-10-10)
+
+| Run | Premise (auto, 7 passes max) | Hybrid (after `ford`, 3 max) | Branch on divergence | Prefetch | Code refusals (parse / check / guard) | Critic pass | Median call |
+|---|---|---|---|---|---|---|---|
+| 0 (old critic) | 2 written, stalled at 3rd (critic) | 0 (critic) | written (2nd try), applied | written | 0 / 0 / 0 | 4 / 9 | 1.4 s |
+| 1 | 2 written, stalled at 3rd (critic) | 1 written, stalled at 2nd (critic) | written, applied | written | 0 / 0 / 0 | 5 / 9 | 1.5 s |
+| 2 | 7 of 7 written | 3 of 3 written | refused (critic) | written | 1 / 0 / 0 (a non-snake key, repaired on retry) | 11 / 14 | 1.5 s |
+
+Floors (informational):
+- 0 impossible or open-on-arrival gates: **met**, all 22 recorded answers (goldens
+  `test/goldens/live/living-director/run{1,2}/`, replayed by `generation/living/directorGoldens.test.ts`);
+- `rollback ≡ replay`: **met** in jest (6 seeds, property);
+- 0 unreached anchors or held secrets on a player surface: **met** in jest (`runtime/livingSpoilers.review.test.ts`);
+- 0 narrated player decisions in what was applied: not machine-checkable here. The critic is the check, and it errs strict. The
+  stalls above are critic refusals, some of them correct (the player was made to follow an NPC, "he must decide…"), others
+  false (a dog's movement read as the player's). A stalled frontier is asked again at the next boundary in play;
+- the chapter, warden and arc floors need play: owed (M21).
+
+## Live rows for the Artemis v1.1 pod (owner-funded, 2026-10-10)
+
+Preconditions:
+- the build stages: the bundle budget decision first (Gate record);
+- an adolion-fresh lane, the Artemis profile for the reply, DeepSeek on the authoring role, the judge on;
+- `stagecraft.curatorEnabled=false` (§Measurement isolation); headed so the owner can watch.
+Reads come from `storyOrchestratorRuntime`: `getSnapshot().living` (Author view for the author half), the `extras.living` blob via
+`so-state.mts current`, judge calls in `extras.judge.calls` (use `divergence`) and journal lines via `so-journal.mts show`.
+
+- **L1 premise start (M1 on a lane, ×2).**
+  1. An Adolion group, Author view off: settings › Start › "Start from a premise". The premise is a neutral one written on the spot.
+  2. Play 12 turns with `send_generate`.
+  3. Expect: the opening `liv_open` activates; journal lines `living director wrote the next turning point` and
+     `the story grew: 1 director change(s) applied`; at least 2 `liv_<n>` anchors reached.
+  4. Run `so-ui.mts assert-player-clean`.
+  5. Click "Save this run as a story" (`#so-living-save`). Expect `Saved "… (played)" to the library.` with the excluded count.
+- **L2 divergence, true positive (×2).**
+  1. An authored Adolion story at a checkpoint with exits; `stagecraft.prefetchEnabled=false`, so the row isolates divergence.
+  2. Play 3 turns deliberately off script: the player walks away from every exit's situation.
+  3. Expect: `divergence` judge calls with `fit` ≥ 0.6 on "none"; after the 2nd (or one ≥ 0.9) a scheduler job
+     `living:branch:<cp>`; next boundary journal `the story grew`; `checkpointById.liv_b1_way` present, priority below the
+     authored exits, its exit into the downstream anchor; Author view `#so-living` shows "The story branched because …".
+  4. **Rollback:** swipe (then, in a second pass, delete) the reply whose boundary applied it. Expect `liv_b1_way` gone,
+     `extras.living.divergence.branchedFrom` empty, journal `living story stepped back`, and the active checkpoint valid.
+  5. Play one more off-script turn: it may branch again.
+- **L3 divergence, false positive (×2).**
+  1. Same story, fresh chat, prefetch off.
+  2. Play 8 turns that pursue an exit's situation without opening it.
+  3. Record every `divergence` reading. Expect 0 branches; report readings "none" ≥ 0.6 / turns (the false-divergence rate, M22).
+- **L4 one-checkpoint prefetch (×2).**
+  1. An authored story with branching and prefetch on, judge use `divergence` off.
+  2. Enter a checkpoint with exits.
+  3. Expect within 2 boundaries a job `living:prefetch:<cp>` and a proposal with `prepared: true` applied as `liv_b<n>_way`; Author
+     view "Prepared ahead: one more way forward from here"; no prepared proposal for any checkpoint other than the active one;
+     moving on to the next checkpoint prepares one there.
+  4. Turn the judge use `divergence` back on, play an off-script turn at the prefetched checkpoint: no second branch.
+- **L5 graph rollback and reopen on the lane.**
+  1. After L1 with ≥ 2 generated anchors, delete the last 4 messages.
+  2. Expect ops after the restored boundary dropped (journal), then reopen the chat.
+  3. Expect the pinned copy equal to the fold of `extras.living` (journal has no "rebuilt from its history" line) and the same active checkpoint.
+
+## Decisions for the owner (2026-10-10)
+
+1. **Bundle budget.** Plan 22 adds ~18 KB to the main entry after moving the director, its unit, the judge code and the
+   author view behind lazy imports. Master had 1.4 KB of headroom (1,248,575 of 1,250,000 B); this branch builds at
+   1,267,757 B. What stays is startup code: story validation of `living`, schema, settings copy, the port, wiring and
+   sanitizers. Options: (a) raise `BUNDLE_BUDGET_BYTES` to 1,275,000 in `webpack.config.js` and
+   `scripts/release/buildChecks.mjs` (+ `bundleBudget.test.mjs`); (b) a separate plan that lazy-loads the copilot
+   coordinator's stage half or the plan 11 create path out of the `@stagecraft` / `@wizard` barrels (estimated 8–15 KB each). Not changed here.
+2. A prefetched branch counts as the checkpoint's one branch, so true divergence there gets none. Keep, or allow one prepared
+   plus one divergence branch?
+3. Branches on authored (non-living) stories are on by default. Add a story-level switch (`living.branching: false`) for
+   authors who want a fixed graph?
+4. Branch autonomy follows the story's `living.autonomy` (author view) and is `auto` for players and for stories with no
+   `living` block. Should authored stories' branches wait in Author view (suggest)?
+5. Divergence thresholds (0.6 ×2 / 0.9) are predeclared, not calibrated: calibrate on L3 before tuning?
+6. The critic errs strict (spike). Keep it, soften it further, or let a stalled frontier fall back to `suggest`?
+
+## Gate record (2026-10-10, branch `v2.8-living-director`, merged with master `84c23335`)
+
+- `npm run gates -- --no-storybook`: **RED at build only**:
+  - typecheck, typecheck:test, debug:typecheck and lint ok;
+  - test ok (jest, every suite);
+  - test:replay ok (32 of 32 killed);
+  - build FAIL: webpack performance error, main entry 1,267,757 B over the 1,250,000 B budget (decision 1 above).
+  test:debug, test:plugin and test:release were not run by the gate after the build failure.
+- Run separately:
+  - `npm run test:plugin`: 120 pass, 0 fail;
+  - `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run test:debug`: 1248 pass, 1 fail. The failure is "the build half reads
+    plan 08s nested manifest", because `dist/manifest.json` is not written while the build fails;
+  - `npm run test:release` was not run (needs the build).
+- Master's own main entry at `84c23335`: 1,248,575 B (measured from a `git archive` export).
+- Storybook not run in this worktree. To re-run in the main checkout: `Drawer/LivingPanel`, `Drawer/LivingSave`,
+  `Settings/LivingStart`, plus `Settings/EntryPoints`, `Settings/PlayGroups`, `Drawer/DrawerTabs` (lazy panels, new rows).
+- New jest:
+  - `generation/living/living.test.ts`, `directorGoldens.test.ts`;
+  - `runtime/coordinators/livingCoordinator.review.test.ts` (rollback ≡ replay property over 6 seeds, divergence debounce,
+    branch, prefetch);
+  - `runtime/livingSpoilers.review.test.ts` (F27), `runtime/livingPort.test.ts`;
+  - boundary work, guide coverage.
+- Guards updated: ownership census (+9 rows), fault matrix (package `livingDirector`, 10 cells),
+  `architecture.test.ts` (the director's isolation), errorCopy, the arrival golden, passProfiles.
+- No live gate: nothing staged into ST (the owner is playing on :8000). The live rows are listed above and owed (31 M21–M24).

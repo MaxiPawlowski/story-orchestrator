@@ -68,7 +68,36 @@ export interface BoardLane {
   cards: string[];
 }
 
+export interface ClueView {
+  text: string;
+  fresh: boolean;
+  action?: string;
+}
+
+export interface ClueLinkView {
+  from: number;
+  to: number;
+  label?: string;
+}
+
+export interface PinView {
+  label: string;
+  x: number;
+  y: number;
+  here: boolean;
+  fresh: boolean;
+  action?: string;
+}
+
+export interface IntentView {
+  id: string;
+  text: string;
+}
+
 export type WidgetBody =
+  | { kind: "html"; template: string; actions: IntentView[]; source: WidgetView }
+  | { kind: "clues"; clues: ClueView[]; links: ClueLinkView[] }
+  | { kind: "map"; image: string; pins: PinView[] }
   | { kind: "meters"; groups: SheetGroupView[] }
   | { kind: "track"; main: MainLineView | null; quests: QuestView[] }
   | { kind: "log"; rows: LogRowView[] }

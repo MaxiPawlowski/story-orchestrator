@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { featuresByArea, guideUrl, matchesQuery, NEED_LABELS, type Feature, type FeatureWhere } from "@features/registry";
 import { GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 
@@ -17,6 +17,7 @@ export interface HelpPanelProps {
   onShowMe?: (where: FeatureWhere) => void;
   onOpenDoc?: (doc?: string) => void;
   onClose?: () => void;
+  ask?: ReactNode;
 }
 
 export const canShow = (where: FeatureWhere): boolean => where.selector.startsWith("#") && (where.surface === "settings" || where.surface === "drawer");
@@ -64,7 +65,7 @@ const FeatureRow = ({ feature, on, homePage, onShowMe, onOpenDoc }: FeatureRowPr
   );
 };
 
-export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose }: HelpPanelProps) {
+export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, ask }: HelpPanelProps) {
   const [query, setQuery] = useState("");
   const searchId = useId();
   const shown = features.filter((feature) => matchesQuery(feature, query));
@@ -76,6 +77,7 @@ export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe
         {onClose && <button type="button" data-so="help-close" className="menu_button fa-solid fa-xmark" aria-label={HELP_COPY.close} title={HELP_COPY.close} onClick={onClose} />}
       </div>
       <div className="text-xs opacity-80">{HELP_COPY.intro}</div>
+      {ask}
       {onOpenDoc && <button type="button" id="so-help-open-guide" data-so="help-open-guide" className="menu_button self-start text-xs" onClick={() => onOpenDoc()}>{GUIDE_COPY.open}</button>}
       <label htmlFor={searchId} className="sr-only">{HELP_COPY.search}</label>
       <input id={searchId} data-so="help-search" type="search" className="text_pole" value={query} placeholder={HELP_COPY.searchPlaceholder} onChange={(event) => setQuery(event.target.value)} />

@@ -10,7 +10,10 @@ import {
 import { isAgentSession, type AgentSession } from "@copilot/agent/index";
 import { fellBackText, type FellBack } from "@extraction/modelRoute";
 import { useDraftStore } from "../draft";
+import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
+import CharacterTutorial from "./CharacterTutorial";
+import StudioAsk, { type StudioAskRunner } from "./StudioAsk";
 import ProposalReview from "./ProposalReview";
 import ProvisioningCard from "./ProvisioningCard";
 import WizardQuestions from "./WizardQuestions";
@@ -65,7 +68,9 @@ export interface WizardHost {
   rekeySession?: (from: string, to: string) => void;
 }
 
-export type WizardMode = "staged" | "agent";
+export type WizardMode = "staged" | "agent" | "ask" | "character";
+
+export const WIZARD_MODE_LABELS: Record<WizardMode, string> = { staged: "Step by step", agent: "Agent", ask: "Ask", character: "Build a character" };
 
 type Props = {
   mode?: WizardMode;
@@ -76,6 +81,9 @@ type Props = {
   host?: WizardHost;
   initialStage?: CopilotStage;
   seedMissing?: { personas?: string[]; members?: string[]; lorebooks?: string[] };
+  ask?: StudioAskRunner;
+  draftTutorialStep?: (prompt: string) => Promise<string>;
+  onShowTopic?: (target: KnowledgeShowMe) => void;
 };
 
 type ProvisioningResults = Record<string | number, { ok: boolean; message: string }>;
@@ -261,9 +269,9 @@ const stageSummary = (stageResult: ProposalResult) => (stageResult.status === "q
     ? stageResult.proposal.summary || `Proposed ${stageResult.proposal.ops.length} change(s).`
     : `Could not produce a valid proposal: ${stageResult.issues[0] ?? "unknown error"}`);
 
-const WizardModeSwitch = ({ mode, onSelect }: { mode: WizardMode; onSelect: (mode: WizardMode) => void }) => (
+const WizardModeSwitch = ({ mode, modes, onSelect }: { mode: WizardMode; modes: readonly WizardMode[]; onSelect: (mode: WizardMode) => void }) => (
   <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Wizard mode">
-    {(["staged", "agent"] as const).map((entry) => (
+    {modes.map((entry) => (
       <button
         key={entry}
         type="button"
@@ -273,7 +281,7 @@ const WizardModeSwitch = ({ mode, onSelect }: { mode: WizardMode; onSelect: (mod
         className={`st-tab rounded px-2 py-1 text-xs ${mode === entry ? "st-tab-active" : ""}`}
         onClick={() => onSelect(entry)}
       >
-        {entry === "staged" ? "Step by step" : "Agent"}
+        {WIZARD_MODE_LABELS[entry]}
       </button>
     ))}
   </div>
@@ -433,6 +441,13 @@ const AgentPane = ({ runTurn, host, sessionKey }: { runTurn: AgentTurnRunner; ho
   return <AgentWizard runTurn={runTurn} host={host} initial={initial} onPersist={persist} />;
 };
 
+export const wizardModes = (props: Pick<Props, "runAgentTurn" | "ask" | "host">, available: boolean): WizardMode[] => [
+  "staged",
+  ...(available && props.runAgentTurn ? ["agent" as const] : []),
+  ...(props.ask ? ["ask" as const] : []),
+  ...(props.host ? ["character" as const] : []),
+];
+
 const StudioCopilot: React.FC<Props> = (props) => {
   const [ownMode, setOwnMode] = useState<WizardMode>(props.mode ?? "staged");
   const draftKey = useDraftStore((state) => state.draftKey);
@@ -442,13 +457,17 @@ const StudioCopilot: React.FC<Props> = (props) => {
     props.onModeChange?.(next);
   };
   const available = (props.enabled ?? true) && Boolean(props.runStage);
-  if (!props.runAgentTurn || !available) return <StagedWizard {...props} />;
-  const modeSwitch = <WizardModeSwitch mode={mode} onSelect={selectMode} />;
-  if (mode === "staged") return <StagedWizard {...props} modeSwitch={modeSwitch} />;
+  const modes = wizardModes(props, available);
+  const current = modes.includes(mode) ? mode : "staged";
+  if (modes.length < 2) return <StagedWizard {...props} />;
+  const modeSwitch = <WizardModeSwitch mode={current} modes={modes} onSelect={selectMode} />;
+  if (current === "staged") return <StagedWizard {...props} modeSwitch={modeSwitch} />;
   return (
     <div id="so-wizard" className="flex h-full flex-col gap-3" role="region" aria-label="Story wizard">
       {modeSwitch}
-      <AgentPane key={draftKey} runTurn={props.runAgentTurn} host={props.host} sessionKey={draftKey} />
+      {current === "agent" && props.runAgentTurn && <AgentPane key={draftKey} runTurn={props.runAgentTurn} host={props.host} sessionKey={draftKey} />}
+      {current === "ask" && <StudioAsk ask={props.ask} onShowTopic={props.onShowTopic} />}
+      {current === "character" && <CharacterTutorial host={props.host} draftStep={available ? props.draftTutorialStep : undefined} onShowTopic={props.onShowTopic} />}
     </div>
   );
 };

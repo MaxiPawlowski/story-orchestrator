@@ -145,8 +145,46 @@ const clockBody = (widget: StoryWidget, sources: GameSources): WidgetBody | null
   return { kind: "clock", label: display.label, filled, segments, full: filled >= segments };
 };
 
+const foundClues = (widget: StoryWidget, state: EngineState) => {
+  const reader = valueReader(state.blackboard.values);
+  return (widget.clues ?? []).filter((clue) => evaluateGate(clue.when, reader));
+};
+
+const cluesBody = (widget: StoryWidget, state: EngineState, before: EngineState | null): WidgetBody => {
+  const found = foundClues(widget, state);
+  const earlier = before ? new Set(foundClues(widget, before).map((clue) => clue.id)) : null;
+  const index = new Map(found.map((clue, at) => [clue.id, at]));
+  const links = (widget.links ?? []).flatMap((link) => {
+    const from = index.get(link.from);
+    const to = index.get(link.to);
+    return from === undefined || to === undefined ? [] : [{ from, to, ...(link.label ? { label: link.label } : {}) }];
+  });
+  const clues = found.map((clue) => ({ text: clue.text, fresh: Boolean(earlier && !earlier.has(clue.id)), ...(clue.action ? { action: clue.action } : {}) }));
+  return { kind: "clues", clues, links };
+};
+
+const shownPins = (widget: StoryWidget, state: EngineState) => {
+  const reached = new Set(state.visitedPath);
+  const reader = valueReader(state.blackboard.values);
+  return (widget.pins ?? []).filter((pin) => (pin.checkpoint
+    ? reached.has(pin.checkpoint) || state.activeCheckpointId === pin.checkpoint
+    : Boolean(pin.when && evaluateGate(pin.when, reader))));
+};
+
+const mapBody = (widget: StoryWidget, state: EngineState, before: EngineState | null): WidgetBody => {
+  const earlier = before ? new Set(shownPins(widget, before).map((pin) => pin.id)) : null;
+  const pins = shownPins(widget, state).map((pin) => ({
+    label: pin.label, x: pin.x, y: pin.y, here: pin.checkpoint === state.activeCheckpointId, fresh: Boolean(earlier && !earlier.has(pin.id)),
+    ...(pin.action ? { action: pin.action } : {}),
+  }));
+  return { kind: "map", image: widget.image ?? "", pins };
+};
+
 const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: QuestView[]; sheet: SheetGroupView[]; main: MainLineView; log: LogRowView[] }): WidgetBody | null => {
   const limit = widget.options?.limit;
+  const before = sources.boundaryLog.at(-1)?.before ?? null;
+  if (widget.kind === "clues") return cluesBody(widget, sources.state, before);
+  if (widget.kind === "map") return mapBody(widget, sources.state, before);
   if (widget.kind === "meters") return { kind: "meters", groups: metersFor(widget, sources, parts.sheet) };
   if (widget.kind === "track") return widget.bind && "quests" in widget.bind ? { kind: "track", main: null, quests: parts.quests } : { kind: "track", main: parts.main, quests: [] };
   if (widget.kind === "log") return { kind: "log", rows: limit ? parts.log.slice(0, limit) : parts.log };
@@ -155,7 +193,7 @@ const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: 
 };
 
 const emptyBody = (body: WidgetBody): boolean =>
-  (body.kind === "meters" && !body.groups.length) || (body.kind === "log" && !body.rows.length) || (body.kind === "board" && !body.lanes.length)
+  (body.kind === "meters" && !body.groups.length) || (body.kind === "log" && !body.rows.length) || (body.kind === "board" && !body.lanes.length) || (body.kind === "clues" && !body.clues.length)
   || (body.kind === "track" && !body.quests.length && !body.main?.current && !body.main?.done.length);
 
 const viewOf = (widget: StoryWidget, body: WidgetBody): WidgetView => ({
@@ -172,10 +210,18 @@ export function composeGame(sources: GameSources): GameCompose {
     quests: visibleQuests(story, reader, values, sources.castNames), sheet: sheetGroups(story.qualities, values, previousValues(sources.boundaryLog)),
     main: mainLine(story, state), log: composeLog(sources),
   };
-  const authored = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader)).flatMap((widget) => {
+  const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
+  const ordinary = visible.filter((widget) => widget.kind !== "html").flatMap((widget) => {
     const body = widgetBody(widget, sources, parts);
     return body && !emptyBody(body) ? [viewOf(widget, body)] : [];
   });
+  const byId = new Map(ordinary.map((view) => [view.id, view]));
+  const html = visible.flatMap((widget) => {
+    const source = widget.kind === "html" && widget.source ? byId.get(widget.source) : undefined;
+    return source && widget.template ? [viewOf(widget, { kind: "html", template: widget.template, actions: (widget.actions ?? []).map(({ id, text }) => ({ id, text })), source })] : [];
+  });
+  const backing = new Set(html.flatMap((view) => (view.body.kind === "html" ? [view.body.source.id] : [])));
+  const authored = [...ordinary, ...html];
   const player = authored.filter((widget) => widget.audience === "player");
   const kinds = (kind: WidgetBody["kind"]) => player.filter((widget) => widget.body.kind === kind);
   const fallback = (view: WidgetView) => [view].filter((widget) => !emptyBody(widget.body));
@@ -186,8 +232,8 @@ export function composeGame(sources: GameSources): GameCompose {
   return {
     player: {
       quests: parts.quests, mainLine: parts.main, sheet: parts.sheet, milestones: milestones(story, reader), log: parts.log, journal: [...track, ...log], statSheet,
-      widgets: player.filter((widget) => widget.body.kind === "clock" || widget.body.kind === "board" || (widget.body.kind === "meters" && widget !== meters[0])),
+      widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
     },
-    authorWidgets: authored.filter((widget) => widget.audience === "author"),
+    authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
   };
 }

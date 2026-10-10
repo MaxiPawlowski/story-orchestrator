@@ -6,6 +6,7 @@ import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
+import { recipeIndex } from "./recipes";
 import { createdSteps, rejectedSteps } from "./rejected";
 import { renderToolSchema } from "./tools";
 import { emptyLookup, type AgentSession, type AgentStep } from "./types";
@@ -41,6 +42,7 @@ const RULES = [
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
   ].join(" "),
   `Consult readGuide(topic) before authoring a field you have not used yet in this session. Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`,
+  `For a whole task, readRecipe(recipe) first and follow its steps in order. Recipes: ${recipeIndex()}.`,
   "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",
   "The DRAFT section below is the current story, block contents included, and EARLIER STEPS lists what you already did: do not re-read either.",
   "A rejected step comes back with the author's reason. Do not repeat it unchanged.",

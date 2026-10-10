@@ -4,7 +4,7 @@ import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
 import { runDiagnostics, type DiagnosticsContext } from "../../studio/diagnostics";
 import type { ProvisioningOp } from "@wizard/index";
-import { setChapters, setHouseRules, setPlayer } from "../../studio/mutations";
+import { setAppearance, setChapters, setHouseRules, setPlayer } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
 import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
@@ -28,7 +28,7 @@ const CHECK_LINES = 12;
 const now = () => new Date().toISOString();
 
 const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(
-  ["setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", ...GAME_AGENT_KINDS] as AgentOnlyOp["kind"][],
+  ["setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance", ...GAME_AGENT_KINDS] as AgentOnlyOp["kind"][],
 );
 
 const isGameOp = (op: AgentOnlyOp): op is GameAgentOp => GAME_AGENT_KINDS.has(op.kind);
@@ -44,6 +44,7 @@ const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
     case "setRosterDrive": return setRosterDrive(draft, op.id, op.drive);
     case "setRosterView": return setRosterView(draft, op.id, op.view);
     case "setCheckpointMotive": return setCheckpointMotive(draft, op.id, op.member, op.motive);
+    case "setAppearance": return setAppearance(draft, op.id, op.appearance);
   }
 };
 
@@ -63,6 +64,7 @@ const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
       const label = op.motive ? `${op.member} wants at ${op.id}: ${op.motive}` : `Clear ${op.member}'s motive at ${op.id}`;
       return { action: "update", entity: `checkpoints.${op.id}.motives.${op.member}`, label };
     }
+    case "setAppearance": return { action: "update", entity: "story.illustrations", label: op.appearance ? `Look of ${op.id}: ${op.appearance}` : `Clear ${op.id}'s look` };
   }
 };
 

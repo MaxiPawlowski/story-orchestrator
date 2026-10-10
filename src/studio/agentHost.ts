@@ -1,6 +1,6 @@
-import { openAgentBridge, refreshHarnessStatus, type HarnessRow } from "@services/STAPI";
-import type { HarnessTransport } from "@copilot/agent/index";
-import { roleHarness, type RouteSettings } from "@runtime/passProfiles";
+import { listConnectionProfiles, openAgentBridge, openProfileToolBridge, refreshHarnessStatus, type HarnessRow } from "@services/STAPI";
+import type { AgentToolBridge, HarnessTransport } from "@copilot/agent/index";
+import { isAuthoringDefaultSource, resolveRoute, roleHarness, type ProfileSourceRow, type RouteSettings } from "@runtime/passProfiles";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { useDraftStore } from "./draft";
@@ -14,13 +14,34 @@ export const draftOwnership: RunOwnership = {
   check: (token) => tokenMatches(draftContext(), token),
 };
 
+export const AGENT_PROFILE_MAX_TOKENS = 1536;
+
 export interface AgentHarnessDeps {
   settings: () => RouteSettings;
   status: () => ReturnType<typeof refreshHarnessStatus>;
   bridge: typeof openAgentBridge;
+  profiles?: () => ProfileSourceRow[];
+  profileBridge?: (profileId: string) => Promise<AgentToolBridge>;
+  planted?: () => boolean;
 }
 
-const hostDeps: AgentHarnessDeps = { settings: () => getGlobalSettings().extraction, status: () => refreshHarnessStatus(), bridge: openAgentBridge };
+const hostDeps: AgentHarnessDeps = {
+  settings: () => getGlobalSettings().extraction,
+  status: () => refreshHarnessStatus(),
+  bridge: openAgentBridge,
+  profiles: listConnectionProfiles,
+  profileBridge: (profileId) => openProfileToolBridge(profileId, AGENT_PROFILE_MAX_TOKENS),
+  planted: () => typeof globalThis.storyOrchestratorDebugCopilotResponse === "string",
+};
+
+const nativeProfileRoute = async (deps: AgentHarnessDeps, settings: RouteSettings): Promise<HarnessTransport | null> => {
+  if (!deps.profiles || !deps.profileBridge || deps.planted?.()) return null;
+  const profiles = deps.profiles();
+  const resolved = resolveRoute(settings, "authoring", (id) => profiles.some((profile) => profile.id === id));
+  const route = resolved.ok ? resolved.route : null;
+  if (route?.kind !== "profile" || !isAuthoringDefaultSource(profiles.find((profile) => profile.id === route.profileId))) return null;
+  return { bridge: await deps.profileBridge(route.profileId), target: { harness: "profile", model: route.profileId, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS }, fallback: true };
+};
 
 export const agentHarnessRefusal = (harness: string, model: string, reason: string): string =>
   `The wizard is routed to ${harness} (${model}) under Models per task, but ${reason}. ` +
@@ -39,7 +60,7 @@ const reasonFor = (harness: string, model: string, row: HarnessRow | undefined):
 export async function resolveAgentHarness(deps: AgentHarnessDeps = hostDeps): Promise<HarnessTransport | null> {
   const settings = deps.settings();
   const routed = roleHarness(settings, "authoring");
-  if (!routed) return null;
+  if (!routed) return nativeProfileRoute(deps, settings);
   const fallback = Boolean(settings.routes?.authoring?.onFailure?.profileId);
   const status = await deps.status();
   const reason = status ? reasonFor(routed.harness, routed.model, status.harnesses[routed.harness]) : NO_STATUS;

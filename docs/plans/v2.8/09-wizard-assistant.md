@@ -1,7 +1,8 @@
 # Plan 09 — The wizard as an in-app assistant
 
-**Status (2026-10-03): v2.8 plan 09 (was v2.7 plan 27). Decided (all five recommendations, answers below); not built;
-live Q&A set not written or run.** Overview: `00-overview.md`.
+**Status (2026-10-10): built on `v2.8-wizard-assistant`, on by default (owner 2026-10-10: every built feature on,
+floors informational; replaces §E's dev-only/off-by-default rollout).** A knowledge base, B Ask (author + player,
+`copilot.ask`), C Build a character, §F spike run (results and build decision in §Gate record). Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D; acceptance CL (the `deepseek 4.1 flash` Chat Completion
 profile).
 
@@ -192,3 +193,107 @@ role route), v2.8 22 living story director (shares the agent loop), v2.7 17 imag
 - Not applied: none. Rule 4 for player Ask: decided by the user 2026-10-03 (decision 3 counts).
 
 Round 3 (Sol): R3-15 (§F native tool-call spike; decided by the user 2026-10-03), R3-19 (Critic = research decision 2) applied.
+
+## Gate record (2026-10-10, branch `v2.8-wizard-assistant`)
+
+Built as written, every feature on by default (owner 2026-10-10: private plugin, floors informational; §E's dev-only and
+off-by-default rollout does not apply). Merged master (`4b211597`, plan 23 widgets) mid-build.
+
+**A, knowledge base** (`src/copilot/knowledge/`): four families over one `KnowledgeTopic` shape (`id`, `family`, `title`,
+`text` capped at 1,500 chars, `audience`, `source`, `since`, `showMe`): `feature/<id>` from the feature registry,
+`guide/<page>#<section>` from the shipped guide pages, `author/<id>` from the compact author's guide, and 14 `st/<id>`
+topics written in our own words against ST 1.19.0, each citing the host file and an anchor. `readKnowledge` (did-you-mean)
+and `searchKnowledge`; player audiences see only player topics. `knowledge.test.ts`: unique ids, caps, full registry, guide
+and author coverage, every cited repo path exists, every ST anchor is present in the pinned ST (skipped without `.st-root`),
+no 10-word run copied from `docs/tutorials` or `.claude/sillytavern-docs` (planted control).
+
+**B, Ask** (`src/copilot/agent/ask.ts`, `runtime/askHost.ts`): one question, read-only tools, answer + cited topics + Show me.
+Author Ask reads the knowledge, the draft (read/simulate/lookup), recipes, the live state and recommendations; player Ask is
+built from `runtime/playerProjection.ts` only, with three tools (`searchKnowledge`, `readKnowledge`, `readPlayed`); any other
+call is refused in `checkAskCall` before it runs, the reply's topics are filtered to the player audience, a player never gets
+a Studio Show me, and a refused read is journaled once. Surfaces: the Help panel's Ask box (`#so-help-ask`, `AskBox`),
+`/story ask <question>`, the Studio wizard's Ask mode (`StudioAsk`), `globalThis.storyOrchestratorAsk`. Setting `copilot.ask`
+(default on, `#so-copilot-ask`). Pass `ask` on the authoring role; debug response `storyOrchestratorDebugAskResponse`.
+Ownership census row `ask.ts#runAsk` local.
+
+**C, Build a character** (`src/copilot/characterTutorial.ts`, `CharacterTutorial`, `#so-character-tutorial`): six steps
+(who, look, voice, first message, examples, review), each with its why and its knowledge topics; "Draft it for me" asks the
+authoring model for the step. Deterministic review (name taken/sanitised/mention trap/not ASCII, thin description,
+adjective-only voice, token budget 2,000, a greeting that speaks for the player or opens no scene, example lines without
+`{{char}}:`). The card is a `createCharacterCard` provisioning op (create-only, author-confirmed); the Look step is
+`addRosterMember` when needed plus the agent-only op `setAppearance` (mutation `setAppearance`, a reviewed diff card, D14).
+
+**§F, native tool calls over CC profiles**: probe PASS (DeepSeek CC returns `tool_calls` through
+`ConnectionManagerRequestService`; `custom` forwards tools per ST source, not probed live; Text Completion not applicable).
+Run 1 on lane 27 (DeepSeek CC, `test/measurements/v2.8/09/f-native-tools.json`, predeclared, harness-side bridge): control
+(local text route) W1 0.755 PASS, W2 0 of 3 premises finished FAIL, W3 PASS; arm (native) W1 0.857 (72/84) PASS, W2 1 of 3
+finished with 0 errors (FAIL: not every premise finished), W3 24/24 PASS. The safety control crashed on a real defect: a model
+`updateCheckpoint` carried `talk_control.speakers` as a non-list, `parseFields` accepted any object, and Studio diagnostics
+threw inside `decideStep`. Fixed: `talk_control` must be an object whose `speakers` is a list of objects, else the call is
+refused with the expected shape (`t63Agent.review.test.ts`, fails on the old check). Run 2 and the safety pair stopped on the
+owner's direction (below); owed as 31 M19.
+
+**Owner decisions 2026-10-10 (wizard model, documentation and skills), built:**
+- W-1 (final word, replacing an earlier opencode note): DeepSeek is the wizard's model and the primary model for its live
+  tests; never Artemis. Built as a code default: an unset authoring role resolves to the install's first DeepSeek Chat
+  Completion profile (`passProfiles.roleDefaultFrom` + `setRoleDefault`, wired in `runtime/wiring/generation.ts`, resolution
+  `source: "default"`, health-checked and self-testable like an assigned route, shown in Models per task as
+  "Default: <name>"). An assigned profile or a harness route wins; every other role keeps the memory model; an install with
+  no DeepSeek profile is unchanged. Ask, the tutorial drafts, the staged wizard and the road ahead (all authoring passes)
+  follow the same default.
+- W-2: native tool calls where the route supports them. When the authoring route is a DeepSeek profile, `resolveAgentHarness`
+  returns the profile tool bridge (`stHost/profileToolBridge.ts`, lazy: tools as functions, `tool_calls` answered as `tool`
+  messages, failures named auth/quota/transport/timeout) and the agent falls back to its text route on the same profile on
+  those failures; a planted copilot answer never reaches it. Every call still goes through `checkToolCall`. Ask stays on the
+  text protocol (one question, few calls). Route id stays `harness` in the session record (target `harness: "profile"`).
+- W-3, guide coverage: every authorable field has a `readGuide` topic that names it (`copilot/guideCoverage.test.ts`, typed
+  maps over `StoryV2`, `Checkpoint`, `CheckpointEffects`, `Transition`, `RosterMember`, `Quality`; found and filled the one
+  gap, living cards: new topic `living-cards` in the story guide, the compact topics, the Roster tab and a generated guide
+  page). The newer topics (quests, checks, widgets, clues-and-maps, html-panels, chapters, character-life) are asserted present.
+  **Stub for plan 22:** `PENDING_GUIDE_TOPICS["living-director"]` reserves the name; `readGuide("living-director")` says it is
+  not in this build, and the test fails once the topic exists and the name is still pending (fill at merge).
+- W-4, skills: six recipes the agent loads with `readRecipe(recipe)` (`copilot/agent/recipes.ts`, lazy Studio chunk, also an
+  author Ask tool, never a player one): `quest-line`, `character-life`, `clue-wall-or-map`, `chapters`, `lore-scope`
+  (lore select + curator scope), `group-ready`. Each names the tools in order (first `readGuide`), what to check after
+  (`readValidation`, `readDiagnostics`, a simulation where it applies), the diagnostic codes to fix, and traps quoted from the
+  guide. The agent's rules list them. `recipes.test.ts` fails on a renamed or missing tool, a topic or diagnostic that does
+  not exist or is not explained by one of the recipe's topics, a trap whose cue is no longer in that topic's guide section, or
+  a measured task whose required tools drift from its recipe. The character-life recipe needed tools that did not exist:
+  `setCharacterLife` (one member's relationships/mood/agenda/schedule, validated with the story's own `readLife`, reviewed)
+  and `setClock`, backed by new `gameMutations` exports (`characterLifeTool.test.ts`). `setWidgets`' doc now lists the
+  clues/map/html kinds.
+- W-5: the DeepSeek runs exercise recipes end to end: `so-wizard-agent.mts recipes` over
+  `test/measurements/v2.8/09/recipes.json` (seed story + three tasks in the author's words: quest-line, character-life,
+  chapters; a task passes when the agent read that recipe, every required edit tool was accepted, the run finished and the
+  draft validates; scored by `wizardAgentScore.scoreRecipeTask`, node-tested). Not run yet (31 M19).
+
+Deviations from the plan text: setting `copilot.ask` (not `assistant.ask`), on by default; the knowledge lives in
+`src/copilot/knowledge/` and player Ask reuses `runtime/playerProjection.ts`; "Draft it for me" is one authoring call per step,
+not the agent loop; the Studio's Show me opens a tab (no field-level focus); `AskBox` sits in `components/studio/`;
+`ASK_TEXT` moved to `features/askCopy.ts` for the main bundle budget.
+
+Commands and results (final tree):
+- `npm run gates -- --no-storybook`: **all green in 217.7 s** (typecheck, typecheck:test, build, debug:typecheck, lint, test,
+  test:replay 32 of 32 killed, test:plugin, test:release, test:debug). One earlier run had `harness agent.test.mjs` "an answer
+  reaches only its own session" time out at 30 s under the parallel load; `npm run test:plugin` alone 120/120, and the next full
+  run was green (server-plugin untouched by this branch).
+- Main entry `dist/index.js` **1,248,824 B** (budget 1,250,000). After the master merge it was 1,251,212 B: the Ask copy was
+  trimmed, the four lazy `askHost` imports share one (`runtime/askEntry.ts`), and `index.tsx`'s `buildReplaySource` moved to
+  `studio/replaySource.ts`, which stopped the whole gate-replay engine (`studio/gateReplay.ts`) riding in the main entry
+  (-1,890 B; `gateReplay.ts` re-exports it, importers unchanged).
+- Storybook: `test-storybook:ci` SKIPPED in the worktree; run against a served static build with `--index-json` before the
+  last changes: 690/690. Re-run on master: `Settings/AskBox`, `Settings/HelpPanel` (AskBoxForAPlayer, AskBoxForAnAuthor,
+  AskPhone, AskTablet, AskWide), `Studio/StudioAsk`, `Studio/CharacterTutorial`, `Studio/StudioCopilot`
+  (AskAndBuildACharacterSitBesideTheWizard, NoAskWithoutARunner), `Settings/RoleProfilesGroup` (new WizardDefaultsToDeepSeek).
+- No-model live check: lane 27 on the private ST code copy `C:\dev\so-lanes\agent-st-wizard`, every role on the DeepSeek CC
+  profile, extraction off; `test/scenarios/v28-09-ask-player-clean.json --sandbox` ×2 PASS (planted answer, player persona,
+  the author topic filtered, `assert-player-clean` with the answer open: no findings). Plumbing only.
+- Not run: live Q&A (31 M18), wizard recipes + §F run 2 + safety on DeepSeek (M19), player Ask in real play (M20).
+
+Owner questions:
+1. The wizard default picks the FIRST DeepSeek CC profile in Connection Manager order. With two (flash and pro), which one?
+   (Assign it under Models per task to override; no key or setup is needed beyond the existing DeepSeek profile.)
+2. Player Ask in real play uses the authoring route, so with the default each player question is a DeepSeek call. Keep, or
+   route player Ask to the memory model?
+3. Ask stays on the text protocol; move it to native tool calls too?
+4. Main bundle headroom is 1,176 B after this branch: raise the budget, or keep moving main-entry code lazy as features land?

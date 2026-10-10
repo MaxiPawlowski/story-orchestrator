@@ -789,6 +789,10 @@
       "status": "local",
       "note": "v2.6 plan 04 agent bridge (2026-09-30), census root added: recordUnparsed builds the NEXT session value and returns it; nothing outside the call is written. The caller (driveAgent) checks its run before committing it."
     },
+    "src/copilot/agent/ask.ts#runAsk": {
+      "status": "local",
+      "note": "v2.8 09 B (2026-10-10): Ask mode's read loop. `push` appends to the call's own steps array, which is returned; Ask has no write tool, so nothing reaches a draft, a chat or the install (ask.test.ts, safety.review.test.ts \"a planted instruction cannot write through either Ask mode\"). The one side effect, the refused-call journal line, is the caller's onRefused: askHost.askInChat checks its RunGuard before noteRecap and again before returning an answer (askHost.test.ts \"a chat switch while the answer is written journals nothing and returns stale\")."
+    },
     "src/copilot/agent/turn.ts#createAgentRunner>anonymous": {
       "status": "local",
       "note": "v2.6 plan 04 agent bridge (2026-09-30): `settle` matches the write-name pattern but writes nothing we keep: it forwards the turn to the chosen route, which answers the parked tool call over HTTP. Its only caller is driveAgent, after driveAgent's own run check."
@@ -892,6 +896,10 @@
     "src/runtime/coordinators/livingCoordinator.ts#LivingCoordinator.saveAsStory": {
       "status": "checked",
       "note": "v2.8 22: awaits only the lazy unit, then re-checks the run before projecting and writing the library record. Case: livingCoordinator.review.test.ts \"saves nothing when the chat moved before the unit loaded\"."
+    },
+    "src/runtime/livingPort.ts#LivingPort.afterBoundary": {
+      "status": "delegate",
+      "note": "v2.8 22 (bundle split): awaits LivingCoordinator.checkDivergence, which owns the check (after loading the lazy coordinator). The writes after the awaits only place scheduler jobs (`schedule`, `prefetch`); each job mints its own run when it starts (LivingCoordinator.propose / proposeBranch delegate to LivingCoordinator.record, checked). Case: livingPort.test.ts \"adopt loads the coordinator once; the boundary pass schedules, checks divergence only when nothing fired, then prefetches\"."
     }
   }
 }

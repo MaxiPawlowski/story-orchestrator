@@ -2,7 +2,7 @@
 
 The memory model reads the chat after each reply. It decides whether the story can move on, writes the memories,
 and keeps summaries. It is a second connection, separate from the model that writes the replies (it can be the same
-backend).
+backend). It needs reliable instruction following more than good prose; see [Choosing models](models.md).
 
 ## Choose one
 
@@ -31,6 +31,7 @@ backend).
   | Wizard and road ahead | the setup wizard and generated scenes |
   | Speaker direction | who speaks next in a group |
   | World Info curator | proposed lorebook updates |
+  | Lore creation | new lorebook entries the curator proposes (defaults to the curator's profile) |
   | Inner voice | characters' private thoughts |
 
   A task left on "Same as memory model" uses the profile above. A task can also go to a coding-agent login on the

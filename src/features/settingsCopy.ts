@@ -39,7 +39,7 @@ export const SETTING_COPY = {
   "extraction.profiles": copy(
     "Model for this task",
     "Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. "
-      + "Left on \"Same as memory model\", it uses the memory model.",
+      + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses a DeepSeek profile when there is one.",
   ),
   "extraction.routes.*.route.options.effort": copy(
     "Thinking for this task",
@@ -111,6 +111,11 @@ export const SETTING_COPY = {
     "Story panels",
     "Extra panels a story adds, such as a clock that fills or a board of quests. Only what the author made public shows.",
   ),
+  "display.presence.htmlWidgets": copy(
+    "Story-made panels",
+    "Some stories bring a panel page of their own. It runs shut off from SillyTavern: it cannot read your chats or settings or fetch anything, it sees only what its plain panel shows, "
+      + "and it can only put one of the story's own lines in the box where you type. A panel that tries to open another page is closed at once. Switch this off to see the plain panel instead.",
+  ),
   "display.presence.suggestions": copy(
     "What could I do?",
     "A button in the story drawer and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
@@ -178,6 +183,10 @@ export const SETTING_COPY = {
   "copilot.enabled": copy(
     "Enable the wizard",
     "Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it.",
+  ),
+  "copilot.ask": copy(
+    "Ask questions",
+    "Ask in Help, the wizard or /story ask. It only reads; while you play it knows only what you have seen. A few model calls per question.",
   ),
   "worldInfo.gatingMode": copy(
     "How story lorebook entries switch on",

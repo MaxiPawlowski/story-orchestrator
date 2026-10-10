@@ -50,4 +50,8 @@ export const DIAGNOSTIC_CODES = [
   "player-spoiler-risk",
   "agenda-pace-no-chapters",
   "stage-sprite-unknown",
+  "widget-item-never-read",
+  "map-pin-unreachable",
+  "map-image-missing",
+  "html-widget-declared",
 ] as const;

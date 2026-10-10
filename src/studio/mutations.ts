@@ -208,6 +208,15 @@ export const setPlayer = (draft: StoryDraft, player: StoryPlayer | undefined): S
   return Object.keys(next).length ? { ...rest, player: next } : rest;
 };
 
+export const setAppearance = (draft: StoryDraft, rosterId: string, text: string): StoryDraft => {
+  const { illustrations, ...rest } = draft;
+  const { [rosterId]: _previous, ...others } = illustrations?.appearances ?? {};
+  const appearances = text.trim() ? { ...others, [rosterId]: text.trim() } : others;
+  const { appearances: _dropped, ...look } = illustrations ?? {};
+  const next = Object.keys(appearances).length ? { ...look, appearances } : look;
+  return Object.keys(next).length ? { ...rest, illustrations: next } : rest;
+};
+
 export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft => {
   const { house_rules: _dropped, ...rest } = draft;
   return rules.length ? { ...rest, house_rules: rules } : rest;

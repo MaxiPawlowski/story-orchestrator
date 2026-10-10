@@ -50,6 +50,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "generation/critic.ts": [],
   "generation/generate.ts": [],
   "generation/living/direct.ts": [],
+  "runtime/askHost.ts": ["authoring"],
   "runtime/canonSynthesis.ts": ["synthesis"],
   "runtime/chapterSeal.ts": ["synthesis"],
   "runtime/coordinators/agendaProposalCoordinator.ts": ["curator"],
@@ -69,6 +70,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/suggestionsHost.ts": ["read"],
   "runtime/wiring/talk.ts": ["director"],
   "studio/components/StudioCopilot.stories.tsx": ["authoring"],
+  "studio/studioAssist.ts": ["authoring"],
 };
 
 describe("every model call names its role (census)", () => {

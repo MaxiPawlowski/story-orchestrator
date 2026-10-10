@@ -193,6 +193,7 @@ export interface BranchOrigin {
 
 export interface CopilotRuntimeSettings {
   enabled: boolean;
+  ask: boolean;
 }
 
 export interface UiRuntimeSettings {

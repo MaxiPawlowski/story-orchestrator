@@ -9,6 +9,7 @@ export type AgentOnlyOp =
   | { kind: "setRosterDrive"; id: string; drive: string }
   | { kind: "setRosterView"; id: string; view: RosterView }
   | { kind: "setCheckpointMotive"; id: string; member: string; motive: string }
+  | { kind: "setAppearance"; id: string; appearance: string }
   | GameAgentOp;
 
 export type AgentOp = ProposalOp | AgentOnlyOp;

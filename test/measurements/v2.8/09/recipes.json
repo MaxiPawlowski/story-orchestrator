@@ -1,0 +1,47 @@
+{
+  "plan": "v2.8 09 wizard recipes, end to end (owner 2026-10-10: the DeepSeek test runs exercise at least two recipes)",
+  "declared": "2026-10-10, before any run; informational floor (owner 2026-10-10)",
+  "marker": "SO-W09R",
+  "route": "the authoring role on the install's DeepSeek Chat Completion profile (native tool calls through the profile bridge); never Artemis",
+  "floor": "every task passes on each of two consecutive runs: the agent read the task's recipe, every required edit tool was accepted, the run finished, the draft validates; provisioning is rejected",
+  "seed": {
+    "format": 2,
+    "id": "so-w09r-ferry",
+    "title": "SO-W09R Ferry",
+    "description": "A night crossing; a synthetic story for the v2.8 09 recipe runs.",
+    "qualities": [
+      { "key": "ferry_paid", "type": "bool", "source": "extractor", "rubric": "Has the player paid the ferryman?" },
+      { "key": "crossed", "type": "bool", "source": "extractor", "rubric": "Has the ferry reached the far bank?" }
+    ],
+    "checkpoints": [
+      { "id": "dock", "name": "The Dock", "objective": "The ferryman names his price.", "type": "anchor", "start": true },
+      { "id": "river", "name": "The River", "objective": "The crossing turns dangerous in the fog.", "type": "intermediate" },
+      { "id": "far_bank", "name": "The Far Bank", "objective": "The player lands and the smuggler is waiting.", "type": "anchor" }
+    ],
+    "transitions": [
+      { "from": "dock", "to": "river", "priority": 0, "gate": { "q": "ferry_paid", "op": "==", "v": true } },
+      { "from": "river", "to": "far_bank", "priority": 0, "gate": { "q": "crossed", "op": "==", "v": true } }
+    ],
+    "roster": [{ "id": "arin", "name": "Arin", "role": "the ferryman's daughter" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator" }]
+  },
+  "tasks": [
+    {
+      "id": "lantern-quest",
+      "recipe": "quest-line",
+      "requires": ["addQuality", "setQuests"],
+      "goal": "Add a side quest to this story: the ferryman lost his lantern on the dock. The player can find it and give it back, and giving it back earns safe passage. Do not change the main path."
+    },
+    {
+      "id": "arin-life",
+      "recipe": "character-life",
+      "requires": ["setCharacterLife"],
+      "goal": "Give Arin a life of her own: how much she trusts the player, a calm mood by default, and something she does off stage, repaying a debt to a smuggler in two steps."
+    },
+    {
+      "id": "two-acts",
+      "recipe": "chapters",
+      "requires": ["setChapters"],
+      "goal": "Split this story into two acts: the departure (the dock and the river) and the landing (the far bank), so each act gets written up when it ends."
+    }
+  ]
+}

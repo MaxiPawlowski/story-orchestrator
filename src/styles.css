@@ -726,6 +726,95 @@ dialog#so-briefing::backdrop {
   gap: 8px;
 }
 
+:is(#so-panels-root, #drawer-manager) .so-game-map {
+  position: relative;
+  margin: 0;
+  max-width: 100%;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-map-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 80px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--st-border) 30%, transparent);
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-map-pins {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 40%;
+  font-size: 0.75em;
+  line-height: 1.1;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 2px #000;
+  overflow-wrap: anywhere;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-pin-mark {
+  color: var(--so-game-accent, var(--SmartThemeQuoteColor, #6aa1d8));
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-pin--here .so-game-pin-mark {
+  color: #e8c547;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-clues {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 6px;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-clue {
+  border-left: 3px solid var(--so-game-accent, var(--SmartThemeQuoteColor, #6aa1d8));
+  overflow-wrap: anywhere;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-html {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+:is(#so-panels-root, #drawer-manager) .so-game-action {
+  pointer-events: auto;
+  white-space: normal;
+  text-align: left;
+}
+
+@keyframes so-game-reveal {
+  from { transform: translateY(4px); }
+  to { transform: none; }
+}
+
+@keyframes so-game-pin-drop {
+  from { transform: translate(-50%, -140%); }
+  to { transform: translate(-50%, -100%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(#so-panels-root, #drawer-manager) .so-game-bar-fill { transition: width 400ms ease-out; }
+  :is(#so-panels-root, #drawer-manager) .so-game-box { transition: background-color 300ms ease-out; }
+  :is(#so-panels-root, #drawer-manager) .so-game-clue.so-game-fresh { animation: so-game-reveal 500ms ease-out; }
+  :is(#so-panels-root, #drawer-manager) .so-game-pin.so-game-fresh { animation: so-game-pin-drop 500ms ease-out; }
+}
+
 #so-panels-root [data-accent="gold"] { --so-game-accent: #c9a227; }
 #so-panels-root [data-accent="green"] { --so-game-accent: #4f9d69; }
 #so-panels-root [data-accent="red"] { --so-game-accent: #c0504d; }

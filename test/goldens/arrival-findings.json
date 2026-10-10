@@ -234,6 +234,8 @@
   "test/scenarios/v27-local-card-reply.json#0": [],
   "test/scenarios/v27-s11d-held-secret-canon.json#0": [],
   "test/scenarios/v27-s12d-held-secret-chapters.json#0": [],
+  "test/scenarios/v28-09-ask-player-clean.json#0": [],
+  "test/scenarios/v28-23-widgets.story.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

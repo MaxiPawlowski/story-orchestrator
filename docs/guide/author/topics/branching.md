@@ -14,4 +14,4 @@ Fields: none to declare. Switches: `stagecraft.branchingEnabled`, `stagecraft.pr
 
 ---
 
-[Author's guide](../README.md) · previous: [Living stories](living.md) · next: [Good practices and traps](../good-practices.md)
+[Author's guide](../README.md) · previous: [Living stories](living-director.md) · next: [Living cards](living-cards.md)

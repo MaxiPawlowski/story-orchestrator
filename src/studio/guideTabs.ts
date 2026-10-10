@@ -3,13 +3,13 @@ import type { StudioTab } from "./StudioModal";
 
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
   story: ["story-basics", "briefing", "player", "requirements", "arc-template", "arc-bridges", "stagecraft", "lore-select", "scene-read", "house-rules", "chapters", "presentation",
-    "living", "branching"],
+    "living-director", "branching"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
     "checkpoints", "objective-agency", "open-stretches", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "scenario", "cast-changes",
     "opening-scene", "npc-replies", "talk-control", "convergence", "experimental-effects",
   ],
   transitions: ["gates", "transitions", "convergence"],
-  roster: ["roster", "drives-motives", "opening-scene", "character-life"],
-  game: ["quests", "checks", "widgets"],
+  roster: ["roster", "drives-motives", "opening-scene", "character-life", "living-cards"],
+  game: ["quests", "checks", "widgets", "clues-and-maps", "html-panels"],
 };

@@ -26,6 +26,7 @@ Which story this chat plays, and what you see while you play. [More](../player/p
 | **Journal** | Story drawer › Journal | A movable panel with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found. | On | `display.presence.journal` |
 | **Stat sheet** | Story drawer › Stat sheet | A movable panel with what the story keeps count of in the open: what you carry and the meters the author made public. | On | `display.presence.statSheet` |
 | **Story panels** | Story drawer › Story panels | Extra panels a story adds, such as a clock that fills or a board of quests. Only what the author made public shows. | On | `display.presence.widgets` |
+| **Story-made panels** | Story drawer › Story panels | Some stories bring a panel page of their own. It runs shut off from SillyTavern: it cannot read your chats or settings or fetch anything, it sees only what its plain panel shows, and it can only put one of the story's own lines in the box where you type. A panel that tries to open another page is closed at once. Switch this off to see the plain panel instead. | On | `display.presence.htmlWidgets` |
 | **What could I do?** | Story drawer › What could I do? | A button in the story drawer and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; nothing is sent until you send it. The request sees only what you have already seen in the story. | On | `display.presence.suggestions` |
 | **Show story status above the chat input** | Settings › Playing › Show story status | A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer. | On | `display.hudEnabled` |
 | **Steer the tension** | Settings › Playing › Pacing | Adds a quiet note to the prompt that nudges the reply toward the story's intended tension: build it up, or let it cool down. | On | `pacing.hintEnabled` |
@@ -42,7 +43,7 @@ The memory model that reads the chat, and what the story remembers. [More](../se
 | **Reply thinking** | Settings › Memory › Reply thinking | How long your chat model may think before each reply in a story chat. Medium is a good default: as clean as no limit, and replies start sooner. Only applies to llama.cpp setups that think; other backends are left alone. | Medium | `extraction.replyEffort` |
 | **Read the chat every … messages** | Settings › Memory › Memory model | How often the memory model reads the chat. Lower reacts faster but calls the memory model more often; higher saves calls and reacts later. | 3 | `extraction.cadence` |
 | **Wait before reading the newest messages** | Settings › Memory › Memory model | Leave the newest messages out of a read, in case you often re-roll them. 0 reacts to the newest message straight away; re-rolls are undone either way. | 0 | `extraction.stabilityLag` |
-| **Model for this task** | Settings › Memory › Models per task | Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. Left on "Same as memory model", it uses the memory model. | Same as memory model | `extraction.profiles` |
+| **Model for this task** | Settings › Memory › Models per task | Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. Left on "Same as memory model", it uses the memory model; the wizard's task uses a DeepSeek profile when there is one. | Same as memory model | `extraction.profiles` |
 | **Thinking for this task** | Settings › Memory › Models per task | How long the model may think on this task. Default sends nothing extra; higher can be more careful and costs time and tokens. | Per entry | `extraction.routes.*.route.options.effort` |
 | **If the harness fails** | Settings › Memory › Models per task | What happens when the harness cannot answer: pause this task, or send it to a Connection Manager profile instead. | Per entry | `extraction.routes.*.onFailure.profileId` |
 | **Show "Previously…" when a chat opens after a chapter ended** | Settings › Memory › Chapters | When you come back to a chat whose story finished a chapter, a short recap of that chapter is shown first. | On | `memory.chapters.recap` |
@@ -141,6 +142,14 @@ Tools for writing stories. [More](../author/README.md)
 | **Enable the wizard** | Settings › Start › New story | Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it. | On | `copilot.enabled` |
 | **Outlines per gap** | Settings › Judge › Outlines for the road ahead | Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model. | 1 | `judge.expansion.variants` |
 | **Best outline picked by** | Settings › Judge › Outlines for the road ahead | Who picks the best outline: the judge's score, or the story model. | `code` | `judge.expansion.pick` |
+
+## Setup
+
+What SillyTavern features were found, and a copy for a bug report. [More](../setup/README.md)
+
+| Setting | Where | What it does | Default | Key |
+|---|---|---|---|---|
+| **Ask questions** | Settings › Setup › Ask questions | Ask in Help, the wizard or /story ask. It only reads; while you play it knows only what you have seen. A few model calls per question. | On | `copilot.ask` |
 
 ---
 

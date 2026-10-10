@@ -92,6 +92,7 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 29 | `29-st-image-workflows-in-stories.md` | user idea 2026-10-07 | a story maps ST ComfyUI workflows per picture type (reading to confirm) | D | LI |
 | 30 | `30-model-downloads-civitai-hf.md` | user idea 2026-10-07 | Civitai / Hugging Face keys in ST secrets; confirmed, verified model downloads | D | LI |
 | 31 | `31-v27-wrap-backlog.md` | v2.7 wrap 2026-10-09 | measure / fix / develop backlog from the v2.7 wrap (B1 batch 3, lorebook review); features on, floors informational | — | per row |
+| 32 | `32-queue.md` | owner 2026-10-10 | the ordered queue of every open feature, fix and measurement | — | per row |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -164,7 +165,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | ~~06~~ | moved to v2.7 18 (2026-10-04); see `v2.7/18-sprite-generation.md` |
 | ~~07~~ | moved to v2.7 19 (2026-10-04); see `v2.7/19-talking-sprites.md` |
 | ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
-| 09 | written; decided; not built |
+| 09 | built on `v2.8-wizard-assistant` 2026-10-10, on by default (owner 2026-10-10): knowledge base, Ask (author + player), Build a character; guide coverage + six wizard recipes; the wizard defaults to DeepSeek with native tool calls (owner 2026-10-10, never Artemis); §F spike run 1 on DeepSeek CC; live runs owed (31 M18–M20) (09 §Gate record) |
 | 10 | written 2026-10-03 from v2.7 05 decision 1; decided in principle; contract not reviewed by the user; not built |
 | 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17) |
 | 12 | written; decided (option C); not built |
@@ -177,8 +178,8 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 19 | written (exploration); decided; not built |
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
-| 22 | written (exploration); decided (M1 first); not run |
-| 23 | written 2026-10-03 (story widgets); not decided |
+| 22 | built on `v2.8-living-director` 2026-10-10: M1 core + M2/M3 UI + divergence branching and one-checkpoint prefetch (owner input), on by default (owner rule); M1 spike offline on DeepSeek ×2 (0 impossible/open-on-arrival gates, critic stalls); gates green except the main-entry bundle budget (owner decision 1 in the plan); live rows owed (31 M21–M24) |
+| 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook owed |
 | 24 | written 2026-10-03 (test plan); runs last |
 | 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
 

@@ -50,11 +50,13 @@
         "suggestions": true,
         "journal": true,
         "statSheet": true,
-        "widgets": true
+        "widgets": true,
+        "htmlWidgets": true
       }
     },
     "copilot": {
-      "enabled": true
+      "enabled": true,
+      "ask": true
     },
     "memory": {
       "enabled": true,

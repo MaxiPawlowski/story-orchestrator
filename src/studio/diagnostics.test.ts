@@ -145,6 +145,17 @@ const chaptered: StoryV2 = {
   transitions: [hop("a1", "a2"), hop("a1", "b1"), hop("b1", "b2"), hop("b2", "b1"), hop("a1", "c1"), hop("c1", "a1"), hop("a1", "m"), hop("a1", "g")],
 };
 
+const widgetSeeded: StoryV2 = {
+  ...clean,
+  qualities: [...clean.qualities, { key: "orphan_clue", type: "bool", source: "extractor", rubric: "Found the orphan clue?" }],
+  checkpoints: [...clean.checkpoints, { id: "island", name: "Island", objective: "", type: "intermediate" }],
+  widgets: [
+    { id: "wall", kind: "clues", title: "Wall", audience: "player", clues: [{ id: "a", text: "A clue.", when: { q: "orphan_clue", op: "==", v: true } }] },
+    { id: "river", kind: "map", title: "River", audience: "player", image: "missing.jpg", pins: [{ id: "isle", label: "Isle", x: 1, y: 1, checkpoint: "island" }] },
+    { id: "page", kind: "html", title: "Board", audience: "player", source: "wall", template: "<p>x</p>" },
+  ],
+};
+
 describe("runDiagnostics", () => {
   it("reports nothing for a clean story", () => {
     expect(runDiagnostics(clean)).toHaveLength(0);
@@ -160,6 +171,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave", pace: "per_chapter", steps: [{ text: "packed" }] }] }] }),
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as StoryV2["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
         { spriteInventory: () => ({ arin: { sets: ["default"], faces: ["neutral"] } }) }),
+      ...runDiagnostics(widgetSeeded, { backgroundNames: () => ["tavern day.jpg"] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

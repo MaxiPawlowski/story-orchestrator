@@ -254,7 +254,7 @@ export interface ExtensionsSharedHostModule {
     getSupportedProfiles: () => Array<Record<string, unknown>>;
     sendRequest: (
       profileId: string,
-      prompt: string | Array<{ role: string; content: string }>,
+      prompt: string | Array<{ role: string; content: string } & Record<string, unknown>>,
       maxTokens: number,
       custom?: HostModelRequestCustom,
       overridePayload?: Record<string, unknown>,

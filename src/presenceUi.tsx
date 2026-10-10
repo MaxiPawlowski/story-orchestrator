@@ -1,7 +1,8 @@
 import { useSyncExternalStore, type ReactNode } from "react";
+import { askHost } from "@runtime/askEntry";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
-import { BADGE_REFRESH_EVENTS, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
+import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
@@ -115,6 +116,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
   const fillSuggestion = (ask: SuggestionAsk, text: string): WriteResult =>
     host ? host.fillSuggestion(ask, text) : { ok: false as const, reason: PRESENCE_TEXT.suggestionsLoading };
 
+  const htmlHost = { journal: (summary: string, detail: string) => manager.noteRecap(summary, detail, "author") };
+
   const PanelsHost = () => {
     const panels = useOpenPanels();
     const snapshot = useSnapshot();
@@ -125,7 +128,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       <>
         {panels.includes("help") && (
           <Panel id="help" title={HELP_COPY.heading}>
-            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} /></Lazy>
+            <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature} onOpenDoc={requestGuide} onClose={() => setPanel("help", false)}
+              ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>
           </Panel>
         )}
         {panels.includes("guide") && (
@@ -155,7 +159,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         )}
         {game.widgets.filter((widget) => panels.includes(`widget-${widget.id}`)).map((widget) => (
           <Panel key={widget.id} id={`widget-${widget.id}`} title={widget.title}>
-            <Lazy fallback={null}><WidgetPanel widget={widget} /></Lazy>
+            <Lazy fallback={null}><WidgetPanel widget={widget} onAction={(text) => fillChatInput(text, "")} html={snapshot.ui.presence?.htmlWidgets === false ? null : htmlHost} /></Lazy>
           </Panel>
         ))}
       </>

@@ -48,6 +48,30 @@ export const boardWidget: WidgetView = {
   body: { kind: "board", lanes: [{ label: "Offered", cards: ["A lantern in the fog"] }, { label: "Active", cards: ["The ferryman's debt"] }, { label: "Done", cards: ["The drowned bell"] }] },
 };
 
+export const cluesWidget: WidgetView = {
+  id: "clue-wall", title: "Clue wall", audience: "player", synthesized: false, accent: "violet", icon: "key",
+  body: {
+    kind: "clues",
+    clues: [
+      { text: "A torn ledger page, signed with a single initial.", fresh: false, action: "I show the ledger page to the ferryman." },
+      { text: "Wet boot prints leading to the boathouse.", fresh: true },
+      { text: "The ferryman lied about the night of the storm.", fresh: false },
+    ],
+    links: [{ from: 0, to: 2, label: "same night" }],
+  },
+};
+
+export const mapWidget: WidgetView = {
+  id: "river-map", title: "The river", audience: "player", synthesized: false, accent: "blue", icon: "compass",
+  body: {
+    kind: "map", image: "river-map.jpg",
+    pins: [
+      { label: "The landing", x: 18, y: 70, here: false, fresh: false },
+      { label: "The boathouse", x: 62, y: 40, here: true, fresh: true, action: "I head for the boathouse." },
+    ],
+  },
+};
+
 export const sampleGame = (): GameView => ({
   quests: track.body.kind === "track" ? track.body.quests : [],
   mainLine: { done: ["Approach"], current: "Infiltrate", objective: "Get inside unseen." },
@@ -56,7 +80,7 @@ export const sampleGame = (): GameView => ({
   log: log.body.kind === "log" ? log.body.rows : [],
   journal: [track, log],
   statSheet: sheet,
-  widgets: [clockWidget, boardWidget],
+  widgets: [clockWidget, boardWidget, cluesWidget, mapWidget],
 });
 
 export const emptyGame = (): GameView => ({

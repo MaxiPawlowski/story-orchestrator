@@ -3,6 +3,7 @@ import { extensionsSharedModule } from "./modules";
 import { requestModelReply, type InstructSequences, type ModelReply, type ModelRequestHost, type ModelRequestOptions } from "./modelReply";
 import { foldIncludeBody, type ReasoningRoute } from "./reasoningPayload";
 import { isRecord } from "@utils/guards";
+import type { HarnessBridgeClient } from "./harnessBridge";
 
 export interface ConnectionProfileSummary {
   id: string;
@@ -114,6 +115,10 @@ const modelRequestHost = (): ModelRequestHost => ({
   instructSequences: readInstructSequences,
   reasoningRoute: readReasoningRoute,
 });
+
+export const openProfileToolBridge = async (profileId: string, maxTokens: number): Promise<HarnessBridgeClient> => (await import("./profileToolBridge")).createProfileToolBridge((messages, tools) =>
+  extensionsSharedModule.ConnectionManagerRequestService.sendRequest(profileId, messages, maxTokens,
+    { extractData: false, includePreset: false, includeInstruct: false, stream: false }, { tools, tool_choice: "auto" }));
 
 export async function sendConnectionProfileRequest(profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions = {}): Promise<ModelReply> {
   return requestModelReply(modelRequestHost(), profileId, prompt, maxTokens, options);
