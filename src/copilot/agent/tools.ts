@@ -137,7 +137,7 @@ export const EDIT_TOOLS = {
     backedBy: "setWidgets",
     composes: ["addWidget", "updateWidget", "removeWidget"],
     doc: "Replace the story panels (the full list). A player panel binds only public qualities.",
-    args: { widgets: req("array", "[{id, kind: meters|track|log|clock|board, title, bind?, audience?: player|author, options?, visible_when?}]") },
+    args: { widgets: req("array", "[{id, kind: meters|track|log|clock|board|clues|map|html, title, bind?, audience?: player|author, options?, visible_when?}]") },
   },
   setQualityDisplay: {
     backedBy: "setQualityDisplay",
@@ -153,6 +153,20 @@ export const EDIT_TOOLS = {
     backedBy: "setTransitionCheck",
     doc: "Put a check on a transition (attempted when the rest of its gate holds), or null to remove it.",
     args: { index: req("number", "the transition's number in readGraph"), check: req("value", `${CHECK} or null`) },
+  },
+  setCharacterLife: {
+    backedBy: "setCharacterLife",
+    doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts. Private to that member. Read the character-life guide first.",
+    args: {
+      id: req("string", "member id"),
+      life: req("object", "{relationships?: [{toward: id|player, axes, range?, step?, start?}], mood?: {baseline, values?, lasts?}, "
+        + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}]}"),
+    },
+  },
+  setClock: {
+    backedBy: "setClock",
+    doc: "Give the story a time of day and a day count, or null to remove it.",
+    args: { clock: req("value", "{times: [\"morning\", \"evening\", \"night\"], start_day?} or null") },
   },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 
@@ -188,6 +202,7 @@ export const READ_TOOLS = {
   readGateOptions: { family: "read", doc: "The operators and a sample value a gate on this quality may use.", args: { key: req("string", "quality key") } },
   readCoverage: { family: "read", doc: "Fields this story does not use yet, and what each would add.", args: {} },
   readGuide: { family: "read", doc: "The author's guide on one topic: what the fields do, a good example, the trap.", args: { topic: req("string", "a guide topic") } },
+  readRecipe: { family: "read", doc: "A step-by-step playbook for one authoring task: the tools in order, what to check after, the traps.", args: { recipe: req("string", "a recipe id") } },
   simulateReachability: { family: "simulate", doc: "Which beats the start can reach, and which lead nowhere.", args: {} },
   simulateWalk: {
     family: "simulate",
@@ -228,6 +243,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newQuest: "constructor; setQuests takes the full list",
   newMilestone: "constructor; setMilestones takes the full list",
   newWidget: "constructor; setWidgets takes the full list",
+  CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

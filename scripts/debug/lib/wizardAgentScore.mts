@@ -67,3 +67,17 @@ export function w5Escapes(before: InstallInventory, after: InstallInventory, dra
     ...(draftMatchesReplay ? [] : ["the draft differs from the replay of the accepted steps"]),
   ];
 }
+
+export interface RecipeTask {
+  id: string;
+  recipe: string;
+  requires: string[];
+}
+
+export function scoreRecipeTask(task: RecipeTask, result: { session: { status: string; steps: Array<{ status: string; call: { tool: string; args: Record<string, unknown> } }> }; validationErrors: number }) {
+  const steps = result.session.steps;
+  const readRecipe = steps.some((step) => step.call.tool === 'readRecipe' && String(step.call.args.recipe ?? '').trim().toLowerCase() === task.recipe && step.status === 'observed');
+  const missing = task.requires.filter((tool) => !steps.some((step) => step.call.tool === tool && KEPT.has(step.status)));
+  const finished = result.session.status === 'done';
+  return { readRecipe, missing, finished, validationErrors: result.validationErrors, pass: readRecipe && !missing.length && finished && result.validationErrors === 0 };
+}

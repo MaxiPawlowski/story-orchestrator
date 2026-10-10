@@ -306,6 +306,13 @@ export const GUIDE_TOPICS = {
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
       + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
   },
+  "living-cards": {
+    title: "Living cards",
+    fields: "roster[].card, player.card, fields, quality, visual, checkpoints[].effects.card",
+    text: "card {fields: {hair: {quality, visual}}} lets a card field change in this chat only: each field binds one non-latching extractor string or enum quality the reader keeps current; "
+      + "a swipe takes it back, a new chat starts from the card. visual sends it to pictures and sprites. checkpoints[].effects.card {owner: {field: value}} sets a field when the beat starts "
+      + "(owner a roster id or player, a value the quality allows). Never a latching or code quality, never two fields on one quality.",
+  },
 } as const satisfies Record<string, GuideTopic>;
 
 export type GuideTopicId = keyof typeof GUIDE_TOPICS;
@@ -390,9 +397,14 @@ export const renderStageGuide = (stage: CopilotStage): string =>
 
 const isTopic = (value: string): value is GuideTopicId => Object.hasOwn(GUIDE_TOPICS, value);
 
+export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {
+  "living-director": "the living story director (v2.8 plan 22)",
+};
+
 export const readGuide = (topic: unknown): string => {
   const typed = typeof topic === "string" ? topic.trim().toLowerCase() : "";
   if (isTopic(typed)) return renderGuideTopic(typed);
+  if (Object.hasOwn(PENDING_GUIDE_TOPICS, typed)) return `Guide topic "${typed}" is kept for ${PENDING_GUIDE_TOPICS[typed]}, which is not in this build yet. Do not author it.`;
   const near = typed ? nearestKey(typed, GUIDE_TOPIC_IDS) : null;
   const known = `Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`;
   if (!typed) return `Name a topic. ${known}`;

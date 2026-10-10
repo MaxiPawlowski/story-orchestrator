@@ -375,9 +375,8 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "character-tutorial", name: "Build a character", area: "authoring", audience: "author",
-    oneLine: "A step-by-step guide to one character: who they are, look, voice, greeting, examples, review.",
-    what: "Walks through one card a step at a time, says why each step matters and can draft a step. The card is created only when you confirm it; "
-      + "the look goes into the story as a change you review.",
+    oneLine: "One character a step at a time: who, look, voice, greeting, examples, review.",
+    what: "Says why each step matters and can draft it. The card is made only when you confirm it; the look is a change you review.",
     where: studioAt("#so-character-tutorial", "Wizard › Build a character"),
     settings: [], guideTopic: "roster", doc: "author/wizard.md", status: "shipped",
   },
@@ -419,9 +418,8 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "ask", name: "Ask", area: "setup", audience: "player",
-    oneLine: "Ask a question about Story Orchestrator, SillyTavern or your story. It only reads.",
-    what: "Ask in Help, in the wizard or with /story ask. It answers from the guide and SillyTavern know-how and points to the setting. "
-      + "While you play it knows only what you have seen; in Author view and the Studio it reads the whole story. It never changes anything.",
+    oneLine: "Ask about Story Orchestrator, SillyTavern or your story. It only reads.",
+    what: "Answers from the guide and SillyTavern know-how. While you play it knows only what you have seen; in Author view it reads the whole story.",
     where: settingsAt("#so-copilot-ask", "Setup › Ask questions"),
     settings: ["copilot.ask"], doc: "setup/README.md", status: "shipped", needs: ["memory-profile"],
     isOn: (settings) => settings.copilot.ask,

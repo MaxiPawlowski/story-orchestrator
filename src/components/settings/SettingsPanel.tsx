@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { askHost } from "@runtime/askEntry";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
@@ -27,7 +28,6 @@ const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
 const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
-const askHost = () => import("@runtime/askHost");
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
 const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));

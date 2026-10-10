@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreAgentRuns, w5Escapes } from './wizardAgentScore.mts';
+import { scoreAgentRuns, scoreRecipeTask, w5Escapes } from './wizardAgentScore.mts';
 
 const floors = { W1: { local: 0.75, harness: 0.9 }, W2: 1, W3: 0.6 };
 const step = (status: string, family: string | null, firstTryValid = true, route = 'local') => ({ status, family, firstTryValid, route });
@@ -31,4 +31,15 @@ test('W5 counts every install change and a draft the accepted steps do not expla
     'persona changed: User -> Rin',
     'the draft differs from the replay of the accepted steps',
   ]);
+});
+
+test('a recipe task passes only when the recipe was read, every required tool was kept, the run finished and the draft validates', () => {
+  const call = (tool: string, status: string, args: Record<string, unknown> = {}) => ({ status, call: { tool, args } });
+  const task = { id: 't', recipe: 'quest-line', requires: ['addQuality', 'setQuests'] };
+  const good = { session: { status: 'done', steps: [call('readRecipe', 'observed', { recipe: 'Quest-Line ' }), call('addQuality', 'accepted'), call('setQuests', 'applied')] }, validationErrors: 0 };
+  assert.equal(scoreRecipeTask(task, good).pass, true);
+  assert.deepEqual(scoreRecipeTask(task, { ...good, session: { ...good.session, steps: good.session.steps.slice(1) } }).readRecipe, false);
+  assert.deepEqual(scoreRecipeTask(task, { ...good, session: { ...good.session, steps: [good.session.steps[0], call('addQuality', 'accepted'), call('setQuests', 'rejected')] } }).missing, ['setQuests']);
+  assert.equal(scoreRecipeTask(task, { ...good, validationErrors: 1 }).pass, false);
+  assert.equal(scoreRecipeTask(task, { ...good, session: { ...good.session, status: 'stopped' } }).pass, false);
 });

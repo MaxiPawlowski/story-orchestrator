@@ -1,4 +1,5 @@
 import { getContext, sendSystemChatMessage } from "@services/STAPI";
+import { askHost } from "./askEntry";
 import type { RuntimeManager } from "./runtimeManager";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { loadChapterKit } from "./chapterPort";
@@ -165,7 +166,7 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   if (command === "ask") {
     const question = parts.slice(1).join(" ");
     if (!question) return show(ASK_USAGE);
-    const host = await import("./askHost");
+    const host = await askHost();
     const outcome = await host.askInChat(manager, question);
     return outcome.ok ? dump(host.answerText(outcome)) : show(outcome.reason);
   }

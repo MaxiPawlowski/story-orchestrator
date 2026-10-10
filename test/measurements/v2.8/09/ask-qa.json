@@ -2,7 +2,7 @@
   "plan": "v2.8 09 live Q&A (tier CL)",
   "declared": "2026-10-10, before any run; floors never retuned (owner 2026-10-10: floors are informational, the feature ships on)",
   "profile": { "name": "deepseek 4.1 flash", "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847", "role": "authoring", "pass": "ask" },
-  "routes": "owner 2026-10-10 (before any run): primary = the authoring role routed to the opencode harness; optional comparison = a stock Gemma 4 31B instruct profile; never Artemis. The DeepSeek profile above is the CL cloud check. Runs wait for the integration phase.",
+  "routes": "owner 2026-10-10 (before any run, final word): DeepSeek is the wizard's model and the primary model for these runs (the profile above, the authoring role's default); never Artemis.",
   "story": {
     "format": 2, "id": "so-v28-09-qa", "title": "SO-V28-09 Ferry", "description": "A night crossing; a synthetic story for the v2.8 09 Ask measurement.",
     "player_intro": "You need to cross the river before dawn.",

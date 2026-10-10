@@ -6,7 +6,7 @@ import { isReasoningEffort, type ReasoningBudget, type ReasoningEffort } from "@
 
 // Which Connection Manager profile each family of passes asks. An unset role uses the memory model
 // profile (the default for every role but authoring, which takes the install's first DeepSeek Chat Completion
-// profile when there is one, owner 2026-10-10); a role set to a profile that no longer exists REFUSES, so a pass
+// profile when there is one); a role set to a profile that no longer exists REFUSES, so a pass
 // never answers from a model the author did not choose.
 
 export type PassProfiles = Partial<Record<PassRole, string>>;

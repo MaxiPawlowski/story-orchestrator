@@ -8,7 +8,7 @@
     "arm": "node scripts/debug/so-wizard-agent.mts run|safety --route native --profile <id> (tools in the request, tool_calls read back through the harness bridge route, every call through checkToolCall)",
     "reference": "--route harness (opencode through the harness plugin)"
   },
-  "owner": "2026-10-10, after run 1 of the control and the arm: the wizard is never measured on Artemis; the primary live route is the opencode harness tool bridge (native tool calls); the optional local comparison is stock Gemma 4 31B instruct. Run 2 and the safety pair wait for the integration phase. The floor above is unchanged.",
+  "owner": "2026-10-10, after run 1 of the control and the arm: DeepSeek is the wizard's model, and native tool calls its route where the profile supports them (built: the authoring role defaults to the install's DeepSeek CC profile, and the agent runs on the profile tool bridge). Never Artemis. Run 2 and the safety pair are owed (31 M19). The floor above is unchanged.",
   "checks": {
     "W1": "first-try-valid calls / calls; control and arm both against the local floor 0.75",
     "W2": "finished stories with 0 validation errors / finished, floor 1.0, every premise finished",

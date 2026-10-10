@@ -10,6 +10,7 @@ export interface WizardDriveInput {
   maxSteps: number;
   provision: 'reject' | 'apply';
   profileId?: string;
+  seed?: Record<string, unknown>;
 }
 
 export const NATIVE_TIMEOUT_MS = 180000;
@@ -107,6 +108,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
     const runner = agent.createAgentRunner({ model: rt.model, environment: (draft: unknown) => rt.getProvisioningEnvironment(draft), harness });
     const ownership = { mint: () => ({}), check: () => ({ ok: true }) };
     store.getState().newDraft();
+    if (input.seed) store.getState().mutate(() => input.seed);
     store.getState().mutate((draft: any) => ({ ...draft, title: input.title }));
     let session = agent.newAgentSession(input.goal, input.mode, { maxSteps: input.maxSteps });
     const accepted: unknown[] = [];

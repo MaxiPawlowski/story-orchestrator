@@ -164,7 +164,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | ~~06~~ | moved to v2.7 18 (2026-10-04); see `v2.7/18-sprite-generation.md` |
 | ~~07~~ | moved to v2.7 19 (2026-10-04); see `v2.7/19-talking-sprites.md` |
 | ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
-| 09 | built on `v2.8-wizard-assistant` 2026-10-10, on by default (owner 2026-10-10): knowledge base, Ask (author + player), Build a character; §F spike run 1 on DeepSeek CC, no build decision; live Q&A owed (31 M18–M20, owner: opencode route, never Artemis) (09 §Gate record) |
+| 09 | built on `v2.8-wizard-assistant` 2026-10-10, on by default (owner 2026-10-10): knowledge base, Ask (author + player), Build a character; guide coverage + six wizard recipes; the wizard defaults to DeepSeek with native tool calls (owner 2026-10-10, never Artemis); §F spike run 1 on DeepSeek CC; live runs owed (31 M18–M20) (09 §Gate record) |
 | 10 | written 2026-10-03 from v2.7 05 decision 1; decided in principle; contract not reviewed by the user; not built |
 | 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17) |
 | 12 | written; decided (option C); not built |

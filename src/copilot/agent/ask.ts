@@ -6,6 +6,7 @@ import { truncate } from "@utils/string";
 import { projectionText, type PlayedProjection } from "@runtime/playerProjection";
 import { ALL_AUDIENCES, findTopic, PLAYER_AUDIENCES, readKnowledge, searchKnowledge, type KnowledgeAudience, type KnowledgeShowMe, type KnowledgeTopic } from "../knowledge/index";
 import { DIAGNOSTIC_GUIDE_TOPIC, readGuide } from "../guideTopics";
+import { readRecipe } from "./recipes";
 import { runDiagnostics } from "../../studio/diagnostics";
 import { runReadTool } from "./readTools";
 import { AGENT_TOOLS, argProblems, renderArg, toolHint, type AgentToolSpec, type ReadToolName } from "./tools";
@@ -24,7 +25,7 @@ export const ASK_ONLY_TOOLS: Record<string, AgentToolSpec> = {
 };
 
 const DRAFT_READ_TOOLS: readonly ReadToolName[] = [
-  "readStory", "readCheckpoint", "readGraph", "readDiagnostics", "readValidation", "readQualityUsage", "readGateOptions", "readCoverage", "readGuide",
+  "readStory", "readCheckpoint", "readGraph", "readDiagnostics", "readValidation", "readQualityUsage", "readGateOptions", "readCoverage", "readGuide", "readRecipe",
   "simulateReachability", "simulateWalk", "lookupCharacters", "lookupLorebooks", "lookupGroups", "lookupBackgrounds",
 ];
 
@@ -86,6 +87,7 @@ export const runAskTool = (context: AskContext, call: AgentToolCall): string => 
   if (context.persona === "player") return call.tool === "readPlayed" ? projectionText(context.projection) : PLAYER_REFUSAL;
   if (call.tool === "readLiveState") return context.liveState?.() ?? "No chat state here: this question was asked outside a chat.";
   if (call.tool === "readGuide") return readGuide(call.args.topic);
+  if (call.tool === "readRecipe") return readRecipe(call.args.recipe);
   if (!context.draft) return NO_DRAFT;
   if (call.tool === "readRecommendations") return recommendations(context.draft, context.lookup);
   return runReadTool(call.tool as ReadToolName, call.args, context.draft, context.lookup);

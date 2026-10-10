@@ -549,6 +549,16 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
+      "site": "src/services/stHost/profileToolBridge.ts#parseArgs",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "a tool call whose arguments are not JSON reads as no arguments; checkToolCall then refuses it with the missing argument, which the model sees"
+    },
+    {
       "site": "src/services/stHost/harnessBridge.ts#answer",
       "kind": 3,
       "template": "catch {} #1",
@@ -1317,6 +1327,16 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/profileToolBridge.ts#nextCall",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author surface: the profile's own failure, named auth/quota/transport, ends the agent session and the runner falls back to the text route"
     },
     {
       "site": "src/services/stHost/harnessBridge.ts#open",

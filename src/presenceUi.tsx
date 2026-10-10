@@ -1,4 +1,5 @@
 import { useSyncExternalStore, type ReactNode } from "react";
+import { askHost } from "@runtime/askEntry";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
@@ -28,7 +29,6 @@ const ActivityPanel = lazyRetry(() => import("./components/panels/ActivityPanel"
 const GuideHost = lazyRetry(() => import("./guide/GuideHost"));
 const SuggestionsPanel = lazyRetry(() => import("./components/panels/SuggestionsPanel"));
 const suggestionsHost = () => import("@runtime/suggestionsHost");
-const askHost = () => import("@runtime/askHost");
 const JournalPanel = lazyRetry(() => import("./components/panels/JournalPanel"));
 const StatSheetPanel = lazyRetry(() => import("./components/panels/StatSheetPanel"));
 const WidgetPanel = lazyRetry(() => import("./components/panels/WidgetPanel"));
