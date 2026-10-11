@@ -175,3 +175,7 @@ on the target drive; nothing was downloaded. Open.
 ### Plan 33 DWPose catalogue — 2026-10-10
 
 Approved in principle, pending the owner's token and a free 3090. No download was run. Model sources lists `yzd-v/DWPose/yolox_l.onnx` and `yzd-v/DWPose/dw-ll_ucoco_384.onnx`, Hugging Face revision `main`; plan 30 resolves the revision and verifies its LFS SHA256 before any download. Configure `modelRoots.poseModels` to the actual `comfyui_controlnet_aux` `ckpts/yzd-v/DWPose` directory (including any AUX_ANNOTATOR_CKPTS_PATH override). The aux node package is installed separately, not shipped. ONNX is supported as a non-pickle format. Import preflights both fingerprints and the server allows only this pair; no estimator runs while either file is absent. P4 downloads remain conditional on P2 missing its S0 floors.
+
+### Plan 33 DWPose download - 2026-10-11
+
+Both files were downloaded through the plan 30 routes (kind `poseModels`, root 0, lane 37) after the owner saved the Hugging Face key: `yolox_l.onnx` sha256 `7860ae79de6c89a3c1eb72ae9a2756c0ccfbe04b7791bb5880afabd97855a411`, `dw-ll_ucoco_384.onnx` sha256 `724f4ff2439ed61afb86fb8a1951ec39c6220682803b4a8bd4f598cd913b1843`, revision `1a7144101628`, both equal to the LFS sha256 and to an independent `sha256sum`. The installed plugin `config.json` gained `modelRoots.poseModels` for the aux node pack folder (backup `C:\dev\backups\story-orchestrator\media-config-before-a3.json`). No P4 file was downloaded. Record: plan 33 Gate record "S0 pilot and DWPose download".
