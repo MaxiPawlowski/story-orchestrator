@@ -18,26 +18,27 @@ Two complementary toolsets. Pick by task, don't mix roles:
 | **Key tools** | `st-session`, `so-scenario`, `so-state current`, `st-actions`, `st-payload`, `so-ui` | `browser_snapshot` (a11y tree), `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`, `browser_evaluate` |
 | **Rule** | Gate validations are scripts with exit codes | Never build multi-step validation chains from MCP calls when a script exists; if you repeat an MCP sequence, promote it to a script |
 
-Start with `node scripts/debug/st-session.mts start` when using scripts and MCP together. Scripts attach to `.debug/session.json`; MCP attaches to `http://127.0.0.1:9222` via the repo `.mcp.json` (`--cdp-endpoint`), so both drive ONE browser. If MCP browser tools fail to connect, start the session and retry. **Warning**: an MCP playwright server configured without `--cdp-endpoint` (e.g. user-level default) silently launches its own isolated Chromium — state seeded there is invisible to the scripts and vice versa. Before any shared-state MCP work, verify with a marker round-trip: MCP `browser_evaluate` sets `globalThis.__x`, then `st-eval.mts "globalThis.__x"` must return it.
+Start with `node scripts/debug/st-session.mts start [--headed]` (also `stop|status|reload`) when using scripts and MCP together. Scripts attach via `<debug dir>/session.json`; MCP attaches to `http://127.0.0.1:9222` via the repo `.mcp.json` (`--cdp-endpoint`), so both drive ONE browser. If MCP browser tools fail to connect, start the session and retry. **Warning**: an MCP playwright server without `--cdp-endpoint` (e.g. user-level default) silently launches its own isolated Chromium. Before any shared-state MCP work, verify with a marker round-trip: MCP `browser_evaluate` sets `globalThis.__x`, then `st-eval.mts "globalThis.__x"` must return it.
 
-Do not use unbounded terminal processes for gates. Debug scripts have hard connection timeouts (`ST_DEBUG_TIMEOUT_MS`, default 30000), `st-payload watch` has a default 60s timeout, and `st-session stop` cleans up the Windows process tree. Use WSL/tmux only for unrelated long-running app servers, not for these validation scripts.
+Do not use unbounded terminal processes for gates. Scripts have hard connection timeouts (`ST_DEBUG_TIMEOUT_MS`, default 30000), `st-payload watch` defaults to 60s, and `st-session stop` cleans up the Windows process tree.
 
 ## Prerequisites
 
-- SillyTavern running at `http://127.0.0.1:8000/` with an LLM backend connected.
+- SillyTavern running at `http://127.0.0.1:8000/` (`ST_URL` overrides) with an LLM backend connected.
 - `npx playwright install chromium` if browser binaries missing.
+- A rebuilt extension runs only after `npm run build && npm run stage` + `st-session.mts reload`.
 
-Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to `.debug/` (gitignored; screenshots in `.debug/screenshots/`).
+Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to the debug dir: `SO_DEBUG_DIR`, default `<SO_LANES_ROOT|C:/dev/so-lanes>/0/debug` (outside ST's `public/`, because logs hold chat text; never `.debug/`, `servedDebugDir.test.mts` fails that).
 
-**Two isolated sessions at once** (v2.3 plan 11's concurrent-load recipe) = `ST_DEBUG_CDP_PORT=<port>` **and** `SO_DEBUG_DIR=<dir>` per process. The port alone is not enough: two processes sharing one `.debug/` also share `session.json` (the second `st-session start` overwrites the first's record), the journey config snapshot and the asset baseline, so the second run's cleanup reads the first's state. `SO_DEBUG_DIR` (unset = `.debug/`) is resolved against the project root unless it is absolute; a custom directory is **not** gitignored, so keep it under `.debug*` or clean it yourself. Guarded by `scripts/debug/lib/connection.test.mts`.
+**Two isolated sessions at once** = `ST_DEBUG_CDP_PORT=<port>` **and** `SO_DEBUG_DIR=<dir>` per process. The port alone is not enough: one debug dir means one `session.json`, journey config snapshot and asset baseline, so the second run's cleanup reads the first's state. A relative `SO_DEBUG_DIR` resolves against the project root. Prefer `st-lanes.mts` lanes (own server, browser and debug dir). Guarded by `scripts/debug/lib/connection.test.mts`.
 
 ## Real-LLM validation (default gate)
 
 Handover sign-off for LLM-consuming paths requires the real model, not `debugResponse` mocks. Mocks (`storyOrchestratorDebug*Response` globals, scenario `extract`/`expand` step values) stay valid for unit determinism and scenario plumbing — never for sign-off.
 
-Prerequisites: extraction Connection Manager profile selected in extension settings (`#story-orchestrator-settings` profile picker; visible as `extraction.settings.profileId` in `so-state.mts current`). If ST is down, no backend connected, or no profile selected: state it at handover and flag the gate NOT green — do not silently fall back to mocks.
+Prerequisites: extraction Connection Manager profile selected (settings panel profile picker; `settingsHome.extraction.profileId` in `so-state.mts current`). If ST is down, no backend connected, or no profile selected: state it at handover and flag the gate NOT green — do not silently fall back to mocks.
 
-Triggering real passes (all route through `callExtractionModel` — real path = profile set + no `debugResponse`):
+Triggering real passes (real path = profile set + no `debugResponse`):
 
 - Main-model generation: `st-actions.mts send <text>` or scenario step `send_generate`.
 - Shared read / memory / arc / canon passes: `storyOrchestratorRuntime.runExtractionNow()` with NO response arg, or scenario `extract` step without `debugResponse`.
@@ -53,21 +54,21 @@ Pass criteria under nondeterminism — assert pipeline behavior, never exact mod
 
 One malformed model response correctly audited/retried = plumbing pass. Repeated hard failures against a contract = real finding (prompt/contract issue) — report it, don't paper over with a mock.
 
-**Judge calibration per provider (AS-17, 2026-10-01).** `so-judge calibrate` and `rescore` take `--provider typesafe|llama-logprob` (default `typesafe`), threaded through the harness (`storyOrchestratorJudge.probe/calibrate/calibrateLoreRelevance/rescore(…, model, provider)`); the summary records `provider`, and a llama run never reaches TypeSafe. A llama calibration's model verdict is the model that answered (`resolved`), never TypeSafe's alias check. No privacy-notice gate exists (CR-J3, user decision 2026-10-01: a configured key is consent), so a lane with a key sends judge calls as soon as the judge is on.
+**Judge.** `so-judge.mts calibrate|rescore` take `--provider typesafe|llama-logprob` (default `typesafe`); the summary records it, a llama run never reaches TypeSafe, and its model verdict is the model that answered (`resolved`). No privacy-notice gate exists (a configured key is consent), so a lane with a key sends judge calls as soon as the judge is on.
 
-**Lanes share one TypeSafe account: split the judge rate across them** (2026-10-01, T0 fixes). Each lane runs its own ST server and so its own judge plugin, with its own per-user limiter (480/min, 2 in flight by default since 2026-10-02: 2 x the documented 1,200/min account / 5 users), while every lane spends the same account. Set `SO_JUDGE_RATE_PER_MIN` (and optionally `SO_JUDGE_MAX_IN_FLIGHT`) in the environment the lane server starts from, e.g. 4 lanes on a 60/min account: `SO_JUDGE_RATE_PER_MIN=15 node scripts/debug/st-lanes.mts start 1` (the server inherits the env; a lane already up keeps its old limit until `st-lanes.mts stop <n>` + `start <n>`). The plugin logs the limit it took at load and reports it in `/status` `limits`. A refusal answers 429 with `Retry-After` (seconds until the oldest call leaves the window; an upstream 429 passes TypeSafe's own `Retry-After` through), and the page then holds every judge call until that time: the burst behind it takes `fallback=busy` without being sent (not metered, status not invalidated). **`so-session start` sets it for you** (T1 fixes, 2026-10-01): the lane's limit is the account rate (`SO_JUDGE_ACCOUNT_RATE_PER_MIN`, default 1,200/min, TypeSafe's documented limit since 2026-10-02; it was an assumed 90 before) x2 split over the running lanes plus this one (up to 5 lanes: 480 each, 6: 400; bounded 10..480), passed to the seed and lane start, recorded in `session.json` `judgeRate` (with the limit the plugin logged at load), and `--judge-rate <n>` overrides it; a lane already up at another limit is a start warning. The old 90 was inferred, never documented: the T0 lanes (60/min each) peaked at 72 sent calls in one minute across lanes with every T0 429 at our own per-lane cap; in T1 (15/min per lane) 22 of the 26 judge 429s inside the recorded call rings sat at that cap or right after a page timeout, and the other 4 came at 6-14 calls/min across the two lanes with a recorded ring (T1-3 kept none), too low to be an account limit. The plugin did not log upstream statuses then, so this is inference from timing, not proof. `/status` `refusals` now splits our limiter's 429s (`local`) from TypeSafe's (`upstreamBusyAnswers`, `upstreamRefused`, `lastUpstream`), and the plugin logs every upstream 429 that reaches the page, so the next session settles the account's real limit. Since 2026-10-02 the plugin also adapts: a real TypeSafe 429 halves its effective rate (floor 10%) and a `Retry-After` holds every call for that long, recovering over about two minutes; `/status` `adaptive` shows the factor and any cool-down. The digest's `findings.md` reports judge health (busy rate by use).
+**Judge rate across lanes.** Each lane runs its own ST server, hence its own judge plugin and limiter, while all spend one TypeSafe account (`SO_JUDGE_ACCOUNT_RATE_PER_MIN`, default 1,200/min). Per-user default: 2 x account / 5 = 480/min with ST accounts on, the whole account with them off. Override in the lane server's environment: `SO_JUDGE_RATE_PER_MIN=15 node scripts/debug/st-lanes.mts start 1` (also `SO_JUDGE_MAX_IN_FLIGHT`; a running lane keeps its limit until `stop <n>` + `start <n>`). `so-session start` sets it for you (account x2 split over running lanes + this one, bounded 10..480, `--judge-rate <n>` overrides, recorded in `session.json` `judgeRate`). A call over the window waits up to 2 s, then 429 + `Retry-After`; the page then holds judge calls and the burst behind takes `fallback=busy` unsent (not metered). A real TypeSafe 429 halves the plugin's effective rate (floor 10%) and recovers over ~2 min. `/status` shows `limits`, `adaptive`, and `refusals` split `local` vs upstream.
 
-**The plugin allows 60 calls per minute per user, and a calibration is a burst** (2026-10-01, AS-16 re-measure). Stall alone sends 47 calls in under 8 s, so two uses back to back overrun the window and the rest come back `fallback=busy` in ~5 ms (refused locally, never sent upstream). Wait 65 s between uses, and give a use over 60 calls `--chunk <rows>` (scene: `--chunk 40`, two slices 61 s apart). `calibrate` now refuses to record a run with any `busy` row. The off-page recorder (`scripts/spike/typesafe/calibrate-node.mts`) paces itself the same way and builds the handler with `accountsEnabled: false`: off-page the plugin cannot read ST's accounts flag, treats accounts as on and finds no key (every row `fallback=error`, which used to write an EMPTY golden).
+**Calibration is a burst.** `so-judge calibrate` refuses to record a run with any `busy` row; the harness paces at 60 calls/min, so give a use over 60 rows `--chunk <rows>` (slices 61 s apart) and wait ~65 s between uses. The off-page recorder `scripts/spike/typesafe/calibrate-node.mts` paces the same way and builds the handler with `accountsEnabled: false` (off-page the plugin cannot read ST's accounts flag and would find no key).
 
-**Local 3090 controller: the context it serves is 32768, and it refuses past it (v2.8 31 F20, fixed 2026-10-10).** The gateway (`server-plugin/story-orchestrator-gpu/broker/backend.mjs` `forRequest`, run by `scripts/local/controller.mjs` and the GPU plugin alike) counts each completion with the backend's `/tokenize` (chat requests through `/apply-template`) and needs prompt + output under the loaded profile's `--ctx-size`; over `maxContext` (32768 on the 3090: `normal`/`sharing` spill to the CPU at 0.5-0.7 tok/s) it answers 400 `exceed_context_size_error` and loads nothing. The old `+256` margin is gone: it, not ST, made the turn-72 request (prompt + output 32,592) overflow, since ST already keeps prompt + `token_padding` 64 under `max_context - amount_gen` and counts every story block (checked again 2026-10-09: ST counts extension prompts after the interceptors, script.js:4560-4925). **Rule:** on a lane pointed at the controller set ST `max_context` 32768 (the shipped Artemis presets say 98304, and selecting the profile re-applies it, so set it after `/profile`), or tick Derive context size from backend: `/props` reports the served n_ctx. A lane left at 98304 gets the 400 and the `context-over-server` check. The memory model's budget is clamped to the server's n_ctx (`stHost/servedContext.ts`). Repro: `test/scenarios/live-f20-long-chat.json` (`--sandbox --group "Group: Arin, DM Narrator"`, lane started with `--allow-local`). The pods' 98K profiles are unaffected.
+**Local 3090 controller serves 32768 context and refuses past it** (v2.8 31 F20). The gateway (`server-plugin/story-orchestrator-gpu/broker/backend.mjs` `forRequest`, run by `scripts/local/controller.mjs` and the GPU plugin) counts each completion with the backend's `/tokenize` (chat via `/apply-template`) and answers 400 `exceed_context_size_error` when prompt + output pass `maxContext`. ST already keeps prompt + `token_padding` (64) under `max_context - amount_gen` and counts extension prompts after the interceptors (script.js:4560-4925). **Rule:** on a lane pointed at the controller set ST `max_context` 32768 after `/profile` (the shipped Artemis presets say 98304 and selecting the profile re-applies it), or tick Derive context size from backend. A lane left at 98304 gets the 400 and the `context-over-server` check. Repro: `test/scenarios/live-f20-long-chat.json` (`--sandbox --group "Group: Arin, DM Narrator"`, lane started with `st-lanes.mts start <n> --allow-local`).
 
 ## Script reference
 
 ### State & data
 
 ```bash
-node scripts/debug/so-state.mts current        # primary runtime snapshot: chatId, groupId, selectedStoryHash, activeCheckpointId, boundary, visitedAnchors, blackboard, versions, latched, requirements, firedNpcReplies, extraction (settings, scheduler, auditCount, lastAudit incl. prompt/rawResponse/acceptedDeltas)
-node scripts/debug/so-state.mts current --expect bb.player_has_key=true
+node scripts/debug/so-state.mts current        # primary snapshot: chatId, groupId, selectedStoryId, storyIdentity, settingsHome, activeCheckpointId, boundary, blackboard, latched, requirementsReady, extraction counts, memory, stagecraft, effects ledger, background
+node scripts/debug/so-state.mts current --expect bb.player_has_key=true   # also --expect-absent path.key
 node scripts/debug/so-state.mts all --full
 node scripts/debug/so-library.mts              # v2 story library (extensionSettings["story-orchestrator"].v2Stories)
 node scripts/debug/so-library.mts <id>         # full v2 story record
@@ -76,11 +77,11 @@ node scripts/debug/so-library.mts wipe-chat-meta [--id i]     # delete chat_meta
 node scripts/debug/st-eval.mts "<js>"          # run async JS in the ST page; ctx + rt in scope; bare expression or statements with return
 node scripts/debug/st-eval.mts --file <path>   # same, snippet from file — replaces throwaway one-off .mts scripts
 node scripts/debug/st-context.mts [keys...]    # getContext() summary or specific keys (chatId mainApi ...)
-node scripts/debug/st-extension-settings.mts [--all]
+node scripts/debug/st-extension-settings.mts [name|--all]
 node scripts/debug/st-chat.mts [count|metadata]  # last N messages (default 10) or chat_metadata
 ```
 
-`so-state` reads persisted `chatMetadata.story_orchestrator` (keyed by `selectedStoryHash`) — live in-page values between persist cycles may differ. Raw blob also visible via `st-chat.mts metadata`.
+`so-state` reads persisted `chatMetadata.story_orchestrator` (`selectedStoryId`, `stories[id]`) — live in-page values between persist cycles may differ. Raw blob also via `st-chat.mts metadata`.
 
 ### Actions
 
@@ -90,28 +91,30 @@ node scripts/debug/st-actions.mts wait-idle [timeout_ms]        # default 30s
 node scripts/debug/st-actions.mts send <text>                   # triggers real LLM generation!
 node scripts/debug/st-actions.mts send-compact <text>           # /send compact=true, no generation
 node scripts/debug/st-actions.mts trigger <member>              # draft a specific group member (/trigger await=true; real generation!)
-node scripts/debug/st-actions.mts slash "/checkpoint list"
-node scripts/debug/st-actions.mts checkpoint <id_or_index|list|eval>
+MSYS_NO_PATHCONV=1 node scripts/debug/st-actions.mts slash "/cp activate <id>"   # runs inside Author view, restores player mode
+node scripts/debug/st-actions.mts checkpoint list               # = /cp list
 node scripts/debug/st-actions.mts swipe <messageId> [swipeId]
 node scripts/debug/st-actions.mts edit <messageId> <text>
 node scripts/debug/st-actions.mts delete <messageId>
 node scripts/debug/st-actions.mts wi-status <book> <comment>
 ```
 
-For deterministic swipe tests, use an existing multi-swipe message. The command fails instead of overswiping into real generation.
+`/cp` (alias `/checkpoint`): `list | state | activate <id> | set <quality> <value> | converge | chapters | seal | unseal <id>`, debug `extract|expand [response]`; author-only. In Git Bash prefix any leading-slash arg with `MSYS_NO_PATHCONV=1`. For deterministic swipe tests use an existing multi-swipe message; the command fails instead of overswiping into real generation.
 
 ### Scenarios
 
 ```bash
-node scripts/debug/so-scenario.mts run test/scenarios/plan03-extraction.json --sandbox
+node scripts/debug/so-scenario.mts run test/scenarios/plan03-extraction.json --sandbox [--keep] [--group <id|name>]
 node scripts/debug/so-mutation-check.mts
 node scripts/debug/so-runtime-check.mts
 node scripts/debug/so-extraction-check.mts
 ```
 
-Steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `swipe`, `edit`, `delete` (tail-truncate: cuts the chat at the id; a middle delete is `host_delete`, a range `cut`), `wait`, `expect`, plus v2.4's `host_delete`, `cut`, `emit_generation`, `ext_setting`, `record_state` + `expect.stateEquals`, `inject_script`. `--sandbox` starts `/newchat`; cleanup removes imported stories and best-effort deletes the scratch chat unless `--keep` is passed.
+The vocabulary is closed in `scripts/debug/lib/scenarioSchema.mts` (`STEP_VERBS`, `EXPECT_KEYS`, `WAIT_KEYS`, `UI_ACTIONS`): steps include `import_story`, `select_story`, `send` (`/send compact`, generates nothing), `send_generate`, `slash`, `extract`, `expand`, `eval`, `ui`, `stagecraft`, `swipe`, `edit`, `delete` (tail-truncate), `host_delete`, `cut`, `wait`, `expect`, `expect_ui`, `record_state`, `branch_create`, `solo_chat`. `--sandbox` starts `/newchat` and cleanup removes imported stories and the scratch chat unless `--keep`; pin `--group` on a shared install.
 
-Real-LLM scenarios: `test/scenarios/live-plan*.json` + `plan08-hygiene.json` + `live-memory-mirror.json` (the per-chat memory WI book: created without a reload, chat-bound, fires in a real generation; clean up with `so-assets.mts remove --marker SO-MIRROR`) + `live-curator-write.json` (J8's story and lorebook. It accepts whatever the real curator proposes and checks the server file, plus every main-generation prompt via `GENERATE_AFTER_DATA`, against a before-control. The author advances to `tavern` before the pass, because the curator reads only the checkpoint and canon, never the chat. It needs the curator on in review mode; clean up with `--marker SO-J8`) run every step against the real backend (no `debugResponse`). Tolerant wait verbs for nondeterminism: `acceptedDelta`, `reconciliationEvents`, `memoryEntries` (+`memoryTier`), `arcsSummarized`, `canonPresent`. After real `send_generate`, wait on `boundary`, not `idle` — group activation can lag and `idle` passes before generation starts.
+Real-LLM scenarios: `test/scenarios/live-*.json` + `plan08-hygiene.json`, all steps against the real backend. `live-memory-mirror.json` (per-chat memory WI book; clean up `so-assets.mts remove --marker SO-MIRROR`), `live-curator-write.json` (accepts whatever the real curator proposes, checks the server file and every main prompt via `GENERATE_AFTER_DATA`; needs the curator in review mode; clean up `--marker SO-J8`). Tolerant waits: `acceptedDelta`, `reconciliationEvents`, `memoryEntries` (+`memoryTier`), `arcsSummarized`, `canonPresent`, `checkpointIn`. After a real `send_generate`, wait on `boundary`, not `idle` — group activation can lag.
+
+Other runners (detail in `.claude/rules/debug-scripts.md`): `so-journey.mts`, `so-run-header.mts capture|diff`, `so-journal.mts`, `so-payload-golden.mts`, `st-lanes.mts`, `adolion-fresh.mts`, `so-pod.mts`, `so-evidence.mts`.
 
 ### Test assets (wizard / curator runs)
 
@@ -121,75 +124,81 @@ node scripts/debug/so-assets.mts remove --marker SO-J9        # delete + leak re
 node scripts/debug/so-assets.mts assert-clean --marker SO-J9
 ```
 
-The scope is marker-prefixed names, plus the created-asset ledger (`wizardSessions[].applied`) of **test** sessions only, i.e. keys starting with the slugged marker (`so-j9-wizard`). A real author's wizard sessions and their assets are never read, deleted or cleared. A journey (`cleanup.removeCreatedAssets`, `assets` steps) also passes the `snapshotAssets` baseline it took before setup. That counts ledger entries recorded during the run in any session, spares assets that existed before (`protected`), and drops only this run's own sessions. `list` output: `ledger` (name, session, `test-session`/`this-run`), `sessions`, `protected`, plus `baselineUntrusted` when a baseline was refused. An empty `--marker` is refused.
+Scope: marker-prefixed names plus the created-asset ledger (`wizardSessions[].applied`) of **test** sessions only (keys starting with the slugged marker, `so-j9-wizard`). A real author's sessions and assets are never touched. A journey also passes its `snapshotAssets` baseline: ledger entries recorded during the run count, assets that existed before are spared (`protected`). `list` reports `ledger`, `sessions`, `protected`, and `baselineUntrusted` when a baseline was refused. An empty `--marker` is refused.
 
-**An empty baseline is "unknown", not "nothing".** `snapshotAssets` marks one untrusted when the settings root is absent or ST has not listed characters/lorebooks yet, and cleanup then falls back to marker-only scope. Before that guard existed, an empty baseline classified every foreign wizard session's ledger as `this-run` and deleted real user assets while reporting `clean:true`. Each run writes its baseline to `.debug/so-journey-asset-baseline.json` — read it first when cleanup deleted something it should not have.
+**An empty baseline is "unknown", not "nothing"**: untrusted when the settings root is absent or ST has not listed characters/lorebooks yet; cleanup then falls back to marker-only scope. Each run writes it to `<debug dir>/so-journey-asset-baseline.json` — read it first when cleanup deleted something it should not have.
 
 ### Payloads
 
 ```bash
-node scripts/debug/st-payload.mts arm
-node scripts/debug/st-payload.mts last
+node scripts/debug/st-payload.mts arm [--persist --out <f.jsonl>]
+node scripts/debug/st-payload.mts last [n] [--member <name>]
 node scripts/debug/st-payload.mts watch 3 --timeout-ms 60000
 ```
 
-Payload capture hooks fetch/XHR in the shared page and records recent generation payloads with group draft member attribution when ST emits it.
+Capture hooks fetch/XHR in the shared page and records generation payloads with the drafted member; `--persist` survives reloads and also writes `kind: "response"` rows.
 
 ### Human sessions (v2.6 plan 14)
 
 ```bash
 node scripts/debug/so-session.mts validate                     # charters.json vs the pinned story index
 node scripts/debug/so-session.mts cards --write                # regenerate docs/plans/v2.6/14-cards.md
-node scripts/debug/so-session.mts start T1-2 --lane 4          # seed, settings, open, run header, tails; prints the card
-node scripts/debug/so-session.mts start T3-1 --lane 4 --allow-comfy   # only after confirming the shared ComfyUI is free
-node scripts/debug/so-session.mts stop [test/sessions/T1/T1-2-1] [--stop-lane]
-node scripts/debug/so-session.mts digest [test/sessions/T1/T1-2-1]    # findings.md + findings.json
+node scripts/debug/so-session.mts start T1-2 --lane 4          # seed, settings, pin, open, run header, tails; prints the card
+node scripts/debug/so-session.mts start T3-1 --lane 4 --media on --allow-comfy   # only after confirming the shared ComfyUI is free
+node scripts/debug/so-session.mts stop [<dir>] [--stop-lane]
+node scripts/debug/so-session.mts reverify <dir>               # re-check a stopped session's artifacts
+node scripts/debug/so-session.mts digest [<dir>]               # findings.md + findings.json
 node scripts/debug/so-session.mts index                        # rebuild test/sessions/adolion-stories.json + 14-cards.md after a pin bump
-node scripts/debug/so-session.mts lane lease|archive <n>       # lane restore <n> <archiveDir>: keep a leased lane's chats across reseeds
-node scripts/debug/so-session.mts rating-pack [C3|R4|Q-M|W6]   # rebuild the blind pack under test/sessions/rating-pack/<gate>/
+node scripts/debug/so-session.mts lane lease|archive <n>       # lane restore <n> <archiveDir>
+node scripts/debug/so-session.mts rating-pack [C3|R4|Q-M|W6]   # rebuild test/sessions/rating-pack/<gate>/
 ```
 
-Fail closed (plan 15 AS-21..29, `docs/plans/v2.6/15-review.md` "Review fixes AS (session tooling)"):
+Fail closed (plan 15 AS-21..29, `docs/plans/v2.6/15-review.md`):
 
-- **Start** refuses (exit 2, `start-failed.json`) on any blocking discrepancy: lane build, settings read-back, routing pin, page, away recap, run header, or a tail that never wrote its `<out>.ready` ack. It also refuses a card whose pinned story lacks the features it declares (`requires.features`, e.g. `memberGuidance`, chapters; `validate` lists them) and a leased lane it would reseed.
-- **Settings** come from `test/sessions/baseline-settings.json` (versioned; judge on, images/sprites off, spikes off) with the root→card overrides merged over it, applied over the lane's settings keeping only install-owned paths, then read back and asserted; recorded in `session.json`. `src/runtime/sessionBaseline.test.ts` fails when `defaultGlobalSettings` gains a leaf the baseline does not state.
-- **Swipes**: ST's own `swipes` setting is off in the real install; `adolion-fresh seed` switches it on in the lane copy before the server starts (recorded in the seed report's `stripped.swipes`, checked by the inventory), and `start` refuses a lane whose `#swipes-checkbox` does not read back on (`session.json` `host.swipes`).
-- **Media**: `--media off` is the default (no-media variant): ComfyUI calls in the lane log fail the session and the card's image/sprite rubric rows are `unexercised` (a score there is refused). `--media on` needs `--allow-comfy`.
-- **Start popups**: `start` answers the chapter-jump confirm a `startAt` jump raises with "Jump without sealing" (recorded in `session.json` `startPopups`) and fails closed on any other popup instead of hanging.
-- **Stop** order: end export → run-header diff (`--owned <session chats>`: growth in a chat the session does not own blocks; group chats the session created are allowed as `+group/chat`, chats it deleted through `delete-chat` as `-group/chat`; a card's `headerAllow` declares the rest, item by item for lists (`inventory.v2Stories:+id`; `:~id` = that story's version moving up, one `id@old` out and one `id@new` in; tokens `{story}` (the story the session's chats play) and `{story-books}` (the books its wizard session created) resolve at stop, into `session.json` `declaredChanges`), so an undeclared removal still blocks; a `wizardAssets` card also gets exactly its wizard ledgers' additions: a new session's whole `applied`, an existing session's growth against the start header's `inventory.wizardApplied`, new groups by id (`inventory.groups` is `id@name`) that an applied createGroup step, the ledger, or an adopted chat playing a story the run created names; comma items reach the diff through `run-header-allow.json` (`--allow-file`); `--served-identity`: with `bundle.served.sha256` identical at both ends, `build.head`, `build.manifest.*` and the bundle-mismatch warning are allowed and recorded in `session.json` `warnings`, while a changed served bundle still blocks) → ask each tail to drain → wait for `<out>.drained` → kill → verify. A failed diff, missing ack, missing JSONL or missing required artifact marks the session INVALID (exit 1); `digest` exits 1 on an invalid session.
-- **Required evidence** per charter (`requiredArtifacts`): every chat seen or created since `chatsBefore` (`chat-full-*`, `runtime-<chat>.json` = the whole `chat_metadata.story_orchestrator`), `transcripts.jsonl` with swipes, `wizard-drafts.json`, flag context at event time, plus chapter records, folded payloads and harvested reasoning whenever the effective settings enable them.
-- **Blind rating packs** (C3/T3-1, R4/T6-1, Q-M/T2-1, W6/T5-1): live verbs take `--arm <label> [--gate <g>]`; stop rebuilds paired, shuffled, unlabelled packs with the arm key in a separate file. `gateStatus` stays `pending`; only the user's verdicts can move a gate.
-- **Lanes**: `plan` schedules from the continuation graph; a lane holding a chat a later card continues is leased (`<lanes>/<n>/lease.json`). `adolion-fresh seed` refuses a leased lane unless `--for <dependent>` or `--break-lease`; `lane archive|restore` moves `data`, `adolion-fresh` and the lease aside and back.
+- **Start** refuses (exit 2, `start-failed.json`) on any blocking discrepancy: lane build, settings read-back, routing pin, page, away recap, run header, preset overlay, or a tail that never wrote its `<out>.ready` ack. Also a card whose pinned story lacks its `requires.features`, and a leased lane it would reseed.
+- **Settings** = `test/sessions/baseline-settings.json` (versioned; images/sprites off) + root→card overrides, applied keeping install-owned paths, read back and asserted, recorded in `session.json`. `src/runtime/sessionBaseline.test.ts` fails when `defaultGlobalSettings` gains a leaf the baseline does not state.
+- **Swipes**: `adolion-fresh seed` switches ST's `swipes` on in the lane copy; `start` refuses a lane whose `#swipes-checkbox` does not read back on (`session.json` `host.swipes`).
+- **Media**: `--media off` default; a ComfyUI call in the lane log fails the session and image/sprite rubric rows are `unexercised`. `--media on` needs `--allow-comfy`.
+- **Start popups**: the chapter-jump confirm of a `startAt` jump is answered "Jump without sealing" (`session.json` `startPopups`); any other popup fails closed.
+- **Stop** order: export → run-header diff → ask each tail to drain → wait for `<out>.drained` → kill → verify. The diff runs `--owned <session chats>` (growth in a chat the session does not own blocks; chats it created/deleted are allowed as `+group/chat` / `-group/chat`). A card's `headerAllow` declares the rest item by item (`inventory.v2Stories:+id`; `:~id` = only that story's library copy changes, one `id@old` out, one `id@new` in; tokens `{story}`, `{story-books}` resolve at stop into `session.json` `declaredChanges`; comma items go through `--allow-file`). A `wizardAssets` card also gets exactly its wizard ledgers' additions (new session's whole `applied`, an existing session's growth against `inventory.wizardApplied`, new groups by id). `--served-identity`: with `bundle.served.sha256` identical at both ends, build-head/manifest drift is allowed and recorded in `warnings`. A failed diff, missing ack/JSONL or missing required artifact marks the session INVALID (exit 1); `digest` exits 1 on it.
+- **Required evidence** (`requiredArtifacts`): every chat seen or created since `chatsBefore` (`chat-full-*`, `runtime-<chat>.json` = the whole `chat_metadata.story_orchestrator`), `transcripts.jsonl` with swipes, `wizard-drafts.json`, flag context, plus chapter records, folded payloads and harvested reasoning when enabled.
+- **Blind rating packs** (C3, R4, Q-M, W6): live verbs take `--arm <label> [--gate <g>]`; stop rebuilds paired, shuffled, unlabelled packs with the key in a separate file. Only the user's verdicts move a gate.
+- **Lanes**: `plan` schedules from the continuation graph; a lane holding a chat a later card continues is leased (`<lanes>/<n>/lease.json`). `adolion-fresh seed` refuses it unless `--for <dependent>` or `--break-lease`.
 
-Autonomous driver (plan 15 Part B, Claude plays the card; full per-card sequence in `docs/plans/v2.6/14-autonomous-runbook.md`):
+Autonomous driver (plan 15 Part B; per-card sequence in `docs/plans/v2.6/14-autonomous-runbook.md`):
 
 ```bash
 node scripts/debug/so-session.mts plan --write                 # lanes 1-4, continuations pinned to their predecessor's lane
 node scripts/debug/so-session.mts start T0-2 --age 24          # lane from lane-plan.json; --profile, --orchestrator <regex>
-node scripts/debug/so-session.mts turn <dir> "<line>"          # the OPEN chat (refused unless it is a session chat; --chat <id> names one): send + every reply of the round, again while the scheduler's wait let a new draft start + scheduler idle -> turns.jsonl
+node scripts/debug/so-session.mts turn <dir> "<line>"          # the OPEN chat (refused unless a session chat; --chat <id>): send, every reply of the round, scheduler idle -> turns.jsonl
 node scripts/debug/so-session.mts swipe-new|regen <dir>        # also: edit <dir> <mesid|last> "<text>", delete <dir> <mesid|last>
-node scripts/debug/so-session.mts switch-chat-mid-gen <dir> "<line>" --to <chatId>   # and reload-mid-gen <dir> "<line>" (reloads only once the line is on disk)
-node scripts/debug/so-session.mts delete-chat <dir> <chatId> --book keep|delete|escape   # export runtime+transcript first, /delchat, answer the lorebook prompt; stop declares the removal
-node scripts/debug/so-session.mts flag <dir> "<note>"          # drawer flag with forced clicks, /story flag fallback
+node scripts/debug/so-session.mts switch-chat-mid-gen <dir> "<line>" --to <chatId>   # and reload-mid-gen <dir> "<line>"
+node scripts/debug/so-session.mts delete-chat <dir> <chatId> --book keep|delete|escape   # export first, /delchat, answer the lorebook prompt
+node scripts/debug/so-session.mts flag <dir> "<note>" [--via drawer|slash]
 node scripts/debug/so-session.mts shot <dir> <label>           # shots/NNN-<label>.png
-node scripts/debug/so-session.mts adopt <dir>                  # wizard cards: record the open chat for T5-3/T5-4
-node scripts/debug/so-session.mts goal <dir> "<premise>" --mode review|auto-draft --new --go   # wizard cards (no chat yet): Agent entry, goal, Plan it, Go, wait until it settles -> turns.jsonl
-node scripts/debug/so-session.mts agent <dir> state|go|continue|new-goal|mode <step|review|auto-draft>   # one Agent pane control (so-ui.mts agent-* does the same without a session)
-node scripts/debug/so-session.mts score <dir> <row> <score> "<note>" --evidence turns.jsonl:12   # INVALID session: refused unless --provisional (row marked provisional)
+node scripts/debug/so-session.mts age <dir> <hours>            # backdate the open chat's last session and reload
+node scripts/debug/so-session.mts adopt <dir>                  # wizard cards: record the open chat as the session's chat
+node scripts/debug/so-session.mts goal <dir> "<goal>" --mode review|auto-draft --new --go   # wizard Agent entry, no chat needed
+node scripts/debug/so-session.mts agent <dir> state|go|continue|new-goal|mode <step|review|auto-draft>   # so-ui.mts agent-* without a session
+node scripts/debug/so-session.mts mem <dir> pin|unpin|lock|unlock|exclude|edit <id|"text"> ["<new text>"]
+node scripts/debug/so-session.mts setting <dir> <path> <json>  # one install-wide setting mid-session
+node scripts/debug/so-session.mts score <dir> <row> works|annoying|broken|not-noticed "<note>" --evidence turns.jsonl:12   # INVALID session: needs --provisional
 node scripts/debug/so-session.mts budget | runbook --write
 ```
 
-`start` pins the routing before opening anything (`page-pin.json`): it selects the main profile, probes it with a tiny call (a dead backend fails the start), and checks every orchestrator role routes to a DeepSeek profile, the judge state and key, and each role's reasoning effort. `stop` now captures the live end state BEFORE killing the tails (`chat-full-<chat>.json` with swipes, swipe ids, send dates and `extra.reasoning`; `evidence-<chat>.json` with memory, chapters, canon, memory queue, epistemic, ledger, model and judge call rings, stagecraft, talk decisions, inline timeline, journal, away recap; `snapshot-<chat>.json`), runs `assert-player-clean` for player cards into `rubric.json`, meters DeepSeek and judge spend into `session.json` and `test/sessions/BUDGET.md`. `st-payload arm --persist` also writes `kind: "response"` rows (status, content type, body up to 200k chars, `requestIndex`), which is where DeepSeek `usage` comes from.
+`start` pins routing first (`page-pin.json`): selects and probes the main profile (a dead backend fails the start), checks every orchestrator role routes to DeepSeek, the judge state and key, and each role's reasoning effort. `stop` captures the live end state BEFORE killing the tails (`chat-full-<chat>.json` with swipes and `extra.reasoning`; `evidence-<chat>.json` with memory, chapters, canon, queues, call rings, stagecraft, talk, inline, journal, recap; `snapshot-<chat>.json`), runs `assert-player-clean` for player cards into `rubric.json`, and meters DeepSeek and judge spend into `session.json` and `test/sessions/BUDGET.md` (DeepSeek `usage` comes from the payload tail's response rows).
 
-A session dir holds `session.json` (lane, pids, chats, build, `playFrom`), `run-header-start/end.json` + `run-header-diff.txt`, `journal.jsonl`, `payloads.jsonl`, `console.jsonl`, the tails' `*.log`, and after `stop` `journal-<chat>.json|md`, `chat-<chat>.json`, `state-end-<chat>.json` and `rubric.json`. `digest` reports flags with +-3 turns and these anomaly kinds, each with `path:line`: stall (10 boundaries without a transition at a checkpoint with exits), extraction-rejected, empty-private-block, lore-force-lost, lore-constant-missed, judge-fallback (not `disabled`), save-lost, unexpected-jump (not an authored edge, or a manual move), rollback, console-error (extension only), model-call-failure, harness-error. Its draft rows go to `docs/plans/v2.6/14-findings.md` after the review. Fixtures: `scripts/debug/fixtures/session/{clean,planted}`.
+A session dir holds `session.json` (lane, pids, chats, build, `playFrom`), `run-header-start/end.json` + `run-header-diff.txt`, `journal.jsonl`, `payloads.jsonl`, `console.jsonl`, `turns.jsonl`, the tails' `*.log`, and after `stop` `journal-<chat>.json|md`, `chat-<chat>.json`, `state-end-<chat>.json`, `rubric.json`. `digest` reports flags with +-3 turns and anomalies with `path:line`: stall, extraction-rejected, empty-private-block, lore-force-lost, lore-constant-missed, judge-fallback (not `disabled`), save-lost, unexpected-jump, rollback, console-error (extension only), model-call-failure, harness-error. Fixtures: `scripts/debug/fixtures/session/{clean,planted}`.
 
 ### UI
 
 ```bash
-node scripts/debug/so-ui.mts all|settings|drawer|open-settings|open-studio|studio|studio-tab <label>|screenshot [label]
+node scripts/debug/so-ui.mts all|settings|drawer|open-drawer|drawer-tab <label>|open-settings|open-studio|studio|studio-tab <label>|screenshot [label]
 ```
 
-Selectors: settings root `#story-orchestrator-settings`, story dropdown `#story-library-select`, arbiter frequency `#story-arbiter-frequency`, drawer = ST top-bar drawer `#so-drawer` with content `#drawer-manager` (open when `.openDrawer`; `so-ui open-drawer` opens it), HUD strip `#so-hud` above the chat input, **Open Studio button `#so-open-studio`, v2 Studio modal `#so-studio-modal`** (portaled to `document.body`; tabs `[role="tab"]`; `studio` verb reports title/active tab/error+issue badges; `studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>` switches). The button lives inside ST's collapsed inline-drawer — `so-ui open-studio` clicks it; if driving by hand, the button may be `display:none` until the drawer is expanded. Drawer tabs depend on the per-chat "Author view" toggle (`extras.ui.authorView`): player mode shows Overview/Memory only — flip via the drawer-header checkbox or `rt.setUiSettings({authorView:true})` before asserting on Blackboard/Scheduler/Payload.
+Also `pipeline`, `assert-player-clean`, `inline [mesid]`, `inline-level <n>`, `hit-test`, `briefing`, `player-setup`, wizard (`open-wizard`, `wizard-run`, `wizard-apply`, ...), agent (`agent-accept`, `agent-apply`, ...), curator (`stagecraft`, `curator-accept|reject`), `memory-queue`, `model-calls`; `node scripts/debug/so-ui.mts --help` lists all.
+
+Selectors: settings root `#story-orchestrator-settings`, story dropdown `#story-library-select`, drawer = ST top-bar drawer `#so-drawer` with content `#drawer-manager` (open when `.openDrawer`), HUD `#so-hud`, Open Studio `#so-open-studio`, Studio modal `#so-studio-modal` (native `<dialog>` portaled to body; `studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>`). The Studio button sits inside ST's collapsed inline-drawer — `so-ui open-studio` handles it. Drawer tabs depend on per-chat Author view (`extras.ui.authorView`): player mode shows Overview/Memory only — flip via the drawer checkbox or `rt.setUiSettings({authorView:true})` before asserting on Blackboard/Scheduler/Payload. ST rewrites `.menu_button` roles to `button`, so select drawer tabs via `#drawer-manager [role="tablist"] button`.
 
 ### Navigation
 
@@ -198,26 +207,26 @@ node scripts/debug/st-navigation.mts recent-group        # open most recent grou
 node scripts/debug/st-navigation.mts new-group-session   # new session for current group
 node scripts/debug/st-navigation.mts recent-group-new    # both — run before destructive tests
 node scripts/debug/st-navigation.mts list-entities       # all groups (id, members, chat count) + characters (index, name, avatar)
-node scripts/debug/st-navigation.mts open-group "<id|name>"      # open a specific group
-node scripts/debug/st-navigation.mts open-character "<name>"     # open a character (via /go — no DOM dependency)
+node scripts/debug/st-navigation.mts open-group "<id|name>"
+node scripts/debug/st-navigation.mts open-character "<name>"     # via /go
 node scripts/debug/st-navigation.mts list-chats          # chat ids of the open group/character
-node scripts/debug/st-navigation.mts open-chat "<chatId>"        # open a specific chat of the current entity
-node scripts/debug/st-navigation.mts new-chat            # fresh chat for current group OR character (/newchat)
+node scripts/debug/st-navigation.mts open-chat "<chatId>"        # a chat of the current entity
+node scripts/debug/st-navigation.mts new-chat            # fresh chat for the CURRENT entity (/newchat) — open-group first
 # all accept --keep-open
 ```
 
-Standard test loop: `open-group` → `new-chat` → seed via `st-eval` → `send`/`trigger` → assertions → `/delchat` + `so-library remove` + `wipe-chat-meta`.
+Standard test loop: `open-group <id>` → `new-chat` → assert `ctx.groupId` → seed via `st-eval` → `send`/`trigger` → assertions → `/delchat` + `so-library remove` + `wipe-chat-meta`. Stories run in group chats only.
 
 ### Gate check scripts (assert-style, self-contained)
 
 ```bash
-node scripts/debug/so-runtime-check.mts      # plan 02: imports inline test story, sets quality, activates checkpoint, checks effects
-node scripts/debug/so-extraction-check.mts   # plan 03: imports story, /send compact, runs deterministic extraction via debugResponse
-node scripts/debug/so-turn-types-check.mts   # TurnBridge types: /sd image + new-group greetings + solo greeting reopen/swipe commit nothing, a real reply commits exactly one
-node scripts/debug/so-responsive.mts --surface all   # 24 viewports (320x568 → 2560x1440): our panels' horizontal overflow + any control outside the viewport. NEEDS NO BACKEND
+node scripts/debug/so-runtime-check.mts      # imports inline test story, sets quality, activates checkpoint, checks effects
+node scripts/debug/so-extraction-check.mts   # imports story, /send compact, deterministic extraction via debugResponse
+node scripts/debug/so-turn-types-check.mts   # TurnBridge types: /sd image + group greetings commit nothing, a real reply commits exactly one
+node scripts/debug/so-responsive.mts --surface all   # 24 viewports: panel overflow + controls outside the viewport. NEEDS NO BACKEND
 ```
 
-Both use the in-page debug handle `globalThis.storyOrchestratorRuntime` (`importStory(json)`, `runExtractionNow(response, cueId)`) — also usable directly from `browser_evaluate` or `evaluateInST` for ad-hoc runtime poking.
+In-page handle `globalThis.storyOrchestratorRuntime` (`importStory(json)`, `runExtractionNow(response?, reason?)`, `getSnapshot()`) — also usable from `browser_evaluate` or `evaluateInST`.
 
 ### ST source search
 
@@ -226,11 +235,11 @@ node scripts/debug/st-search.mts "<pattern>" [--files *.js,*.ts] [--root <path>]
 node scripts/debug/st-search.mts --event-types | --endpoints [path] | --context-exports | --module-exports <file>
 ```
 
-Default root: fixed-depth walk (5 up from project root → `C:\dev\SillyTavern-MainBranch`), verified working; `--root` overrides.
+Default root: `ST_ROOT` or the gitignored `.st-root` file (`scripts/lib/stRoot.mjs`); `--root` overrides.
 
 ### Library helpers (`scripts/debug/lib/`)
 
-`connection.mts` (`connectToST`, `DEBUG_DIR`), `st-ready.mts` (`ensureSTReady`), `evaluate.mts` (`evaluateInST` — safe page.evaluate with error classification), `output.mts` (`writeJSON`/`writeText`/`writeScreenshot`), `cli.mts`.
+`connection.mts` (`connectToST`, `DEBUG_DIR`), `st-ready.mts` (`ensureSTReady`), `evaluate.mts` (`evaluateInST` — safe page.evaluate with error classification), `output.mts` (`writeJSON`/`writeText`/`writeScreenshot`), `cli.mts`, `settingsSave.mts` (`saveSettingsNow`), `authorSlash.mts`.
 
 ## Recipes
 
@@ -244,7 +253,7 @@ node scripts/debug/so-ui.mts all
 Checkpoint transition:
 ```bash
 node scripts/debug/so-state.mts current
-node scripts/debug/st-actions.mts checkpoint 2
+MSYS_NO_PATHCONV=1 node scripts/debug/st-actions.mts slash "/cp activate <id>"
 node scripts/debug/so-state.mts current
 node scripts/debug/so-ui.mts screenshot after-transition
 ```
@@ -255,7 +264,7 @@ node scripts/debug/st-context.mts mainApi onlineStatus
 node scripts/debug/st-actions.mts generation-state
 node scripts/debug/st-chat.mts 5
 ```
-Then MCP `browser_console_messages` + `browser_network_requests` for the exploratory tail.
+`onlineStatus` is a cached label: probe a profile with a real call before blaming the product. Then MCP `browser_console_messages` + `browser_network_requests` for the exploratory tail.
 
 ## Errors
 
@@ -263,9 +272,10 @@ Then MCP `browser_console_messages` + `browser_network_requests` for the explora
 |---|---|
 | `Executable doesn't exist` | `npx playwright install chromium` |
 | `ERR_CONNECTION_REFUSED` | SillyTavern not running |
-| **`Unexpected token '<', "<!DOCTYPE "` from `executeSlashCommandsWithOptions`** | **The page's session is stale, not your slash command.** ST answers 200 on `/` while every `/api/*` call returns **403 + `text/html`** — its CSRF cookie is gone from the page's jar. Almost every script's first navigation (`/newchat`, `/go`) runs a slash command, so this surfaces as a confusing parse error in a helper you did not touch. Diagnose in one call, then reload (2026-09-21): swap `window.fetch` for a wrapper that records any response whose `content-type` is not JSON, call the command, restore. A single `location.reload()`, a ~12 s wait, and `/api/settings/get` returning 200 confirms the fix. The reload lands on the welcome screen with `groupId: null` — reopen your group before continuing. |
-| MCP browser tools see a different page than the scripts (`about:blank`, marker round-trip fails) | The MCP server launched its own Chromium. Verify with the `globalThis.__x` marker round-trip above and fall back to scripts only; do not trust MCP state for anything. |
+| `Unexpected token '<', "<!DOCTYPE "` from `executeSlashCommandsWithOptions` | The page's session is stale, not your command: every `/api/*` answers 403 + `text/html` (CSRF gone). `st-session.mts reload`, confirm `/api/settings/get` 200, then reopen your group (the reload lands on the welcome screen, `groupId: null`). |
+| `CSRF token is stale` | Same cause, caught by `ensureSTReady`; reload and reopen the pinned chat. |
+| `... is not a function` on a debug handle | Stale cached bundle: `st-session.mts reload`. |
+| MCP browser tools see a different page/state than scripts | MCP launched its own Chromium (no `--cdp-endpoint`). `st-session start`, restart the Claude session so `.mcp.json` takes effect, verify with the `globalThis.__x` round-trip; until then trust scripts only. |
+| MCP browser tools fail to connect | `st-session start` first — the cdp-endpoint config requires the shared browser to exist |
 | `SillyTavern not loaded` | ST not ready yet — retry |
 | `Settings panel not mounted` / `Drawer not mounted` | Extension not loaded / element not created |
-| MCP browser tools connect but see different state than scripts (chat/group/runtime mismatch) | MCP launched its own Chromium (server missing `--cdp-endpoint`). Run `st-session start`, restart the Claude session so `.mcp.json` takes effect, verify with the `globalThis.__x` marker round-trip |
-| MCP browser tools fail to connect | `st-session start` first — the cdp-endpoint config requires the shared browser to exist |

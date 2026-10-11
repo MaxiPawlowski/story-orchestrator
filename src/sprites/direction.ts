@@ -5,6 +5,8 @@ export type Framing = "full" | "thigh" | "close";
 export const FRAMINGS: readonly Framing[] = ["full", "thigh", "close"];
 
 export interface MemberDirection {
+  pose?: string;
+  framing?: Framing;
   set?: string;
   face?: string;
   hidden?: boolean;
@@ -36,13 +38,18 @@ export function readStageDirection(value: unknown): StageDirection | null {
   if (!isRecord(value)) return null;
   const framing = FRAMINGS.find((option) => option === value.framing) ?? null;
   const cast: Record<string, MemberDirection> = {};
-  if (isRecord(value.cast)) {
-    for (const [name, raw] of Object.entries(value.cast)) {
+  const members = { ...(isRecord(value.cast) ? value.cast : {}), ...Object.fromEntries(Object.entries(value).filter(([key]) => !["framing", "spotlight", "cast"].includes(key))) };
+  {
+    for (const [name, raw] of Object.entries(members)) {
       const key = name.trim().toLowerCase();
       if (!key || !isRecord(raw)) continue;
+      const pose = text(raw.pose);
+      const frame = FRAMINGS.find((option) => option === raw.framing);
       const set = text(raw.set);
       const face = text(raw.face);
       const entry: MemberDirection = {
+        ...(pose && ID.test(pose) ? { pose } : {}),
+        ...(frame ? { framing: frame } : {}),
         ...(set && ID.test(set) ? { set } : {}),
         ...(face && ID.test(face) ? { face } : {}),
         ...(raw.hidden === true ? { hidden: true } : {}),

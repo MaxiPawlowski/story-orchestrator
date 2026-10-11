@@ -1,0 +1,92 @@
+{
+  "id": "kneel_both",
+  "label": "Kneeling on both knees",
+  "tags": [
+    "kneeling"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "kneeling upright on both knees with hands resting on thighs",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        275,
+        460
+      ],
+      [
+        315,
+        645
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        493,
+        460
+      ],
+      [
+        453,
+        645
+      ],
+      [
+        312,
+        570
+      ],
+      [
+        300,
+        800
+      ],
+      [
+        380,
+        900
+      ],
+      [
+        456,
+        570
+      ],
+      [
+        470,
+        800
+      ],
+      [
+        400,
+        900
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "p01",
+    "member": "Arin",
+    "text": "Arin stands quietly with both arms loose at his sides.",
+    "pose": "stand_relaxed"
+  },
+  {
+    "id": "p02",
+    "member": "Arin",
+    "text": "Arin folds his arms across his chest and waits.",
+    "pose": "stand_arms_crossed"
+  },
+  {
+    "id": "p03",
+    "member": "Arin",
+    "text": "Arin plants both hands on his hips.",
+    "pose": "stand_hands_hips"
+  },
+  {
+    "id": "p04",
+    "member": "Arin",
+    "text": "Arin straightens up, heels together, arms at his sides.",
+    "pose": "stand_attention"
+  },
+  {
+    "id": "p05",
+    "member": "Arin",
+    "text": "Arin leans his shoulder against the wall.",
+    "pose": "stand_lean"
+  },
+  {
+    "id": "p06",
+    "member": "Arin",
+    "text": "Arin clasps his hands behind his back.",
+    "pose": "stand_hands_behind"
+  },
+  {
+    "id": "p07",
+    "member": "Arin",
+    "text": "Arin rests his left hand on his hip, right arm hanging.",
+    "pose": "stand_one_hand_hip"
+  },
+  {
+    "id": "p08",
+    "member": "Arin",
+    "text": "Arin turns away, showing his back to the room.",
+    "pose": "stand_back"
+  },
+  {
+    "id": "p09",
+    "member": "Arin",
+    "text": "Arin takes the chair, feet on the floor and palms on his knees.",
+    "pose": "sit_chair"
+  },
+  {
+    "id": "p10",
+    "member": "Arin",
+    "text": "Arin sits on the stool and crosses one leg over the other.",
+    "pose": "sit_chair_crossed"
+  },
+  {
+    "id": "p11",
+    "member": "Arin",
+    "text": "Arin lowers himself to the floor, legs stretched forward.",
+    "pose": "sit_floor"
+  },
+  {
+    "id": "p12",
+    "member": "Arin",
+    "text": "Arin sits cross-legged beside the fire.",
+    "pose": "sit_cross_legged"
+  },
+  {
+    "id": "p13",
+    "member": "Arin",
+    "text": "Arin sits on the floor and hugs his knees to his chest.",
+    "pose": "sit_knees_hug"
+  },
+  {
+    "id": "p14",
+    "member": "Arin",
+    "text": "Arin perches on the edge of the bench.",
+    "pose": "sit_edge"
+  },
+  {
+    "id": "p15",
+    "member": "Arin",
+    "text": "Arin drops onto one knee, the other foot planted.",
+    "pose": "kneel_one"
+  },
+  {
+    "id": "p16",
+    "member": "Arin",
+    "text": "Arin settles onto both knees with his torso upright.",
+    "pose": "kneel_both"
+  },
+  {
+    "id": "p17",
+    "member": "Arin",
+    "text": "Arin kneels, joining his palms before his chest.",
+    "pose": "kneel_pray"
+  },
+  {
+    "id": "p18",
+    "member": "Arin",
+    "text": "Arin sinks into a low squat, balancing over his feet.",
+    "pose": "crouch"
+  },
+  {
+    "id": "p19",
+    "member": "Arin",
+    "text": "Arin walks slowly across the courtyard.",
+    "pose": "walk"
+  },
+  {
+    "id": "p20",
+    "member": "Arin",
+    "text": "Arin breaks into a sprint down the road.",
+    "pose": "run"
+  },
+  {
+    "id": "p21",
+    "member": "Arin",
+    "text": "Arin creeps forward with bent knees to stay unseen.",
+    "pose": "sneak"
+  },
+  {
+    "id": "p22",
+    "member": "Arin",
+    "text": "Arin leaps into the air, both feet leaving the ground.",
+    "pose": "jump"
+  },
+  {
+    "id": "p23",
+    "member": "Arin",
+    "text": "Arin strides onward using his walking staff.",
+    "pose": "walk_staff"
+  },
+  {
+    "id": "p24",
+    "member": "Arin",
+    "text": "Arin raises his fists in a defensive fighting stance.",
+    "pose": "fight_guard"
+  },
+  {
+    "id": "p25",
+    "member": "Arin",
+    "text": "Arin swings his blade across his body.",
+    "pose": "fight_swing"
+  },
+  {
+    "id": "p26",
+    "member": "Arin",
+    "text": "Arin lunges forward, thrusting his sword.",
+    "pose": "fight_thrust"
+  },
+  {
+    "id": "p27",
+    "member": "Arin",
+    "text": "Arin twists his body aside to dodge the blow.",
+    "pose": "fight_dodge"
+  },
+  {
+    "id": "p28",
+    "member": "Arin",
+    "text": "Arin braces behind his raised shield.",
+    "pose": "fight_shield"
+  },
+  {
+    "id": "p29",
+    "member": "Arin",
+    "text": "Arin extends both hands, channeling a spell between them.",
+    "pose": "cast_two_hands"
+  },
+  {
+    "id": "p30",
+    "member": "Arin",
+    "text": "Arin raises one hand to cast, the other lowered.",
+    "pose": "cast_one_hand"
+  },
+  {
+    "id": "p31",
+    "member": "Arin",
+    "text": "Arin points toward the door with an outstretched arm.",
+    "pose": "point"
+  },
+  {
+    "id": "p32",
+    "member": "Arin",
+    "text": "Arin lifts his hand and waves to the departing boat.",
+    "pose": "wave"
+  },
+  {
+    "id": "p33",
+    "member": "Arin",
+    "text": "Arin says, \"Good morning.\"",
+    "pose": null
+  },
+  {
+    "id": "p34",
+    "member": "Arin",
+    "text": "Arin wonders whether he should sit later.",
+    "pose": null
+  },
+  {
+    "id": "p35",
+    "member": "Arin",
+    "text": "Mira runs past while Arin watches.",
+    "pose": null
+  },
+  {
+    "id": "p36",
+    "member": "Arin",
+    "text": "\"Get down on one knee,\" Arin tells Mira.",
+    "pose": null
+  },
+  {
+    "id": "p37",
+    "member": "Arin",
+    "text": "Arin remembers the day he waved goodbye.",
+    "pose": null
+  },
+  {
+    "id": "p38",
+    "member": "Arin",
+    "text": "Arin does not raise his hands or cast a spell.",
+    "pose": null
+  },
+  {
+    "id": "p39",
+    "member": "Arin",
+    "text": "The empty chair creaks in the wind.",
+    "pose": null
+  },
+  {
+    "id": "p40",
+    "member": "Arin",
+    "text": "Arin describes how a fighter might block with a shield.",
+    "pose": null
+  }
+]

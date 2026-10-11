@@ -126,6 +126,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const player = readPlayer(json.player, errors);
   const cardFieldByQuality = indexCardFields(roster, player, qualityByKey, errors);
   validateCardEffects({ checkpoints, qualityByKey, cardFieldByQuality }, errors);
+  layer?.validateCardLayers(roster, player, errors);
 
   const starts = checkpoints.filter((checkpoint) => checkpoint.start);
   if (starts.length > 1) addError(errors, "checkpoints", "only one checkpoint may be start");

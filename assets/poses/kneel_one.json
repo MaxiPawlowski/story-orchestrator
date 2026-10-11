@@ -1,0 +1,92 @@
+{
+  "id": "kneel_one",
+  "label": "Kneeling on one knee",
+  "tags": [
+    "kneeling"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "kneeling with one knee on the ground and the other raised",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        280,
+        460
+      ],
+      [
+        295,
+        620
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        508,
+        430
+      ],
+      [
+        530,
+        590
+      ],
+      [
+        312,
+        570
+      ],
+      [
+        245,
+        800
+      ],
+      [
+        390,
+        1010
+      ],
+      [
+        456,
+        570
+      ],
+      [
+        540,
+        660
+      ],
+      [
+        560,
+        1000
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

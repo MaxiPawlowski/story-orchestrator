@@ -28,7 +28,7 @@ function sourceFiles(dir = join(root, "src"), out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) { sourceFiles(path, out); continue; }
-    if (!/\.(tsx?|css)$/.test(entry.name) || /\.(test|stories)\.tsx?$/.test(entry.name)) continue;
+    if (!/\.(tsx?|css|json)$/.test(entry.name) || /\.(test|stories)\.tsx?$/.test(entry.name)) continue;
     out.push(path);
   }
   return out;
@@ -38,7 +38,8 @@ const configFiles = ["webpack.config.js", "postcss.config.js", "tsconfig.json", 
   .map((name) => join(root, name))
   .filter((path) => existsSync(path));
 
-const sourceManifest = [...sourceFiles(), ...configFiles]
+const poseSources = existsSync(join(root, "assets", "poses")) ? sourceFiles(join(root, "assets", "poses")) : [];
+const sourceManifest = [...sourceFiles(), ...poseSources, ...configFiles]
   .map((path) => `${relative(root, path).replace(/\\/g, "/")}  ${sha256(readFileSync(path))}`)
   .sort()
   .join("\n");

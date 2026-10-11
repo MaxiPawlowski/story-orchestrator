@@ -818,8 +818,8 @@
       "note": "Sprites fix wave (2026-10-07): fills a call-local frame map and the caller's own held list after each decode, and stops when the face unmounted (live() false) before reserving. Cases: faceFrames.test.ts \"stops when the face unmounts mid-decode and keeps nothing\"."
     },
     "src/sprites/stage.ts#SpriteStage.classify": {
-      "status": "local",
-      "note": "Sprites fix wave (2026-10-07): appends one row to the stage's in-memory dev ring of expression calls (source, latency, steps); the chat check that guards the display writes follows it. Nothing reaches chat metadata or settings."
+      "status": "checked",
+      "note": "Plan 33: RunGuard checks before picks and stores; stale ownership and stage controls in sprites/poses/bodyRenderer.test.ts."
     },
     "src/sprites/stage.ts#SpriteStage.rendered": {
       "status": "checked",
@@ -916,6 +916,46 @@
     "src/runtime/createNearDups.ts#createNearDups": {
       "status": "local",
       "note": "v2.8 A15: fills a local result array from a temporary vector collection it owns and purges; the caller (LoreCreator.run) checks ownership after it returns. Tests: runtime/createNearDups.test.ts."
+    },
+    "src/sprites/liveHead/mount.ts#attachHead": {
+      "status": "checked",
+      "note": "v2.8 36: takes a RunGuard, checks after prepareHead and before each layer/publication. Its frame callback rechecks ownership; abort, context loss and teardown synchronously restore the static sprite and dispose resources. prepareHead checks after every await and holds no external writes. LiveHead's continuation checks the same guard before keeping a disposer; stale callbacks cannot publish readiness. Cases: liveHead.test.ts and mount.test.ts."
+    },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.drain": {
+      "status": "local",
+      "note": "Plan 33: instance-local queue, inventory or captured cleanup only; writes delegate to guarded render. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.render": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.render.bodyFor": {
+      "status": "delegate",
+      "note": "awaits PoseBodies.render.save, which checks RunGuard and the current stage before every build, save and return."
+    },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.render.render": {
+      "status": "delegate",
+      "note": "awaits PoseBodies.render.save, which checks RunGuard and the current stage before every build, save and return."
+    },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.render.save": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/sprites/poses/importHost.ts#importPoseImage": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/studio/components/PosesList.tsx#PosesList.work": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/studio/components/PosesList.tsx#PosesList>work": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard checks before picks and stores; stale ownership and stage controls in sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/sprites/poses/stageBodies.ts#StagePoses.request": {
+      "status": "checked",
+      "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
     }
   }
 }

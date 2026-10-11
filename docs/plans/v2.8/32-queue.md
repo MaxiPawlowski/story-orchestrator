@@ -4,6 +4,8 @@ Owner request 2026-10-10: every open feature, fix and measurement queued in one 
 starts only when the rows above it are done or blocked. Row detail lives in the linked plan or in the backlog
 (`31-v27-wrap-backlog.md`, ids F/M/D). Mark a row done here with the commit, and in its source row.
 
+Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instructions for every open sprite/pose/live-head item (part A, first) and every branch stopped on the 2026-10-10 quota stop (part B).
+
 ## Now (running)
 
 | # | Item | Source | State |
@@ -58,7 +60,8 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 | A19 | Curator ops on `constant` entries wait for review in `auto` mode (author decision). **Proposed, needs owner pick** | 25 rank 5 (P5), v2.7 02 C13 |
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
 | A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
-| A22 | Pose library + cheap re-posing (skeleton-guided Qwen edit, S0 spike first) and layered looks that change with the story; mesh-avatar-studio parked with v2.9 05.1. **Needs owner pick on the options** | 33 |
+| A22 | Pose library and character layers B1–B3 — **building on `v2.8-poses`**; S0/CL/LI owed. Live heads are the separate `v2.8-live-head` track. Owner decisions accepted 2026-10-10 | 33 |
+| A23 | Live close-shot head (mesh-avatar-studio): deterministic rig/runtime/tool built; handoff A1 browser LI3/LI4/LI6 PASS ×2 (`9566b088`) 2026-10-10, rig-rebind canvas fix, master full gates green; LI1 FAIL/PASS (51.8/29.3 ms maxima), laptop check and LI2/LI5 owed; defaults/floors unchanged | 36 §A1 Gate record, 33 §7 decision 5, v2.9 05.1 |
 
 ## Measurements (need a pod or a free 3090)
 

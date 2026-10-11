@@ -122,7 +122,11 @@ export interface GateNot {
   not: GateNode;
 }
 
+export type { PoseEntry, PoseTag, PosePoint, StoryPoses, MemberSprites, StageMember, StoryStage, CardLayer, CardFieldBinding, CardBinding } from "./poseSchema";
+import type { StoryPoses, MemberSprites, StoryStage, CardFieldBinding, CardBinding } from "./poseSchema";
+
 export interface CheckpointEffects {
+  stage?: StoryStage;
   author_note?: unknown;
   preset?: unknown;
   world_info?: unknown;
@@ -321,38 +325,20 @@ export interface RosterMember {
   view?: RosterView;
   aliases?: string[];
   card?: CardBinding;
+  sprites?: MemberSprites;
   relationships?: RelationshipDecl[];
   mood?: MoodDecl;
   agenda?: Agenda[];
   schedule?: ScheduleEntry[];
 }
 
-export interface CardBinding { fields: Record<string, { quality: string; visual?: boolean }> }
 
-export const PLAYER_NAME_MODES = ["any", "suggested", "fixed"] as const;
-export type PlayerNameMode = (typeof PLAYER_NAME_MODES)[number];
-export const PLAYER_ROLE_MAX_CHARS = 120;
-export const PLAYER_SUMMARY_MAX_CHARS = 600;
-export const PLAYER_ASSUMES_MAX = 8;
-export const PLAYER_ASSUME_MAX_CHARS = 160;
-export const PLAYER_DESCRIPTION_MAX_CHARS = 2000;
-export const PLAYER_NAME_MAX_CHARS = 60;
+export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX, PLAYER_ASSUME_MAX_CHARS,
+  PLAYER_DESCRIPTION_MAX_CHARS, PLAYER_NAME_MAX_CHARS } from "./playerSchema";
+export type { PlayerNameMode, PlayerName, StoryPlayer } from "./playerSchema";
+import type { StoryPlayer } from "./playerSchema";
 
-export interface PlayerName {
-  mode: PlayerNameMode;
-  value?: string;
-}
-
-export interface StoryPlayer {
-  role?: string;
-  summary?: string;
-  name?: PlayerName;
-  assumes?: string[];
-  suggested_description?: string;
-  inject?: boolean;
-  card?: CardBinding;
-}
-export type CardFieldIndex = Record<string, { owner: string; field: string; visual: boolean }>;
+export type CardFieldIndex = Record<string, { owner: string; field: string; visual: boolean; layer?: CardFieldBinding["layer"]; rebase?: boolean; region?: CardFieldBinding["region"] }>;
 
 export interface ScaffoldingBeat {
   objective: string;
@@ -484,6 +470,7 @@ export interface StoryV2 {
   player?: StoryPlayer;
   briefing?: StoryBriefing;
   illustrations?: StoryIllustrations;
+  poses?: StoryPoses;
   qualities: Quality[];
   checkpoints: Checkpoint[];
   transitions: Transition[];

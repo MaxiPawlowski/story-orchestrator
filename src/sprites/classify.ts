@@ -20,6 +20,10 @@ export interface ExpressionRead {
   who: string;
   face: string;
   source: ExpressionSource;
+  pose?: string;
+  poseKeyword?: string;
+  poseScope?: string;
+  poseSource?: "judge" | "llm" | "none";
 }
 
 export interface ExpressionStep {
