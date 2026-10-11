@@ -21,6 +21,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | N4 | Pod round: curator create (M17), meanwhile auto (M16), lore exclusive (M10/F21), warden timeouts (M12/F22), widgets glance | 31 | running |
 | N5 | Text vs Chat Completion, thinking on, fair config, blind rating pack | 15-model-config §3 | running on the pod |
 | N6 | Merge N1–N3, full gates with Storybook, install | — | after N1–N3 |
+| N7 | B6 coverage audit and top-three no-model gaps | 35, 37 B6 | 2026-10-11 `v2.8-pod2`: coverage draft imported, pose/head evidence corrected, three committed scenarios PASS ×2 on offline lane 35; quick gate green (110.0 s), debug 36/36; private archive `v28-b6-coverage-20261011`; full gates/coordinator integration owed; A15 duplicate refusal absent (advice only), recorded in plan 35 |
 
 ## Fixes
 
@@ -74,7 +75,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | R4 | B1-EMPTY formal arms | M4 |
 | R5 | B1-NARR + rating pack. **2026-10-10 (pod 2): B1-NARR PASS run 1 (run 2 owed), rating pack rated blind; record 31 §Pod 2 measurements** | M5 |
 | R6 | S-17 on the scope budget. **2026-10-10 (pod 2): S-17 FAIL ×2, 37-S17 FAIL ×2 (F27); after the F27 fix (master `83403197`) PASS ×2 both, 37-M1 PASS ×2** | M7 |
-| R7 | Lorebook R5: sheets after character definitions vs depth 4 | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
+| R7 | Lorebook R5: sheets after character definitions vs depth 4. **2026-10-10 (pod 2): INCOMPLETE, no `--swa-full` reuse 0 both arms (first difference moved to ~65 %, the player role); swa rerun not started; P5 owed (31 D-P5, M9)** | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
 | R8 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, thinking A/B | M15 |
 | R9 | J6d shadow record, offline replay (option C) | 12 |
 | R10 | Cue + scene read merge A/B | 15 |
