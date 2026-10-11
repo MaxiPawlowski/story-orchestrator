@@ -21,6 +21,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | N4 | Pod round: curator create (M17), meanwhile auto (M16), lore exclusive (M10/F21), warden timeouts (M12/F22), widgets glance | 31 | running |
 | N5 | Text vs Chat Completion, thinking on, fair config, blind rating pack | 15-model-config §3 | running on the pod |
 | N6 | Merge N1–N3, full gates with Storybook, install | — | after N1–N3 |
+| N7 | B6 coverage audit and top-three no-model gaps | 35, 37 B6 | 2026-10-11 `v2.8-pod2`: coverage draft imported, pose/head evidence corrected, three committed scenarios PASS ×2 on offline lane 35; quick gate green (110.0 s), debug 36/36; private archive `v28-b6-coverage-20261011`; full gates/coordinator integration owed; A15 duplicate refusal absent (advice only), recorded in plan 35 |
 
 ## Fixes
 
