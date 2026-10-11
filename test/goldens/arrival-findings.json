@@ -133,6 +133,7 @@
   "test/scenarios/live-plan12-copilot.json#0": [],
   "test/scenarios/live-plan12-copilot.json#1": [],
   "test/scenarios/live-rollback-stagecraft.json#0": [],
+  "test/scenarios/live-story-workflows.json#0": [],
   "test/scenarios/live-two-ways-bridge.json#0": [],
   "test/scenarios/live-two-ways-ferry.json#0": [],
   "test/scenarios/live-v10b-uid-revert.json#0": [],
