@@ -1,0 +1,125 @@
+{
+  "format": 2,
+  "id": "so-showcase-lantern-inn",
+  "title": "SO Showcase: The Lantern Inn",
+  "description": "An original three-character demo for directed poses, live close-shot heads, changing looks and expressions. No campaign content.",
+  "display": { "motion": true },
+  "player": {
+    "role": "A traveller who has just arrived at the inn",
+    "summary": "You came in out of the rain looking for a room and a warm fire."
+  },
+  "roster": [
+    {
+      "id": "wren",
+      "name": "SO-Show Wren",
+      "role": "A cheerful adventurer who talks first and thinks second",
+      "sprites": { "pose": "stand_relaxed", "poses": ["sit_chair", "fight_swing", "sit_cross_legged", "wave"] },
+      "card": { "fields": { "outfit": { "quality": "wren_outfit", "visual": true } } }
+    },
+    {
+      "id": "garrick",
+      "name": "SO-Show Garrick",
+      "role": "A weary knight who guards the others and speaks in short sentences",
+      "sprites": { "pose": "stand_arms_crossed", "poses": ["sit_edge", "fight_guard", "kneel_pray"] },
+      "card": { "fields": { "scar": { "quality": "garrick_scar", "visual": true, "layer": "decal", "region": { "x": 0.38, "y": 0.04, "width": 0.24, "height": 0.1 } } } }
+    },
+    {
+      "id": "pim",
+      "name": "SO-Show Pim",
+      "role": "A nervous young mage who knows more than she admits",
+      "sprites": { "pose": "stand_relaxed", "poses": ["sit_floor", "cast_two_hands", "sit_knees_hug"] }
+    }
+  ],
+  "requirements": { "members": ["SO-Show Wren", "SO-Show Garrick", "SO-Show Pim"] },
+  "qualities": [
+    { "key": "inside_inn", "type": "bool", "source": "extractor", "rubric": "Has the party stepped inside the Lantern Inn and sat down together?" },
+    { "key": "alarm_raised", "type": "bool", "source": "extractor", "rubric": "Has someone shouted a warning, drawn a weapon or cast a spell because the inn is under attack?" },
+    { "key": "danger_over", "type": "bool", "source": "extractor", "rubric": "Is the attack on the inn clearly over, with everyone safe?" },
+    { "key": "wren_outfit", "type": "string", "source": "extractor", "rubric": "What is Wren wearing right now? Answer with a short clothing description." },
+    { "key": "garrick_scar", "type": "string", "source": "extractor", "rubric": "Does Garrick have a visible fresh injury on his face? Describe it briefly, or answer none." }
+  ],
+  "checkpoints": [
+    {
+      "id": "arrival",
+      "name": "Rain at the door",
+      "player_name": "Arriving",
+      "type": "anchor",
+      "start": true,
+      "objective": "The three friends shake off the rain in the doorway of the Lantern Inn and greet the player.",
+      "illustrate": false,
+      "effects": {
+        "stage": {
+          "framing": "close",
+          "spotlight": "wren",
+          "cast": {
+            "wren": { "pose": "wave", "face": "happy" },
+            "garrick": { "pose": "stand_arms_crossed", "face": "neutral" },
+            "pim": { "pose": "stand_relaxed", "face": "worried" }
+          }
+        }
+      }
+    },
+    {
+      "id": "council",
+      "name": "Around the table",
+      "player_name": "By the fire",
+      "type": "anchor",
+      "objective": "They sit by the fire and talk over what the player has brought with them.",
+      "illustrate": false,
+      "effects": {
+        "stage": {
+          "framing": "thigh",
+          "cast": {
+            "wren": { "pose": "sit_chair", "face": "happy" },
+            "garrick": { "pose": "sit_edge", "face": "neutral" },
+            "pim": { "pose": "sit_floor", "face": "worried" }
+          }
+        },
+        "card": { "wren": { "outfit": "a travel cloak over the green tunic" } }
+      }
+    },
+    {
+      "id": "ambush",
+      "name": "Steel in the common room",
+      "player_name": "Under attack",
+      "type": "anchor",
+      "objective": "Raiders break in. Garrick holds the door, Wren fights beside him and Pim casts.",
+      "illustrate": false,
+      "effects": {
+        "stage": {
+          "framing": "full",
+          "spotlight": "garrick",
+          "cast": {
+            "wren": { "pose": "fight_swing", "face": "angry" },
+            "garrick": { "pose": "fight_guard", "face": "angry" },
+            "pim": { "pose": "cast_two_hands", "face": "worried" }
+          }
+        },
+        "card": { "garrick": { "scar": "a fresh cut across the left cheek" } }
+      }
+    },
+    {
+      "id": "rest",
+      "name": "After the storm",
+      "player_name": "Afterwards",
+      "type": "anchor",
+      "objective": "The raiders are gone. The friends catch their breath and Garrick keeps watch.",
+      "illustrate": false,
+      "effects": {
+        "stage": {
+          "framing": "thigh",
+          "cast": {
+            "wren": { "pose": "sit_cross_legged", "face": "happy" },
+            "garrick": { "pose": "kneel_pray", "face": "neutral" },
+            "pim": { "pose": "sit_knees_hug", "face": "worried" }
+          }
+        }
+      }
+    }
+  ],
+  "transitions": [
+    { "from": "arrival", "to": "council", "priority": 1, "gate": { "q": "inside_inn", "op": "==", "v": true } },
+    { "from": "council", "to": "ambush", "priority": 1, "gate": { "q": "alarm_raised", "op": "==", "v": true } },
+    { "from": "ambush", "to": "rest", "priority": 1, "gate": { "q": "danger_over", "op": "==", "v": true } }
+  ]
+}
