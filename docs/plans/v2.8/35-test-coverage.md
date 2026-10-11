@@ -15,7 +15,7 @@ Lab = private campaign lab, counts/features only. A written fixture is not a pas
 | Living director, branching, F24/F25/F26 pace (22) | living, coordinator review, pace, paceL1, rollback, spoilers, authorHold | — | **v28-35-living-rollback PASS ×2** | no committed L1/L5 fixture | — | — | authored | — | B6 covers review, boundary fold, reopen, swipe/delete and graph replay. L1 below floor; M21 after pace2, M22/M24, committed L1/L5 model fixture owed |
 | Wizard on Sol/harness, Ask, recipes (09) | yes | — | v28-09-ask-player-clean, scripted | live-v28-09-ask-player-play | J14 | — | authored | — | M18 re-score, M19 at 60/36, Sol default live check owed |
 | Briefing drafting (10) | yes | — | v28-10-briefing-draft, scripted | — | — | — | authored | — | Real-model draft and CL floors owed |
-| Curator create, A15 near-dup, A16 stamp/reaper, A17 census (11) | yes, mutations 15/15 | — | **v28-35-curator-create PASS ×2** | live-v28-11-create | — | — | authored | — | B6 covers review, boundary write, stamp, duplicate advice/decline and delete-chat Keep/Delete. A15 vectors quality owed; refusal invariant contradicted below |
+| Curator create, A15 near-dup, A16 stamp/reaper, A17 census (11) | yes, mutations 15/15 | — | **v28-35-curator-create PASS ×2** | live-v28-11-create | — | — | authored | — | B6 covers review, boundary write, stamp, duplicate advice/decline and delete-chat Keep/Delete. A15 vectors quality owed; advisory by design (resolved below) |
 | Local judge (14) | one file | yes | — | — | — | — | authored | judge use fixtures | Routes refused until calibrated; play-load owed |
 | Game layer: quests, life, meanwhile (18 / v2.7 36–37) | yes | — | nine scenarios in original audit | live-v28-meanwhile | — | group-relationships, group-away-notice, F29 capture owed | authored | quests, life, chance | Live quest scenario and M8 re-measure owed |
 | Presence panels rest (04) | yes | — | v28-04-presence-panels, scripted | — | — | — | authored | — | C5 CL owed |
@@ -59,7 +59,7 @@ Next gaps, original risk order retained:
 10. Storybook execution: original global absence claim is obsolete; plans 33/36 now cite full suites.
     Coordinator's final combined build still needs its full Storybook-inclusive gate.
 
-## Finding: A15 is advisory, not a refusal
+## Finding: A15 is advisory, not a refusal (resolved 2026-10-11)
 
 - The draft and architecture invariant say a near-duplicate create is refused with “patch X instead”.
 - Initial B6 runs ×2 found a duplicate-band card could become `accepted` through `setCuratorOpDecision`.
@@ -124,5 +124,5 @@ Next gaps, original risk order retained:
 
 ## Unresolved questions
 
-- Should A15 enforce the documented refusal, or should its invariant be changed to advisory review?
-  Curator owner must resolve; B6 did not change either behavior or invariant.
+- None open. A15 near-duplicate advice stays a warning: v2.8 11's A15 record, approved 2026-10-10, says "Still a warning, never a refusal".
+  The architecture invariant said "refused" and was corrected to match on 2026-10-11; no product code changed.
