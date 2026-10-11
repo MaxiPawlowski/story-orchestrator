@@ -77,7 +77,7 @@ describe("v2.4 plan 08 T18: one breaker per routed profile", () => {
     h.scheduler.schedule({ priority: 1, reason: "cadence", window: { from: 0, to: 4, messages: [] } });
     await jest.advanceTimersByTimeAsync(10);
     expect(h.applied).toEqual([4]);
-    expect(h.scheduler.getSnapshot()).toMatchObject({ heavyQueueDepth: 1, lastHeavyError: null });
+    expect(h.scheduler.getSnapshot()).toMatchObject({ heavyQueueDepth: 1, heavyHeld: 1, held: 0, lastHeavyError: null });
   });
 
   it("a held job waits for its own profile's probe, and runs again when that profile answers", async () => {

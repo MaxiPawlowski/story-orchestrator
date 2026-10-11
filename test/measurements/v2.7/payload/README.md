@@ -18,6 +18,8 @@ test/measurements/v2.7/payload/
   declared.json          the declared differences, each with its plan and v2.8 owner row
 ```
 
+Every case declares `requires` `briefingDraft: "off"` and `innerBeat: "off"` (the sandbox switches the install-wide use off and restores it) and pins `storyOrchestratorDebugLivingResponse`, so a no-model lane makes no model call before the tripwire. A `wait: {schedulerIdle}` does not count jobs parked behind an open breaker (`held`).
+
 A directory without `index.json` is not a capture: a failed case writes `capture-failed.json` instead, so a
 partial run can never be diffed as a baseline.
 

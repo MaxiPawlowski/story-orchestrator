@@ -75,6 +75,8 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
       groupName: group?.name ?? null,
       members,
       mainApi: ctx.mainApi ?? null,
+      briefingDraft: settings?.display?.briefingDraft,
+      innerBeat: settings?.memory?.innerBeat,
       roleModes: settings ? Object.fromEntries(roles.map((role) => [role, routed(role)])) : {},
       macroEngine: ctx.powerUserSettings?.experimental_macro_engine === true,
       vectorsWorldInfo: ctx.extensionSettings?.vectors?.enabled_world_info === true,

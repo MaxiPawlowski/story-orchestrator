@@ -1,4 +1,6 @@
 import { readFile } from 'node:fs/promises';
+import { schedulerIdle } from './lib/schedulerIdle.mts';
+import { readModelSettings, writeModelSettings } from './lib/scenarioModelSettings.mts';
 import { fixtureCleanupSteps } from './lib/scenarioCleanup.mts';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -535,7 +537,7 @@ async function waitForSchedulerIdle(page, timeoutMs, quietMs) {
   let last = null;
   while (Date.now() < deadline) {
     last = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().extraction?.scheduler ?? null);
-    const busy = !last || last.inFlight || last.queueDepth > 0 || last.heavyInFlight || (last.heavyQueueDepth ?? 0) > 0;
+    const busy = !schedulerIdle(last);
     if (busy) quietSince = null;
     else if (quietSince === null) quietSince = Date.now();
     else if (Date.now() - quietSince >= quietMs) return { scheduler: last, quietMs };
@@ -1259,6 +1261,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   const pinned = requiredGroup(requires, group);
   let reenabled: string[] = [];
   let residueBefore: ResidueSnapshot | null = null;
+  const modelSettingsBefore = sandbox ? await readModelSettings(page, requires) : null;
   if (sandbox) {
     if (pinned.group) {
       const opened = await openGroup(page, pinned.group).then(() => null, (error) => error);
@@ -1288,6 +1291,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   }
 
   try {
+    if (sandbox) await writeModelSettings(page, { ...(requires.briefingDraft ? { briefingDraft: false } : {}), ...(requires.innerBeat ? { innerBeat: false } : {}) });
     const established = Object.keys(requires).length
       ? (sandbox ? await establishChatRequires(page, requires, reenabled) : await readRequiresFacts(page, requires).then((facts) => ({ facts, problems: requiresProblems(requires, facts), reenabled, authorView: null, judgeOff: false })))
       : null;
@@ -1312,6 +1316,8 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     if (sandbox) {
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
+      cleanup.modelSettings = await writeModelSettings(page, modelSettingsBefore ?? {}).catch((error) => ({ error: error.message }));
+      if ('error' in (cleanup.modelSettings as object)) { result.ok = false; result.error = 'cleanup did not restore required model settings'; }
       cleanup.judge = await restoreJudgeConfig(page, judgeBefore).catch((error) => ({ error: error.message }));
       cleanup.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
       cleanup.playerSetup = await restorePlayerSetup(page, playerSetupBefore).catch((error) => ({ error: error.message }));

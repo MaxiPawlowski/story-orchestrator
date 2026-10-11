@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { authorSlashArgs, authorSlashInPage } from './authorSlash.mts';
 import { acceptRegex, type SagaMessage, type SagaNeedle, type SagaNeedles, type SagaStory, type SagaTranscript, type SagaVariant, VARIANTS } from './sagaCorpus.mts';
+import { schedulerIdle } from './schedulerIdle.mts';
 
 export const RECIPE_PATH = 'test/measurements/v2.6-07/recipe.json';
 export const RUNS_DIR = 'test/measurements/v2.6-07/runs';
@@ -390,7 +391,7 @@ export function pageHost(page: { evaluate: (fn: (arg: any) => any, arg?: any) =>
       let quietSince: number | null = null;
       await until('the extraction scheduler to drain', settleTimeoutMs, async () => {
         const scheduler = (await runtime())?.scheduler;
-        const busy = !scheduler || scheduler.inFlight || scheduler.queueDepth > 0 || scheduler.heavyInFlight || (scheduler.heavyQueueDepth ?? 0) > 0;
+        const busy = !schedulerIdle(scheduler);
         if (busy) { quietSince = null; return false; }
         quietSince ??= Date.now();
         return Date.now() - quietSince >= settleQuietMs;

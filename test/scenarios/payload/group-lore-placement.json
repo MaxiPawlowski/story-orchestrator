@@ -1,6 +1,8 @@
 {
   "_note": "v2.8 B1-PFX late lore placement (31 M6/M9, 32 R2/R7), case group-lore-placement. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening for the probe and the tripwire). Sun-ruins in the toy group at cp1; one scripted turn whose lines name keyed entries of the story book Xentar Checkpoints (position 1, after the card: Xentar, Guild of Adventurers, Sun Ruins, Artifacts). Captured with `worldInfo.lateLore` off (`*-authored`) and on (`*-late`), then the key is removed again (absent = the default). On a build without the placement both labels are identical; with it, the `-late` captures differ from the baseline only by those entries leaving the story string and arriving as a depth-4 system block (declared in test/measurements/v2.8/lore-placement/declared.json).",
   "requires": {
+    "briefingDraft": "off",
+    "innerBeat": "off",
     "group": "Group: Arin, DM Narrator",
     "members": [
       "DM Narrator",
@@ -13,7 +15,7 @@
   },
   "steps": [
     {
-      "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; return { pinned: ['read', 'curator'] };"
+      "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ ops: [] }); return { pinned: ['read', 'curator', 'living'] };"
     },
     {
       "import_story": {

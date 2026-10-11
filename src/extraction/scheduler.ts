@@ -452,12 +452,15 @@ export class ExtractionScheduler {
   }
 
   getSnapshot() {
+    const held = (queue: SchedulerJob[], route: string | null) => queue.filter((job) => this.breakerOpen(route) || Boolean(job.heldOn && this.breakerOpen(job.heldOn))).length;
     return {
       queueDepth: this.queue.length,
+      held: held(this.queue, this.readProfile()),
       inFlight: this.inFlight,
       lastError: this.lastError,
       rereadReason: [this.running, ...this.queue].find((job) => job?.reason.startsWith(ROLLBACK_REREAD_PREFIX))?.reason ?? null,
       heavyQueueDepth: this.heavyQueue.length,
+      heavyHeld: held(this.heavyQueue, this.host.heavyRouteKey?.() ?? this.readProfile()),
       heavyInFlight: this.heavyInFlight,
       lastHeavyError: this.lastHeavyError,
     };

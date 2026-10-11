@@ -8,6 +8,8 @@ export interface ScenarioRequires {
   members?: string[];
   authorView?: boolean;
   judge?: 'off';
+  briefingDraft?: 'off';
+  innerBeat?: 'off';
   mainApi?: string;
   roleProfiles?: 'text-completion';
   macroEngine?: boolean;
@@ -44,9 +46,11 @@ export interface RequiresFacts {
   comfy?: ComfyFacts | null;
   harness?: HarnessFacts | null;
   profileNames?: string[];
+  briefingDraft?: boolean;
+  innerBeat?: boolean;
 }
 
-export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'prior', 'why']);
+export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'briefingDraft', 'innerBeat', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'prior', 'why']);
 export const LANE_KINDS = new Set<LaneKind>(['no-model', 'model']);
 export const MAIN_APIS = new Set(['textgenerationwebui', 'openai', 'kobold', 'novel', 'koboldhorde']);
 
@@ -67,6 +71,7 @@ export function validateRequires(value: unknown, where = 'requires'): string[] {
   for (const key of ['authorView', 'macroEngine', 'vectorsWorldInfo']) if (key in value && typeof value[key] !== 'boolean') problems.push(`${where}.${key}: expected true or false`);
   if ('authorView' in value && value.authorView !== true) problems.push(`${where}.authorView: only true is a requirement (player mode is the default)`);
   if ('judge' in value && value.judge !== 'off') problems.push(`${where}.judge: only "off" is a requirement (judge on is the install default since v2.6 rule 5)`);
+  for (const key of ['briefingDraft', 'innerBeat']) if (key in value && value[key] !== 'off') problems.push(`${where}.${key}: only "off" is a requirement`);
   if ('mainApi' in value && !MAIN_APIS.has(String(value.mainApi))) problems.push(`${where}.mainApi: expected one of ${[...MAIN_APIS].join(', ')}`);
   if ('roleProfiles' in value && value.roleProfiles !== 'text-completion') problems.push(`${where}.roleProfiles: only "text-completion" is a requirement`);
   if ('comfy' in value && value.comfy !== true) problems.push(`${where}.comfy: only true is a requirement`);
@@ -95,6 +100,7 @@ export function membersToEnable(requires: ScenarioRequires, facts: RequiresFacts
 
 export function requiresProblems(requires: ScenarioRequires, facts: RequiresFacts): string[] {
   const problems: string[] = [];
+  for (const key of ['briefingDraft', 'innerBeat'] as const) if (requires[key] && facts[key] !== false) problems.push(`needs ${key} off`);
   if (requires.prior) problems.push(`needs a prior step outside this file: ${requires.prior}`);
   if (requires.group && !(facts.groupId && (facts.groupId === requires.group || sameName(facts.groupName ?? '', requires.group)))) problems.push(`needs group "${requires.group}", the open group is ${facts.groupName ? `"${facts.groupName}" (${facts.groupId})` : 'none'}`);
   for (const wanted of requires.members ?? []) {
