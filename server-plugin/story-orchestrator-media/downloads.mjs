@@ -8,9 +8,9 @@ export const GIB = 1024 ** 3;
 export const DEFAULT_MARGIN_BYTES = 2 * GIB;
 const PLAN_TTL_MS = 15 * 60_000;
 const MAX_REDIRECTS = 5;
-const SAFE_EXTENSIONS = ['.safetensors', '.gguf'];
+const SAFE_EXTENSIONS = ['.safetensors', '.gguf', '.onnx'];
 const PICKLE_EXTENSIONS = ['.ckpt', '.pt', '.pth', '.bin'];
-export const DOWNLOAD_KINDS = Object.freeze(['checkpoints', 'loras', 'upscaleModels', 'embeddings', 'vaes', 'diffusionModels', 'textEncoders', 'textModels', 'backgroundModels']);
+export const DOWNLOAD_KINDS = Object.freeze(['checkpoints', 'loras', 'upscaleModels', 'embeddings', 'vaes', 'diffusionModels', 'textEncoders', 'textModels', 'backgroundModels', 'poseModels']);
 const CIVITAI_KIND = { Checkpoint: 'checkpoints', LORA: 'loras', LoCon: 'loras', DoRA: 'loras', Upscaler: 'upscaleModels', TextualInversion: 'embeddings', VAE: 'vaes' };
 
 export const PROVIDERS = Object.freeze({

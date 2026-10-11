@@ -27,7 +27,8 @@ export const looksLikeRegexKey = (key: string): boolean => /^\/.+\/[a-z]*$/s.tes
 export function regexKeyProblem(key: string): string | null {
   const trimmed = key.trim();
   if (!looksLikeRegexKey(trimmed) || parseKeyRegex(trimmed)) return null;
-  return `The key "${trimmed}" looks like a pattern, but SillyTavern will match it as plain text: escape every "/" inside it as "\\/", use only the flags g, i, m, s, u, y, and check the pattern itself.`;
+  return `The key "${trimmed}" looks like a pattern, but SillyTavern will match it as plain text: ` +
+    'escape every "/" inside it as "\\/", use only the flags g, i, m, s, u, y, and check the pattern itself.';
 }
 
 export const triggerGenerationType = (type: string | undefined): string | null =>

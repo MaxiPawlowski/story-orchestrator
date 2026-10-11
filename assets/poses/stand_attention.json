@@ -1,0 +1,92 @@
+{
+  "id": "stand_attention",
+  "label": "Standing at attention",
+  "tags": [
+    "standing"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "standing straight at attention with feet together",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        284,
+        265
+      ],
+      [
+        278,
+        480
+      ],
+      [
+        280,
+        675
+      ],
+      [
+        484,
+        265
+      ],
+      [
+        490,
+        480
+      ],
+      [
+        488,
+        675
+      ],
+      [
+        340,
+        590
+      ],
+      [
+        342,
+        815
+      ],
+      [
+        345,
+        1070
+      ],
+      [
+        428,
+        590
+      ],
+      [
+        426,
+        815
+      ],
+      [
+        423,
+        1070
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

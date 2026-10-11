@@ -8,11 +8,14 @@ import { deriveLife } from "../life/derive";
 import { awayMembers, lifeScopeKeys, lifeScopeTiers } from "../life/presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, lifeMoved, privateLifeLines, relationshipFeelings } from "../life/lines";
 
+import * as poses from "./poses";
+import { validateCardLayers } from "./cardLayers";
+
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
   relationshipFeelings,
 };
 
 export const GAME_LAYER = {
-  readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE,
+  readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
 };

@@ -1,0 +1,7 @@
+{
+  "template": "src/sprites/liveHead/syntheticHead.json",
+  "members": ["circle", "square", "triangle"],
+  "looks": ["default", "alternate"],
+  "source": "The owned geometric Storybook bust; no external or campaign art.",
+  "publication": "The browser runner clones the template for each member/look and serves manifests and layer PNGs through lane-local Playwright routes."
+}

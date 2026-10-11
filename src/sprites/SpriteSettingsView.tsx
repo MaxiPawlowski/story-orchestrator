@@ -48,6 +48,7 @@ export function SpriteSettingsView({
         <option value="vn">With Visual Novel mode (/vn)</option>
         <option value="always">Always</option>
       </select>
+      <CheckRow id="so-sprite-poses" setting="sprites.poses" checked={settings.poses} onChange={(poses) => onChange({ poses })} />
       <Advanced id="so-sprite-advanced">
         <FieldLabel htmlFor="so-sprite-profile" setting="sprites.profileId" />
         <select id="so-sprite-profile" value={settings.profileId} onChange={(event) => onChange({ profileId: event.target.value })}>
@@ -57,6 +58,7 @@ export function SpriteSettingsView({
         <CheckRow id="so-sprite-focus" setting="sprites.focus" checked={settings.focus} onChange={(focus) => onChange({ focus })} />
         <CheckRow id="so-sprite-breathing" setting="sprites.breathing" checked={settings.breathing} onChange={(breathing) => onChange({ breathing })} />
         <CheckRow id="so-sprite-blink" setting="sprites.blink" checked={settings.blink} onChange={(blink) => onChange({ blink })} />
+        <CheckRow id="so-live-head-enabled" setting="sprites.liveHead" checked={settings.liveHead} onChange={(liveHead) => onChange({ liveHead })} />
         <CheckRow id="so-sprite-on-demand" setting="sprites.onDemand" checked={settings.onDemand} onChange={(onDemand) => onChange({ onDemand })} />
         <FieldLabel htmlFor="so-sprite-mouth" setting="sprites.mouth" />
         <select id="so-sprite-mouth" value={settings.mouth} onChange={(event) => onChange({ mouth: event.target.value as typeof settings.mouth })}>

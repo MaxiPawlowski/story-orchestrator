@@ -44,6 +44,8 @@ export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[])
   if (!isRecord(member)) return member;
   const path = `roster.${index}`;
   if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");
+  const sprites = gameLayer()?.poses.readMemberSprites(member.sprites, `${path}.sprites`, errors);
+  member = { ...member, ...(sprites ? { sprites } : {}) };
   return readMemberAliases(readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors), path, errors);
 });
 
@@ -74,6 +76,7 @@ const readBackground = (value: unknown, path: string, errors: ValidationError[])
 export const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
   if (!isRecord(value)) return null;
   const effects: CheckpointEffects = { ...value };
+  if (value.stage !== undefined) effects.stage = gameLayer()?.poses.readStage(value.stage, `${path}.stage`, errors);
   if (value.background !== undefined) {
     const background = readBackground(value.background, `${path}.background`, errors);
     if (background) effects.background = background;

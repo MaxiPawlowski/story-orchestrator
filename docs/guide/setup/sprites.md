@@ -106,4 +106,16 @@ When they are done the stage animates the new look; a look built earlier is reus
 arrives after the look changed again, or after you left the chat, is discarded. A rollback restores the old set;
 cached generated files stay available. A new chat starts from the card as it was.
 
+## Live close-shot heads
+
+**Live close-shot head** is on by default. With an imported rig for the member's current look,
+a close shot adds small head turns, gaze, blinking, breathing and mouth movement while the reply
+streams. Other shots use the usual sprites. Missing or failed rigs keep the static sprite;
+reduced motion and the story's motion switch stop movement.
+
+In Author view, Images → Sprite stage lists rig present or missing per member and selected look.
+Open **Import a live head rig**, paste the rig package JSON and select **Import rig**. The package
+must match that member, look and neutral artwork. Changed artwork requires a new rig. Creating
+a rig requires a calibrated vision authoring session; it does not happen during play.
+
 [Illustrations](images.md) · [Setup](README.md)

@@ -1,0 +1,20 @@
+{
+  "format": 2,
+  "id": "solh-browser",
+  "title": "SOLH Browser shapes",
+  "description": "Three owned geometric busts for no-model live-head browser gates.",
+  "display": { "motion": true },
+  "roster": [
+    { "id": "circle", "name": "SOLH Circle", "role": "Synthetic circle" },
+    { "id": "square", "name": "SOLH Square", "role": "Synthetic square" },
+    { "id": "triangle", "name": "SOLH Triangle", "role": "Synthetic triangle" }
+  ],
+  "requirements": { "members": ["SOLH Circle", "SOLH Square", "SOLH Triangle"] },
+  "qualities": [],
+  "checkpoints": [
+    { "id": "close", "name": "Close shapes", "type": "anchor", "start": true, "objective": "Display three synthetic shapes.", "illustrate": false,
+      "effects": { "stage": { "framing": "close", "cast": { "circle": { "face": "neutral" }, "square": { "face": "neutral" }, "triangle": { "face": "neutral" } } } }
+    }
+  ],
+  "transitions": []
+}

@@ -171,3 +171,7 @@ free-space refusal, pickle refusal, never-overwrite, admin-only 403, no URL/path
 
 Not run: LI (one small real file per provider, interrupted and resumed, ×2) — needs a token from the owner and room
 on the target drive; nothing was downloaded. Open.
+
+### Plan 33 DWPose catalogue — 2026-10-10
+
+Approved in principle, pending the owner's token and a free 3090. No download was run. Model sources lists `yzd-v/DWPose/yolox_l.onnx` and `yzd-v/DWPose/dw-ll_ucoco_384.onnx`, Hugging Face revision `main`; plan 30 resolves the revision and verifies its LFS SHA256 before any download. Configure `modelRoots.poseModels` to the actual `comfyui_controlnet_aux` `ckpts/yzd-v/DWPose` directory (including any AUX_ANNOTATOR_CKPTS_PATH override). The aux node package is installed separately, not shipped. ONNX is supported as a non-pickle format. Import preflights both fingerprints and the server allows only this pair; no estimator runs while either file is absent. P4 downloads remain conditional on P2 missing its S0 floors.

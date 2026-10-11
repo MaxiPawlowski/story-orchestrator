@@ -1,0 +1,92 @@
+{
+  "id": "sit_floor",
+  "label": "Sitting on the floor",
+  "tags": [
+    "sitting"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "sitting on the floor with bent knees and hands resting at the sides",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        215,
+        465
+      ],
+      [
+        160,
+        690
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        550,
+        465
+      ],
+      [
+        610,
+        690
+      ],
+      [
+        312,
+        560
+      ],
+      [
+        175,
+        700
+      ],
+      [
+        305,
+        810
+      ],
+      [
+        456,
+        560
+      ],
+      [
+        590,
+        700
+      ],
+      [
+        460,
+        810
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

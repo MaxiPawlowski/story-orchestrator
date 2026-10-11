@@ -280,7 +280,7 @@ const sameList = (a: unknown, b: readonly string[]) => Array.isArray(a) && a.len
 
 const shapeFields = (shape: WIEntryShape): Record<string, unknown> => ({
   ...(shape.constant !== undefined ? { constant: shape.constant } : {}),
-  ...(shape.secondaryKeys?.length ? { keysecondary: shape.secondaryKeys, selective: true } : {}),
+  ...(shape.secondaryKeys?.length ? { keysecondary: shape.secondaryKeys, selective: true, selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic ?? "and-any"] } : {}),
   ...(shape.logic ? { selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic] } : {}),
   ...(shape.outlet?.trim() ? { position: WI_POSITION_OUTLET, outletName: shape.outlet.trim() } : {}),
   ...(shape.triggers?.length ? { triggers: shape.triggers } : {}),

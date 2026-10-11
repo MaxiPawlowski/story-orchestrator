@@ -242,7 +242,7 @@ export const GUIDE_TOPICS = {
   "lore-entries": {
     title: "Lorebook entry features",
     fields: "secondaryKeys, logic, outlet, triggers",
-    text: "On upsertLorebookEntry: a key written /pattern/flags is a regex (escape / inside as \/, add i yourself). secondaryKeys narrow a keyword match by logic: "
+    text: "On upsertLorebookEntry: a key written /pattern/flags is a regex (escape / inside as \\/, add i yourself). secondaryKeys narrow a keyword match by logic: "
       + "and-any (default), and-all, not-any (none appears), not-all. outlet places the text only where {{outlet::name}} is written. triggers limit generation types "
       + "(normal, continue, impersonate, swipe, regenerate, quiet). Good: tavern + secondaryKeys [fight] with not-any. Avoid: secondary keys on a constant entry "
       + "(skips every key check), an outlet nothing writes, a trigger-only entry for lore select (never picked outside its types).",
@@ -335,6 +335,16 @@ export const GUIDE_TOPICS = {
       + "Once per player turn that moved nowhere, the judge reads whether it fits an exit; only a turn that commits to an action counts (questions, talk, OOC "
       + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
       + "Prefetch: one more way out, written ahead. One branch per turning point; a swipe takes it back.",
+  },
+  poses: {
+    title: "Poses and character layers",
+    fields: "poses.use, poses.custom, id, label, tags, framing, props, text, keypoints.format, keypoints.canvas, " +
+      "keypoints.points, version, when.keywords, roster[].sprites.pose, roster[].sprites.poses, " +
+      "effects.stage, pose, set, face, hidden, spotlight, cast, card.fields.layer, rebase, region.x, " +
+      "region.y, region.width, region.height",
+    text: "Studio Sprites → Poses previews skeletons and sets defaults or scene directions. Wizard: setPoses, " +
+      "setMemberPoses, setPoseCard. Priority: direction, sticky keyword, pick, default. Base changes render " +
+      "lazily; rebase starts from card art; face and decal edit regions. Swipes replay the choice.",
   },
   "living-cards": {
     title: "Living cards",

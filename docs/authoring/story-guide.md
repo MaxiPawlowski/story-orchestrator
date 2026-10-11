@@ -490,6 +490,21 @@ Fields: none to declare. Switches: `stagecraft.branchingEnabled`, `stagecraft.pr
 - **Defaults.** All three are on: `stagecraft.branchingEnabled` (Settings › World › Background helpers, "Branch when the player goes off script"), `stagecraft.prefetchEnabled` ("Prepare one more way forward") and the judge use `divergence`. In a living story with `autonomy: suggest` a branch waits in Author view like any director card; otherwise, and always for a player in player mode, it is applied on its own.
 - **How to switch it off.** Untick "Branch when the player goes off script" (no detection, no branch, no prefetch), or only "Prepare one more way forward" (branches only after divergence), or switch the judge use `divergence` off under Settings › Judge (then nothing counts as divergence; prefetch still runs). There is no per-story switch yet.
 - **If wrong.** A branch the director could not write is listed in Author view with its reasons, with "Write it again"; the story carries on along your exits. A branch that fires on a false reading is taken back by swiping the reply.
+### Poses and character layers
+<!-- topic: poses -->
+
+Fields: `keypoints.format`, `keypoints.canvas`, `keypoints.points`, `roster[].sprites.poses`, `card.fields.layer`, `region.x`, `region.y`, `region.width`, `region.height`.
+
+In Studio → Sprites → Poses, preview a skeleton, choose a member's default or direct it at the selected scene. The shipped library contains 40 original poses, including standing, sitting, kneeling, movement, fighting, casting, gestures and lying. Props name what the picture needs, such as a chair or staff. Render member in this pose is an explicit author preview; it needs your installed image setup.
+
+`poses.use` is an id or tag allowlist; absent means the whole library. `poses.custom` adds or overrides entries by id. Import the same JSON into This story or Every story on this install. A pose has `id`, `label`, `tags`, `framing` (full/thigh/close), `props`, a short pose `text`, and integer `version`. Its `keypoints` has `format: "openpose-body18"`, `canvas: [width,height]`, and exactly 18 `points`, each `[x,y]` or `null` for an occluded joint. Coordinates are in that canvas. Bump version when editing a pose. `when.keywords` makes a reply's matching keyword sticky until the scene changes. DWPose image import needs the approved estimator files already installed; selecting an entry in Model sources starts no download.
+
+`roster[].sprites.pose` is the default id; `sprites.poses` limits that member's allowed ids. `effects.stage.<member>.pose` directs a pose. A direction can also specify `set`, `face`, `hidden` and per-member `framing`; global `stage.framing`, `spotlight` and the existing `cast` map still work. Priority is scene direction, sticky keyword, classifier pick, default. While a missing body renders, the stage chooses a same-look body with a shared tag, then standing, then a previous look in that pose, then the default/current sprite. Replies do not wait for this render. Missing faces use that body's expression fallback first.
+
+Visual card fields declare `layer: "base" | "face" | "decal"` (base when omitted). Base fields change hair, outfit, equipment or age by rendering a whole body when its pose is next needed. `rebase: true` on a base field starts again from card art; use it for age/time skips. A face field edits only the head. A decal edits only `region: {x,y,width,height}` in normalized 0..1 coordinates, or the head when omitted. For example injury may be a decal and outfit a base field. A nonvisual field renders nothing. Swipes replay the applied look and pose; generated files stay cached.
+
+Wizard tools: `setPoses`, `setMemberPoses`, `setPoseCard`, and `setCheckpointEffects` for the stage direction. The templates in `assets/workflows/poses` use plan 29 workflow bundles. P2 supplies the look base and a skeleton; P3 keeps the character reference and uses the pose text without a skeleton. Their GPU quality and timing are owed. Live head avatars are built separately on `v2.8-live-head`.
+
 ### Living cards
 <!-- topic: living-cards -->
 

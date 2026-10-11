@@ -21,7 +21,10 @@ export interface WizardAnswer {
 export type ProvisioningOp =
   | { kind: "createCharacterCard"; name: string; description: string; role?: string; personality?: string; scenario?: string; first_mes?: string; mes_example?: string; tags?: string[] }
   | { kind: "createStoryLorebook"; name: string }
-  | { kind: "upsertLorebookEntry"; lorebook: string; comment: string; keys: string[]; content: string; constant?: boolean; secondaryKeys?: string[]; logic?: LoreKeyLogic; outlet?: string; triggers?: string[] }
+  | {
+    kind: "upsertLorebookEntry"; lorebook: string; comment: string; keys: string[]; content: string;
+    constant?: boolean; secondaryKeys?: string[]; logic?: LoreKeyLogic; outlet?: string; triggers?: string[];
+  }
   | { kind: "createGroup"; name: string; members: string[] }
   | { kind: "grantLorebook"; lorebook: string; revoke?: boolean };
 

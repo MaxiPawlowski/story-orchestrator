@@ -61,7 +61,8 @@ const PROVISIONING_GRAMMAR = [
   '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
     '"mes_example"?: string, "tags"?: string[] }',
   '  { "kind": "createStoryLorebook", "name": string }',
-  '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean, "secondaryKeys"?: string[], "logic"?: "and-any" | "not-all" | "not-any" | "and-all", "outlet"?: string, "triggers"?: string[] }',
+  '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean, "secondaryKeys"?: string[], ' +
+    '"logic"?: "and-any" | "not-all" | "not-any" | "and-all", "outlet"?: string, "triggers"?: string[] }',
   '  { "kind": "createGroup", "name": string, "members": string[] }',
   "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
   FIRST_MESSAGE_RULE,

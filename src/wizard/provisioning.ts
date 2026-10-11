@@ -19,8 +19,11 @@ export function loreEntryShapeProblem(op: Extract<ProvisioningOp, { kind: "upser
     if (problem) return `"${op.comment}": ${problem}`;
   }
   if (op.logic && !secondary.length) return `"${op.comment}" sets a secondary key logic but has no secondary keys, so the logic would do nothing.`;
-  if (secondary.length && op.constant) return `"${op.comment}" is always in context, and SillyTavern skips every key check for such an entry, secondary keys too: drop the secondary keys or the always-in-context switch.`;
-  if (secondary.length && !op.keys.some((key) => key.trim()) && !op.constant) return `"${op.comment}" has secondary keys but no keywords: SillyTavern checks secondary keys only after a keyword matched.`;
+  if (secondary.length && op.constant) return `"${op.comment}" is always in context, and SillyTavern skips every key check for such an entry, ` +
+    "secondary keys too: drop the secondary keys or the always-in-context switch.";
+  if (secondary.length && !op.keys.some((key) => key.trim()) && !op.constant) {
+    return `"${op.comment}" has secondary keys but no keywords: SillyTavern checks secondary keys only after a keyword matched.`;
+  }
   const outlet = op.outlet?.trim() ?? "";
   if (outlet) {
     const problem = outletNameProblem(outlet);

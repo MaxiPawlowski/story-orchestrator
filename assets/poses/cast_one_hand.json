@@ -1,0 +1,92 @@
+{
+  "id": "cast_one_hand",
+  "label": "Casting with one hand",
+  "tags": [
+    "casting"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "extending one hand to cast while the other rests at the side",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        170,
+        310
+      ],
+      [
+        80,
+        290
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        520,
+        490
+      ],
+      [
+        528,
+        705
+      ],
+      [
+        312,
+        590
+      ],
+      [
+        303,
+        813
+      ],
+      [
+        293,
+        1070
+      ],
+      [
+        456,
+        590
+      ],
+      [
+        465,
+        813
+      ],
+      [
+        480,
+        1070
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

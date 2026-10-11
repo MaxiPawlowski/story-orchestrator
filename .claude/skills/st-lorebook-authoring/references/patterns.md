@@ -45,15 +45,15 @@ Author the entry constant and **disabled**. The story flips it at a boundary:
 } }
 ```
 
-- Applied by `EffectsApplier.applyWorldInfo` (`src/runtime/effectsApplier.ts:63-78`). It accepts
-  `lorebook` or `book`, and `comments` as a list or `comment` as a string. Entries are matched by
-  trimmed `comment` (`src/services/stHost/worldInfo.ts:42-51`).
+- Parsed by `src/engine/worldInfoEffects.ts` (`lorebook` or `book`; `comments` list or `comment`
+  string); entries match by trimmed `comment`. The path replay (`src/runtime/worldInfoGates.ts`) is
+  applied per scan in scan mode (the default) or written to the files in file mode.
 - Real example: `examples/sun-ruins/Xentar Checkpoints.json`. Its `CP*` entries are constant, most
   are disabled, and `examples/sun-ruins/quest-for-the-sun-ruins.json` enables them per checkpoint
-  (the first effect is at line 112). The general lore in the same book is keyword-driven at ↓Char.
+  (the first effect is at line 104). The general lore in the same book is keyword-driven at ↓Char.
 - Remember to **disable the previous phase's entries**. Nothing resets them for you.
-- Toggling saves the book and changes the entry's hash, which clears any running sticky or cooldown
-  on that entry.
+- In file mode, toggling saves the book and changes the entry's hash, suspending any running sticky
+  or cooldown on that entry.
 
 ## 4. Mutually exclusive variants (inclusion group)
 

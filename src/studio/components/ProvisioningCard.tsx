@@ -18,6 +18,7 @@ type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | 
 
 const LOGIC_OPTIONS: Array<[string, string]> = [
   ["", "Any secondary key appears (default)"],
+  ["and-any", "Any secondary key appears"],
   ["and-all", "Every secondary key appears"],
   ["not-any", "No secondary key appears"],
   ["not-all", "Not every secondary key appears"],
@@ -80,11 +81,17 @@ const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
 
 const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
+  const [listText, setListText] = useState<Record<string, string>>({});
   const fields = FIELDS[draft.kind];
   const record: Record<string, unknown> = { ...draft };
   const validation = validateProvisioningOp(draft, environment);
 
   const patch = (key: string, value: unknown) => setDraft((previous) => ({ ...previous, [key]: value }) as ProvisioningOp);
+  const editText = (field: FieldSpec, value: string) => {
+    if (field.kind !== "list") return patch(field.key, value);
+    setListText((previous) => ({ ...previous, [field.key]: value }));
+    patch(field.key, value.split(",").map((entry) => entry.trim()).filter(Boolean));
+  };
 
   return (
     <section data-so="provisioning-card" className="st-subpanel flex flex-col gap-2 p-2" aria-label={`Provisioning: ${describeProvisioningOp(draft).label}`}>
@@ -106,9 +113,9 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           ) : (
             <input
               className="text_pole st-input"
-              value={asText(record[field.key], field.kind)}
+              value={field.kind === "list" ? listText[field.key] ?? asText(record[field.key], field.kind) : asText(record[field.key], field.kind)}
               disabled={applied}
-              onChange={(event) => patch(field.key, field.kind === "list" ? event.target.value.split(",").map((entry) => entry.trim()).filter(Boolean) : event.target.value)}
+              onChange={(event) => editText(field, event.target.value)}
             />
           )}
         </label>

@@ -1,0 +1,94 @@
+{
+  "id": "fight_shield",
+  "label": "Shield guard",
+  "tags": [
+    "fighting"
+  ],
+  "framing": "full",
+  "props": [
+    "shield"
+  ],
+  "text": "bracing defensively with a shield held before the torso",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        300,
+        425
+      ],
+      [
+        380,
+        365
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        550,
+        430
+      ],
+      [
+        525,
+        575
+      ],
+      [
+        312,
+        590
+      ],
+      [
+        255,
+        813
+      ],
+      [
+        175,
+        1070
+      ],
+      [
+        456,
+        590
+      ],
+      [
+        520,
+        813
+      ],
+      [
+        585,
+        1070
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

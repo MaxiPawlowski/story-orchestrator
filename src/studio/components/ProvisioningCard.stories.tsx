@@ -102,3 +102,30 @@ export const AlreadyCreated: Story = {
     await expect(canvas.getByLabelText("Name")).toBeDisabled();
   },
 };
+
+export const LoreEntryFeatures: Story = {
+  tags: ["lore-features"],
+  args: {
+    environment: { characterNames: [], lorebookNames: ["SO-Lore"], groupNames: [], storyLorebooks: ["SO-Lore"], ownedLorebooks: ["SO-Lore"],
+      grantedLorebooks: [], castNames: [], personaNames: [] },
+    op: { kind: "upsertLorebookEntry", lorebook: "SO-Lore", comment: "Quiet room", keys: ["room"], content: "The room is quiet.",
+      secondaryKeys: ["fight"], logic: "and-any" },
+    existing: null,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const logic = canvas.getByRole("combobox", { name: "Fires when" });
+    await expect(logic).toHaveValue("and-any");
+    await userEvent.selectOptions(logic, "not-any");
+    await userEvent.type(canvas.getByLabelText("Outlet name (placed only where {{outlet::name}} is written)"), "room");
+    await userEvent.type(canvas.getByLabelText("Fires only on these generation types"), "normal, swipe");
+    await userEvent.click(canvas.getByRole("button", { name: "Create it" }));
+    await expect(args.onApply).toHaveBeenCalledWith(expect.objectContaining({ secondaryKeys: ["fight"], logic: "not-any", outlet: "room", triggers: ["normal", "swipe"] }));
+    await userEvent.selectOptions(logic, "");
+    await userEvent.click(canvas.getByRole("button", { name: "Create it" }));
+    await expect(args.onApply).toHaveBeenLastCalledWith(expect.objectContaining({ logic: undefined }));
+    await userEvent.click(canvas.getByLabelText("Always in context"));
+    await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
+    await expect(canvas.getByRole("alert")).toHaveTextContent("skips every key check");
+  },
+};
