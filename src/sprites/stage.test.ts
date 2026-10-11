@@ -4,6 +4,7 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RunOwnership, TokenCheck } from "@runtime/runToken";
 import * as host from "@services/stHost/sprites";
 import { spriteStageHealth } from "@runtime/spriteStageHealth";
+import { liveHeadKey } from "./liveHeadRefs";
 
 type Handler = (...args: unknown[]) => unknown;
 const handlers = new Map<string, Handler>();
@@ -149,6 +150,36 @@ beforeEach(() => {
 });
 
 const REPLY = "*Ellie laughs and waves.* \"You made it!\"\n\nShe hands over the map. \"North road, then.\"";
+
+describe("live head stage seam", () => {
+  it("binds the selected look's neutral artwork and lists even members with no pack", async () => {
+    members[1].noPack = true;
+    const ref = { member: "ellie.png", look: "default", artHash: "a".repeat(64), source: "/Ellie/neutral.png", manifest: "/head.json" };
+    settings.liveHeadRigs = { [liveHeadKey(ref)]: ref };
+    const sprites = await started();
+    expect(sprites.headStatus()).toEqual([
+      { member: "ellie.png", name: "Ellie", look: "default", present: true },
+      { member: "tobias.png", name: "Tobias", look: "default", present: false },
+    ]);
+    expect(sprites.view().actors[0].liveHead).toEqual(ref);
+    settings.liveHeadRigs = { [liveHeadKey(ref)]: { ...ref, source: "/old-neutral.png" } }; sprites.notify();
+    expect(sprites.view().actors[0].liveHead).toBeUndefined();
+  });
+
+  it("mouth activity ignores reasoning and repeated tokens, and stops on generation end or cancel", async () => {
+    jest.useFakeTimers();
+    const sprites = await started(); emit("GROUP_MEMBER_DRAFTED", 0);
+    chat.push({ name: "Ellie", mes: "<think>planning" }); emit("STREAM_TOKEN_RECEIVED");
+    expect(sprites.activity.view()).toBeNull();
+    chat[0].mes = "Hello"; emit("STREAM_TOKEN_RECEIVED"); expect(sprites.activity.view()).toBe("Ellie");
+    jest.advanceTimersByTime(301); emit("STREAM_TOKEN_RECEIVED"); expect(sprites.activity.view()).toBeNull();
+    chat[0].mes = "Hello!"; emit("STREAM_TOKEN_RECEIVED"); expect(sprites.activity.view()).toBe("Ellie");
+    emit("GENERATION_STOPPED"); expect(sprites.activity.view()).toBeNull();
+    chat[0].mes = "Hello!!"; emit("STREAM_TOKEN_RECEIVED"); expect(sprites.activity.view()).toBe("Ellie");
+    emit("GENERATION_ENDED"); expect(sprites.activity.view()).toBeNull();
+    jest.useRealTimers();
+  });
+});
 
 describe("sprite stage: what it classifies", () => {
   it("never classifies the model's thinking while the visible reply is empty", async () => {

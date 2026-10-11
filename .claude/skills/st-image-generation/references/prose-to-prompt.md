@@ -27,7 +27,7 @@ prompts (community, 2025-08). In ST you therefore swap the active connection for
 
 Turn off **Bind presets to API connections** (CC preset panel) if loading the tag preset also flips
 your source or model. When it is on (the default), a CC preset carries connection fields (verified:
-public/scripts/openai.js:516, 5046-5048). Alternatively, bake the preset into the image profile: a
+public/scripts/openai.js:516, 5048-5050). Alternatively, bake the preset into the image profile: a
 profile records `preset` (verified: cm/index.js:38-70).
 
 ## The tag preset, structurally

@@ -1,5 +1,6 @@
 import type { Chapter, RosterView, StoryPlayer } from "@engine/index";
 import type { ProposalOp } from "../types";
+import type { PoseAgentOp } from "./poseOps";
 import type { GameAgentOp } from "./gameOps";
 
 export type AgentOnlyOp =
@@ -10,7 +11,8 @@ export type AgentOnlyOp =
   | { kind: "setRosterView"; id: string; view: RosterView }
   | { kind: "setCheckpointMotive"; id: string; member: string; motive: string }
   | { kind: "setAppearance"; id: string; appearance: string }
-  | GameAgentOp;
+  | GameAgentOp
+  | PoseAgentOp;
 
 export type AgentOp = ProposalOp | AgentOnlyOp;
 

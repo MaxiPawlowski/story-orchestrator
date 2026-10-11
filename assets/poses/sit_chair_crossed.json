@@ -1,0 +1,94 @@
+{
+  "id": "sit_chair_crossed",
+  "label": "Sitting with crossed legs",
+  "tags": [
+    "sitting"
+  ],
+  "framing": "full",
+  "props": [
+    "chair"
+  ],
+  "text": "sitting on a chair with one leg crossed over the other",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        280,
+        450
+      ],
+      [
+        380,
+        545
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        490,
+        450
+      ],
+      [
+        400,
+        545
+      ],
+      [
+        312,
+        560
+      ],
+      [
+        480,
+        710
+      ],
+      [
+        400,
+        965
+      ],
+      [
+        456,
+        560
+      ],
+      [
+        375,
+        750
+      ],
+      [
+        380,
+        1040
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

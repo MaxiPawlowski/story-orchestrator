@@ -6,7 +6,7 @@ import { randomId } from "@utils/uuid";
 const ROOT = "/api/plugins/story-orchestrator-media";
 
 export interface ComfyDiscovery {
-  nodes: Record<string, { input?: { required?: Record<string, unknown[]> } }>;
+  nodes: Record<string, { input?: { required?: Record<string, unknown[]>; optional?: Record<string, unknown[]> } }>;
   embeddings: string[];
   checkpoints: string[];
   diffusionModels: string[];
@@ -32,7 +32,7 @@ export interface SpriteManifest {
   character: string;
   set: string;
   labels: Record<string, { key: string; sha256: string; recipe: { id: string; version: number }; qa: unknown; status: string;
-    inputs?: { base?: string } }>;
+    inputs?: { base?: string; body?: { set: string; story: string; member: string; look: string; pose: string; tags: string[]; stamp?: string } } }>;
 }
 
 export async function spriteFileFingerprint(path: string, signal?: AbortSignal): Promise<string> {
@@ -97,7 +97,7 @@ export async function comfyReleaseReference(name: string): Promise<WriteResult<{
   } catch (error) { return couldNot(error instanceof Error ? error.message : String(error)); }
 }
 
-export async function comfyRenderOwned(graph: Record<string, unknown>, signal: AbortSignal): Promise<{ data: string; format: string }> {
+export async function comfyRenderOwned(graph: Record<string, unknown>, signal: AbortSignal): Promise<{ data: string; format: string; pose?: unknown }> {
   const id = randomId();
   const cancel = () => { void request(`/jobs/${id}/cancel`, {}).catch(() => {}); };
   signal.throwIfAborted();
@@ -117,7 +117,7 @@ export async function comfyRenderOwned(graph: Record<string, unknown>, signal: A
     signal.throwIfAborted();
     const result = await request(`/jobs/${id}/result`, undefined, signal);
     if (!isRecord(result) || typeof result.data !== "string" || typeof result.format !== "string") throw new Error("ComfyUI returned no image.");
-    return { data: result.data, format: result.format };
+    return { data: result.data, format: result.format, ...(result.pose !== undefined ? { pose: result.pose } : {}) };
   } catch (error) { cancel(); throw error; }
   finally { signal.removeEventListener("abort", cancel); }
 }

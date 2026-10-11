@@ -1,7 +1,7 @@
 # Third-party notices
 
 Story Orchestrator is AGPL-3.0 (`LICENSE`). The shipped bundle (`dist/`) contains the packages below, read from the production
-webpack module list (`npm run build` writes `.build/packages-prod.json`; `npm run notices` regenerates this file from it).
+webpack module list (`npm run build` writes `.build/packages.json`; `npm run notices` regenerates this file from it).
 
 ## Bundled packages
 
@@ -24,6 +24,11 @@ webpack module list (`npm run build` writes `.build/packages-prod.json`; `npm ru
 
 Parts of the memory tiers adapt [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) by Senjin the Dragon,
 AGPL-3.0. Its licence is kept with the reference copy in the source repository (`vendor/smart-memory/LICENSE`).
+
+The live close-shot head adapts mesh-avatar-studio (6f6d362), https://github.com/shinshin86/mesh-avatar-studio,
+MIT License, Copyright (c) 2026 Yuki Shindo. Rig types/validation, mesh deformation and WebGL shaders/renderer
+are in src/sprites/liveHead; CPU image tools are in scripts/live-head/vendor. Full copyright and permission
+notices are retained in every derived file and scripts/live-head/vendor/LICENSE. No sample art or MediaPipe is shipped.
 
 ## Example files
 
