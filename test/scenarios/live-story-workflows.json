@@ -1,0 +1,92 @@
+{
+ "name": "v2.8 29 LI: two purposes render on two marked SO- workflows, the player's selection is untouched",
+ "requires": {
+  "lane": "no-model",
+  "group": "Group: Arin, DM Narrator",
+  "members": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "judge": "off"
+ },
+ "steps": [
+  {
+   "eval": "const ctx=SillyTavern.getContext(); const sd=ctx.extensionSettings.sd; const img=globalThis.storyOrchestratorImage; const post=(route,body)=>fetch('/api/sd/comfy/'+route,{method:'POST',headers:ctx.getRequestHeaders(),body:JSON.stringify(body)}); const listed=await (await post('workflows',{url:sd.comfy_url})).json(); const sourceName='WAI_Illustrious_v17.json'; if(!listed.includes(sourceName)) throw Error('source workflow missing'); const base=JSON.parse(await (await post('workflow',{file_name:sourceName})).json()); const made={}; for(const [name,prefix] of [['SO-LI-A.json','SO_LI_A'],['SO-LI-B.json','SO_LI_B']]){   if(listed.includes(name)) throw Error(name+' already exists');   const graph=JSON.parse(JSON.stringify(base)); graph['5'].inputs.steps=10; graph['7'].inputs.filename_prefix=prefix;   const saved=await post('save-workflow',{file_name:name,workflow:JSON.stringify(graph,null,2)}); if(!saved.ok) throw Error('save '+name+' '+saved.status); made[name]=prefix; } globalThis.__so29={selected:sd.comfy_workflow, made, imageSettings:JSON.parse(JSON.stringify(img.settings())), listedBefore:listed}; img.updateSettings({enabled:true, backend:'st', automation:{mode:'off', everyN:5}}); return {selected:sd.comfy_workflow, made, source:sd.source};"
+  },
+  {
+   "import_story": {
+    "format": 2,
+    "id": "so-li-story-workflows",
+    "title": "SO LI story workflows",
+    "description": "Maps two picture purposes to two marked ST workflows.",
+    "illustrations": {
+     "checkpoints": true,
+     "scenes": true,
+     "workflows": {
+      "scene": "SO-LI-A.json",
+      "background": "SO-LI-B.json"
+     }
+    },
+    "qualities": [
+     {
+      "key": "done",
+      "type": "bool",
+      "source": "code",
+      "rubric": "Scripted gate."
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "start",
+      "name": "Start",
+      "player_name": "The gate",
+      "type": "anchor",
+      "start": true,
+      "objective": "Begin."
+     },
+     {
+      "id": "next",
+      "name": "Next",
+      "player_name": "The road",
+      "type": "anchor",
+      "objective": "Go on."
+     }
+    ],
+    "transitions": [
+     {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+       "q": "done",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "dm",
+      "name": "DM Narrator"
+     },
+     {
+      "id": "companion",
+      "name": "Arin"
+     }
+    ]
+   }
+  },
+  {
+   "send": "We set out."
+  },
+  {
+   "eval": "const ctx=SillyTavern.getContext(); const sd=ctx.extensionSettings.sd; const img=globalThis.storyOrchestratorImage; const s=globalThis.__so29; const out=[]; for(const purpose of ['scene','background','character']){   const plan=await img.plan({purpose,text:'an old stone hall with a fireplace, warm light',messageId:null,raw:true});   const began=Date.now();   const path=await img.direct({purpose,text:'an old stone hall with a fireplace, warm light',messageId:null,raw:true});   out.push({purpose, plannedWorkflow:plan.workflow, rendered:Boolean(path), ms:Date.now()-began, selectedAfter:sd.comfy_workflow, note:img.status().workflowNote}); } globalThis.__so29.out=out; return out;"
+  },
+  {
+   "eval": "const sd=SillyTavern.getContext().extensionSettings.sd; const s=globalThis.__so29; const byPurpose=Object.fromEntries(s.out.map((row)=>[row.purpose,row])); const floors={scenePlannedOnA:byPurpose.scene.plannedWorkflow==='SO-LI-A.json', backgroundPlannedOnB:byPurpose.background.plannedWorkflow==='SO-LI-B.json', unmappedUsesSelection:byPurpose.character.plannedWorkflow===null, selectionUnchangedInMemory:s.out.every((row)=>row.selectedAfter===s.selected) && sd.comfy_workflow===s.selected, allRendered:s.out.every((row)=>row.rendered)}; return {floors, ok:Object.values(floors).every(Boolean), rows:s.out.map((row)=>({purpose:row.purpose, planned:row.plannedWorkflow, ms:row.ms, note:row.note}))};"
+  },
+  {
+   "eval": "const ctx=SillyTavern.getContext(); const sd=ctx.extensionSettings.sd; const img=globalThis.storyOrchestratorImage; const s=globalThis.__so29; const post=(route,body)=>fetch('/api/sd/comfy/'+route,{method:'POST',headers:ctx.getRequestHeaders(),body:JSON.stringify(body)}); const removed=[]; for(const name of Object.keys(s.made)){ if(!/^SO-LI-[AB]\\.json$/.test(name)) continue; const response=await post('delete-workflow',{file_name:name}); removed.push({name,status:response.status}); } const listed=await (await post('workflows',{url:sd.comfy_url})).json(); img.updateSettings(s.imageSettings); return {removed, leaked:listed.filter((name)=>/^SO-LI-/.test(name)), listedSame:JSON.stringify([...listed].sort())===JSON.stringify([...s.listedBefore].sort())};"
+  }
+ ]
+}
