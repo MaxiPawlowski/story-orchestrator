@@ -141,6 +141,8 @@ installed.
 
 ## A2 — Live head: real rigs (LI5), vision model, no GPU
 
+**Status 2026-10-11:** step 1 and step 3 done (three synthetic looks, LI5 floors pass, NumPy/OpenCV installed); step 2 (campaign members) is owed and needs the owner's choice. See plan 36 §A2 Gate record.
+
 - **Worktree:** `C:\dev\so-live-head`.
 - **Context:**
   - plan 36 §Rig authoring pipeline and the LI5 row;

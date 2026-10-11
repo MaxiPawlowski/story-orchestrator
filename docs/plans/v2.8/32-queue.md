@@ -64,7 +64,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
 | A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
 | A22 | Pose library and character layers B1–B3 — **building on `v2.8-poses`**; S0/CL/LI owed. Live heads are the separate `v2.8-live-head` track. Owner decisions accepted 2026-10-10 | 33 |
-| A23 | Live close-shot head (mesh-avatar-studio): deterministic rig/runtime/tool built; handoff A1 browser LI3/LI4/LI6 PASS ×2 (`9566b088`) 2026-10-10, rig-rebind canvas fix, master full gates green; LI1 FAIL/PASS (51.8/29.3 ms maxima), laptop check and LI2/LI5 owed; defaults/floors unchanged | 36 §A1 Gate record, 33 §7 decision 5, v2.9 05.1 |
+| A23 | Live close-shot head (mesh-avatar-studio): deterministic rig/runtime/tool built; handoff A1 browser LI3/LI4/LI6 PASS ×2 (`9566b088`) 2026-10-10, rig-rebind canvas fix, master full gates green; LI1 FAIL/PASS (51.8/29.3 ms maxima), laptop check and LI2 owed; handoff A2 2026-10-11: LI5 floors pass on 3 synthetic looks (2/2/1 review rounds, vision by the executing session not Sol, tokens unmeasured), campaign rigs and Sol-bridge calibration owed; defaults/floors unchanged | 36 §A1/§A2 Gate records, 33 §7 decision 5, v2.9 05.1 |
 
 ## Measurements (need a pod or a free 3090)
 

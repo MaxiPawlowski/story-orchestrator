@@ -37,12 +37,21 @@ export async function packageHead(project, identity) {
   return output;
 }
 
+async function validateDraft(project) {
+  const validatorFile = join(root, ".build/live-head-validator.mjs");
+  await build({ entryPoints: [join(root, "src/sprites/liveHead/validate.ts")], bundle: true, platform: "node", format: "esm", outfile: validatorFile, logLevel: "warning" });
+  const { validateRig } = await import(pathToFileURL(validatorFile).href);
+  const rig = JSON.parse(readFileSync(contained(join(project, "rig.draft.json")), "utf8")), issues = validateRig(rig, { draft: true });
+  if (issues.length || rig.hand || rig.accessories?.length || rig.image.width > 2048 || rig.image.height > 2048) throw new Error(issues.join("\n") || "Unsupported close-shot rig.");
+  return rig;
+}
+
 export async function runRig(argv, launch = spawnSync) {
   const [command, projectArg, ...args] = argv;
   const options = Object.fromEntries(Array.from({ length: Math.ceil(args.length / 2) }, (_, i) => [args[i * 2], args[i * 2 + 1]]));
-  if (!["build", "package", "grid", "overlay", "calibration"].includes(command) || !projectArg)
-    throw new Error("Usage: node scripts/live-head/rig.mjs build|package|grid|overlay|calibration <project> [--python <binary>] [--member <id> --look <set> --source-url </characters/.../neutral.png>] [--region x0,y0,x1,y1 --step 5]");
-  if (args.length % 2 || Object.keys(options).some((key) => !["--python", "--member", "--look", "--source-url", "--region", "--step"].includes(key))) throw new Error("Unknown or incomplete rig option.");
+  if (!["build", "package", "grid", "overlay", "calibration", "validate"].includes(command) || !projectArg)
+    throw new Error("Usage: node scripts/live-head/rig.mjs build|package|grid|overlay|calibration|validate <project> [--python <binary>] [--member <id> --look <set> --source-url </characters/.../neutral.png>] [--region x0,y0,x1,y1 --step 5] [--name <review image stem>] [--part <overlay part> --zoom true]");
+  if (args.length % 2 || Object.keys(options).some((key) => !["--python", "--member", "--look", "--source-url", "--region", "--step", "--name", "--part", "--zoom"].includes(key))) throw new Error("Unknown or incomplete rig option.");
   const project = contained(projectArg), python = options["--python"] ?? "python";
   if (!existsSync(project)) throw new Error("Create a local project with source.png and rig.draft.json first.");
   const work = contained(join(project, "work"));
@@ -56,23 +65,21 @@ export async function runRig(argv, launch = spawnSync) {
     return directory;
   }
   contained(join(project, "source.png"));
+  if (command === "validate") { await validateDraft(project); return "Draft rig is valid for the close-shot runtime."; }
   if (command === "grid" || command === "overlay") {
-    const output = contained(join(work, `${command}.png`));
+    const stem = options["--name"] ?? command;
+    if (!/^[A-Za-z0-9_-]+$/.test(stem)) throw new Error("Review image names use letters, digits, underscore and hyphen.");
+    const output = contained(join(work, `${stem}.png`));
     if (existsSync(output)) throw new Error("Review image exists; choose a new project for another run.");
     mkdirSync(work, { recursive: true });
-    invoke(`${command}.py`, [project, "--out", output, ...(command === "grid" ? ["--step", options["--step"] ?? "50", ...(options["--region"] ? ["--region", options["--region"]] : [])] : ["--rig", "rig.draft.json"])]);
+    invoke(`${command}.py`, [project, "--out", output, ...(command === "grid" ? ["--step", options["--step"] ?? "50", ...(options["--region"] ? ["--region", options["--region"]] : [])] : ["--rig", "rig.draft.json", ...(options["--part"] ? ["--part", options["--part"]] : []), ...(options["--zoom"] === "true" ? ["--zoom"] : [])])]);
     return output;
   }
   const identity = { member: options["--member"], look: options["--look"], source: options["--source-url"] };
   if (!identity.member || !identity.look || !/^\/(?!\/)[^\\\x00-\x1f\x7f]+$/.test(identity.source ?? "")) throw new Error("Supply member id, look/set and a local source sprite URL.");
   if (command === "build") {
-    const draft = contained(join(project, "rig.draft.json"));
     if (existsSync(contained(join(project, "built"))) || existsSync(contained(join(project, "rig.json")))) throw new Error("Built rig exists; use a new project.");
-    const validatorFile = join(root, ".build/live-head-validator.mjs");
-    await build({ entryPoints: [join(root, "src/sprites/liveHead/validate.ts")], bundle: true, platform: "node", format: "esm", outfile: validatorFile, logLevel: "warning" });
-    const { validateRig } = await import(pathToFileURL(validatorFile).href);
-    const rig = JSON.parse(readFileSync(draft, "utf8")), issues = validateRig(rig, { draft: true });
-    if (issues.length || rig.hand || rig.accessories?.length || rig.image.width > 2048 || rig.image.height > 2048) throw new Error(issues.join("\n") || "Unsupported close-shot rig.");
+    await validateDraft(project);
     invoke("build-layers.py", [project, "--rig", "rig.draft.json"]);
   }
   return packageHead(project, identity);

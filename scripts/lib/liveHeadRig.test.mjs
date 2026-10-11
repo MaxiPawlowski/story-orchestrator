@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, realpathSy
 import { join, relative } from "node:path";
 import { test } from "node:test";
 import { contained, packageHead, root, runRig } from "../live-head/rig.mjs";
+import { reviewRig } from "../live-head/review.mjs";
 
 const data = JSON.parse(readFileSync(join(root, "src/sprites/liveHead/syntheticHead.json"), "utf8"));
 const png = (value) => Buffer.from(value.split(",")[1], "base64");
@@ -54,5 +55,38 @@ test("review steps invoke only installed CPU Python scripts, pass explicit outpu
     await assert.rejects(runRig(["grid", path, "--unknown", "yes"], launch), /Unknown/);
     await assert.rejects(runRig(["build", path, "--member", "shape", "--look", "default", "--source-url", "https://external/art.png"], launch), /local source/);
     assert.equal(calls.length, 3);
+  } finally { remove(path); }
+});
+
+test("review image names, part and zoom options pass through; unsafe names refuse before any script runs", async () => {
+  const path = project(), calls = [];
+  const launch = (...args) => { calls.push(args); return { status: 0 }; };
+  try {
+    await runRig(["grid", path, "--step", "5", "--region", "20,20,90,90", "--name", "grid-eyes"], launch);
+    await runRig(["overlay", path, "--part", "eyes", "--zoom", "true", "--name", "overlay-eyes"], launch);
+    assert.ok(calls[0][1].some((arg) => arg.endsWith("grid-eyes.png")));
+    assert.ok(calls[1][1].includes("--part") && calls[1][1].includes("eyes") && calls[1][1].includes("--zoom"));
+    assert.ok(calls[1][1].some((arg) => arg.endsWith("overlay-eyes.png")));
+    await assert.rejects(runRig(["grid", path, "--name", "../escape"], launch), /letters, digits/);
+    assert.equal(calls.length, 2);
+  } finally { remove(path); }
+});
+
+test("validate accepts the owned synthetic draft and names the first problem of a broken one", async () => {
+  const path = project();
+  try {
+    assert.match(await runRig(["validate", path]), /valid/);
+    const broken = JSON.parse(readFileSync(join(path, "rig.draft.json"), "utf8"));
+    broken.eyes = [broken.eyes[0]];
+    writeFileSync(join(path, "rig.draft.json"), JSON.stringify(broken));
+    await assert.rejects(runRig(["validate", path]), /eyes/);
+  } finally { remove(path); }
+});
+
+test("pose review refuses an unsafe round name and a project that was never packaged", async () => {
+  const path = project();
+  try {
+    await assert.rejects(reviewRig(path, "../escape"), /round/);
+    await assert.rejects(reviewRig(path, "r1"), /package/);
   } finally { remove(path); }
 });
