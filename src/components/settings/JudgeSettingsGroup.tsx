@@ -1,9 +1,10 @@
 import { useState } from "react";
 import {
-  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns,
+  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES,
   judgeUseActive, providerLeavesMachine, type JudgeMeterView, type JudgeProviderId, type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
   type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
+import { judgeReadiness, judgeReadinessConcerns } from "@judge/readinessRows";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";

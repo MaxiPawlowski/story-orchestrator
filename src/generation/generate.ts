@@ -1,7 +1,7 @@
 import { askText, isPlanted, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { stripReasoningBlocks } from "@extraction/parse";
 import type { NormalizedStoryV2 } from "@engine/index";
-import { buildPickPrompt, chainScore, judgeVerdict, parsePick, pickChain, type ChainRead } from "@judge/index";
+import { buildPickPrompt, chainScore, judgeVerdict, parsePick, pickChain, type ChainRead } from "@judge/expansion";
 import { runCodeChecks, runCritic } from "./critic";
 import { parseGeneratedBeats } from "./parse";
 import { renderGenerationPrompt } from "./prompts";

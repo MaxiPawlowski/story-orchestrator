@@ -98,6 +98,12 @@ describe("bundle headroom: author-only code stays out of the main entry", () => 
     expect(panel).not.toMatch(/^import JudgeSettingsGroup\b/m);
   });
 
+  it("the judge and extraction barrels leave out the modules only lazy chunks and the settings group import", () => {
+    const judge = read("src/judge/index.ts");
+    for (const lazyOnly of ["readinessRows", "expansion", "loreScore", "loreRanking", "contradiction"]) expect(judge).not.toContain(`"./${lazyOnly}"`);
+    expect(read("src/extraction/index.ts")).not.toMatch(/sceneArms/);
+  });
+
   it("the host barrel does not re-export the image and sprite wrappers, which only their lazy chunks import", () => {
     const barrel = read("src/services/STAPI.ts");
     expect(barrel).not.toMatch(/stHost\/(image|imageSurface|sprites|gpuBroker)"/);

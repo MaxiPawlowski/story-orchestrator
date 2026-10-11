@@ -3,9 +3,10 @@ import { join } from "node:path";
 import { plantedModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import {
-  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_READINESS, JUDGE_USE_COPY, judgeReadiness, sanitizeJudgeSettings,
+  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, sanitizeJudgeSettings,
   type JudgeAnswer, type JudgeCallRecord, type JudgeRequest, type JudgeSettings,
 } from "@judge/index";
+import { JUDGE_READINESS, judgeReadiness } from "@judge/readinessRows";
 import { wardenFlagJournal, type WardenCheckFinding, type WardenCheckInput, type WardenNoteOp } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";

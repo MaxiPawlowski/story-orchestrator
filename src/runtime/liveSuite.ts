@@ -5,7 +5,8 @@ import { agendaStepKey, parseStoryV2OrThrow, type PrimitiveValue } from "@engine
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "./meanwhilePrompt";
 import { MEANWHILE_MAX_TOKENS } from "./coordinators/agendaProposalCoordinator";
-import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
+import type { ContextLimit } from "@extraction/index";
+import type { SceneArm, SceneArmSpec } from "@extraction/sceneArms";
 import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";

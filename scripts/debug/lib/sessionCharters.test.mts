@@ -8,13 +8,13 @@ import {
 } from './sessionCharters.mts';
 import { CARDS_DOC_PATH, findCard, loadCards, loadIndex, pinProblems, planStart, repinCharters, startProblems } from '../so-session.mts';
 
-const PLAN_TIER_COUNTS = { T0: 3, T1: 7, T2: 6, T3: 6, T4: 4, T5: 5, T6: 4, T7: 1 };
+const PLAN_TIER_COUNTS = { T0: 3, T1: 7, T2: 6, T3: 6, T4: 4, T5: 5, T6: 5, T7: 1 };
 const clone = (doc: CardDoc): CardDoc => JSON.parse(JSON.stringify(doc));
 
 test('plan 14 charters: every card validates against the pinned story index', async () => {
   const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
   assert.deepEqual(validateCardDoc(doc, index), []);
-  assert.equal(doc.cards.length, 36);
+  assert.equal(doc.cards.length, 37);
 });
 
 test('plan 14 charters: the index is the adolion-fresh pin, and every story and tier is covered as plan 14 counts them', async () => {

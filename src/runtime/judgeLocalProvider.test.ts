@@ -1,7 +1,8 @@
 import {
-  defaultJudgeSettings, JUDGE_FIXTURE_REVISION, JUDGE_PROVIDERS, JUDGE_PROVIDER_IDS, JUDGE_READINESS_BY_PROVIDER, JUDGE_ROUTE_KEYS, judgeRoute, providerLeavesMachine, RING_USE_ROUTE_KEYS, sanitizeJudgeSettings,
+  defaultJudgeSettings, JUDGE_FIXTURE_REVISION, JUDGE_PROVIDERS, JUDGE_PROVIDER_IDS, JUDGE_ROUTE_KEYS, judgeRoute, providerLeavesMachine, RING_USE_ROUTE_KEYS, sanitizeJudgeSettings,
   type JudgeCallRecord, type JudgeDirectorInput, type JudgeProviderId, type JudgeResponse, type JudgeSettings, type JudgeTransport,
 } from "@judge/index";
+import { JUDGE_READINESS_BY_PROVIDER } from "@judge/readinessRows";
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 

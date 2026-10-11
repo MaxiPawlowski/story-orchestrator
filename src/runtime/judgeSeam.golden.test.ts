@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  buildBackgroundRequest, buildContinuityRequest, buildContradictionRequest, buildCuratorFilterRequest, buildPairRequest, buildVerifyRequest,
+  buildBackgroundRequest, buildContinuityRequest, buildCuratorFilterRequest, buildPairRequest, buildVerifyRequest,
   choice, defaultJudgeSettings, noul, score, type JudgeRequest, type JudgeResponse, type JudgeSettings, type JudgeTransport,
 } from "@judge/index";
+import { buildContradictionRequest } from "@judge/contradiction";
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 

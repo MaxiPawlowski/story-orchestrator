@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseStoryV2OrThrow } from "@engine/index";
-import type { ChainRead } from "@judge/index";
+import type { ChainRead } from "@judge/expansion";
 import { callExtractionReply, profileRoute, routedModel, type ModelAsk } from "@extraction/index";
 import { generateReviewedBeats } from "./generate";
 import { findStubExpansionCandidate, planExpansion } from "./planner";

@@ -4,7 +4,7 @@ import { defaultGlobalSettings, defaultExtractionSettings, defaultMemorySettings
 import type { ExtractionRuntimeSettings, MemoryRuntimeSettings } from "@runtime/types";
 import { DEFAULT_CHAPTER_SETTINGS } from "@runtime/chapters";
 import { JUDGE_USE_COPY } from "@judge/settings";
-import { JUDGE_READINESS_BY_PROVIDER } from "@judge/readiness";
+import { JUDGE_READINESS_BY_PROVIDER } from "@judge/readinessRows";
 import { EDIT_CATCH_UP_TEXT, HUD_COPY, PIPELINE_ACTION_COPY, REPAIR_PLAYER_COPY, hudChipLabel } from "@runtime/pipeline";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, storyHelpText, soMemHelpText } from "@runtime/slashHelp";

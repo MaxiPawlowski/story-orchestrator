@@ -1,7 +1,8 @@
 import {
-  defaultJudgeSettings, judgeReadiness, judgeReadinessConcerns, judgeRoute, providerCleared, sanitizeJudgeSettings, JUDGE_FIXTURE_REVISION, JUDGE_READINESS_BY_PROVIDER, JUDGE_ROUTE_KEYS, RING_USE_ROUTE_KEYS,
+  defaultJudgeSettings, judgeRoute, providerCleared, sanitizeJudgeSettings, JUDGE_FIXTURE_REVISION, JUDGE_ROUTE_KEYS, RING_USE_ROUTE_KEYS,
   LLAMA_LOGPROB_MEASURED_ON, type JudgeCallRecord, type JudgeDirectorInput, type JudgeReadinessFact, type JudgeReadinessKey, type JudgeProviderId, type JudgeResponse, type JudgeSettings, type JudgeTransport,
 } from "@judge/index";
+import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS_BY_PROVIDER } from "@judge/readinessRows";
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 
