@@ -1,0 +1,126 @@
+{
+  "revision": 1,
+  "source": "Authored English synthetic holdout; labels frozen before evaluation. No campaign evidence.",
+  "rows": [
+    {
+      "id": "T1",
+      "intent": "A sober account of grief, with restrained language.",
+      "reply": "The bereaved family stood silently beside the empty chair.",
+      "level": 4
+    },
+    {
+      "id": "T2",
+      "intent": "A sober account of grief, with restrained language.",
+      "reply": "The narrator made a fart joke at the funeral and called grief hilarious.",
+      "level": 0
+    },
+    {
+      "id": "T3",
+      "intent": "A playful comedy of harmless misunderstandings.",
+      "reply": "They swapped identical hats and argued cheerfully over whose ears were warmer.",
+      "level": 4
+    },
+    {
+      "id": "T4",
+      "intent": "A playful comedy of harmless misunderstandings.",
+      "reply": "The narrator dwelt on mutilation and hopeless torture.",
+      "level": 0
+    },
+    {
+      "id": "T5",
+      "intent": "A tense espionage scene with suspicion and secrecy.",
+      "reply": "She checked the corridor before sliding the coded note beneath the door.",
+      "level": 4
+    },
+    {
+      "id": "T6",
+      "intent": "A tense espionage scene with suspicion and secrecy.",
+      "reply": "Everyone sang a nursery rhyme and forgot there had ever been a secret.",
+      "level": 0
+    },
+    {
+      "id": "T7",
+      "intent": "A gentle domestic story about caring for one another.",
+      "reply": "He warmed the soup and left a blanket where she could reach it.",
+      "level": 4
+    },
+    {
+      "id": "T8",
+      "intent": "A gentle domestic story about caring for one another.",
+      "reply": "The narrator praised cruelty and mocked everyone for offering help.",
+      "level": 0
+    },
+    {
+      "id": "T9",
+      "intent": "A wonder-filled exploration of unfamiliar landscapes.",
+      "reply": "Blue light drifted through the crystal grove as they traced its branching paths.",
+      "level": 4
+    },
+    {
+      "id": "T10",
+      "intent": "A wonder-filled exploration of unfamiliar landscapes.",
+      "reply": "The narrator dismissed the entire landscape as boring and refused to describe it.",
+      "level": 0
+    },
+    {
+      "id": "T11",
+      "intent": "A restrained mystery, patient observation over spectacle.",
+      "reply": "A faint watermark offered the first quiet clue.",
+      "level": 4
+    },
+    {
+      "id": "T12",
+      "intent": "A restrained mystery, patient observation over spectacle.",
+      "reply": "An explosion solved every mystery while the narrator shouted jokes.",
+      "level": 0
+    },
+    {
+      "id": "T13",
+      "intent": "A hopeful adventure about cooperation.",
+      "reply": "They shared their tools and found a route together.",
+      "level": 4
+    },
+    {
+      "id": "T14",
+      "intent": "A hopeful adventure about cooperation.",
+      "reply": "Cooperation was pointless, the narrator declared; betrayal was the only virtue.",
+      "level": 0
+    },
+    {
+      "id": "T15",
+      "intent": "A melancholic recollection of a lost friendship.",
+      "reply": "The faded letter still carried the shape of an old kindness.",
+      "level": 4
+    },
+    {
+      "id": "T16",
+      "intent": "A melancholic recollection of a lost friendship.",
+      "reply": "The lost friendship was turned into a loud advertisement for cheap boots.",
+      "level": 0
+    },
+    {
+      "id": "T17",
+      "intent": "A grounded survival scene without slapstick.",
+      "reply": "They rationed the remaining water and repaired the shelter before dark.",
+      "level": 4
+    },
+    {
+      "id": "T18",
+      "intent": "A grounded survival scene without slapstick.",
+      "reply": "The shelter bounced away on cartoon legs while everyone laughed.",
+      "level": 0
+    },
+    {
+      "id": "T19",
+      "intent": "A tender reunion after a long separation.",
+      "reply": "She took his hand and waited until he could speak.",
+      "level": 4
+    },
+    {
+      "id": "T20",
+      "intent": "A tender reunion after a long separation.",
+      "reply": "The narrator sneered at affection and turned the reunion into a sales pitch.",
+      "level": 0
+    }
+  ]
+}

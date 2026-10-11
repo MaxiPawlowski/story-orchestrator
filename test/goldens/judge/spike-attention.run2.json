@@ -1,0 +1,854 @@
+{
+  "source": "ideas.mts attention run 2 over test/fixtures/judge/spike-attention.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:44:12.588Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "1a4807a406ea",
+  "run": 2,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "ignoresRecall": 1,
+      "respondsSpecificity": 1,
+      "partialFlagged": 0
+    },
+    "floors": [
+      {
+        "name": "ignores recall",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "responds specificity",
+        "value": 1,
+        "floor": 0.95,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 235,
+  "calls": [
+    {
+      "id": "ign-ferry",
+      "state": {
+        "reply": {
+          "speaker": "Guard",
+          "text": "The guard polishes his helmet and talks at length about the weather in the hills."
+        },
+        "player": "Max",
+        "player_message": "Where is the ferry?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.4,
+          "confidence": 0.38,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.78,
+            "1": 0.03,
+            "2": 0.19
+          }
+        }
+      },
+      "latencyMs": 577,
+      "inputTokens": 480
+    },
+    {
+      "id": "ign-door",
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "In the kitchen, the cook stirs a pot of soup and hums an old tune."
+        },
+        "player": "Max",
+        "player_message": "I try the door handle."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.28,
+          "confidence": 0.59,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.86,
+            "1": 0.01,
+            "2": 0.13
+          }
+        }
+      },
+      "latencyMs": 565,
+      "inputTokens": 484
+    },
+    {
+      "id": "ign-name",
+      "state": {
+        "reply": {
+          "speaker": "Stranger",
+          "text": "The stranger tells you the price of grain has doubled since spring and the roads are worse than ever."
+        },
+        "player": "Max",
+        "player_message": "What's your name?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.4,
+          "confidence": 0.4,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.79,
+            "1": 0.02,
+            "2": 0.19
+          }
+        }
+      },
+      "latencyMs": 237,
+      "inputTokens": 483
+    },
+    {
+      "id": "ign-attack",
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The forest is quiet. Birds sing in the high branches and the sun warms the clearing."
+        },
+        "player": "Max",
+        "player_message": "I draw my sword and charge the bandit."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.11,
+          "confidence": 0.83,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.94,
+            "1": 0.01,
+            "2": 0.05
+          }
+        }
+      },
+      "latencyMs": 229,
+      "inputTokens": 487
+    },
+    {
+      "id": "ign-gift",
+      "state": {
+        "reply": {
+          "speaker": "Lysa",
+          "text": "Lysa talks about the festival next week and which dress she will wear."
+        },
+        "player": "Max",
+        "player_message": "I hand Lysa the locket I found."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.08,
+          "confidence": 0.86,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.95,
+            "1": 0.01,
+            "2": 0.04
+          }
+        }
+      },
+      "latencyMs": 248,
+      "inputTokens": 483
+    },
+    {
+      "id": "ign-question-group",
+      "state": {
+        "reply": {
+          "speaker": "Kael",
+          "text": "Kael stretches, yawns, and says the ale here is the worst in the province."
+        },
+        "player": "Max",
+        "player_message": "Kael, did you see who took the map?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.29,
+          "confidence": 0.55,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.84,
+            "1": 0.02,
+            "2": 0.14
+          }
+        }
+      },
+      "latencyMs": 308,
+      "inputTokens": 488
+    },
+    {
+      "id": "ign-plea",
+      "state": {
+        "reply": {
+          "speaker": "Miller",
+          "text": "The miller counts his sacks of flour and complains about the rats."
+        },
+        "player": "Max",
+        "player_message": "Please, help me lift him, he's bleeding."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.19,
+          "confidence": 0.71,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.89,
+            "1": 0.03,
+            "2": 0.08
+          }
+        }
+      },
+      "latencyMs": 245,
+      "inputTokens": 483
+    },
+    {
+      "id": "par-two-asks",
+      "state": {
+        "reply": {
+          "speaker": "Scout",
+          "text": "\"The baron sent me,\" the scout says, and glances toward the tree line without another word."
+        },
+        "player": "Max",
+        "player_message": "Who sent you, and how many of you are there?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.25,
+          "confidence": 0.62,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.75,
+            "2": 0.25
+          }
+        }
+      },
+      "latencyMs": 226,
+      "inputTokens": 491
+    },
+    {
+      "id": "par-action-half",
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "You haul yourself to the top of the wall. The courtyard below is dark and still."
+        },
+        "player": "Max",
+        "player_message": "I climb the wall and look for the guard's patrol route."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.37,
+          "confidence": 0.43,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.62,
+            "2": 0.38
+          }
+        }
+      },
+      "latencyMs": 227,
+      "inputTokens": 490
+    },
+    {
+      "id": "par-price",
+      "state": {
+        "reply": {
+          "speaker": "Trader",
+          "text": "\"She's sound as a bell,\" the trader says, slapping the mare's flank."
+        },
+        "player": "Max",
+        "player_message": "How much for the horse, and is she sound?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.16,
+          "confidence": 0.76,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.84,
+            "2": 0.16
+          }
+        }
+      },
+      "latencyMs": 235,
+      "inputTokens": 488
+    },
+    {
+      "id": "par-tangent",
+      "state": {
+        "reply": {
+          "speaker": "Elin",
+          "text": "Elin says she was at the mill that night, then starts talking about her brother's debts."
+        },
+        "player": "Max",
+        "player_message": "Tell me what happened at the mill."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.2,
+          "confidence": 0.67,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.78,
+            "2": 0.21
+          }
+        }
+      },
+      "latencyMs": 215,
+      "inputTokens": 486
+    },
+    {
+      "id": "par-promise",
+      "state": {
+        "reply": {
+          "speaker": "Tomas",
+          "text": "Tomas looks at the map for a long time and asks how far the coast is."
+        },
+        "player": "Max",
+        "player_message": "Will you come with us to the coast?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.96,
+          "confidence": 0.66,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.14,
+            "1": 0.77,
+            "2": 0.09
+          }
+        }
+      },
+      "latencyMs": 237,
+      "inputTokens": 485
+    },
+    {
+      "id": "res-answer",
+      "state": {
+        "reply": {
+          "speaker": "Guard",
+          "text": "\"Down the hill, past the tannery. It leaves at the third bell,\" the guard says."
+        },
+        "player": "Max",
+        "player_message": "Where is the ferry?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 2,
+          "confidence": 1,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 1
+          }
+        }
+      },
+      "latencyMs": 222,
+      "inputTokens": 483
+    },
+    {
+      "id": "res-refusal",
+      "state": {
+        "reply": {
+          "speaker": "Warden",
+          "text": "\"No,\" the warden says, closing his fist around it. \"Not until the magistrate signs.\""
+        },
+        "player": "Max",
+        "player_message": "Give me the key."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 2,
+          "confidence": 1,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 1
+          }
+        }
+      },
+      "latencyMs": 242,
+      "inputTokens": 485
+    },
+    {
+      "id": "res-evasion",
+      "state": {
+        "reply": {
+          "speaker": "Elin",
+          "text": "Elin laughs a little too quickly. \"Why would I be at a mill at night? Ask me something sensible.\""
+        },
+        "player": "Max",
+        "player_message": "Were you at the mill that night?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.98,
+          "confidence": 0.97,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.02,
+            "2": 0.98
+          }
+        }
+      },
+      "latencyMs": 258,
+      "inputTokens": 490
+    },
+    {
+      "id": "res-question-back",
+      "state": {
+        "reply": {
+          "speaker": "Spy",
+          "text": "\"Who are you working for?\" the spy asks back, smiling."
+        },
+        "player": "Max",
+        "player_message": "Who are you working for?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.97,
+          "confidence": 0.95,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.03,
+            "2": 0.97
+          }
+        }
+      },
+      "latencyMs": 219,
+      "inputTokens": 477
+    },
+    {
+      "id": "res-unaddressed-1",
+      "state": {
+        "reply": {
+          "speaker": "Pip",
+          "text": "Pip, sitting by the fire, flips a coin and pockets it, humming to herself."
+        },
+        "player": "Max",
+        "player_message": "Kael, did you see who took the map?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.19,
+          "confidence": 0,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.39,
+            "1": 0.03,
+            "2": 0.58
+          }
+        }
+      },
+      "latencyMs": 246,
+      "inputTokens": 488
+    },
+    {
+      "id": "res-unaddressed-2",
+      "state": {
+        "reply": {
+          "speaker": "Bram",
+          "text": "Bram counts the arrows in his quiver and frowns at the total."
+        },
+        "player": "Max",
+        "player_message": "Lysa, can you read this letter?"
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.75,
+          "confidence": 0,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.62,
+            "1": 0.02,
+            "2": 0.36
+          }
+        }
+      },
+      "latencyMs": 212,
+      "inputTokens": 484
+    },
+    {
+      "id": "res-unaddressed-3",
+      "state": {
+        "reply": {
+          "speaker": "Ilse",
+          "text": "Ilse sharpens her knife and watches the river for boats."
+        },
+        "player": "Max",
+        "player_message": "Tomas, hold the rope."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 1.02,
+          "confidence": 0,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.48,
+            "1": 0.03,
+            "2": 0.49
+          }
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 479
+    },
+    {
+      "id": "res-unaddressed-4",
+      "state": {
+        "reply": {
+          "speaker": "Hesper",
+          "text": "Hesper threads her needle by the window and says nothing."
+        },
+        "player": "Max",
+        "player_message": "Dax, deal me in."
+      },
+      "questions": {
+        "attention": {
+          "type": "score",
+          "instructions": "Does `reply` answer what `player` just said, asked or did in `player_message`? A refusal, a dodge in character or a question back counts as an answer. If `reply` is spoken by a character the player did not address, any reply that keeps the scene going counts as an answer.",
+          "criteria": [
+            "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          ]
+        }
+      },
+      "answers": {
+        "attention": {
+          "type": "score",
+          "score": 0.99,
+          "confidence": 0,
+          "legend": {
+            "0": "ignores: the reply passes over what the player said, asked or did, as if it had not happened",
+            "1": "partial: the reply touches what the player said or did but leaves its main ask or action unanswered",
+            "2": "responds: the reply answers what the player said or did, refuses it, dodges it in character, or was not addressed to it"
+          },
+          "probabilities": {
+            "0": 0.49,
+            "1": 0.03,
+            "2": 0.48
+          }
+        }
+      },
+      "latencyMs": 204,
+      "inputTokens": 479
+    }
+  ]
+}

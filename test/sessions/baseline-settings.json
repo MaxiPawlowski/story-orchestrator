@@ -142,7 +142,14 @@
         "expressions": true,
         "attentionCheck": true,
         "wardenVoice": true,
-        "divergence": true
+        "divergence": true,
+        "canonVerify": true,
+        "canonDraft": true,
+        "pictureCue": true,
+        "adversityTrend": true,
+        "idleCheck": true,
+        "toneCheck": true,
+        "repetitionCheck": true
       },
       "expansion": {
         "variants": 1,
@@ -170,7 +177,14 @@
         "attentionCheck": "typesafe",
         "wardenVoice": "typesafe",
         "divergence": "typesafe",
-        "warden": "typesafe"
+        "warden": "typesafe",
+        "canonVerify": "typesafe",
+        "canonDraft": "typesafe",
+        "pictureCue": "typesafe",
+        "adversityTrend": "typesafe",
+        "idleCheck": "typesafe",
+        "toneCheck": "typesafe",
+        "repetitionCheck": "typesafe"
       }
     },
     "worldInfo": {

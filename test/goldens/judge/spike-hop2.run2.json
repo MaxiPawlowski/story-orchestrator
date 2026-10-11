@@ -1,0 +1,1537 @@
+{
+  "source": "ideas.mts hop2 run 2 over test/fixtures/judge/spike-hop2.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-11T11:49:09.469Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "71f0e8c442c7",
+  "run": 2,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "hop2Accuracy": 1,
+      "hop2Toward": 1,
+      "hop2Not": 1,
+      "hop1Toward": null,
+      "hop1Not": null
+    },
+    "floors": [
+      {
+        "name": "hop-2 toward",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "hop-2 not",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 216,
+  "actualCalls": 20,
+  "calls": [
+    {
+      "id": "H1",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "recover the missing ledger"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to recover the missing ledger. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to recover the missing ledger; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — recover the missing ledger?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 316,
+      "inputTokens": 585
+    },
+    {
+      "id": "H2",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "recover the missing ledger"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not recover the missing ledger. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — recover the missing ledger?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 364,
+      "inputTokens": 581
+    },
+    {
+      "id": "H3",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "reach the lighthouse"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to reach the lighthouse. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to reach the lighthouse; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — reach the lighthouse?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 250,
+      "inputTokens": 589
+    },
+    {
+      "id": "H4",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "reach the lighthouse"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not reach the lighthouse. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — reach the lighthouse?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 584
+    },
+    {
+      "id": "H5",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "rescue the stranded crew"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to rescue the stranded crew. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to rescue the stranded crew; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — rescue the stranded crew?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 212,
+      "inputTokens": 586
+    },
+    {
+      "id": "H6",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "rescue the stranded crew"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not rescue the stranded crew. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — rescue the stranded crew?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 220,
+      "inputTokens": 582
+    },
+    {
+      "id": "H7",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "find the lost courier"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to find the lost courier. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to find the lost courier; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — find the lost courier?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 223,
+      "inputTokens": 585
+    },
+    {
+      "id": "H8",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "find the lost courier"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not find the lost courier. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — find the lost courier?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 231,
+      "inputTokens": 581
+    },
+    {
+      "id": "H9",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "negotiate a ceasefire"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to negotiate a ceasefire. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to negotiate a ceasefire; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — negotiate a ceasefire?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 191,
+      "inputTokens": 591
+    },
+    {
+      "id": "H10",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "negotiate a ceasefire"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not negotiate a ceasefire. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — negotiate a ceasefire?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 205,
+      "inputTokens": 586
+    },
+    {
+      "id": "H11",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "restore the water supply"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to restore the water supply. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to restore the water supply; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — restore the water supply?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 249,
+      "inputTokens": 585
+    },
+    {
+      "id": "H12",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "restore the water supply"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not restore the water supply. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — restore the water supply?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 581
+    },
+    {
+      "id": "H13",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "solve the theft"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to solve the theft. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to solve the theft; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — solve the theft?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 253,
+      "inputTokens": 581
+    },
+    {
+      "id": "H14",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "solve the theft"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not solve the theft. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — solve the theft?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 228,
+      "inputTokens": 578
+    },
+    {
+      "id": "H15",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "deliver the medicine"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to deliver the medicine. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to deliver the medicine; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — deliver the medicine?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 206,
+      "inputTokens": 581
+    },
+    {
+      "id": "H16",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "deliver the medicine"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not deliver the medicine. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — deliver the medicine?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 198,
+      "inputTokens": 578
+    },
+    {
+      "id": "H17",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "repair the bridge"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to repair the bridge. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to repair the bridge; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — repair the bridge?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 581
+    },
+    {
+      "id": "H18",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "repair the bridge"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not repair the bridge. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — repair the bridge?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 202,
+      "inputTokens": 578
+    },
+    {
+      "id": "H19",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "locate the observatory"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We are going to locate the observatory. Gather the supplies so we can do that next."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to locate the observatory; first we gather supplies."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — locate the observatory?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 590
+    },
+    {
+      "id": "H20",
+      "state": {
+        "story": {
+          "title": "The Expedition"
+        },
+        "scene": {
+          "checkpoint": "Planning",
+          "objective": "Choose the next destination"
+        },
+        "cast": [
+          {
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "player": "Player",
+        "reachable": [
+          {
+            "name": "Preparation",
+            "objective": "Gather supplies"
+          },
+          {
+            "name": "The mission",
+            "objective": "locate the observatory"
+          },
+          {
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here"
+          }
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Player",
+            "text": "We will not locate the observatory. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ]
+      },
+      "questions": {
+        "heading:prepare": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Preparation — Gather supplies?"
+        },
+        "heading:target": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: The mission — locate the observatory?"
+        },
+        "heading:rest": {
+          "type": "noul",
+          "instructions": "Is the play in `transcript` moving toward: Rest — Abandon the mission and settle here?"
+        }
+      },
+      "answers": {
+        "heading:prepare": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "heading:target": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "heading:rest": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      },
+      "latencyMs": 232,
+      "inputTokens": 585
+    }
+  ]
+}

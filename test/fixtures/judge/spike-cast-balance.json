@@ -1,0 +1,726 @@
+{
+  "revision": 1,
+  "source": "Authored English synthetic holdout; labels frozen before evaluation. No campaign evidence.",
+  "rows": [
+    {
+      "id": "CB1",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to repair the clock"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you repair the clock?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB2",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to repair the clock"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you repair the clock?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB3",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to decode the letter"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you decode the letter?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB4",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to decode the letter"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you decode the letter?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB5",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to treat the burn"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you treat the burn?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB6",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to treat the burn"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you treat the burn?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB7",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to chart the river"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you chart the river?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB8",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to chart the river"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you chart the river?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB9",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to inspect the lock"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you inspect the lock?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB10",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to inspect the lock"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you inspect the lock?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB11",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to identify the coin"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you identify the coin?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB12",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to identify the coin"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you identify the coin?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB13",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to translate the inscription"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you translate the inscription?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB14",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to translate the inscription"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you translate the inscription?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB15",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to track the wagon"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you track the wagon?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB16",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to track the wagon"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you track the wagon?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB17",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to test the water"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you test the water?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB18",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to test the water"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you test the water?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    },
+    {
+      "id": "CB19",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The only specialist able to mend the sail"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group; has no specialist knowledge"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you mend the sail?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "I will answer for Expert. There is no need to let Expert speak."
+        },
+        {
+          "speaker": "Player",
+          "text": "I asked Expert. Please let them answer."
+        },
+        {
+          "speaker": "Guide",
+          "text": "No. I will answer every question, even questions for Expert."
+        }
+      ],
+      "labels": {
+        "Expert": "under",
+        "Guide": "over"
+      }
+    },
+    {
+      "id": "CB20",
+      "player": "Player",
+      "cast": [
+        {
+          "name": "Expert",
+          "role": "The specialist able to mend the sail"
+        },
+        {
+          "name": "Guide",
+          "role": "Guides the group and watches the approach"
+        }
+      ],
+      "turns": [
+        {
+          "speaker": "Player",
+          "text": "Expert, can you mend the sail?"
+        },
+        {
+          "speaker": "Expert",
+          "text": "Yes. Here is what I found and what we need to do."
+        },
+        {
+          "speaker": "Player",
+          "text": "Guide, is the approach safe?"
+        },
+        {
+          "speaker": "Guide",
+          "text": "Yes. I checked it; we can proceed."
+        }
+      ],
+      "labels": {
+        "Expert": "fine",
+        "Guide": "fine"
+      }
+    }
+  ]
+}

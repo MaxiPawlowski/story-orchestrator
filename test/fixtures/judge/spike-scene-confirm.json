@@ -1,0 +1,166 @@
+{
+  "$comment": "v2.8 13 J7.1 Phase A held-out fixture: 12 new distinct synthetic English windows (6 break, 6 nobreak), authored and labelled by Claude 2026-10-10 before any judge answer was read; not mined from sessions, not second-model checked. Hard cases on purpose: time skips inside one location, soft location drift, a divider, and nobreak traps (talk about other places and times, an arrival, a move between rooms of one building, a long pause, a memory, a plan to travel). The latest message of each window is the one judged. Predeclared 2026-10-03: confirm when scene_break p >= SCENE_CONFIRM_P 0.40 (= SCENE_TRIGGER). Floors: break >= 0.95, nobreak 1.0, on these held-out windows and on the whole set (these plus the recorded scene.json and scene-holdout.json break rows).",
+  "revision": 1,
+  "rows": [
+    {
+      "id": "B1-dawn-same-room", "hard": "time-skip-one-location", "sceneBreak": true,
+      "input": {
+        "storyTitle": "The Lantern Ferry", "checkpointName": "A Bed for the Night", "objective": "Find lodging before crossing the river.",
+        "cast": [{ "rosterId": "mira", "name": "Mira", "role": "The ferrywoman" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Narrator", "text": "The common room of the Drowned Bell is loud with bargemen; someone is singing badly near the hearth." },
+          { "speaker": "Max", "text": "I order a second ale and ask Mira when the tide turns." },
+          { "speaker": "Mira", "text": "\"Before dawn. Drink slow, or you'll be useless at the oars.\"" },
+          { "speaker": "Narrator", "text": "By the time grey light came through the shutters the next morning, the common room was empty except for the cook sweeping up last night's broken glass." }
+        ]
+      }
+    },
+    {
+      "id": "B2-week-later-forge", "hard": "time-skip-one-location", "sceneBreak": true,
+      "input": {
+        "storyTitle": "Iron and Ash", "checkpointName": "The Commission", "objective": "Forge the blade the duke ordered.",
+        "cast": [{ "rosterId": "hald", "name": "Hald", "role": "The old smith Max apprentices under" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Hald", "text": "\"Again. Your hammer's drifting left. Watch the colour, not your hands.\"" },
+          { "speaker": "Max", "text": "I wipe my face and bring the hammer down, counting the strokes." },
+          { "speaker": "Narrator", "text": "The billet rings and slowly flattens under the blows." },
+          { "speaker": "Narrator", "text": "A week later the forge was cold for the first time in days, and the finished blade lay wrapped in oiled cloth on the bench, waiting for the duke's rider." }
+        ]
+      }
+    },
+    {
+      "id": "B3-market-to-woods", "hard": "soft-location-drift", "sceneBreak": true,
+      "input": {
+        "storyTitle": "The Pilgrim Road", "checkpointName": "Leave Corvin", "objective": "Set out for the mountain shrine.",
+        "cast": [{ "rosterId": "sela", "name": "Sela", "role": "A pilgrim travelling with Max" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Narrator", "text": "The Corvin market is a crush of stalls, goats and shouting traders." },
+          { "speaker": "Sela", "text": "\"Bread, rope, and nothing else. We can't carry your appetite up a mountain.\"" },
+          { "speaker": "Max", "text": "I pay for the rope and we push our way out through the north gate." },
+          { "speaker": "Narrator", "text": "The road climbs steadily into pine woods. By noon the market's noise is long gone and the only sounds are their boots on the needles and a jay scolding overhead." }
+        ]
+      }
+    },
+    {
+      "id": "B4-divider-harbour", "hard": "divider", "sceneBreak": true,
+      "input": {
+        "storyTitle": "The Salt Court", "checkpointName": "The Feast", "objective": "Win the queen's ear at the spring feast.",
+        "cast": [{ "rosterId": "varric", "name": "Lord Varric", "role": "A rival lord" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Lord Varric", "text": "\"Enjoy the wine, envoy. It may be the last you taste at court.\"" },
+          { "speaker": "Max", "text": "I raise my cup to him and smile." },
+          { "speaker": "Narrator", "text": "* * *\n\nDown at the harbour, a hooded figure counts out silver into a fisherman's palm and points at the envoy's moored barge." }
+        ]
+      }
+    },
+    {
+      "id": "B5-season-turns", "hard": "time-skip-one-location", "sceneBreak": true,
+      "input": {
+        "storyTitle": "The Watchtower", "checkpointName": "Keep the Watch", "objective": "Hold the tower until relief arrives.",
+        "cast": [{ "rosterId": "orla", "name": "Orla", "role": "The tower's other sentry" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Orla", "text": "\"Another quiet night. I'm starting to think they forgot we're here.\"" },
+          { "speaker": "Max", "text": "\"Good. Forgotten soldiers live longer.\"" },
+          { "speaker": "Narrator", "text": "Winter came early that year. When Max next climbed the tower stairs, frost had sealed the arrow slits shut and Orla's cough had not left her for a month." }
+        ]
+      }
+    },
+    {
+      "id": "B6-arrive-monastery", "hard": "soft-location-drift", "sceneBreak": true,
+      "input": {
+        "storyTitle": "The Pilgrim Road", "checkpointName": "The Mountain Path", "objective": "Reach the shrine before the snows.",
+        "cast": [{ "rosterId": "sela", "name": "Sela", "role": "A pilgrim travelling with Max" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Narrator", "text": "The switchbacks grow steeper and the wind sharper with every turn." },
+          { "speaker": "Sela", "text": "\"My feet stopped complaining an hour ago. I think they died.\"" },
+          { "speaker": "Max", "text": "I keep walking and offer her my arm." },
+          { "speaker": "Narrator", "text": "At dusk they stand before the monastery gates. Inside the walls, monks in grey robes are lighting lamps along a courtyard of worn flagstones." }
+        ]
+      }
+    },
+    {
+      "id": "N1-tale-of-harbour", "hard": "talk-about-other-place", "sceneBreak": false,
+      "input": {
+        "storyTitle": "The Lantern Ferry", "checkpointName": "A Bed for the Night", "objective": "Find lodging before crossing the river.",
+        "cast": [{ "rosterId": "mira", "name": "Mira", "role": "The ferrywoman" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Narrator", "text": "Rain drums on the roof of the Drowned Bell; the fire is down to embers." },
+          { "speaker": "Max", "text": "\"How did you end up running a ferry, anyway?\"" },
+          { "speaker": "Mira", "text": "\"Twenty years ago I worked the big harbour at Saltmouth, loading spice ships from dawn to midnight. One winter the docks burned, and I walked upriver with nothing but an oar. Been here ever since.\" She turns her cup in her hands and watches the embers." }
+        ]
+      }
+    },
+    {
+      "id": "N2-sheriff-arrives", "hard": "arrival", "sceneBreak": false,
+      "input": {
+        "storyTitle": "Iron and Ash", "checkpointName": "The Commission", "objective": "Forge the blade the duke ordered.",
+        "cast": [{ "rosterId": "hald", "name": "Hald", "role": "The old smith Max apprentices under" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Hald", "text": "\"Quench it now. Slowly. Let the oil take it.\"" },
+          { "speaker": "Max", "text": "I lower the blade into the trough and watch the smoke curl up." },
+          { "speaker": "Narrator", "text": "The forge door bangs open and the sheriff strides in, shaking rain from his coat. \"Hald. A word about the duke's sword,\" he says, eyeing the smoking trough." }
+        ]
+      }
+    },
+    {
+      "id": "N3-into-library", "hard": "move-within-building", "sceneBreak": false,
+      "input": {
+        "storyTitle": "The Glass Archive", "checkpointName": "The Reading Rooms", "objective": "Find the index of land charters.",
+        "cast": [{ "rosterId": "dorrel", "name": "Archivist Dorrel", "role": "The archivist" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Archivist Dorrel", "text": "\"Charters are kept with the deeds. Follow me, and touch nothing.\"" },
+          { "speaker": "Max", "text": "I follow him down the corridor, careful not to brush the glass cases." },
+          { "speaker": "Narrator", "text": "Dorrel pushes open a door at the end of the hall and they step from the corridor into the next room, a long library of the same Archive, its shelves lit by the same high windows. He is already running a finger along a row of ledgers." }
+        ]
+      }
+    },
+    {
+      "id": "N4-long-pause", "hard": "pause", "sceneBreak": false,
+      "input": {
+        "storyTitle": "The Salt Court", "checkpointName": "The Feast", "objective": "Win the queen's ear at the spring feast.",
+        "cast": [{ "rosterId": "ysolde", "name": "Queen Ysolde", "role": "The queen" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Max", "text": "\"Majesty, the river towns cannot pay what the crown asks. They will starve, or they will rebel.\"" },
+          { "speaker": "Queen Ysolde", "text": "She sets down her goblet very carefully." },
+          { "speaker": "Narrator", "text": "Nobody at the high table speaks for a long minute. The musicians falter and then play on, too brightly. At last the queen looks up from her plate." }
+        ]
+      }
+    },
+    {
+      "id": "N5-memory-of-fire", "hard": "memory", "sceneBreak": false,
+      "input": {
+        "storyTitle": "The Watchtower", "checkpointName": "Keep the Watch", "objective": "Hold the tower until relief arrives.",
+        "cast": [{ "rosterId": "orla", "name": "Orla", "role": "The tower's other sentry" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Max", "text": "\"You never talk about Brennick.\"" },
+          { "speaker": "Orla", "text": "She is quiet a while, staring out over the parapet." },
+          { "speaker": "Narrator", "text": "She remembers the night Brennick burned: the bells, the smoke, her brother's hand slipping out of hers in the crowd at the gate. Then the wind gusts across the tower top and she pulls her cloak tighter, still at the parapet beside Max." }
+        ]
+      }
+    },
+    {
+      "id": "N6-plan-to-ride", "hard": "plan-to-travel", "sceneBreak": false,
+      "input": {
+        "storyTitle": "The Pilgrim Road", "checkpointName": "Leave Corvin", "objective": "Set out for the mountain shrine.",
+        "cast": [{ "rosterId": "sela", "name": "Sela", "role": "A pilgrim travelling with Max" }, { "rosterId": "narrator", "name": "Narrator", "role": "Describes places and everyone not in the cast" }],
+        "player": "Max",
+        "window": [
+          { "speaker": "Narrator", "text": "Their room at the inn is small and smells of tallow." },
+          { "speaker": "Max", "text": "I spread the map across the bed." },
+          { "speaker": "Sela", "text": "\"Tomorrow we take the north gate, then the pine road to the pass, and if the weather holds we reach the shrine in four days.\" She taps the mountain with one finger and then yawns, still sitting on the edge of the bed." }
+        ]
+      }
+    }
+  ]
+}

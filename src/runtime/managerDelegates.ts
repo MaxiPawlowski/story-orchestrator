@@ -123,6 +123,8 @@ export abstract class CoordinatorDelegates {
   async removeArc(id: string) { await this.co.memory.removeArc(id); }
   getCanon(): string { return this.co.memory.canon.getCanon(); }
   async regenerateCanon(force = false): Promise<boolean> { return this.co.memory.canon.regenerateCanon(force); }
+  async draftCanon(): Promise<boolean> { return this.co.memory.canon.regenerateCanon(true, true); }
+  async decideCanonDraft(accept: boolean): Promise<boolean> { return this.co.memory.canon.decideDraft(accept); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.co.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.co.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); this.co.pacing.draftGuidance(this.co.memory.draftedRosterId(chId)); }

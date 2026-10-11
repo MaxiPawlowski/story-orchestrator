@@ -363,6 +363,7 @@ export class StagecraftCoordinator {
       continuity, agency: extra.agency && facing("agency"), houseRules: extra.houseRules, lore: continuity && extra.lore === true,
       ...(extra.attention ? { attention: facing("attention") } : {}),
       ...(extra.voice ? { voice: wardenFamilyMode(this.state.settings, "voice") !== "off" } : {}),
+      ...(extra.ideas ? { ideas: extra.ideas } : {}),
     };
   }
 
@@ -370,6 +371,20 @@ export class StagecraftCoordinator {
   private withdrawRemovedRules(): number {
     const rules = this.deps.getStory()?.house_rules ?? [];
     return this.settleNotes((op, status) => status !== "applied" && withdrawRemovedRules(op, rules), "rule removed");
+  }
+
+  private ideaScope(active: WardenFamiliesActive["ideas"], token: RunToken, state: EngineState, replyMessageId: number): WardenCheckInput["ideaScope"] {
+    if (!active) return undefined;
+    const story = this.deps.getStory();
+    const checkpoint = story?.checkpointById[state.activeCheckpointId];
+    const rows = this.deps.hosts.chat.chatRows();
+    const replies = rows.slice(0, replyMessageId + 1).flatMap((_, index) => {
+      const found = readReply(rows, index);
+      return found ? [found.text] : [];
+    }).slice(-60);
+    return { key: JSON.stringify(token), messageId: replyMessageId, player: this.deps.hosts.player.getPlayerName(),
+      intent: [story?.description, checkpoint?.objective].filter(Boolean).join("\n"), replies,
+      stillOwns: () => this.deps.ownership.check(token).ok };
   }
 
   async runWardenPass(replyMessageId: number): Promise<boolean> {
@@ -396,7 +411,8 @@ export class StagecraftCoordinator {
       const playerLine = families.agency || families.attention ? readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId) : null;
       const said = playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(), message: playerLine } : null;
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text),
-          agency: families.agency ? said : null, houseRules: families.houseRules };
+          agency: families.agency ? said : null, houseRules: families.houseRules,
+          ideaScope: this.ideaScope(families.ideas, token, state, replyMessageId) };
       if (families.attention && said) input.attention = said;
       const voice = families.voice ? warden.voice?.(reply.speaker) ?? null : null;
       if (voice) input.voice = voice;
@@ -408,7 +424,7 @@ export class StagecraftCoordinator {
         const line = readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId);
         input.houseRuleContext = { scene: { player: this.deps.hosts.player.getPlayerName(), ...(line ? { playerMessage: line } : {}), ...warden.scene(reply.speaker) }, worldBook: fired };
       }
-      const asks = input.facts.length > 0 || input.agency !== null || Boolean(input.attention) || Boolean(input.voice) || input.houseRules.length > 0 || lore.length > 0;
+      const asks = input.facts.length > 0 || input.agency !== null || Boolean(input.attention) || Boolean(input.voice) || Boolean(input.ideaScope) || input.houseRules.length > 0 || lore.length > 0;
       const findings = asks ? await warden.check(input).catch((error: unknown) => {
         log.warn("continuity warden: the check failed", error);
         return null;

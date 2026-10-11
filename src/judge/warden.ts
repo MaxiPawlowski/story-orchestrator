@@ -12,6 +12,7 @@ export const WARDEN_FAMILIES = ["continuity", "agency", "attention", "voice", "h
 export type WardenFamily = (typeof WARDEN_FAMILIES)[number];
 
 export interface WardenInput {
+  ideaScope?: { key: string; messageId: number; player: string; intent: string; replies: string[]; stillOwns: () => boolean };
   reply: { speaker: string; text: string };
   facts: string[];
   agency: { player: string; message: string } | null;

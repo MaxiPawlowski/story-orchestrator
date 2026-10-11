@@ -1,0 +1,1106 @@
+{
+  "revision": 1,
+  "source": "Authored English synthetic holdout; labels frozen before evaluation. No campaign evidence.",
+  "rows": [
+    {
+      "id": "H1",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "recover the missing ledger",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to recover the missing ledger. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to recover the missing ledger; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H2",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "recover the missing ledger",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not recover the missing ledger. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H3",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "reach the lighthouse",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to reach the lighthouse. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to reach the lighthouse; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H4",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "reach the lighthouse",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not reach the lighthouse. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H5",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "rescue the stranded crew",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to rescue the stranded crew. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to rescue the stranded crew; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H6",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "rescue the stranded crew",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not rescue the stranded crew. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H7",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "find the lost courier",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to find the lost courier. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to find the lost courier; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H8",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "find the lost courier",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not find the lost courier. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H9",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "negotiate a ceasefire",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to negotiate a ceasefire. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to negotiate a ceasefire; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H10",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "negotiate a ceasefire",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not negotiate a ceasefire. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H11",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "restore the water supply",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to restore the water supply. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to restore the water supply; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H12",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "restore the water supply",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not restore the water supply. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H13",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "solve the theft",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to solve the theft. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to solve the theft; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H14",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "solve the theft",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not solve the theft. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H15",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "deliver the medicine",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to deliver the medicine. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to deliver the medicine; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H16",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "deliver the medicine",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not deliver the medicine. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H17",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "repair the bridge",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to repair the bridge. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to repair the bridge; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H18",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "repair the bridge",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not repair the bridge. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    },
+    {
+      "id": "H19",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "locate the observatory",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We are going to locate the observatory. Gather the supplies so we can do that next."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. Our destination is to locate the observatory; first we gather supplies."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": true,
+        "rest": false
+      }
+    },
+    {
+      "id": "H20",
+      "input": {
+        "storyTitle": "The Expedition",
+        "checkpointName": "Planning",
+        "objective": "Choose the next destination",
+        "player": "Player",
+        "cast": [
+          {
+            "rosterId": "guide",
+            "name": "Guide",
+            "role": "Expedition guide"
+          }
+        ],
+        "reachable": [
+          {
+            "id": "prepare",
+            "name": "Preparation",
+            "objective": "Gather supplies",
+            "hops": 1
+          },
+          {
+            "id": "target",
+            "name": "The mission",
+            "objective": "locate the observatory",
+            "hops": 2
+          },
+          {
+            "id": "rest",
+            "name": "Rest",
+            "objective": "Abandon the mission and settle here",
+            "hops": 2
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Player",
+            "text": "We will not locate the observatory. Abandon that mission; we are settling here permanently."
+          },
+          {
+            "speaker": "Guide",
+            "text": "Agreed. No more missions; this is our permanent home."
+          }
+        ],
+        "families": {
+          "sceneBreak": false,
+          "tracker": false,
+          "lookahead": true
+        }
+      },
+      "heading": {
+        "target": false,
+        "rest": true
+      }
+    }
+  ]
+}

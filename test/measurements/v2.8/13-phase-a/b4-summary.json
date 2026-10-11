@@ -1,0 +1,374 @@
+{
+  "ideas": {
+    "scene-confirm": [
+      {
+        "run": 1,
+        "passed": false,
+        "metrics": {
+          "heldOutBreak": 0.8333,
+          "heldOutNobreak": 1,
+          "wholeBreak": 0.9211,
+          "wholeNobreak": 1
+        },
+        "fixtureRevision": "6448d2605f71",
+        "model": "jev-1.13.0",
+        "calls": 12,
+        "p50": 229,
+        "p95": 1226
+      },
+      {
+        "run": 2,
+        "passed": false,
+        "metrics": {
+          "heldOutBreak": 0.8333,
+          "heldOutNobreak": 1,
+          "wholeBreak": 0.9211,
+          "wholeNobreak": 1
+        },
+        "fixtureRevision": "6448d2605f71",
+        "model": "jev-1.13.0",
+        "calls": 12,
+        "p50": 219,
+        "p95": 342
+      }
+    ],
+    "canon-verify": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "unsupportedDropped": 1,
+          "supportedDropped": 0.0455,
+          "supportedKept": 0.9545,
+          "unsupportedInserted": 0
+        },
+        "fixtureRevision": "05fe396d0e55",
+        "model": "jev-1.13.0",
+        "calls": 5,
+        "p50": 291,
+        "p95": 420
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "unsupportedDropped": 1,
+          "supportedDropped": 0.0455,
+          "supportedKept": 0.9545,
+          "unsupportedInserted": 0
+        },
+        "fixtureRevision": "05fe396d0e55",
+        "model": "jev-1.13.0",
+        "calls": 5,
+        "p50": 263,
+        "p95": 525
+      }
+    ],
+    "epistemic": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "agreement": 0.9167,
+          "knows": 0.8571,
+          "unaware": 0.8571,
+          "suspects": 1,
+          "hiding": 1
+        },
+        "fixtureRevision": "210b4af1a89a",
+        "model": "jev-1.13.0",
+        "calls": 6,
+        "p50": 228,
+        "p95": 369
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "agreement": 0.9167,
+          "knows": 0.8571,
+          "unaware": 0.8571,
+          "suspects": 1,
+          "hiding": 1
+        },
+        "fixtureRevision": "210b4af1a89a",
+        "model": "jev-1.13.0",
+        "calls": 6,
+        "p50": 277,
+        "p95": 365
+      }
+    ],
+    "cast-balance": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "agreement": 1,
+          "shareBaseline": 1,
+          "under": 1,
+          "over": 1,
+          "fine": 1
+        },
+        "fixtureRevision": "5f6a30661b38",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 209,
+        "p95": 323
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "agreement": 1,
+          "shareBaseline": 1,
+          "under": 1,
+          "over": 1,
+          "fine": 1
+        },
+        "fixtureRevision": "5f6a30661b38",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 218,
+        "p95": 274
+      }
+    ],
+    "hop2": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "hop2Accuracy": 1,
+          "hop2Toward": 1,
+          "hop2Not": 1,
+          "hop1Toward": null,
+          "hop1Not": null
+        },
+        "fixtureRevision": "71f0e8c442c7",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 215,
+        "p95": 282
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "hop2Accuracy": 1,
+          "hop2Toward": 1,
+          "hop2Not": 1,
+          "hop1Toward": null,
+          "hop1Not": null
+        },
+        "fixtureRevision": "71f0e8c442c7",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 216,
+        "p95": 316
+      }
+    ],
+    "attention": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "ignoresRecall": 1,
+          "respondsSpecificity": 1,
+          "partialFlagged": 0
+        },
+        "fixtureRevision": "1a4807a406ea",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 222,
+        "p95": 777
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "ignoresRecall": 1,
+          "respondsSpecificity": 1,
+          "partialFlagged": 0
+        },
+        "fixtureRevision": "1a4807a406ea",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 235,
+        "p95": 565
+      }
+    ],
+    "picture": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "drawPrecision": 1,
+          "skipRecall": 1,
+          "drawRecall": 1
+        },
+        "fixtureRevision": "8b9d98811126",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 247,
+        "p95": 2151
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "drawPrecision": 1,
+          "skipRecall": 1,
+          "drawRecall": 1
+        },
+        "fixtureRevision": "8b9d98811126",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 239,
+        "p95": 532
+      }
+    ],
+    "n3": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "withinOne": 1,
+          "confusedLowHigh": 0
+        },
+        "fixtureRevision": "9535ec1a0789",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 251,
+        "p95": 841
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "withinOne": 1,
+          "confusedLowHigh": 0
+        },
+        "fixtureRevision": "9535ec1a0789",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 231,
+        "p95": 434
+      }
+    ],
+    "scene-kind": [
+      {
+        "run": 1,
+        "passed": false,
+        "metrics": {
+          "accuracy": 1,
+          "combat": 1,
+          "conversation": 1,
+          "travel": 1,
+          "intimate": 1,
+          "downtime": 1,
+          "lowestClass": 1,
+          "p95LatencyMs": 4208
+        },
+        "fixtureRevision": "0d53cac64a03",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 238,
+        "p95": 4208
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "accuracy": 1,
+          "combat": 1,
+          "conversation": 1,
+          "travel": 1,
+          "intimate": 1,
+          "downtime": 1,
+          "lowestClass": 1,
+          "p95LatencyMs": 307
+        },
+        "fixtureRevision": "0d53cac64a03",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 210,
+        "p95": 307
+      }
+    ],
+    "n5": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "changeWithinOne": 1,
+          "tensionWithinOne": 0.95
+        },
+        "fixtureRevision": "2b8052f53149",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 219,
+        "p95": 421
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "changeWithinOne": 1,
+          "tensionWithinOne": 0.95
+        },
+        "fixtureRevision": "2b8052f53149",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 216,
+        "p95": 389
+      }
+    ],
+    "tone": [
+      {
+        "run": 1,
+        "passed": true,
+        "metrics": {
+          "withinOne": 1
+        },
+        "fixtureRevision": "139664bd5667",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 215,
+        "p95": 279
+      },
+      {
+        "run": 2,
+        "passed": true,
+        "metrics": {
+          "withinOne": 1
+        },
+        "fixtureRevision": "139664bd5667",
+        "model": "jev-1.13.0",
+        "calls": 20,
+        "p50": 228,
+        "p95": 286
+      }
+    ]
+  },
+  "miner": {
+    "loops": 10,
+    "fresh": 10,
+    "loopRecall": 1,
+    "freshSpecificity": 1,
+    "calls": 0
+  },
+  "upstreamCallsThisTask": 272,
+  "priorRecordedCalls": 214,
+  "recordedTotal": 486,
+  "blocked": {
+    "J76": "Plan 12 residual-read replay and per-kind heldout labels have not run; no floors changed.",
+    "N8": "Relationship M1 comparative model arms remain owed; existing typed-first path unchanged."
+  },
+  "conditional": {
+    "N5": "Judge-only columns passed twice; extractor comparison and deterministic quiet baseline owed."
+  },
+  "caveats": [
+    "Cast/hop fixtures are template families (10 pairs), not 20 independent archived sessions.",
+    "Tone fixture exercises extreme match/opposition, not intermediate levels.",
+    "Private replay covers 20 of 49 windows in one archived session; distribution only, not full corpus or labelled accuracy."
+  ]
+}

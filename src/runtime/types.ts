@@ -302,6 +302,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   epistemic: EpistemicEntry[];
   ledger: LedgerEntry[];
   canon: CanonState | null;
+  canonDraft?: (CanonState & { messageId: number }) | null;
   verifyDrops: VerifyDrop[];
   /** Every artifact a pass derived here, with the rows it was built from and the rows
    *  it took away, so a rollback past its input can drop it and restore what it removed. */

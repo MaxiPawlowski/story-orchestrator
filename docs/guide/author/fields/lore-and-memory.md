@@ -76,6 +76,12 @@ Field: `house_rules[]`: at most 8 rules, each at most 240 characters, no duplica
 - **Bad.** `"No magic in the city and keep replies short."`
 - **If wrong.** The check asks one question per rule, so a rule with two demands is judged on whichever one the model reads (`house-rule-compound`). One rule, one demand; no "and" or `;` compounds.
 
+The Judge settings also offer independent, default-on checks for answers to the player, low-cost world-pressure trends (18 of 20 replies), quiet stalls (3 of 4), tone drift (5 of 5, skipped at high tension), and repeated phrases. Trend hints use the warden's review or auto mode and only suggest developments; they never decide the player's action or write a quality. Repeated phrases always wait for review and require no model call. These checks run after a reply, with a four-second judge budget; a missing answer adds no hint. The quiet-stall check's comparison against extractor tension remains unmeasured.
+
+Canon sentence verification runs before storing a regenerated story-so-far, with a three-second budget; unsupported answered sentences are removed, and missing answers preserve the usual synthesis. Author view's Memory controls can instead draft a checked story-so-far, inspect it, then accept or discard it. A draft stays out of play until accepted; changed sources refuse an old draft. The two canon actions have independent Judge switches.
+
+With automatic illustrations enabled, Illustration-worthy replies checks whether an image is striking and happening now. It skips unsuitable cadence pictures and can notice an additional image, with a four-reply cooldown. Manual and checkpoint pictures keep their existing rules; a missing judge keeps the cadence rule. The check is off the text reply path and has a 2.5-second budget.
+
 <a id="chapters"></a>
 
 ## Chapters

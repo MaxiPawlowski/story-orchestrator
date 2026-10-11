@@ -1,0 +1,26 @@
+{
+  "$comment": "v2.8 13 N2 Phase A fixture: 20 synthetic English replies, 8 draw and 12 skip (7 vivid-but-not-now traps: memory, plan, dream, report; 5 plain skips with nothing to see), authored and labelled by Claude 2026-10-10 before any judge answer was read; not mined from sessions, not second-model checked. One call per reply: Score 0-4 'how striking is the strongest image' and Noul 'that image happens now'. Predeclared rule: draw when striking >= PICTURE_STRIKING_MIN 2.5 AND now >= PICTURE_NOW_P 0.5. Floors: draw precision >= 0.9 (a wasted render costs GPU minutes), skip recall >= 0.85. The cadence image (draw everything) is the judge-off column.",
+  "revision": 1,
+  "rows": [
+    { "id": "d-dragon", "label": "draw", "trap": "none", "reply": "The dragon tears the roof off the granary in one pull, and grain pours out over its scales like gold sand while the villagers scatter below." },
+    { "id": "d-harbour-dawn", "label": "draw", "trap": "none", "reply": "Dawn breaks over the harbour: a hundred red sails catch the light at once, and the water between the hulls turns to beaten copper." },
+    { "id": "d-duel", "label": "draw", "trap": "none", "reply": "Steel rings on steel as Arin and the masked knight circle each other on the frozen lake, sparks spitting where their blades meet." },
+    { "id": "d-throne", "label": "draw", "trap": "none", "reply": "The queen rises from a throne carved out of a single block of black salt, her crown of white coral catching the torchlight, and the whole hall falls silent." },
+    { "id": "d-storm-ship", "label": "draw", "trap": "none", "reply": "A wave as tall as the mast smashes across the deck; Kell clings to the wheel as lightning splits the sky behind the torn mainsail." },
+    { "id": "d-forest-spirit", "label": "draw", "trap": "none", "reply": "Between the birches stands a stag made of moonlight and mist, its antlers hung with tiny lanterns, watching them without a sound." },
+    { "id": "d-market-fire", "label": "draw", "trap": "none", "reply": "Flames race along the market awnings, and through the smoke a horse bursts free, dragging a cart of burning silks behind it." },
+    { "id": "d-ruined-tower", "label": "draw", "trap": "none", "reply": "They crest the ridge and there it is: the broken tower, split clean down the middle, ivy pouring from the wound and ravens circling its crown." },
+    { "id": "s-memory-battle", "label": "skip", "trap": "memory", "reply": "Brask stares into his cup. He remembers the battle at the ford: the river red, the banners in the mud, the screaming horses. \"That was a long time ago,\" he says." },
+    { "id": "s-memory-wedding", "label": "skip", "trap": "memory", "reply": "Mira smiles faintly, remembering her wedding on the river: a hundred lanterns floating past the boat, her mother's silver comb in her hair." },
+    { "id": "s-plan-assault", "label": "skip", "trap": "plan", "reply": "\"Here's how it goes,\" Doran says, tapping the map. \"At midnight we scale the wall, set the gatehouse on fire, and ride through the smoke with the whole garrison chasing us.\"" },
+    { "id": "s-plan-feast", "label": "skip", "trap": "plan", "reply": "\"Tomorrow there'll be a feast,\" the steward promises. \"Roast swans, towers of sugar, fireworks over the lake. You'll see.\"" },
+    { "id": "s-dream-wolf", "label": "skip", "trap": "dream", "reply": "Max wakes with a start. In the dream a giant white wolf was standing on the frozen sea, its eyes burning like coals. Now there is only the grey ceiling of the inn." },
+    { "id": "s-report-sack", "label": "skip", "trap": "report", "reply": "The messenger is out of breath. \"The capital has fallen. They say the palace burned for three days and the river was choked with ships.\"" },
+    { "id": "s-story-giant", "label": "skip", "trap": "report", "reply": "The old woman leans close to the children. \"And the giant lifted the whole mountain on his back and walked into the sea,\" she says, and they gasp." },
+    { "id": "s-talk-prices", "label": "skip", "trap": "none", "reply": "\"Four silver for the rope, two for the lamp oil,\" the merchant says. \"Take it or leave it.\" Max counts out the coins." },
+    { "id": "s-thinking", "label": "skip", "trap": "none", "reply": "Arin is quiet for a while, weighing whether to trust the stranger. Finally she decides she will, at least until morning." },
+    { "id": "s-plain-room", "label": "skip", "trap": "none", "reply": "The room is small: a bed, a chair, a basin of water. Max sets his pack down." },
+    { "id": "s-summary", "label": "skip", "trap": "none", "reply": "The next three days pass without incident. They walk, they eat, they sleep, and the road goes on." },
+    { "id": "s-dialogue", "label": "skip", "trap": "none", "reply": "\"You're late.\" \"I know.\" \"Again.\" \"I know.\" Tova sighs and waves him inside." }
+  ]
+}

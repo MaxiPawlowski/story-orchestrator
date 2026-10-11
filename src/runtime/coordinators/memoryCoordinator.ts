@@ -96,6 +96,7 @@ export class MemoryCoordinator {
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
     restingEntries: (entries) => this.injector.restingEntries(entries), restingLines: (text) => this.injector.restingLines(text),
     journal: (summary, note) => this.deps.journal?.(summary, note),
+    judge: () => this.deps.judge?.() ?? null,
   });
   readonly chapters: ChapterPort;
   private consolidationInFlight = false;
@@ -333,6 +334,7 @@ export class MemoryCoordinator {
   // artifacts derived from them, and the three stores that keep their own version history.
   rollbackFromMessage(messageId: number, boundary: number) {
     this.patch(reverseMemoryState(this.state, messageId, boundary, chapterKit()?.unfoldAt), false);
+    if (this.state.canonDraft) this.patch({ canonDraft: null }, false);
   }
 
   recordVerifyDrops(drops: VerifyDrop[]) { if (drops.length) this.patch({ verifyDrops: [...this.state.verifyDrops, ...drops].slice(-VERIFY_DROP_LIMIT) }, false); }

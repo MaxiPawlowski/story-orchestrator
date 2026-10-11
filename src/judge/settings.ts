@@ -25,6 +25,13 @@ export const JUDGE_USE_KEYS = [
   "attentionCheck",
   "wardenVoice",
   "divergence",
+  "canonVerify",
+  "canonDraft",
+  "pictureCue",
+  "adversityTrend",
+  "idleCheck",
+  "toneCheck",
+  "repetitionCheck",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -34,7 +41,7 @@ export const JUDGE_ROUTE_KEYS = [...JUDGE_USE_KEYS, "warden"] as const;
 export type JudgeRouteKey = (typeof JUDGE_ROUTE_KEYS)[number];
 export type JudgeProviderRoutes = Record<JudgeRouteKey, JudgeProviderId>;
 
-export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead", loreExclusive: "loreSelect" };
+export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead", loreExclusive: "loreSelect", toneCheck: "idleCheck" };
 
 export const JUDGE_PICK_MODES = ["code", "llm"] as const;
 export type JudgePickMode = (typeof JUDGE_PICK_MODES)[number];
@@ -181,6 +188,41 @@ export interface JudgeUseCopy {
 }
 
 export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
+  canonVerify: {
+    label: "Check story-so-far sentences",
+    description: "Drops unsupported canon sentences before storing them. A missing judge keeps the existing synthesis path; verification runs off the reply path.",
+    sends: "canon sentences, resolved arc summaries, live facts and current goal",
+  },
+  canonDraft: {
+    label: "Checked canon drafts",
+    description: "Enables the author's checked story-so-far draft action. The current canon stays in play until the author accepts the draft.",
+    sends: "draft canon sentences, resolved arc summaries, live facts and current goal",
+  },
+  pictureCue: {
+    label: "Illustration-worthy replies",
+    description: "Filters cadence pictures and notices striking present-tense images. A missing judge keeps cadence; manual and checkpoint pictures are unchanged.",
+    sends: "the character reply",
+  },
+  adversityTrend: {
+    label: "World-pressure trend",
+    description: "After 18 of 20 low-cost replies, offers a reviewed world-pressure note. Never chooses the player's loss or writes story state.",
+    sends: "the character reply and player name, in a separate off-path call",
+  },
+  idleCheck: {
+    label: "Nothing-happens trend",
+    description: "After 3 of 4 low-change, low-tension replies, offers a reviewed development hint. Extractor tension comparison is still owed.",
+    sends: "the character reply, in a separate off-path call",
+  },
+  toneCheck: {
+    label: "Story tone drift",
+    description: "After 5 low-tone replies, offers a reviewed tone reminder; high tension skips it. Needs Nothing-happens trend for its tension read.",
+    sends: "the character reply, story description and current goal, in a separate off-path call",
+  },
+  repetitionCheck: {
+    label: "Repeated-phrase check",
+    description: "Offers a reviewed prose reminder when a phrase appears in at least 4 replies. Pure English phrase mining; no judge calls.",
+    sends: "nothing: reads up to 60 replies locally",
+  },
   director: {
     label: "Speaker direction",
     description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.",
@@ -265,7 +307,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   attentionCheck: {
     label: "Answers the player (warden)",
     description: "After a character reply, asks whether it answered what you just said or did; a reply that passed over it gets a one-line reminder in the next reply's prompt. " +
-      "A refusal or an in-character dodge counts as an answer. Not measured yet.",
+      "A refusal or an in-character dodge counts as an answer. Passed its synthetic fixture twice.",
     sends: "nothing beyond the warden's call: the character reply, your latest message and your persona name",
   },
   divergence: {
@@ -303,9 +345,11 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "attentionCheck",
   "wardenVoice",
   "divergence",
+  "canonVerify", "canonDraft", "pictureCue", "adversityTrend", "idleCheck", "toneCheck", "repetitionCheck",
 ];
 
 // Steering-grade usages, listed only in author view.
 export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = [
   "expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice", "divergence",
+  "canonDraft", "adversityTrend", "idleCheck", "toneCheck", "repetitionCheck",
 ];

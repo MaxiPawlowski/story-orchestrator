@@ -8,6 +8,8 @@ const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_R
 const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });
 
 const FIXTURE_OF: Partial<Record<JudgeReadinessKey, string>> = {
+  canonVerify: "spike-canon-verify", canonDraft: "spike-canon-verify", attentionCheck: "spike-attention", pictureCue: "spike-picture",
+  adversityTrend: "spike-n3", idleCheck: "spike-n5", toneCheck: "spike-tone",
   stallCheck: "stall",
   memoryVerify: "memory-verify",
   warden: "continuity",
@@ -34,7 +36,7 @@ const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<Ju
   ...patch,
 });
 
-const BELOW_FLOOR_OFF = { houseRules: false, loreExclusive: false, expressions: false, attentionCheck: false, wardenVoice: false, divergence: false };
+const BELOW_FLOOR_OFF = { houseRules: false, loreExclusive: false, expressions: false, attentionCheck: false, wardenVoice: false, divergence: false, repetitionCheck: false };
 
 describe("judge readiness (v2.3 plan 09)", () => {
   it("has a fact for every use the settings declare, and no orphan rows", () => {
@@ -69,7 +71,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
     const rows = remeasured(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
-    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive", "expressions", "attentionCheck", "wardenVoice", "divergence"]);
+    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive", "expressions", "wardenVoice", "divergence", "repetitionCheck"]);
     expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built") && !JUDGE_USE_COPY[key].description.startsWith("Not measured"))).toBe(true);
   });
 

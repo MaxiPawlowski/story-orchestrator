@@ -1,0 +1,823 @@
+{
+  "source": "ideas.mts epistemic run 1 over test/fixtures/judge/spike-epistemic.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-10T18:45:38.210Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "210b4af1a89a",
+  "run": 1,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "agreement": 0.9167,
+      "knows": 0.8571,
+      "unaware": 0.8571,
+      "suspects": 1,
+      "hiding": 1
+    },
+    "floors": [
+      {
+        "name": "agreement",
+        "value": 0.9167,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 228,
+  "calls": [
+    {
+      "id": "vault",
+      "state": {
+        "cast": [
+          "Max",
+          "Bren",
+          "Arin"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "Arin has gone out to the stable to saddle the horses. Bren and Max are alone in the back room."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Bren",
+            "text": "\"Listen close, I'll say it once. The vault opens on one, seven, three. Tell no one. Not even her.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Max",
+            "text": "I nod and repeat it under my breath."
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "The door swings open and Arin comes back in, brushing straw off her coat."
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Arin",
+            "text": "\"You two look guilty. What were you whispering about?\""
+          },
+          {
+            "id": "msg_6",
+            "speaker": "Bren",
+            "text": "\"Old war stories. Nothing worth your time.\" He turns away to pack his bag."
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"The vault opens with the code one, seven, three.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Arin know about this: \"The vault opens with the code one, seven, three.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Arin has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Arin has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Arin has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Arin knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Bren know about this: \"The vault opens with the code one, seven, three.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Bren has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Bren has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Bren has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Bren knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Arin know about this: \"Bren and Max are keeping something from her.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Arin has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Arin has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Arin has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Arin knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.79,
+          "probabilities": {
+            "knows": 0.16,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.84
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 0.57,
+          "probabilities": {
+            "knows": 0,
+            "unaware": 0.68,
+            "suspects": 0.32,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.68,
+          "probabilities": {
+            "knows": 0.24,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.76
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.96,
+          "probabilities": {
+            "knows": 0.01,
+            "unaware": 0.02,
+            "suspects": 0.97,
+            "hiding": 0
+          }
+        }
+      },
+      "latencyMs": 369,
+      "inputTokens": 1280
+    },
+    {
+      "id": "poison",
+      "state": {
+        "cast": [
+          "Max",
+          "Lady Corva",
+          "Tam"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "In the kitchens, Lady Corva tips a vial of grey powder into the duke's wine jug while the cook's boy Tam is out fetching water."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Narrator",
+            "text": "Tam returns with two full buckets. Corva smiles at him and sets the vial in her sleeve."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Tam",
+            "text": "\"Shall I carry the wine up, my lady?\""
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Lady Corva",
+            "text": "\"Yes, and be quick. His grace hates to wait. It's the good vintage tonight.\""
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Narrator",
+            "text": "Max, waiting in the hall, sees Tam pass with the jug. A faint grey film floats on the wine's surface, and the boy hasn't noticed."
+          },
+          {
+            "id": "msg_6",
+            "speaker": "Max",
+            "text": "I frown at the jug as it goes by."
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Lady Corva know about this: \"The duke's wine has been poisoned.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Lady Corva has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Lady Corva has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Lady Corva has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Lady Corva knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Tam know about this: \"The duke's wine has been poisoned.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Tam has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Tam has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Tam has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Tam knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"The duke's wine has been poisoned.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Tam know about this: \"Tonight's wine is the good vintage.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Tam has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Tam has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Tam has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Tam knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.49,
+          "probabilities": {
+            "knows": 0.38,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.62
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 0.99,
+          "probabilities": {
+            "knows": 0,
+            "unaware": 0.99,
+            "suspects": 0.01,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.63,
+          "probabilities": {
+            "knows": 0.24,
+            "unaware": 0.01,
+            "suspects": 0.72,
+            "hiding": 0.03
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.84,
+          "probabilities": {
+            "knows": 0.88,
+            "unaware": 0.12,
+            "suspects": 0,
+            "hiding": 0
+          }
+        }
+      },
+      "latencyMs": 362,
+      "inputTokens": 1279
+    },
+    {
+      "id": "letter",
+      "state": {
+        "cast": [
+          "Max",
+          "Ilse",
+          "Captain Doran"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Ilse",
+            "text": "\"Read it yourself. My brother wrote it the night before he vanished.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I unfold the letter and read it aloud: \"If I am not back by the full moon, the mill holds what they want. Burn it.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Ilse",
+            "text": "\"The full moon was three days ago.\""
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "Boots sound on the stair. Captain Doran of the watch steps into the room."
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Captain Doran",
+            "text": "\"Miss Ilse. Any word of your brother?\""
+          },
+          {
+            "id": "msg_6",
+            "speaker": "Ilse",
+            "text": "\"None, captain. He never writes.\" She slides the letter under a book on the table."
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"Ilse's brother hid what they want in the mill.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Captain Doran know about this: \"Ilse's brother hid what they want in the mill.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Captain Doran has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Captain Doran has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Captain Doran has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Captain Doran knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Ilse know about this: \"Her brother left a letter before he vanished.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Ilse has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Ilse has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Ilse has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Ilse knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Ilse know about this: \"The full moon has already passed.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Ilse has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Ilse has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Ilse has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Ilse knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.57,
+          "probabilities": {
+            "knows": 0.68,
+            "unaware": 0.02,
+            "suspects": 0.21,
+            "hiding": 0.09
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 0.96,
+          "probabilities": {
+            "knows": 0,
+            "unaware": 0.97,
+            "suspects": 0.03,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.85,
+          "probabilities": {
+            "knows": 0.11,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.89
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.89,
+          "probabilities": {
+            "knows": 0.92,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.08
+          }
+        }
+      },
+      "latencyMs": 228,
+      "inputTokens": 1276
+    },
+    {
+      "id": "twins",
+      "state": {
+        "cast": [
+          "Max",
+          "Rook",
+          "Sable",
+          "Old Mag"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Old Mag",
+            "text": "\"Funny thing. The man who sold you that map has a twin, they say. One honest, one a cheat. Couldn't tell you which you met.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "\"Rook and Sable, I'm told. Which one sold me this?\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Old Mag",
+            "text": "\"Ask the one with the scar. Or don't.\""
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "Across the market, a man with a scar on his chin, Rook, watches them and pulls his hood low. Sable is nowhere in sight."
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Max",
+            "text": "I study the map again. The river on it bends the wrong way."
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"Rook and Sable are twins.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"The map he bought is a fake.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Sable know about this: \"Max is asking questions about the map in the market.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Sable has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Sable has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Sable has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Sable knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Old Mag know about this: \"Which twin sold Max the map.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Old Mag has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Old Mag has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Old Mag has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Old Mag knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.95,
+          "probabilities": {
+            "knows": 0.96,
+            "unaware": 0.02,
+            "suspects": 0.02,
+            "hiding": 0
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.84,
+          "probabilities": {
+            "knows": 0.1,
+            "unaware": 0.02,
+            "suspects": 0.88,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 1,
+          "probabilities": {
+            "knows": 0,
+            "unaware": 1,
+            "suspects": 0,
+            "hiding": 0
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.29,
+          "probabilities": {
+            "knows": 0.14,
+            "unaware": 0.2,
+            "suspects": 0.47,
+            "hiding": 0.19
+          }
+        }
+      },
+      "latencyMs": 219,
+      "inputTokens": 1241
+    },
+    {
+      "id": "heir",
+      "state": {
+        "cast": [
+          "Max",
+          "Prince Aldo",
+          "Nurse Vey",
+          "Lord Fenn"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Nurse Vey",
+            "text": "\"I swore I'd never say it. But you saved my son, so you'll hear it. The prince is not the king's child. I was there the night he was born.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I keep my voice low. \"Does he know?\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Nurse Vey",
+            "text": "\"No. And he never will, if I can help it.\""
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "Prince Aldo strolls into the garden with Lord Fenn at his side. Fenn has been heard muttering at court that the prince has none of the king's looks."
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Prince Aldo",
+            "text": "\"Vey! You look pale. Is something wrong?\""
+          },
+          {
+            "id": "msg_6",
+            "speaker": "Nurse Vey",
+            "text": "\"Only the heat, my prince.\""
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Nurse Vey know about this: \"Prince Aldo is not the king's son.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Nurse Vey has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Nurse Vey has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Nurse Vey has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Nurse Vey knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Prince Aldo know about this: \"Prince Aldo is not the king's son.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Prince Aldo has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Prince Aldo has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Prince Aldo has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Prince Aldo knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Lord Fenn know about this: \"Prince Aldo is not the king's son.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Lord Fenn has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Lord Fenn has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Lord Fenn has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Lord Fenn knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"Prince Aldo is not the king's son.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.83,
+          "probabilities": {
+            "knows": 0.13,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.87
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 0.8,
+          "probabilities": {
+            "knows": 0,
+            "unaware": 0.85,
+            "suspects": 0.15,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.89,
+          "probabilities": {
+            "knows": 0.06,
+            "unaware": 0.02,
+            "suspects": 0.92,
+            "hiding": 0
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.44,
+          "probabilities": {
+            "knows": 0.58,
+            "unaware": 0,
+            "suspects": 0.01,
+            "hiding": 0.41
+          }
+        }
+      },
+      "latencyMs": 265,
+      "inputTokens": 1322
+    },
+    {
+      "id": "storm",
+      "state": {
+        "cast": [
+          "Max",
+          "Kell",
+          "Wyn"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Kell",
+            "text": "\"Glass is dropping fast. There's a big storm coming tonight, I'd bet the boat on it.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "\"Then we stay in harbour.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Wyn is asleep in the forward cabin and has heard none of this."
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Kell",
+            "text": "\"There's one more thing. I sold the spare sail to pay our dock fees. Don't tell Wyn, it was her father's.\""
+          },
+          {
+            "id": "msg_5",
+            "speaker": "Narrator",
+            "text": "Wyn wakes, climbs on deck and squints at the clouds piling up in the west."
+          },
+          {
+            "id": "msg_6",
+            "speaker": "Wyn",
+            "text": "\"That sky looks wrong. Kell, where's the spare sail? I want it ready.\""
+          },
+          {
+            "id": "msg_7",
+            "speaker": "Kell",
+            "text": "\"Stowed below somewhere. I'll dig it out later.\""
+          }
+        ]
+      },
+      "questions": {
+        "know:0": {
+          "type": "choice",
+          "instructions": "What does Max know about this: \"A big storm is coming tonight.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Max has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Max has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Max has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Max knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "instructions": "What does Wyn know about this: \"A big storm is coming tonight.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Wyn has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Wyn has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Wyn has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Wyn knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "instructions": "What does Kell know about this: \"The spare sail was sold.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Kell has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Kell has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Kell has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Kell knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "instructions": "What does Wyn know about this: \"The spare sail was sold.\"? Judge from `transcript` only.",
+          "criteria": {
+            "knows": "Wyn has seen, been told or worked out that this is true, and is not keeping it from anyone present",
+            "unaware": "Wyn has no way to know this: absent when it was said or shown, or never told",
+            "suspects": "Wyn has a hint or a guess that this is true but has not been told or shown it",
+            "hiding": "Wyn knows this and is keeping it from someone present: lying, changing the subject or concealing it"
+          }
+        }
+      },
+      "answers": {
+        "know:0": {
+          "type": "choice",
+          "choice": "knows",
+          "confidence": 0.93,
+          "probabilities": {
+            "knows": 0.95,
+            "unaware": 0,
+            "suspects": 0.01,
+            "hiding": 0.04
+          }
+        },
+        "know:1": {
+          "type": "choice",
+          "choice": "suspects",
+          "confidence": 0.61,
+          "probabilities": {
+            "knows": 0.26,
+            "unaware": 0.03,
+            "suspects": 0.71,
+            "hiding": 0
+          }
+        },
+        "know:2": {
+          "type": "choice",
+          "choice": "hiding",
+          "confidence": 0.84,
+          "probabilities": {
+            "knows": 0.12,
+            "unaware": 0,
+            "suspects": 0,
+            "hiding": 0.88
+          }
+        },
+        "know:3": {
+          "type": "choice",
+          "choice": "unaware",
+          "confidence": 0.48,
+          "probabilities": {
+            "knows": 0.01,
+            "unaware": 0.61,
+            "suspects": 0.38,
+            "hiding": 0
+          }
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 1303
+    }
+  ]
+}

@@ -1,0 +1,1018 @@
+{
+  "source": "ideas.mts sceneConfirm run 2 over test/fixtures/judge/spike-scene-confirm.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-11T11:56:25.231Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "6448d2605f71",
+  "run": 2,
+  "verdict": {
+    "passed": false,
+    "metrics": {
+      "heldOutBreak": 0.8333,
+      "heldOutNobreak": 1,
+      "wholeBreak": 0.9211,
+      "wholeNobreak": 1
+    },
+    "floors": [
+      {
+        "name": "held-out break",
+        "value": 0.8333,
+        "floor": 0.95,
+        "op": ">=",
+        "ok": false
+      },
+      {
+        "name": "held-out nobreak",
+        "value": 1,
+        "floor": 1,
+        "op": ">=",
+        "ok": true
+      },
+      {
+        "name": "whole-set break",
+        "value": 0.9211,
+        "floor": 0.95,
+        "op": ">=",
+        "ok": false
+      },
+      {
+        "name": "whole-set nobreak",
+        "value": 1,
+        "floor": 1,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 219,
+  "actualCalls": 12,
+  "calls": [
+    {
+      "id": "B1-dawn-same-room",
+      "state": {
+        "story": {
+          "title": "The Lantern Ferry"
+        },
+        "scene": {
+          "checkpoint": "A Bed for the Night",
+          "objective": "Find lodging before crossing the river."
+        },
+        "cast": [
+          {
+            "name": "Mira",
+            "role": "The ferrywoman"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "The common room of the Drowned Bell is loud with bargemen; someone is singing badly near the hearth."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I order a second ale and ask Mira when the tide turns."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Mira",
+            "text": "\"Before dawn. Drink slow, or you'll be useless at the oars.\""
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "By the time grey light came through the shutters the next morning, the common room was empty except for the cook sweeping up last night's broken glass."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.81,
+          "probabilities": {
+            "time_skip": 0.86,
+            "location": 0,
+            "divider": 0,
+            "none": 0.14
+          }
+        }
+      },
+      "latencyMs": 319,
+      "inputTokens": 774
+    },
+    {
+      "id": "B2-week-later-forge",
+      "state": {
+        "story": {
+          "title": "Iron and Ash"
+        },
+        "scene": {
+          "checkpoint": "The Commission",
+          "objective": "Forge the blade the duke ordered."
+        },
+        "cast": [
+          {
+            "name": "Hald",
+            "role": "The old smith Max apprentices under"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Hald",
+            "text": "\"Again. Your hammer's drifting left. Watch the colour, not your hands.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I wipe my face and bring the hammer down, counting the strokes."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "The billet rings and slowly flattens under the blows."
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "A week later the forge was cold for the first time in days, and the finished blade lay wrapped in oiled cloth on the bench, waiting for the duke's rider."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.41
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.83,
+          "probabilities": {
+            "time_skip": 0.87,
+            "location": 0,
+            "divider": 0,
+            "none": 0.13
+          }
+        }
+      },
+      "latencyMs": 342,
+      "inputTokens": 765
+    },
+    {
+      "id": "B3-market-to-woods",
+      "state": {
+        "story": {
+          "title": "The Pilgrim Road"
+        },
+        "scene": {
+          "checkpoint": "Leave Corvin",
+          "objective": "Set out for the mountain shrine."
+        },
+        "cast": [
+          {
+            "name": "Sela",
+            "role": "A pilgrim travelling with Max"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "The Corvin market is a crush of stalls, goats and shouting traders."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Sela",
+            "text": "\"Bread, rope, and nothing else. We can't carry your appetite up a mountain.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Max",
+            "text": "I pay for the rope and we push our way out through the north gate."
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "The road climbs steadily into pine woods. By noon the market's noise is long gone and the only sounds are their boots on the needles and a jay scolding overhead."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.33,
+          "probabilities": {
+            "time_skip": 0.15,
+            "location": 0.35,
+            "divider": 0,
+            "none": 0.5
+          }
+        }
+      },
+      "latencyMs": 204,
+      "inputTokens": 775
+    },
+    {
+      "id": "B4-divider-harbour",
+      "state": {
+        "story": {
+          "title": "The Salt Court"
+        },
+        "scene": {
+          "checkpoint": "The Feast",
+          "objective": "Win the queen's ear at the spring feast."
+        },
+        "cast": [
+          {
+            "name": "Lord Varric",
+            "role": "A rival lord"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Lord Varric",
+            "text": "\"Enjoy the wine, envoy. It may be the last you taste at court.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I raise my cup to him and smile."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "* * *\n\nDown at the harbour, a hooded figure counts out silver into a fisherman's palm and points at the envoy's moored barge."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "divider",
+          "confidence": 0.93,
+          "probabilities": {
+            "time_skip": 0,
+            "location": 0.04,
+            "divider": 0.95,
+            "none": 0.01
+          }
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 723
+    },
+    {
+      "id": "B5-season-turns",
+      "state": {
+        "story": {
+          "title": "The Watchtower"
+        },
+        "scene": {
+          "checkpoint": "Keep the Watch",
+          "objective": "Hold the tower until relief arrives."
+        },
+        "cast": [
+          {
+            "name": "Orla",
+            "role": "The tower's other sentry"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Orla",
+            "text": "\"Another quiet night. I'm starting to think they forgot we're here.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "\"Good. Forgotten soldiers live longer.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Winter came early that year. When Max next climbed the tower stairs, frost had sealed the arrow slits shut and Orla's cough had not left her for a month."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.93,
+          "probabilities": {
+            "time_skip": 0.95,
+            "location": 0,
+            "divider": 0,
+            "none": 0.05
+          }
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 719
+    },
+    {
+      "id": "B6-arrive-monastery",
+      "state": {
+        "story": {
+          "title": "The Pilgrim Road"
+        },
+        "scene": {
+          "checkpoint": "The Mountain Path",
+          "objective": "Reach the shrine before the snows."
+        },
+        "cast": [
+          {
+            "name": "Sela",
+            "role": "A pilgrim travelling with Max"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "The switchbacks grow steeper and the wind sharper with every turn."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Sela",
+            "text": "\"My feet stopped complaining an hour ago. I think they died.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Max",
+            "text": "I keep walking and offer her my arm."
+          },
+          {
+            "id": "msg_4",
+            "speaker": "Narrator",
+            "text": "At dusk they stand before the monastery gates. Inside the walls, monks in grey robes are lighting lamps along a courtyard of worn flagstones."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.28,
+          "probabilities": {
+            "time_skip": 0.17,
+            "location": 0.37,
+            "divider": 0,
+            "none": 0.46
+          }
+        }
+      },
+      "latencyMs": 229,
+      "inputTokens": 758
+    },
+    {
+      "id": "N1-tale-of-harbour",
+      "state": {
+        "story": {
+          "title": "The Lantern Ferry"
+        },
+        "scene": {
+          "checkpoint": "A Bed for the Night",
+          "objective": "Find lodging before crossing the river."
+        },
+        "cast": [
+          {
+            "name": "Mira",
+            "role": "The ferrywoman"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "Rain drums on the roof of the Drowned Bell; the fire is down to embers."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "\"How did you end up running a ferry, anyway?\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Mira",
+            "text": "\"Twenty years ago I worked the big harbour at Saltmouth, loading spice ships from dawn to midnight. One winter the docks burned, and I walked upriver with nothing but an oar. Been here ever since.\" She turns her cup in her hands and watches the embers."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.96,
+          "probabilities": {
+            "time_skip": 0.03,
+            "location": 0,
+            "divider": 0,
+            "none": 0.97
+          }
+        }
+      },
+      "latencyMs": 212,
+      "inputTokens": 750
+    },
+    {
+      "id": "N2-sheriff-arrives",
+      "state": {
+        "story": {
+          "title": "Iron and Ash"
+        },
+        "scene": {
+          "checkpoint": "The Commission",
+          "objective": "Forge the blade the duke ordered."
+        },
+        "cast": [
+          {
+            "name": "Hald",
+            "role": "The old smith Max apprentices under"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Hald",
+            "text": "\"Quench it now. Slowly. Let the oil take it.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I lower the blade into the trough and watch the smoke curl up."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "The forge door bangs open and the sheriff strides in, shaking rain from his coat. \"Hald. A word about the duke's sword,\" he says, eyeing the smoking trough."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.97,
+          "probabilities": {
+            "time_skip": 0,
+            "location": 0.02,
+            "divider": 0,
+            "none": 0.98
+          }
+        }
+      },
+      "latencyMs": 219,
+      "inputTokens": 725
+    },
+    {
+      "id": "N3-into-library",
+      "state": {
+        "story": {
+          "title": "The Glass Archive"
+        },
+        "scene": {
+          "checkpoint": "The Reading Rooms",
+          "objective": "Find the index of land charters."
+        },
+        "cast": [
+          {
+            "name": "Archivist Dorrel",
+            "role": "The archivist"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Archivist Dorrel",
+            "text": "\"Charters are kept with the deeds. Follow me, and touch nothing.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I follow him down the corridor, careful not to brush the glass cases."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Dorrel pushes open a door at the end of the hall and they step from the corridor into the next room, a long library of the same Archive, its shelves lit by the same high windows. He is already running a finger along a row of ledgers."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.49,
+          "probabilities": {
+            "time_skip": 0,
+            "location": 0.38,
+            "divider": 0,
+            "none": 0.62
+          }
+        }
+      },
+      "latencyMs": 258,
+      "inputTokens": 747
+    },
+    {
+      "id": "N4-long-pause",
+      "state": {
+        "story": {
+          "title": "The Salt Court"
+        },
+        "scene": {
+          "checkpoint": "The Feast",
+          "objective": "Win the queen's ear at the spring feast."
+        },
+        "cast": [
+          {
+            "name": "Queen Ysolde",
+            "role": "The queen"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Max",
+            "text": "\"Majesty, the river towns cannot pay what the crown asks. They will starve, or they will rebel.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Queen Ysolde",
+            "text": "She sets down her goblet very carefully."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Nobody at the high table speaks for a long minute. The musicians falter and then play on, too brightly. At last the queen looks up from her plate."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.97,
+          "probabilities": {
+            "time_skip": 0.01,
+            "location": 0,
+            "divider": 0.01,
+            "none": 0.98
+          }
+        }
+      },
+      "latencyMs": 229,
+      "inputTokens": 726
+    },
+    {
+      "id": "N5-memory-of-fire",
+      "state": {
+        "story": {
+          "title": "The Watchtower"
+        },
+        "scene": {
+          "checkpoint": "Keep the Watch",
+          "objective": "Hold the tower until relief arrives."
+        },
+        "cast": [
+          {
+            "name": "Orla",
+            "role": "The tower's other sentry"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Max",
+            "text": "\"You never talk about Brennick.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Orla",
+            "text": "She is quiet a while, staring out over the parapet."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "She remembers the night Brennick burned: the bells, the smoke, her brother's hand slipping out of hers in the crowd at the gate. Then the wind gusts across the tower top and she pulls her cloak tighter, still at the parapet beside Max."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.99,
+          "probabilities": {
+            "time_skip": 0.01,
+            "location": 0,
+            "divider": 0,
+            "none": 0.99
+          }
+        }
+      },
+      "latencyMs": 217,
+      "inputTokens": 733
+    },
+    {
+      "id": "N6-plan-to-ride",
+      "state": {
+        "story": {
+          "title": "The Pilgrim Road"
+        },
+        "scene": {
+          "checkpoint": "Leave Corvin",
+          "objective": "Set out for the mountain shrine."
+        },
+        "cast": [
+          {
+            "name": "Sela",
+            "role": "A pilgrim travelling with Max"
+          },
+          {
+            "name": "Narrator",
+            "role": "Describes places and everyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Narrator",
+            "text": "Their room at the inn is small and smells of tallow."
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "I spread the map across the bed."
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Sela",
+            "text": "\"Tomorrow we take the north gate, then the pine road to the pass, and if the weather holds we reach the shrine in four days.\" She taps the mountain with one finger and then yawns, still sitting on the edge of the bed."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.92,
+          "probabilities": {
+            "time_skip": 0.06,
+            "location": 0,
+            "divider": 0,
+            "none": 0.9400000000000001
+          }
+        }
+      },
+      "latencyMs": 240,
+      "inputTokens": 734
+    }
+  ]
+}

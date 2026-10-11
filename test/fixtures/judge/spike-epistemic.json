@@ -1,0 +1,114 @@
+{
+  "$comment": "v2.8 13 J7.3 Phase A fixture: 6 synthetic English windows, 24 (subject, fact) rows labelled with the four states (knows 7, unaware 7, suspects 5, hiding 5), authored and labelled by Claude 2026-10-10 before any judge answer was read; not mined from sessions, not second-model checked. One call per window, one Choice per row (the judge form the plan names). Floor (v2.3): agreement >= 0.85 with these hand labels. The LLM epistemic pass is the judge-off column and is not run here (it needs a model; no GPU in Phase A).",
+  "revision": 1,
+  "rows": [
+    {
+      "id": "vault",
+      "cast": ["Max", "Bren", "Arin"],
+      "transcript": [
+        { "speaker": "Narrator", "text": "Arin has gone out to the stable to saddle the horses. Bren and Max are alone in the back room." },
+        { "speaker": "Bren", "text": "\"Listen close, I'll say it once. The vault opens on one, seven, three. Tell no one. Not even her.\"" },
+        { "speaker": "Max", "text": "I nod and repeat it under my breath." },
+        { "speaker": "Narrator", "text": "The door swings open and Arin comes back in, brushing straw off her coat." },
+        { "speaker": "Arin", "text": "\"You two look guilty. What were you whispering about?\"" },
+        { "speaker": "Bren", "text": "\"Old war stories. Nothing worth your time.\" He turns away to pack his bag." }
+      ],
+      "questions": [
+        { "subject": "Max", "fact": "The vault opens with the code one, seven, three.", "label": "knows" },
+        { "subject": "Arin", "fact": "The vault opens with the code one, seven, three.", "label": "unaware" },
+        { "subject": "Bren", "fact": "The vault opens with the code one, seven, three.", "label": "hiding" },
+        { "subject": "Arin", "fact": "Bren and Max are keeping something from her.", "label": "suspects" }
+      ]
+    },
+    {
+      "id": "poison",
+      "cast": ["Max", "Lady Corva", "Tam"],
+      "transcript": [
+        { "speaker": "Narrator", "text": "In the kitchens, Lady Corva tips a vial of grey powder into the duke's wine jug while the cook's boy Tam is out fetching water." },
+        { "speaker": "Narrator", "text": "Tam returns with two full buckets. Corva smiles at him and sets the vial in her sleeve." },
+        { "speaker": "Tam", "text": "\"Shall I carry the wine up, my lady?\"" },
+        { "speaker": "Lady Corva", "text": "\"Yes, and be quick. His grace hates to wait. It's the good vintage tonight.\"" },
+        { "speaker": "Narrator", "text": "Max, waiting in the hall, sees Tam pass with the jug. A faint grey film floats on the wine's surface, and the boy hasn't noticed." },
+        { "speaker": "Max", "text": "I frown at the jug as it goes by." }
+      ],
+      "questions": [
+        { "subject": "Lady Corva", "fact": "The duke's wine has been poisoned.", "label": "hiding" },
+        { "subject": "Tam", "fact": "The duke's wine has been poisoned.", "label": "unaware" },
+        { "subject": "Max", "fact": "The duke's wine has been poisoned.", "label": "suspects" },
+        { "subject": "Tam", "fact": "Tonight's wine is the good vintage.", "label": "knows" }
+      ]
+    },
+    {
+      "id": "letter",
+      "cast": ["Max", "Ilse", "Captain Doran"],
+      "transcript": [
+        { "speaker": "Ilse", "text": "\"Read it yourself. My brother wrote it the night before he vanished.\"" },
+        { "speaker": "Max", "text": "I unfold the letter and read it aloud: \"If I am not back by the full moon, the mill holds what they want. Burn it.\"" },
+        { "speaker": "Ilse", "text": "\"The full moon was three days ago.\"" },
+        { "speaker": "Narrator", "text": "Boots sound on the stair. Captain Doran of the watch steps into the room." },
+        { "speaker": "Captain Doran", "text": "\"Miss Ilse. Any word of your brother?\"" },
+        { "speaker": "Ilse", "text": "\"None, captain. He never writes.\" She slides the letter under a book on the table." }
+      ],
+      "questions": [
+        { "subject": "Max", "fact": "Ilse's brother hid what they want in the mill.", "label": "knows" },
+        { "subject": "Captain Doran", "fact": "Ilse's brother hid what they want in the mill.", "label": "unaware" },
+        { "subject": "Ilse", "fact": "Her brother left a letter before he vanished.", "label": "hiding" },
+        { "subject": "Ilse", "fact": "The full moon has already passed.", "label": "knows" }
+      ]
+    },
+    {
+      "id": "twins",
+      "cast": ["Max", "Rook", "Sable", "Old Mag"],
+      "transcript": [
+        { "speaker": "Old Mag", "text": "\"Funny thing. The man who sold you that map has a twin, they say. One honest, one a cheat. Couldn't tell you which you met.\"" },
+        { "speaker": "Max", "text": "\"Rook and Sable, I'm told. Which one sold me this?\"" },
+        { "speaker": "Old Mag", "text": "\"Ask the one with the scar. Or don't.\"" },
+        { "speaker": "Narrator", "text": "Across the market, a man with a scar on his chin, Rook, watches them and pulls his hood low. Sable is nowhere in sight." },
+        { "speaker": "Max", "text": "I study the map again. The river on it bends the wrong way." }
+      ],
+      "questions": [
+        { "subject": "Max", "fact": "Rook and Sable are twins.", "label": "knows" },
+        { "subject": "Max", "fact": "The map he bought is a fake.", "label": "suspects" },
+        { "subject": "Sable", "fact": "Max is asking questions about the map in the market.", "label": "unaware" },
+        { "subject": "Old Mag", "fact": "Which twin sold Max the map.", "label": "unaware" }
+      ]
+    },
+    {
+      "id": "heir",
+      "cast": ["Max", "Prince Aldo", "Nurse Vey", "Lord Fenn"],
+      "transcript": [
+        { "speaker": "Nurse Vey", "text": "\"I swore I'd never say it. But you saved my son, so you'll hear it. The prince is not the king's child. I was there the night he was born.\"" },
+        { "speaker": "Max", "text": "I keep my voice low. \"Does he know?\"" },
+        { "speaker": "Nurse Vey", "text": "\"No. And he never will, if I can help it.\"" },
+        { "speaker": "Narrator", "text": "Prince Aldo strolls into the garden with Lord Fenn at his side. Fenn has been heard muttering at court that the prince has none of the king's looks." },
+        { "speaker": "Prince Aldo", "text": "\"Vey! You look pale. Is something wrong?\"" },
+        { "speaker": "Nurse Vey", "text": "\"Only the heat, my prince.\"" }
+      ],
+      "questions": [
+        { "subject": "Nurse Vey", "fact": "Prince Aldo is not the king's son.", "label": "hiding" },
+        { "subject": "Prince Aldo", "fact": "Prince Aldo is not the king's son.", "label": "unaware" },
+        { "subject": "Lord Fenn", "fact": "Prince Aldo is not the king's son.", "label": "suspects" },
+        { "subject": "Max", "fact": "Prince Aldo is not the king's son.", "label": "knows" }
+      ]
+    },
+    {
+      "id": "storm",
+      "cast": ["Max", "Kell", "Wyn"],
+      "transcript": [
+        { "speaker": "Kell", "text": "\"Glass is dropping fast. There's a big storm coming tonight, I'd bet the boat on it.\"" },
+        { "speaker": "Max", "text": "\"Then we stay in harbour.\"" },
+        { "speaker": "Narrator", "text": "Wyn is asleep in the forward cabin and has heard none of this." },
+        { "speaker": "Kell", "text": "\"There's one more thing. I sold the spare sail to pay our dock fees. Don't tell Wyn, it was her father's.\"" },
+        { "speaker": "Narrator", "text": "Wyn wakes, climbs on deck and squints at the clouds piling up in the west." },
+        { "speaker": "Wyn", "text": "\"That sky looks wrong. Kell, where's the spare sail? I want it ready.\"" },
+        { "speaker": "Kell", "text": "\"Stowed below somewhere. I'll dig it out later.\"" }
+      ],
+      "questions": [
+        { "subject": "Max", "fact": "A big storm is coming tonight.", "label": "knows" },
+        { "subject": "Wyn", "fact": "A big storm is coming tonight.", "label": "suspects" },
+        { "subject": "Kell", "fact": "The spare sail was sold.", "label": "hiding" },
+        { "subject": "Wyn", "fact": "The spare sail was sold.", "label": "unaware" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "$comment": "v2.8 13 J7.2 + J7.7 Phase A fixture: 5 synthetic English canons (39 sentences: 22 supported, 17 unsupported), authored and labelled by Claude 2026-10-10 before any judge answer was read; not mined from sessions, not second-model checked. Evidence set (the open v2.7 33 question, decided here): the canon's own synthesis input, i.e. the resolved arc summaries, the selected facts and the current checkpoint (CanonSynthesis.regenerateCanon), never the transcript. Supported sentences condense, combine or reword the sources (some need two sources at once); unsupported ones carry one trap each: invented event, invented detail, wrong person, opposite outcome, wrong number or invented cause. Predeclared: a sentence is dropped when p < CANON_VERIFY_DROP_BELOW 0.5. Floors (v2.3, unchanged): J7.2 >= 0.9 of unsupported dropped and <= 0.1 of supported dropped; J7.7 >= 0.9 supported kept and 0 unsupported inserted.",
+  "revision": 1,
+  "rows": [
+    {
+      "id": "ferry",
+      "storyTitle": "The Lantern Ferry",
+      "cast": ["Max", "Mira", "Captain Holt", "Old Sefa"],
+      "checkpoint": { "name": "Guard the Garden", "objective": "Keep thieves out of Sefa's garden for three nights." },
+      "arcSummaries": [
+        "Max hired Mira to take him across the Grey River at night. Halfway over, river smugglers led by Captain Holt boarded the ferry. Mira bargained with Holt and gave up her cargo of lamp oil so they would let the ferry pass.",
+        "On the east bank, Max found Old Sefa, the herbalist, who agreed to brew the fever cure for his sister in exchange for three nights of guarding her garden from thieves."
+      ],
+      "facts": [
+        "Mira's ferry is called the Lantern.",
+        "Captain Holt has a scar across his left hand.",
+        "Max's sister Lena is sick with marsh fever in the village of Brack.",
+        "Old Sefa needs moonpetal for the cure, and moonpetal only grows on the west bank.",
+        "Holt's smugglers took the lamp oil but left the ferry intact."
+      ],
+      "sentences": [
+        { "text": "Max crossed the Grey River at night on Mira's ferry, the Lantern.", "supported": true },
+        { "text": "Smugglers under Captain Holt boarded the ferry, and Mira bought their way past with her cargo of lamp oil.", "supported": true },
+        { "text": "Max fought off Holt's smugglers and threw two of them into the river.", "supported": false, "trap": "invented-event" },
+        { "text": "On the east bank, the herbalist Old Sefa agreed to brew a cure for Lena's marsh fever.", "supported": true },
+        { "text": "Mira agreed to guard Sefa's garden for three nights in return for the cure.", "supported": false, "trap": "wrong-person" },
+        { "text": "The smugglers sank the Lantern before they left.", "supported": false, "trap": "opposite" },
+        { "text": "Max is now keeping thieves out of Sefa's garden.", "supported": true },
+        { "text": "Sefa already has all the moonpetal she needs for the cure.", "supported": false, "trap": "opposite" }
+      ]
+    },
+    {
+      "id": "archive",
+      "storyTitle": "The Glass Archive",
+      "cast": ["Max", "Archivist Dorrel", "Iven", "the Warden of Keys"],
+      "checkpoint": { "name": "The Sealed Wing", "objective": "Search the sealed wing for the charter before the morning bell." },
+      "arcSummaries": [
+        "Max entered the Glass Archive to find the lost charter of his family's land. Archivist Dorrel refused to help until Max proved he could read the old script, which he did by translating a page of a hymn.",
+        "Iven, a thief hiding among the shelves, offered to show Max the sealed wing if Max would let her keep anything else she found there. Max agreed, and the two slipped past the Warden of Keys during the evening bell."
+      ],
+      "facts": [
+        "The charter is written on blue vellum.",
+        "The Warden of Keys locks the sealed wing at the evening bell.",
+        "Iven owes a debt to a fence named Castor.",
+        "Dorrel lost the sight of one eye in a lamp fire.",
+        "Max's family land is the Orrin vineyard."
+      ],
+      "sentences": [
+        { "text": "Max came to the Glass Archive looking for the lost charter to his family's Orrin vineyard.", "supported": true },
+        { "text": "Dorrel would not help until Max translated a page of an old hymn and so proved he could read the script.", "supported": true },
+        { "text": "Dorrel refused at first because Max's family had once burned part of the Archive.", "supported": false, "trap": "invented-cause" },
+        { "text": "A thief named Iven offered to lead him into the sealed wing if she could keep whatever else she found.", "supported": true },
+        { "text": "Max refused Iven's bargain and went on alone.", "supported": false, "trap": "opposite" },
+        { "text": "The two of them slipped past the Warden of Keys during the evening bell.", "supported": true },
+        { "text": "Iven later stole the charter and sold it to the fence Castor.", "supported": false, "trap": "invented-event" },
+        { "text": "Max is now searching the sealed wing for the charter, written on blue vellum, before the morning bell.", "supported": true }
+      ]
+    },
+    {
+      "id": "pass",
+      "storyTitle": "Winter at Halden Pass",
+      "cast": ["Max", "Sergeant Brask", "Tova", "the Hermit"],
+      "checkpoint": { "name": "Down the Mountain", "objective": "Lead the patrol down before the food runs out." },
+      "arcSummaries": [
+        "A blizzard trapped Max's patrol at the Halden Pass waystation. Sergeant Brask ordered everyone to stay inside, but Tova went out to find the missing mule driver and came back with him alive but frostbitten.",
+        "During the third night, wolves circled the waystation. Max lit the signal fire on the roof, and the wolves scattered."
+      ],
+      "facts": [
+        "The mule driver's name is Pell.",
+        "Tova lost two fingers to frostbite years ago.",
+        "The waystation has food for six more days.",
+        "The Hermit lives in a cave above the pass and trades in furs.",
+        "Brask has commanded the patrol for eleven years."
+      ],
+      "sentences": [
+        { "text": "A blizzard snowed Max's patrol in at the Halden Pass waystation.", "supported": true },
+        { "text": "Against Sergeant Brask's orders, the scout Tova went out into the storm and brought back the mule driver Pell, frostbitten but alive.", "supported": true },
+        { "text": "Brask himself went out into the storm to find Pell.", "supported": false, "trap": "wrong-person" },
+        { "text": "Pell died of the cold a day after Tova found him.", "supported": false, "trap": "invented-event" },
+        { "text": "On the third night Max drove off the circling wolves by lighting the signal fire on the roof.", "supported": true },
+        { "text": "The Hermit came down from his cave and helped fight off the wolves.", "supported": false, "trap": "invented-event" },
+        { "text": "With food left for six days, the patrol must now make its way down the mountain.", "supported": true },
+        { "text": "The waystation's stores will last the patrol a full month.", "supported": false, "trap": "wrong-number" }
+      ]
+    },
+    {
+      "id": "court",
+      "storyTitle": "The Salt Court",
+      "cast": ["Max", "Queen Ysolde", "Lord Varric", "Neva"],
+      "checkpoint": { "name": "The Queen's Answer", "objective": "Secure the queen's decision on the salt tax." },
+      "arcSummaries": [
+        "Max arrived at the Salt Court as an envoy from the river towns, asking for the salt tax to be lowered. Queen Ysolde agreed to hear him at the spring feast.",
+        "At the feast, Lord Varric accused Max of carrying forged letters. Neva, the queen's handmaid, testified that she had seen the letters sealed by the river council, and the queen dismissed the accusation.",
+        "Afterwards Varric's men followed Max to his lodgings, but he slipped away through the laundry court."
+      ],
+      "facts": [
+        "The salt tax was doubled last autumn.",
+        "Varric owns the largest salt pans on the coast.",
+        "Neva was born in one of the river towns.",
+        "Queen Ysolde has not yet given her answer on the tax."
+      ],
+      "sentences": [
+        { "text": "Max came to the Salt Court as the river towns' envoy to ask for a lower salt tax, which had been doubled the autumn before.", "supported": true },
+        { "text": "At the spring feast Lord Varric accused him of carrying forged letters.", "supported": true },
+        { "text": "Neva, the queen's handmaid, testified that she had seen the river council seal them, and the queen dismissed the charge.", "supported": true },
+        { "text": "Moved by Neva's words, the queen lowered the salt tax that same night.", "supported": false, "trap": "invented-event" },
+        { "text": "Neva spoke for Max because she was secretly in love with him.", "supported": false, "trap": "invented-cause" },
+        { "text": "Varric, whose salt pans are the largest on the coast, had his men follow Max after the feast.", "supported": true },
+        { "text": "Varric's men caught Max at his lodgings and beat him.", "supported": false, "trap": "opposite" },
+        { "text": "The queen has yet to give her answer on the tax.", "supported": true }
+      ]
+    },
+    {
+      "id": "clock",
+      "storyTitle": "The Clockmaker's Debt",
+      "cast": ["Max", "Edda Wren", "Bastian", "Pip"],
+      "checkpoint": { "name": "The Last Ten Crowns", "objective": "Raise the remaining ten crowns before the new moon." },
+      "arcSummaries": [
+        "Edda Wren asked Max to recover a music box she had pawned to the moneylender Bastian. Bastian agreed to return it if Edda repaid forty crowns by the new moon.",
+        "Max and the apprentice Pip raised twenty crowns by repairing the town clock. Edda sold her late husband's tools for ten more."
+      ],
+      "facts": [
+        "The music box plays a lullaby Edda's mother wrote.",
+        "Bastian charges a crown a day for late payment.",
+        "Pip is fourteen and wants to become a clockmaker.",
+        "The new moon is in three days."
+      ],
+      "sentences": [
+        { "text": "The clockmaker Edda Wren had pawned a music box to the moneylender Bastian and asked Max to get it back.", "supported": true },
+        { "text": "Bastian would return it for forty crowns paid by the new moon.", "supported": true },
+        { "text": "Max and Pip earned twenty crowns repairing the town clock and Edda sold her late husband's tools for ten more, which leaves ten crowns still to find.", "supported": true },
+        { "text": "Bastian demanded sixty crowns for the box.", "supported": false, "trap": "wrong-number" },
+        { "text": "The music box hides the key to Bastian's vault.", "supported": false, "trap": "invented-detail" },
+        { "text": "Pip sold his own tools to raise the money.", "supported": false, "trap": "wrong-person" },
+        { "text": "The box plays a lullaby written by Edda's mother.", "supported": true }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "run": 2,
+  "windows": 20,
+  "availableWindows": 49,
+  "actualCalls": 60,
+  "unanswered": 0,
+  "bins": {
+    "attention": {
+      "1": 5,
+      "2": 15
+    },
+    "adversity": {
+      "0": 6,
+      "1": 9,
+      "2": 5
+    },
+    "change": {
+      "1": 9,
+      "2": 11
+    },
+    "tension": {
+      "0": 1,
+      "1": 4,
+      "2": 4,
+      "3": 11
+    }
+  },
+  "sourceHash": "b7a0ab0092bba82ae8bb62d39d753528c65adec097b01a34a0ad28e4af23ed35",
+  "labels": "distribution only; no accuracy or private-label claim"
+}
