@@ -11,9 +11,12 @@ import type { HeadBox, PixelImage } from "../builder/pixels";
 import { poseCacheKey, poseSet, type CachedBody, type LookLayers } from "./layers";
 import type { AnimationFrames } from "../animation";
 import { completeLookFrames } from "../builder/lookFrames";
-import { retargetPose } from "./skeleton";
+import { retargetPose, RETARGET_VERSION, type Retarget } from "./skeleton";
+import { headToHipRatio } from "./import";
+import { shippedPoses } from "./library";
 
-export interface BodyStamp extends CachedBody { story: string; member: string; version: number; head: HeadBox; stamp?: string }
+export type HeadSource = "target" | "measured" | "none";
+export interface BodyStamp extends CachedBody { story: string; member: string; version: number; head: HeadBox; headSource?: HeadSource; stamp?: string }
 export interface BodyResult { set: string; files: Array<{ label: string; path: string }>; body: BodyStamp; frames?: AnimationFrames }
 export interface BodyRequest {
   story: string; member: string; folder: string; label: string; pose: PoseEntry; layers: LookLayers; cardArt?: string; frames?: boolean;
@@ -28,7 +31,8 @@ export interface BodyDeps {
   manifest(folder: string, set: string): Promise<SpriteManifest | null>;
   decode(path: string): Promise<PixelImage>;
   wait(signal: AbortSignal, current: () => boolean): Promise<void>;
-  proportions?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<number | undefined>;
+  proportions?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | undefined>;
+  head?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | null | undefined>;
 }
 
 export function alphaBox(image: PixelImage): HeadBox {
@@ -39,6 +43,12 @@ export function alphaBox(image: PixelImage): HeadBox {
   if (right < left || bottom < top) throw new Error("The look base has no visible subject.");
   return { x: left, y: top, width: right - left + 1, height: bottom - top + 1 };
 }
+
+let standing: PoseEntry["keypoints"] | undefined;
+const standingReference = (): PoseEntry["keypoints"] | undefined => {
+  standing ??= shippedPoses().find((pose) => pose.id === "stand_relaxed")?.keypoints;
+  return standing;
+};
 
 export function poseHead(keypoints: PoseEntry["keypoints"], fallback: HeadBox): HeadBox {
   const head = [0, 14, 15, 16, 17].flatMap((at) => keypoints.points[at] ? [keypoints.points[at] as [number, number]] : []);
@@ -56,7 +66,8 @@ export class PoseBodies {
   private activeRequest: BodyRequest | null = null;
   private queue = new Map<string, BodyRequest>();
   private attempted = new Set<string>();
-  private proportions = new Map<string, number | undefined>();
+  private proportions = new Map<string, PoseEntry["keypoints"] | undefined>();
+  private heads = new Map<string, HeadBox | null | undefined>();
   constructor(private readonly deps: BodyDeps) {}
   close(): void { this.closed = true; this.queue.clear(); this.active?.cancel(); }
   revalidate(): void {
@@ -145,11 +156,13 @@ export class PoseBodies {
       const image = await this.deps.decode(base.path);
       guard();
       if (!this.proportions.has(base.sha256)) {
-        const ratio = await this.deps.proportions?.(image, discovery, run.signal);
-        guard(); this.proportions.set(base.sha256, ratio);
+        const measured = await this.deps.proportions?.(image, discovery, run.signal);
+        guard(); this.proportions.set(base.sha256, measured);
       }
-      const target = { canvas: [image.width, image.height] as [number, number], box: alphaBox(image), headToHip: this.proportions.get(base.sha256) };
-      const keypoints = retargetPose(request.pose, target);
+      const member = this.proportions.get(base.sha256);
+      const target: Retarget = { canvas: [image.width, image.height], box: alphaBox(image), headToHip: member ? headToHipRatio(member) : undefined,
+        member: member ? { ...member, points: member.points.map((point) => point ? [Math.round(point[0]), Math.round(point[1])] : null) } : undefined, version: RETARGET_VERSION };
+      const keypoints = retargetPose(request.pose, target, standingReference());
       const look = stableStringify(request.layers.base), stamp = stableStringify([request.pose, request.layers, request.config]);
       const secondReference = Boolean(discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]
         || discovery.nodes.TextEncodeQwenImage21?.input?.optional?.["images.image_2"]);
@@ -180,9 +193,23 @@ export class PoseBodies {
         resolved = await bodyFor("p3");
       }
       const { bodyKey, body, posed } = resolved;
+      let expressionBlocked = false;
+      if (request.pose.id !== "stand_relaxed" && this.deps.head) {
+        if (!this.heads.has(posed.sha256)) {
+          const found = await this.deps.head(await this.deps.decode(posed.path), discovery, run.signal);
+          guard();
+          const box = found && [0, 14, 15, 16, 17].some((at) => found.points[at]) ? poseHead(found, body.head) : found === null ? null : undefined;
+          this.heads.set(posed.sha256, box);
+          if (this.heads.size > 256) this.heads.delete(this.heads.keys().next().value as string);
+        }
+        const measuredHead = this.heads.get(posed.sha256);
+        if (measuredHead) { body.head = measuredHead; body.headSource = "measured"; }
+        else if (measuredHead === null) { expressionBlocked = true; body.headSource = "none"; }
+      }
+      body.headSource ??= "target";
       const faceKey = await contentHash(new TextEncoder().encode(stableStringify({ bodyKey, face: request.layers.face, head: body.head, recipe: EDIT_RECIPE })));
       let finalSet = body.set, file: { path: string; sha256: string } = posed;
-      if (request.label !== "neutral" || Object.keys(request.layers.face).length) {
+      if (!expressionBlocked && (request.label !== "neutral" || Object.keys(request.layers.face).length)) {
         finalSet = poseSet(faceKey);
         file = await checkedPack(finalSet, request.label) ?? await save({ ...common, set: finalSet, label: request.label, kind: "expression",
           value: `facial expression: ${request.label}${Object.keys(request.layers.face).length ? `; ${publicLook(request.layers.face)}` : ""}`,
@@ -191,6 +218,7 @@ export class PoseBodies {
       }
       for (const [field, value] of Object.entries(request.layers.decal).sort(([a], [b]) => a.localeCompare(b))) {
         const region = request.layers.regions[field];
+        if (!region && expressionBlocked) continue;
         const box = region ? { x: Math.round(region.x * image.width), y: Math.round(region.y * image.height), width: Math.max(1, Math.round(region.width * image.width)),
           height: Math.max(1, Math.round(region.height * image.height)) } : body.head;
         const key = await contentHash(new TextEncoder().encode(stableStringify([file.sha256, field, value, box, EDIT_RECIPE])));
@@ -202,7 +230,7 @@ export class PoseBodies {
       guard();
       const result: BodyResult = { set: finalSet, files: [{ label: request.label, path: file.path }], body: { ...body, set: finalSet, stamp } };
       request.apply(result);
-      if (request.frames !== false) {
+      if (request.frames !== false && !expressionBlocked) {
         const frames = await completeLookFrames({ guard, wait: () => this.deps.wait(run.signal, () => run.stillOwns() && request.accepts()),
           cached: async (kind) => (await checkedPack(`anim-${finalSet}`, `${request.label}.${kind}`))?.path ?? null,
           render: async (kind) => (await save({ ...common, set: finalSet, label: request.label, kind, value: request.label, reference: file.path,

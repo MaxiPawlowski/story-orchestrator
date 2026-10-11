@@ -55,6 +55,17 @@ test('retarget fits a shipped pose into the base alpha box', () => {
     assert.ok(Math.max(...visible.map((p) => p[1])) <= 1120 + 1);
 });
 
+test('retarget with a measured member keeps its bone lengths and puts a seated pose on its floor', () => {
+    const stand = JSON.parse(readFileSync('assets/poses/stand_relaxed.json', 'utf8')) as PoseLike;
+    const sit = JSON.parse(readFileSync('assets/poses/sit_chair.json', 'utf8')) as PoseLike;
+    const member: Keypoints = { ...stand.keypoints, points: stand.keypoints.points.map((p) => p ? [380 + (p[0] - 384) * 0.78, 140 + (p[1] - 130) * 0.78] : null) };
+    const out = retarget(sit, { canvas: [768, 1152], box: { x: 216, y: 25, width: 318, height: 1088 }, member }, stand.keypoints);
+    const floor = Math.max(member.points[10]![1], member.points[13]![1]);
+    assert.ok(Math.abs(Math.max(...out.points.flatMap((p) => p ? [p[1]] : [])) - floor) < 1);
+    const torso = (points: Keypoints['points']) => Math.hypot(points[8]![0] - points[1]![0], points[8]![1] - points[1]![1]);
+    assert.ok(torso(out.points) <= torso(member.points) * 1.1 + 1 && torso(out.points) >= torso(member.points) * 0.8);
+});
+
 test('median, percentile and quote', () => {
     assert.equal(median([3, 1, 2]), 2);
     assert.equal(median([1, 2, 3, 4]), 2.5);

@@ -1,6 +1,6 @@
 import { webcrypto } from "node:crypto";
 import type { RunOwnership } from "@runtime/runToken";
-import { PoseBodies, type BodyDeps, type BodyRequest } from "./bodyRenderer";
+import { PoseBodies, poseHead, type BodyDeps, type BodyRequest } from "./bodyRenderer";
 import { shippedPoses } from "./library";
 import { lookLayers, renderAllowed } from "./layers";
 import type { SpriteBuildRequest, SpriteCandidate } from "../builder/builder";
@@ -76,4 +76,46 @@ test("ownership lost after a preview prevents its save and application", async (
   await new PoseBodies(deps).render(request);
   expect(builder.save).not.toHaveBeenCalled();
   expect(request.apply).not.toHaveBeenCalled();
+});
+
+const headKeypoints = (): ReturnType<NonNullable<BodyDeps["head"]>> extends Promise<infer T> ? NonNullable<T> : never => ({ format: "openpose-body18", canvas: [128, 192],
+  points: Array.from({ length: 18 }, (_, at) => at === 0 ? [60, 50] : at === 14 ? [56, 46] : at === 15 ? [64, 46] : null) });
+
+test("an expression edits the head DWPose finds on the rendered body, not the requested skeleton's head", async () => {
+  const { deps, request, calls } = setup();
+  const found = headKeypoints();
+  deps.head = jest.fn(async () => found);
+  const result = await new PoseBodies(deps).render({ ...request, label: "happy" });
+  const expression = calls.find((call) => call.kind === "expression");
+  expect(expression?.box).toEqual(poseHead(found, request.config.box));
+  expect(result?.body.headSource).toBe("measured");
+  expect(result?.body.head).toEqual(poseHead(found, request.config.box));
+});
+
+test("a body with no person found keeps the neutral render and edits nothing at an unverified head", async () => {
+  const { deps, request, calls } = setup();
+  deps.head = async () => null;
+  const result = await new PoseBodies(deps).render({ ...request, label: "happy", frames: true, layers: { ...request.layers, decal: { scar: "bandage" }, regions: {} } });
+  expect(calls.map((call) => call.kind)).toEqual(["pose"]);
+  expect(result?.body.headSource).toBe("none");
+  expect(result?.files).toHaveLength(1);
+});
+
+test("an unavailable estimator falls back to the requested skeleton's head box", async () => {
+  const { deps, request, calls } = setup();
+  deps.head = async () => undefined;
+  const result = await new PoseBodies(deps).render({ ...request, label: "happy" });
+  expect(calls.map((call) => call.kind)).toEqual(["pose", "expression"]);
+  expect(result?.body.headSource).toBe("target");
+});
+
+test("the member's measured skeleton changes the skeleton sent to the model and the body it caches under", async () => {
+  const plain = setup(), measured = setup();
+  const member = { format: "openpose-body18" as const, canvas: [128, 192] as [number, number], points: Array.from({ length: 18 }, (_, at) => [64 + (at % 3) * 6, 20 + at * 8] as [number, number]) };
+  measured.deps.proportions = async () => member;
+  await new PoseBodies(plain.deps).render(plain.request);
+  await new PoseBodies(measured.deps).render(measured.request);
+  const first = plain.calls.find((call) => call.kind === "pose"), second = measured.calls.find((call) => call.kind === "pose");
+  expect(second?.pose).not.toEqual(first?.pose);
+  expect(second?.set).not.toBe(first?.set);
 });
