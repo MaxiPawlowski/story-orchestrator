@@ -196,3 +196,10 @@ Gates:
 Not run (owner GPU tonight belongs to another agent): LI + LT text → image → text ×2 with the in-process broker,
 clean-host without the plugin, tray entry switch (the tray still points at the standalone controller; the README
 documents the template). Acceptance stays open.
+
+## A5 handoff note 2026-10-11
+
+- Drivers written, not run to a result: `scripts/local/pluginBrokerLi.mjs`, `scripts/local/pluginBrokerLiConfig.mjs`, `scripts/local/storyWorkflowLi.mjs`, `test/scenarios/live-story-workflows.json`.
+- `node --test scripts/local/pluginBrokerLiConfig.test.mjs scripts/local/storyWorkflowLi.test.mjs`: 6 pass, 0 fail.
+- The agent running the LI protocol hung when the 3090 window closed (12:45). No LI floor was measured. Its orphaned ComfyUI and lane 38 lease stub were stopped; GPU back to idle.
+- Owed: plan 28 LI + LT x2 and plan 29 LI, on a lane, with a new GPU window.
