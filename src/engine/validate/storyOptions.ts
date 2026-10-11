@@ -1,7 +1,7 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
   HOUSE_RULE_MAX_CHARS, STAGECRAFT_CREATE_CAP_MAX, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
-  STORY_DISPLAY_TOGGLES, type StoryDisplay, STORY_KINDS, type StoryKind,
+  STORY_DISPLAY_TOGGLES, type StoryDisplay, STORY_KINDS, type StoryKind, CHECKPOINT_REASONING,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
 import { isRecord } from "@utils/guards";
@@ -211,6 +211,8 @@ const readKind = (value: unknown, errors: ValidationError[]): StoryKind | undefi
 };
 
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
+  const reasoning = typeof json.reasoning === "string" ? json.reasoning.trim().toLowerCase() : undefined;
+  if (json.reasoning !== undefined && !isOneOf(reasoning, CHECKPOINT_REASONING)) addError(errors, "reasoning", "reasoning must be off, low, medium or high");
   if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
   const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
   const briefing = readBriefing(json.briefing, "briefing", errors);
@@ -226,6 +228,7 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const poses = gameLayer()?.poses.readStoryPoses(json.poses, errors);
   const kind = readKind(json.kind, errors);
   return {
+    ...(isOneOf(reasoning, CHECKPOINT_REASONING) ? { reasoning } : {}),
     ...(poses ? { poses } : {}),
     ...(kind ? { kind } : {}),
     ...(playerIntro ? { player_intro: playerIntro } : {}),

@@ -68,6 +68,7 @@ export const applyRatingGrounding = (
   qualityByKey: Record<string, Quality>,
   values: Record<string, PrimitiveValue>,
   deltas: ParsedDelta[],
+  sourceText: (messageId: number) => string | null = () => null,
 ): RatingGuardResult => {
   const accepted: ParsedDelta[] = [];
   const held: HeldRatingDelta[] = [];
@@ -75,7 +76,8 @@ export const applyRatingGrounding = (
     const quality = qualityByKey[raw.delta.q];
     const delta = applyStepRule(quality, raw, values[raw.delta.q]);
     const rule = quality?.step_rule ? null : ratingRule(quality);
-    const reason = rule ? refusal(rule, delta.delta.v, values[delta.delta.q], delta.evidence ?? "") : null;
+    const whole = delta.sourceChars !== undefined && delta.messageId !== undefined ? sourceText(delta.messageId) : null;
+    const reason = rule ? refusal(rule, delta.delta.v, values[delta.delta.q], whole ?? delta.evidence ?? "") : null;
     if (reason) held.push({ key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", reason, ...evidenceCut(delta) });
     else accepted.push(delta);
   }

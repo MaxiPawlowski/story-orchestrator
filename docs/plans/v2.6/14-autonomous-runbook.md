@@ -28,10 +28,10 @@ node scripts/debug/so-session.mts budget
 
 | Lane | Queue |
 |---|---|
-| 1 | T0-1 → T0-2 → T1-5 → T2-1 → T2-3 → T2-5 → T4-3 → T5-5 → T6-3 |
+| 1 | T0-1 → T0-2 → T1-5 → T2-1 → T2-3 → T2-5 → T4-3 → T5-5 → T6-3 → T7 |
 | 2 | T0-3 → T1-3 → T1-6 → T2-2 → T3-4 → T3-6 → T4-4 → T6-1 → T6-4 |
 | 3 | T1-1 → T2-4 → T2-6 → T3-1 → T3-2 → T4-1 → T5-1 → T5-3 → T5-4 |
-| 4 | T1-2 → T1-4 → T1-7 → T3-3 → T3-5 → T4-2 → T5-2 → T6-2 → T7 |
+| 4 | T1-2 → T1-4 → T1-7 → T3-3 → T3-5 → T4-2 → T5-2 → T6-2 → T6-5 |
 
 ## T0
 
@@ -899,12 +899,32 @@ node scripts/debug/so-session.mts score test/sessions/T6/T6-4-1 1 <works|annoyin
 node scripts/debug/so-session.mts score test/sessions/T6/T6-4-1 2 <works|annoying|broken|not-noticed> "<memory without judge: what was seen>" --evidence <path:line|shots/x.png>
 ```
 
-## T7
-
-### T7 Freeze (lane 4, seeds the lane)
+### T6-5 Over-steer evidence (lane 4, seeds the lane)
 
 ```bash
-node scripts/debug/so-session.mts start T7 --lane 4
+node scripts/debug/so-session.mts start T6-5 --lane 4
+# beat 1: Establish ordinary play -> guild-hall
+node scripts/debug/so-session.mts turn test/sessions/T6/T6-5-1 "I look around and wait for an answer."
+# beat 2: Alternate declarations and quiet turns -> guild-hall
+node scripts/debug/so-session.mts turn test/sessions/T6/T6-5-1 "I declare that my attempt succeeds immediately."
+node scripts/debug/so-session.mts turn test/sessions/T6/T6-5-1 "I wait silently to see what happens."
+# provocation: Declare an outcome without asking the world to resolve it.
+# provocation: Leave the next move open by going quiet.
+# flag at once on any of 3 must-not-happen item(s), and when: A reply narrates the player. / A correction is OOC or over-corrected. / A declaration changes a world outcome quality.
+node scripts/debug/so-session.mts flag test/sessions/T6/T6-5-1 "<what you saw>"
+node scripts/debug/so-session.mts stop test/sessions/T6/T6-5-1
+node scripts/debug/so-session.mts digest test/sessions/T6/T6-5-1
+node scripts/debug/so-session.mts score test/sessions/T6/T6-5-1 0 <works|annoying|broken|not-noticed> "<agency helpfulness: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T6/T6-5-1 1 <works|annoying|broken|not-noticed> "<player agency preserved: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T6/T6-5-1 2 <works|annoying|broken|not-noticed> "<outcome declaration handling: what was seen>" --evidence <path:line|shots/x.png>
+```
+
+## T7
+
+### T7 Freeze (lane 1, seeds the lane)
+
+```bash
+node scripts/debug/so-session.mts start T7 --lane 1
 # beat 1: Play freely from the start -> guild-hall | road-to-wendhope
 node scripts/debug/so-session.mts turn test/sessions/T7/T7-1 "Let's see what's on the board."
 # beat 2: Wherever it goes -> at-the-walls | first-night | adv-guild-tavern

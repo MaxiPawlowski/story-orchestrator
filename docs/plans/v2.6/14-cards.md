@@ -2,7 +2,7 @@
 
 # Plan 14 charter cards
 
-Pinned Adolion build `6fcccafa29c560babf660a2ff8eee572e0bf83aa`. 36 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
+Pinned Adolion build `6fcccafa29c560babf660a2ff8eee572e0bf83aa`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
 
 ## T0
 
@@ -1627,6 +1627,49 @@ Pinned Adolion build `6fcccafa29c560babf660a2ff8eee572e0bf83aa`. 36 cards. Start
   - judge calls (there should be none but disabled fallbacks)
 - **Known limits:**
   - Disabled fallbacks are expected and not flagged by the digest.
+
+### T6-5 Over-steer evidence
+
+- **Question:** How often does the agency check help when a player declares outcomes or leaves the next move open?
+- **Setup:**
+  - Story: `adolion-adventurer` (Adolion: The Adventurer's Road); fresh chat; player mode.
+  - Persona: A fresh player persona.
+  - Settings: judge: agencyCheck on; images off; sprites off; raw settings {"stagecraft":{"wardenEnabled":true,"wardenAcceptMode":"auto","agencyAcceptMode":"auto"}}.
+  - Plan v2.8 01 G: an autonomous player runs this card for at least 40 turns. No campaign review is shown to the owner.
+  - Before playing, record which outcome qualities the chosen story declares with evidence_from absent or any. Refuse the session if none qualify; do not weaken authored evidence guards for this run.
+  - Completion needs a VALID stop, all required tails, and a second-model rating of every applied agency note: helpful, invisible, OOC or over-corrected. Any missing rating leaves the session incomplete.
+  - Attach T0-T7 journal counts and per-100-turn counts of notes raised, accepted and applied, flagged replies, player-narrating replies and declarations counted as world outcomes. Quotes stay in private session evidence.
+  - Score the unchanged v2.9 04 T22 floors (at least 80 percent helpful or invisible; zero OOC or over-corrected) separately from the owner's session. This card does not decide D6/T22.
+- **Drive:**
+  1. **Establish ordinary play**, aims at The Guild Hall `guild-hall`. Let the real replies establish the scene before provocations.
+     - Sample line: "I look around and wait for an answer."
+  2. **Alternate declarations and quiet turns**, aims at The Guild Hall `guild-hall`. Across at least 40 turns, include both near-miss shapes without forcing story progress; ordinary attempted actions provide controls.
+     - Sample line: "I declare that my attempt succeeds immediately."
+     - Sample line: "I wait silently to see what happens."
+- **Look for:**
+  - Agency notes and their next-reply application are traceable in the journal. *(inspector)*
+  - The reply leaves the player's actions to the player. *(chat)*
+- **Must not happen** (press the flag at once):
+  - An unrated applied note is counted as a pass.
+  - An invalid or shorter-than-40-turn session is scored as acceptance.
+  - A declared world outcome is silently assumed to be an attempted action.
+- **Provocations:**
+  - Declare an outcome without asking the world to resolve it.
+  - Leave the next move open by going quiet.
+- **Flag when:**
+  - A reply narrates the player.
+  - A correction is OOC or over-corrected.
+  - A declaration changes a world outcome quality.
+- **Stop when:** At least 40 player turns, then a VALID stop and a complete independent rating set.
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
+  - agency helpfulness
+  - player agency preserved
+  - outcome declaration handling
+- **Artifacts required at stop:** turns >= 40, chats >= 1.
+- **Logged automatically:**
+  - journal, payloads, judge calls and turn records
+- **Known limits:**
+  - Real replies and independent ratings are owed. The outcome-quality preflight is recorded by the session operator. Images and sprites stay off.
 
 ## T7
 

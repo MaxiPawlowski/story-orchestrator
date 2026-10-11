@@ -148,3 +148,20 @@ export const ChanceRoll: Story = {
     await expect(swarm()?.roll).toBeUndefined();
   },
 };
+
+// v2.8 01 C11-F2: one commitment pattern per value, so a quality can mix a commitment with plain actions.
+export const CommitEvidencePerValue: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const route = () => useDraftStore.getState().draft.qualities.find((quality) => quality.key === "route");
+    await userEvent.click(canvas.getByRole("button", { name: /route/ }));
+    await userEvent.type(canvas.getByLabelText("Commitment evidence (regex)"), "sneak");
+    await expect(route()?.commit_evidence).toBe("sneak");
+    await userEvent.click(canvas.getByLabelText("A pattern per value"));
+    await expect(route()?.commit_evidence).toEqual({ stealth: "sneak", force: "sneak" });
+    await userEvent.clear(canvas.getByLabelText("Commitment evidence for force"));
+    await expect(route()?.commit_evidence).toEqual({ stealth: "sneak" });
+    await userEvent.click(canvas.getByLabelText("A pattern per value"));
+    await expect(route()?.commit_evidence).toBe("sneak");
+  },
+};

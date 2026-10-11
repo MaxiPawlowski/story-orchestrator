@@ -85,10 +85,9 @@ export const GUIDE_TOPICS = {
   "quality-reads": {
     title: "How a quality is read",
     fields: "read_as, criteria, player_labels, evidence_from, commit_evidence, scope_hint, ledger_binding",
-    text: "read_as (choice for bool/enum, stated for a named number or name, rating for a scale) lets the judge read a plainly visible answer every turn; criteria say what "
-      + "each option means. evidence_from: world means a player's own line cannot prove it (use it for outcomes gating an anchor); party for the party's own moves, "
-      + "which the player's line may state. "
-      + "commit_evidence is a pattern the quoted evidence must match for a commitment. scope_hint {from, until} narrows when it is asked; never narrow past a gate that needs it. "
+    text: "read_as: choice (bool/enum), stated (number/name), rating (scale). criteria define options. player_labels give enum values public names. "
+      + "evidence_from: world excludes player lines; party accepts their moves. commit_evidence matches a player line in the read window; an enum/bool map {value: pattern} "
+      + "guards only named values. scope_hint {from, until} narrows reads, never past a gate that needs them. ledger_binding mirrors a ledger field. "
       + "A player line wrapped in ((…)) or starting OOC: / (OOC is never read and is no player turn.",
   },
   "chance-roll": {
@@ -187,9 +186,10 @@ export const GUIDE_TOPICS = {
   },
   "experimental-effects": {
     title: "Experimental effects",
-    fields: "effects.reasoning, complications",
-    text: "reasoning (off, low, medium or high) asks for a reasoning effort on this beat's replies; complications are lines "
-      + "released into a stalled beat. Both are spikes that run only where their switch is on. Do not rely on either for the story to work.",
+    fields: "reasoning, effects.reasoning, complications",
+    text: "Reply thinking resolves checkpoint effects.reasoning, then story reasoning, then the install default (off, low, medium or high). Studio Story edits the story default. "
+      + "The override switch is on by default; only an already-thinking llama.cpp setup is budgeted. Low gives 128 thought tokens and can break group reply form. "
+      + "complications are lines released into a stalled beat, behind their own default-on spike switch.",
   },
   gates: {
     title: "Gates",
@@ -221,7 +221,8 @@ export const GUIDE_TOPICS = {
     fields: "checkpoints[].talk_control",
     text: "Who speaks next in a group: speakers [{member, weight}], lead (picked first), no_repeat, allow_silence (needs the director), director (an AI picks the speaker), "
       + "chain (several voices answer one message: mode director or scripted with a sequence, max, stop_on_transition, stop_on_player, hold_extraction). List the lead in "
-      + "speakers, or it joins at weight 1. A name nobody has is skipped.",
+      + "speakers. no_repeat defaults on: no member repeats within a chain; false permits repeats up to max. A player line or STOP ends the old chain. "
+      + "An unlisted lead joins at weight 1. A name nobody has is skipped.",
   },
   stagecraft: {
     title: "Curator scope",

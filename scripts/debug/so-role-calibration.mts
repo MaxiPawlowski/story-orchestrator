@@ -26,6 +26,8 @@ then scores it against the floors predeclared in docs/plans/v2.4/08-author-obser
                        restored afterwards and read back. The report records what the connection did with it (applied /
                        unsupported / collapsed) and the reasoning it spent. The arm label gains -effort-<level>.
   --arm <label>        golden file suffix (default: routed when --profile is given, else shared)
+  --curator-index-pad <file>  private JSON array of CuratorEntryView padding; curator only, at least 40 entries total
+  --curator-index      use the title-index measurement arm on that pad (without it, padded full-text control)
   --record             write test/goldens/live/role-calibration/<role>-<arm>.json (replayed in jest)
   --expect-count <n>   fail unless exactly n cases ran (the fixture's cases; hold-out rows are counted apart)
   --holdout            authoring only (v2.5 plan 06 J1): also run test/fixtures/role-calibration/authoring-holdout.json
@@ -189,10 +191,22 @@ async function runCases(page, role: string, cases) {
   return { records, incomplete };
 }
 
-async function runRole(page, { role, profile, effort = null, arm, filter, record, expectCount, holdout }: { role: string; profile: string | null; effort?: EffortArm | null; arm: string; filter: string; record: boolean; expectCount: number | null; holdout: boolean }) {
+async function runRole(page, { role, profile, effort = null, arm, filter, record, expectCount, holdout, indexPad, indexArm }: { role: string; profile: string | null; effort?: EffortArm | null; arm: string; filter: string; record: boolean; expectCount: number | null; holdout: boolean; indexPad: string; indexArm: boolean }) {
   if (!ROLES.includes(role)) throw new Error(`--role must be one of ${ROLES.join(', ')}`);
   const loaded = await loadCases(role);
   const cases = loaded.cases.filter((entry) => !filter || entry.id.includes(filter));
+  if ((indexPad || indexArm) && role !== 'curator') throw new Error('the curator index measurement arm is curator-only');
+  if (indexArm && !indexPad) throw new Error('--curator-index needs --curator-index-pad');
+  if (indexPad) {
+    const pad = JSON.parse(await readFile(indexPad, 'utf-8'));
+    if (!Array.isArray(pad) || pad.some((entry) => !entry || typeof entry.lorebook !== 'string' || typeof entry.comment !== 'string' || typeof entry.content !== 'string' || typeof entry.disabled !== 'boolean' || !Array.isArray(entry.keys) || entry.keys.some((key) => typeof key !== 'string'))) throw new Error('index pad must be a CuratorEntryView array');
+    for (const entry of cases) {
+      const named = new Set(entry.scope.entries.map((row) => `${row.lorebook.toLowerCase()}:${row.comment.toLowerCase()}`));
+      entry.scope.entries = [...entry.scope.entries, ...pad.filter((row) => !named.has(`${row.lorebook.toLowerCase()}:${row.comment.toLowerCase()}`))];
+      if (entry.scope.entries.length < 40) throw new Error('index pad must bring every case to at least 40 entries');
+      entry.indexArm = indexArm;
+    }
+  }
   const manifest = JSON.parse(await readFile(join(PROJECT_ROOT, 'dist/manifest.json'), 'utf-8'));
   const route = await setRoute(page, role, profile);
   const pinned = effort ? await pinRoleEffort(page, role, effort) : null;
@@ -242,7 +256,7 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
     ...(holdoutSummary ? { holdout: holdoutSummary, holdoutRecords: held.records, holdoutIncomplete: held.incomplete } : {}),
   };
   await writeJSON(report, `so-role-calibration-${role}-${armLabel}`);
-  if (record && !incomplete.length && !held.incomplete.length) {
+  if (record && !indexPad && !incomplete.length && !held.incomplete.length) {
     await mkdir(GOLDEN_DIR, { recursive: true });
     await writeFile(join(GOLDEN_DIR, `${role}-${armLabel}.json`), `${JSON.stringify(report, null, 2)}\n`);
     console.log(`recorded test/goldens/live/role-calibration/${role}-${armLabel}.json`);
@@ -273,5 +287,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     record: process.argv.includes('--record'),
     expectCount: expectRaw ? Number(expectRaw) : null,
     holdout: process.argv.includes('--holdout'),
+    indexPad: argValue('--curator-index-pad', ''),
+    indexArm: process.argv.includes('--curator-index'),
   }));
 }

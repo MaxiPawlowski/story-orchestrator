@@ -7,7 +7,7 @@ type Covered = GuideTopicId | { none: string };
 const STORY: Record<keyof StoryV2, Covered> = {
   format: { none: "always 2, written by the Studio" },
   id: "story-basics", title: "story-basics", description: "story-basics", player_intro: "story-basics", kind: "story-basics",
-  player: "player", briefing: "briefing", illustrations: "presentation", poses: "poses", qualities: "qualities", checkpoints: "checkpoints", transitions: "transitions",
+  player: "player", briefing: "briefing", reasoning: "experimental-effects", illustrations: "presentation", poses: "poses", qualities: "qualities", checkpoints: "checkpoints", transitions: "transitions",
   roster: "roster", arc_template: "arc-template", arc_bridges: "arc-bridges", requirements: "requirements", stagecraft: "stagecraft",
   scene_read: "scene-read", lore_select: "lore-select", house_rules: "house-rules",
   scaffolding: { none: "written by the road-ahead generator, never authored" },

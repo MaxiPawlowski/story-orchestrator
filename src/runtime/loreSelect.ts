@@ -1,7 +1,7 @@
 import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
-import { storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
+import { fnv1a, storyRevision } from "./hash";
+import { buildLoreRequests, loreCandidates, loreKey, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
@@ -59,6 +59,7 @@ export function memberNames(story: NormalizedStoryV2, card: string | null): stri
 export class LoreSelector {
   private cache: { key: string; entries: HostScannableEntry[]; picks: LoreSelection["picks"]; left: LoreSelection["left"] } | null = null;
   private complete: CompleteLoreSelection | null = null;
+  private scored: { key: string; p: Map<string, number | null> } | null = null;
 
   constructor(private readonly deps: LoreSelectDeps) {}
 
@@ -83,7 +84,7 @@ export class LoreSelector {
     // story with the same lore scope used to match the departed story's cache and force its picks
     // into the new story's next generation (matrix).
     const member = memberNames(story, this.deps.getDrafted?.() ?? null);
-    const key = `${this.deps.getChatId() ?? ""}:${loreStoryKey(story)}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}:${generationType ?? ""}:${member.join("|")}`;
+    const window = this.deps.getWindow();
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.
@@ -95,13 +96,16 @@ export class LoreSelector {
         this.complete = { chatId, storyKey: loreStoryKey(story), messageId, picks: picks.map(({ world, uid }) => ({ world, uid })), left: left.map(({ world, uid }) => ({ world, uid })) };
       }
     };
+    const scannable = await this.deps.getEntries();
+    if (!run.stillOwns()) return null;
+    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`;
+    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}`;
     if (this.cache?.key === key) {
       const { picks: cached, left: cachedLeft } = this.cache;
       if (!(await this.forced(this.cache.entries, run))) return null;
       record(cached, cachedLeft);
       return { trigger, cached: true, picks: cached, left: cachedLeft };
     }
-    const scannable = await this.deps.getEntries();
     const books = [...new Set(scannable.map((entry) => entry.world))].filter((world) => scope.lorebooks.some((name) => sameBook(name, world)));
     const byKey = new Map(scannable.map((entry) => [`${entry.world}.${entry.uid}`, entry]));
     const candidates = loreCandidates(
@@ -125,7 +129,8 @@ export class LoreSelector {
       return reason === null;
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
-    const chunks = buildLoreRequests(rated, { checkpointName: checkpoint.name, objective: checkpoint.objective, window: this.deps.getWindow() });
+    const known = new Map(this.scored?.key === sceneKey ? this.scored.p : []);
+    const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))), { checkpointName: checkpoint.name, objective: checkpoint.objective, window });
     const ask = async (chunk: (typeof chunks)[number]) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,
@@ -142,10 +147,19 @@ export class LoreSelector {
     const retry = missed && cooling <= LORE_RETRY_WAIT_MS && run.stillOwns();
     if (retry && cooling > 0) await (this.deps.wait ?? sleep)(cooling);
     const answered = await Promise.all(first.map(async (outcome, index) => (outcome.retry && retry && run.stillOwns() ? (await ask(chunks[index])).scored : outcome.scored)));
-    const picked: LorePick[] = pickLore(answered.flatMap((scored) => scored ?? []), pickScope);
+    answered.forEach((scored, index) => {
+      if (!scored) return;
+      const p = new Map(scored.map((pick) => [loreKey(pick.entry), pick.p]));
+      for (const asked of chunks[index].entries) known.set(loreKey(asked), p.get(loreKey(asked)) ?? null);
+    });
+    if (run.stillOwns()) this.scored = { key: sceneKey, p: known };
+    const picked: LorePick[] = pickLore(rated.flatMap((candidate) => {
+      const p = known.get(loreKey(candidate));
+      return typeof p === "number" ? [{ entry: candidate, p }] : [];
+    }), pickScope);
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
-    const everyAnswered = answered.every((scored) => scored !== null);
+    const everyAnswered = rated.every((candidate) => known.has(loreKey(candidate)));
     if (run.stillOwns() && everyAnswered) this.cache = { key, entries, picks, left };
     if (!(await this.forced(entries, run))) return null;
     if (everyAnswered) record(picks, left);

@@ -38,6 +38,19 @@ export const IdLockedAfterSave: Story = {
   },
 };
 
+export const ReplyThinking: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.selectOptions(canvas.getByLabelText("Reply thinking"), "low");
+    await expect(useDraftStore.getState().draft.reasoning).toBe("low");
+    await expect(canvas.getByText(/only 128 thought tokens/)).toBeVisible();
+    await userEvent.selectOptions(canvas.getByLabelText("Reply thinking"), "high");
+    await expect(canvas.queryByText(/only 128 thought tokens/)).toBeNull();
+    await userEvent.selectOptions(canvas.getByLabelText("Reply thinking"), "");
+    await expect(useDraftStore.getState().draft.reasoning).toBeUndefined();
+  },
+};
+
 export const AuthorRequirements: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

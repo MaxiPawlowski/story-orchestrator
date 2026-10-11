@@ -157,6 +157,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(player ? { player } : {}),
     ...(Object.keys(cardFieldByQuality).length ? { cardFieldByQuality } : {}),
     ...(options.briefing ? { briefing: options.briefing } : {}),
+    ...(options.reasoning ? { reasoning: options.reasoning } : {}),
     ...(options.illustrations ? { illustrations: options.illustrations } : {}),
     qualities,
     checkpoints,

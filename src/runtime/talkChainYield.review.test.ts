@@ -50,6 +50,17 @@ const openTurn = async (controller: TalkController) => {
 };
 
 describe("P1 (B1 2026-10-08): a player line sent between chained voices", () => {
+  it("a player line during the first decision ends that chain without dereferencing it after the answer", async () => {
+    const director = held();
+    const made = makeHost(async () => { await director.wait(); return MARA; });
+    const controller = new TalkController(made.host);
+    controller.onWrapperStarted({ type: "normal" });
+    const pending = controller.intercept(() => undefined, "normal");
+    controller.onPlayerMessage();
+    director.release();
+    await expect(pending).resolves.toBeUndefined();
+    expect(made.triggered).toEqual([]);
+  });
   it("ends the chain while it decides the next voice: the decided voice is not started or journaled, and the player's own turn opens a fresh chain", async () => {
     const director = held();
     let asked = 0;

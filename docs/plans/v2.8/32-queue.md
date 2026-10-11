@@ -44,7 +44,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 |---|---|---|
 | A1 | Briefing drafting by the wizard: built on `v2.8-briefing` (22286afb + gate record), gates green, no-model lane ×2; CL floors owed, not merged | 10, D5 |
 | A2 | Story presence panels: what is left (C4/C5/C7/C9a) | 04, D10; **done** on `v2.8-panels-rest` (C4/C7/C9a were v2.7 36, C5 v2.7 33; gaps closed, lane 52 ×2); owed C5 CL + Storybook |
-| A3 | v2.7 carry-over: lore-select batching (C12), curator digest (C13-b), model-driven items (C11), R4 gate lift + Studio control | 01, D1 |
+| A3 | v2.7 carry-over: lore-select batching (C12), curator digest (C13-b), model-driven items (C11), R4 gate lift + Studio control | 01, D1; **built** on `v2.8-carry-over` 2026-10-11 (C12, C11-F1/F2/F7, R4 story level + lift, C13-b measurement arm, G card), gates:quick green, full gates + Storybook owed; CL/RP measurements owed (01 Gate record) |
 | A4 | ~~Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds~~ built on `v2.8-widgets-followups` 2026-10-10 (`70ab9a78`), gates green, lane 54 19/19 x2; Storybook owed (23 Gate record) | 23 |
 | A5 | Lorebook features for the campaign: outlets, regex keys, NOT logic, triggers | D11 |
 | A6 | Open stretches (engine half, then M1/M2) | 19 |

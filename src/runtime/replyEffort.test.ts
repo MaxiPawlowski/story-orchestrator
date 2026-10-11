@@ -233,6 +233,14 @@ describe("reply effort: the install default and the checkpoint override", () => 
     expect(armFor({ ...target, checkpointOverride: false })).toMatchObject({ level: "medium", source: "install" });
   });
 
+  it("checkpoint then story then install, including an explicit off level", () => {
+    const authoredStory = { ...story("high"), reasoning: "low" as const };
+    expect(armFor({ ...target, story: authoredStory })).toMatchObject({ level: "high", source: "checkpoint" });
+    expect(armFor({ ...target, story: authoredStory, checkpointId: "cp1" })).toMatchObject({ level: "low", source: "story" });
+    expect(armFor({ ...target, story: { ...authoredStory, reasoning: "off" }, checkpointId: "cp1" })).toMatchObject({ level: "off", source: "story" });
+    expect(armFor({ ...target, story: authoredStory, checkpointOverride: false })).toMatchObject({ level: "medium", source: "install" });
+  });
+
   it("no story chat or no story: nothing is armed", () => {
     expect(armFor({ ...target, storyChat: null })).toBeNull();
     expect(armFor({ ...target, story: null })).toBeNull();

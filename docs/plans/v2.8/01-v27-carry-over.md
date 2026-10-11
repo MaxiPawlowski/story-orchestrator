@@ -148,6 +148,44 @@ calls, journal, score records, lane server logs, probe results and the attributi
 - The first gates run, on `8b46324f` before the version pin was bumped, was red at `pluginVersionCheck.test.ts`: the
   page still expected judge plugin 1.6.0. `src/utils/pluginVersions.ts` now expects 1.7.0 (in `dca285e5`).
 
+### A3 Gate record (WIP 2026-10-10, stopped on owner quota, gates not run)
+
+Done: C12 per-scene lore score memo (`runtime/loreSelect.ts`, tests), C11-F1 rating guard on the whole source message, C11-F2 per-value `commit_evidence` (schema, validator, guard, Studio field + story, guide text). In progress: C11-F7 (`talkControl.ts` edited, 2 talk tests red). Next: fix F7 tests, R4 story-level `reasoning` + Studio control, C13-b measurement arm, plan sections, docs:guide, gates.
+
+### A3 Gate record (2026-10-11, B1, branch `v2.8-carry-over`)
+
+Built (all deterministic, default on):
+
+- **C11-F7 chain voice** (`runtime/talkControl.ts`). A chain no longer repeats a voice while `no_repeat` is on (the default):
+  - the judge, director and scripted paths all resolve the next voice through the same narrowed candidate pool; a voice already used, or one that is no longer a candidate, ends the chain;
+  - `no_repeat: false` keeps repeats up to `max`.
+  - Yield to the player is unchanged and now also covers the first decision: `intercept` re-checks that its chain is still the live one after the decision answers, so a player line during that wait ends the chain and nothing is started or journaled. A failed trigger ends its own chain.
+  - The two red tests were two chain tests whose scripted judge answers repeated a voice (`Finn` twice). They now state `no_repeat: false`, because they test repeat sequencing, not the default.
+  - New tests: scripted duplicate ×`no_repeat` true/false, a judge naming a used voice cannot bypass the pool, a player line during the first decision (`talkChainYield.review.test.ts`). The existing `talkChainYield` and `voiceStart` cases are unchanged and green.
+  - Guide topic `talk-control` updated (docs:guide, docs:settings run, no drift).
+- **C12** per-scene lore score memo (key now names the window and the scannable entries). **C11-F1** rating guard on the whole source message. **C11-F2** per-value `commit_evidence` (schema, validator, guard, Studio field, guide).
+- **§E R4.** Story `reasoning` default (schema, validator, Studio "Reply thinking" select with a `low` + talk-control warning); `armFor` resolves checkpoint, then story, then install; the `spikes.reasoningEffect` override is on by default, as the owner's rule for built features requires, below its floor and unmeasured.
+- **C13-b measurement arm.** `runtime/curatorIndexArm.ts` (title index for entries outside the scene, full text for the 16 best matches, edits to title-only entries refused), wired into `so-role-calibration --curator-index-pad <file> [--curator-index]`. The digest is not built into the product (its gate is a measured B1-C13b ×2).
+- **§G** card `T6-5` in `test/sessions/charters.json` (+ `lane-plan.json`, `14-cards.md`).
+
+Gates run in the worktree (none of the full `npm run gates`, which the coordinator runs):
+
+- `npx jest` on talkControl, talkChainYield, voiceStart, checkpointReasoning, replyEffort, loreSelect, loreAborted, curatorIndexArm, copilot, spikeFlags, roleCalibration: 39 suites, 524 tests passed.
+- `npm run typecheck`: clean. `npm run typecheck:test`: clean. `npm run lint`: 0 errors, 2 warnings in files this plan does not touch (`BriefingHost.stories.tsx`, `LiveHead.tsx`).
+- `npm run gates:quick`: green in 66.0 s (typecheck, typecheck:test, lint changed, jest related 476 suites passed / 1 skipped, 6,057 tests passed, defect replay `--cached`).
+- Storybook for `QualityCommitEvidence`, `QualityEditor`, `StoryEditor` stories: not run (rule 11); owed to the full gates.
+
+Owed (each with its protocol; none run, no lane, no model, no GPU used):
+
+- **C11-F7 RP acceptance:** the final suite's group-chain play. One send in a chained group, ≥ 3 distinct voices, no repeat with `no_repeat` default, a player line between voices ends the chain, one wrapper only (`so-payload` tail).
+- **C12 CL:** lore-select requests per turn after, against B1-C12's before; answers unchanged on the frozen fixture (`so-live-suite`).
+- **C11-F2 CL:** the live suite's commitment fixtures with a per-value map.
+- **C13-b CL:** `node scripts/debug/so-role-calibration.mts --role curator --curator-index-pad <private pad of ≥ 40 entries>` with and without `--curator-index`, ×2 each, against the SP8 floors from `v2.6/03-sp8-restated.md`. The digest ships only after the index arm passes ×2; the floors are not retuned.
+- **R4 RP:** 16 more blind pairs (4 of 20 exist, `test/sessions/rating-pack/R4/status.json`), rated by a second model; floor arm ≥ 60 %, p95 ≤ 2× control. A miss is recorded; the override stays on.
+- **C3:** the second `so-judge timeouts` ×2 leg on one build.
+- **LI:** nothing in this plan is image work.
+- **§D, §F (M1–M5), §G run, §H (H1 recorder first, then H2), §A rows:** unchanged, still owed.
+
 ## C. SP2 re-commit after edit, v2 — option A (approved)
 
 **Absorbed (2026-10-07): built as v2.7 33 W1 (floors V0–V8 verbatim there); its live rows run in v2.7 39 (C4 J6 with W1

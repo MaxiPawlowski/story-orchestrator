@@ -1120,6 +1120,37 @@
       "knownLimits": ["Disabled fallbacks are expected and not flagged by the digest."]
     },
     {
+      "id": "T6-5",
+      "tier": "T6",
+      "title": "Over-steer evidence",
+      "question": "How often does the agency check help when a player declares outcomes or leaves the next move open?",
+      "story": { "kind": "adolion", "id": "adolion-adventurer" },
+      "setup": {
+        "mode": "player", "persona": "A fresh player persona.", "chat": "fresh",
+        "settings": { "judge": { "agencyCheck": true }, "raw": { "stagecraft": { "wardenEnabled": true, "wardenAcceptMode": "auto", "agencyAcceptMode": "auto" } } },
+        "notes": [
+          "Plan v2.8 01 G: an autonomous player runs this card for at least 40 turns. No campaign review is shown to the owner.",
+          "Before playing, record which outcome qualities the chosen story declares with evidence_from absent or any. Refuse the session if none qualify; do not weaken authored evidence guards for this run.",
+          "Completion needs a VALID stop, all required tails, and a second-model rating of every applied agency note: helpful, invisible, OOC or over-corrected. Any missing rating leaves the session incomplete.",
+          "Attach T0-T7 journal counts and per-100-turn counts of notes raised, accepted and applied, flagged replies, player-narrating replies and declarations counted as world outcomes. Quotes stay in private session evidence.",
+          "Score the unchanged v2.9 04 T22 floors (at least 80 percent helpful or invisible; zero OOC or over-corrected) separately from the owner's session. This card does not decide D6/T22."
+        ]
+      },
+      "drive": [
+        { "title": "Establish ordinary play", "aim": ["guild-hall"], "why": "Let the real replies establish the scene before provocations.", "lines": ["I look around and wait for an answer."] },
+        { "title": "Alternate declarations and quiet turns", "aim": ["guild-hall"], "why": "Across at least 40 turns, include both near-miss shapes without forcing story progress; ordinary attempted actions provide controls.", "lines": ["I declare that my attempt succeeds immediately.", "I wait silently to see what happens."] }
+      ],
+      "lookFor": [{ "what": "Agency notes and their next-reply application are traceable in the journal.", "where": "inspector" }, { "what": "The reply leaves the player's actions to the player.", "where": "chat" }],
+      "mustNotHappen": ["An unrated applied note is counted as a pass.", "An invalid or shorter-than-40-turn session is scored as acceptance.", "A declared world outcome is silently assumed to be an attempted action."],
+      "provocations": ["Declare an outcome without asking the world to resolve it.", "Leave the next move open by going quiet."],
+      "flagWhen": ["A reply narrates the player.", "A correction is OOC or over-corrected.", "A declaration changes a world outcome quality."],
+      "stopWhen": "At least 40 player turns, then a VALID stop and a complete independent rating set.",
+      "rubric": [{ "feature": "agency helpfulness" }, { "feature": "player agency preserved" }, { "feature": "outcome declaration handling" }],
+      "requires": { "artifacts": { "turns": 40, "chats": 1 } },
+      "loggedAutomatically": ["journal, payloads, judge calls and turn records"],
+      "knownLimits": ["Real replies and independent ratings are owed. The outcome-quality preflight is recorded by the session operator. Images and sprites stay off."]
+    },
+    {
       "id": "T7",
       "tier": "T7",
       "title": "Freeze",

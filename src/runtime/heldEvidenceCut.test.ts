@@ -79,3 +79,37 @@ describe("v2.7 02 C11-F1a: the author's held row says when the judge-typed evide
     }
   });
 });
+
+describe("v2.8 01 C11-F1: both guards read the whole source message, not the 160-character quote", () => {
+  const source = (text: string) => (messageId: number) => (messageId === 7 ? text : null);
+
+  it("a rating whose level is named past the cut is accepted against the whole message", async () => {
+    const deltas = await judgedRank(long);
+    expect(long.indexOf("E-rank")).toBeGreaterThan(TYPED_EVIDENCE_CHARS);
+    expect(applyRatingGrounding(rating, { party_rank: 0 }, deltas, source(long))).toEqual({ accepted: deltas, held: [] });
+  });
+
+  it("control: without the source the same read is held on the cut quote", async () => {
+    expect(applyRatingGrounding(rating, { party_rank: 0 }, await judgedRank(long)).held).toHaveLength(1);
+  });
+
+  it("control: a whole message that never names the level still holds", async () => {
+    const deltas = await judgedRank(long);
+    expect(applyRatingGrounding(rating, { party_rank: 0 }, deltas, source(quiet.repeat(6))).held).toEqual([expect.objectContaining({ key: "party_rank", reason: "the evidence never names E-rank" })]);
+  });
+
+  it("an uncut quote never consults the source", async () => {
+    const lookup = jest.fn(() => "E-rank");
+    const held = applyRatingGrounding(rating, { party_rank: 0 }, [...await judgedRank(quiet), { delta: { q: "party_rank", v: 1, source: "extractor" }, evidence: "The hall is loud." }], lookup).held;
+    expect(held).toHaveLength(2);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it("a commitment the player wrote past the cut commits: the guard reads the window's player lines", async () => {
+    const pledge = `${"I look over the board for a long time and weigh every posting twice. ".repeat(3)}Fine, we accept.`;
+    const deltas = await judgedRank(long);
+    const window = () => [{ messageId: 6, text: pledge, isUser: true }, { messageId: 7, text: long, isUser: false }];
+    expect(pledge.indexOf("accept")).toBeGreaterThan(TYPED_EVIDENCE_CHARS);
+    expect(applyCommitEvidence(commitStory, deltas, window)).toEqual({ accepted: deltas, held: [] });
+  });
+});

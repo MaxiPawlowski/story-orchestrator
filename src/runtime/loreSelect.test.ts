@@ -330,3 +330,92 @@ describe("F21: a chunk the plugin turned away is asked once more, so exclusive m
     expect(env.selector.completeSelection()).toBeNull();
   });
 });
+
+describe("v2.8 01 C12: one ask per entry per scene, shared by every generation at that message", () => {
+  const entries = [keyed(1, ["harbour"]), keyed(2, ["lighthouse"]), keyed(3, ["Arin"]), keyed(4, ["the Warden"])];
+  const roster = [{ id: "arin", name: "Arin" }, { id: "mara", name: "Mara" }];
+  const questionsAsked = (env: ReturnType<typeof setup>) => env.requests.reduce((sum, request) => sum + Object.keys(request.questions).length, 0);
+
+  it("a speaker redirect at the player's message asks nothing new, and picks from the scores the send already paid for", async () => {
+    let drafted: string | null = null;
+    const env = setup({ entries, roster, drafted: () => drafted });
+    const sent = await env.selector.select("MESSAGE_SENT");
+    drafted = "Arin";
+    const redirected = await env.selector.select("GENERATION_STARTED", "normal");
+    expect(env.requests).toHaveLength(1);
+    expect(redirected?.cached).toBe(false);
+    expect(redirected?.picks).toEqual(sent?.picks.filter((pick) => pick.uid !== 3));
+    expect(redirected?.left).toEqual([{ world: "Story Lore", uid: 3, comment: "Story Lore 3", reason: "self" }]);
+    expect(env.selector.completeSelection()?.picks).toEqual(redirected?.picks.map(({ world, uid }) => ({ world, uid })));
+  });
+
+  it("measured: requests for a send and its redirected draft, before (one per generation) and after", async () => {
+    let drafted: string | null = null;
+    const env = setup({ entries, roster, drafted: () => drafted });
+    await env.selector.select("MESSAGE_SENT");
+    drafted = "Mara";
+    await env.selector.select("GENERATION_STARTED", "normal");
+    drafted = "Arin";
+    await env.selector.select("GENERATION_STARTED", "normal");
+    expect({ requests: env.requests.length, questions: questionsAsked(env) }).toEqual({ requests: 1, questions: 4 });
+  });
+
+  it("asks only the entries a refused chunk left unscored when the next generation at the message comes", async () => {
+    const library = Array.from({ length: 263 }, (_, index) => entry("Story Lore", index + 1, { comment: `Story Lore ${index + 1}`, content: "x".repeat(LORE_CONTENT_CHARS) }));
+    const secondChunk = (request: JudgeRequest) => Object.values(request.questions).some((question) => question.instructions.includes('"Story Lore 263"'));
+    let refusing = true;
+    const env = setup({ entries: library, refuse: (request) => (refusing && secondChunk(request) ? new Error("bad answer") : null) });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.selector.completeSelection()).toBeNull();
+    const firstAsks = env.requests.length;
+    refusing = false;
+    await env.selector.select("GENERATION_STARTED", "normal");
+    expect(env.requests.slice(firstAsks)).toHaveLength(1);
+    expect(env.requests.slice(firstAsks).every(secondChunk)).toBe(true);
+    expect(env.selector.completeSelection()?.picks).toEqual([{ world: "Story Lore", uid: 3 }, { world: "Story Lore", uid: 1 }]);
+  });
+
+  it("control: a new message is a new scene and asks again", async () => {
+    const env = setup({ entries });
+    await env.selector.select("MESSAGE_SENT");
+    env.setLastMessageId(5);
+    await env.selector.select("GENERATION_STARTED", "normal");
+    expect(env.requests).toHaveLength(2);
+  });
+
+  it("control: a changed window at the same message id asks again", async () => {
+    let text = "Who runs the harbour?";
+    const env = setup({ entries, window: () => [{ speaker: "Max", text }] });
+    await env.selector.select("MESSAGE_SENT");
+    text = "Who runs the lighthouse?";
+    await env.selector.select("GENERATION_STARTED", "normal");
+    expect(env.requests).toHaveLength(2);
+  });
+
+  it("control: another story at the same message never reads the first story's scores", async () => {
+    const env = setup({ entries, window: () => [{ speaker: "Max", text: "same words" }] });
+    await env.selector.select("MESSAGE_SENT");
+    env.setStoryId("another");
+    const after = await env.selector.select("GENERATION_STARTED", "normal");
+    expect(after?.cached).toBe(false);
+    expect(env.records.filter((record) => record.use === "lore")).toHaveLength(2);
+  });
+
+  it("a changed window invalidates the same generation's complete cache too", async () => {
+    let text = "Who runs the harbour?";
+    const env = setup({ entries, window: () => [{ speaker: "Max", text }] });
+    await env.selector.select("GENERATION_STARTED", "normal");
+    text = "Who runs the lighthouse?";
+    expect((await env.selector.select("GENERATION_STARTED", "normal"))?.cached).toBe(false);
+    expect(env.requests).toHaveLength(2);
+  });
+
+  it("an edited entry invalidates the scores and the complete cache at the same message", async () => {
+    const library = [keyed(1, ["harbour"])];
+    const env = setup({ entries: library });
+    await env.selector.select("GENERATION_STARTED", "normal");
+    library[0].content = "The harbour now has a new owner.";
+    expect((await env.selector.select("GENERATION_STARTED", "normal"))?.cached).toBe(false);
+    expect(env.requests).toHaveLength(2);
+  });
+});

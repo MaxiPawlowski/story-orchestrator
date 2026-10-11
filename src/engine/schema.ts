@@ -84,9 +84,10 @@ export interface Quality {
    * A regex an extractor delta's quoted evidence must match before it may set this quality. It marks
    * a value whose whole meaning is that something was COMMITTED to (taking a posting, swearing an
    * oath): a latching gate read from a scene aside otherwise advances the story on a model mistake.
-   * Absent means any evidence is accepted, as before.
+   * Absent means any evidence is accepted, as before. A map (enum or bool qualities) guards only the
+   * values it names, each with its own pattern; a value it leaves out is unguarded.
    */
-  commit_evidence?: string;
+  commit_evidence?: string | Record<string, string>;
   roll?: QualityRoll;
   display?: QualityDisplay;
   step_rule?: QualityStepRule;
@@ -468,6 +469,7 @@ export interface StoryV2 {
   player_intro?: string;
   player?: StoryPlayer;
   briefing?: StoryBriefing;
+  reasoning?: CheckpointReasoning;
   illustrations?: StoryIllustrations;
   poses?: StoryPoses;
   qualities: Quality[];
