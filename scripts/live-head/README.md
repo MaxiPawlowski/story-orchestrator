@@ -21,11 +21,32 @@ packages rig + nine PNG layers into `live-head.json`. `package` packages existin
 outputs without rebuilding. Import its JSON in Images → Sprite stage, with Author
 view on and this look selected. It is checked again before playback.
 
-Calibration scoring needs a vision-model answer and is owed in plan 36. The
-upstream tool's scoring command is
+Review images take `--name <stem>` (create-only under `work/`); `overlay` also takes
+`--part eyes --zoom true`. `validate <project>` checks `rig.draft.json` without building.
+
+Calibration scoring needs a vision-model answer. The upstream scoring command is
 `python scripts/live-head/vendor/vision-check.py score <calibration-dir> <answer.json>`.
-Read its displayed image, never `.key.json`. Overlay/closed-eye/head-turn visual
-review is owed; a successful build is not a visual-quality claim.
+Read its displayed image, never `.key.json`. A successful build is not a
+visual-quality claim: render and look at the poses.
+
+```
+node scripts/live-head/review.mjs .live-head-projects/example round1 [<truth.json>]
+```
+
+`review.mjs` renders the packaged rig with the in-repo WebGL renderer in a headless
+Chromium on SwiftShader (CPU, no GPU, no model). It writes create-only
+`review-<round>/` with pose sheets (rest, half and closed eyes, mouth, +-30 degree
+turns, look up/down, tilt, gaze, breath, expressions) and zoomed eye and mouth
+crops. With a `truth.json` it also counts iris and white pixels left inside each eye
+ROI at rest, half and closed. Python 3.12+ with Pillow, NumPy and OpenCV is needed
+for the build step only.
+
+Owned test busts: `python scripts/live-head/synthetic-looks.py amber|slate|ember
+.live-head-projects/<new-name> --truth .live-head-projects/_truth/<look>.json` draws
+a 400 x 512 geometric bust and its ground-truth eye outline. `python
+scripts/live-head/truth-score.py <rig.draft.json> <truth.json> --size 400 512`
+reports the eye-contour error of a drawn draft against it. Synthetic busts only:
+real art has no truth file, so score it from overlays.
 
 MIT upstream `6f6d362`, copyright 2026 Yuki Shindo; full notice in every derived
 file and `vendor/LICENSE`. No sample character assets, no MediaPipe.

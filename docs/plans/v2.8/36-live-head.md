@@ -105,7 +105,7 @@ use our own geometric shapes only, with interaction and a11y assertions.
 | LI2 | Baseline/candidate production manifests + initial webpack module graph; only mount/settings stub difference in main | main unchanged except mount/settings stub; <= 1,300,000 B; renderer/rig/drivers absent from initial chunks | bytes/graph D; live network capture owed |
 | LI3 | While static is already shown, reject fetch, corrupt JSON/image/hash, remove WebGL, lose context and switch member/look/chat during decode; screen/frame capture | static visible within 1 animation frame on every failure, zero stale canvas publications | owed, no-model lane |
 | LI4 | OS reduced motion, ST reduced motion and story motion off, each during idle and streaming; compare parameter samples across 10 s | idle parameters unchanged (breath/blink/gaze/tilt); mouth stopped | pure D; live no-model lane owed |
-| LI5 | Authoring role calibration and 3 synthetic looks, grids/overlays, <=3 review rounds | calibration passes upstream score; eye contours <=2 px; closed eyes no iris/white; mouth no chin stretching; no tears at +/-30 degrees | owed vision session; GPU only for optional drawn variants |
+| LI5 | Authoring role calibration and 3 synthetic looks, grids/overlays, <=3 review rounds | calibration passes upstream score; eye contours <=2 px; closed eyes no iris/white; mouth no chin stretching; no tears at +/-30 degrees | A2: synthetic looks measured, all floors pass (see A2 Gate record); Sol-bridge calibration and campaign rigs owed; GPU only for optional drawn variants |
 | LI6 | Mobile 390/768 and desktop 1440; hidden tab and teardown | no horizontal overflow; <=1 live context; hidden tab no draw; resources released; keyboard import usable | owed no-model lane/Storybook |
 
 Run LI rows twice consecutively on one frozen build, lane other than 0. Capture
@@ -375,3 +375,96 @@ Deployment: merge **7fea4ee9** pushed with `git push origin master`.
 **159 files staged**, all four plugins **unchanged**, **restartNeeded: false**.
 Owner reloads the ST page. Lane 30 is stopped; only its synthetic assets were
 removed. A1 measurements and regression fix delivered; LI1 acceptance remains owed.
+
+## A2 Gate record
+
+2026-10-11. Handoff A2 on `v2.8-live-head`, merged master `b1aba6c4` first (fast-forward,
+no conflicts, nothing to regenerate). LI5 on three owned synthetic looks. Floors unchanged,
+none retuned. **LI5 floors pass on all three looks; the "authoring role" part is not met:
+the vision reads were done by the executing session, not opencode Sol through the harness
+bridge.** No campaign art rigged. No lane, ST (port 8000), GPU, ComfyUI, download, staging
+or master merge.
+
+Looks (owned code-drawn 400 x 512 busts, `scripts/live-head/synthetic-looks.py`, different
+face shape, hair, skin, eye shape and iris colour): `amber` (long hair, large almond eyes),
+`slate` (bob, round eyes), `ember` (cropped hair, narrow eyes, visible ears). Projects,
+reviews and truth files are ignored in `.live-head-projects/`; copy in the private
+so-sessions repo, `test/sessions/evidence/live-head/v28-a2-li5-20261011` (commit
+`25138a77`, 148 files, 10,469,348 B, sha256 list in its `ARCHIVE.json`).
+
+- Python: `pip install numpy opencv-python-headless` into the `python` on PATH (miniconda
+  base, the one `rig.mjs` runs): numpy 2.5.4, opencv-python-headless 5.0.0.93, Pillow 12.3.0
+  already present. Library install only; ComfyUI's environment untouched. The upstream
+  layer builder ran unmodified on OpenCV 5.0.
+- Pipeline per look: calibration (`rig.mjs calibration`, scored with vendor
+  `vision-check.py`), full 50 px grid, 5 px eye grids per eye, 10 px face grid, draft
+  `rig.draft.json`, `rig.mjs validate`, overlays, `rig.mjs build` + package, then pose review.
+- Every generated sheet was opened and looked at: grids, overlays and all seven review
+  sheets of every round (poses core/turn/gaze/expression, zoomed eyes, eyes under
+  turn/tilt, zoomed mouth); `amber/review-r1-audit` re-renders the round-1 build for the
+  pixel counts only and was not judged again.
+- Review renders use `scripts/live-head/review.mjs`: the in-repo `HeadRenderer` and
+  `loadHeadManifest` in headless Chromium on SwiftShader (CPU; `--use-angle=swiftshader`
+  needed, `--enable-unsafe-swiftshader` alone drew nothing). Pose list follows the upstream
+  guide's Step 5; no upstream code is copied.
+
+Per-look results (floor pass/fail; rounds = review rounds that judged a build):
+
+- **amber**: calibration median **0.61 px**, max **1.24 px** (floor 4 / 10) PASS. Eye
+  contour **1.65 px** (floor 2) PASS. Round 1 FAIL: closed eyes left iris slivers
+  (8.0 / 8.75 px^2 of 274 open) and the eye ROI touched hair, leaving a dark smear beside
+  each eye. Round 2 (ROI pulled 3 px off the hair, opening bottom 0.7 px outward) PASS:
+  closed iris **0.25 px^2**, white 0. Mouth open: chin outline intact PASS. +-30 degree
+  turns and tilts: no tears PASS (long hair shears at the weight band on tilt). Rounds
+  **2** of 3. Wall **7 min** (includes writing the review harness and options), image reads
+  **22**.
+- **slate**: calibration median **0.75 px**, max **1.64 px** PASS. Eye contour **1.88 px**
+  PASS after four draft passes (2.27, 2.75, 2.55, 1.88). Round 1 FAIL: brown iris dots under
+  the closed lash line (5.25 / 10.5 px^2 of 333). Round 2 (opening bottom 0.7 px outward)
+  PASS: **4.0 / 4.25 px^2**, a faint hairline, white 0. Mouth PASS. +-30 degree: no tears
+  PASS (bob hair shears on tilt, face outline kinks at the hairline on turn). Rounds **2**.
+  Wall **2 min**, image reads **22**.
+- **ember**: calibration median **1.05 px**, max **1.33 px** PASS. Eye contour **1.87 px**
+  PASS after two draft passes (2.10, then 1.87). Round 1 PASS: closed iris **1.75 / 0.75
+  px^2** of 128.5, a faint amber hairline under the lash line, white 0 (judged
+  "faint line only", the upstream guide's pass case; strictly it is iris colour).
+  Mouth PASS. +-30 degree: no tears PASS. Rounds **1**. Wall **2 min**, image reads **14**.
+
+Cost: **0 provider-metered model calls**; no harness-bridge call. Vision work = the image
+reads above (about 58 across the three looks plus 6 source views). Tokens, price and
+money are **unmeasured**; no tariff was quoted and none is invented. Wall minutes are the
+shell clock between start and end of each look; per-look minutes after the first are
+small because the tooling already existed. CPU layer build and renders cost no model.
+
+Findings recorded, none a LI5 floor:
+
+- Gaze at +-1 distorts the iris on all three looks (bean-shaped iris, a hard vertical
+  white edge on `ember`); gaze up/down shows stray lash and lid fragments (`amber`,
+  `ember`). Surprise and anger at the shipped parameters are legible, mouth shapes fine.
+- Hair in front of the face edge (`amber`, `slate`) needs the eye ROI away from the hair:
+  a ROI that touches it smears hair colour into the skin fill.
+- An opening traced exactly on the visible white leaves iris pixels outside it; they land in
+  the lash and lid layers and show under a closed eye. Tracing 0.7 px outward at the lower
+  edge removed them (applied up front on `ember`).
+- Eye contour error was measured against the generator's own outline
+  (`scripts/live-head/truth-score.py`, visible white minus lash and lid strokes). That
+  needs ground truth, so it exists only for synthetic busts; slate and ember draft
+  corrections used it. Campaign art would be scored from overlays by the vision model,
+  which cannot resolve 2 px unaided.
+
+Deviations: vision model was this session, not Sol on the tool bridge; calibration was run
+once per look on that session, so LI5's "authoring role calibration" is not met for Sol.
+Tooling added to `scripts/live-head/`: `rig.mjs` `validate`, `--name`, `--part`,
+`--zoom`; `review.mjs` and `review-page.mjs`; `synthetic-looks.py`; `truth-score.py`;
+three tests in `scripts/lib/liveHeadRig.test.mjs`.
+
+Deterministic commands: `npm run typecheck`, `npm run typecheck:test`: exit 0 with no
+diagnostics. `npm run lint`: 0 errors, the same 2 existing warnings. `npm run test:debug`:
+1203 pass, 0 fail. `npm run debug:typecheck`: exit 0. `npm run gates:quick`: **green in
+84.9 s**, replay 32 of 32 killed. Full `npm run gates` not run (not a merge task).
+
+Owed: **campaign rigs** (ask the owner which members to rig; rig files go to the install's
+rig store, never this repo; no campaign member was touched); a Sol-through-bridge repeat
+of calibration and the vision steps if the owner wants LI5 accepted on the authoring role;
+Author-view import of these three packaged rigs in a browser; measured token cost per look;
+optional drawn variants (GPU, plan 30). LI1 laptop and LI2 network capture stay owed.
