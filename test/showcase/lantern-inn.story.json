@@ -3,7 +3,9 @@
   "id": "so-showcase-lantern-inn",
   "title": "SO Showcase: The Lantern Inn",
   "description": "An original three-character demo for directed poses, live close-shot heads, changing looks and expressions. No campaign content.",
-  "display": { "motion": true },
+  "display": {
+    "motion": true
+  },
   "player": {
     "role": "A traveller who has just arrived at the inn",
     "summary": "You came in out of the rain looking for a room and a warm fire."
@@ -13,30 +15,104 @@
       "id": "wren",
       "name": "SO-Show Wren",
       "role": "A cheerful adventurer who talks first and thinks second",
-      "sprites": { "pose": "stand_relaxed", "poses": ["sit_chair", "fight_swing", "sit_cross_legged", "wave"] },
-      "card": { "fields": { "outfit": { "quality": "wren_outfit", "visual": true } } }
+      "sprites": {
+        "pose": "stand_relaxed",
+        "poses": [
+          "sit_chair",
+          "fight_swing",
+          "sit_cross_legged",
+          "wave"
+        ]
+      },
+      "card": {
+        "fields": {
+          "outfit": {
+            "quality": "wren_outfit",
+            "visual": true
+          }
+        }
+      }
     },
     {
       "id": "garrick",
       "name": "SO-Show Garrick",
       "role": "A weary knight who guards the others and speaks in short sentences",
-      "sprites": { "pose": "stand_arms_crossed", "poses": ["sit_edge", "fight_guard", "kneel_pray"] },
-      "card": { "fields": { "scar": { "quality": "garrick_scar", "visual": true, "layer": "decal", "region": { "x": 0.38, "y": 0.04, "width": 0.24, "height": 0.1 } } } }
+      "sprites": {
+        "pose": "stand_arms_crossed",
+        "poses": [
+          "sit_edge",
+          "fight_guard",
+          "kneel_pray"
+        ]
+      },
+      "card": {
+        "fields": {
+          "scar": {
+            "quality": "garrick_scar",
+            "visual": true,
+            "layer": "decal",
+            "region": {
+              "x": 0.38,
+              "y": 0.04,
+              "width": 0.24,
+              "height": 0.1
+            }
+          }
+        }
+      }
     },
     {
       "id": "pim",
       "name": "SO-Show Pim",
       "role": "A nervous young mage who knows more than she admits",
-      "sprites": { "pose": "stand_relaxed", "poses": ["sit_floor", "cast_two_hands", "sit_knees_hug"] }
+      "sprites": {
+        "pose": "stand_relaxed",
+        "poses": [
+          "sit_floor",
+          "cast_two_hands",
+          "sit_knees_hug"
+        ]
+      }
     }
   ],
-  "requirements": { "members": ["SO-Show Wren", "SO-Show Garrick", "SO-Show Pim"] },
+  "requirements": {
+    "members": [
+      "SO-Show Wren",
+      "SO-Show Garrick",
+      "SO-Show Pim"
+    ]
+  },
   "qualities": [
-    { "key": "inside_inn", "type": "bool", "source": "extractor", "rubric": "Has the party stepped inside the Lantern Inn and sat down together?" },
-    { "key": "alarm_raised", "type": "bool", "source": "extractor", "rubric": "Has someone shouted a warning, drawn a weapon or cast a spell because the inn is under attack?" },
-    { "key": "danger_over", "type": "bool", "source": "extractor", "rubric": "Is the attack on the inn clearly over, with everyone safe?" },
-    { "key": "wren_outfit", "type": "string", "source": "extractor", "rubric": "What is Wren wearing right now? Answer with a short clothing description." },
-    { "key": "garrick_scar", "type": "string", "source": "extractor", "rubric": "Does Garrick have a visible fresh injury on his face? Describe it briefly, or answer none." }
+    {
+      "key": "inside_inn",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party stepped inside the Lantern Inn and sat down together?"
+    },
+    {
+      "key": "alarm_raised",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has someone shouted a warning, drawn a weapon or cast a spell because the inn is under attack?"
+    },
+    {
+      "key": "danger_over",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the attack on the inn clearly over, with everyone safe?"
+    },
+    {
+      "key": "wren_outfit",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "What is Wren wearing right now? Answer with a short clothing description."
+    },
+    {
+      "key": "garrick_scar",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "Does Garrick have a visible fresh injury on his face? Describe it briefly, or answer none."
+    }
   ],
   "checkpoints": [
     {
@@ -52,11 +128,29 @@
           "framing": "close",
           "spotlight": "wren",
           "cast": {
-            "wren": { "pose": "wave", "face": "happy" },
-            "garrick": { "pose": "stand_arms_crossed", "face": "neutral" },
-            "pim": { "pose": "stand_relaxed", "face": "worried" }
+            "wren": {
+              "pose": "stand_relaxed",
+              "face": "happy"
+            },
+            "garrick": {
+              "pose": "stand_arms_crossed",
+              "face": "neutral"
+            },
+            "pim": {
+              "pose": "stand_relaxed",
+              "face": "worried"
+            }
           }
-        }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Show Wren",
+            "text": "*shakes the rain out of her hair and waves at you from the doorway* Oh, there you are! Come in, come in, the fire's still going.",
+            "new_chat_only": true
+          }
+        ]
       }
     },
     {
@@ -70,12 +164,33 @@
         "stage": {
           "framing": "thigh",
           "cast": {
-            "wren": { "pose": "sit_chair", "face": "happy" },
-            "garrick": { "pose": "sit_edge", "face": "neutral" },
-            "pim": { "pose": "sit_floor", "face": "worried" }
+            "wren": {
+              "pose": "sit_chair",
+              "face": "happy"
+            },
+            "garrick": {
+              "pose": "sit_edge",
+              "face": "neutral"
+            },
+            "pim": {
+              "pose": "sit_floor",
+              "face": "worried"
+            }
           }
         },
-        "card": { "wren": { "outfit": "a travel cloak over the green tunic" } }
+        "card": {
+          "wren": {
+            "outfit": "a travel cloak over the green tunic"
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Show Garrick",
+            "text": "*pulls a chair to the end of the table and sits, arms resting on his knees* Sit. Tell us what you carried through that storm."
+          }
+        ]
       }
     },
     {
@@ -90,12 +205,33 @@
           "framing": "full",
           "spotlight": "garrick",
           "cast": {
-            "wren": { "pose": "fight_swing", "face": "angry" },
-            "garrick": { "pose": "fight_guard", "face": "angry" },
-            "pim": { "pose": "cast_two_hands", "face": "worried" }
+            "wren": {
+              "pose": "fight_swing",
+              "face": "angry"
+            },
+            "garrick": {
+              "pose": "fight_guard",
+              "face": "angry"
+            },
+            "pim": {
+              "pose": "cast_two_hands",
+              "face": "worried"
+            }
           }
         },
-        "card": { "garrick": { "scar": "a fresh cut across the left cheek" } }
+        "card": {
+          "garrick": {
+            "scar": "a fresh cut across the left cheek"
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Show Wren",
+            "text": "*the door bursts inward and she is on her feet, blade out* Raiders! Garrick, the door! Pim, whatever you've got, now!"
+          }
+        ]
       }
     },
     {
@@ -109,17 +245,61 @@
         "stage": {
           "framing": "thigh",
           "cast": {
-            "wren": { "pose": "sit_cross_legged", "face": "happy" },
-            "garrick": { "pose": "kneel_pray", "face": "neutral" },
-            "pim": { "pose": "sit_knees_hug", "face": "worried" }
+            "wren": {
+              "pose": "sit_cross_legged",
+              "face": "happy"
+            },
+            "garrick": {
+              "pose": "kneel_pray",
+              "face": "neutral"
+            },
+            "pim": {
+              "pose": "sit_knees_hug",
+              "face": "worried"
+            }
           }
-        }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Show Pim",
+            "text": "*lowers her hands and the glow fades, then hugs her knees on the floor* ...Is everyone all right? Nobody's hurt? Garrick, your face."
+          }
+        ]
       }
     }
   ],
   "transitions": [
-    { "from": "arrival", "to": "council", "priority": 1, "gate": { "q": "inside_inn", "op": "==", "v": true } },
-    { "from": "council", "to": "ambush", "priority": 1, "gate": { "q": "alarm_raised", "op": "==", "v": true } },
-    { "from": "ambush", "to": "rest", "priority": 1, "gate": { "q": "danger_over", "op": "==", "v": true } }
+    {
+      "from": "arrival",
+      "to": "council",
+      "priority": 1,
+      "gate": {
+        "q": "inside_inn",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "council",
+      "to": "ambush",
+      "priority": 1,
+      "gate": {
+        "q": "alarm_raised",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "ambush",
+      "to": "rest",
+      "priority": 1,
+      "gate": {
+        "q": "danger_over",
+        "op": "==",
+        "v": true
+      }
+    }
   ]
 }
