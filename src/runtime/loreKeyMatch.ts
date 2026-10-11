@@ -1,10 +1,15 @@
 import type { HostScannableEntry } from "@services/STAPI";
+import { parseKeyRegex } from "@utils/wiKeys";
+
+export { parseKeyRegex };
 
 export interface ScanBufferView {
   messages: string[];
   depth: number;
   caseSensitive: boolean;
   matchWholeWords: boolean;
+  trigger?: string | null;
+  injected?: boolean;
 }
 
 export type LeftToScan = "keyword" | "self";
@@ -17,23 +22,13 @@ const NOT_ALL = 1;
 const NOT_ANY = 2;
 const AND_ALL = 3;
 
+const MATCH_SOURCES = ["matchPersonaDescription", "matchCharacterDescription", "matchCharacterPersonality", "matchCharacterDepthPrompt", "matchScenario", "matchCreatorNotes"] as const;
+
 const keysOf = (value: unknown): string[] => (Array.isArray(value) ? value.filter((key): key is string => typeof key === "string").map((key) => key.trim()).filter(Boolean) : []);
 
 const filled = (value: unknown) => (Array.isArray(value) ? value.length > 0 : typeof value === "string" ? value.trim().length > 0 : Boolean(value));
 
 const positive = (value: unknown) => typeof value === "number" && value > 0;
-
-export function parseKeyRegex(input: string): RegExp | null {
-  const match = /^\/([\w\W]+?)\/([gimsuy]*)$/.exec(input);
-  if (!match) return null;
-  const [, pattern, flags] = match;
-  if (/(^|[^\\])\//.test(pattern)) return null;
-  try {
-    return new RegExp(pattern.replace("\\/", "/"), flags);
-  } catch {
-    return null;
-  }
-}
 
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -46,10 +41,16 @@ export function matchKey(haystack: string, key: string, options: { caseSensitive
   return new RegExp(`(?:^|\\W)(${escapeRegex(needle)})(?:$|\\W)`).test(text);
 }
 
-const certain = (entry: HostScannableEntry): boolean => {
+const triggeredFor = (entry: HostScannableEntry, trigger: string | null | undefined): boolean =>
+  !filled(entry.triggers) || (typeof trigger === "string" && Array.isArray(entry.triggers) && entry.triggers.includes(trigger));
+
+export const excludedByTrigger = (entry: HostScannableEntry, trigger: string | null | undefined): boolean =>
+  typeof trigger === "string" && filled(entry.triggers) && !triggeredFor(entry, trigger);
+
+const certain = (entry: HostScannableEntry, buffer: ScanBufferView): boolean => {
   if (entry.disable === true || entry.constant === true) return false;
   if (entry.useProbability !== false && typeof entry.probability === "number" && entry.probability < 100) return false;
-  if (filled(entry.group) || filled(entry.triggers) || entry.delayUntilRecursion) return false;
+  if (filled(entry.group) || !triggeredFor(entry, buffer.trigger) || entry.delayUntilRecursion) return false;
   const filter = entry.characterFilter as { names?: unknown; tags?: unknown } | undefined;
   if (filter && (filled(filter.names) || filled(filter.tags))) return false;
   if (positive(entry.delay) || positive(entry.cooldown)) return false;
@@ -58,7 +59,7 @@ const certain = (entry: HostScannableEntry): boolean => {
 };
 
 export function keywordWillActivate(entry: HostScannableEntry, buffer: ScanBufferView): boolean {
-  if (!certain(entry)) return false;
+  if (!certain(entry, buffer)) return false;
   const primary = keysOf(entry.key);
   const selective = entry.selective === true && keysOf(entry.keysecondary).length > 0;
   const secondary = selective ? keysOf(entry.keysecondary) : [];
@@ -74,6 +75,7 @@ export function keywordWillActivate(entry: HostScannableEntry, buffer: ScanBuffe
   if (!selective) return true;
   const hits = secondary.map((key) => matchKey(haystack, key, options));
   const logic = typeof entry.selectiveLogic === "number" ? entry.selectiveLogic : AND_ANY;
+  if ((logic === NOT_ALL || logic === NOT_ANY) && (buffer.injected !== false || MATCH_SOURCES.some((source) => entry[source] === true))) return false;
   if (logic === AND_ANY) return hits.some(Boolean);
   if (logic === NOT_ALL) return hits.some((hit) => !hit);
   if (logic === NOT_ANY) return hits.every((hit) => !hit);

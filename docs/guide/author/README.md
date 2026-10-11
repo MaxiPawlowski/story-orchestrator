@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 47 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 48 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Title, description and id](fields/story.md#story-basics) (`story-basics`)
@@ -74,6 +74,7 @@ Every field a story can carry: 47 topics on 8 pages, from the story as a whole d
 - [Lore and memory](fields/lore-and-memory.md)
   - [Curator scope](fields/lore-and-memory.md#stagecraft) (`stagecraft`)
   - [Lore select](fields/lore-and-memory.md#lore-select) (`lore-select`)
+  - [Lorebook entry features](fields/lore-and-memory.md#lore-entries) (`lore-entries`)
   - [Scene places and times](fields/lore-and-memory.md#scene-read) (`scene-read`)
   - [House rules](fields/lore-and-memory.md#house-rules) (`house-rules`)
   - [Chapters](fields/lore-and-memory.md#chapters) (`chapters`)

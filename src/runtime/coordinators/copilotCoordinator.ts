@@ -6,7 +6,7 @@ import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Sugge
 const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
-  draftCastNames, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
+  draftCastNames, loreEntryShape, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
   type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
 } from "@wizard/index";
 import type { WIEntrySnapshot } from "@services/STAPI";
@@ -165,7 +165,7 @@ export class CopilotCoordinator {
           return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
         }
         if (!run.stillOwns()) return lapsed();
-        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, op.constant === undefined ? {} : { constant: op.constant });
+        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, loreEntryShape(op));
         if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
         return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
       }

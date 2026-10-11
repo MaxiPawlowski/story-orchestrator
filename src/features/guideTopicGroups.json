@@ -76,7 +76,8 @@
   "title": "Lore and memory",
   "topics": [
    "stagecraft",
-   "lore-select",
+    "lore-select",
+    "lore-entries",
    "scene-read",
    "house-rules",
    "chapters"

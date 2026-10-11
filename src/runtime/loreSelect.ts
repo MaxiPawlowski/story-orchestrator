@@ -5,7 +5,7 @@ import { buildLoreRequests, loreCandidates, loreKey, LORE_RETRY_FALLBACKS, LORE_
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
-import { leftToScan, type ScanBufferView } from "./loreKeyMatch";
+import { excludedByTrigger, leftToScan, type ScanBufferView } from "./loreKeyMatch";
 
 export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
 
@@ -124,6 +124,7 @@ export class LoreSelector {
     const left: LoreSelection["left"] = [];
     const rated = candidates.filter((candidate) => {
       const host = byKey.get(`${candidate.world}.${candidate.uid}`);
+      if (host && excludedByTrigger(host, buffer?.trigger)) return false;
       const reason = host ? leftToScan(host, buffer, member) : null;
       if (reason) left.push({ world: candidate.world, uid: candidate.uid, comment: candidate.comment, reason });
       return reason === null;

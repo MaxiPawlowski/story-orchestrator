@@ -231,6 +231,18 @@ describe("R12: entries ST's own scan already settles never reach the judge", () 
     expect(env.selector.completeSelection()?.left).toEqual([{ world: "Story Lore", uid: 1 }]);
   });
 
+  it("rates a NOT entry only when a scanned extension prompt could hold its secondary key; otherwise ST settles it (world-info.js:4718-4726, 4966-4975)", async () => {
+    const not = [keyed(1, ["harbour"], { selective: true, selectiveLogic: 2, keysecondary: ["dragon"] }), keyed(2, ["harbour"], { selective: true, selectiveLogic: 0, keysecondary: ["lights"] })];
+    const view = (injected: boolean) => () => buffer(["Max: the harbour lights are out"], { injected });
+    const clean = setup({ entries: not, buffer: view(false) });
+    const settled = await clean.selector.select("MESSAGE_SENT");
+    expect(asked(clean)).toEqual([]);
+    expect(settled?.left.map((item) => item.uid)).toEqual([1, 2]);
+    const held = setup({ entries: not, buffer: view(true) });
+    await held.selector.select("MESSAGE_SENT");
+    expect(asked(held)).toEqual(["Story Lore 1"]);
+  });
+
   it("drops an entry about the drafted member, by card name or roster alias", async () => {
     const roster = [{ id: "arin", name: "Arin", role: "guide" }, { id: "keeper", name: "Old Keeper", aliases: ["the Warden"], role: "keeper" }];
     const arin = setup({ entries, roster, drafted: () => "Arin" });
@@ -261,6 +273,16 @@ describe("R12: entries ST's own scan already settles never reach the judge", () 
     await env.selector.select("GENERATION_STARTED");
     drafted = "Mara";
     expect((await env.selector.select("GENERATION_STARTED"))?.cached).toBe(false);
+  });
+
+  it("never asks about an entry whose generation triggers leave this generation out, since ST checks triggers before a forced entry (world-info.js:4807-4812)", async () => {
+    const triggered = [keyed(1, ["dragon"], { triggers: ["quiet"] }), keyed(2, ["lighthouse"], { triggers: ["normal"] }), keyed(3, ["Warden"])];
+    const loud = setup({ entries: triggered, buffer: () => ({ ...buffer(["Max: hello"]), trigger: "normal" }) });
+    await loud.selector.select("GENERATION_STARTED", "normal");
+    expect(asked(loud)).toEqual(["Story Lore 2", "Story Lore 3"]);
+    const unknown = setup({ entries: triggered, buffer: () => ({ ...buffer(["Max: hello"]), trigger: null }) });
+    await unknown.selector.select("MESSAGE_SENT");
+    expect(asked(unknown)).toEqual(["Story Lore 1", "Story Lore 2", "Story Lore 3"]);
   });
 
   it("a swipe reads the buffer without the reply it replaces", async () => {

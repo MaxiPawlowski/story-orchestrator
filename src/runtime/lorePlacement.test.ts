@@ -90,6 +90,13 @@ describe("late lore placement on the scan copies", () => {
     expect(scan.flat().map((row) => row.order)).toEqual(arrays().flat().map((row) => row.order));
   });
 
+  it("leaves an outlet entry in its outlet: the template that writes {{outlet::name}} decides where it lands (world-info.js:5248-5256)", () => {
+    const scan: HostScannableEntry[][] = [[entry(1, "Story Lore", 7, 100, { outletName: "map" }), entry(2, "Story Lore", 1, 90)]];
+    const stats = applyLorePlacement(scan, lorePlacementFor(sources()));
+    expect(stats).toEqual({ moved: 1, before: 0, after: 1, constant: 0 });
+    expect(scan[0][0]).toMatchObject({ position: 7, outletName: "map", depth: 4 });
+  });
+
   it("is the same on every scan, so ST's entry hash (and sticky/cooldown) stays stable", () => {
     const first = arrays();
     const second = arrays();

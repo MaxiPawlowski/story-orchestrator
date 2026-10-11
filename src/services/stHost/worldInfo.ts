@@ -7,6 +7,7 @@ import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
+import { LORE_KEY_LOGIC_CODE, WI_POSITION_OUTLET, type LoreKeyLogic } from "@utils/wiKeys";
 
 export { lorebookFileId };
 
@@ -267,7 +268,28 @@ const listGlobalSelect = (): string[] => (getWorldInfoSettings() as { world_info
 
 // Writes only into a book that exists. Whether a missing book should be created is the caller's
 // call (`ensureLorebook`): a raw save lands on disk with no `world_names` refresh and no activation.
-export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: { constant?: boolean; live?: boolean } = {}): Promise<WIUpsertResult> {
+export interface WIEntryShape {
+  constant?: boolean;
+  secondaryKeys?: string[];
+  logic?: LoreKeyLogic;
+  outlet?: string;
+  triggers?: string[];
+}
+
+const sameList = (a: unknown, b: readonly string[]) => Array.isArray(a) && a.length === b.length && a.every((item, index) => item === b[index]);
+
+const shapeFields = (shape: WIEntryShape): Record<string, unknown> => ({
+  ...(shape.constant !== undefined ? { constant: shape.constant } : {}),
+  ...(shape.secondaryKeys?.length ? { keysecondary: shape.secondaryKeys, selective: true, selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic ?? "and-any"] } : {}),
+  ...(shape.logic ? { selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic] } : {}),
+  ...(shape.outlet?.trim() ? { position: WI_POSITION_OUTLET, outletName: shape.outlet.trim() } : {}),
+  ...(shape.triggers?.length ? { triggers: shape.triggers } : {}),
+});
+
+const holdsShape = (entry: LoreEntry, keys: string[], fields: Record<string, unknown>) =>
+  (!keys.length || sameList(entry.key, keys)) && Object.entries(fields).every(([key, value]) => (Array.isArray(value) ? sameList(entry[key], value) : entry[key] === value));
+
+export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: WIEntryShape & { live?: boolean } = {}): Promise<WIUpsertResult> {
   if (!comment) return "failed";
   const book = await loadExisting(lorebook);
   if (!book) {
@@ -277,14 +299,15 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   const { name, data } = book;
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
   const switchedOff = options.live === true && existing?.disable === true;
-  if (existing && String(existing.content ?? "").trim() === content.trim() && options.constant === undefined && !switchedOff) return "unchanged";
+  const fields = shapeFields(options);
+  if (existing && String(existing.content ?? "").trim() === content.trim() && holdsShape(existing, keys, fields) && !switchedOff) return "unchanged";
 
   const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);
   if (!target) return "failed";
   target.comment = comment;
   target.content = content;
   if (keys.length) target.key = keys;
-  if (options.constant !== undefined) target.constant = options.constant;
+  Object.assign(target, fields);
   target.disable = false;
   await saveLorebook(name, data);
   return existing ? "updated" : "created";

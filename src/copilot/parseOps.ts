@@ -2,6 +2,7 @@ import { type RosterMember, type ValidationError } from "@engine/index";
 import { readBriefing } from "@engine/validate/briefing";
 import type { ProposalOp } from "./types";
 import { isRecord } from "@utils/guards";
+import { isLoreKeyLogic, LORE_KEY_LOGICS } from "@utils/wiKeys";
 import {
   readArcBridges, readArcTemplate, readCheckpoint, readCheckpointPatch, readEffects, readGate, readInnerVoice, readQuality,
   readQualityPatch, readRequirements, readRosterMember, readSnapshot, readStringList, readTransition,
@@ -175,7 +176,21 @@ const readUpsertLorebookEntry: OpReader = (value, path, issues) => {
   const comment = requireString(value.comment, "comment", path, issues);
   const content = requireString(value.content, "content", path, issues);
   if (!lorebook || !comment || !content) return null;
-  return { kind: "upsertLorebookEntry", lorebook, comment, content, keys: readStringList(value.keys), ...(typeof value.constant === "boolean" ? { constant: value.constant } : {}) };
+  if (value.logic !== undefined && !isLoreKeyLogic(value.logic)) {
+    issues.push(`${path}.logic: one of ${LORE_KEY_LOGICS.join(", ")}`);
+    return null;
+  }
+  const secondaryKeys = value.secondaryKeys === undefined ? [] : readStringList(value.secondaryKeys);
+  const triggers = value.triggers === undefined ? [] : readStringList(value.triggers);
+  const outlet = typeof value.outlet === "string" ? value.outlet.trim() : "";
+  return {
+    kind: "upsertLorebookEntry", lorebook, comment, content, keys: readStringList(value.keys),
+    ...(typeof value.constant === "boolean" ? { constant: value.constant } : {}),
+    ...(secondaryKeys.length ? { secondaryKeys } : {}),
+    ...(isLoreKeyLogic(value.logic) ? { logic: value.logic } : {}),
+    ...(outlet ? { outlet } : {}),
+    ...(triggers.length ? { triggers } : {}),
+  };
 };
 
 const readCreateGroup: OpReader = (value, path, issues) => {

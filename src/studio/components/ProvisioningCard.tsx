@@ -14,7 +14,15 @@ export interface ProvisioningCardProps {
   onApply: (op: ProvisioningOp) => void;
 }
 
-type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | "bool" };
+type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | "bool" | "select"; options?: Array<[string, string]> };
+
+const LOGIC_OPTIONS: Array<[string, string]> = [
+  ["", "Any secondary key appears (default)"],
+  ["and-any", "Any secondary key appears"],
+  ["and-all", "Every secondary key appears"],
+  ["not-any", "No secondary key appears"],
+  ["not-all", "Not every secondary key appears"],
+];
 
 const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
   createCharacterCard: [
@@ -34,6 +42,10 @@ const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
     { key: "keys", label: "Keywords", kind: "list" },
     { key: "content", label: "Content", kind: "area" },
     { key: "constant", label: "Always in context", kind: "bool" },
+    { key: "secondaryKeys", label: "Secondary keywords (checked after a keyword matched)", kind: "list" },
+    { key: "logic", label: "Fires when", kind: "select", options: LOGIC_OPTIONS },
+    { key: "outlet", label: "Outlet name (placed only where {{outlet::name}} is written)", kind: "text" },
+    { key: "triggers", label: "Fires only on these generation types", kind: "list" },
   ],
   createGroup: [
     { key: "name", label: "Group name", kind: "text" },
@@ -69,11 +81,17 @@ const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
 
 const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
+  const [listText, setListText] = useState<Record<string, string>>({});
   const fields = FIELDS[draft.kind];
   const record: Record<string, unknown> = { ...draft };
   const validation = validateProvisioningOp(draft, environment);
 
   const patch = (key: string, value: unknown) => setDraft((previous) => ({ ...previous, [key]: value }) as ProvisioningOp);
+  const editText = (field: FieldSpec, value: string) => {
+    if (field.kind !== "list") return patch(field.key, value);
+    setListText((previous) => ({ ...previous, [field.key]: value }));
+    patch(field.key, value.split(",").map((entry) => entry.trim()).filter(Boolean));
+  };
 
   return (
     <section data-so="provisioning-card" className="st-subpanel flex flex-col gap-2 p-2" aria-label={`Provisioning: ${describeProvisioningOp(draft).label}`}>
@@ -86,14 +104,18 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           <span className="st-muted">{field.label}</span>
           {field.kind === "bool" ? (
             <input type="checkbox" checked={Boolean(record[field.key])} disabled={applied} onChange={(event) => patch(field.key, event.target.checked)} />
+          ) : field.kind === "select" ? (
+            <select className="text_pole st-input" value={asText(record[field.key], "text")} disabled={applied} onChange={(event) => patch(field.key, event.target.value || undefined)}>
+              {(field.options ?? []).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
           ) : field.kind === "area" ? (
             <textarea className="text_pole st-input min-h-[48px]" value={asText(record[field.key], field.kind)} disabled={applied} onChange={(event) => patch(field.key, event.target.value)} />
           ) : (
             <input
               className="text_pole st-input"
-              value={asText(record[field.key], field.kind)}
+              value={field.kind === "list" ? listText[field.key] ?? asText(record[field.key], field.kind) : asText(record[field.key], field.kind)}
               disabled={applied}
-              onChange={(event) => patch(field.key, field.kind === "list" ? event.target.value.split(",").map((entry) => entry.trim()).filter(Boolean) : event.target.value)}
+              onChange={(event) => editText(field, event.target.value)}
             />
           )}
         </label>

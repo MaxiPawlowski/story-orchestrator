@@ -20,9 +20,15 @@ describe("matchKey follows ST's matchKeys (world-info.js:337-366)", () => {
     expect(matchKey("\x01The Harbour", "/harbou?r/i", { caseSensitive: false, matchWholeWords: true })).toBe(true);
   });
 
-  it("an unescaped slash inside the pattern makes the key plaintext", () => {
+  it("an unescaped slash inside the pattern makes the key plaintext (world-info.js:2909-2919)", () => {
     expect(parseKeyRegex("/a/b/")).toBeNull();
     expect(parseKeyRegex("/a\\/b/")?.source).toBe("a\\/b");
+  });
+
+  it("a pattern that does not compile, or a flag outside g i m s u y, is plaintext (world-info.js:2901-2926)", () => {
+    expect(parseKeyRegex("/(unclosed/i")).toBeNull();
+    expect(parseKeyRegex("/harbour/x")).toBeNull();
+    expect(matchKey("\x01the /(unclosed/i here", "/(unclosed/i", { caseSensitive: false, matchWholeWords: false })).toBe(true);
   });
 });
 
@@ -42,13 +48,24 @@ describe("keywordWillActivate: only when ST's scan is certain to activate the en
     expect(keywordWillActivate(entry(["harbour"]), { ...scan, depth: 0 })).toBe(false);
   });
 
-  it("applies the four secondary-key logics only when the entry is selective", () => {
-    const secondary = (selectiveLogic: number, keysecondary: string[]) => keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary }), scan);
+  it("applies the four secondary-key logics only when the entry is selective (world-info.js:4925-4980)", () => {
+    const secondary = (selectiveLogic: number, keysecondary: string[]) => keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary }), { ...scan, injected: false });
     expect([secondary(0, ["dragon", "lights"]), secondary(0, ["dragon"])]).toEqual([true, false]);
     expect([secondary(1, ["lights", "dragon"]), secondary(1, ["lights"])]).toEqual([true, false]);
     expect([secondary(2, ["dragon"]), secondary(2, ["lights"])]).toEqual([true, false]);
     expect([secondary(3, ["lights", "out"]), secondary(3, ["lights", "dragon"])]).toEqual([true, false]);
     expect(keywordWillActivate(entry(["harbour"], { selective: false, keysecondary: ["dragon"] }), scan)).toBe(true);
+    expect(keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 2, keysecondary: [] }), scan)).toBe(true);
+  });
+
+  it("a secondary key may itself be a regex, matched with its own flags (world-info.js:337-366, 4935-4937)", () => {
+    const secondary = (keysecondary: string[]) => keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 0, keysecondary }), { ...scan, injected: false });
+    expect([secondary(["/lig?hts/"]), secondary(["/LIGHTS/i"]), secondary(["/LIGHTS/"])]).toEqual([true, true, false]);
+  });
+
+  it("a constant entry skips every key check, secondary logic included, so it is never rated keyword-certain (world-info.js:4886-4890)", () => {
+    const constant = entry(["harbour"], { constant: true, selective: true, selectiveLogic: 0, keysecondary: ["lights"] });
+    expect(keywordWillActivate(constant, { ...scan, injected: false })).toBe(false);
   });
 
   it.each([
@@ -65,6 +82,23 @@ describe("keywordWillActivate: only when ST's scan is certain to activate the en
     ["constant", { constant: true }],
   ] as Array<[string, Partial<HostScannableEntry>]>)("is never certain with %s", (_label, patch) => {
     expect(keywordWillActivate(entry(["harbour"], patch), scan)).toBe(false);
+  });
+
+  it("NOT logic is certain only when the scan holds no text the buffer cannot see (world-info.js:298-320, 4718-4726)", () => {
+    const not = (selectiveLogic: number, view: ScanBufferView, patch: Partial<HostScannableEntry> = {}) =>
+      keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic, keysecondary: ["dragon"], ...patch }), view);
+    expect([not(1, { ...scan, injected: false }), not(2, { ...scan, injected: false })]).toEqual([true, true]);
+    expect([not(1, { ...scan, injected: true }), not(2, { ...scan, injected: true }), not(2, scan)]).toEqual([false, false, false]);
+    expect(not(2, { ...scan, injected: false }, { matchCharacterDescription: true })).toBe(false);
+    expect(not(2, { ...scan, injected: false }, { matchScenario: false })).toBe(true);
+    expect(keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 0, keysecondary: ["lights"] }), { ...scan, injected: true })).toBe(true);
+    expect(keywordWillActivate(entry(["harbour"], { selective: true, selectiveLogic: 3, keysecondary: ["lights"], matchPersonaDescription: true }), scan)).toBe(true);
+  });
+
+  it("generation triggers are certain only for a known generation type they list (world-info.js:4807-4812)", () => {
+    const triggered = (trigger: string | null | undefined) => keywordWillActivate(entry(["harbour"], { triggers: ["normal", "continue"] }), { ...scan, trigger });
+    expect([triggered("normal"), triggered("continue")]).toEqual([true, true]);
+    expect([triggered("quiet"), triggered(null), triggered(undefined)]).toEqual([false, false, false]);
   });
 
   it("control: probability off, or 100, is still certain", () => {

@@ -240,6 +240,14 @@ export const GUIDE_TOPICS = {
       + "off the unpicked entries for that reply. position \"authored\" keeps this story's per-turn entries beside the character card instead of a few messages from the end "
       + "(the install default, \"depth\"). Require each book under requirements, or it may not be active.",
   },
+  "lore-entries": {
+    title: "Lorebook entry features",
+    fields: "secondaryKeys, logic, outlet, triggers",
+    text: "On upsertLorebookEntry: a key written /pattern/flags is a regex (escape / inside as \\/, add i yourself). secondaryKeys narrow a keyword match by logic: "
+      + "and-any (default), and-all, not-any (none appears), not-all. outlet places the text only where {{outlet::name}} is written. triggers limit generation types "
+      + "(normal, continue, impersonate, swipe, regenerate, quiet). Good: tavern + secondaryKeys [fight] with not-any. Avoid: secondary keys on a constant entry "
+      + "(skips every key check), an outlet nothing writes, a trigger-only entry for lore select (never picked outside its types).",
+  },
   "scene-read": {
     title: "Scene places and times",
     fields: "scene_read.locations, times, inject",

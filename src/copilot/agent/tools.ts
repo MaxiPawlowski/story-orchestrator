@@ -202,6 +202,9 @@ export const PROVISION_TOOLS = {
     args: {
       lorebook: req("string", "a lorebook this story owns"), comment: req("string", "entry title"), keys: req("array", "keywords"),
       content: req("string", "entry text"), constant: opt("boolean", "always in context"),
+      secondaryKeys: opt("array", "optional filter keys, checked after a keyword matched"), logic: opt("string", "and-any (default) | not-all | not-any | and-all"),
+      outlet: opt("string", "outlet name: the text lands only where {{outlet::name}} is written"),
+      triggers: opt("array", "generation types it fires on: normal, continue, impersonate, swipe, regenerate, quiet"),
     },
   },
   createGroup: { doc: "Create a NEW group from existing cards. Always reviewed by the author.", args: { name: req("string", "group name"), members: req("array", "card names") } },

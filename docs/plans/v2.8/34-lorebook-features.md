@@ -1,0 +1,96 @@
+# v2.8 34: Lorebook features (queue A5, backlog D11)
+
+Outlets, regex keys, NOT logic and generation triggers: what SillyTavern does with each, what our runtime does with each, the gaps, and what was built. ST checked at `C:\dev\SillyTavern-MainBranch` (`public/scripts/world-info.js`, `macros.js`, `constants.js`, `script.js`).
+
+## What ST does
+
+| Feature | ST behaviour (source) |
+|---|---|
+| Regex keys | A key `/pattern/flags` is a RegExp and overrides case and whole-word settings; an unescaped `/` inside, or a bad pattern, makes it plaintext (`parseRegexFromString`, `world-info.js:2901-2926`, `matchKeys` `:337-366`). Primary and secondary keys alike. |
+| Secondary logic | Only when `selective` and `keysecondary` non-empty, after a primary match: `AND_ANY` 0, `NOT_ALL` 1, `NOT_ANY` 2, `AND_ALL` 3 (`:4925-4980`). Constant entries skip all of it. |
+| What a key is matched against | Chat messages to the scan depth, plus each `match*` source the entry sets (persona, card description, personality, depth prompt, scenario, creator notes), plus every scan-flagged extension prompt (Author's Note, other extensions' blocks), plus the recursion buffer (`:279-327`, `:4718-4726`). |
+| Outlets | Position 7 with `outletName`; the text is pushed (higher `order` first) into `outletEntries` and appears only where `{{outlet::name}}` is written (`:5248-5256`, `macros.js:668`). No name = skipped with a warning. |
+| Triggers | `triggers` lists generation types (`normal, continue, impersonate, swipe, regenerate, quiet`, `constants.js:36-43`); the scan's trigger is the Generate type, anything else `normal` (`script.js:4633`). Checked before forced activation (`:4807-4812` before `:4886`), so a forced entry with a non-matching trigger never fires. |
+
+## What we did with each (before)
+
+| Area | Regex | NOT logic | Outlet | Triggers |
+|---|---|---|---|---|
+| `loreKeyMatch` (R12 "left to the scan") | matches ST | applied on the chat buffer only | n/a | entry with any trigger: never certain |
+| Lore select | rates all | **unsound**: a NOT entry could be "certain" while our own scanned memory blocks or the AN held a secondary key, so it was left unrated and ST then did not fire it | rated + forced; lands in its outlet | **wasted**: an entry whose triggers exclude this generation was rated and forced, and could never land |
+| Lore placement | n/a | n/a | not moved (correct, unpinned) | n/a |
+| Exclusive | n/a | n/a | suppressed like any unpicked entry (correct) | same |
+| Scan gate / curator | untouched fields | untouched | untouched | untouched |
+| Wizard `upsertLorebookEntry` | keys pass through, no check | cannot author | cannot author | cannot author |
+| Host `upsertWIEntry` | | | | "unchanged" when only keys differed (stale keys kept) |
+| Guide | lorebook-mechanics only | | | |
+
+## Built (deterministic)
+
+- `src/utils/wiKeys.ts`: ST's `parseRegexFromString`, logic codes, trigger list, outlet position, `regexKeyProblem`, `outletNameProblem`, `triggerGenerationType` (Generate's mapping).
+- `readScanBuffer` reports `trigger` and `injected` (a scan-flagged extension prompt holds text). `keywordWillActivate`: NOT_ANY/NOT_ALL certain only with `injected === false` and no `match*` source; triggers certain when the known generation type is listed.
+- `LoreSelector` never rates an entry whose triggers exclude the known generation type (`excludedByTrigger`).
+- Lore placement: outlet entries pinned unmoved by a test.
+- Wizard: `upsertLorebookEntry` gains `secondaryKeys`, `logic` (`and-any | not-all | not-any | and-all`), `outlet`, `triggers` across the op type, staged parser and prompt, agent tool schema, provisioning card (list / select / text fields) and coordinator. `loreEntryShapeProblem` refuses: a pattern key ST would read as plain text, logic without secondary keys, secondary keys on a constant entry or with no keyword, an outlet name with `{`/`}`, an unknown trigger. Host `upsertWIEntry` writes `keysecondary`+`selective`, `selectiveLogic`, `position 7`+`outletName`, `triggers`; "unchanged" now compares keys and every given field.
+- Guide: topic `lore-entries` (story-guide + compact twin, Story tab, Lore and memory page); lorebook-mechanics §14.4/14.4b updated.
+
+## Not built, with reasons
+
+- **Curator** authoring these fields: its create op is keys + text under a closed vocabulary, and its edits touch only `content`/`disable`; the fields it never writes are preserved. Adding logic/outlet to an LLM-proposed op widens a write scope plan 11 kept narrow. Owner call if wanted.
+- **"Outlet nothing writes" check**: `{{outlet::name}}` can sit in a card, preset prompt (prompt manager or instruct story string), the AN, another entry or a macro; a check that misses one source would cry wolf. Documented as a trap instead.
+- **Studio lorebook editor**: Studio does not edit entries; SillyTavern's own editor already has every field.
+- **Triggers + character filter in candidates**: a character filter is also checked before forcing (`:4816-4850`); excluding filtered entries needs the drafted member's avatar and tags. Left as owed.
+
+## Owed
+
+- Live no-model lane check of the provisioning card with the new fields, and a dry-run scan of a NOT_ANY entry beside a scanned memory block (`st-eval --file`).
+- Full coordinator gates, including the whole Storybook suite; the new card interaction passed separately.
+- Real-model lore-select/wizard regression on an isolated lane; no GPU/model calls authorized for B2.
+
+## Gate record
+
+Below: the first-pass record (B2 completion) and the second pass.
+
+## Status (WIP 2026-10-10)
+
+Done: everything under Built, tests added. Next: fix the red gates of the first run (typecheck:test, test, lint; replay, typecheck and build green), then run `npm run gates -- --no-storybook --jobs 2` and report the bundle bytes.
+
+## Gate record — B2 completion 2026-10-11
+
+- Scope: `C:/dev/so-lore-features`, `v2.8-lore-features`; clean start at `086b876b`, merged master with existing work preserved. Resolved guide grouping by retaining poses and lore-entries; regenerated pages, never hand-merged the bundle.
+- Fixed test fixture typing, lint length/escape errors, and moved the silent-catch inventory with `parseKeyRegex`. Host upsert defaults supplied secondary keys to AND_ANY instead of retaining an old NOT filter. Card accepts explicit `and-any`, preserves commas while typing lists, and stores trimmed lists.
+- Added `LoreEntryFeatures` Storybook play: explicit/default logic, NOT_ANY selection, outlet, two typed triggers, applied op, constant-entry refusal. It exposed the comma-loss defect before the fix; final Chromium run passed with no accessibility violations.
+- Host source verified read-only: `world-info.js:279-366, 2901-2926, 4718-4726, 4807-4984, 5203-5256`, `constants.js:36-43`, `script.js:4633`, `macros.js:668`. Existing regression cases cover regex/plaintext fallback, all four logics, hidden scan text, trigger mapping/exclusion, unmoved outlets and host field writes; new case covers default logic after a NOT filter.
+- `npm run docs:guide && npm run docs:settings`: PASS, 32 guide pages.
+- `npm run typecheck:test`: PASS after fixture fix; repeated after final UI change.
+- `npm run lint`: PASS, 0 errors; 2 inherited hook warnings in BriefingHost and LiveHead.
+- `npm test -- --runInBand`: initial run reported 667 passing suites, 1 failing suite (stale error-copy inventory), 2 skipped; 7,739 passing tests. Tool timeout reported after the summary; this run is NOT a green whole-suite claim.
+- `npx jest --runInBand src/runtime/errorCopy.guard.test.ts src/runtime/loreKeyMatch.test.ts src/runtime/lorePlacement.test.ts src/runtime/loreSelect.test.ts src/services/stHost/worldInfo.test.ts src/services/stHost/worldInfoActivate.test.ts src/wizard/provisioning.test.ts src/copilot/parse.test.ts`: PASS, 8 suites / 172 tests after the inventory fix; Jest prints its open-handle warning.
+- `npm run gates:quick`: final PASS, typecheck/test-types/lint exit 0, 488 related suites / 6,181 tests passing, 1 skipped; replay 32/32 killed (14 cached). Prior repeat hit EBUSY copying the unresolved merge-index guide path; marking both regenerated conflicts resolved removed the duplicate staging input and the rerun passed.
+- `npm run build`: final PASS, webpack compiled successfully; main bundle 1,296,595 B, below 1,300,000 B; sha256 `5d21e7cb092253bd34fefe6f28152532df88c32fb2896ab52a1d89f1f735ff4a`.
+- `npm run storybook:build`: PASS with inherited mock-export/asset-size warnings. Targeted runner below: PASS, 1 selected story, 121 excluded; server shut down by concurrently. An earlier attempt with unsupported `--testPathPattern` was refused; switched to the story tag.
+
+```bash
+npx concurrently -k -s first "node node_modules/http-server/bin/http-server .sb-static -p 6032 -a 127.0.0.1 -s -c-1" "node node_modules/wait-on/bin/wait-on -t 60000 http://127.0.0.1:6032 && node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6032 --index-json --maxWorkers 1 --includeTags lore-features"
+```
+
+- Edited `src/**` restored to CRLF; `git diff --check` clean.
+- No full `npm run gates`: coordinator owns the serial final suite. No staging/install, owner ST, lane, GPU, campaign edits or model/judge calls. Deterministic implementation buildable; plan acceptance remains open for full gates and live checks.
+- Owed no-model protocol (lane 32, images/sprites off): provision a marked owned book through the card, read back all four fields; dry-run NOT_ANY beside scanned memory, confirm it is not classified certain and ST suppresses it; outlet stays authored, excluded trigger is not forced; cleanup and run-header diff; repeat twice. Real-model protocol: wizard proposes fields, author applies, lore-select rates/forces only eligible entries, capture actual prompt and audit without debugResponse, archive lane evidence privately.
+
+## Gate record — B2 second pass 2026-10-11
+
+- Scope: `C:/dev/so-lore-features`, `v2.8-lore-features`. The worktree held an unfinished merge of master (`MERGE_HEAD` `e68a242c`, equal to master) with the first pass's fixes uncommitted; this pass re-verified them, finished the merge and committed. `git merge master`: already up to date.
+- Host source re-read (`C:/dev/SillyTavern-MainBranch/public`): `world-info.js:33-38, 863, 2901-2926, 4807-4812, 4886-4890, 4925-4980, 5248-5256`, `macros.js:668`, `constants.js:36-43`. Our `parseKeyRegex` equals `parseRegexFromString` (first `\/` unescaped only, same flag set, a bad pattern is plaintext).
+- Added jest cases so every ST behaviour in the table has a test whose name carries the host file:line:
+  - regex keys: `src/utils/wiKeys.test.ts` (new: delimiters, flags, escaped slash, bad pattern, logic codes, trigger list, Generate mapping, outlet position and name), `loreKeyMatch.test.ts` (uncompilable pattern or unknown flag is plaintext and matches literally; a secondary key may be a regex);
+  - secondary logic `world-info.js:4925-4980`: four logics, non-selective, empty secondary list, constant skips every check;
+  - what a key is matched against `:4718-4726`: NOT logic uncertain while a scanned extension prompt holds text, and the lore-select level (`loreSelect.test.ts`): a NOT entry is left to ST only when the buffer is complete, rated otherwise;
+  - outlets `:5248-5256`: placement leaves an outlet entry in place (existing); a blank outlet name writes no outlet position (`worldInfo.test.ts`);
+  - triggers `:4807-4812`: certain only for a known listed type; lore select never rates an excluded entry (existing).
+- `npx jest --runInBand src/utils/wiKeys.test.ts src/runtime/loreKeyMatch.test.ts src/runtime/loreSelect.test.ts src/services/stHost/worldInfo.test.ts`: PASS, 4 suites / 117 tests (one new case first failed on a wrong literal in the test, fixed in the test; product unchanged).
+- `npm run typecheck`, `npm run typecheck:test`: exit 0. `npm run lint`: 0 errors, 2 inherited hook warnings.
+- `npm test`: exit 0, 670 suites passed, 1 skipped; 7,757 tests passed, 1 skipped (the first pass's 667/1-failing run is superseded).
+- `npm run gates:quick`: green, 489 related suites / 6,193 tests passed, 1 skipped; replay `--cached` ok. Storybook beside the change not run by quick gates; the targeted `lore-features` play passed in the first pass and the card was not touched since.
+- Not run: full `npm run gates`, build (no non-test source changed since the first pass's 1,296,595 B build), Storybook, any lane, GPU, model or judge call, staging, install.
+- Owed: unchanged from the first pass (no-model lane 32 provisioning-card read-back and NOT_ANY dry run; real-model lore-select/wizard run; coordinator full gates).

@@ -61,12 +61,15 @@ const PROVISIONING_GRAMMAR = [
   '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
     '"mes_example"?: string, "tags"?: string[] }',
   '  { "kind": "createStoryLorebook", "name": string }',
-  '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean }',
+  '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean, "secondaryKeys"?: string[], ' +
+    '"logic"?: "and-any" | "not-all" | "not-any" | "and-all", "outlet"?: string, "triggers"?: string[] }',
   '  { "kind": "createGroup", "name": string, "members": string[] }',
   "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
   FIRST_MESSAGE_RULE,
   "Never name an existing character, an existing lorebook or an existing group — those ops are rejected.",
   "upsertLorebookEntry may only target the story's own lorebook, never one of the user's other books.",
+  "In upsertLorebookEntry a key written /pattern/i is a regular expression (escape any / inside it as \\/); secondaryKeys narrow a keyword match by logic (not-any: only when none of them appears); " +
+    "outlet places the text only where {{outlet::name}} is written; triggers limit the generation types it fires on. Leave them all out for an ordinary keyed entry.",
   "Never propose creating or changing a persona: personas are the author's own.",
 ].join("\n");
 

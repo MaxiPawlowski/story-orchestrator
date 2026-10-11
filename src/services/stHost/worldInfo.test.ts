@@ -1,4 +1,7 @@
-type Entry = { uid: number; comment: string; content: string; key: string[]; disable: boolean };
+type Entry = {
+  uid: number; comment: string; content: string; key: string[]; disable: boolean;
+  keysecondary?: string[]; selective?: boolean; selectiveLogic?: number; position?: number; outletName?: string; triggers?: string[];
+};
 type Book = { entries: Record<number, Entry> };
 
 // A small ST: the server's worlds folder (keyed by sanitized file id, answering an unknown name with
@@ -327,6 +330,43 @@ describe("upsertWIEntry identical rewrite (T4-3)", () => {
     saveWorldInfo.mockClear();
     expect(await upsertWIEntry("Lore", "so_1", "Arin trusts Max.", [], { live: true })).toBe("unchanged");
     expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+});
+
+describe("upsertWIEntry entry shape (v2.8 34)", () => {
+  it("writes secondary keys with their logic, an outlet and generation triggers in ST's field names (world-info.js:4084-4124, 4925-4980, 5248-5256)", async () => {
+    putOnDisk("Lore", []);
+    st.worldNames = ["Lore"];
+    expect(await upsertWIEntry("Lore", "Harbour map", "The map.", ["/harbou?r/i"], { secondaryKeys: ["storm"], logic: "not-any", outlet: "map", triggers: ["normal"] })).toBe("created");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ key: ["/harbou?r/i"], keysecondary: ["storm"], selective: true, selectiveLogic: 2, position: 7, outletName: "map", triggers: ["normal"], disable: false });
+  });
+
+  it("an identical rewrite of the whole shape is unchanged; a changed key or field is written", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "Map", "The map."), key: ["map"], keysecondary: ["storm"], selective: true, selectiveLogic: 2 }]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockClear();
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: ["storm"], logic: "not-any" })).toBe("unchanged");
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map", "chart"])).toBe("updated");
+    expect(await upsertWIEntry("Lore", "Map", "The map.", [], { logic: "and-all", secondaryKeys: ["storm"] })).toBe("updated");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ key: ["map", "chart"], selectiveLogic: 3 });
+  });
+
+  it("a blank outlet name writes no outlet position, since ST skips an outlet entry without a name (world-info.js:5248-5256)", async () => {
+    putOnDisk("Lore", []);
+    st.worldNames = ["Lore"];
+    await upsertWIEntry("Lore", "Map", "The map.", ["map"], { outlet: "   ", triggers: [] });
+    const written = st.disk.get("Lore")!.entries[0];
+    expect(written.position).not.toBe(7);
+    expect(written.outletName ?? "").toBe("");
+    expect(written.triggers ?? []).toEqual([]);
+  });
+
+  it("secondary keys without a logic restore AND_ANY rather than retaining a previous NOT filter (world-info.js:4939-4957)", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "Map", "The map."), keysecondary: ["storm"], selective: true, selectiveLogic: 2 }]);
+    st.worldNames = ["Lore"];
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: ["storm"] })).toBe("updated");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ keysecondary: ["storm"], selective: true, selectiveLogic: 0 });
   });
 });
 
