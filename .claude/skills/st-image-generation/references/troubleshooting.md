@@ -23,7 +23,7 @@ report. When asking for help or filing a flag, state the image source, the text 
 |---|---|---|
 | Character now only answers with tag lists | still on the image profile. Usually the restore went to `<None>`, which applies nothing (v: cm/index.js:921-935, 738-742) | save the roleplay connection as a profile; use the guarded script in `prose-to-prompt.md` |
 | Preset "goes back to some other preset" | `/preset` fuzzy-matched a missing or misspelled name (v: preset-manager.js:955-975) | exact names; verify with `/preset` (no argument) |
-| Loading the tag preset changes source/model too | *Bind presets to API connections* is on (v: openai.js:516, 5046-5048) | turn it off, or bake the preset into the profile |
+| Loading the tag preset changes source/model too | *Bind presets to API connections* is on (v: openai.js:516, 5048-5050) | turn it off, or bake the preset into the profile |
 | Tag preset "not loading properly" | a CC-only preset on a text-completion profile (c, 2025-08) | use a Chat Completion profile |
 | Another extension's call runs on the image profile | it fired during the swap window (qvink memory reported) (c, 2025-08) | delay that extension, or avoid swapping (`/profile-genstream profile=…`, v: cm/index.js:1050-1058) |
 

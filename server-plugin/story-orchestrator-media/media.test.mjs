@@ -7,7 +7,33 @@ import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
 import { saveSprite, deleteSprite, reconcileSet, removeStorySprites, fingerprint, digest, referencePack, referenceSets, alphaRecipes,
     recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory } from './files.mjs';
-import { ALLOWED_NODES, init, unsupportedNode } from './index.mjs';
+import { ALLOWED_NODES, init, unsupportedNode, validatePoseFiles } from './index.mjs';
+
+test('DWPose preflight accepts only both installed ONNX files and never fetches a model', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-dwpose-'));
+    const inputs = { bbox_detector: 'yolox_l.onnx', pose_estimator: 'dw-ll_ucoco_384.onnx' };
+    try {
+        await assert.rejects(validatePoseFiles(inputs, { poseModels: [root] }));
+        await fs.writeFile(path.join(root, inputs.bbox_detector), 'synthetic ONNX bytes');
+        await assert.rejects(validatePoseFiles(inputs, { poseModels: [root] }));
+        await fs.writeFile(path.join(root, inputs.pose_estimator), 'synthetic ONNX bytes');
+        await validatePoseFiles(inputs, { poseModels: [root] });
+        await assert.rejects(validatePoseFiles({ ...inputs, pose_estimator: 'alternate.pth' }, { poseModels: [root] }), /approved/);
+    } finally { await fs.rm(root, { recursive: true }); }
+});
+
+test('owned DWPose jobs return body JSON alongside the preview without writing another file', async () => {
+    const pose = [{ canvas_width: 64, canvas_height: 64, people: [] }];
+    const jobs = new ComfyJobs({ url: 'http://synthetic', fetchImpl: async (url) => {
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json({ p: { outputs: { '2': { openpose_json: [JSON.stringify(pose)] }, '3': { images: [{ filename: 'preview.png', type: 'temp', subfolder: '' }] } } } });
+        return new Response(new Uint8Array([1, 2, 3]));
+    } });
+    const id = randomUUID();
+    await jobs.submit('owner', id, {}); await jobs.poll('owner', id);
+    assert.deepEqual((await jobs.result('owner', id)).pose, pose);
+    await assert.rejects(jobs.result('foreign', id), /belong/);
+});
 
 test('cancelling a queued job removes only its prompt, never interrupts the running foreign job', async () => {
     const calls = [];
@@ -216,7 +242,7 @@ test('reference cleanup survives restart and removes only explicitly released, h
     await assert.rejects(pruneReferences(user, input, ['../my-input.png']), /explicit list/);
 });
 
-const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',
+const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'DWPreprocessor', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',
     'KSampler', 'LoadImage', 'LoraLoader', 'PreviewImage', 'QwenImage21Cache', 'RMBG', 'SaveImage', 'SplitImageWithAlpha', 'TextEncodeQwenImage21',
     'UNETLoader', 'UpscaleModelLoader', 'VAEDecode', 'VAEEncode', 'VAELoader'];
 const CUTOUT_NODES = ['RMBG', 'BiRefNetRMBG'];
@@ -229,6 +255,7 @@ const unlisted = (names) => [...new Set(names)].filter((name) => !ALLOWED_NODES.
 const clientNodes = async () => [
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'image', 'graph.ts'), 'utf8')),
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'builder', 'recipes.ts'), 'utf8')),
+    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'poses', 'import.ts'), 'utf8')),
     ...CUTOUT_NODES,
 ];
 

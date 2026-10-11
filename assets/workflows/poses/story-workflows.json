@@ -1,0 +1,307 @@
+{
+  "illustrations": {
+    "workflows": {
+      "portrait": "SO-Pose-P2.json"
+    },
+    "bundle": {
+      "SO-Pose-P2.json": {
+        "graph": {
+          "1": {
+            "class_type": "LoadImage",
+            "inputs": {
+              "image": "%char_avatar%"
+            }
+          },
+          "2": {
+            "class_type": "LoadImage",
+            "inputs": {
+              "image": "REPLACE_WITH_RETARGETED_SKELETON.png"
+            }
+          },
+          "3": {
+            "class_type": "UNETLoader",
+            "inputs": {
+              "unet_name": "REPLACE_WITH_INSTALLED_QWEN21.safetensors",
+              "weight_dtype": "default"
+            }
+          },
+          "4": {
+            "class_type": "QwenImage21Cache",
+            "inputs": {
+              "model": [
+                "3",
+                0
+              ],
+              "device": "auto",
+              "dtype": "default"
+            }
+          },
+          "5": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+              "clip_name": "REPLACE_WITH_INSTALLED_QWEN_ENCODER.safetensors",
+              "type": "qwen_image",
+              "device": "default"
+            }
+          },
+          "6": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "REPLACE_WITH_INSTALLED_QWEN_VAE.safetensors"
+            }
+          },
+          "7": {
+            "class_type": "TextEncodeQwenImage21",
+            "inputs": {
+              "clip": [
+                "5",
+                0
+              ],
+              "prompt": "%prompt%",
+              "negative_prompt": "text, watermark, different character, deformed face",
+              "vae": [
+                "6",
+                0
+              ],
+              "resolution": 1024,
+              "images.image_1": [
+                "1",
+                0
+              ],
+              "images.image_2": [
+                "2",
+                0
+              ]
+            }
+          },
+          "8": {
+            "class_type": "KSampler",
+            "inputs": {
+              "model": [
+                "4",
+                0
+              ],
+              "seed": "%seed%",
+              "steps": 25,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "simple",
+              "positive": [
+                "7",
+                0
+              ],
+              "negative": [
+                "7",
+                1
+              ],
+              "latent_image": [
+                "7",
+                2
+              ],
+              "denoise": 1
+            }
+          },
+          "9": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": [
+                "8",
+                0
+              ],
+              "vae": [
+                "6",
+                0
+              ]
+            }
+          },
+          "10": {
+            "class_type": "SplitImageWithAlpha",
+            "inputs": {
+              "image": [
+                "9",
+                0
+              ]
+            }
+          },
+          "11": {
+            "class_type": "BiRefNetRMBG",
+            "inputs": {
+              "image": [
+                "10",
+                0
+              ],
+              "model": "REPLACE_WITH_INSTALLED_BIREFNET",
+              "background": "Alpha",
+              "sensitivity": 1,
+              "mask_blur": 0,
+              "mask_offset": 0,
+              "invert_output": false,
+              "refine_foreground": false,
+              "background_color": "#ffffff"
+            }
+          },
+          "12": {
+            "class_type": "SaveImage",
+            "inputs": {
+              "images": [
+                "11",
+                0
+              ],
+              "filename_prefix": "so-pose-p2"
+            }
+          }
+        },
+        "sha256": "09e781f9e617f73dea95fc08b4d4001f293c2917f716ed74f5613a0a52995aca"
+      },
+      "SO-Pose-P3.json": {
+        "graph": {
+          "1": {
+            "class_type": "LoadImage",
+            "inputs": {
+              "image": "%char_avatar%"
+            }
+          },
+          "2": {
+            "class_type": "LoadImage",
+            "inputs": {
+              "image": "%char_avatar%"
+            }
+          },
+          "3": {
+            "class_type": "UNETLoader",
+            "inputs": {
+              "unet_name": "REPLACE_WITH_INSTALLED_QWEN21.safetensors",
+              "weight_dtype": "default"
+            }
+          },
+          "4": {
+            "class_type": "QwenImage21Cache",
+            "inputs": {
+              "model": [
+                "3",
+                0
+              ],
+              "device": "auto",
+              "dtype": "default"
+            }
+          },
+          "5": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+              "clip_name": "REPLACE_WITH_INSTALLED_QWEN_ENCODER.safetensors",
+              "type": "qwen_image",
+              "device": "default"
+            }
+          },
+          "6": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "REPLACE_WITH_INSTALLED_QWEN_VAE.safetensors"
+            }
+          },
+          "7": {
+            "class_type": "TextEncodeQwenImage21",
+            "inputs": {
+              "clip": [
+                "5",
+                0
+              ],
+              "prompt": "%prompt%",
+              "negative_prompt": "text, watermark, different character, deformed face",
+              "vae": [
+                "6",
+                0
+              ],
+              "resolution": 1024,
+              "images.image_1": [
+                "1",
+                0
+              ],
+              "images.image_2": [
+                "2",
+                0
+              ]
+            }
+          },
+          "8": {
+            "class_type": "KSampler",
+            "inputs": {
+              "model": [
+                "4",
+                0
+              ],
+              "seed": "%seed%",
+              "steps": 25,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "simple",
+              "positive": [
+                "7",
+                0
+              ],
+              "negative": [
+                "7",
+                1
+              ],
+              "latent_image": [
+                "7",
+                2
+              ],
+              "denoise": 1
+            }
+          },
+          "9": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": [
+                "8",
+                0
+              ],
+              "vae": [
+                "6",
+                0
+              ]
+            }
+          },
+          "10": {
+            "class_type": "SplitImageWithAlpha",
+            "inputs": {
+              "image": [
+                "9",
+                0
+              ]
+            }
+          },
+          "11": {
+            "class_type": "BiRefNetRMBG",
+            "inputs": {
+              "image": [
+                "10",
+                0
+              ],
+              "model": "REPLACE_WITH_INSTALLED_BIREFNET",
+              "background": "Alpha",
+              "sensitivity": 1,
+              "mask_blur": 0,
+              "mask_offset": 0,
+              "invert_output": false,
+              "refine_foreground": false,
+              "background_color": "#ffffff"
+            }
+          },
+          "12": {
+            "class_type": "SaveImage",
+            "inputs": {
+              "images": [
+                "11",
+                0
+              ],
+              "filename_prefix": "so-pose-p3"
+            }
+          }
+        },
+        "sha256": "a2cd6bfd4ed1be9be1e0ce1423b82f3673e272acd1aaba6c18a48bff0fab37bf"
+      }
+    }
+  }
+}

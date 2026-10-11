@@ -1,4 +1,5 @@
 import { isRecord } from "@utils/guards";
+import { liveHeadRefs, type LiveHeadRef } from "./liveHeadRefs";
 
 export type StageMode = "vn" | "always" | "off";
 export type RenderPreset = "standard" | "fast";
@@ -28,6 +29,10 @@ export interface SpriteSettings {
   mouth: "off" | "simple" | "smooth";
   cardOverlay: boolean;
   onDemand: boolean;
+  liveHead: boolean;
+  liveHeadRigs: Record<string, LiveHeadRef>;
+  poses: boolean;
+  customPoses: import("@engine/poseSchema").PoseEntry[];
   renderPreset: RenderPreset;
   builders: Record<string, { baseSet: string; box: { x: number; y: number; width: number; height: number };
     models: { diffusion: string; encoder: string; vae: string }; steps: number; resolution?: number }>;
@@ -48,6 +53,10 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   mouth: "simple",
   cardOverlay: true,
   onDemand: true,
+  liveHead: true,
+  liveHeadRigs: {},
+  poses: true,
+  customPoses: [],
   renderPreset: "standard",
   builders: {},
 });
@@ -72,6 +81,10 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     mouth: value.mouth === "off" || value.mouth === "smooth" || value.mouth === "simple" ? value.mouth : d.mouth,
     cardOverlay: value.cardOverlay !== false,
     onDemand: value.onDemand !== false,
+    liveHead: value.liveHead !== false,
+    liveHeadRigs: liveHeadRefs(value.liveHeadRigs),
+    poses: value.poses !== false,
+    customPoses: Array.isArray(value.customPoses) ? value.customPoses.slice(0, 256) as SpriteSettings["customPoses"] : [],
     renderPreset: value.renderPreset === "fast" ? "fast" : d.renderPreset,
     builders: Object.fromEntries(Object.entries(isRecord(value.builders) ? value.builders : {}).flatMap(([folder, entry]) => {
       if (!isRecord(entry) || typeof entry.baseSet !== "string" || (entry.baseSet !== "" && !/^[a-z0-9_]+$/.test(entry.baseSet)) || !isRecord(entry.box) || !isRecord(entry.models)) return [];

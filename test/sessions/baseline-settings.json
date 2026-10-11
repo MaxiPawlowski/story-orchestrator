@@ -205,12 +205,16 @@
       "crossfadeMs": 250,
       "focus": true,
       "breathing": true,
+      "liveHead": true,
+      "liveHeadRigs": {},
       "blink": true,
       "mouth": "simple",
       "cardOverlay": true,
       "onDemand": true,
       "renderPreset": "standard",
-      "builders": {}
+      "builders": {},
+      "poses": true,
+      "customPoses": []
     },
     "spikes": {
       "swipeBackCache": true,

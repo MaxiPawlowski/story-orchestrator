@@ -29,6 +29,7 @@ const view = (patch: Partial<StageView> = {}): StageView => ({
   activation: "user-on",
   capability: "present",
   reducedMotion: false,
+  headSession: "synthetic",
   ...patch,
 });
 

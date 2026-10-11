@@ -13,7 +13,7 @@ under `C:\dev\SillyTavern-MainBranch\`.
   (`script.js:3108`). The `sd` extension's prose-to-prompt call goes through the same path, so image
   prompts see World Info too.
 - **Our extension's LLM passes don't scan.** They go through
-  `ConnectionManagerRequestService.sendRequest` (`src/services/stHost/connectionProfiles.ts:44`), which
+  `ConnectionManagerRequestService.sendRequest` (`src/services/stHost/connectionProfiles.ts:106`), which
   builds a raw chat or text completion request with no World Info step (`public/scripts/extensions/shared.js:423-482`).
 - ST also runs a dry-run scan (`isDryRun=true`) for token counting. Dry runs don't set timed effects
   (`731`) and don't emit `WORLD_INFO_ACTIVATED` (`900-903`).
@@ -56,7 +56,7 @@ was unknown. Each entry also gets a hash of its whole JSON (`4631-4633`), which 
   recursion buffer, except during min-activations sweeps (`322-325`).
 - **Three of our blocks are registered with `scan: true`** while `worldInfo.scanMemory` is on (the
   default): established facts, scene history and checkpoint guidance (`src/constants/injectionRegistry.ts:16`,
-  `19`, `25`, `src/services/stHost/extensionPrompts.ts:44-51`), so their text can trigger an entry.
+  `19`, `25`, `src/services/stHost/extensionPrompts.ts:43-51`), so their text can trigger an entry.
   Every other block, and private per-member knowledge, is `scan: false` (lorebook-mechanics.md §14.8).
 
 ## 3. Per-entry gate, in order (`4796-4989`)

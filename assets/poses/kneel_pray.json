@@ -1,0 +1,92 @@
+{
+  "id": "kneel_pray",
+  "label": "Kneeling in prayer",
+  "tags": [
+    "kneeling"
+  ],
+  "framing": "full",
+  "props": [],
+  "text": "kneeling with both hands pressed together before the chest",
+  "keypoints": {
+    "format": "openpose-body18",
+    "canvas": [
+      768,
+      1152
+    ],
+    "points": [
+      [
+        384,
+        140
+      ],
+      [
+        384,
+        240
+      ],
+      [
+        260,
+        265
+      ],
+      [
+        285,
+        425
+      ],
+      [
+        378,
+        350
+      ],
+      [
+        508,
+        265
+      ],
+      [
+        483,
+        425
+      ],
+      [
+        390,
+        350
+      ],
+      [
+        312,
+        570
+      ],
+      [
+        300,
+        800
+      ],
+      [
+        380,
+        900
+      ],
+      [
+        456,
+        570
+      ],
+      [
+        470,
+        800
+      ],
+      [
+        400,
+        900
+      ],
+      [
+        355,
+        130
+      ],
+      [
+        413,
+        130
+      ],
+      [
+        332,
+        147
+      ],
+      [
+        436,
+        147
+      ]
+    ]
+  },
+  "version": 1
+}

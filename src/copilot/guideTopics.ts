@@ -330,6 +330,16 @@ export const GUIDE_TOPICS = {
       + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
       + "Prefetch: one more way out, written ahead. One branch per turning point; a swipe takes it back.",
   },
+  poses: {
+    title: "Poses and character layers",
+    fields: "poses.use, poses.custom, id, label, tags, framing, props, text, keypoints.format, keypoints.canvas, " +
+      "keypoints.points, version, when.keywords, roster[].sprites.pose, roster[].sprites.poses, " +
+      "effects.stage, pose, set, face, hidden, spotlight, cast, card.fields.layer, rebase, region.x, " +
+      "region.y, region.width, region.height",
+    text: "Studio Sprites → Poses previews skeletons and sets defaults or scene directions. Wizard: setPoses, " +
+      "setMemberPoses, setPoseCard. Priority: direction, sticky keyword, pick, default. Base changes render " +
+      "lazily; rebase starts from card art; face and decal edit regions. Swipes replay the choice.",
+  },
   "living-cards": {
     title: "Living cards",
     fields: "roster[].card, player.card, fields, quality, visual, checkpoints[].effects.card",

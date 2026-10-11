@@ -65,7 +65,7 @@ Consequences:
 - A non-ephemeral script added later does **not** touch existing messages (it only runs on creation/edit). Ephemeral scripts apply to history immediately.
 - Keep the LLM-facing marker when you only want visuals: `markdownOnly: true`. The model keeps seeing the raw tag it was told to emit, so it keeps emitting it (community rationale, confirmed by the gate above).
 - The community tip "strip `<chat>` tags, and tick *alter outgoing prompt* too" (community-reported, 2025) is muddled: with **no** flag the tag is already gone from file, display and prompt. Tick both flags only if you want the chat file to keep the original.
-- Story Orchestrator extraction reads the **stored** `mes` (src/extraction/chatWindow.ts:8-10): display/prompt-only scripts are invisible to it; a non-ephemeral script changes what extraction sees.
+- Story Orchestrator extraction reads the **stored** `mes` (src/extraction/windowHygiene.ts `cleanWindowMessage`): display/prompt-only scripts are invisible to it; a non-ephemeral script changes what extraction sees.
 
 ## 5. Replace With
 

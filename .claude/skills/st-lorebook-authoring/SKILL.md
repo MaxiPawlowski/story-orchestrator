@@ -40,16 +40,16 @@ dry-run scan on 2026-09-18.
 
 1. **Constant entries skip every key check, including secondary keys.** `constant` plus a NOT_ANY
    filter still fires (`world-info.js:4893-4897`, dry run).
-2. **Scan depth 0 matches nothing.** That applies to recursion text and the Author's Note too, not
-   just chat. Only constant, sticky, `@@activate` and force-activated entries survive
-   (`world-info.js:280-283`, dry run).
+2. **Scan depth 0 matches nothing.** It blanks the whole buffer: chat, match sources, the inject
+   buffer (Author's Note, our scanned blocks) and recursion. Only constant, sticky, `@@activate` and
+   force-activated entries survive (`world-info.js:280-283`, dry run).
 3. **Fresh-install defaults** are recursion **on**, whole words **on**, and insertion strategy
    **Character Lore First** (`default/content/settings.json:14-22`). The official doc calls Sorted
    Evenly the default. This install currently has **recursion off and whole words off**, so read
    `getWorldInfoSettings()` before relying on either.
 4. **Budget priority isn't "constants first".** It's sticky, then source (chat, then persona, then
    character/global), then higher `order` (`world-info.js:4625`, `4995-5003`).
-5. **`role`: 0 = system, 1 = user, 2 = assistant** (`index.html:7192-7200`). The Seamless Image Gen
+5. **`role`: 0 = system, 1 = user, 2 = assistant** (`index.html:7201-7207`). The Seamless Image Gen
    guide calls 1 "assistant". It's wrong.
 6. **Whole words**: a multi-word key is a plain substring match. A single-word key uses an ASCII `\W`
    boundary, so accented letters count as boundaries: `caf` matches "café" (`world-info.js:347-360`,
@@ -85,9 +85,7 @@ dry-run scan on 2026-09-18.
     silently drops its secondary keys; the editor template default is `true`
     (`world-info.js:4089`, `5634`). An embedded `character_book` is never scanned until it is imported
     and linked (`5731-5770`).
-16. **Depth 0 blanks the whole buffer**, including match sources, the inject buffer (Author's Note,
-    our scanned blocks) and recursion (`world-info.js:281-283`). See fact 2.
-17. **Sort and strategy default.** `getSortedEntries` orders chat lore, then persona lore, then
+16. **Sort and strategy default.** `getSortedEntries` orders chat lore, then persona lore, then
     character and global lore by `world_info_character_strategy` (code fallback and fresh install:
     `1`, character first, not "Sorted Evenly"), each by descending `order` (`world-info.js:80`,
     `4606-4625`, `default/content/settings.json:21`). That list position, after sticky, is the budget
@@ -129,7 +127,7 @@ dry-run scan on 2026-09-18.
       ST scans for the chat: globally selected, the chat's own slot (not the chat's mirror book in file
       mode), the persona's book, a book bound on every enabled member, or, when the host orders scan
       listeners, any book the story lists, which the runtime appends to that story's own chats
-      (`src/runtime/requirementsRead.ts:28-40`, `src/runtime/storyLore.ts`; lorebook-mechanics.md §14.1,
+      (`src/runtime/requirementsRead.ts:30-41`, `src/runtime/storyLore.ts`; lorebook-mechanics.md §14.1,
       §14.8). Never select a story book globally: it then leaks into every other story's chats.
 - [ ] Every entry has every template field, a unique non-empty `comment`, an explicit `position`, and
       an object key equal to `String(uid)`.
@@ -153,59 +151,61 @@ Details: scripting-and-api.md.
 - **Slash**: `/getchatbook name=X` (creates and binds), `/createentry file=X key="k" content`,
   `/setentryfield file=X uid=0 field=position 1`, `/world state=on silent=true X`,
   `/getglobalbooks`, and `/wi-set-timed-effect` / `/wi-get-timed-effect`.
-- **JS / host quirks, each of which has cost us a debugging session:**
-  - `loadWorldInfo(missing)` returns `{entries:{}}`, never null. Check existence with
-    `getWorldInfoNames()`.
-  - `createNewWorldInfo` doesn't activate the book.
-  - Read `selected_world_info`, never `world_info.globalSelect`, which is a debounced mirror.
-  - Raw `/api/worldinfo/delete` leaves the name selected and the client cache stale. In-page
-    `deleteWorldInfo` cleans up both.
-  - `saveWorldInfo` to an unknown name creates the file but doesn't refresh `world_names`.
+- **JS / host quirks** (each cost a debugging session): `loadWorldInfo(missing)` returns
+  `{entries:{}}`, never null (check `getWorldInfoNames()`); `createNewWorldInfo` doesn't activate;
+  read `selected_world_info`, never the debounced `world_info.globalSelect`; raw
+  `/api/worldinfo/delete` leaves the selection and cache stale (use `deleteWorldInfo`); `saveWorldInfo`
+  to an unknown name creates the file without refreshing `world_names`.
 
 ## Project hooks
 
 - **Host seams**: `src/services/stHost/worldInfo.ts` provides `listAllLorebooks`, `lorebookExists`,
   `listSelectedLorebooks`, `createLorebook` (creates only, never selects), `ensureLorebook`,
   `deactivateGlobalLorebook`, `loadLorebook`, `setWIEntriesState` (one batched, read-back write per
-  book; `enableWIEntry`/`disableWIEntry` wrap it), `updateWIEntryByUid` and `upsertWIEntry`. There is
-  no `activateGlobalLorebook`: the product never selects a story book globally (2026-10-02, T5-2-2).
+  book; `enableWIEntry`/`disableWIEntry` wrap it), `updateWIEntryByUid`, `createWIEntry`,
+  `deleteWIEntryAt` and `upsertWIEntry`. There is no `activateGlobalLorebook`: the product never
+  selects a story book globally; `src/runtime/storyLore.ts` appends a story's `requirements.lorebooks`
+  to the scans of its own chats.
   `stHost/selectors.ts` provides `listGlobalLorebooks`. The only import path is `src/services/STAPI.ts`.
 - **Story effects**: `effects.world_info: {enable|disable: [{lorebook, comments}]}` names entries by
   trimmed `comment`; every entry any checkpoint names is the story's gated set, rebuilt from the chat's
   path. **Per chat (scan mode) is the default since 2026-10-09**: the set rests off in its files and
   each scan's own copy is switched on along the path, with no file write; file mode (the author's
   explicit choice) writes the flags instead (lorebook-mechanics.md §14.2-14.3). **No world info is
-  applied while the requirements aren't ready.** Working example:
-  `examples/sun-ruins/Xentar Checkpoints.json`.
+  applied while the requirements aren't ready.** Example: `examples/sun-ruins/Xentar Checkpoints.json`.
 - **Wizard provisioning**: `upsertLorebookEntry {lorebook, comment, keys, content, constant?}` is
-  allowed only into the story's own lorebooks (`src/wizard/provisioning.ts:34-39`). It can't set
-  position, depth, order or disabled state, so written entries land at ↑Char order 100, **enabled**
-  (`worldInfo.ts:141-161`). A phase-gated entry needs a `disable` effect or a manual edit afterwards.
-  When writing the wizard prompt (`src/copilot/prompts.ts:47-52`), ask for self-contained content
-  and keys that cover the forms that will actually appear.
-- **Curator**: it only sees and writes entries with a non-empty `comment` in the books listed under
-  `stagecraft.lorebooks`, minus checkpoint-gated entries and `stagecraft.exclude`
-  (`src/stagecraft/scope.ts:7-49`). Its prompt's closed vocabulary is those titles
-  (`src/stagecraft/prompt.ts`). It writes through `updateWIEntryByUid`, which touches only `content`
-  and `disable` by uid; a text op keeps the entry's current `disable` state, and the pre-write content
-  and flag are recorded so a rollback restores them (`src/runtime/curatorWriter.ts:47-87`, `110-140`;
-  lorebook-mechanics.md §14.6). It never upserts and never re-enables.
-- **Memory mirror**: one book per chat, `Story Orchestrator - <title> - <chatId>`, with comments
-  `so_<id>` and keys set to the entities (`src/runtime/memoryMirror.ts`). It is created through
-  `ensureLorebook` and never activated globally. In scan mode (the default) it is not bound: its
-  enabled `so_` entries are appended to the owning chat's `chatLore` at scan time; in file mode it is
-  bound to that chat's lorebook slot unless the user already bound a book there (`src/runtime/mirrorScan.ts`;
-  lorebook-mechanics.md §14.5). Only live relationship rows are mirrored.
+  allowed only into the story's own (or granted) lorebooks (`validateProvisioningOp`,
+  `src/wizard/provisioning.ts`). It can't set position, depth, order or disabled state, so entries land
+  at ↑Char order 100, **enabled** (`upsertWIEntry`, `worldInfo.ts:270-291`). A phase-gated entry needs a
+  `disable` effect or a manual edit afterwards. In the wizard prompt (`PROVISIONING_GRAMMAR`,
+  `src/copilot/prompts.ts`), ask for self-contained content and keys that cover the forms that appear.
+- **Curator**: sees and writes only titled entries in `stagecraft.lorebooks`, minus checkpoint-gated
+  entries and `stagecraft.exclude` (`src/stagecraft/scope.ts`). Edits go through `updateWIEntryByUid`
+  (`content`/`disable` by uid, current `disable` kept, pre-write image recorded for rollback;
+  `src/runtime/curatorWriter.ts:63-97`, lorebook-mechanics.md §14.6); it never upserts or re-enables.
+  Its `create` op adds a keyed entry via `createWIEntry`, stamped `{{// so:created <chatId> | <groupId>}}`;
+  refused for an existing title, a cast-name key, no keys, or fewer than two live facts naming it, with
+  near-duplicate wordings shown to the author (`src/stagecraft/createCandidate.ts`). A rollback deletes
+  an untouched created entry (`curatorWriter.ts:99-124`).
+- **Memory mirror**: one book per chat, `Story Orchestrator - <title> - <chatId>`, comments `so_<id>`,
+  keys = entities (`src/runtime/memoryMirror.ts`), created via `ensureLorebook`, never selected
+  globally. Scan mode: its enabled `so_` entries are appended to the owning chat's scan; file mode:
+  bound to the chat slot unless the user bound one (`src/runtime/mirrorScan.ts`; §14.5). Only live
+  relationship rows are mirrored.
 - **What our scan sees**: with `worldInfo.scanMemory` on (the default) three of our blocks are
   registered with `scan: true`: established facts, scene history and checkpoint guidance
   (`src/constants/injectionRegistry.ts:16`, `19`, `25`, `src/runtime/scanMemory.ts`,
-  `src/services/stHost/extensionPrompts.ts:44-51`), so their text can key-match entries. Private
+  `src/services/stHost/extensionPrompts.ts:43-51`), so their text can key-match entries. Private
   per-member knowledge is never scannable. Our LLM passes use Connection Manager `sendRequest`, which
   runs no World Info (`public/scripts/extensions/shared.js:423-482`). `/comment` transition notes are
   `is_system`, so they aren't scanned.
 - **Lore select** (`lore_select`): the judge rates entries of the listed books and forces its picks;
   an entry ST's keyword scan is certain to activate, or one keyed by the drafted member's own name or
   alias, is left to the scan and never rated (`src/runtime/loreKeyMatch.ts`; lorebook-mechanics.md §14.4).
+- **Late lore placement** (`worldInfo.lateLore`, on): in scan mode, enabled non-constant entries of the
+  story's own books at ↑Char/↓Char move to @D system (↓Char at `worldInfo.lateLoreDepth`, default 4;
+  ↑Char one deeper) on the scan copies only, keeping the story string cache-stable. Opt out per story:
+  `lore_select.position: "authored"` (`src/runtime/lorePlacement.ts`).
 - **Macros in content**: story macros such as `{{story_player_name}}` expand inside entries, as the
   Xentar book does.
 - **Debug**: `node scripts/debug/st-actions.mts wi-status <book> <comment>`, `st-payload.mts arm|last`,
@@ -214,34 +214,28 @@ Details: scripting-and-api.md.
 
 ## References
 
-- `references/entry-schema.md`: every entry field (type, default, UI label, card-book key), the
-  enums, the global settings and their defaults, and where books come from. Open it when writing or
-  reading JSON.
-- `references/activation-internals.md`: the scan step by step, with line references (buffer, gate
-  order, groups, budget, recursion, placement, timed effects, events). Open it when behaviour surprises
-  you.
-- `docs/guide/author/lorebook-mechanics.md`: the source-verified capability reference (ST 1.19.0) and how
-  Story Orchestrator layers on top (story-scoped lore, gating modes, lore select, mirror, curator). It
-  wins over this skill and the vendored docs where they disagree (its §16).
-- `references/troubleshooting.md`: the console log dictionary, a dry-run recipe, and tables for
-  "doesn't fire", "fires when it shouldn't" and "ignored by the model", plus project-specific failures.
-- `references/patterns.md`: recipes for keyword lore, constant steering, checkpoint gating, groups, a
-  random tagged event, cadence markers (the corrected Seamless lorebook), trigger scoping, vocabulary
-  lorebooks, variable-plus-regex toggles, LoreList, outlets, decorators and per-speaker regex.
-- `references/scripting-and-api.md`: UI steps, every WI slash command, the JS and REST APIs with their
-  quirks, our seams and callers, and the test-lorebook workflow.
-- `templates/minimal-lorebook.json`: an importable book with three entries (keyword ↓Char, constant
-  @D4 system, disabled checkpoint-gated constant). Validated against `newWorldInfoEntryDefinition`,
-  and dry-run scanned on 2026-09-18. Rename the file to the book name before importing.
+- `references/entry-schema.md`: every entry field (type, default, UI label, card-book key), enums,
+  global settings and defaults, book sources. Open when writing or reading JSON.
+- `references/activation-internals.md`: the scan step by step with line references. Open when
+  behaviour surprises you.
+- `docs/guide/author/lorebook-mechanics.md`: the source-verified capability reference and how Story
+  Orchestrator layers on top. It wins over this skill and the vendored docs (its §16).
+- `references/troubleshooting.md`: console log dictionary, dry-run recipe, "doesn't fire" / "fires
+  when it shouldn't" / "ignored" tables, project-specific failures.
+- `references/patterns.md`: recipes (keyword lore, constant steering, checkpoint gating, groups,
+  random events, cadence markers, trigger scoping, vocabulary books, variable toggles, LoreList,
+  outlets, decorators, per-speaker regex).
+- `references/scripting-and-api.md`: UI steps, WI slash commands, JS and REST APIs, our seams and
+  callers, the test-lorebook workflow.
+- `templates/minimal-lorebook.json`: importable book with three entries (keyword ↓Char, constant @D4
+  system, disabled checkpoint-gated constant), validated against `newWorldInfoEntryDefinition`. Rename
+  the file to the book name before importing.
 
 ## Related
 
-- `st-character-authoring` skill: card fields, TwoList, and embedded `character_book` in cards.
-- `st-image-generation` skill: tag lorebooks for image prompts, and marker-driven image automation.
-- `st-scripting` skill: STscript, Quick Replies (automation ids), and the regex script JSON (for World
-  Info placement).
-- `.claude/sillytavern-docs/community/prompting-memory-prior-art.md`: Vector Storage and Data Bank,
-  and memory-book approaches.
+`st-character-authoring` (card fields, embedded `character_book`), `st-image-generation` (tag
+lorebooks, marker-driven images), `st-scripting` (STscript, QR automation ids, regex JSON),
+`.claude/sillytavern-docs/community/prompting-memory-prior-art.md` (Vector Storage, memory books).
 
 ## Sources
 

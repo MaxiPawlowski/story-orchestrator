@@ -1,5 +1,7 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
+import { skeletonImage } from "../poses/skeleton";
+import type { PoseEntry } from "@engine/poseSchema";
 import { contentHash, editGraph, editInstruction, editKey, renderKey, type EditKind, type EditModels } from "./recipes";
 import type { AlphaRecipe } from "@services/stHost/media";
 import { referenceProblems } from "./referencePack";
@@ -27,6 +29,9 @@ export interface SpriteBuildRequest {
   cutout?: AlphaRecipe;
   resolution?: number;
   frameRegion?: FrameRegion;
+  pose?: PoseEntry["keypoints"];
+  poseRoute?: "p2" | "p3"; poseSecondReference?: boolean;
+  body?: import("../poses/bodyRenderer").BodyStamp;
 }
 
 export interface SpriteCandidate {
@@ -39,7 +44,7 @@ export interface SpriteCandidate {
   rawData?: string;
   referenceData?: string;
   inputs: { base: string; models: EditModels; kind: EditKind; value: string; seed: number; steps: number; box: HeadBox;
-    story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: FrameRegion };
+    story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: FrameRegion; pose?: unknown; body?: import("../poses/bodyRenderer").BodyStamp };
 }
 
 export interface BuilderDeps {
@@ -82,6 +87,7 @@ export class SpriteBuilder {
     let retained = false;
     let lease: { release(): Promise<void> } | null = null;
     let reference: string | null = null;
+    let skeleton: string | null = null;
     const start = performance.now();
     let candidate: SpriteCandidate | null = null;
     const timings: BuildTimings = { prepareMs: 0, leaseMs: 0, uploadMs: 0, renderMs: 0, decodeMs: 0, compositeMs: 0,
@@ -97,7 +103,7 @@ export class SpriteBuilder {
     try {
       guard();
       const base = await this.deps.decode(request.reference);
-      const box = request.kind === "look" || request.kind === "base" ? { x: 0, y: 0, width: base.width, height: base.height } : request.box;
+      const box = request.kind === "look" || request.kind === "base" || request.kind === "pose" ? { x: 0, y: 0, width: base.width, height: base.height } : request.box;
       validateBox(base, box);
       const region = ["talk", "talk2", "rest"].includes(request.kind) ? request.frameRegion ?? mouthRegion(box) : undefined;
       if (region) validateRegion(box, region);
@@ -107,7 +113,9 @@ export class SpriteBuilder {
       const baseHash = base.sha256 ?? await contentHash(new Uint8Array(base.data));
       if (request.referenceHash && request.referenceHash !== baseHash) throw new Error("The reference sprite changed before the render. Read the pack again.");
       const inputs = { base: baseHash, models: request.models, kind: request.kind, value: request.value, seed: request.seed,
-        steps: request.steps, box, resolution, ...(region ? { frameRegion: region } : {}), story: request.story, member: request.member, ...(request.cutout ? { cutout: request.cutout } : {}) };
+        steps: request.steps, box, resolution, ...(region ? { frameRegion: region } : {}), story: request.story, member: request.member,
+          ...(request.body ? { body: request.body } : {}), ...(request.pose ? { pose: { keypoints: request.pose, route: request.poseRoute ?? "p2" },
+          poseRoute: request.poseRoute ?? "p2", poseSecondReference: request.poseSecondReference === true } : {}), ...(request.cutout ? { cutout: request.cutout } : {}) };
       const key = await editKey(inputs);
       const crop = await this.deps.crop(base, box);
       const rawKey = await renderKey(inputs);
@@ -120,8 +128,14 @@ export class SpriteBuilder {
         guard();
         reference = await timed("uploadMs", () => this.deps.uploadReference(crop, controller.signal, { character: request.character, set: request.set, story: request.story }));
         guard();
+        if (request.pose && request.poseRoute !== "p3") {
+          guard();
+          skeleton = await this.deps.uploadReference(skeletonImage(request.pose), controller.signal, { character: request.character, set: request.set, story: request.story });
+          guard();
+        }
         const result = await timed("renderMs", () => this.deps.render(editGraph({ models: request.models, steps: request.steps, seed: request.seed,
-          reference: reference as string, instruction: editInstruction(request.kind, request.value), cutout: request.cutout, resolution }), controller.signal));
+reference: reference as string, instruction: editInstruction(request.kind, request.value), cutout: request.cutout, resolution, ...(skeleton ? { skeleton } : {}),
+            secondReference: request.poseRoute === "p3" && request.poseSecondReference === true }), controller.signal));
         const image = await timed("decodeMs", () => this.deps.decode(`data:image/${result.format};base64,${result.data}`));
         guard();
         raw = { image, data: result.data };
@@ -129,9 +143,10 @@ export class SpriteBuilder {
       }
       guard();
       const compositeStart = performance.now();
-      const output = request.kind === "base" ? this.deps.resize(raw.image, box) : pasteEdit(base, this.deps.resize(raw.image, box), box, request.kind, region);
-      const reasons = request.kind === "base" ? referenceProblems(output) : [];
-      const qa = request.kind === "base" ? { ok: !reasons.length, reasons, changed: 0,
+      const output = (request.kind === "base" || request.kind === "pose") ? this.deps.resize(raw.image, box) : pasteEdit(base, this.deps.resize(raw.image, box), box, request.kind, region);
+      const full = request.kind === "base" || request.kind === "pose";
+      const reasons = full ? referenceProblems(output) : [];
+      const qa = full ? { ok: !reasons.length, reasons, changed: 0,
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, ["blink", "talk", "talk2"].includes(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
@@ -146,8 +161,10 @@ export class SpriteBuilder {
       return candidate;
     } finally {
       try {
-        try { if (reference) await timed("referenceReleaseMs", async () => this.deps.releaseReference?.(reference as string)); }
-        finally { if (lease) await timed("leaseReleaseMs", () => (lease as { release(): Promise<void> }).release()); }
+        try {
+          try { if (skeleton) await this.deps.releaseReference?.(skeleton); }
+          finally { if (reference) await timed("referenceReleaseMs", async () => this.deps.releaseReference?.(reference as string)); }
+        } finally { if (lease) await timed("leaseReleaseMs", () => (lease as { release(): Promise<void> }).release()); }
       }
       finally {
         run.signal.removeEventListener("abort", abort);
