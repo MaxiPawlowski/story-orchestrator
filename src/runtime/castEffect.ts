@@ -23,6 +23,16 @@ export const planCastChanges = (roster: NormalizedStoryV2["roster"], authored: u
   };
 };
 
+export const expectedCastMutes = (roster: NormalizedStoryV2["roster"], authored: unknown, tracked: string[]): string[] => {
+  const flags = new Map(tracked.map((name) => [name.trim().toLowerCase(), name]));
+  for (const [name, disabled] of planCastChanges(roster, authored, () => true)?.changes ?? []) {
+    const key = name.trim().toLowerCase();
+    if (disabled) flags.set(key, name);
+    else flags.delete(key);
+  }
+  return [...flags.values()];
+};
+
 const backgroundStem = (name: unknown) => String(name ?? "").trim().toLowerCase().replace(/\.[a-z0-9]{2,5}$/, "");
 
 export const holdsBackground = (before: Record<string, unknown> | null, name: string): boolean =>

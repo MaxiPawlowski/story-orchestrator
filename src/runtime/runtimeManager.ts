@@ -605,7 +605,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom), gate); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null, requirementsOptions(this.extras.memory.wiBook),
-      this.extras.effects.cast.filter((entry) => entry.disabled).map((entry) => entry.member.replace(/\.[a-z0-9]+$/i, "")));
+      this.extras.effects.cast, this.loaded ? this.engine.activeCheckpoint?.effects?.cast_changes : undefined);
     this.extras.updatedAt = new Date().toISOString();
   }
   readonly requirementsHost: RequirementsHost = { ...this.lifecycle, hydrate: () => this.applyActive("hydrate"), refresh: () => {

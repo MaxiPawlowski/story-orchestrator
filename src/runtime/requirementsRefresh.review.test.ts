@@ -49,6 +49,13 @@ function loadedManager(persona: string, lastApplied: string | null) {
 }
 
 describe("v2.4 plan 02 §8: the manager's requirements host", () => {
+  it("refreshing with no loaded story does not read the engine's active checkpoint", () => {
+    const { manager, probe } = loadedManager("Mira", null);
+    probe.loaded = null;
+    Object.defineProperty(probe.engine, "activeCheckpoint", { get: () => { throw new Error("No loaded story"); } });
+    expect(manager.requirementsHost.refresh()).toBeNull();
+    expect(probe.extras.requirements.ready).toBe(true);
+  });
   it("switching to the required persona reads not-ready -> ready and applies the owed checkpoint in hydrate mode", async () => {
     const { manager, probe } = loadedManager("Traveller", null);
     globalThis.__requirementsTestContext.name1 = "Mira";

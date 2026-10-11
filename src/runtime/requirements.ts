@@ -4,25 +4,28 @@ import { readRequirements, type RequirementsOptions } from "./requirementsRead";
 import type { MemoryMirrorBook, RequirementsState } from "./types";
 import { scanGatingActive } from "./worldInfoMode";
 import { storyLoreActive } from "./storyLore";
+import { expectedCastMutes } from "./castEffect";
 
 export const storyRequirements = (story: Pick<NormalizedStoryV2, "requirements" | "roster">): NormalizedStoryV2["requirements"] => {
   const members = story.requirements?.members;
   return members?.length ? { ...story.requirements, members: castMemberNames(story.roster ?? [], members) } : story.requirements;
 };
 
-export function evaluateRequirements(story: NormalizedStoryV2 | null, options: RequirementsOptions, storyMuted: string[] = []): RequirementsState {
+export function evaluateRequirements(story: NormalizedStoryV2 | null, options: RequirementsOptions,
+  storyCast: Array<{ member: string; disabled: boolean }> = [], activeCast?: unknown): RequirementsState {
   if (!story) return { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
   const context = getContext();
   const persona = typeof context.name1 === "string" ? context.name1 : "";
   const requirements = storyRequirements(story);
   const members = Boolean(requirements?.members?.length);
+  const storyMuted = storyCast.filter((entry) => entry.disabled).map((entry) => entry.member.replace(/\.[a-z0-9]+$/i, ""));
   return readRequirements(requirements, {
     persona,
     fixedName: fixedPlayerName(story),
     ...(requirements?.personas?.length ? { personas: listPersonas() } : {}),
     members: members ? listGroupMembers() : [],
     muted: members ? listMutedGroupMembers() : [],
-    storyMuted,
+    storyMuted: expectedCastMutes(story.roster, activeCast, storyMuted),
     cards: members ? getAllCharacterNames() : [],
     lore: readLoreBindings(),
   }, options);

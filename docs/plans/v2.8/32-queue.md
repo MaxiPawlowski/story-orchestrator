@@ -34,6 +34,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | X6 | Campaign sprite fixes | F13 |
 | X7 | Any defect the pod round (N4) or the director check finds | 31 |
 | X8 | Guide reads disorganized (owner 2026-10-10): reader nav sorted pages alphabetically, 46 one-topic field pages, lorebook mechanics outside the guide, root README listing 2 Play / 3 Set up pages | owner. **Done** (`v2.8-guide-structure`): fields on 8 group pages, each topic a `##` anchored by its id (groups in `src/features/guideTopicGroups.json`); reader + site nav follow the guide's own index sections, collapsible, with a page outline; lorebook mechanics under author Reference; root README lists every Play and Set up page; 69 -> 32 pages |
+| X9 | Already-muted authored scene cast falsely blocks Before you start | owner report 2026-10-10; **fixed 2026-10-11**, active cast intent included in the requirement read; full gates green, synthetic lane 30 ×2; 38 |
 
 ## Features
 

@@ -1,5 +1,6 @@
 import type { HostLoreBindings } from "@services/STAPI";
 import { readRequirements, type RequirementsView } from "./requirementsRead";
+import { expectedCastMutes } from "./castEffect";
 
 const lore = (overrides: Partial<HostLoreBindings> = {}): HostLoreBindings => ({ global: [], chat: null, persona: null, characters: [], ...overrides });
 const view = (overrides: Partial<HostLoreBindings> = {}, persona = "Mira", members: string[] = []): RequirementsView => ({ persona, members, lore: lore(overrides) });
@@ -77,5 +78,18 @@ describe("CR-U: a muted required member is named, not counted present", () => {
   it("a missing member is missing, never muted", () => {
     const state = readRequirements(cast, { ...view({}, "Mira", ["arin"]), muted: ["belle"] }, scan);
     expect(state).toMatchObject({ missingMembers: ["Belle"], mutedMembers: [] });
+  });
+  it("an authored scene mute is intentional even when the group was already muted and no cast write was recorded", () => {
+    const roster = [{ id: "guest", name: "Belle" }];
+    const storyMuted = expectedCastMutes(roster, { disable: ["guest"] }, []);
+    const state = readRequirements(cast, { ...view({}, "Mira", ["arin", "belle"]), muted: ["belle"], storyMuted }, scan);
+    expect(state).toMatchObject({ ready: true, mutedMembers: [] });
+  });
+  it("a current scene enable overrides a tracked mute, so a genuinely unavailable speaker still needs repair", () => {
+    const storyMuted = expectedCastMutes([{ id: "guest", name: "Belle" }], { enable: ["guest"] }, ["belle"]);
+    expect(readRequirements(cast, { ...view({}, "Mira", ["arin", "belle"]), muted: ["belle"], storyMuted }, scan).mutedMembers).toEqual(["Belle"]);
+  });
+  it("enable wins over disable like the cast writer, and unrelated tracked mutes remain intentional", () => {
+    expect(expectedCastMutes([{ id: "guest", name: "Belle" }], { disable: ["guest"], enable: ["BELLE"] }, ["belle", "Arin"])).toEqual(["Arin"]);
   });
 });
