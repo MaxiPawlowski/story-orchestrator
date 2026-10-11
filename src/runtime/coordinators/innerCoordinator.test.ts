@@ -85,6 +85,18 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
     expect(persist).toHaveBeenCalledTimes(1);
   });
 
+  it("v2.8 19: in an open stretch the scene line carries no task, elsewhere the objective", async () => {
+    const plain = harness();
+    await new InnerCoordinator(plain.deps).run();
+    expect(plain.prompts[0]).toContain("Scene: The Vault — Get inside.");
+    const open = harness();
+    const stretch = { mode: "open", pace: "brief", pull_after: 3, arrive_when: { q: "inside", op: "==", v: true } };
+    open.deps.getStory = () => ({ ...story, checkpointById: { cp1: { ...story.checkpointById.cp1, stretch } } }) as never;
+    await new InnerCoordinator(open.deps).run();
+    expect(open.prompts[0]).toContain("Scene: The Vault — free play, no task: the player leads");
+    expect(open.prompts[0]).not.toContain("Get inside.");
+  });
+
   it("does nothing unless the newest message is a character reply (the player's line is already in)", async () => {
     const { deps, prompts } = harness({ rows: [{ name: "Arin", mes: "Not yet." }, { name: "Max", mes: "Open it.", is_user: true }] });
     expect(await new InnerCoordinator(deps).run()).toBe(0);

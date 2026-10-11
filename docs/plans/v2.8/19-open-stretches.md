@@ -1,7 +1,11 @@
 # Plan 19 — Open stretches: free play between the story's fixed points
 
-**Status (2026-10-03): v2.8 plan 19 (was v2.7 plan 17). Exploration topic from the user; decided (decisions 1–3 yes,
-4 in-fiction only as recommended, 5 measure stubs first); not built, M1/M2 not run.** Overview: `00-overview.md`.
+**Status (2026-10-10): engine half built (v2.7 35 Phase 2, 2026-10-07) and completed by queue A6 (branch
+`v2.8-open-stretches`, §Gate record 2026-10-10): the pull names the destination, no task reaches the narrator, Studio
+and wizard author it. Encounter pool, `trigger: "quiet"`/pressure, open anchors and epilogue play not built (decisions
+3 and 5, the SP6 dependency). M1 baseline recorded thin (campaign `lab/stretches/stub-lengths.json`); M2 not run (needs
+the pod and its session cards).** Decided: decisions 1–3 yes, 4 in-fiction only as recommended, 5 measure stubs first.
+Overview: `00-overview.md`. Built record of the engine half: `v2.7/35-world-pressure-and-open-stretches.md` §Gate record.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (the engine half: format, validator, player-turn counter,
 steering, pull curve); acceptance RP (the M2 A/B on the pod; encounter generation on the expansion route).
 
@@ -204,3 +208,195 @@ authoring is `pull_after` (how much pure freedom), and `pace` presets cover most
   `generation/types.ts:82`, `schema.ts:399`.
 - Could not fully place: v2.8 02 A4 names stretch-length data but not a lab copy of 2–3 stubs for M2; 02's owner should
   add it.
+
+## Gate record (2026-10-10, queue A6)
+
+Branch `v2.8-open-stretches` (worktree `C:\dev\so-open-stretches`, from master `c21a42b9`). Tier D only: no lane, no
+pod, no model call, no ST page. Every live and RP row below is owed and NOT green.
+
+### Already built before this row (v2.7 35 Phase 2, `6268b564` + the Sol fix of 2026-10-07)
+
+The format (`checkpoints[].stretch`), the validator (`engine/validate/stretch.ts`: intermediates only, every exit on
+`arrive_when`, progress exits and `player_text` refused, `pressure`/`offer`/`trigger` refused as not built), the
+`player_turns_in_checkpoint` derive seam (`runtime/stretchTurns.ts`, OOC lines excluded; rollback ≡ replay 0 mismatches
+over 4 seeds × 100 cuts), no objective line, no beat chain, no stall re-read or refusal recovery, the open-stretch line
+and the pull register in the guidance block, the registry row and the guide topic, and the no-LLM curve scenario
+(`test/scenarios/v27-35-open-stretch-curve.json`, green ×2 in v2.7 39 Phase C, row 35-P2-curve). This plan's status
+line said "not built" until today; the v2.7 35 record is the as-built truth for that half.
+
+### Built here
+
+- **The pull names the destination.** The pull lines said "the next place" and never which, so the narrator could only
+  offer generic hooks, and the M2 hook labeller (which asks whether a reply points toward the destination) would score
+  against a place the narrator was never told. `stretchDestination` (`engine/stretch.ts`, pure) reads the first exit by
+  priority whose gate is `arrive_when` and returns its target's `player_name ?? name`; `pullLine(stage, destination)`
+  (`pacing/steering.ts`) writes "the next place (<name>)"; the pacing coordinator passes it. Before `pull_after` the
+  block is unchanged (no hook, no name). A story without a stretch is byte-identical (`openStretch.review.test.ts`, the
+  guidance and payload-invariance suites unchanged and green). Static story data: nothing enters engine state, so
+  rollback ≡ replay and reopen ≡ continuous run are untouched (the counter's property test still covers the state).
+- **No task reaches the narrator in an open stretch.** The objective stays on the checkpoint for the readers (the
+  arrival read, the judge's scene questions, the curator), but `{{story_current_checkpoint}}` names the scene only in an
+  open stretch (`currentCheckpointText`, `runtime/stretchTurns.ts`, used by `runtime/macros.ts`), and the inner voice
+  prompt's scene line reads "free play, no task: the player leads" there instead of the objective (`OPEN_STRETCH_SCENE`,
+  `memory/innerBeat.ts`; `coordinators/innerCoordinator.ts`). Elsewhere both are unchanged.
+- **Authoring.** Studio Checkpoints tab: an **Open stretch** panel on intermediates (`studio/components/StretchEditor.tsx`
+  + `.stories.tsx`, pure draft helpers `studio/stretchDraft.ts`): on/off, pace, pull after, plain pull at (`max_turns`),
+  the arrival exit picked from this beat's transitions (its gate becomes `arrive_when`), a red line naming every exit on
+  another gate (the validator refuses them) and one for a `player_text` left set. A pace change resets `pull_after` to
+  the pace preset; a `max_turns` at or below `pull_after` is dropped rather than stored invalid. Wizard:
+  `updateCheckpoint` takes `patch.stretch` (`copilot/parseFields.ts`, read through the engine's own `readStretch`, so a
+  refused stretch comes back as the validator's message; `null` clears), and the tool's checkpoint shape names it
+  (`copilot/agent/tools.ts`). Studio lazy chunk only; no mutations.ts export, so the tool census is unchanged.
+- **Guide.** `docs/authoring/story-guide.md` §Open stretches + the compact twin (`copilot/guideTopics.ts`): destination
+  naming, the objective rule, the Studio panel and `patch.stretch`; `npm run docs:guide` (32 pages).
+- **Tests.** `studio/stretchAuthoring.test.ts` (12: destination by public name and by priority, null outside a stretch,
+  pull lines with and without a destination, the macro text, the wizard patch accept / refuse / clear, the draft helpers
+  and that what they build validates); `coordinators/innerCoordinator.test.ts` (scene line, both arms); the updated
+  `openStretch.review.test.ts` (the gentle pull carries "The walls").
+
+### How it relates to the living director (v2.8 22)
+
+- Shared: the turn counter. `validate/living.ts` declares `player_turns_in_checkpoint` for every living story and the
+  director's pace gates on it (`generation/living/plan.ts` `playerTurnsGate`), through the same derive seam.
+- Separate: the director's stubs (`add-stub`, `liv_` ids) carry the drafted anchor's objective and are expanded into beat
+  chains like any stub; the director never writes a `stretch`, and the open-stretch rules never touch its ops.
+- Not built: v2.8 22 says a pass that fails its checks "falls back to an open stretch". Today a failed pass writes
+  nothing and journals "living director wrote nothing"; the frontier plays on as it is. An open stretch needs an
+  `arrive_when` exit to a destination and a failed pass has none, so that fallback is destination-less free play, which
+  is decision 5's epilogue play. Left to v2.8 22's owner (N1 is building in `livingCoordinator.ts`); owner question 2.
+
+### Not built (and why)
+
+- Encounter pool, `EXPANSION_CONTRACT` 2 → 3, pool checks, golden: decision 3 puts it behind the M2 floors, and M2 has
+  not run. `offer` stays refused.
+- `trigger: "quiet"` and `pressure`: need the production complication component (v2.8 18 Q6 = v2.7 35 Phase 3), built
+  only on SP6 PASS (queue R12, owed). Refused by the validator.
+- Open anchors and epilogue play: decision 5 (after the stub measurement).
+- `max_turns` raising pressure: no pressure yet; it only makes the pull plain.
+
+### Owed (NOT green)
+
+- **Live, no model.** `v27-35-open-stretch-curve.json` ×2 on a no-model lane on this build (its checks still hold: the
+  pre-pull block has no "next place"; the hooks keep "never a push" and "plainly in this reply"); a Studio walk of the
+  Open stretch panel (open the Studio, toggle it on an intermediate, pick the arrival, save, the import validates);
+  `{{story_current_checkpoint}}` read in an open stretch; Storybook `StretchEditor` (4 stories). Not run here: every lane
+  serves ST's one staged slot, which other sessions share, so staging this branch's build would change their runs.
+- **M1 (a baseline, not a gate), protocol.** No new runs. In the campaign checkout,
+  `python lab/stretches/measure_stubs.py --sessions <plugin test/sessions>` over the current so-sessions evidence
+  rewrites `lab/stretches/stub-lengths.json` (counts only: per act stub, visits, exits, player turns per visit, flags per
+  checkpoint kind), then `python lab/stretches/check.py`. The 2026-10-07 baseline holds 9 stub visits; two of the three
+  converted stubs were never visited. The refusal / agency-recovery rate inside generated stub beats is not in
+  `turns.jsonl`: read it from each session's journal tail (`so-journal follow` jsonl) where one was kept, else record
+  "not determined". Whether this closes M1 is the owner's call (v2.7 39 §B1 runners record).
+- **M2 (RP), protocol.** Floors verbatim (v2.7 35 §Phase 2 Floors, fixed before any run): 0 narrated player decisions
+  in open stretches; arrival by the player's own move in ≥ 90 % of runs (6 of 6 per record); every run past `pull_after`
+  shows ≥ 1 hook in the pull window (`pull_after + 1` … `pull_after + 6` player turns). Run end: arrival or
+  `pull_after + 12` (or `max_turns` when lower); a capped run is not by own move; OOC lines are no turn.
+  1. Build at or after this row's commit: the pull now names the place, so an earlier build is a different arm.
+  2. Lab data, campaign `lab/stretches/`: `aegis-open.story.json` (two downtime stubs, `unhurried` and `long`) and
+     `adventurer-open.story.json` (the road stub, `brief`) are arm **open**; the shipped stories, same stubs, expansion
+     on, are arm **expanded**. Run `python lab/stretches/check.py` first.
+  3. Per stub × arm × run (3 × 2 × 2 = 12 sessions per record): an `adolion-fresh` lane, a group chat, `--media off`,
+     replies on the pod (the Artemis v1.1 RP profile), at most two model lanes per pod. Seed the chat at the stub (Author
+     view `/cp activate <stub>` before the play window), then play with the autonomous driver (`so-session turn`) under
+     one player brief for both arms: play the place freely, leave only when the scene feels done to you, make the move
+     in your own line, never mention mechanics. Each session's `turns.jsonl` is the labeller's input.
+  4. Write the private `runs.json` (so-sessions, never this repo): `replyProfile` and one row per session
+     `{dir, stub, arm, run, startCheckpoint, arriveCheckpoints, pullAfter, maxTurns?, destination}`.
+  5. `node scripts/debug/so-b1-hooks.mts label --runs <runs.json> --labeller <second-model profile> --run 1`; the whole
+     set again as run 2; `node scripts/debug/so-b1.mts combine 35-M2`. Records `test/phase-c/records/35-M2/run-<n>.json`
+     (counts only) and `SO_DEBUG_DIR/b1/35-M2/` (private), archived with `npm run sessions:archive`.
+  6. Blind "felt free / felt steered" on paired excerpts (open vs expanded, same stub and run), rated by a second model,
+     never the user (rule 11): a separate rating pack, not part of the labeller.
+  7. Verdict here and in v2.7 35. On PASS the encounter pool (decision 3) may be built; on FAIL open stretches stay as
+     shipped (experimental) and the pool is not built.
+  - Still missing for step 3: the 12 session cards (or a seeding verb) that open each run at its stub; v2.7 39's B1 record
+    lists 35-M2 as "not runnable: no driver" for this reason. They name campaign checkpoints, so they live in the private
+    evidence or carry aliases (rule 7). Cost: about 4 lane-hours, about 2.3 pod-hours (v2.7 35 estimate).
+
+### Placeholder values (unchanged; measure, never retune silently)
+
+`PACE_PULL_AFTER` brief 3 / unhurried 6 / long 10; `PULL_STEADY_AFTER` 3.
+
+### Owner questions
+
+1. Should the living director write its between-anchor stubs as open stretches (free play toward its next anchor)
+   instead of beat chains? Today it never does; it would take this plan's rules unchanged.
+2. Should a failed director pass fall back to destination-less free play now (v2.8 22's fallback), ahead of decision 5's
+   epilogue play?
+
+WIP 2026-10-10: built as above; macros.test and line-length fixes applied but the full gates not re-run (first run red on those two, both fixed); next: `npm run gates -- --no-storybook --jobs 2`, bundle bytes, queue row A6, then the owed live rows.
+
+## Gate record (2026-10-11, handoff 37 B3)
+
+- Branch `v2.8-open-stretches`, clean start; `git merge master` -> `1070c0f9`, no conflicts, prior B3 changes preserved.
+- `npm run gates:quick -- --no-replay` -> green (final run 134.6 s): typecheck exit 0, typecheck:test exit 0,
+  changed-file lint exit 0 (one ignored-generated-file warning), related Jest 471 suites / 6039 tests passed,
+  one suite / one test skipped. `runtime/macros.test.ts` and `runtime/codeHealth.guard.test.ts` pass; no further
+  macro or line-length fix needed. Replay deliberately skipped; the main run owns full gates.
+- `npm run debug:typecheck` and `npm run typecheck:test` -> exit 0.
+- `npm run build` -> compiled successfully; main bundle 1,293,701 B, sha256
+  `94ef9a5f1a95b3b07288ff23fd631f5be1f8a0ba026f705d37252a300f7cc46c` (budget 1,300,000 B).
+- `npm run docs:guide` and `npm run docs:settings` -> exit 0; 32 guide pages, no content drift after CRLF normalization.
+- `npm run storybook:build` -> exit 0. Existing host-mock export / asset-size warnings remain.
+  Served this worktree's `.sb-static` on owned port 6033, then ran
+  `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6033 --maxWorkers 1 --includeTags b3-open-stretch --verbose`
+  -> 2 suites / 16 stories passed; no accessibility violations. The runner skipped other stories.
+  `CheckpointEditor.AuthorsAnOpenStretch` toggles an intermediate, changes pace, picks arrival, validates the exported
+  draft through `importDraft`, and verifies anchors have no panel. Four `StretchEditor` stories pass. The owned server
+  was stopped; no other Storybook server touched. This is a Storybook walk/export round-trip, not an ST Studio save.
+- Lane setup: `SO_LANE_OFFLINE=1 node scripts/debug/st-lanes.mts seed 33 --slim` -> offline seed, image/sprites/SD off,
+  backend URLs closed, server plugins disabled. `st-lanes.mts no-model 33` refused because the offline seed had already
+  made its backup; no restore needed. `node scripts/debug/st-lanes.mts start 33` -> ready.
+- `node scripts/debug/st-lanes.mts run 33 --evidence -- scripts/debug/so-open-stretch-check.mts` -> exit 0,
+  `v27-35-open-stretch-curve.json` 39/39 twice consecutively, cleanup clean. The wrapper serves the worktree's `dist`
+  through Playwright routes (same approach as `so-live-head-check --candidate`); no staging or install.
+  The macro resolves to the scene name only; no objective; group replies count one player turn; no hook at 1/2;
+  destination-named gentle pull at 3/4; swipe retains 4; player deletion lowers to 3; plain pull at 6; still in stretch.
+  Header diff has zero undeclared differences. Media stays off. Zero non-probe model/media requests;
+  two `requires.lane` PONG probes blocked locally. Judge calls: 0. Background model features are suppressed only in
+  the lane fixture and its prior settings restored afterward; product defaults unchanged.
+- Evidence: private `test/sessions/evidence/phase-c/b3-open-stretch-2026-10-11/`, via
+  `node scripts/debug/so-evidence.mts archive --label b3-open-stretch-2026-10-11 --lanes 33 --pods none --since 2026-10-11T12:04:29Z`
+  -> 9 files, 774,263 B, hash verification problems `[]`. Both scenario results and runner/page/server evidence retained.
+  Final row `2026-10-11T12-04-29-964Z-so-open-stretch-check`: complete, no page exceptions; 48 console errors / 47 failed
+  requests / 45 HTTP errors are offline plugin 404s, backend status/props 500s, and the two refused PONG probes.
+  Early setup attempts exposed late character loading, the missing named group, stale group-list cleanup, and background
+  model attempts; the wrapper now waits for the cast, owns a marked group, refreshes after deletion, and separates offline
+  probes from unexpected calls. Both prior failed pairs had passing curve assertions but are not the signing-off row.
+- `node scripts/debug/st-lanes.mts stop 33` -> stopped, `serverUp: false`. Only lane 33 used.
+- Owed: main checkout full `npm run gates` including full Storybook and replay; private evidence commit/archive by main;
+  actual ST Studio save walk if desired beyond the authorized Storybook walk; M1 completeness decision and M2 RP/card work
+  remain as above. B3 targeted checks pass; plan 19 is not fully accepted. Encounter pool, quiet/pressure triggers,
+  open anchors and epilogue play remain declared unbuilt.
+
+## Gate record (2026-10-11, handoff 37 B3 rerun, parallel-agent session)
+
+- `git merge master` -> already up to date (master `e68a242c` already in); clean tree; prior B3 work kept.
+- `npm run typecheck` exit 0; `npm run typecheck:test` exit 0.
+- `npm run lint` (eslint src, whole project) -> 0 errors, 2 warnings (`BriefingHost.stories.tsx` and `LiveHead.tsx` hook
+  deps, neither touched by this branch). Lint is confirmed: the earlier worry (eslint outside a tsconfig) does not recur.
+- `npx jest` on `runtime/macros.test.ts`, `runtime/codeHealth.guard.test.ts` (line-length ratchet),
+  `studio/stretchAuthoring.test.ts`, `coordinators/innerCoordinator.test.ts` -> 4 suites / 65 tests pass: both fixed
+  failures are confirmed fixed.
+- `npm run gates:quick` -> `gates:quick: green in 115.6s`: typecheck ok, typecheck:test ok, lint (changed) ok, jest (related)
+  ok, defect replay `--cached` 32 of 32 killed. Full `npm run gates` NOT run (owner's rule for this session).
+- `npm run build` -> compiled; `dist/index.js` 1,293,701 B (budget 1,300,000), sha256 `94ef9a5f...cc46c`, same as the
+  previous record.
+- Curve scenario x2: `node scripts/debug/st-lanes.mts start 33`, then
+  `node scripts/debug/st-lanes.mts run 33 --evidence -- scripts/debug/so-open-stretch-check.mts` -> exit 0,
+  `v27-35-open-stretch-curve.json` 39/39 on run 1 and 39/39 on run 2, `image.enabled` and `sprites.enabled` false,
+  `blocked: 0` model/media requests, `offlineProbes: 2` (the lane's PONG probes), judge calls 0, 0 page exceptions
+  (49 failed requests are the offline-lane plugin 404s and backend 500s), fixture assets cleaned (0 leaked), settings restored,
+  header diff no undeclared difference. Lane stopped (`serverUp: false`). Only lane 33 used.
+- Storybook: `npm run storybook:build` exit 0; served `.sb-static` on port 6033 (not 6006) with http-server;
+  `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6033 --maxWorkers 1 --includeTags b3-open-stretch --verbose`
+  -> 2 suites / 16 stories passed (121 skipped by the tag filter), no accessibility violations; `StretchEditor` (4 stories)
+  and `CheckpointEditor` open-stretch walk pass. The server was stopped (its PID checked first).
+- Evidence: private `test/sessions/evidence/phase-c/b3-open-stretch-rerun-2026-10-11/` (8 files, 927,508 B, problems `[]`);
+  commit with `npm run sessions:archive` from main.
+- Deviation: a Chromium on CDP 9333 (lane 33's browser, started 08:50 by an earlier session) was already running; reused,
+  not killed, and left running because this session did not start it.
+- Owed: main checkout full `npm run gates` (Storybook and replay included); `npm run sessions:archive`; an ST Studio save
+  walk (this is a Storybook walk and export round-trip); M1 decision and M2 RP; encounter pool, `trigger: "quiet"`, open
+  anchors and epilogue play remain NOT built.

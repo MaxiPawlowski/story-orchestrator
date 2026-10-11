@@ -1,5 +1,5 @@
 import {
-  TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, openStretch, pullStage, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
+  TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, openStretch, pullStage, stretchDestination, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
   type Checkpoint, type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
@@ -130,15 +130,15 @@ export class PacingCoordinator {
     if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     const active = activeId ? story.checkpointById[activeId] : null;
-    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active), this.memberLine(story, active), this.stretchLine(active));
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active), this.memberLine(story, active), this.stretchLine(story, active));
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
 
-  private stretchLine(active: Checkpoint | null): string | null {
+  private stretchLine(story: NormalizedStoryV2, active: Checkpoint | null): string | null {
     const stretch = openStretch(active);
-    if (!stretch) return null;
-    return pullLine(pullStage(stretch, playerTurnsInCheckpoint(this.deps.getState(), this.deps.hosts.chat?.chatRows() ?? [])));
+    if (!stretch || !active) return null;
+    return pullLine(pullStage(stretch, playerTurnsInCheckpoint(this.deps.getState(), this.deps.hosts.chat?.chatRows() ?? [])), stretchDestination(story, active.id));
   }
 
   private memberLine(story: NormalizedStoryV2, active: Checkpoint | null) {

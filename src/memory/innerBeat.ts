@@ -18,6 +18,8 @@ export interface ParsedInnerBeat {
 }
 
 export const INNER_BEAT_MAX_TOKENS = 96;
+
+export const OPEN_STRETCH_SCENE = "free play, no task: the player leads";
 export const INNER_BEAT_MAX_CHARS = 240;
 
 export function renderInnerBeatPrompt(input: InnerBeatPromptInput): string {

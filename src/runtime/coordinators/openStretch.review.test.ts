@@ -174,7 +174,8 @@ describe("v2.7 35 Phase 2: what an open stretch changes", () => {
     expect(early).toBe([GUIDANCE_PREAMBLE, OPEN_STRETCH_LINE].join("\n"));
     expect(early).not.toContain("Reach the walls.");
     const late = harness(story, 4);
-    expect(late).toBe([GUIDANCE_PREAMBLE, pullLine("gentle")].join("\n"));
+    expect(late).toBe([GUIDANCE_PREAMBLE, pullLine("gentle", "The walls")].join("\n"));
+    expect(late).toContain("let the next place (The walls) make itself felt");
     expect(late).toContain("never a push");
     expect(late).toContain("Never move the party there or narrate the decision to go.");
   });

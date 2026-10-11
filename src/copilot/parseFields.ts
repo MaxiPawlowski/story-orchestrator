@@ -1,3 +1,4 @@
+import { readStretch } from "@engine/validate/stretch";
 import {
   ARC_TEMPLATE_NAMES,
   EVIDENCE_FROM,
@@ -274,6 +275,12 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (value.effects !== undefined) patch.effects = readEffects(value.effects, `${path}.effects`, issues);
   const motives = readMotives(value.motives);
   if (motives) patch.motives = motives;
+  if (value.stretch !== undefined) {
+    const errors: Array<{ path: string; message: string }> = [];
+    const stretch = value.stretch === null ? null : readStretch(value.stretch, `${path}.stretch`, errors);
+    issues.push(...errors.map((error) => `${error.path}: ${error.message}`));
+    if (value.stretch === null || stretch) patch.stretch = stretch ?? undefined;
+  }
   return patch;
 };
 
@@ -301,7 +308,8 @@ export const readCheckpoint = (value: unknown, path: string, issues: string[]): 
     ...(patch.talk_control ? { talk_control: patch.talk_control } : {}),
     ...(patch.state_snapshot ? { state_snapshot: patch.state_snapshot } : {}),
     ...(patch.effects ? { effects: patch.effects } : {}),
-    ...(patch.motives ? { motives: patch.motives } : {})
+    ...(patch.motives ? { motives: patch.motives } : {}),
+    ...(patch.stretch ? { stretch: patch.stretch } : {})
   };
 };
 
