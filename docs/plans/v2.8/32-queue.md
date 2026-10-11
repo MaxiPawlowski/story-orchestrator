@@ -63,7 +63,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | A19 | Curator ops on `constant` entries wait for review in `auto` mode (author decision). **Proposed, needs owner pick** | 25 rank 5 (P5), v2.7 02 C13 |
 | A20 | Requirements refresh after a lorebook create/import in ST's UI (verify first). **Proposed, needs owner pick** | 25 rank 6 (TV #60) |
 | A21 | Jest case: a swipe during an in-flight read gets its own read; the stale one writes nothing. **Proposed, needs owner pick** | 25 rank 7 (TV #50) |
-| A22 | Pose library and character layers B1–B3 — **building on `v2.8-poses`**; S0/CL/LI owed. Live heads are the separate `v2.8-live-head` track. Owner decisions accepted 2026-10-10 | 33 |
+| A22 | Pose library and character layers B1–B3 — **building on `v2.8-poses`**; CL: pick via the shipped judge 40/40 twice on lane 36 2026-10-11 (80 TypeSafe calls), LLM leg not exercised (authoring route at its usage limit, plan 33 Gate record); S0/LI owed. Live heads are the separate `v2.8-live-head` track. Owner decisions accepted 2026-10-10 | 33 |
 | A23 | Live close-shot head (mesh-avatar-studio): deterministic rig/runtime/tool built; handoff A1 browser LI3/LI4/LI6 PASS ×2 (`9566b088`) 2026-10-10, rig-rebind canvas fix, master full gates green; LI1 FAIL/PASS (51.8/29.3 ms maxima), laptop check and LI2/LI5 owed; defaults/floors unchanged | 36 §A1 Gate record, 33 §7 decision 5, v2.9 05.1 |
 
 ## Measurements (need a pod or a free 3090)
