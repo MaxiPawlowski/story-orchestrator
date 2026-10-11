@@ -326,3 +326,46 @@ line said "not built" until today; the v2.7 35 record is the as-built truth for 
    epilogue play?
 
 WIP 2026-10-10: built as above; macros.test and line-length fixes applied but the full gates not re-run (first run red on those two, both fixed); next: `npm run gates -- --no-storybook --jobs 2`, bundle bytes, queue row A6, then the owed live rows.
+
+## Gate record (2026-10-11, handoff 37 B3)
+
+- Branch `v2.8-open-stretches`, clean start; `git merge master` -> `1070c0f9`, no conflicts, prior B3 changes preserved.
+- `npm run gates:quick -- --no-replay` -> green (final run 134.6 s): typecheck exit 0, typecheck:test exit 0,
+  changed-file lint exit 0 (one ignored-generated-file warning), related Jest 471 suites / 6039 tests passed,
+  one suite / one test skipped. `runtime/macros.test.ts` and `runtime/codeHealth.guard.test.ts` pass; no further
+  macro or line-length fix needed. Replay deliberately skipped; the main run owns full gates.
+- `npm run debug:typecheck` and `npm run typecheck:test` -> exit 0.
+- `npm run build` -> compiled successfully; main bundle 1,293,701 B, sha256
+  `94ef9a5f1a95b3b07288ff23fd631f5be1f8a0ba026f705d37252a300f7cc46c` (budget 1,300,000 B).
+- `npm run docs:guide` and `npm run docs:settings` -> exit 0; 32 guide pages, no content drift after CRLF normalization.
+- `npm run storybook:build` -> exit 0. Existing host-mock export / asset-size warnings remain.
+  Served this worktree's `.sb-static` on owned port 6033, then ran
+  `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6033 --maxWorkers 1 --includeTags b3-open-stretch --verbose`
+  -> 2 suites / 16 stories passed; no accessibility violations. The runner skipped other stories.
+  `CheckpointEditor.AuthorsAnOpenStretch` toggles an intermediate, changes pace, picks arrival, validates the exported
+  draft through `importDraft`, and verifies anchors have no panel. Four `StretchEditor` stories pass. The owned server
+  was stopped; no other Storybook server touched. This is a Storybook walk/export round-trip, not an ST Studio save.
+- Lane setup: `SO_LANE_OFFLINE=1 node scripts/debug/st-lanes.mts seed 33 --slim` -> offline seed, image/sprites/SD off,
+  backend URLs closed, server plugins disabled. `st-lanes.mts no-model 33` refused because the offline seed had already
+  made its backup; no restore needed. `node scripts/debug/st-lanes.mts start 33` -> ready.
+- `node scripts/debug/st-lanes.mts run 33 --evidence -- scripts/debug/so-open-stretch-check.mts` -> exit 0,
+  `v27-35-open-stretch-curve.json` 39/39 twice consecutively, cleanup clean. The wrapper serves the worktree's `dist`
+  through Playwright routes (same approach as `so-live-head-check --candidate`); no staging or install.
+  The macro resolves to the scene name only; no objective; group replies count one player turn; no hook at 1/2;
+  destination-named gentle pull at 3/4; swipe retains 4; player deletion lowers to 3; plain pull at 6; still in stretch.
+  Header diff has zero undeclared differences. Media stays off. Zero non-probe model/media requests;
+  two `requires.lane` PONG probes blocked locally. Judge calls: 0. Background model features are suppressed only in
+  the lane fixture and its prior settings restored afterward; product defaults unchanged.
+- Evidence: private `test/sessions/evidence/phase-c/b3-open-stretch-2026-10-11/`, via
+  `node scripts/debug/so-evidence.mts archive --label b3-open-stretch-2026-10-11 --lanes 33 --pods none --since 2026-10-11T12:04:29Z`
+  -> 9 files, 774,263 B, hash verification problems `[]`. Both scenario results and runner/page/server evidence retained.
+  Final row `2026-10-11T12-04-29-964Z-so-open-stretch-check`: complete, no page exceptions; 48 console errors / 47 failed
+  requests / 45 HTTP errors are offline plugin 404s, backend status/props 500s, and the two refused PONG probes.
+  Early setup attempts exposed late character loading, the missing named group, stale group-list cleanup, and background
+  model attempts; the wrapper now waits for the cast, owns a marked group, refreshes after deletion, and separates offline
+  probes from unexpected calls. Both prior failed pairs had passing curve assertions but are not the signing-off row.
+- `node scripts/debug/st-lanes.mts stop 33` -> stopped, `serverUp: false`. Only lane 33 used.
+- Owed: main checkout full `npm run gates` including full Storybook and replay; private evidence commit/archive by main;
+  actual ST Studio save walk if desired beyond the authorized Storybook walk; M1 completeness decision and M2 RP/card work
+  remain as above. B3 targeted checks pass; plan 19 is not fully accepted. Encounter pool, quiet/pressure triggers,
+  open anchors and epilogue play remain declared unbuilt.

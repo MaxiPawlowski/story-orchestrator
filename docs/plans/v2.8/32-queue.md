@@ -44,7 +44,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | A3 | v2.7 carry-over: lore-select batching (C12), curator digest (C13-b), model-driven items (C11), R4 gate lift + Studio control | 01, D1 |
 | A4 | ~~Widgets follow-ups: which quality and turn changed a value (author), "changed N replies ago", intents that open a drawer tab or ask for a roll, per-story motion toggle; `roster`/`timeline` kinds~~ built on `v2.8-widgets-followups` 2026-10-10 (`70ab9a78`), gates green, lane 54 19/19 x2; Storybook owed (23 Gate record) | 23 |
 | A5 | Lorebook features for the campaign: outlets, regex keys, NOT logic, triggers | D11 |
-| A6 | Open stretches (engine half, then M1/M2) | 19 |
+| A6 | Open stretches: built on `v2.8-open-stretches` (`ef94cc26` + handoff B3 follow-up); macro/ratchet/lint/type checks pass, curve 39/39 ×2 on no-model lane 33, 16 targeted Studio stories pass (2026-10-11). Main full gates/replay and M1/M2 owed; encounter pool/quiet/open anchors unbuilt | 19 §Gate record 2026-10-11 |
 | A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 — built on `v2.8-local-judge` 2026-10-10 (unmerged); uses refused until calibrated; calibration waits for a 3090 slot and ~6.2 GB free on C: |
 | A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 |
 | A9 | GPU broker in the ST plugin | 28, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI/LT open |

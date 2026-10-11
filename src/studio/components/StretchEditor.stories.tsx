@@ -25,6 +25,7 @@ const Harness: React.FC<{ initial?: CheckpointStretch; playerText?: boolean; wit
 const meta: Meta<typeof Harness> = {
   title: "Studio/StretchEditor",
   component: Harness,
+  tags: ["b3-open-stretch"],
 };
 
 export default meta;

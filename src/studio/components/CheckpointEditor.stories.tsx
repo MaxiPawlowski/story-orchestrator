@@ -3,10 +3,12 @@ import { within, userEvent, expect } from "@storybook/test";
 import CheckpointEditor from "./CheckpointEditor";
 import { useDraftStore } from "../draft";
 import { sampleStory, seedDraft } from "../stories/fixtures";
+import { exportDraft, importDraft } from "../io";
 
 const meta: Meta<typeof CheckpointEditor> = {
   title: "Studio/CheckpointEditor",
   component: CheckpointEditor,
+  tags: ["b3-open-stretch"],
   beforeEach: () => {
     seedDraft(sampleStory());
   },
@@ -22,6 +24,22 @@ export const Populated: Story = {
     await userEvent.click(canvas.getByRole("button", { name: /Infiltrate/ }));
     await expect(canvas.getByLabelText("Tension target")).toHaveValue("tense");
     await expect(canvas.getByLabelText("Snapshot value")).toHaveValue("stealth");
+  },
+};
+
+export const AuthorsAnOpenStretch: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Open stretch: free play/));
+    await userEvent.selectOptions(canvas.getByLabelText("Stretch pace"), "brief");
+    await userEvent.selectOptions(canvas.getByLabelText("Arrival exit"), "0");
+    const draft = useDraftStore.getState().draft;
+    await expect(draft.checkpoints[0].stretch).toEqual({
+      mode: "open", pace: "brief", pull_after: 3, arrive_when: draft.transitions[0].gate,
+    });
+    await expect(importDraft(exportDraft(draft))).toEqual(draft);
+    await userEvent.click(canvas.getByRole("button", { name: /The Cache/ }));
+    await expect(canvasElement.querySelector('[data-so="stretch-editor"]')).toBeNull();
   },
 };
 
