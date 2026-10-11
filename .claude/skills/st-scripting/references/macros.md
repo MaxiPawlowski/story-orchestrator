@@ -1,22 +1,22 @@
 # Macros — engines, evaluation order, tips, our `{{story_*}}` macros
 
-Open this when a macro resolves wrongly, when nesting macros, or when using Story Orchestrator macros from scripts, QRs, regex or World Info. The macro **list** is in `../../../sillytavern-docs/macros.md` (official, not repeated here — note it predates the new engine and says nesting is unsupported, which is only true for the legacy engine). In-app: `/help macros`. `st:` = `C:\dev\SillyTavern-MainBranch\` (ST 1.19.0).
+Open this when a macro resolves wrongly, when nesting macros, or when using Story Orchestrator macros from scripts, QRs, regex or World Info. The macro **list** is in `../../../sillytavern-docs/macros.md` (official, not repeated here — note it predates the new engine and says nesting is unsupported, which is only true for the legacy engine). In-app: `/help macros`. `st:` = `C:\dev\SillyTavern-MainBranch\` (ST 1.19.0, `ad29cbda6`).
 
 ## 1. Two engines — find out which one is running
 
 | | Legacy (regex-based) | New ("Experimental Macro Engine") |
 |---|---|---|
 | Switch | User Settings → *Experimental Macro Engine* off | on (title: "Allows nested macros to be resolved correctly and has a dedicated, logical replacement order") (verified: st:public/index.html:5455-5459) |
-| Default | — | **on for fresh installs** since ST PR #5234 (verified: st:public/scripts/power-user.js:302) |
-| This dev install | **off** (`"experimental_macro_engine": false` in `data/default-user/settings.json`, checked 2026-09-18) | |
+| Default | — | **on** since ST PR #5234 (verified: st:public/scripts/power-user.js:302) |
+| This dev install | | **on** (`data/default-user/settings.json`, checked 2026-10-10) |
 | Nesting | no | yes |
 | Extras | — | `{{if cond}}…{{else}}…{{/if}}`, `{{hasvar::x}}`, `{{deletevar::x}}`, `{{setvarkey}}`/`{{getvarkey}}`, `{{hasExtension::…}}`, `{{space}}`, `{{charCreatorNotes}}`, variable shorthands `{{.local}}` / `{{$global}}` with `= += -= ++ -- ?? ??= \|\| == != > >= < <=` (verified: st:public/scripts/macros/definitions/core-macros.js:134-217, variable-macros.js, state-macros.js; macros/engine/MacroCstWalker.js:526-606) |
 
-Check live: `node scripts/debug/st-eval.mts "ctx.powerUserSettings.experimental_macro_engine"` (`powerUserSettings` is on the context: st:public/scripts/st-context.js:229). Anything you write for other people should work on **both** engines — avoid nesting and the new-only syntax unless you control the setting.
+Check live: `node scripts/debug/st-eval.mts "ctx.powerUserSettings.experimental_macro_engine"` (st:public/scripts/st-context.js:229). Write for **both** engines unless you control the setting.
 
 ## 2. Legacy evaluation order (why some combinations fail)
 
-`evaluateMacros` runs one ordered list of regex replacements (verified: st:public/scripts/macros.js:612-700):
+`evaluateMacros` runs one ordered list of regex replacements (verified: st:public/scripts/macros.js:610-700):
 1. `<USER>`, `<BOT>`, `<CHAR>`, `<GROUP>`, `<CHARIFNOTGROUP>` (case-insensitive)
 2. dice `{{roll}}`, instruct macros, **variable macros** (`{{setvar}}`, `{{getvar}}`, …), `{{newline}}`, `{{trim}}`, `{{noop}}`, `{{input}}`
 3. env macros: `{{user}}`, `{{char}}`, card fields, **every macro registered by extensions** (our `{{story_*}}`)
@@ -39,7 +39,7 @@ Consequences:
 
 ## 4. Story Orchestrator macros
 
-Registered in `src/runtime/macros.ts` through `registerHostMacro` → `MacrosParser.registerMacro` (`src/services/stHost/context.ts:18-22`):
+Registered in `src/runtime/macros.ts` through `registerHostMacro` → `MacrosParser.registerMacro` (`src/services/stHost/context.ts:62-76`):
 
 | Macro | Value | Empty value |
 |---|---|---|
@@ -48,11 +48,13 @@ Registered in `src/runtime/macros.ts` through `registerHostMacro` → `MacrosPar
 | `{{story_past_checkpoints}}` | visited names, one per line | `(none)` |
 | `{{story_possible_transitions}}` | outgoing transitions with gate text | `(none)` |
 | `{{story_tension}}` | current tension level | `(unknown)` |
+| `{{story_scene_location}}` · `{{story_scene_time}}` · `{{story_scene_present}}` | judge scene tracker | `(unknown)` |
 | `{{story_player_name}}` | persona name | `(player)` |
 | `{{story_blackboard}}` · `{{story_canon}}` | blackboard memo · derived canon | `(none)` for canon |
 | `{{story_memory_facts}}` · `{{story_memory_session_details}}` · `{{story_memory_short_term}}` · `{{story_memory_scene_history}}` | memory tier blocks (`MEMORY_TIERS`, `src/memory/types.ts:1`) | `(none)` |
 | `{{story_epistemic}}` · `{{story_ledger}}` | active-speaker epistemic block · state ledger | `(none)` |
 | `{{story_role_<memberId>}}` | roster member's name; re-registered when the roster changes | — |
+| `{{story_quality_<key>}}` · `{{story_quality::key}}` (new engine only) | one blackboard value (`src/runtime/qualityMacros.ts`) | `(unset)` |
 
 Rules when scripting with them:
 - They **never return an empty string** — `/if left={{story_canon}}` is always truthy and `{{if story_canon}}` always takes the then-branch. Compare against the placeholder: `/if left={{story_canon}} right="(none)" rule=neq {: … :}`.

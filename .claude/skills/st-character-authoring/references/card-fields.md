@@ -53,7 +53,7 @@ Path convention: `st:` means `C:\dev\SillyTavern-MainBranch\`. Bare paths are re
 | `json_data: "<full card JSON>"` | base object | Unknown keys survive. This is how `/edit` keeps foreign fields (line 567). |
 | `file_name: "x"` | avatar `x.png` | optional. Otherwise it's the sanitized name (+ a digit if taken) (line 1031). |
 
-The response body is the avatar filename **as text** (`Name.png`) (verified: st:src/endpoints/characters.js:1032, 1039). The endpoint **never rejects a duplicate name**: it creates `Name1.png`. Any create-only rule is the caller's job (ours: `src/wizard/provisioning.ts:73-77`). `templates/create-body.json` is a verified body: all its keys are read by `charaFormatData`, and the result passes `validateV2()`.
+The response body is the avatar filename **as text** (`Name.png`) (verified: st:src/endpoints/characters.js:1032, 1039). The endpoint **never rejects a duplicate name**: it creates `Name1.png`. Any create-only rule is the caller's job (ours: `src/wizard/provisioning.ts:56-63`). `templates/create-body.json` is a verified body: all its keys are read by `charaFormatData`, and the result passes `validateV2()`.
 
 ## 4. Where the fields land in the prompt
 
@@ -64,7 +64,7 @@ The response body is the avatar filename **as text** (`Name.png`) (verified: st:
 
 ## 5. Example dialogue: keep, push out, parse
 
-- **Setting**: User Settings → Chat/Message Handling → **Example Messages Behavior** = `Gradual push-out` (default) / `Always include examples` / `Never include examples` (verified: st:public/index.html:5358-5366, st:public/scripts/power-user.js:121-122, 1541-1551). Community advice to move examples into a lorebook "so they stay" is superseded by `Always include examples` (community-reported, 2025-02).
+- **Setting**: User Settings → Chat/Message Handling → **Example Messages Behavior** = `Gradual push-out` (default) / `Always include examples` / `Never include examples` (verified: st:public/index.html:5366-5376, st:public/scripts/power-user.js:121-122, 1541-1551). Community advice to move examples into a lorebook "so they stay" is superseded by `Always include examples` (community-reported, 2025-02).
 - **Chat Completion ordering**: with push-out, chat history fills the budget first and examples get what's left. With "always", examples are reserved first (verified: st:public/scripts/openai.js:1336-1343).
 - **Chat Completion parsing is line-based** (verified: st:public/scripts/openai.js:729-787):
   - The first line of each block (the `<START>` heading) is skipped (753).

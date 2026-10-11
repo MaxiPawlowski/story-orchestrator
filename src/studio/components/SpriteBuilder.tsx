@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { comfyDiscover, comfyFingerprint, spriteManifest, generatedSpriteSets, deleteGeneratedSprite, spriteReferencePack, spriteReferenceSets, type ComfyDiscovery } from "@services/stHost/media";
 import { spriteBuilderMembers, spriteList, spriteReferences } from "@services/stHost/sprites";
 import { createSpriteBuilder } from "../../sprites/builder/host";
@@ -17,6 +17,8 @@ import BaseSpriteBuilder from "./BaseSpriteBuilder";
 import SpriteEditRegion from "./SpriteEditRegion";
 import SpritePreview from "./SpritePreview";
 import type { FrameRegion } from "../../sprites/builder/frameRegion";
+
+const PosesList = lazy(() => import("./PosesList"));
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -175,6 +177,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     {error && <p role="alert">{error}</p>}
     {preview && <SpritePreview candidate={preview} busy={busy} saved={Boolean(saved)} keep={() => void save()} />}
     {saved && <p role="status">Saved to {saved}</p>}
+    <Suspense fallback={<p role="status">Loading poses…</p>}><PosesList /></Suspense>
     <GeneratedSpriteSets key={character} character={character} busy={busy} list={services.sets} remove={services.delete} />
   </section>;
 }

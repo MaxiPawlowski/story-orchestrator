@@ -12,7 +12,7 @@ description: >
 
 # ST scripting — STscript, Quick Replies, Regex, macros
 
-Verified against ST **1.19.0** at `C:\dev\SillyTavern-MainBranch` (commit `7c3994196`). `st:` in citations = that tree. Community claims are marked `(community-reported, yyyy-mm)`. The official macro list is `.claude/sillytavern-docs/macros.md` — not repeated here.
+Verified against ST **1.19.0** at `C:\dev\SillyTavern-MainBranch` (commit `ad29cbda6`, checked 2026-10-10). `st:` in citations = that tree. Community claims are marked `(community-reported, yyyy-mm)`. The official macro list is `.claude/sillytavern-docs/macros.md` — not repeated here.
 
 Neighbouring skills own: card fields → `../st-character-authoring/SKILL.md`; WI entry design, keys, recursion, `/world` activation from code → `../st-lorebook-authoring/SKILL.md`; `/sd`, prose-to-prompt, image automation, `/bg` → `../st-image-generation/SKILL.md`; DOM selectors, Custom CSS, themes → `../../sillytavern-docs/community/ui-dom-selectors.md`; reasoning/sampler/preset tips → `../../sillytavern-docs/community/prompting-memory-prior-art.md`.
 
@@ -25,7 +25,7 @@ Neighbouring skills own: card fields → `../st-character-authoring/SKILL.md`; W
 | Logic, variables, generation, prompt injection | **STscript** (QR body, chat input, `executeSlashCommandsWithOptions`) |
 | A dynamic value inside any prompt field / script argument | **Macro** |
 | Read Story Orchestrator state from a script | `{{story_*}}` macros — no side effects |
-| Author actions on a running story | `/cp …` (author-only; spoils; commits boundaries) |
+| Author actions on a running story | `/cp …` (Author view only; spoils; `set`/`activate` commit a boundary) |
 
 ## Decision rules (the ones that bite)
 
@@ -53,7 +53,7 @@ Neighbouring skills own: card fields → `../st-character-authoring/SKILL.md`; W
 17. `/world` with an empty name (e.g. an empty variable) deactivates **all** global lorebooks; names are comma-split (verified: world-info.js:5772-5821).
 
 **Macros** — details `references/macros.md`
-18. Two engines. New ("Experimental Macro Engine") is the default for fresh installs and supports nesting and `{{if}}`; **this dev install runs legacy**, where `<user>` nests but `{{user}}` inside `{{setvar::…}}` does not (verified: st:public/scripts/power-user.js:302; st:public/scripts/macros.js:612-700; `st:data/default-user/settings.json`, 2026-09-18).
+18. Two engines. New ("Experimental Macro Engine", default, **on in this dev install** 2026-10-10) nests and has `{{if}}`; legacy nests `<user>` but not `{{user}}` inside `{{setvar::…}}` (verified: st:public/scripts/power-user.js:302; macros.js:610-700). Write for both.
 19. `{{story_*}}` macros never return `''` (placeholders like `(none)`), so truthiness tests always pass — compare against the placeholder.
 
 ## Workflows
@@ -81,14 +81,14 @@ Separate one-liners (each runs on its own):
 - Capture a command's answer: `/story recap | /let key=recap ||` then use `{{var::recap}}` later in the same script (`/let recap` would stay empty — the name is its unnamed argument, so no pipe is injected; st:public/scripts/variables.js:822-846).
 - Author write: `/cp set <quality> <value>` — enqueues the delta **and commits a boundary immediately**.
 
-Every `/cp`, `/so-mem`, `/story` callback returns its text into the pipe. List-style answers (`/cp list|state|converge`, `/so-mem list`, `/story recap|threads`) are **also posted to chat** as a system message (`dump()` → `sendSystemChatMessage`); status answers (`set`, `activate`, `pin`, `flag`) are a toast (`show()`) (`src/runtime/slashCommands.ts:17-25`). Macros are the side-effect-free read path.
+Every `/cp`, `/so-mem`, `/story` callback returns its text into the pipe. List-style answers (`/cp list|state|converge`, `/so-mem list`, `/story recap|threads|who|quests|ask`) are **also posted to chat** as a system message (`dump()` → `sendSystemChatMessage`); status answers (`set`, `activate`, `pin`, `flag`) are a toast (`show()`) (`src/runtime/slashCommands.ts:24-32`). Outside Author view `/cp` and `/so-mem backlog` answer one neutral toast and do nothing. Macros are the side-effect-free read path.
 
 ## Tooling (our debug scripts)
 
 - **Git Bash mangles a leading `/`** into a Windows path and the command silently no-ops — prefix `MSYS_NO_PATHCONV=1` (`.claude/rules/debug-scripts.md`):
-  `MSYS_NO_PATHCONV=1 node scripts/debug/st-actions.mts slash "/story recap | /echo"` → JSON with `ok`, `pipe` (first 500 chars) and chat length before/after (`scripts/debug/st-actions.mts:152-185`).
+  `MSYS_NO_PATHCONV=1 node scripts/debug/st-actions.mts slash "/story recap | /echo"` → JSON with `ok`, `pipe` (first 500 chars) and chat length before/after. `/cp`/`/so-mem` run inside a temporary Author view (`scripts/debug/lib/authorSlash.mts`); an in-page `executeSlashCommandsWithOptions('/cp …')` does not get one.
 - **PowerShell** does not mangle paths but interpolates `$…` inside double quotes — single-quote anything containing `$1`/`$<name>`/`$var`.
-- In-page, no quoting games: `node scripts/debug/st-eval.mts "(await ctx.executeSlashCommandsWithOptions('/getvar so_last_checkpoint')).pipe"` (`ctx` = `SillyTavern.getContext()`, `rt` = our runtime; `scripts/debug/st-eval.mts:7-27`).
+- In-page, no quoting games: `node scripts/debug/st-eval.mts "(await ctx.executeSlashCommandsWithOptions('/getvar so_last_checkpoint')).pipe"` (`ctx` = `SillyTavern.getContext()`, `rt` = our runtime; `scripts/debug/st-eval.mts:7-15`).
 - Chat variables directly: `ctx.variables.local.get('x')` (st:public/scripts/st-context.js:258-276). QR API: `globalThis.quickReplyApi` (see `references/quick-replies.md` §7).
 
 ## Checklists
@@ -99,16 +99,16 @@ Every `/cp`, `/so-mem`, `/story` callback returns its text into the pipe. List-s
 
 **Script pre-flight** — `\|` inside quotes · `{{newline}}` not `\n` · commands that need the pipe have no unnamed arg · `/if` literals don't collide with variable names · loops `guard=off` only with a real exit · swap/restore without `/abort` in between · no empty `/world` argument.
 
-**Cleanup after a live test** — `so-assets.mts` only knows characters, groups and lorebooks (`scripts/debug/so-assets.mts:34-36`), so remove scripting assets yourself: `/qr-set-delete so-test-scripting` (quick-reply/src/SlashCommandHandler.js:627-651); global regex via `st-eval` → filter `ctx.extensionSettings.regex` by the `so-test` name prefix, then `ctx.saveSettingsDebounced()` (engine.js:113, 143-145); `/flushvar` any chat variables the test set; `/flushinject` any `/inject` ids. Name every test asset with the `so-test` prefix.
+**Cleanup after a live test** — name every test asset with the `so-test` prefix; `node scripts/debug/so-assets.mts remove --marker so-test` deletes marker-named global regex scripts and QR sets (plus cards, groups, lorebooks, sprites). By hand: `/qr-set-delete so-test-scripting` (quick-reply/src/SlashCommandHandler.js:627-651). Always `/flushvar` the chat variables and `/flushinject` the `/inject` ids the test set.
 
 ## Project hooks
 
-- `src/runtime/slashCommands.ts` — registers `/cp` (alias `/checkpoint`; author: `list|state|activate|set|converge|memorize`, debug `extract|expand`), `/so-mem` (`list|pin|exclude|backlog`) and the player-safe `/story` (`recap|threads|flag`). All `rawQuotes`, one space-split string argument; callbacks return the text (pipeable) and `dump()` also posts it as a system message. `/cp set` enqueues a delta and commits a boundary immediately (`src/runtime/runtimeManager.ts:255-276`) — never put it in an `executeOnAi` QR.
-- `src/runtime/macros.ts` — the `{{story_*}}` macros (table in `references/macros.md` §4), registered via `registerHostMacro` (`src/services/stHost/context.ts:18-22`); they are resolved in prompts, WI, A/N, regex Replace With, QR bodies and script arguments alike.
-- `src/services/stHost/slashCommands.ts` — our only way to run STscript from the extension: `executeSlashCommands()` wraps `executeSlashCommandsWithOptions` with pinned parser flags (strict escaping on, getvar rewriting off), silenced success toasts and error handling, and returns `ok` (a parse error is `false`). Callers: `/note*` (`stHost/authorNotes.ts:30-42`), `/bg` (`stHost/backgrounds.ts:53`), `/world silent=true state=on` (`stHost/worldInfo.ts:123`), `/sendas`, `/trigger await=true`, `/comment compact=true` (`src/runtime/effectsApplier.ts:89-106`, `src/runtime/index.ts:99`).
-- `src/utils/string.ts` `quoteSlashArg` — encodes for **STRICT_ESCAPING**, which `executeSlashCommands` pins on every run through `parserFlags` (the user's STscript setting never applies to our commands). Inside quotes only `"` is special, so `|` stays literal, and backslashes double only before a quote or the closing quote. Real newlines pass through, and `{`/`}` become `\{`/`\}` so macros reach the command unresolved. Never hand-build a quoted argument for `executeSlashCommands`, and pass `raw=false` to `rawQuotes` commands (`/sendas`, `/comment`), which would otherwise post the quotes. Before 2026-09-19 it used `\n` and left `|` bare, so an AN with `|` never landed and multi-line text arrived with a literal `\n` (live-verified).
+- `src/runtime/slashCommands.ts` (verbs in `slashHelp.ts`) — registers `/cp` (alias `/checkpoint`, Author view only: `list|state|activate|set|converge|chapters|seal|unseal|memorize`, debug `extract|expand`), `/so-mem` (`list|pin|exclude`, `backlog` author-only) and the player-safe `/story` (`recap|threads|intro|who|quests|chapters|chapter|chronicle|flag|guide|ask|help`). All `rawQuotes`, one space-split string argument; callbacks return the text (pipeable). `/cp set` enqueues a delta and commits a boundary immediately (`src/runtime/runtimeManager.ts:318-332`) — never put it in an `executeOnAi` QR.
+- `src/runtime/macros.ts` — the `{{story_*}}` macros (table in `references/macros.md` §4), registered via `registerHostMacro` (`src/services/stHost/context.ts:62-76`); they are resolved in prompts, WI, A/N, regex Replace With, QR bodies and script arguments alike.
+- `src/services/stHost/slashCommands.ts` — our only way to run STscript from the extension: `executeSlashCommands()` wraps `executeSlashCommandsWithOptions` with pinned parser flags (strict escaping on, getvar rewriting off), silenced success toasts and error handling, and returns `ok` (a parse error is `false`). Callers: `/note*` (`stHost/authorNotes.ts:48-62`), `/bg` (`stHost/backgrounds.ts:56`), `/world silent=true state=off` (`stHost/worldInfo.ts:250`), `/chat-jump`, `/comment compact=true raw=false` and `/cut` (`src/runtime/effectsApplier.ts:117, 434`), `/trigger await=true` and `/sendas` (`src/runtime/effectSteps.ts:68-69`), `/branch-create` (`src/runtime/chatIdentity.ts:175`).
+- `src/utils/string.ts` `quoteSlashArg` — encodes for **STRICT_ESCAPING**, which `executeSlashCommands` pins via `parserFlags` (the user's STscript setting never applies). Inside quotes only `"` is special (`|` literal, backslashes double only before a quote), real newlines pass through, `{`/`}` become `\{`/`\}` so macros reach the command unresolved. Never hand-build a quoted argument; pass `raw=false` to `rawQuotes` commands (`/sendas`, `/comment`).
 - `src/constants/injectionRegistry.ts` — our prompt injections use `setExtensionPrompt` keys `story_orchestrator_*`; script `/inject` uses `script_inject_<id>` (st:public/scripts/slash-commands.js:3773), so they never collide; `/listinjects` does not show ours.
-- `src/extraction/chatWindow.ts:8-10` — extraction reads the **stored** `mes` and skips system messages: display/prompt-only regex is invisible to it, a permanent regex changes what it extracts from, and `/story`/`/cp` output and transition `/comment`s never feed it.
+- `src/extraction/windowHygiene.ts` (`cleanWindowMessage`) — extraction reads the **stored** `mes` and skips `is_system` rows: display/prompt-only regex is invisible to it, a permanent regex changes what it extracts from, and `/story`/`/cp` output and transition `/comment`s never feed it.
 - `scripts/debug/st-actions.mts slash`, `scripts/debug/st-eval.mts`, `scripts/debug/st-payload.mts` — run/inspect scripts (see Tooling). `so-scenario` has a `slash` step too (`scripts/debug/README.md`).
 
 ## References
@@ -120,7 +120,7 @@ Every `/cp`, `/so-mem`, `/story` callback returns its text into the pipe. List-s
 - `templates/regex-script.json` — importable display-only chip (named groups, `markdownOnly`, AI Output).
 - `templates/quick-reply-set.json` — importable set `so-test-scripting`: button, `executeOnAi` with Continue guard, `automationId: so_test_hook`.
 
-Both templates were checked against the import guards (regex/index.js:1499-1506; quick-reply/src/ui/SettingsUi.js:437-443) and the field lists (st:public/scripts/char-data.js:88-102; QuickReply.js:1902-1921; QuickReplySet.js:362-374), and the regex was run through a copy of the engine's `regexFromString` + replace logic.
+Both templates pass the import guards (regex/index.js:1499-1506; quick-reply/src/ui/SettingsUi.js:437-443) and field lists (st:public/scripts/char-data.js:88-102; QuickReply.js:1902-1921; QuickReplySet.js:362-374).
 
 ## Sources
 
