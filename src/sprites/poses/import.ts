@@ -3,6 +3,7 @@ import { isRecord } from "@utils/guards";
 import { body18 } from "@engine/validate/poses";
 
 export const DWPOSE_FILES = ["yolox_l.onnx", "dw-ll_ucoco_384.onnx"] as const;
+export const NO_PERSON = /exactly one visible person|too few reliable body points/;
 export function headToHipRatio(keypoints: PoseEntry["keypoints"]): number | undefined {
   const [nose, neck] = keypoints.points, left = keypoints.points[8], right = keypoints.points[11];
   if (!nose || !neck || !left || !right) return undefined;
