@@ -6,6 +6,7 @@ import { buildWiCuratorPrompt, parseCuratorResponse, planCuratorProposal, type C
 import { buildSceneSummaryPrompt } from "@memory/contract";
 import { draftCastNames, emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
+import { curatorIndexArm, refuseIndexEdits } from "./curatorIndexArm";
 
 export type CalibrationRole = Exclude<PassRole, "read" | "inner" | "lore">;
 
@@ -26,6 +27,7 @@ export interface DirectorCalibrationCase {
 }
 
 export interface CuratorCalibrationCase {
+  indexArm?: boolean;
   id: string;
   lang: string;
   label: "change" | "none";
@@ -59,7 +61,7 @@ export interface CalibrationCaseMap {
 }
 
 export interface DirectorScore { pick: string | null; answerCorrect: boolean; inTime: boolean; correct: boolean }
-export interface CuratorScore { valid: boolean; opLines: number; survived: number; decision: boolean; kept: string[]; dropped: string[] }
+export interface CuratorScore { valid: boolean; opLines: number; survived: number; decision: boolean; kept: string[]; dropped: string[]; indexRatio?: number }
 export interface AuthoringScore { valid: boolean; status: string; shape: boolean; allowedKinds: string[]; kinds: string[]; repaired: boolean; issues: string[] }
 export interface SynthesisScore { valid: boolean; empty: boolean; truncated: boolean; noise: boolean }
 
@@ -105,14 +107,16 @@ export function scoreCurator(entry: CuratorCalibrationCase, raw: string): Curato
   const proposal = parseCuratorResponse(raw, entry.scope.entries);
   const opLines = proposal.ops.length + proposal.dropped.length;
   const explicitNone = stripChannelNoise(raw ?? "").split(/\r?\n/).some((line) => line.trim().replace(/^[-*]\s+/, "").toUpperCase() === "NONE");
-  const plan = planCuratorProposal(proposal, entry.scope.entries, { mode: "review" });
+  const initial = planCuratorProposal(proposal, entry.scope.entries, { mode: "review" });
+  const arm = entry.indexArm ? curatorIndexArm(entry.scope) : null;
+  const plan = arm ? refuseIndexEdits(initial, arm) : initial;
   const kept = plan.records.map((record) => `${record.op.kind}:${"comment" in record.op ? record.op.comment : ""}`);
   const touched = plan.records.flatMap((record) => ("comment" in record.op ? [{ kind: record.op.kind, comment: record.op.comment.toLowerCase() }] : []));
   const forbidden = new Set(namesOf(entry.forbidden));
   const required = entry.required.every((item) => touched.some((op) => op.comment === item.comment.toLowerCase() && (item.kinds as string[]).includes(op.kind)));
   const clean = !touched.some((op) => forbidden.has(op.comment));
   const decision = entry.label === "none" ? touched.length === 0 : required && clean;
-  return { valid: opLines > 0 || explicitNone, opLines, survived: plan.records.length, decision, kept, dropped: plan.dropped };
+  return { valid: opLines > 0 || explicitNone, opLines, survived: plan.records.length, decision, kept, dropped: plan.dropped, ...(arm ? { indexRatio: arm.ratio } : {}) };
 }
 
 export const allowedStageKinds = (prompt: string): string[] => /Only emit ([A-Za-z/]+) ops/.exec(prompt)?.[1].split("/") ?? [];
@@ -161,7 +165,7 @@ const runDirector: Runner<"director"> = async (entry, options, clock) => {
 };
 
 const runCurator: Runner<"curator"> = async (entry, options, clock) => {
-  const prompt = buildWiCuratorPrompt(entry.scope);
+  const prompt = entry.indexArm ? curatorIndexArm(entry.scope).prompt : buildWiCuratorPrompt(entry.scope);
   const started = clock();
   const reply = await modelOf(options)(prompt, { role: "curator", pass: "curator", maxTokens: maxTokensForInput("curator", prompt) });
   return { responses: [reply.text], finishes: [reply.finish], latencyMs: Math.round(clock() - started), score: scoreCurator(entry, reply.text) };

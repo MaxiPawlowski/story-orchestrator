@@ -163,6 +163,9 @@ export class TalkController {
       if (!result || result.ok) return;
       log.info(`speaker direction: ${name} was not started: ${result.reason}`);
       if (chain && this.chain === chain) this.endChain();
+    }).catch((error: unknown) => {
+      if (chain && this.chain === chain) this.endChain();
+      throw error;
     });
     void this.track(started).catch((error) => log.warn("speaker direction: the chosen voice could not be triggered", error));
   }
@@ -212,7 +215,9 @@ export class TalkController {
     if (!this.chain) {
       this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [], offScript: 0, expected: null };
     }
+    const chain = this.chain;
     const decision = await this.ensureDecision(control, this.passKey());
+    if (this.chain !== chain || chain.aborted) return;
     if (decision.kind === "pass") return;
     if (decision.kind === "member" && this.chain.spokeCount === 0) {
       this.chain.expected = decision.rosterId;
@@ -282,7 +287,9 @@ export class TalkController {
       : await this.decideChainSpeaker(control, config, chain);
     if (this.chain !== chain || chain.aborted) return;
     if (!next || !run.stillOwns() || this.sceneMoves(chain, config)) { this.endChain(); return; }
-    chain.expected = findCandidate(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), next)?.rosterId ?? null;
+    const candidate = findCandidate(withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), this.addressed(this.host.getWindow()).members), next);
+    if (!candidate || (control.no_repeat !== false && chain.speakers.includes(candidate.rosterId))) { this.endChain(); return; }
+    chain.expected = candidate.rosterId;
     if (!chain.hold && config.holdExtraction) {
       chain.hold = true;
       this.host.setExtractionHold?.(true);
@@ -307,7 +314,7 @@ export class TalkController {
   private async decideChainSpeaker(control: TalkControl, config: TalkChainConfig, chain: ChainState): Promise<string | null> {
     const window = this.host.getWindow();
     const { line, members } = this.addressed(window);
-    const fresh = (candidate: TalkCandidate) => !chain.speakers.includes(candidate.rosterId);
+    const fresh = (candidate: TalkCandidate) => control.no_repeat === false || !chain.speakers.includes(candidate.rosterId);
     const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), members).filter(fresh);
     if (!candidates.length) return null;
     const answered = new Set(window.slice(line + 1).map((message) => message.speaker.trim().toLowerCase()));

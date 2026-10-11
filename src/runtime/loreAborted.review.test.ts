@@ -91,9 +91,11 @@ test("AE04-L1: a selection whose chat moved while the host was read is not cache
   let reads = 0;
   const h = harness(picksTheVault, (world) => { reads += 1; if (reads === 1) world.switchChat(); });
   expect(await h.selector.select("MESSAGE_SENT" as never)).toBeNull();
+  expect(h.asked()).toBe(0);
+  expect(h.forced).toEqual([]);
   h.world.returnToChatA();
   expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [{ uid: 1 }] });
-  expect(h.asked()).toBe(2);
+  expect(h.asked()).toBe(1);
   expect(h.forced).toEqual([[vault]]);
 });
 

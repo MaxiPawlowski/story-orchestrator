@@ -84,7 +84,7 @@ export class LoreSelector {
     // story with the same lore scope used to match the departed story's cache and force its picks
     // into the new story's next generation (matrix).
     const member = memberNames(story, this.deps.getDrafted?.() ?? null);
-    const key = `${this.deps.getChatId() ?? ""}:${loreStoryKey(story)}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}:${generationType ?? ""}:${member.join("|")}`;
+    const window = this.deps.getWindow();
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.
@@ -96,13 +96,16 @@ export class LoreSelector {
         this.complete = { chatId, storyKey: loreStoryKey(story), messageId, picks: picks.map(({ world, uid }) => ({ world, uid })), left: left.map(({ world, uid }) => ({ world, uid })) };
       }
     };
+    const scannable = await this.deps.getEntries();
+    if (!run.stillOwns()) return null;
+    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`;
+    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}`;
     if (this.cache?.key === key) {
       const { picks: cached, left: cachedLeft } = this.cache;
       if (!(await this.forced(this.cache.entries, run))) return null;
       record(cached, cachedLeft);
       return { trigger, cached: true, picks: cached, left: cachedLeft };
     }
-    const scannable = await this.deps.getEntries();
     const books = [...new Set(scannable.map((entry) => entry.world))].filter((world) => scope.lorebooks.some((name) => sameBook(name, world)));
     const byKey = new Map(scannable.map((entry) => [`${entry.world}.${entry.uid}`, entry]));
     const candidates = loreCandidates(
@@ -126,8 +129,6 @@ export class LoreSelector {
       return reason === null;
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
-    const window = this.deps.getWindow();
-    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}`;
     const known = new Map(this.scored?.key === sceneKey ? this.scored.p : []);
     const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))), { checkpointName: checkpoint.name, objective: checkpoint.objective, window });
     const ask = async (chunk: (typeof chunks)[number]) => {

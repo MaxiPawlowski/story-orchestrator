@@ -400,4 +400,22 @@ describe("v2.8 01 C12: one ask per entry per scene, shared by every generation a
     expect(after?.cached).toBe(false);
     expect(env.records.filter((record) => record.use === "lore")).toHaveLength(2);
   });
+
+  it("a changed window invalidates the same generation's complete cache too", async () => {
+    let text = "Who runs the harbour?";
+    const env = setup({ entries, window: () => [{ speaker: "Max", text }] });
+    await env.selector.select("GENERATION_STARTED", "normal");
+    text = "Who runs the lighthouse?";
+    expect((await env.selector.select("GENERATION_STARTED", "normal"))?.cached).toBe(false);
+    expect(env.requests).toHaveLength(2);
+  });
+
+  it("an edited entry invalidates the scores and the complete cache at the same message", async () => {
+    const library = [keyed(1, ["harbour"])];
+    const env = setup({ entries: library });
+    await env.selector.select("GENERATION_STARTED", "normal");
+    library[0].content = "The harbour now has a new owner.";
+    expect((await env.selector.select("GENERATION_STARTED", "normal"))?.cached).toBe(false);
+    expect(env.requests).toHaveLength(2);
+  });
 });

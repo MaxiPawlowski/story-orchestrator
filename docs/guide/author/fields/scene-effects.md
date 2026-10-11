@@ -124,9 +124,9 @@ Field: `effects.npc_replies[]`: `{ trigger, member, kind, text, instruction, max
 
 Topic `experimental-effects`.
 
-Fields: `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
+Fields: story `reasoning` and checkpoint `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
 
-- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `complications` are lines released into a beat that has stalled. Both are research spikes behind a switch that is on by default (`spikes.*`). The parser accepts `reasoning`; the spike reads `complications` from the authored record.
+- **What it does.** Reply thinking resolves checkpoint `effects.reasoning` first, then story `reasoning`, then the install's Reply thinking setting. Studio → Story → Reply thinking edits the story default. The override switch is on by default. It only budgets a llama.cpp setup that already thinks; it never opens a thought. `low` allows 128 thought tokens and can break group reply form; Studio warns when speaker direction is authored. `complications` are lines released into a beat that has stalled, behind their own default-on spike switch.
 - **Good.** A story that plays the same with both switches off; a spike only adds to it.
 - **Bad.** A story that only works when a spike is on.
 - **If wrong.** Where the switch is off nothing happens, so a story that depends on these does not play as written.

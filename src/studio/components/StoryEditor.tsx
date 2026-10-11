@@ -1,5 +1,8 @@
 import React from "react";
-import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, STAGECRAFT_CREATE_CAP_DEFAULT, STAGECRAFT_CREATE_CAP_MAX, type ArcTemplateName, type StagecraftExclusion, type StoryRequirements } from "@engine/index";
+import {
+  ARC_TEMPLATE_NAMES, CHECKPOINT_REASONING, HOUSE_RULES_MAX, STAGECRAFT_CREATE_CAP_DEFAULT, STAGECRAFT_CREATE_CAP_MAX,
+  type ArcTemplateName, type StagecraftExclusion, type StoryRequirements,
+} from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
 import BriefingEditor from "./BriefingEditor";
@@ -122,6 +125,18 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
         onChange={(next) => mutate((current) => setBriefing(current, next))}
         onPreview={() => requestBriefing({ kind: "preview", view: composeBriefing(draft) })} />
       <PlayerEditor player={draft.player} onChange={(next) => mutate((current) => setPlayer(current, next))} />
+      <Field label="Reply thinking" hint="The story's thinking level. A checkpoint override wins; empty uses the player's install setting. Only budgets an already-thinking llama.cpp setup.">
+        <select className="text_pole st-input" aria-label="Reply thinking" value={draft.reasoning ?? ""}
+          onChange={(event) => mutate((current) => setStoryField(current, "reasoning", CHECKPOINT_REASONING.find((level) => level === event.target.value)))}>
+          <option value="">Use install setting</option>
+          {CHECKPOINT_REASONING.map((level) => <option key={level} value={level}>{level}</option>)}
+        </select>
+      </Field>
+      {draft.reasoning === "low" && draft.checkpoints.some((checkpoint) => checkpoint.talk_control) ? (
+        <div role="status" className="text-xs st-muted">
+          Low thinking gives a group reply only 128 thought tokens; this can break the reply's form. Prefer medium or high for speaker-directed groups.
+        </div>
+      ) : null}
       <Field label="Dramatic shape" hint="The tension curve the pacing hint steers toward across the story's anchors. A checkpoint's own tension_target always wins over the shape.">
         <select
           className="text_pole st-input"

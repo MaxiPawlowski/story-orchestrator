@@ -280,9 +280,9 @@ Field: `effects.npc_replies[]`: `{ trigger, member, kind, text, instruction, max
 ### Experimental effects
 <!-- topic: experimental-effects -->
 
-Fields: `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
+Fields: story `reasoning` and checkpoint `effects.reasoning` (`off`, `low`, `medium`, `high`; `schema.ts` `CHECKPOINT_REASONING`), checkpoint `complications` and `complication_after` (`runtime/spikes/sp6Complications.ts`).
 
-- **What it does.** `reasoning` asks for a reasoning effort on the beat's replies; `complications` are lines released into a beat that has stalled. Both are research spikes behind a switch that is on by default (`spikes.*`). The parser accepts `reasoning`; the spike reads `complications` from the authored record.
+- **What it does.** Reply thinking resolves checkpoint `effects.reasoning` first, then story `reasoning`, then the install's Reply thinking setting. Studio → Story → Reply thinking edits the story default. The override switch is on by default. It only budgets a llama.cpp setup that already thinks; it never opens a thought. `low` allows 128 thought tokens and can break group reply form; Studio warns when speaker direction is authored. `complications` are lines released into a beat that has stalled, behind their own default-on spike switch.
 - **Good.** A story that plays the same with both switches off; a spike only adds to it.
 - **Bad.** A story that only works when a spike is on.
 - **If wrong.** Where the switch is off nothing happens, so a story that depends on these does not play as written.
@@ -335,6 +335,7 @@ Field: `checkpoints[].talk_control`: `speakers` `[{ member, weight }]`, `lead`, 
 - **What it does.** Decides who answers in a group while the beat is active (and the chat's "Speaker direction" setting is on). An explicit trigger always wins; then a single name mention; then the director (an AI pick from the candidates, the objective and your `instruction`); then weighted rules (`lead` first, `weight`s, `no_repeat` skips the last speaker). `allow_silence` lets the director hand the turn back to the player. `chain` lets several voices answer one message: `director` mode asks who is next until it hands back, `scripted` mode walks `sequence`; `max` is 1 to 8 (default 3); `stop_on_transition` ends the chain when the story moves.
 - **Good.** `{ "lead": "Adolion Narrator", "speakers": [{ "member": "Adolion Narrator", "weight": 3 }, { "member": "Tobias", "weight": 2 }], "director": { "instruction": "Pick Adolion Narrator whenever the player acts … Pick Tobias when …" } }`. The director reads the instruction and the roles, not the weights, so end the instruction with the scene's real speakers. Chains: 2 at a decision, 4 with `hold_extraction` for an ensemble, `false` for a confession (`STORY-TUTORIAL.md`).
 - **Bad.** A `lead` left out of `speakers`; an enabled character missing from `speakers`, whom the narrator then voiced (Tobias in T1; `14-findings.md`).
+- **Chain repeats.** `no_repeat` defaults on: each member answers at most once in the chain, including a scripted sequence. With no unused member, the chain ends; a repeated scripted entry ends it too. `no_repeat: false` permits repeats up to `max`. A new player line or STOP always ends the old chain, even while its next voice is being chosen.
 - **If wrong.** A lead outside the list still joins at weight 1 (`talk-lead-outside-speakers`); a name nobody has falls back to SillyTavern (`talk-member-unknown`); `allow_silence` without the director never happens (`talk-silence-without-director`); a scripted chain without a sequence speaks one voice (`talk-chain-empty`), and an unknown voice in it is skipped (`talk-chain-member-unknown`).
 
 ### Curator scope

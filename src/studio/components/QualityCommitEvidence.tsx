@@ -9,7 +9,9 @@ const compact = (map: Record<string, string>): Quality["commit_evidence"] => {
   return Object.keys(kept).length ? kept : undefined;
 };
 
-const HINT = "A reading only sets this quality when a line the player wrote, in the window it read, matches without a negation before it (\"we won't take it\" does not) and is about the value; an NPC or the narrator saying so never counts. Use it for one-way commitments (taking a posting, swearing an oath) so a scene aside can never advance the story.";
+const HINT = "A reading only sets this quality when a line the player wrote, in the window it read, matches without a negation before it (\"we won't take it\" does not) "
+  + "and is about the value; an NPC or the narrator saying so never counts. Use it for one-way commitments (taking a posting, swearing an oath) "
+  + "so a scene aside can never advance the story.";
 
 const PER_VALUE_HINT = "Each pattern guards only its own value; a value left empty is set by any reading, so a quality can mix a commitment (sworn) with plain actions (fled, fought).";
 

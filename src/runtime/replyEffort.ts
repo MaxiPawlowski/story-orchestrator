@@ -18,7 +18,7 @@ export const LLAMA_TEXTGEN_TYPE = "llamacpp";
 
 export const LLAMA_MODEL_OWNER = "llamacpp";
 
-export type EffortSource = "install" | "checkpoint";
+export type EffortSource = "install" | "story" | "checkpoint";
 
 export interface EffortArm {
   chatId: string;
@@ -80,7 +80,8 @@ const budgetOf = (level: ReplyEffort): number | null => (level === "high" ? null
 export const armFor = (target: EffortTarget): EffortArm | null => {
   if (!target.storyChat || !target.story) return null;
   const authored = target.checkpointOverride && target.checkpointId ? target.story.checkpointById[target.checkpointId]?.effects?.reasoning : undefined;
-  return { chatId: target.storyChat, checkpointId: target.checkpointId, level: authored ?? target.fallback, source: authored ? "checkpoint" : "install" };
+  const storyLevel = target.checkpointOverride ? target.story.reasoning : undefined;
+  return { chatId: target.storyChat, checkpointId: target.checkpointId, level: authored ?? storyLevel ?? target.fallback, source: authored ? "checkpoint" : storyLevel ? "story" : "install" };
 };
 
 export const thoughtOpener = (prompt: unknown, template: ThinkingTemplate | null): string | null => {

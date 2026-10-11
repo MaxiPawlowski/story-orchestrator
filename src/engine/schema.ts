@@ -469,6 +469,7 @@ export interface StoryV2 {
   player_intro?: string;
   player?: StoryPlayer;
   briefing?: StoryBriefing;
+  reasoning?: CheckpointReasoning;
   illustrations?: StoryIllustrations;
   poses?: StoryPoses;
   qualities: Quality[];

@@ -430,7 +430,7 @@ describe("chained multi-speaker turns", () => {
       { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
       { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
       { kind: "player", confidence: 0.7, via: "choice" },
-    ]);
+    ], { getActiveTalkControl: () => ({ director: true, no_repeat: false }) });
     const controller = new TalkController(host);
     controller.onWrapperStarted({ type: "normal" });
     await controller.intercept(makeAbort().abort, "normal");
@@ -488,6 +488,7 @@ describe("chained multi-speaker turns", () => {
     const judge = jest.fn(async (): Promise<{ kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" }> => ({ kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" }));
     const { host, calls } = makeChainHost([], {
       getChainConfig: () => ({ ...SYSTEM, max: 2 }),
+      getActiveTalkControl: () => ({ director: true, no_repeat: false }),
       judgeDirector: judge,
       getDraftedRosterId: () => "sage",
     });
@@ -629,6 +630,28 @@ describe("chained multi-speaker turns", () => {
     await controller.onWrapperFinished();
     expect(calls.triggered).toEqual(["Finn"]);
     expect(judge).not.toHaveBeenCalled();
+  });
+
+  it.each([true, false])("a scripted duplicate respects no_repeat=%s", async (noRepeat) => {
+    const { host, calls } = makeChainHost([], {
+      getActiveTalkControl: () => ({ no_repeat: noRepeat, chain: { mode: "scripted", sequence: ["Mara", "Mara"] } }),
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(noRepeat ? [] : ["Mara"]);
+  });
+
+  it("a judge that names an already-used voice cannot bypass the narrowed chain pool", async () => {
+    const judge = jest.fn(async () => ({ kind: "member" as const, rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" as const }));
+    const { host, calls } = makeChainHost([], { judgeDirector: judge, callDirector: async () => "SPEAKER: Mara" });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(judge.mock.calls).toHaveLength(2);
+    expect(calls.triggered).toEqual([]);
   });
 
   it("does not chain when the install turns chaining off", async () => {
