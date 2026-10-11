@@ -1,13 +1,15 @@
 {
   "_note": "v2.7 payload invariance (16 rule 3, 39 C0/C3), case group-memory. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe, the tripwire and how a member capture is taken). Same story, group and pins; one scripted turn, then one mocked read (the extract verb with a debugResponse, no model) plants a fact and a [hiding] knowledge row, so the captures carry the memory tiers, the per-member private block and the resting prompt with the secret withheld. The epistemic capability is switched on for the run and put back by the cleanup steps.",
   "requires": {
+    "briefingDraft": "off",
+    "innerBeat": "off",
     "group": "Group: Arin, DM Narrator",
     "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
     "judge": "off",
     "why": "a fixed cast state at the start of every capture, and judge memoryVerify would drop the planted lines (judge-off lane rule, T7 SUITE)"
   },
   "steps": [
-    { "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; return { pinned: ['read', 'curator'] };" },
+    { "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ ops: [] }); return { pinned: ['read', 'curator', 'living'] };" },
     { "import_story": { "file": "../../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
     { "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__soPayloadCapable = rt.getSnapshot().memory.settings.epistemicLedgerCapable === true; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error('the epistemic capability did not stick'); return { cadence: 0, capable: true, before: globalThis.__soPayloadCapable };" },
     { "send": "I count the coins in my purse while Arin studies the board." },

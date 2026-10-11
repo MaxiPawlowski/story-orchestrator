@@ -105,11 +105,13 @@ describe("v2.4 plan 03 D3: a dead backend opens a breaker, never an install-wide
     h.scheduler.schedule({ priority: 3, reason: "expansion", run: async () => { heavyRuns += 1; } });
     await jest.advanceTimersByTimeAsync(10);
     expect(heavyRuns).toBe(0);
+    expect(h.scheduler.getSnapshot()).toMatchObject({ queueDepth: 1, held: 1, heavyQueueDepth: 1, heavyHeld: 1, inFlight: false, heavyInFlight: false });
     expect(read).toHaveBeenCalledTimes(3);
     await h.scheduler.probe("player");
     await jest.advanceTimersByTimeAsync(10);
     expect(h.applied).toEqual([4]);
     expect(heavyRuns).toBe(1);
+    expect(h.scheduler.getSnapshot()).toMatchObject({ queueDepth: 0, held: 0, heavyQueueDepth: 0, heavyHeld: 0 });
   });
 
   it("a failed probe backs off 5 s, 15 s, 60 s, then holds at the 300 s cap", async () => {
@@ -124,6 +126,21 @@ describe("v2.4 plan 03 D3: a dead backend opens a breaker, never an install-wide
     expect(h.probes.map((at) => at - opened)).toEqual([5000, 20000, 80000, 380000, 680000]);
     expect(h.scheduler.breakerOpen()).toBe(true);
     expect(read).toHaveBeenCalledTimes(3);
+  });
+
+  it("F29: living prefetch parked behind the heavy route breaker is held, then runnable after recovery", async () => {
+    read.mockRejectedValueOnce(transport()).mockRejectedValueOnce(transport()).mockRejectedValueOnce(transport()).mockImplementation(okRead);
+    const h = harness();
+    h.scheduler.schedule(cadenceRead(0, 4));
+    await jest.advanceTimersByTimeAsync(800);
+    const run = jest.fn(async () => undefined);
+    h.scheduler.schedule({ priority: 3, reason: "living:prefetch:cp1", run });
+    expect(h.scheduler.getSnapshot()).toMatchObject({ heavyQueueDepth: 1, heavyHeld: 1, heavyInFlight: false });
+    expect(run).not.toHaveBeenCalled();
+    await h.scheduler.probe("player");
+    await jest.advanceTimersByTimeAsync(1);
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(h.scheduler.getSnapshot()).toMatchObject({ heavyQueueDepth: 0, heavyHeld: 0, heavyInFlight: false });
   });
 
   it("while open a new cadence read merges into the held one, bounded by CADENCE_WINDOW_MAX", async () => {

@@ -1,5 +1,6 @@
 import { evaluateInST } from './evaluate.mts';
 import { modelDefects, type ModelDefect } from './modelDefects.mts';
+import { schedulerIdle } from './schedulerIdle.mts';
 
 export interface LiveMessage { id: number; name: string; isUser: boolean; isSystem: boolean; text: string; swipeId: number | null; swipes: number; reasoningLength?: number; media?: boolean }
 export interface LiveJournalEvent { at: string; boundary: number; messageId: number; kind: string; summary: string; detail?: Record<string, unknown> }
@@ -246,7 +247,7 @@ export async function waitSchedulerIdle(page: any, timeoutMs = 600000, quietMs =
   let last: any = null;
   while (Date.now() < deadline) {
     last = await evaluateInST(page, () => (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.().extraction?.scheduler ?? null);
-    const busy = !last || last.inFlight || last.queueDepth > 0 || last.heavyInFlight || (last.heavyQueueDepth ?? 0) > 0;
+    const busy = !schedulerIdle(last);
     if (busy) quietSince = null;
     else if (quietSince === null) quietSince = Date.now();
     if (!busy && quietSince !== null && Date.now() - quietSince >= quietMs) return { scheduler: last, quietMs };
