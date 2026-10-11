@@ -377,3 +377,31 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - **Owed:** the full S0 (8 poses x 2 seeds, run x2) and the LI acceptance. **Quote from the measured times:** 96 bodies x 59.7 s = 95.6 min, 192 head edits x 22.3 s = 71.2 min, about 2 h 47 min per run, about 5 h 34 min for two runs (plus 3 bases, about 1.5 min, and DWPose scoring); a P4 arm adds its own download and render time. An independent second-model identity rater and label rater when the authoring route has headroom; the owner's decision on P4 versus a retarget and head-box fix and re-pilot.
 - Cleanup and idle GPU: lane 37 stopped. ComfyUI input files `so-s0-*` (90) and the 86 `so-sprite*`/`so-s0-base*` output files this run wrote were removed by exact recorded name (462 other files in `output` untouched), 27 DWPose preview temp files removed; installed files left: the two ONNX files and the `scikit-image` packages. Controller `stop` (status refused afterwards), ComfyUI on :8188 closed, `nvidia-smi` 849 MiB used (the desktop's, 755 to 847 MiB before the task). The private evidence: so-sessions commit `23dd59fa`, `evidence/phase-c/v28-poses-s0-pilot-2026-10-11/` (396 files, sha256 in `ARCHIVE.json`; bases, bodies, heads, targets, raw outputs, DWPose scores, contact sheets, `results.jsonl`, `ratings.json`, `summary.json`, `vram.csv`), committed by explicit path.
 - Commands: `git merge master`; `node scripts/debug/st-lanes.mts seed 37 --fresh`; `st-lanes.mts start 37`; `st-lanes.mts run 37 -- scripts/debug/st-eval.mts --file <plan/download snippet>` (plan and download through the plugin routes); `st-lanes.mts stop 37`; `node scripts/local/cli.mjs start|unload|start-comfy`; `node scripts/debug/so-pose-s0.mts vram | bases | body | head | bodies | heads | score | sheets | heads-outbox | summary 18.86`; `node scripts/local/cli.mjs free-images`, `stop`; `node --test scripts/debug/lib/poseS0.test.mts scripts/debug/lib/poseS0Graph.test.mts`: 14 pass, 0 fail.
+
+## Gate record: S0 re-pilot after the retarget and head-crop fixes (2026-10-11, 3090)
+
+- Place: `C:\dev\so-poses`, branch `v2.8-poses` at `ca30e005` (fix) on master `52d50817`. The owner granted the 3090 overnight (until about 23:54); renders ran 16:07 to 16:42 local, then GPU idle. No owner ST, no lane 0, no P4 file, no key read.
+- Cause of the pilot misses, measured on the pilot's own evidence (three standing bases with their DWPose):
+  - the library skeleton has a long torso and short legs (torso 30 percent of the nose-to-ankle span, legs 51 percent) while real figures measure about 23 and 58 percent;
+  - `retargetPose` stretched each pose to the standing alpha box with a separate x and y scale, so seated and kneeling skeletons came out tall and wide;
+  - the expression crop used the requested skeleton's head, not the rendered one.
+- Fix (`src/sprites/poses/retarget.ts`, `bodyRenderer.ts`, `bodyHost.ts`):
+  - bone-length retarget: each bone keeps the library pose's direction and takes the member's own measured length (left and right averaged, foreshortening kept within 0.25 to 1.1 of the library's standing length); without a measurement it falls back to one uniform scale;
+  - sitting, kneeling and lying poses rest their lowest joint on the member's floor line; upright, moving and airborne poses keep the standing hip height;
+  - the whole figure is shrunk uniformly and shifted to stay inside the canvas;
+  - the expression crop is DWPose on the rendered body; a body where DWPose finds no person keeps its neutral render and edits nothing at an unverified head (`headSource: "none"`); an unavailable estimator keeps the old target box (`"target"`);
+  - the cache key carries the member's measured skeleton and `RETARGET_VERSION` 2, so old bodies are never reused.
+- Same scope as the first pilot: 3 synthetic members (same bases), 4 poses, arms P2 and P3, 1024, seed 1234, 2 expressions per body, one run. The full S0 (8 poses x 2 seeds, run x2) is still owed.
+- Results (floors unchanged, not retuned):
+  - P2 PCK@0.1: 0.903 (was 0.472), floor 0.70, met; P3 0.690 (was 0.278); gain +0.213, floor +0.10, met;
+  - body QA: 12 of 12 on each arm (100 percent; P2 was 83.3 percent), floor 90, met;
+  - label visible: 46 of 48 = 95.8 percent (was 77.1), floor 90, met; the 2 misses are the one body where DWPose found no person (P3 kneel, third member), whose edits were skipped, not made;
+  - identity: 24 of 24 same character, PROVISIONAL, scored by the session reading every PNG, not an independent second model;
+  - body render: median 57.7 s, p90 58.8 s (floors 90 and 150), met; head edit median 23.1 s, p90 31.5 s;
+  - peak VRAM about 19.8 GiB (20,242 MiB by `nvidia-smi`, whole GPU), floor 22, met.
+- Decision: P2 passes. P4 is not needed and nothing was downloaded. P3 remains the fallback.
+- Observations: every fight_swing body invents a weapon the base did not carry; DWPose found no person on one P3 kneeling body, so P3 is the less reliable arm.
+- Gates: `npm run gates:quick` green in 90.6 s (typecheck, typecheck:test, lint, related jest, defect replay 32 of 32). Jest: 32 of 32 in `src/sprites/poses`, 8 new. `npm run debug:typecheck` clean; `node --test scripts/debug/lib/poseS0.test.mts` passes. Full `npm run gates` runs at merge.
+- Evidence (private): so-sessions commit `244f7fdb`, `evidence/phase-c/v28-poses-s0-repilot-2026-10-11/`.
+- Commands: `SO_S0_DIR=C:/dev/so-s0-repilot node scripts/debug/so-pose-s0.mts vram | bodies | score | heads | sheets | summary 19.77`; controller `cli.mjs start | unload | start-comfy`.
+- Owed: full S0 x2 on both seeds and 8 poses; an independent identity and label rater; Acceptance through the product path (in progress on lane 40).
