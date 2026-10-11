@@ -13,7 +13,7 @@ description: >
 # ST image generation
 
 Community guides distilled and re-verified against the ST tree. **Citation key**: paths are relative to
-`C:\dev\SillyTavern-MainBranch` (1.19.0, release merge `7c3994196`, checked 2026-09-18); `sd/` =
+`C:\dev\SillyTavern-MainBranch` (1.19.0 at `ad29cbda6`, checked 2026-10-10); `sd/` =
 `public/scripts/extensions/stable-diffusion/`, `expr/` = `.../extensions/expressions/`, `cm/` =
 `.../extensions/connection-manager/`, `qr/` = `.../extensions/quick-reply/`. `(community, yyyy-mm)` =
 reported by a guide, not checkable in source.
@@ -88,7 +88,7 @@ the source, not from the guide:
 - **A profile stores its preset** (`preset` is in both CC and TC profile fields). Baking the tag preset
   into the image profile makes the separate `/preset` step optional (verified: cm/index.js:38-70).
   With **Bind presets to API connections** on (the CC default), loading a CC preset also rewrites the
-  source and model. This is why the guide says to turn it off (verified: public/scripts/openai.js:516, 5046-5048).
+  source and model. This is why the guide says to turn it off (verified: public/scripts/openai.js:516, 5048-5050).
 - **The empty Scenario template is deliberate.** Emptied templates persist, and only missing ones are
   refilled (verified: sd/index.js:479-483). The preset's prompts then carry the whole instruction.
 - **Avoiding the swap.** `/profile-genstream profile=<id> …` generates with another profile without
@@ -153,7 +153,7 @@ order is profile first, then preset · test once on a swipe and once on Continue
 
 - A command-posted image is a **hidden** message (`is_system`) unless *Chat Message Visibility → Slash
   Command* is on, so its text never reaches the prompt (verified: sd/index.js:4985, 5009-5028; public/script.js:4496).
-  "Send inline images" is now **Send inline media** (`media_inlining`) (verified: openai.js:4286-4287).
+  "Send inline images" is now **Send inline media** (`media_inlining`) (verified: openai.js:388, 498).
 - The character prefix is stored per avatar filename in `extension_settings.sd.character_prompts`. It
   can ship inside a card as `data.extensions.sd_character_prompt {positive, negative}` (the "Shareable"
   box), and ST adopts it on chat open if the local one is empty (verified: sd/index.js:881-896, 5251-5260).
@@ -200,37 +200,34 @@ Local dumps: `docs/tutorials/sillytavern-*.md` (verbatim prompts, CSS and JSON l
 
 ## Integration notes for Story Orchestrator
 
-- **Reuse, don't rebuild.** `src/services/stHost/backgrounds.ts` is the only background seam
-  (`getCurrentBackground`/`listBackgrounds`/`backgroundExists`/`applyBackground`, re-exported at
-  `src/services/STAPI.ts:36-37`). `effects.background` (`src/engine/schema.ts:71-78`, normalized in
-  `src/engine/validate.ts:101-118`) is applied idempotently by `src/runtime/effectsApplier.ts:117-119`. An
-  image effect should follow the same shape: authored, applied on activate and hydrate, idempotent.
-- **A second LLM without swapping.** `sendConnectionProfileRequest` (`src/services/stHost/connectionProfiles.ts:43-55`)
-  already sends by profile id through `ConnectionManagerRequestService`. The user's active profile never
-  changes, which makes the community swap idiom unnecessary for us. A CC profile's preset contributes
-  sampler settings but not its prompt-manager prompts. The messages you pass are the entire prompt
-  (public/scripts/custom-request.js:544-605), so the tag instructions must travel in those messages. The
-  tags then go to `/sd quiet=true <tags>`, which returns the saved path. Our `executeSlashCommands`
-  (`stHost/slashCommands.ts:38-60`) only returns ok/failed, so reading that path needs a variant that
-  surfaces the host result's `pipe`.
-- **Other seams a curator/effect would need (none exist yet):** an *emit* path for `FORCE_SET_BACKGROUND
-  {url, path}` (`stHost/events.ts` is subscribe-only), `SD_PROMPT_PROCESSING` in `HostEventPayloads`
-  if we want to inject story tags into user-run `/sd`, and a readiness read (sd's `isValidState` isn't
-  exported; `extension_settings.sd.source` plus `disabledExtensions` is the host-side proxy).
-- **`/sd` images are not turns.** `sendMessage` emits `MESSAGE_RECEIVED` and
-  `CHARACTER_MESSAGE_RENDERED` with type `'extension'` (sd/index.js:4997-4999). `TurnBridge` drops that
-  type (`NON_TURN_MESSAGE_TYPES` in `src/runtime/turnBridge.ts`, fixed 2026-09-19), so a posted image
-  commits no boundary and fires no `afterSpeak` replies. Anything of ours that posts images must use the
-  same `'extension'` type. The image message's `mes` (the prompt text) still enters later extraction
-  windows unless `is_system` is set.
-- **Design constraints already on paper.** `docs/plans/v2.1/stagecraft-design.md` puts proposals
-  only, boundary-apply, a per-curator flag and deterministic-first on every curator. The scene-setter is
-  specified as "never a new asset", so generating images is a *separate* capability that needs its own flag,
-  review card and cleanup. `scripts/debug/so-assets.mts` only knows cards, groups and lorebooks, and never
-  touches `user/images/`.
-- **Chat backgrounds differ from system ones.** A generated background's `bgfile` is a path, while
-  `getCurrentBackground()` returns only the basename (`backgrounds.ts:19-27`). `backgroundExists(basename)` is
-  therefore false for it (see `.claude/rules/gotchas.md`, plan-07 bullet, for the other background traps).
-- **Provisioned cards can carry image tags.** `stHost/provisioning.ts:61` sends `extensions: "{}"`, and
-  the server deep-merges that JSON into `data.extensions` (src/endpoints/characters.js:646-653). The wizard
-  could therefore seed `sd_character_prompt` for each created character.
+What exists on master (reuse it; user guides in `docs/guide/setup/`):
+
+- **Illustrations** `src/image/` (`images.md`): renders through ST's own Image Generation with
+  `/imagine quiet=true edit=false …` and reads the saved path from the result's `pipe`
+  (`stHost/stImage.ts` `renderStImage`, readiness `stImageReadiness`). Posted images use type `'extension'`
+  (`stHost/image.ts:129-132`), which `TurnBridge` drops (`NON_TURN_MESSAGE_TYPES`), so they commit no boundary.
+- **Story workflows** (plan 29): `illustrations.workflows` (story) and `effects.illustrations.workflows`
+  (checkpoint) map a purpose (`ILLUSTRATION_PURPOSES`, `src/engine/schema.ts:141`) to an ST ComfyUI workflow;
+  `src/image/workflows.ts` picks/checks, `stHost/comfyWorkflows.ts` `withComfyWorkflow` swaps
+  `extension_settings.sd.comfy_workflow` for one render and restores it.
+- **GPU broker** (plan 28): `server-plugin/story-orchestrator-gpu` shares one GPU between llama-server and
+  ComfyUI (adapters `none|observe|supervise|managed`); page side `stHost/gpuBroker.ts` `reserveGpu`/`releaseGpu`
+  (`gpu-sharing.md`).
+- **Media plugin + model downloads** (plan 30): `server-plugin/story-orchestrator-media` (reference edits, Studio
+  sprite builder, Civitai/Hugging Face downloads in `downloads.mjs`); page side `stHost/modelDownloads.ts` (`models.md`).
+- **Sprites** `src/sprites/` (VN stage, `sprites.md`); pose library (plan 33) `src/sprites/poses/` (shipped poses
+  from `assets/poses/*.json`, import, body renderer); live head (plan 36) `src/sprites/liveHead/` (WebGL mesh head + rig manifest).
+- **Backgrounds**: `src/services/stHost/backgrounds.ts` is the only seam (re-exported at `src/services/STAPI.ts:60`).
+  `effects.background` (`src/engine/schema.ts:160`, normalized in `src/engine/validate/checkpoints.ts:65-82`) is
+  applied through the effect ledger (`src/runtime/effectsApplier.ts:236-242`). `getCurrentBackground()` returns a
+  basename, so `backgroundExists()` is false for a generated chat background (its `bgfile` is a path).
+- **A second LLM without swapping**: `sendConnectionProfileRequest` (`stHost/connectionProfiles.ts:123`). A CC
+  profile's preset adds samplers, not its prompt-manager prompts; the messages you pass are the whole prompt
+  (public/scripts/custom-request.js:544-605).
+- **Still missing**: an emit path for `FORCE_SET_BACKGROUND {url, path}` (`stHost/events.ts` is subscribe-only) and an
+  `SD_PROMPT_PROCESSING` listener for user-run `/sd`.
+- **Curator constraints** (`docs/plans/v2.1/stagecraft-design.md`): proposals only, boundary-apply, own flag. Live
+  runs: `image.enabled` defaults on, so a lane that imports a story can reach the shared ComfyUI
+  (`.claude/rules/debug-scripts.md`); `so-assets.mts` cleans marker-named sprites, not `user/images/`.
+- **Provisioned cards can carry image tags**: `stHost/provisioning.ts:61` sends `extensions: "{}"`, deep-merged into
+  `data.extensions` (src/endpoints/characters.js:646-653), so the wizard could seed `sd_character_prompt`.

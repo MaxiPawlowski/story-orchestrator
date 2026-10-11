@@ -45,8 +45,8 @@ creates one and binds it at the same time. Example: build a test book entirely w
 /world state=on silent=true SO-T1-lore
 ```
 
-- The last line is needed only for `requirements.lorebooks`, which counts global books only. Once
-  the book is global, the chat binding is skipped as a duplicate (`4551-4553`).
+- The last line is optional: a chat-bound book already meets `requirements.lorebooks`. Once the book
+  is global, the chat binding is skipped as a duplicate (`4551-4553`), and it reaches every chat.
 - Quote named-argument values that contain spaces.
 - Git Bash mangles a leading `/` in CLI arguments. Prefix `st-actions.mts slash` with
   `MSYS_NO_PATHCONV=1`.
@@ -82,7 +82,7 @@ through `src/services/stHost/modules.ts` (`worldInfoModule`), never import direc
 | `POST /api/worldinfo/delete` | `{name}` | Deletes the file only. **Leaves the name in `selected_world_info` and the client cache** |
 | `POST /api/worldinfo/import` | multipart `avatar` file | The name comes from the file name. `entries` is required |
 
-## Our host seams (`src/services/stHost/worldInfo.ts`, re-exported from `src/services/STAPI.ts:34`)
+## Our host seams (`src/services/stHost/worldInfo.ts`, re-exported from `src/services/STAPI.ts:49-53`)
 
 | Function | Does | Watch out |
 |---|---|---|
@@ -91,28 +91,26 @@ through `src/services/stHost/modules.ts` (`worldInfoModule`), never import direc
 | `lorebookExists(name)` | `findLorebook(name) !== null` | Use this, never `loadLorebook`, to test existence |
 | `ensureLorebook(name)` | Returns the listed book; otherwise refreshes `world_names` from the server once (`updateWorldInfoList`), and only then creates it with `createNewWorldInfo` under its file id | Returns `{name, created}` or `null`. The refresh is there because `createNewWorldInfo` checks only the client list and then writes `{entries:{}}` over the file. A book found only after the refresh has its cached copy evicted |
 | `listSelectedLorebooks()` | Reads the live `selected_world_info` | `selectors.listGlobalLorebooks()` also intersects with existing books. `requirements.lorebooks` is checked against that |
-| `createLorebook(name)` | `ensureLorebook`, then `activateGlobalLorebook` | Returns `{created, activated}` |
-| `activateGlobalLorebook(name)` | `/world silent=true state=on <listed name>`, then re-reads the selection | |
+| `createLorebook(name)` | `ensureLorebook` as a `WriteResult` | **Never selects the book globally**: a story's books reach only its own chats (`src/runtime/storyLore.ts`). `deactivateGlobalLorebook` exists for the Repair row |
 | `bindChatLorebook(name, replaceable?)` | Writes the chat's lorebook slot `chat_metadata[METADATA_KEY]` (scanned for that chat only) and marks `.chat_lorebook_button` | Returns `bound`/`already-bound`/`occupied`/`no-chat`. A live book the user bound is `occupied` and kept; a binding to a deleted book counts as empty, as it does for `/getchatbook`. Persisting is the caller's (it rides the next `saveMetadata`) |
 | `loadLorebook(name)` | `ctx.loadWorldInfo` of the listed book | `null` for a book that isn't listed: it never asks the host, because `loadWorldInfo` caches the server's dummy for a missing name and `importWorldInfo` never evicts it |
-| `enableWIEntry` / `disableWIEntry(book, comments)` | Flips `disable` on the entries whose trimmed `comment` matches, and saves immediately | Returns `false` for a missing book or when no comment matched. Warns about a missing comment and continues |
+| `setWIEntriesState(book, {enable, disable})` (`enableWIEntry`/`disableWIEntry` wrap it) | Flips `disable` on entries whose trimmed `comment` matches, one batched save per book, read back | `WriteResult`; unmatched comments are skipped |
+| `updateWIEntryByUid` / `createWIEntry` / `deleteWIEntryAt` | The curator's writes by uid: edit `content`/`disable`, add a titled keyed entry (refuses an existing title), delete | Each reads the server copy back (`confirmed`) |
 | `upsertWIEntry(book, comment, content, keys?, {constant?})` | Finds by `comment` or creates from the template, sets content, keys and constant, **forces `disable=false`**, saves | **Never creates a book**: returns `"failed"` if it isn't listed. Creating one is the caller's decision (`ensureLorebook`). Every other field stays at the template default (↑Char, order 100, depth 4) |
 
 Callers:
 
-- Story checkpoint effects: `src/runtime/effectsApplier.ts:63-78`.
-- The wizard's `createStoryLorebook` and `upsertLorebookEntry`: `src/runtime/coordinators/copilotCoordinator.ts:59-69`,
-  validated create-only by `src/wizard/provisioning.ts:29-39`.
-- The curator: `src/runtime/coordinators/stagecraftCoordinator.ts:215-241`, with its scope in
-  `src/stagecraft/scope.ts`.
-- Memory mirroring: `src/runtime/memoryMirror.ts` (called from `memoryCoordinator.syncWorldInfo`).
-  Each chat gets its own book, `Story Orchestrator - <title> - <chatId>`, created with
-  `ensureLorebook` on the first relationship or scene entry and bound to that chat's lorebook slot
-  with `bindChatLorebook`; the name is recorded in `extras.memory.wiBook`, so renaming the chat keeps
-  it. Comments are `so_<memoryId>`, keys are the memory's entities (scene summaries have none, so
-  they never fire), and entries that have gone get `disable`. Adopting a book (first write, a branch,
-  a restart, or the book deleted) disables any `so_` entry already in it. Books named per story
-  (`Story Orchestrator - <title>`) come from builds before 2026-09-19; nothing reads them now.
+- Story checkpoint effects: `applyWorldInfo` in `src/runtime/effectSteps.ts`, planned by
+  `src/runtime/worldInfoGates.ts` (file mode; scan mode never writes the files).
+- The wizard's `createStoryLorebook` and `upsertLorebookEntry`: `copilotCoordinator.applyProvisioning`,
+  validated create-only by `validateProvisioningOp` (`src/wizard/provisioning.ts`).
+- The curator: `src/runtime/curatorWriter.ts`, with its scope in `src/stagecraft/scope.ts`.
+- Memory mirroring: `src/runtime/memoryMirror.ts` (from `memoryCoordinator.syncWorldInfo`). One book
+  per chat, `Story Orchestrator - <title> - <chatId>`, created with `ensureLorebook` on the first
+  mirrored row; file mode binds it to the chat slot (`bindChatLorebook`), scan mode appends it to that
+  chat's scans. The name is kept in `extras.memory.wiBook`. Comments `so_<memoryId>`, keys = the
+  memory's entities; gone rows get `disable`. Adopting a book (first write, branch, restart, book
+  deleted) disables any `so_` entry already in it.
 
 ## Test-lorebook workflow (live runs)
 
@@ -121,12 +119,12 @@ Callers:
 2. Create it: copy `../templates/minimal-lorebook.json`, rename the file to the book name, and
    import it. Or in-page: `createNewWorldInfo(name)`, then `saveWorldInfo(name, data, true)`, then
    `updateWorldInfoList()`. Or drive the wizard (`so-ui.mts wizard*`).
-3. Activate it with `/world state=on silent=true <name>`, or `activateGlobalLorebook`. Check that
-   `(await import('/scripts/world-info.js')).selected_world_info` contains it.
+3. Make it scanned: list it in the story's `requirements.lorebooks` (appended to that story's chats
+   only), bind it to the chat, or for a bare test `/world state=on silent=true <name>` and check
+   `selected_world_info`. A global selection reaches every chat, so undo it.
 4. Verify with `st-actions.mts wi-status <book> <comment>`, the dry run in troubleshooting.md, or
    `st-payload.mts` after a real generation.
-5. Clean up with `so-assets.mts remove --marker <prefix>`. It deletes through REST and then deselects
-   the book, but it leaves the client's `worldInfoCache` entry behind, so a later `loadWorldInfo` of
-   the same name in that page returns the deleted content. In-page, `deleteWorldInfo(name)` also
-   clears the cache and the persona link. Chat bindings (`chat_metadata.world_info`) are left
-   dangling either way. Delete the sandbox chat or clear the binding.
+5. Clean up with `so-assets.mts remove --marker <prefix>`. It deletes through ST's `deleteWorldInfo`
+   (cache, selection and persona link cleared; raw REST only for an unlisted book) and reports a book
+   still cached as `staleCache`. Chat bindings (`chat_metadata.world_info`) stay dangling: delete the
+   sandbox chat or clear the binding.

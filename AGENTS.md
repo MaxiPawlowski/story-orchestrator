@@ -1,70 +1,94 @@
 # AGENTS.md
 
-Entry point for any coding agent (Codex, Claude Code, others). The project's rules live under `.claude/`
-and apply to every agent, not only Claude. Read them before working:
+Entry point for any coding agent (Codex, Claude Code, others). Claude Code loads it through `.claude/CLAUDE.md`
+(`@../AGENTS.md`), so the rules below are shared; Claude-specific detail stays in `.claude/`.
 
-1. `.claude/CLAUDE.md` — what the extension is, sources of truth, status table, validation gates.
-2. `.claude/rules/architecture.md` — layout and invariants (a failing `architecture.test.ts` is a failing build).
-3. `.claude/rules/working-style.md` — terse commits/docs, no code comments, gate record per plan.
-4. `.claude/rules/gotchas.md` and `.claude/rules/debug-scripts.md` — read before any live/browser work.
-5. `.claude/skills/debug/SKILL.md` — the live harness (`scripts/debug/*.mts`); `.claude/skills/st-*` for ST know-how.
+Read before working:
+1. `.claude/CLAUDE.md`: what the extension is, sources of truth, status table, validation gates, UI entry points.
+2. `.claude/rules/architecture.md`: layout and invariants. A failing `architecture.test.ts` is a failing build.
+3. `.claude/rules/working-style.md`: terse commits and docs, no code comments, a gate record per plan.
+4. `.claude/rules/gotchas.md` and `.claude/rules/debug-scripts.md`: before any live or browser work.
+5. `.claude/skills/debug/SKILL.md`: the live harness (`scripts/debug/*.mts`). `.claude/skills/st-*`: SillyTavern know-how.
 
-Current work: v2.5 (`docs/plans/v2.5/00-overview.md`, user decisions in `decisions-sheet.md`). v2.5 is
-playtest-ready on master, NOT accepted: plan 10's ×2 matrix, the mutant window, plan 13 Phase A and the
-spike `.b` builds are deferred. Adolion adaptation plan: `C:\dev\adolion-campaign\ADAPT-v2.5.md`.
+Current work: **v2.8**. The ordered list of open fixes, features and measurements is `docs/plans/v2.8/32-queue.md`;
+step-by-step tasks for a codex run are in `docs/plans/v2.8/37-codex-handoff.md`. v2.7 is wrapped (symbolic).
 
-## Standing rules
+## Owner and product
 
-- Commit on master is fine; **never push**. Stage explicit paths, never `git add -A`. Never commit
-  `.claude/settings.local.json` or `docs/story-orchestrator-explained.html`.
-- Never claim a gate green without the command output. Predeclared floors and the bundle budget
-  (1,250,000 B) are never retuned. Every built feature, judge uses included, is on by default (owner decision 2026-10-09); only the user flips one off.
-- Never print, copy or move secrets (ST `secrets.json`, API keys, CLI login files).
-- Nothing is deleted from the user's ST data; moves go to `C:\dev\backups\story-orchestrator\`.
-- ST stays pinned at `7c3994196`: do not run the launcher's `git pull`.
-- `src/**` is CRLF; keep line endings when editing.
+- **A private plugin with one user, the owner.** Versions are symbolic and nothing is released. There is no
+  backward compatibility and no migrations, and there is one build (no prod/dev split). Stories carry no version.
+- **Every built feature is on by default**, judge uses included, below its floor or unmeasured too. Only the owner
+  switches one off. A floor is informational: record the miss, never retune it after the run.
+- **The owner wants thinking and the inner voice on.** Raise any fix that would switch them off before making it.
+- **English only**: no test material, sessions or floors in other languages.
+- **Docs and the campaign move with the code.** A finished feature updates the user guide (`docs/authoring/story-guide.md`,
+  then `npm run docs:guide`, `npm run docs:settings`). Decide whether the Adolion campaign should use it; if it should,
+  change the campaign repo, bump `scripts/debug/adolion-fresh.pin.json` and reinstall (commit `d203f58c` shows a bump).
 
-## Runbook: playtest on the RunPod pod
+## Privacy and the two repos
 
-Topology: ST (`C:\dev\SillyTavern-MainBranch`, http://127.0.0.1:8000) → Connection Manager profiles at
-`http://127.0.0.1:18080` → SSH local-forward → pod `llama-server` on `127.0.0.1:8080` (Artemis 31B).
-Details: `C:\dev\comfy-pod\README.md`.
+- **This repo is PUBLIC.** No Adolion campaign content goes in it.
+- Session and pod evidence go to the private `so-sessions` repo: `npm run sessions:archive`, and
+  `node scripts/debug/so-evidence.mts archive --label <x>` for lanes and pods.
+- **The campaign** lives in `C:\dev\adolion-campaign` (private; `scripts/check_all.sh`, `scripts/install_st.py`).
+- **The owner has never read the campaign and plays it fresh.** Reports, commit messages here, and anything shown to
+  the owner name no character, place, quest or plot; use counts only. Route campaign content review to another model,
+  not the owner.
+- Never print, copy or move secrets: ST `secrets.json`, API keys, CLI login files, `~/.typesafe/api-key/.env`. The owner
+  types keys into the ST UI.
 
-**1. Pod.** Current pod `uox0xlk94xipdu` (`llm-pod-4500-i`, RTX PRO 4500, EU-RO-1, $0.72/hr, network volume
-`x9gi6f1rig`). Start/stop it in the RunPod console. `runpodctl` is installed but its API key is stale
-(401); only the user can refresh it (`runpodctl doctor`) — never ask for or handle the key.
-- The SSH port changes on every start (IP usually stable): console → Connect → Direct TCP ports.
-- If start fails with "not enough free GPUs", the host is full: create a new pod on the same volume in
-  EU-RO-1 (same GPU type and env as the old one), then terminate the old one. The model loads in ~3–10 min.
-- The pod self-stops after `IDLE_MINUTES` (30) idle. Silence in chat → check the pod first.
+## Models and cost
 
-**2. Tunnel.** Either `C:\dev\comfy-pod\local\start-local.ps1` (after putting the port in `local/.env`), or:
-```
-ssh -i ~/.ssh/id_ed25519_runpod -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes -N -L 18080:127.0.0.1:8080 -p <PORT> root@<IP>
-```
-Check: `curl -s http://127.0.0.1:18080/health` → `{"status":"ok"}`.
+- **Play replies:** Artemis 31B v1.1 (Gemma 4), Text Completion, thinking on; preset `Artemis v1.1 RP`.
+  - Locally it runs on the 3090 through the local controller, at 32,768 context at most.
+  - On a pod it runs on the RTX PRO 4500.
+- **Authoring, the wizard, Ask, rating:** opencode `openai/gpt-6.1-sol`, the owner's subscription and the default. Never use
+  a `-fast` variant, Terra or Astra. DeepSeek is pay-per-token past its quota and is the fallback only. Never use Artemis
+  for the wizard.
+- **Judge:** TypeSafe (Jev) through `plugins/story-orchestrator-judge`, key in ST secrets. The local judge (decider-4b) is
+  calibrated for memory-pairs only and is not routed by default.
+- **RunPod:**
+  - The owner pays and tops up. Create a pod only when the task says so.
+  - Secure Cloud, EU-RO-1, RTX PRO 4500, $0.72/h, network volume `x9gi6f1rig`, SSH tunnels only.
+  - Stop or delete only pods you created; terminate them and verify.
 
-**3. ST.** Start with `node server.js` from `C:\dev\SillyTavern-MainBranch` (or the user's launcher, minus
-its git pull). The judge plugin (`plugins/story-orchestrator-judge`) must log "Initializing plugin".
-After changing the extension: `npm run build && npm run stage` and `node scripts/debug/st-session.mts reload`.
-If `#send_but` stays hidden after the tunnel comes back, re-select the profile: `/profile Artemis RunPod RP`.
+## The owner's machine
 
-**4. One build.** There is one build (`npm run build`, owner decision 2026-10-07): playtests and the debug
-harness run the same bundle, debug handles included.
+- **ST** is `C:\dev\SillyTavern-MainBranch`, served at http://127.0.0.1:8000.
+  - Its data, lane 0 and the 3090 belong to the owner.
+  - Never stage into ST, run scenarios against it, or use the GPU while the owner plays.
+  - Live checks run on lanes (`node scripts/debug/st-lanes.mts`, lanes 30+), which are copies.
+  - Do not update ST (no `git pull`, no launcher pull).
+- **The repo** is `C:\dev\story-orchestrator`, outside ST. ST's extension slot holds a staged copy:
+  `npm run build && npm run stage`, then `npm run plugins:install` (restart ST when it reports `restartNeeded`).
+  - Restart: kill the process on port 8000, then `node scripts/local/cli.mjs start-st`.
+- **Local model and ComfyUI** go through the controller: `node scripts/local/cli.mjs start|stop|unload|start-comfy`
+  (`scripts/local/README.md`). Its config is `C:\dev\tools\story-orchestrator-local\config.json`.
+  - Dynamically loaded models live on the fast disk, `C:\dev\models`.
+  - Downloads need the owner's OK and the space check.
+- **Every server** has an entry in the tray (`C:\dev\tray\items\story-orchestrator.json`; read `C:\dev\tray\README.md` first).
+- **Disk:** C: has run out before. Check `df -h /c` before large work, and never delete a junctioned `node_modules` in a
+  worktree.
+- **Nothing is deleted from the owner's ST data**; a move goes to `C:\dev\backups\story-orchestrator\`.
 
-**5. Assisting the playtest.** Start a FRESH chat per story (chats from before v2.5 plan 11 open read-only and
-only Restart replaces them). The player flags moments with ⚑ in the drawer. Without the CDP browser from
-`st-session.mts start` the debug scripts cannot read the page (`so-journal`/`so-state`), so read the chat file instead: `C:\dev\SillyTavern-MainBranch\data\default-user\chats\`
-(solo) or `group chats\` — line 1's `chat_metadata.story_orchestrator` holds the engine state, the rings and
-the journal (`extras.journal`, flags included). Read-only: never edit a chat file ST has open. Triage each
-flag against the gotchas before calling it a product defect. Record findings in `docs/plans/v2.5/` as a
-playtest record.
+## Working rules
 
-**6. Stop.** Stop the pod when the user is done ($0.72/hr). Only stop or delete pods you created or the
-user named.
+- **Parallel work** happens in a worktree per task: `git worktree add -b <branch> ../so-<name> master`, copy `.st-root`,
+  junction `node_modules` (`cmd //c mklink //J`).
+- **Merge to master** only with the full `npm run gates` green, Storybook included (`-- --no-storybook` only when the
+  record says so). Then push, stage and install. Never force-push.
+- **Commits:**
+  - stage explicit paths;
+  - never commit `.claude/settings.local.json` or `docs/story-orchestrator-explained.html`;
+  - `src/**` is CRLF: keep line endings, and for multi-line edits write a script file, never a shell heredoc.
+- **Never claim a gate green without its command output.** A real-model, browser-level check is the default gate for
+  model-consuming paths; mocks alone never sign one off.
+- **Main bundle budget:** 1,300,000 B (`webpack.config.js`). Put new code in lazy chunks; never raise the budget silently.
+- **Plan 39 records** (and any `| ID |` table in plan docs) collide with `test:release`'s phase C row parity check.
+  Write run records as lists.
 
 ## Gates
 
-`npm run typecheck && npm run typecheck:test && npm run lint && npm test && npm run test:debug`, then
-`npm run build && npm run test:release` for build/release changes. Live gates use the `debug` skill; see
-`.claude/CLAUDE.md` §Validation.
+- Per change: `npm run gates:quick`.
+- Per plan, merge or release: `npm run gates` (`npm run gates -- --help`).
+- Live gates use the `debug` skill; see `.claude/CLAUDE.md` §Validation.

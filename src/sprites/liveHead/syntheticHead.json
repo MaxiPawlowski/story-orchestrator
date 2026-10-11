@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "member": "shape",
+  "look": "default",
+  "artHash": "dafbf1ae6cd4b1c7c337b280405ecabfa88ee05274c7c967e0eacec72a9fef55",
+  "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAADACAYAAADMZmunAAAEpklEQVR4nO3bvY2jRxBFUeYiQ66CUFBKQJEoAOWkCOSsvQLWWGCw1Cx/qvtU9fcu8Pyee2sIOrzdQgghhBBCCCGEEEIIIYQQQgghhBCG8c/ff3x9d/pvCE9SET3HMJCV4XMIjdkZPofQCBk+hwDRsXMIEB04RwDRYXMECB0zhwDRAXMEEB0uRwDRwXIEEB0qRwDRgXIEGB0nBwDRYXIEEB0kR4DRMXIAEB0iRwDRATpMN6Bo+R2mGzC0+E7TLQhaeqfpFtvRwjtON9mKlt1xusk2tOjO0222oCV3nm6zBS2583Sb5WjBE6YbLUXLnTDdaCla7oTpRsvQYidNt1qCljpputUStNRJ062WUCnoy5d/eaSV79GtynlX7qPbFXvHe3SzUlaL3nEIu9+jm5VSJfuXX3/7YTuOQLxHNytlgvBu79HNSqn6qH1GeNURqPfoZqVM+I/r9h7drJQJwru9Rzcrpfqj92erjK/eo5uVskv8ivDqPbpZKSsi7Igt36OblaIDTZxuVoqWOXG6WSla5sTpZqVomROnm5WiZU6cblaKljlxulkpWubE6WalaJkTp5uVomVOnG5WipY5cbpZKVrmxOlm5Wihk6ZbLUFLnTTdagla6qTpVkvQUidNt1qGFjthutFStNwJ042WouVOmG60HC2483SbLWjJnafbbEFL7jzdZhtadMfpJlvZJfXeL3eeXQ5gETmAC8e/5QByALd8F7h2/FsOIAdwu/gRaPdt0CESH6Nj5AAaoIMkfgN0mMTH6Dg5gAboQInfAB0q8RuggyV+A3S4xG+ADpj4TdAxE74BOmziN0AHTvwm6NgJ34SED99I+MH8/udfX6u2MnzlO7XzVlSKrT6GVW/TzluxSnLnaeet0DFyABgdIwcA0SFyBBgdIQeA0RFyABgdIQeA0RFyABAdoMN0A4qW32G6AUXL7zDdgKLld5huQNHyO0w3YGjxnaZbELT0TtMtCFp6p+kWBC2903QLgpbeabrFdrTwjtNNtqJld5xushUtu+N0k61o2R2nm2xFy+443WQbWnTn6TZb0JI7T7fZgpbcebrNFrTkztNttqAld55usxwteMJ0o6VouROmGy1Fy50w3WgpWu6E6UZL0XInTDdahhY7abrVErTUSdOtlqClTpputQQtddJ0qyVoqZOmW5WjhU6cblaKljlxulkpWubE6WalaJkTp5uVomVOnG5WhhY5ebpdCVri5Ol2JWiJk6fblaAlTp5uV4KWOHm63dtogSdMN3wLLe+E6YZvoeWdMN3wLbS8E6YbvoWWd8J0w5fR4k6abvkSWtpJ0y1fQks7abrlS2hpJ023fAkt7aTplk+jhZ043fQptKwTp5s+hZZ14nTTp9CyTpxu+hRa1onTTR9Gizp5uu1DaEknT7d9CC3p5Om2D6ElnTzd9iG0pJOn2/4ULegK040/Rcu5wnTjT9FyrjDd+FO0nCtMN/4ULecK043/Fy3mStOt76KlXGm69V20lCtNt76LlnKl6dZ30VKuNN36B7SQK043/4CWccXp5h/QMq443fwDWsYVp5t/QMu44nTz72gRV55u/w0t4cp7t91/bnT4kh658H8AAAAASUVORK5CYII=",
+  "rig": {
+    "version": 1,
+    "image": {
+      "width": 128,
+      "height": 192
+    },
+    "head": {
+      "cx": 64,
+      "cy": 61,
+      "rx": 42,
+      "ry": 49,
+      "shiftX": 5,
+      "shiftY": 4,
+      "pivotX": 64,
+      "pivotY": 106,
+      "maxRoll": 0.15,
+      "weightBand": [
+        96,
+        118
+      ],
+      "turnBand": [
+        96,
+        122
+      ]
+    },
+    "body": {
+      "pivotX": 64,
+      "pivotY": 192,
+      "maxRoll": 0.035,
+      "breathBand": [
+        100,
+        192
+      ],
+      "rollBand": [
+        104,
+        192
+      ],
+      "chest": {
+        "cx": 64,
+        "cy": 145,
+        "rx": 35,
+        "ry": 48
+      },
+      "shoulders": [
+        {
+          "cx": 40,
+          "cy": 117,
+          "rx": 15,
+          "ry": 12
+        },
+        {
+          "cx": 88,
+          "cy": 117,
+          "rx": 15,
+          "ry": 12
+        }
+      ]
+    },
+    "face": {
+      "nose": {
+        "cx": 64,
+        "cy": 70,
+        "rx": 6,
+        "ry": 10
+      },
+      "mouth": {
+        "cx": 64,
+        "cy": 84,
+        "rx": 10,
+        "ry": 6
+      },
+      "eyeA": {
+        "cx": 46,
+        "cy": 55,
+        "rx": 14,
+        "ry": 10
+      },
+      "eyeB": {
+        "cx": 82,
+        "cy": 55,
+        "rx": 14,
+        "ry": 10
+      },
+      "earL": {
+        "cx": 25,
+        "cy": 64,
+        "rx": 4,
+        "ry": 12
+      },
+      "earR": {
+        "cx": 103,
+        "cy": 64,
+        "rx": 4,
+        "ry": 12
+      },
+      "brow": {
+        "cx": 64,
+        "cy": 45,
+        "rx": 35,
+        "ry": 10,
+        "band": [
+          45,
+          55
+        ]
+      },
+      "jaw": {
+        "cx": 64,
+        "cy": 98,
+        "rx": 25,
+        "ry": 12,
+        "band": [
+          86,
+          106
+        ]
+      }
+    },
+    "eyes": [
+      {
+        "opening": [
+          [
+            37,
+            55
+          ],
+          [
+            46,
+            50
+          ],
+          [
+            55,
+            55
+          ],
+          [
+            46,
+            60
+          ]
+        ],
+        "roi": [
+          [
+            34,
+            47
+          ],
+          [
+            58,
+            47
+          ],
+          [
+            58,
+            63
+          ],
+          [
+            34,
+            63
+          ]
+        ],
+        "x0": 37,
+        "x1": 55,
+        "top": [
+          55,
+          54.31916675451877,
+          53.65101614421488,
+          53.00799455076879,
+          52.40208024982283,
+          51.844560278369734,
+          51.34582017860938,
+          50.91515053494779,
+          50.56057390798812,
+          50.288695389405895,
+          50.10457956158839,
+          50.0116561540473,
+          50.0116561540473,
+          50.10457956158839,
+          50.288695389405895,
+          50.56057390798812,
+          50.91515053494779,
+          51.34582017860938,
+          51.844560278369734,
+          52.40208024982283,
+          53.00799455076879,
+          53.65101614421488,
+          54.31916675451877,
+          55
+        ],
+        "bot": [
+          55,
+          55.68083324548123,
+          56.34898385578512,
+          56.99200544923121,
+          57.59791975017717,
+          58.155439721630266,
+          58.65417982139062,
+          59.08484946505221,
+          59.43942609201188,
+          59.711304610594105,
+          59.89542043841161,
+          59.9883438459527,
+          59.9883438459527,
+          59.89542043841161,
+          59.711304610594105,
+          59.43942609201188,
+          59.08484946505221,
+          58.65417982139062,
+          58.155439721630266,
+          57.59791975017717,
+          56.99200544923121,
+          56.34898385578512,
+          55.68083324548123,
+          55
+        ]
+      },
+      {
+        "opening": [
+          [
+            73,
+            55
+          ],
+          [
+            82,
+            50
+          ],
+          [
+            91,
+            55
+          ],
+          [
+            82,
+            60
+          ]
+        ],
+        "roi": [
+          [
+            70,
+            47
+          ],
+          [
+            94,
+            47
+          ],
+          [
+            94,
+            63
+          ],
+          [
+            70,
+            63
+          ]
+        ],
+        "x0": 73,
+        "x1": 91,
+        "top": [
+          55,
+          54.31916675451877,
+          53.65101614421488,
+          53.00799455076879,
+          52.40208024982283,
+          51.844560278369734,
+          51.34582017860938,
+          50.91515053494779,
+          50.56057390798812,
+          50.288695389405895,
+          50.10457956158839,
+          50.0116561540473,
+          50.0116561540473,
+          50.10457956158839,
+          50.288695389405895,
+          50.56057390798812,
+          50.91515053494779,
+          51.34582017860938,
+          51.844560278369734,
+          52.40208024982283,
+          53.00799455076879,
+          53.65101614421488,
+          54.31916675451877,
+          55
+        ],
+        "bot": [
+          55,
+          55.68083324548123,
+          56.34898385578512,
+          56.99200544923121,
+          57.59791975017717,
+          58.155439721630266,
+          58.65417982139062,
+          59.08484946505221,
+          59.43942609201188,
+          59.711304610594105,
+          59.89542043841161,
+          59.9883438459527,
+          59.9883438459527,
+          59.89542043841161,
+          59.711304610594105,
+          59.43942609201188,
+          59.08484946505221,
+          58.65417982139062,
+          58.155439721630266,
+          57.59791975017717,
+          56.99200544923121,
+          56.34898385578512,
+          55.68083324548123,
+          55
+        ]
+      }
+    ],
+    "mouth": {
+      "cx": 64,
+      "cy": 84,
+      "angle": 0,
+      "halfLen": 8,
+      "bow": 0,
+      "area": {
+        "cx": 64,
+        "cy": 84,
+        "rx": 10,
+        "ry": 8,
+        "angle": 0
+      }
+    },
+    "cheeks": [
+      [
+        40,
+        76
+      ],
+      [
+        88,
+        76
+      ]
+    ],
+    "mesh": {
+      "baseCell": 8,
+      "fine": {
+        "x0": 20,
+        "x1": 108,
+        "y0": 15,
+        "y1": 110,
+        "cell": 4
+      },
+      "handCell": 8,
+      "tasselCell": 8,
+      "eyeBallCell": 3,
+      "eyeCell": 3,
+      "spriteCell": 3
+    },
+    "view": {
+      "padTop": 0,
+      "padSide": 0
+    }
+  },
+  "layers": [
+    {
+      "name": "base",
+      "rect": [
+        0,
+        0,
+        128,
+        192
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAADACAYAAADMZmunAAAEcElEQVR4nO3WwY1kRRBF0fKFBdsxAqNwAEswAJ9wZJBmgdSi6enqiswTkfmu9Pb5743FfzxCCCGEEEIIIYQQQgghhBBCCCGEEIbx91+/f391+hvCk1REzzEMZGX4HEJjdobPITRChs8hQHTsHAJEB84RQHTYHAFCx8whQHTAHAFEh8sRQHSwHAFEh8oRQHSgHAFGx8kBQHSYHAFEB8kRYHSMHABEh8gRQHSADtMNKFp+h+kGDC2+03QLgpbeabrFdrTwjtNNtqJld5xusg0tuvN0my1oyZ2n22xBS+483WY5WvCE6UZL0XInTDdaipY7YbrRMrTYSdOtlqClTpputQQtddJ0qyVoqZOmW5WjhU6cblaKljlxulkpWubE6WalaJkTp5uVomVOnG5WipY5cbpZKVrmxOlmpWiZE6eblaJlTpxuVoqWOXG6WSla5sTpZqVomROnm5WiZU6cblaKljlxulkpWubE6WalaJkTp5uVomVOnG5WipY5cbpZKVrmxOlmpWiZE6eblaJlTpxuVo4WOmm61RK01EnTrZagpU6abrUELXXSdKtlaLETphstRcudMN1oKVruhOlGy9GCO0+32YKW3Hm6zRa05M7TbbahRXecbrKVXVJ/+fXby8sBLCIHcHH8Rw4gB/DIv8Dd8R85gBzA4/Ij0O7boEMkPkbHyAE0QAdJ/AboMImP0XFyAA3QgRK/ATpU4jdAB0v8Buhwid8AHTDxm6BjJnwDdNjEb4AOnPhN0LETvgkJH36Q8IP57Y8/v1dtZfjKd2rnragUW30Mq96mnbdileTO085boWPkADA6Rg4AokPkCDA6Qg4AoyPkADA6Qg4AoyPkACA6QIfpBhQtv8N0A4qW32G6AUXL7zDdgKLld5huwNDiO023IGjpnaZbELT0TtMtCFp6p+kWBC2903SL7WjhHaebbEXL7jjdZCtadsfpJlvRsjtON9mKlt1xusk2tOjO0222oCV3nm6zBS2583SbLWjJnafbbEFL7jzdZjla8ITpRkvRcidMN1qKljthutFStNwJ042WouVOmG60DC120nSrJWipk6ZbLUFLnTTdagla6qTpVkvQUidNtypHC5043awULXPidLNStMyJ081K0TInTjcrRcucON2sDC1y8nS7ErTEydPtStASJ0+3K0FLnDzdrgQtcfJ0u5fRAk+YbvgSWt4J0w1fQss7YbrhS2h5J0w3fAkt74Tphl9GiztpuuWX0NJOmm75JbS0k6Zbfgkt7aTpll9CSztpuuXTaGEnTjd9Ci3rxOmmT6FlnTjd9Cm0rBOnmz6FlnXidNNPo0WdPN32U2hJJ0+3/RRa0snTbT+FlnTydNtPoSWdPN32p2hBN0w3/hAt54bpxh+i5dww3fhDtJwbpht/iJZzw3Tj/0WLuWm69btoKTdNt34XLeWm6dbvoqXcNN36XbSUm6Zb/wct5Mbp5m/QMm6cbv4GLePG6eZv0DJunG7+Bi3jxunm/6JF3Dzd/gdaws17td0/AuaJGNtBdPEAAAAASUVORK5CYII="
+    },
+    {
+      "name": "eye0_ball",
+      "rect": [
+        37,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAPElEQVR4nGNgIAJ8/frhPzHqsGokFlPFELyG4lKkrG6AgQkaSDXD8DmfFMMIGjiw3qR6bFI9neEDxGoEAE+B4zWP553iAAAAAElFTkSuQmCC"
+    },
+    {
+      "name": "eye0_low",
+      "rect": [
+        37,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAL0lEQVR4nGNgGAUDC5TVDf5T1RxKDcTQDxIg1VC8ekgxkGi1+BSS4wMUjcgYn3oAKm4e7k7RcNcAAAAASUVORK5CYII="
+    },
+    {
+      "name": "eye0_crease",
+      "rect": [
+        37,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAEUlEQVR4nGNgGAWjYBRQCQAAA08AAdFP1VwAAAAASUVORK5CYII="
+    },
+    {
+      "name": "eye0_lash",
+      "rect": [
+        37,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAMElEQVR4nGNgwAGU1Q3+48K49BBlCD5xogyiSB3JXsClhxyDsLqSEoOo4ZhRQEUAAE8LNQXqBSgiAAAAAElFTkSuQmCC"
+    },
+    {
+      "name": "eye1_ball",
+      "rect": [
+        73,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAPElEQVR4nGNgIAJ8/frhPzHqsGokFlPFELyG4lKkrG6AgQkaSDXD8DmfFMMIGjiw3qR6bFI9neEDxGoEAE+B4zWP553iAAAAAElFTkSuQmCC"
+    },
+    {
+      "name": "eye1_low",
+      "rect": [
+        73,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAL0lEQVR4nGNgGAUDC5TVDf5T1RxKDcTQDxIg1VC8ekgxkGi1+BSS4wMUjcgYn3oAKm4e7k7RcNcAAAAASUVORK5CYII="
+    },
+    {
+      "name": "eye1_crease",
+      "rect": [
+        73,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAEUlEQVR4nGNgGAWjYBRQCQAAA08AAdFP1VwAAAAASUVORK5CYII="
+    },
+    {
+      "name": "eye1_lash",
+      "rect": [
+        73,
+        50,
+        19,
+        11
+      ],
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAALCAYAAACd1bY6AAAAMElEQVR4nGNgwAGU1Q3+48K49BBlCD5xogyiSB3JXsClhxyDsLqSEoOo4ZhRQEUAAE8LNQXqBSgiAAAAAElFTkSuQmCC"
+    }
+  ]
+}

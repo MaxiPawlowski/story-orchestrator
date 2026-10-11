@@ -1,6 +1,6 @@
 # Plan 33 — Pose library, cheap re-posing and looks that change with the story
 
-**Status: SEEDED 2026-10-10 from the owner's request; needs owner pick on the options (§Decisions); not built.**
+**Status: B1–B3 deterministic implementation built, D gates green on v2.8-poses 2026-10-10; owner decisions accepted; S0, CL scoring and LI acceptance owed, not accepted.**
 Overview: `00-overview.md`. Queue: `32-queue.md` A22. **Gate tiers:** implementation D; acceptance LI (local ComfyUI
 on the 3090 through the v2.8 28 broker), no RP.
 
@@ -72,7 +72,7 @@ them in S0.
 | Fit with ST expression sprites | none built in: it renders a WebGL canvas, not `characters/<name>/<set>/<label>.png`; 8 expressions vs ST's 28 labels; head-and-shoulders input vs our full/thigh framing | native: ST's folder layout, labels and fallback chain |
 
 **Verdict:** mesh-avatar-studio solves live micro-motion on a bust, not posing. It does not answer "any character in
-any pose". It stays a candidate for v2.9 05.1 (close-shot live head, reopen trigger unchanged), not this plan.
+any pose". The owner moved it into the separate v2.8-live-head track on 2026-10-10; this worktree builds poses only.
 
 ## 4. Pose library
 
@@ -196,8 +196,7 @@ any pose". It stays a candidate for v2.9 05.1 (close-shot live head, reopen trig
 ## 6. Recommendation
 
 **P2 (skeleton-guided Qwen edit) with the layer model of §5**, P3 as its no-skeleton fallback, P4 measured in the
-spike as the comparison arm only if the owner approves its downloads. P1 / mesh-avatar-studio: not adopted here; v2.9
-05.1 keeps it with its trigger. Why P2: no new model in the default path, the identity behaviour we already measured,
+spike as the comparison arm only if the owner approves its downloads. P1 / mesh-avatar-studio is the separate v2.8-live-head track, cross-referenced here only. Why P2: no new model in the default path, the identity behaviour we already measured,
 the ST folder layout unchanged, and a library entry that is plain JSON.
 
 | Phase | What | Tier | Gate and predeclared floors |
@@ -212,7 +211,16 @@ the ST folder layout unchanged, and a library entry that is plain JSON.
 unloaded (broker, v2.8 28). A full-cast pre-render that exceeds one night (members × poses × looks × seconds from S0,
 quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitting; none is needed for S0–B3.
 
-## 7. Decisions for the owner
+## 7. Owner decisions — decided 2026-10-10
+
+1. P2 skeleton-guided Qwen Image 2.1 edit accepted; P3 without the skeleton is the fallback.
+2. DWPose accepted in principle for scoring and pose import. Build the plumbing and plan 30 catalogue; download nothing until the owner's token and a free 3090. P4 files are only needed if P2 misses its floors.
+3. Base, pose body, face and decal layers accepted, with full-body re-render rather than composited outfit layers.
+4. About 40 shipped generic poses plus story and install-wide custom poses accepted.
+5. mesh-avatar-studio brought into v2.8 as a separate track on `v2.8-live-head`. Cross-reference only here; that branch owns its build.
+6. Classifier-chain pose pick accepted, on by default. The CL floor remains informational.
+
+### Original proposal and live-head cross-reference
 
 1. Re-posing route: P2 skeleton-guided Qwen edit (P3 fallback)? **Recommended: yes.** Alternatives: P3 only (no
    skeletons), P4 SDXL + ControlNet + IP-Adapter/LoRA.
@@ -222,6 +230,7 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
    **Recommended: yes.**
 4. Shipped library of ~40 generic poses plus story and install-wide custom poses? **Recommended: yes.**
 5. mesh-avatar-studio: park with v2.9 05.1 (close-shot live head), no work now? **Recommended: yes.**
+   **Owner decision 2026-10-10:** brought into v2.8 as [plan 36](36-live-head.md), building on `v2.8-live-head`; posing stays separate.
 6. Pose pick in the classifier chain, on by default? **Recommended: yes (owner rule), after B1–B2.**
 
 ## 8. Unresolved questions
@@ -230,7 +239,7 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
 - Seconds per body edit and per head edit on the 3090 (never recorded; v2.7 19 asks too).
 - Props: does a pose needing a chair or a weapon render the prop, or must the member carry it as equipment?
 - Outfit as a separate composited layer across poses: worth a later spike, or never?
-- Pose library licence: CC0 for our keypoints JSON, or the repo's licence?
+- Shipped keypoints are original data with CC0 intent (`assets/poses/README.md`); no third-party pose art was taken.
 - Should the campaign's per-character action stances migrate to library poses (a campaign-repo change, not this repo)?
 
 ## Links
@@ -248,3 +257,74 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
 - Third party (not re-checked): https://huggingface.co/Qwen/Qwen-Image-Edit-2509,
   https://github.com/IDEA-Research/DWPose, https://github.com/Fannovel16/comfyui_controlnet_aux,
   https://github.com/tencent-ailab/IP-Adapter, https://github.com/cubiq/ComfyUI_IPAdapter_plus
+
+## Gate record
+
+2026-10-10 · `C:\dev\so-poses` · branch `v2.8-poses`. Owner decisions in §7 are decided. Deterministic B1, B2 and B3 are built; S0, CL and LI acceptance are not run or accepted. No GPU, ComfyUI, RunPod, real model, model download, lane 0 or owner ST was used. No live-head implementation is included; `v2.8-live-head` owns that track.
+
+Built: pose schema/semantic validator; 40 original CC0-intent body18 JSON skeletons; story/install libraries and member allowlists; scene pose/framing; sticky keywords and judge → LLM → none picks, on by default; a 40-labelled synthetic-reply fixture and scorer. Lazy canvas/Studio Poses preview, import and explicit author render; wizard tools; author guide, registry/Help and typed nested-field coverage. P2/P3 plan-29 workflow JSON and bundle, not run; plan-30 DWPose ONNX catalogue, installed-file preflight, brokered import/scoring/proportion plumbing, no download.
+
+Bodies use `lp_` sets and cache pose version, retarget/proportion, recipe, model/cutout hashes and base hash. Base/face/decal bindings, card-art rebase, confined region edits, per-label blink/talk frames, first-need rendering, cached nearest-body fallback, ownership/stage checks and rollback/replay path choice are tested. The existing owned sprite ledger/reaper handles these sets. Frames and cached metadata load with their bodies; no future look/pose matrix is prefetched.
+
+Exact command `npm run gates -- --no-storybook --jobs 2`: `gates: all green in 171.6s`; exit 0. Final step result lines:
+
+```text
+  ok   test:replay (81.3s, started at 0s)
+  ok   build (8.0s, started at 81.3s)
+  ok   test (92.2s, started at 0s)
+  ok   test:debug (32.2s, started at 89.3s)
+  ok   typecheck (35.0s, started at 92.5s)
+  ok   typecheck:test (32.4s, started at 121.8s)
+  ok   lint (30.8s, started at 127.6s)
+  ok   debug:typecheck (11.8s, started at 154.2s)
+  ok   test:plugin (8.7s, started at 158.3s)
+  ok   test:release (5.5s, started at 166s)
+```
+
+Jest: `Test Suites: 1 skipped, 665 passed, 665 of 666 total`; `Tests: 1 skipped, 7704 passed, 7705 total`. `npm run typecheck:test`: `tsc -p tsconfig.test.json`; exit 0 (also green inside gates). `node --test server-plugin/story-orchestrator-media/media.test.mjs scripts/release/poseLibrary.test.mjs`: `# tests 17`, `# pass 17`, `# fail 0`; production webpack JSON-module interop validates all 40 entries. `git diff --check` and `git diff --cached --check`: exit 0. Lint retains the existing `BriefingHost.stories.tsx:81` hook-dependency warning, zero errors.
+
+Earlier exact command `npm run gates -- --no-storybook --jobs 2` was RED at typecheck/typecheck:test/test, then test, then lint, then typecheck:test, then test:plugin. Parser, guide/baseline/census integration, host-import laziness, code-health/style, test syntax and the DWPose allowlist contract were corrected without changing budgets or floors. Focused preflight `npm test -- --runInBand src/sprites/poses src/runtime/codeHealth.guard.test.ts src/runtime/ownership.guard.test.ts src/runtime/errorCopy.guard.test.ts`: `Test Suites: 7 passed, 7 total`; `Tests: 59 passed, 59 total`.
+
+Main bundle: **1,291,918 B / 1,300,000 B**, SHA256 `bdb08fd0d6c0152a74059ca2e6e837fa96821065dfcd885120996e1354807264`; source SHA256 `1adb8169aef295aa97b5b2c47ede184f62660f6c04b3b2a2720f1711f52b23a0`. Shipped skeleton JSON and source JSON now participate in the build's source attestation. All new runtime sprite/UI modules are reached through lazy chunks.
+
+`npm run docs:guide`: `wrote 12 pages to docs/guide/author`; `guide: 32 pages, 1 images`. `npm run docs:settings`: `settings docs: docs\guide\setup\settings-reference.md, README feature table`; `guide: 32 pages, 1 images`.
+
+Owed protocols, **not run**. The following S0 and Acceptance rows are copied unchanged from §6, including their floors:
+
+| Phase | What | Tier | Gate and predeclared floors |
+|---|---|---|---|
+| **S0 spike** | 3 synthetic test members (made for the spike, no campaign art) × 8 library poses × arms P2, P3 (+ P4 if approved), at 1024, 2 seeds; plus 2 expressions per body | LI, 3090, text model unloaded through the broker | identity "same character?" ≥ 90 % (second-model rater, v2.7 18 §4); pose match: DWPose on the output vs the target, PCK@0.1 ≥ 0.70 for P2; QA pass (alpha, framing, size) ≥ 90 %; median body render ≤ 90 s, p90 ≤ 150 s; peak VRAM ≤ 22 GB; expression on a posed body: "label visible" ≥ 90 %. P2 is kept only if it beats P3 on pose match at no identity loss (≥ 0.10 PCK gain). Run ×2. |
+| **Acceptance** | a synthetic 3-member story: 3 looks × 4 directed poses × 3 labels played on a lane | LI ×2 | no reply waits on a render (send→reply latency within +10 % of the no-sprites arm); same floors as S0 on the live renders; cleanup leaves the sha256 inventory unchanged |
+
+CL: score `test/fixtures/poses/replies.json` with the real classifier chain, all 40 labelled synthetic replies; accuracy ≥80%, recorded and informational, pose pick remains on by default. No mocked-test score is a model accuracy claim. DWPose/P4 downloads remain as §7 decides: owner's token and free 3090 first; P4 only if P2 misses its floors. PCK@0.1 uses distance after canvas scaling divided by the target's longest visible-joint extent, with missing output joints counted as misses.
+
+Storybook interaction/viewport/a11y checks are authored for 390/768/1440 and the new UI parts. `test-storybook:ci` was **not run** in this worktree: its runner resolves the main checkout's stories through the junction. These browser checks are owed from a suitable checkout; no live/browser gate is claimed green.
+
+Deviations: gate runner now accepts spaced `--jobs 2` (it previously ignored that spelling); both spellings have deterministic coverage. Player card layers use the same validated binding type. The ownership census also scans the new Studio async writer explicitly. Optional installed DWPose supplies the base's head/hip proportion; absent files leave alpha-box retargeting available. P3 uses two copies of the character reference without a skeleton when supported, and one reference on a one-image encoder; S0 owes compatibility. Open questions remain Qwen's second-image obedience, identity/timing, prop fidelity and live cleanup inventory. Main budget stays 1,300,000 B.
+
+## Gate record: Storybook assertion repair
+
+2026-10-10 · C:\dev\so-poses · v2.8-poses. The real index-json runner reproduced four failed stories and one passed story: toHaveValue rejected the asymmetric stringContaining matcher although the copied JSON contained sit_chair. Use toHaveDisplayValue with an id regex; connect the 390/768/1440 variants to the runner's testViewport setting. Production code unchanged.
+
+npm run storybook:build: exit 0. Static output served from this worktree at http://127.0.0.1:6006.
+node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6006 --maxWorkers 2 --disable-telemetry PosesList: 1 suite, 5 stories passed; no axe violations; exit 0.
+node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6006 --maxWorkers 4 --disable-telemetry: 120 suites, 760 stories passed in 180.7s; exit 0.
+
+npm run gates -- --no-storybook --jobs 2: exit 0. Storybook was validated separately above.
+
+```text
+gates: all green in 195.3s
+  ok   test (103.7s, started at 0s)
+  ok   build (9.2s, started at 103.9s)
+  ok   test:replay (134.4s, started at 0s)
+  ok   test:debug (33.4s, started at 113.2s)
+  ok   typecheck (23.0s, started at 134.4s)
+  ok   typecheck:test (29.9s, started at 146.9s)
+  ok   lint (29.1s, started at 157.4s)
+  ok   debug:typecheck (10.6s, started at 176.8s)
+  ok   test:release (6.4s, started at 187.4s)
+  ok   test:plugin (8.7s, started at 186.5s)
+  SKIPPED: test-storybook:ci (say so in the gate record)
+```
+
+npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exit 0. Source CRLF preserved. No ST, GPU, downloads or model calls; S0, CL and LI acceptance remain owed.

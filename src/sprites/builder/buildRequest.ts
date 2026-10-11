@@ -10,7 +10,8 @@ export function validateBuildRequest(request: SpriteBuildRequest): number {
     throw new Error("Steps must be 1–100, and the seed must be a whole number from 0 to 4294967295.");
   }
   if (request.kind === "look" && !request.value.trim()) throw new Error("Describe the visible change before generating a new look.");
-  if (request.kind === "base" && !request.cutout?.files.length) {
+  if (request.kind === "pose" && !request.pose) throw new Error("Choose a pose skeleton before building a body.");
+  if ((request.kind === "base" || request.kind === "pose") && !request.cutout?.files.length) {
     throw new Error("Choose an installed background-removal setup before building a base.");
   }
   const resolution = request.resolution ?? 1024;

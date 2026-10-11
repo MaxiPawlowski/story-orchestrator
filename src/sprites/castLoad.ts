@@ -21,6 +21,10 @@ export interface Actor {
   generatedLook?: string;
   lookError?: string;
   lookStamp?: string;
+  pose?: string;
+  poseReads?: import("./poses/stageChoice").PoseRead[];
+  bodies?: import("./poses/layers").CachedBody[];
+  renderedStamp?: string;
 }
 
 export type MemberGap = { name: string; folder: string; muted: boolean; reason: "no-profile" | "no-default" | "no-face"; face?: string };
@@ -60,6 +64,8 @@ export interface CastLoadDeps {
   list: (folder: string) => Promise<SpriteFile[]>;
   keysFor: (name: string) => string[];
   builders: SpriteSettings["builders"];
+  bodies?: (folder: string) => Promise<import("@services/stHost/media").SpriteManifest[]>;
+  storyId?: string;
 }
 
 async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise<Actor | MemberGap> {
@@ -85,9 +91,23 @@ async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise
   if (!defaults) return { name: member.name, folder: profile.folder, muted: member.muted, reason: "no-default" };
   const first = resolveSprite(profile, profile.default, defaults);
   if (!first) return { name: member.name, folder: profile.folder, muted: member.muted, reason: "no-face", face: profile.default };
+  const bodies: NonNullable<Actor["bodies"]> = [];
+  if (deps.bodies && deps.storyId) for (const manifest of await deps.bodies(profile.folder).catch(() => [])) {
+    if (!/^lp_[a-f0-9]{8}$/.test(manifest.set)) continue;
+    const body = Object.values(manifest.labels).find((row) => row.status === "complete")?.inputs?.body;
+if (!body || body.story !== deps.storyId || !deps.keysFor(member.name).includes(body.member.toLowerCase()) || typeof body.look !== "string" ||
+      typeof body.pose !== "string" || !Array.isArray(body.tags)) continue;
+    const files = await deps.list(`${profile.folder}/${manifest.set}`);
+    const owned = files.filter((file) => manifest.labels[file.label]?.status === "complete");
+    const pack = spriteIndex(owned);
+    if (!pack.size) continue;
+    packs.set(manifest.set, pack);
+    frames.set(manifest.set, frameIndex(await deps.list(`${profile.folder}/anim-${manifest.set}`)));
+    bodies.push({ ...body, set: manifest.set });
+  }
   return {
     name: member.name, avatar: member.avatar, keys: deps.keysFor(member.name), muted: member.muted, profile, rules: rules.filter((rule) => packs.has(rule.id)), packs, frames,
-    set: "default", keyword: null, label: first.label, desiredLabel: first.label, path: first.path,
+    set: "default", keyword: null, label: first.label, desiredLabel: first.label, path: first.path, bodies,
   };
 }
 
