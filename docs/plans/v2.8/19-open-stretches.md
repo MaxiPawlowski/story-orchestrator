@@ -369,3 +369,34 @@ WIP 2026-10-10: built as above; macros.test and line-length fixes applied but th
   actual ST Studio save walk if desired beyond the authorized Storybook walk; M1 completeness decision and M2 RP/card work
   remain as above. B3 targeted checks pass; plan 19 is not fully accepted. Encounter pool, quiet/pressure triggers,
   open anchors and epilogue play remain declared unbuilt.
+
+## Gate record (2026-10-11, handoff 37 B3 rerun, parallel-agent session)
+
+- `git merge master` -> already up to date (master `e68a242c` already in); clean tree; prior B3 work kept.
+- `npm run typecheck` exit 0; `npm run typecheck:test` exit 0.
+- `npm run lint` (eslint src, whole project) -> 0 errors, 2 warnings (`BriefingHost.stories.tsx` and `LiveHead.tsx` hook
+  deps, neither touched by this branch). Lint is confirmed: the earlier worry (eslint outside a tsconfig) does not recur.
+- `npx jest` on `runtime/macros.test.ts`, `runtime/codeHealth.guard.test.ts` (line-length ratchet),
+  `studio/stretchAuthoring.test.ts`, `coordinators/innerCoordinator.test.ts` -> 4 suites / 65 tests pass: both fixed
+  failures are confirmed fixed.
+- `npm run gates:quick` -> `gates:quick: green in 115.6s`: typecheck ok, typecheck:test ok, lint (changed) ok, jest (related)
+  ok, defect replay `--cached` 32 of 32 killed. Full `npm run gates` NOT run (owner's rule for this session).
+- `npm run build` -> compiled; `dist/index.js` 1,293,701 B (budget 1,300,000), sha256 `94ef9a5f...cc46c`, same as the
+  previous record.
+- Curve scenario x2: `node scripts/debug/st-lanes.mts start 33`, then
+  `node scripts/debug/st-lanes.mts run 33 --evidence -- scripts/debug/so-open-stretch-check.mts` -> exit 0,
+  `v27-35-open-stretch-curve.json` 39/39 on run 1 and 39/39 on run 2, `image.enabled` and `sprites.enabled` false,
+  `blocked: 0` model/media requests, `offlineProbes: 2` (the lane's PONG probes), judge calls 0, 0 page exceptions
+  (49 failed requests are the offline-lane plugin 404s and backend 500s), fixture assets cleaned (0 leaked), settings restored,
+  header diff no undeclared difference. Lane stopped (`serverUp: false`). Only lane 33 used.
+- Storybook: `npm run storybook:build` exit 0; served `.sb-static` on port 6033 (not 6006) with http-server;
+  `node node_modules/@storybook/test-runner/dist/test-storybook.js --index-json --url http://127.0.0.1:6033 --maxWorkers 1 --includeTags b3-open-stretch --verbose`
+  -> 2 suites / 16 stories passed (121 skipped by the tag filter), no accessibility violations; `StretchEditor` (4 stories)
+  and `CheckpointEditor` open-stretch walk pass. The server was stopped (its PID checked first).
+- Evidence: private `test/sessions/evidence/phase-c/b3-open-stretch-rerun-2026-10-11/` (8 files, 927,508 B, problems `[]`);
+  commit with `npm run sessions:archive` from main.
+- Deviation: a Chromium on CDP 9333 (lane 33's browser, started 08:50 by an earlier session) was already running; reused,
+  not killed, and left running because this session did not start it.
+- Owed: main checkout full `npm run gates` (Storybook and replay included); `npm run sessions:archive`; an ST Studio save
+  walk (this is a Storybook walk and export round-trip); M1 decision and M2 RP; encounter pool, `trigger: "quiet"`, open
+  anchors and epilogue play remain NOT built.
