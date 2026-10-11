@@ -111,6 +111,7 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
 
   it("maps every use string the call ring records to readiness rows", () => {
     expect(RING_USE_TO_READINESS).toEqual({
+      canonVerify: ["canonVerify"], canonDraft: ["canonDraft"], pictureCue: ["pictureCue"], adversityTrend: ["adversityTrend"], idleCheck: ["idleCheck"], toneCheck: ["toneCheck"],
       director: ["director"],
       memoryVerify: ["memoryVerify"],
       memoryPairs: ["memoryPairs"],

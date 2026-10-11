@@ -4,8 +4,10 @@ import { choice, choiceAnswer, noul, noulAnswer, score, scoreAnswer } from "./qu
 import { buildSceneReadRequest, readScene, type SceneReadInput } from "./scene";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 import { buildWardenRequests } from "./warden";
+import { toneCalls, scoreTone } from "./toneSpike";
+import { castCalls, scoreCastBalance } from "./castSpike";
 
-export const SPIKE_IDEAS = ["sceneConfirm", "canonVerify", "epistemic", "castBalance", "hop2", "attention", "picture", "adversity", "sceneKind", "idle"] as const;
+export const SPIKE_IDEAS = ["sceneConfirm", "canonVerify", "epistemic", "castBalance", "hop2", "attention", "picture", "adversity", "sceneKind", "idle", "tone"] as const;
 export type SpikeIdea = (typeof SPIKE_IDEAS)[number];
 
 export const SPIKE_FIXTURE: Record<SpikeIdea, string> = {
@@ -19,6 +21,7 @@ export const SPIKE_FIXTURE: Record<SpikeIdea, string> = {
   adversity: "spike-n3",
   sceneKind: "spike-scene-kind",
   idle: "spike-n5",
+  tone: "spike-tone",
 };
 
 export const SCENE_CONFIRM_P = SCENE_TRIGGER;
@@ -72,8 +75,8 @@ const answersOf = (answers: SpikeAnswers, id: string) => answers.get(id)?.answer
 
 const p95 = (values: number[]): number | null => {
   if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1)];
+  const rank = Math.max(0, Math.ceil(values.length * 0.95) - 1);
+  return [...values].sort((left, right) => left - right).slice(rank)[0];
 };
 
 export interface SceneConfirmRow {
@@ -86,7 +89,9 @@ export interface SceneConfirmRow {
 const sceneConfirmCalls = (rows: SceneConfirmRow[]): SpikeCall[] =>
   rows.map((row) => ({ id: row.id, request: buildSceneReadRequest({ ...row.input, families: { sceneBreak: true, tracker: false, lookahead: false } }) }));
 
-export function scoreSceneConfirm(rows: SceneConfirmRow[], answers: SpikeAnswers, wholeSet: { breakRight: number; breakTotal: number; nobreakRight: number; nobreakTotal: number } | null = null): SpikeVerdict {
+export function scoreSceneConfirm(rows: SceneConfirmRow[],
+   answers: SpikeAnswers,
+   wholeSet: { breakRight: number; breakTotal: number; nobreakRight: number; nobreakTotal: number } | null = null): SpikeVerdict {
   const scored = rows.map((row): SpikeRow => {
     const found = answersOf(answers, row.id);
     const p = found ? readScene(found, { ...row.input, families: { sceneBreak: true, tracker: false, lookahead: false } }).sceneBreak?.p ?? null : null;
@@ -117,7 +122,12 @@ export interface CanonVerifyRow {
   sentences: Array<{ text: string; supported: boolean; trap?: string }>;
 }
 
-const canonInput = (row: CanonVerifyRow) => ({ storyTitle: row.storyTitle, cast: row.cast, checkpoint: row.checkpoint, arcSummaries: row.arcSummaries, facts: row.facts, sentences: row.sentences.map((entry) => entry.text) });
+const canonInput = (row: CanonVerifyRow) => ({ storyTitle: row.storyTitle,
+   cast: row.cast,
+   checkpoint: row.checkpoint,
+   arcSummaries: row.arcSummaries,
+   facts: row.facts,
+   sentences: row.sentences.map((entry) => entry.text) });
 
 export function scoreCanonVerify(rows: CanonVerifyRow[], answers: SpikeAnswers): SpikeVerdict {
   const scored = rows.flatMap((row) => {
@@ -125,7 +135,11 @@ export function scoreCanonVerify(rows: CanonVerifyRow[], answers: SpikeAnswers):
     const ps = found ? readCanonVerify(found, row.sentences.length) : row.sentences.map(() => null);
     return row.sentences.map((sentence, index): SpikeRow => {
       const p = ps[index];
-      return { id: `${row.id}.${index}`, label: sentence.supported ? "supported" : "unsupported", read: p === null ? null : `p=${p}`, right: p !== null && canonSentenceDropped(p) !== sentence.supported, family: sentence.trap ?? "supported" };
+      return { id: `${row.id}.${index}`,
+         label: sentence.supported ? "supported" : "unsupported",
+         read: p === null ? null : `p=${p}`,
+         right: p !== null && canonSentenceDropped(p) !== sentence.supported,
+         family: sentence.trap ?? "supported" };
     });
   });
   const unsupported = scored.filter((row) => row.label === "unsupported");
@@ -171,14 +185,28 @@ const epistemicCalls = (rows: EpistemicRow[]): SpikeCall[] => rows.map((row) => 
   id: row.id,
   request: {
     state: { cast: row.cast, transcript: row.transcript.map((line, index) => ({ id: `msg_${index + 1}`, speaker: line.speaker, text: line.text })) },
-    questions: Object.fromEntries(row.questions.map((entry, index) => [`know:${index}`, choice(`What does ${entry.subject} know about this: "${entry.fact}"? Judge from \`transcript\` only.`, epistemicOptions(entry.subject))])),
+    questions: Object.fromEntries(row.questions.map((entry,
+       index) => [`know:${index}`,
+       choice(`What does ${entry.subject} know about this: "${entry.fact}"? Judge from \`transcript\` only.`,
+       epistemicOptions(entry.subject))])),
+      
   },
 }));
 
-const choiceRows = <T extends { label: string }>(prefix: string, items: T[], found: Record<string, JudgeAnswer> | null, idOf: (index: number) => string, key: (index: number) => string, family?: (item: T) => string): SpikeRow[] =>
+const choiceRows = <T extends { label: string }>(prefix: string,
+   items: T[],
+   found: Record<string,
+   JudgeAnswer> | null,
+   idOf: (index: number) => string,
+   key: (index: number) => string,
+   family?: (item: T) => string): SpikeRow[] =>
   items.map((item, index) => {
     const answer = found ? choiceAnswer(found, key(index)) : null;
-    return { id: `${prefix}.${idOf(index)}`, label: item.label, read: answer ? `${answer.choice}@${Number(answer.confidence.toFixed(3))}` : null, right: answer?.choice === item.label, ...(family ? { family: family(item) } : {}) };
+    return { id: `${prefix}.${idOf(index)}`,
+       label: item.label,
+       read: answer ? `${answer.choice}@${Number(answer.confidence.toFixed(3))}` : null,
+       right: answer?.choice === item.label,
+       ...(family ? { family: family(item) } : {}) };
   });
 
 export function scoreEpistemic(rows: EpistemicRow[], answers: SpikeAnswers): SpikeVerdict {
@@ -189,55 +217,6 @@ export function scoreEpistemic(rows: EpistemicRow[], answers: SpikeAnswers): Spi
     metrics[state] = ratio(of.filter((row) => row.right).length, of.length);
   });
   return verdict("epistemic", scored, metrics, [floor("agreement", metrics.agreement, 0.85)], scored.filter((row) => row.read === null).length);
-}
-
-export const CAST_USES = ["under", "over", "fine"] as const;
-export type CastUse = (typeof CAST_USES)[number];
-
-export interface CastBalanceRow {
-  id: string;
-  player: string;
-  cast: Array<{ name: string; role: string }>;
-  turns: Array<{ speaker: string; text: string }>;
-  labels: Record<string, CastUse>;
-}
-
-const castOptions = (name: string) => ({
-  under: `${name} speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them`,
-  over: `${name} speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason`,
-  fine: `${name} speaks about as much as the scene needs`,
-});
-
-const castCalls = (rows: CastBalanceRow[]): SpikeCall[] => rows.map((row) => ({
-  id: row.id,
-  request: {
-    state: { player: row.player, cast: row.cast, turns: row.turns.map((line, index) => ({ id: `turn_${index + 1}`, speaker: line.speaker, text: line.text })) },
-    questions: Object.fromEntries(row.cast.map((member) => [`use:${member.name}`, choice(`In \`turns\`, is ${member.name} speaking as much as the scene needs, given their role in \`cast\`?`, castOptions(member.name))])),
-  },
-}));
-
-export const castShareBaseline = (row: CastBalanceRow, name: string): CastUse => {
-  const spoken = row.turns.filter((turn) => turn.speaker !== row.player);
-  const expected = spoken.length / Math.max(1, row.cast.length);
-  const count = spoken.filter((turn) => turn.speaker === name).length;
-  return count < expected * 0.5 ? "under" : count > expected * 1.75 ? "over" : "fine";
-};
-
-export function scoreCastBalance(rows: CastBalanceRow[], answers: SpikeAnswers): SpikeVerdict {
-  const scored = rows.flatMap((row) => {
-    const items = row.cast.map((member) => ({ name: member.name, label: row.labels[member.name] }));
-    return choiceRows(row.id, items, answersOf(answers, row.id), (index) => items[index].name, (index) => `use:${items[index].name}`, (item) => item.label);
-  });
-  const baseline = rows.flatMap((row) => row.cast.map((member) => castShareBaseline(row, member.name) === row.labels[member.name]));
-  const metrics: Record<string, number | null> = {
-    agreement: ratio(scored.filter((row) => row.right).length, scored.length),
-    shareBaseline: ratio(baseline.filter(Boolean).length, baseline.length),
-  };
-  CAST_USES.forEach((use) => {
-    const of = scored.filter((row) => row.label === use);
-    metrics[use] = ratio(of.filter((row) => row.right).length, of.length);
-  });
-  return verdict("castBalance", scored, metrics, [floor("agreement", metrics.agreement, 0.85)], scored.filter((row) => row.read === null).length);
 }
 
 export interface Hop2Row {
@@ -255,7 +234,11 @@ export function scoreHop2(rows: Hop2Row[], answers: SpikeAnswers): SpikeVerdict 
     return Object.entries(row.heading).map(([checkpointId, label]): SpikeRow => {
       const hops = row.input.reachable?.find((entry) => entry.id === checkpointId)?.hops ?? 1;
       const p = read[checkpointId] ?? null;
-      return { id: `${row.id}.${checkpointId}`, label: `${label ? "toward" : "not"}-hop${hops}`, read: p === null ? null : `p=${p}`, right: p !== null && p >= HEADING_P === label, family: `hop${hops}` };
+      return { id: `${row.id}.${checkpointId}`,
+         label: `${label ? "toward" : "not"}-hop${hops}`,
+         read: p === null ? null : `p=${p}`,
+         right: p !== null && p >= HEADING_P === label,
+         family: `hop${hops}` };
     });
   });
   const of = (label: string) => scored.filter((row) => row.label === label);
@@ -334,7 +317,12 @@ export function scorePicture(rows: PictureRow[], answers: SpikeAnswers): SpikeVe
     const striking = found ? scoreAnswer(found, "striking")?.score ?? null : null;
     const now = found ? noulAnswer(found, "now") : null;
     const draw = striking === null || now === null ? null : striking >= PICTURE_STRIKING_MIN && now >= PICTURE_NOW_P;
-    return { id: row.id, label: row.label, read: draw === null ? null : `striking=${Number((striking ?? 0).toFixed(3))} now=${now}`, right: draw !== null && draw === (row.label === "draw"), draw, family: row.trap };
+    return { id: row.id,
+       label: row.label,
+       read: draw === null ? null : `striking=${Number((striking ?? 0).toFixed(3))} now=${now}`,
+       right: draw !== null && draw === (row.label === "draw"),
+       draw,
+       family: row.trap };
   });
   const drawn = scored.filter((row) => row.draw === true);
   const skips = scored.filter((row) => row.label === "skip");
@@ -418,7 +406,11 @@ export function scoreSceneKind(rows: SceneKindRow[], answers: SpikeAnswers): Spi
   const scored = rows.map((row): SpikeRow => {
     const found = answersOf(answers, row.id);
     const answer = found ? choiceAnswer(found, "kind") : null;
-    return { id: row.id, label: row.label, read: answer ? `${answer.choice}@${Number(answer.confidence.toFixed(3))}` : null, right: answer?.choice === row.label, family: row.mixed ? "mixed" : row.label };
+    return { id: row.id,
+       label: row.label,
+       read: answer ? `${answer.choice}@${Number(answer.confidence.toFixed(3))}` : null,
+       right: answer?.choice === row.label,
+       family: row.mixed ? "mixed" : row.label };
   });
   const metrics: Record<string, number | null> = { accuracy: ratio(scored.filter((row) => row.right).length, scored.length) };
   const classes = Object.keys(SCENE_KINDS).map((kind) => {
@@ -499,6 +491,7 @@ export function spikeCalls(idea: SpikeIdea, fixture: SpikeFixture): SpikeCall[] 
     case "adversity": return adversityCalls(rows);
     case "sceneKind": return sceneKindCalls(fixture.player ?? "", rows);
     case "idle": return idleCalls(rows);
+    case "tone": return toneCalls(rows);
   }
 }
 
@@ -515,5 +508,6 @@ export function scoreSpike(idea: SpikeIdea, fixture: SpikeFixture, answers: Spik
     case "adversity": return scoreAdversity(rows, answers);
     case "sceneKind": return scoreSceneKind(rows, answers);
     case "idle": return scoreIdle(rows, answers);
+    case "tone": return scoreTone(rows, answers);
   }
 }

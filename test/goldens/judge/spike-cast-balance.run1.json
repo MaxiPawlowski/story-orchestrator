@@ -1,0 +1,1670 @@
+{
+  "source": "ideas.mts castBalance run 1 over test/fixtures/judge/spike-cast-balance.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-11T11:48:50.008Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "5f6a30661b38",
+  "run": 1,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "agreement": 1,
+      "shareBaseline": 1,
+      "under": 1,
+      "over": 1,
+      "fine": 1
+    },
+    "floors": [
+      {
+        "name": "agreement",
+        "value": 1,
+        "floor": 0.85,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 209,
+  "actualCalls": 20,
+  "calls": [
+    {
+      "id": "CB1",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to repair the clock"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you repair the clock?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 323,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB2",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to repair the clock"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you repair the clock?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.95,
+          "probabilities": {
+            "under": 0.03,
+            "over": 0,
+            "fine": 0.97
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 335,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB3",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to decode the letter"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you decode the letter?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 196,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB4",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to decode the letter"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you decode the letter?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.94,
+          "probabilities": {
+            "under": 0.04,
+            "over": 0,
+            "fine": 0.96
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 260,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB5",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to treat the burn"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you treat the burn?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB6",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to treat the burn"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you treat the burn?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.89,
+          "probabilities": {
+            "under": 0.07,
+            "over": 0,
+            "fine": 0.93
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 218,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB7",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to chart the river"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you chart the river?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 203,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB8",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to chart the river"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you chart the river?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.91,
+          "probabilities": {
+            "under": 0.06,
+            "over": 0,
+            "fine": 0.94
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB9",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to inspect the lock"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you inspect the lock?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 205,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB10",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to inspect the lock"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you inspect the lock?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.94,
+          "probabilities": {
+            "under": 0.04,
+            "over": 0,
+            "fine": 0.96
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 249,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB11",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to identify the coin"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you identify the coin?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 209,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB12",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to identify the coin"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you identify the coin?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.88,
+          "probabilities": {
+            "under": 0.08,
+            "over": 0,
+            "fine": 0.92
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 205,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB13",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to translate the inscription"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you translate the inscription?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 250,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB14",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to translate the inscription"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you translate the inscription?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.91,
+          "probabilities": {
+            "under": 0.06,
+            "over": 0,
+            "fine": 0.94
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 206,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB15",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to track the wagon"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you track the wagon?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 212,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB16",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to track the wagon"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you track the wagon?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.92,
+          "probabilities": {
+            "under": 0.05,
+            "over": 0,
+            "fine": 0.95
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB17",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to test the water"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you test the water?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 208,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB18",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to test the water"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you test the water?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.97,
+          "probabilities": {
+            "under": 0.02,
+            "over": 0,
+            "fine": 0.98
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.98,
+          "probabilities": {
+            "under": 0.01,
+            "over": 0,
+            "fine": 0.99
+          }
+        }
+      },
+      "latencyMs": 211,
+      "inputTokens": 749
+    },
+    {
+      "id": "CB19",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The only specialist able to mend the sail"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group; has no specialist knowledge"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you mend the sail?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Guide",
+            "text": "I will answer for Expert. There is no need to let Expert speak."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "I asked Expert. Please let them answer."
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "No. I will answer every question, even questions for Expert."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "under",
+          "confidence": 1,
+          "probabilities": {
+            "under": 1,
+            "over": 0,
+            "fine": 0
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "over",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 1,
+            "fine": 0
+          }
+        }
+      },
+      "latencyMs": 210,
+      "inputTokens": 757
+    },
+    {
+      "id": "CB20",
+      "state": {
+        "player": "Player",
+        "cast": [
+          {
+            "name": "Expert",
+            "role": "The specialist able to mend the sail"
+          },
+          {
+            "name": "Guide",
+            "role": "Guides the group and watches the approach"
+          }
+        ],
+        "turns": [
+          {
+            "id": "turn_1",
+            "speaker": "Player",
+            "text": "Expert, can you mend the sail?"
+          },
+          {
+            "id": "turn_2",
+            "speaker": "Expert",
+            "text": "Yes. Here is what I found and what we need to do."
+          },
+          {
+            "id": "turn_3",
+            "speaker": "Player",
+            "text": "Guide, is the approach safe?"
+          },
+          {
+            "id": "turn_4",
+            "speaker": "Guide",
+            "text": "Yes. I checked it; we can proceed."
+          }
+        ]
+      },
+      "questions": {
+        "use:Expert": {
+          "type": "choice",
+          "instructions": "In `turns`, is Expert speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Expert speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Expert speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Expert speaks about as much as the scene needs"
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "instructions": "In `turns`, is Guide speaking as much as the scene needs, given their role in `cast`?",
+          "criteria": {
+            "under": "Guide speaks less than the scene needs: they are addressed, or their role is needed, and they stay silent or others answer for them",
+            "over": "Guide speaks more than the scene needs: answering what was put to others, crowding the scene, or talking where their role gives no reason",
+            "fine": "Guide speaks about as much as the scene needs"
+          }
+        }
+      },
+      "answers": {
+        "use:Expert": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 0.91,
+          "probabilities": {
+            "under": 0.06,
+            "over": 0,
+            "fine": 0.94
+          }
+        },
+        "use:Guide": {
+          "type": "choice",
+          "choice": "fine",
+          "confidence": 1,
+          "probabilities": {
+            "under": 0,
+            "over": 0,
+            "fine": 1
+          }
+        }
+      },
+      "latencyMs": 207,
+      "inputTokens": 749
+    }
+  ]
+}

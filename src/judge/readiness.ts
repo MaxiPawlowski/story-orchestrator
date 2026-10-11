@@ -34,6 +34,13 @@ export interface JudgeReadinessFact {
 const MEASURED_ON = "jev-1.13.0";
 
 export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
+  canonDraft: "05fe396d0e55",
+  toneCheck: "139664bd5667",
+  idleCheck: "2b8052f53149",
+  adversityTrend: "9535ec1a0789",
+  pictureCue: "8b9d98811126",
+  attentionCheck: "1a4807a406ea",
+  canonVerify: "05fe396d0e55",
   stallCheck: "285953bcdcd0",
   memoryVerify: "35299aebd287",
   warden: "667319dbcd15",
@@ -53,6 +60,13 @@ export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> 
 };
 
 const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
+  canonDraft: "05fe396d0e55",
+  toneCheck: "139664bd5667",
+  idleCheck: "2b8052f53149",
+  adversityTrend: "9535ec1a0789",
+  pictureCue: "8b9d98811126",
+  attentionCheck: "1a4807a406ea",
+  canonVerify: "05fe396d0e55",
   stallCheck: "285953bcdcd0",
   memoryVerify: "35299aebd287",
   warden: "667319dbcd15",
@@ -72,6 +86,67 @@ const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
 };
 
 export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
+  canonDraft: {
+    calibration: 1,
+    latencyP50Ms: 291,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Shares the canon verifier's twice-passed fixture; no unsupported sentence inserted in either recorded run. Browser draft review validation owed.",
+  },
+  canonVerify: {
+    calibration: 1,
+    latencyP50Ms: 291,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed.",
+  },
+  pictureCue: {
+    calibration: 1,
+    latencyP50Ms: 247,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed.",
+  },
+  adversityTrend: {
+    calibration: 1,
+    latencyP50Ms: 251,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed.",
+  },
+  idleCheck: {
+    calibration: 1,
+    latencyP50Ms: 219,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed. Extractor tension comparison owed; judge-only columns passed.",
+  },
+  toneCheck: {
+    calibration: 1,
+    latencyP50Ms: 228,
+    live: null,
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed.",
+  },
+  repetitionCheck: {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Pure phrase miner; synthetic loop/fresh fixture passed twice. No provider call or provider calibration.",
+  },
   stallCheck: { calibration: 1, latencyP50Ms: 243, live: "J11.23", measuredOn: MEASURED_ON, recommendation: "The strongest measured use: both families clean." },
   memoryVerify: { calibration: 0.9722, latencyP50Ms: 236, live: "J11.7, J11.8", measuredOn: MEASURED_ON, recommendation: "Cheap against its 3000 ms budget." },
   warden: {
@@ -160,11 +235,12 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     recommendation: "Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.",
   },
   attentionCheck: {
-    calibration: null,
-    latencyP50Ms: null,
+    calibration: 1,
+    latencyP50Ms: 235,
     live: null,
-    measuredOn: null,
-    recommendation: "Not measured yet; on by default (owner decision 2026-10-09). Rides the warden's call; on another provider it is left out of the request until it is calibrated there.",
+    measuredOn: MEASURED_ON,
+    passed: true,
+    recommendation: "Synthetic fixture passed twice; browser consumer validation and private-session replay remain owed.",
   },
   divergence: {
     calibration: null,
@@ -184,6 +260,8 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
 
 /** The `use` string each call-ring row carries, mapped to the readiness rows it measures. */
 export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
+  canonDraft: ["canonDraft"],
+  canonVerify: ["canonVerify"], pictureCue: ["pictureCue"], adversityTrend: ["adversityTrend"], idleCheck: ["idleCheck"], toneCheck: ["toneCheck"],
   director: ["director"],
   memoryVerify: ["memoryVerify"],
   memoryPairs: ["memoryPairs"],

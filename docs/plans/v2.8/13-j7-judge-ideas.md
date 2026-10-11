@@ -1,8 +1,8 @@
 # Plan 13 — J7 judge ideas
 
-**Status (2026-10-03): v2.8 plan 13 (was v2.7 plan 14). Decided: the user chose A, a Phase A evaluation for EVERY J7
-idea (J7.1–J7.7), plus the ST-jeved ideas N1–N8 in order. Which consumers may ship is decided separately, per idea,
-after its evaluation. Not built; no fixture written; no Phase A run in v2.8 yet.**
+**Status (2026-10-11): v2.8 plan 13 (was v2.7 plan 14). Decided: the user chose A, a Phase A evaluation for EVERY J7
+idea (J7.1-J7.7), plus the ST-jeved ideas N1-N8 in order. Phase A has run for every idea that has a question; consumers
+are built for the ideas that passed x2, on by default (owner rule 2026-10-09). See the Gate record B4 at the end.**
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "J7 judge ideas". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixtures, goldens, pure rules, offline replay tool);
 acceptance CL (TypeSafe calibration ×2; offline replay over archived sessions; no pod).
@@ -489,3 +489,63 @@ N4, N6; J7.3/J7.5/J7.6 fixtures in parallel; N7, J7.4 last.
 ## Phase A record
 
 - 2026-10-10 WIP (stopped on owner quota, 214 TypeSafe calls): done J7.2/J7.7 PASS x2, N1 PASS x2, N2 PASS x2, N3 PASS x2, N5 PASS x2 (extractor column owed), J7.3 PASS x2, J7.1 FAIL run 1 (held-out break 0.83, whole 0.92), N4 FAIL run 1 (accuracy 1.0, p95 4208 ms); goldens test/goldens/judge/spike-*.runN.json, runner scripts/spike/typesafe/ideas.mts, scorers src/judge/ideaSpikes.ts. Next: J7.4/J7.5 fixtures + runs, J7.6/N6/N7/N8 verdicts, ring census replay, jest golden replay test, J7.2 consumer (canonVerify.ts) behind judge.uses, readiness rows, gates.
+
+## Gate record B4 (2026-10-11, branch `v2.8-judge-ideas`)
+
+Task B4 of `37-codex-handoff.md`. TypeSafe `jev-1.13.0` through the production judge code and the real plugin handler
+(`scripts/spike/typesafe/ideas.mts`, `idea-fixtures.mts`, `idea-session-replay.mts`, `idea-summary.mts`); scorers in
+`src/judge/ideaSpikes.ts`, `castSpike.ts`, `toneSpike.ts`, `repetition.ts`. Floors were predeclared above and never retuned.
+Machine-readable: `test/measurements/v2.8/13-phase-a/b4-summary.json`, `calls.jsonl`, `b4-attempts.jsonl`; goldens
+`test/goldens/judge/spike-*.run{1,2}.json`.
+
+**Judge calls.** 272 upstream TypeSafe calls in this task (limit 300; 28 left unspent), on top of the 214 already recorded:
+- cast balance 2x20, hop 2 2x20, tone 2x20 = 120;
+- J7.1 run 2 = 12, N4 run 2 = 20;
+- private-session replay 2x60 = 120.
+- Total recorded for plan 13 so far: 486. The N6 miner makes no call.
+
+**Verdicts (fixture revision, runs).**
+- J7.2/J7.7 canon verification (`05fe396d0e55`): PASS x2. Unsupported dropped 1.0, supported dropped 0.0455, supported kept 0.9545, unsupported inserted 0. p50 263-291 ms.
+- N1 attention (`1a4807a406ea`): PASS x2. Ignores recall 1.0, responds specificity 1.0. p50 222-235 ms.
+- N2 picture (`8b9d98811126`): PASS x2. Draw precision 1.0, skip recall 1.0. p50 239-247 ms.
+- N3 adversity (`9535ec1a0789`): PASS x2. Within +-1 1.0, low/high confused 0.
+- N5 change + tension (`2b8052f53149`): PASS x2 on the judge-only columns. Change within +-1 1.0, tension within +-1 0.95. **Extractor tension comparison OWED** (needs a model run; the "no worse than the extractor" part of the floor is undecided).
+- N7 tone (`139664bd5667`): PASS x2, within +-1 1.0. Caveat: the fixture holds extreme match/opposed rows only.
+- N6 repetition miner (`spike-repetition`): PASS, no judge call. Loops recall 1.0, fresh specificity 1.0 (pure, jest-replayed).
+- J7.3 epistemic (`210b4af1a89a`): PASS x2, agreement 0.9167. Evaluation only, as planned.
+- J7.4 cast balance (`5f6a30661b38`): PASS x2, agreement 1.0. Evaluation only; consumer stays a seed. Caveat: 10 template pairs, not 20 independent sessions.
+- J7.5 hop 2 (`71f0e8c442c7`): PASS x2, hop-2 accuracy 1.0. Evaluation only. Same template caveat.
+- J7.1 scene confirmation (`6448d2605f71`): **FAIL x2**. Held-out break recall 0.8333 (floor 0.95), whole 0.9211; nobreak 1.0. Not built; the LLM confirm line stays.
+- N4 scene kind (`0d53cac64a03`): **not x2**. Accuracy 1.0 both runs, but run 1 p95 4208 ms (floor 1500) and run 2 p95 307 ms. A floor missed once, so no consumer; the reply-path call is not built.
+- J7.6 per-quality floors: BLOCKED. Needs plan 12's residual-read replay and per-kind held-out rows; no floor moved.
+- N8 relationship arm: BLOCKED. Belongs to v2.8 20's M1 comparison; nothing built.
+- Session replay (private, 20 of 49 windows of one archived session, 60 calls per run, 2 runs): distribution only, no labels, no content recorded. No question answered constantly. Summaries: `session-summary.run{1,2}.json`.
+
+**Consumers built (each its own `judge.uses.<id>`, on by default, off the reply path, with a fallback):**
+- `canonVerify` (J7.2): `runtime/canonVerification.ts` inside `CanonSynthesis.regenerateCanon`. Unsupported sentences are dropped before the canon is stored; 3000 ms budget; no answer = the text is kept as before; sources that moved during the check = nothing stored.
+- `canonDraft` (J7.7): an author-view button in the Memory controls drafts a checked story-so-far, held in `extras.memory.canonDraft`. Accept is refused when the sources changed; a rollback drops the draft.
+- `attentionCheck` (N1): the existing warden use; its readiness row is now measured.
+- `pictureCue` (N2): `image/judgePicture.ts` in `StoryImageDirector.onReply`. Filters cadence images and can raise a cue (4-reply cooldown); 2500 ms; no answer = cadence unchanged; manual and checkpoint images untouched.
+- `adversityTrend` (N3, 18 of 20), `idleCheck` (N5, 3 of 4), `toneCheck` (N7, 5 of 5, skipped above tension 2.5, needs `idleCheck`'s tension read) and `repetitionCheck` (N6, a phrase in at least 4 of the last 60 replies, always review mode, cooldown 6): `runtime/judgeIdeasWarden.ts`, four new warden note families, run after the reply with a 4000 ms budget each. A note only suggests a development; it never decides the player's action or writes a quality.
+- Not built: J7.1, N4 (floors), J7.3, J7.4, J7.5 (evaluation only by plan), J7.6, N8 (blocked).
+- Deviation: these uses are on by default (owner rule 2026-10-09; `JUDGE_USES_OFF_BY_DEFAULT` stays empty), not off by default as the ship rule above said. The dev-only `spikes.judge<Id>` stage was skipped for the same reason.
+- Calls added per reply with every use on: up to 3 separate off-path judge calls (adversity, idle, tone) next to the existing warden call; canon and picture calls ride regeneration and cadence only. The plan's "ride the warden call" bundle was not built, so the combined-request re-measure of the existing warden families is not owed; a bundle would owe it.
+
+**Gate commands (all in `C:\dev\so-judge-ideas`).**
+- `npm run typecheck`: clean. `npm run typecheck:test`: clean. `npm run lint`: 0 errors, 2 existing warnings (BriefingHost.stories, LiveHead).
+- `npx jest src/judge src/runtime/judgeIdeasWarden src/runtime/canon src/image src/features src/stagecraft src/runtime/architecture.test.ts src/runtime/ownership.guard.test.ts`: 55 suites, 546 tests passed. The recorded-answer replay is `src/judge/ideaSpikes.test.ts`: every idea x 2 runs against its golden and frozen fixture hash, plus the miner.
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint, 298 suites / 3172 tests, defect replay). The first run was red on a dead export (`CANON_VERIFY_TIMEOUT_MS`, now the canon check's budget). `--cached` then died on an over-long command line because this worktree had no replay cache, so `npm run test:replay` ran in full first: 32 of 32 killed.
+- `npm run docs:guide`, `npm run docs:settings`: run, no drift. Full `npm run gates` NOT run (not asked).
+- `npm run test:debug`: 1196 of 1197 after a fix. The use-list test needed the seven keys in `scripts/debug/lib/sessionCharters.mts` (fixed, 22 of 22). `so-run-header.test.mts` "the build half reads plan 08s nested manifest" fails only here, because the worktree has no `dist/manifest.json` (35 of 35 in the main checkout).
+
+**Live gate: NOT run.** A real-judge browser check needs this build staged into ST (forbidden in this task), so no consumer has been seen in a browser or a real chat. No lane was started; lane 34 stays free.
+
+**Campaign.** No campaign change: every use is install-wide and on by default, and the Adolion lab picks them up with the next stage. No campaign content entered this repo; the private replay left counts only.
+
+**Owed.**
+- Live real-judge browser checks x2 per consumer (a lane with the staged bundle; the judge-off arm makes 0 calls) and `so-ui assert-player-clean` for canon prose and warden notes.
+- N5's tension comparison against the extractor's tension on the same rows (a model run), the deterministic quiet baseline, and the "no worse than the extractor" floor.
+- Independent (non-template) rows for J7.4/J7.5; intermediate levels for N7.
+- A third N4 run if the owner wants the reply-path consumer; J7.1 would need a new predeclared floor decision, not a retune.
+- J7.6 after plan 12's replay; N8 inside v2.8 20 M1.
+- Canon prose is player-visible: default-on needs the owner's explicit nod (v2.8 rule 4); it is on because of the 2026-10-09 rule.

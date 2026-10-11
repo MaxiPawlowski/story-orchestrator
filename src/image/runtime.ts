@@ -54,6 +54,7 @@ export class StoryImageDirector {
   private listeners = new Set<() => void>();
   private pending = new Set<string>();
   private pendingTargets = new Set<string>();
+  private pictureCounts = new Map<string, number>();
 
   constructor(private readonly manager: RuntimeManager) { this.queue.subscribe(() => this.notify()); }
 
@@ -167,22 +168,36 @@ export class StoryImageDirector {
 
   async onReply(messageId: number, type: unknown): Promise<void> {
     const settings = this.settings();
-    if (!settings.enabled || this.override().paused || settings.automation.mode !== "everyN" || type === "extension" || type === "first_message") return;
+    if (!settings.enabled || this.override().paused || settings.automation.mode === "manual" || type === "extension" || type === "first_message") return;
     const chat = imageChat();
     const message = chat?.messages[messageId];
     if (!chat || !this.manager.ownsImageChat(chat.id) || !message || message.is_user || message.is_system) return;
-    const state = current(this.manager.getSnapshot().storyId);
-    const count = state.automationCount + 1;
-    const saved = await imageWriteChatSettings({ ...state, automationCount: count }, chat.id);
-    if (!saved.ok) { this.lastError = saved.reason; this.notify(); return; }
-    if (count % settings.automation.everyN !== 0) return;
-    if (messageAlreadyDrawn(chat, messageId) || !(await this.serviceReady(settings))) return;
-    const target = `${chat.id}:${messageId}`;
-    if (this.pendingTargets.has(target)) return;
-    this.pendingTargets.add(target);
-    try { await this.direct({ purpose: "scene", text: "", messageId }); }
-    catch { this.notify(); }
-    finally { this.pendingTargets.delete(target); }
+    const run = beginRun(this.manager.getOwnership(), { from: messageId, to: messageId });
+    const replyText = message.mes;
+    try {
+      const state = current(this.manager.getSnapshot().storyId);
+      const count = state.automationCount + 1;
+      if (!run.stillOwns()) return;
+      const saved = await imageWriteChatSettings({ ...state, automationCount: count }, chat.id);
+      if (!saved.ok) { this.lastError = saved.reason; this.notify(); return; }
+      if (messageAlreadyDrawn(chat, messageId) || !(await this.serviceReady(settings)) || !run.stillOwns()) return;
+      const cadence = settings.automation.mode === "everyN" && count % settings.automation.everyN === 0;
+      const judge = this.manager.getJudge();
+      const pick = judge?.active("pictureCue") ? await (await import("./judgePicture")).judgePicture(judge, replyText).catch(() => null) : null;
+      if (!run.stillOwns() || replyText !== imageChat()?.messages[messageId]?.mes) return;
+      if (pick === false || (!cadence && pick !== true)) return;
+      const pictureKey = `${chat.id}:${this.manager.getSnapshot().storyId}`;
+      if (pick === true && count - (this.pictureCounts.get(pictureKey) ?? -4) < 4) return;
+      const target = `${chat.id}:${messageId}`;
+      if (this.pendingTargets.has(target)) return;
+      this.pendingTargets.add(target);
+      try {
+        if (!run.stillOwns()) return;
+        await this.direct({ purpose: "scene", text: "", messageId });
+        if (run.stillOwns()) this.pictureCounts.set(pictureKey, count);
+      } catch { this.notify(); }
+      finally { this.pendingTargets.delete(target); }
+    } finally { run.release(); }
   }
 
   async plan(request: ImageRequest, args: ImageArgs = {}): Promise<ImagePlan> {

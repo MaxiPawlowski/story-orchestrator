@@ -67,7 +67,9 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
   const lore: WardenInput = { reply: input.reply, facts: [], agency: null, houseRules: [], lore: input.lore ?? [] };
   const requests = buildWardenRequests(today);
   const loreRequests = buildWardenRequests(lore);
-  if (!runtime?.enabled() || (!requests.length && !loreRequests.length && !houseRulesDecidedInCode(today))) return null;
+  if (!runtime?.enabled()) return null;
+  const ideas = input.ideaScope ? await (await import("./judgeIdeasWarden")).checkIdeaWarden(runtime, input) : [];
+  if (!requests.length && !loreRequests.length && !houseRulesDecidedInCode(today)) return ideas.length ? ideas : null;
   const ask = async (use: string, list: typeof requests, asked: WardenInput) => {
     if (!list.length) return null;
     const results = await Promise.all(list.map((request) => runtime.ask(use, request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, asked) })));
@@ -75,9 +77,9 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
   };
   const [asked, loreAnswers] = await Promise.all([ask("warden", requests, today), ask("wardenLore", loreRequests, lore)]);
   const answers = asked ?? (!requests.length && houseRulesDecidedInCode(today) ? {} : null);
-  if (!answers && !loreAnswers) return null;
+  if (!answers && !loreAnswers) return ideas.length ? ideas : null;
   const contradicted = loreAnswers ? readWardenLore(loreAnswers, lore) : null;
-  return [...(answers ? readWarden(answers, today) : []), ...(contradicted ? [{ ...contradicted, facts: [] }] : [])];
+  return [...ideas, ...(answers ? readWarden(answers, today) : []), ...(contradicted ? [{ ...contradicted, facts: [] }] : [])];
 };
 
 // Are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
@@ -89,7 +91,11 @@ export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStor
   const attention = Boolean(runtime?.ridesWarden("attentionCheck"));
   const voice = Boolean(story?.life && runtime?.ridesWarden("wardenVoice"));
   return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")),
-    ...(attention ? { attention } : {}), ...(voice ? { voice } : {}) };
+    ...(attention ? { attention } : {}), ...(voice ? { voice } : {}),
+    ...(["adversityTrend", "idleCheck", "toneCheck", "repetitionCheck"].some((use) => runtime?.active(use as "adversityTrend")) ? { ideas: {
+      adversity: Boolean(runtime?.active("adversityTrend")), idle: Boolean(runtime?.active("idleCheck")),
+      tone: Boolean(runtime?.active("toneCheck")), repetition: Boolean(runtime?.active("repetitionCheck")),
+    } } : {}) };
 };
 
 export const houseRuleScene = (story: NormalizedStoryV2 | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {

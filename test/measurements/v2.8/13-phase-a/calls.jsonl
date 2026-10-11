@@ -12,3 +12,11 @@
 {"at":"2026-10-10T18:46:36.600Z","idea":"picture","run":1,"calls":20,"passed":true,"fixtureRevision":"8b9d98811126","model":"jev-1.13.0"}
 {"at":"2026-10-10T18:47:35.747Z","idea":"sceneKind","run":1,"calls":20,"passed":false,"fixtureRevision":"0d53cac64a03","model":"jev-1.13.0"}
 {"at":"2026-10-10T18:48:23.026Z","idea":"picture","run":2,"calls":20,"passed":true,"fixtureRevision":"8b9d98811126","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:48:50.008Z","idea":"castBalance","run":1,"calls":20,"passed":true,"fixtureRevision":"5f6a30661b38","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:49:01.791Z","idea":"castBalance","run":2,"calls":20,"passed":true,"fixtureRevision":"5f6a30661b38","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:49:05.683Z","idea":"hop2","run":1,"calls":20,"passed":true,"fixtureRevision":"71f0e8c442c7","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:49:09.470Z","idea":"hop2","run":2,"calls":20,"passed":true,"fixtureRevision":"71f0e8c442c7","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:49:13.540Z","idea":"tone","run":1,"calls":20,"passed":true,"fixtureRevision":"139664bd5667","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:49:17.594Z","idea":"tone","run":2,"calls":20,"passed":true,"fixtureRevision":"139664bd5667","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:56:25.232Z","idea":"sceneConfirm","run":2,"calls":12,"passed":false,"fixtureRevision":"6448d2605f71","model":"jev-1.13.0"}
+{"at":"2026-10-11T11:56:34.717Z","idea":"sceneKind","run":2,"calls":20,"passed":true,"fixtureRevision":"0d53cac64a03","model":"jev-1.13.0"}

@@ -1,0 +1,286 @@
+{
+  "revision": 1,
+  "source": "Authored English synthetic holdout; labels frozen before evaluation. No campaign evidence.",
+  "rows": [
+    {
+      "id": "R1",
+      "replies": [
+        "the air held its breath. They opened the door.",
+        "the air held its breath. A cart passed.",
+        "the air held its breath. Someone waited.",
+        "the air held its breath. The bell rang.",
+        "They read the letter.",
+        "the air held its breath. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "the air held its breath"
+      ]
+    },
+    {
+      "id": "R2",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "the air held its breath."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R3",
+      "replies": [
+        "a smile that did not reach his eyes. They opened the door.",
+        "a smile that did not reach his eyes. A cart passed.",
+        "a smile that did not reach his eyes. Someone waited.",
+        "a smile that did not reach his eyes. The bell rang.",
+        "They read the letter.",
+        "a smile that did not reach his eyes. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "a smile that did not reach his eyes"
+      ]
+    },
+    {
+      "id": "R4",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "a smile that did not reach his eyes."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R5",
+      "replies": [
+        "the silence stretched between them. They opened the door.",
+        "the silence stretched between them. A cart passed.",
+        "the silence stretched between them. Someone waited.",
+        "the silence stretched between them. The bell rang.",
+        "They read the letter.",
+        "the silence stretched between them. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "the silence stretched between them"
+      ]
+    },
+    {
+      "id": "R6",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "the silence stretched between them."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R7",
+      "replies": [
+        "something shifted in the shadows. They opened the door.",
+        "something shifted in the shadows. A cart passed.",
+        "something shifted in the shadows. Someone waited.",
+        "something shifted in the shadows. The bell rang.",
+        "They read the letter.",
+        "something shifted in the shadows. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "something shifted in the shadows"
+      ]
+    },
+    {
+      "id": "R8",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "something shifted in the shadows."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R9",
+      "replies": [
+        "her fingers tightened on the cup. They opened the door.",
+        "her fingers tightened on the cup. A cart passed.",
+        "her fingers tightened on the cup. Someone waited.",
+        "her fingers tightened on the cup. The bell rang.",
+        "They read the letter.",
+        "her fingers tightened on the cup. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "her fingers tightened on the cup"
+      ]
+    },
+    {
+      "id": "R10",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "her fingers tightened on the cup."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R11",
+      "replies": [
+        "the room seemed to grow smaller. They opened the door.",
+        "the room seemed to grow smaller. A cart passed.",
+        "the room seemed to grow smaller. Someone waited.",
+        "the room seemed to grow smaller. The bell rang.",
+        "They read the letter.",
+        "the room seemed to grow smaller. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "the room seemed to grow smaller"
+      ]
+    },
+    {
+      "id": "R12",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "the room seemed to grow smaller."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R13",
+      "replies": [
+        "a weight settled on his shoulders. They opened the door.",
+        "a weight settled on his shoulders. A cart passed.",
+        "a weight settled on his shoulders. Someone waited.",
+        "a weight settled on his shoulders. The bell rang.",
+        "They read the letter.",
+        "a weight settled on his shoulders. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "a weight settled on his shoulders"
+      ]
+    },
+    {
+      "id": "R14",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "a weight settled on his shoulders."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R15",
+      "replies": [
+        "the moment hung like a thread. They opened the door.",
+        "the moment hung like a thread. A cart passed.",
+        "the moment hung like a thread. Someone waited.",
+        "the moment hung like a thread. The bell rang.",
+        "They read the letter.",
+        "the moment hung like a thread. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "the moment hung like a thread"
+      ]
+    },
+    {
+      "id": "R16",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "the moment hung like a thread."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R17",
+      "replies": [
+        "his voice was barely a whisper. They opened the door.",
+        "his voice was barely a whisper. A cart passed.",
+        "his voice was barely a whisper. Someone waited.",
+        "his voice was barely a whisper. The bell rang.",
+        "They read the letter.",
+        "his voice was barely a whisper. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "his voice was barely a whisper"
+      ]
+    },
+    {
+      "id": "R18",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "his voice was barely a whisper."
+      ],
+      "label": "fresh",
+      "hot": []
+    },
+    {
+      "id": "R19",
+      "replies": [
+        "the world narrowed to that sound. They opened the door.",
+        "the world narrowed to that sound. A cart passed.",
+        "the world narrowed to that sound. Someone waited.",
+        "the world narrowed to that sound. The bell rang.",
+        "They read the letter.",
+        "the world narrowed to that sound. They began again."
+      ],
+      "label": "loops",
+      "hot": [
+        "the world narrowed to that sound"
+      ]
+    },
+    {
+      "id": "R20",
+      "replies": [
+        "The door opened onto a sunlit courtyard.",
+        "A merchant counted the remaining coins.",
+        "Rain washed the chalk from the wall.",
+        "The messenger handed over a sealed letter.",
+        "They checked the map beside the lamp.",
+        "the world narrowed to that sound."
+      ],
+      "label": "fresh",
+      "hot": []
+    }
+  ]
+}

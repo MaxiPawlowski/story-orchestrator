@@ -32,6 +32,8 @@ const fixture = JSON.parse(readFileSync(fixtureFile, 'utf-8'));
 const revision = createHash('sha256').update(JSON.stringify(fixture)).digest('hex').slice(0, 12);
 const goldenFile = join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.run${run}.json`);
 const calls = spikes.spikeCalls(idea, fixture) as Array<{ id: string; request: any }>;
+const attemptFile = join(PROJECT_ROOT, 'test/measurements/v2.8/13-phase-a/b4-attempts.jsonl');
+let actualCalls = 0;
 
 const goldenOf = (name: string) => JSON.parse(readFileSync(join(PROJECT_ROOT, 'test', 'goldens', 'judge', name), 'utf-8'));
 const replayAsk = (name: string) => {
@@ -58,9 +60,23 @@ let model: string | null = null;
 let recorded: any[] = [];
 if (replayOnly) {
   const golden = JSON.parse(readFileSync(goldenFile, 'utf-8'));
+  if (golden.fixtureRevision !== revision) throw new Error('Recorded fixture revision is stale');
+  if (golden.calls.length !== calls.length || calls.some((call) => !golden.calls.some((entry: any) => entry.id === call.id && JSON.stringify([entry.state, entry.questions]) === JSON.stringify([call.request.state, call.request.questions])))) throw new Error('Recorded request census differs from the fixture');
   model = golden.model;
   answers = new Map(golden.calls.map((call: any) => [call.id, { answers: call.answers, latencyMs: call.latencyMs }]));
 } else {
+  const sent = existsSync(attemptFile) ? readFileSync(attemptFile, 'utf8').trim().split(/\r?\n/).filter(Boolean).length : 0;
+  if (sent + calls.length > 300) throw new Error('B4 TypeSafe call budget would be exceeded');
+  mkdirSync(join(PROJECT_ROOT, 'test/measurements/v2.8/13-phase-a'), { recursive: true });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (!url.includes('/v1/systemone') || !url.startsWith('https://api.typesafe.ai/')) throw new Error('Only the protected TypeSafe upstream is allowed');
+    if (sent + actualCalls >= 300) throw new Error('B4 TypeSafe call budget exhausted');
+    actualCalls += 1;
+    appendFileSync(attemptFile, `${JSON.stringify({ at: new Date().toISOString(), idea, run, attempt: sent + actualCalls, fixtureRevision: revision })}\n`);
+    return originalFetch(input, init);
+  };
   const plugin = await import(pathToFileURL(resolve(PROJECT_ROOT, 'server-plugin', 'story-orchestrator-judge', 'index.mjs')).href);
   const handlers = plugin.createHandlers({ accountsEnabled: false });
   const transport = async (request: unknown) => {
@@ -72,7 +88,7 @@ if (replayOnly) {
       send(value: string) { out.body = JSON.parse(value); return res; },
     };
     await handlers.systemone({ body: request }, res);
-    if (out.status !== 200) throw new Error(`plugin ${out.status}: ${JSON.stringify(out.body)}`);
+    if (out.status !== 200) throw new Error(`Protected judge handler returned HTTP ${out.status}`);
     return out.body;
   };
   let inFlight = 0;
@@ -100,7 +116,7 @@ console.log(`metrics ${JSON.stringify(result.metrics)}`);
 const latencies = [...answers.values()].filter((entry) => entry.answers).map((entry) => entry.latencyMs).sort((a, b) => a - b);
 const p50 = latencies.length ? latencies[Math.floor((latencies.length - 1) / 2)] : null;
 const tokens = recorded.map((entry) => entry.inputTokens).filter((value) => typeof value === 'number');
-console.log(`\n${idea} run ${run}: ${result.passed ? 'PASS' : 'FAIL'}, calls ${calls.length}, unanswered ${result.unanswered}, p50 ${p50} ms, model ${model}, fixture ${fixtureName} rev ${revision}${tokens.length ? `, input tokens/call ${Math.round(tokens.reduce((a, b) => a + b, 0) / tokens.length)}` : ''}`);
+console.log(`\n${idea} run ${run}: ${result.passed ? 'PASS' : 'FAIL'}, actual upstream calls ${actualCalls}, unanswered ${result.unanswered}, p50 ${p50} ms, model ${model}, fixture ${fixtureName} rev ${revision}${tokens.length ? `, input tokens/call ${Math.round(tokens.reduce((a, b) => a + b, 0) / tokens.length)}` : ''}`);
 
 if (!replayOnly && rest.includes('--record')) {
   mkdirSync(join(PROJECT_ROOT, 'test', 'goldens', 'judge'), { recursive: true });
@@ -108,11 +124,11 @@ if (!replayOnly && rest.includes('--record')) {
     source: `ideas.mts ${idea} run ${run} over test/fixtures/judge/${fixtureName}.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions`,
     recordedAt: new Date().toISOString(), model, fixtureRevision: revision, run,
     verdict: { passed: result.passed, metrics: result.metrics, floors: [...result.floors, ...extraFloors] },
-    latencyP50Ms: p50, calls: recorded,
+    latencyP50Ms: p50, actualCalls, calls: recorded,
   }, null, 2)}\n`);
   const dir = join(PROJECT_ROOT, 'test', 'measurements', 'v2.8', '13-phase-a');
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  appendFileSync(join(dir, 'calls.jsonl'), `${JSON.stringify({ at: new Date().toISOString(), idea, run, calls: calls.length, passed: result.passed, fixtureRevision: revision, model })}\n`);
+  appendFileSync(join(dir, 'calls.jsonl'), `${JSON.stringify({ at: new Date().toISOString(), idea, run, calls: actualCalls, passed: result.passed, fixtureRevision: revision, model })}\n`);
   console.log(`recorded ${recorded.length} calls to ${goldenFile}`);
 }
 process.exit(result.passed ? 0 : 2);

@@ -1,0 +1,886 @@
+{
+  "source": "ideas.mts tone run 2 over test/fixtures/judge/spike-tone.json (v2.8 13 Phase A): real answers, replayed by jest keyed on state + questions",
+  "recordedAt": "2026-10-11T11:49:17.593Z",
+  "model": "jev-1.13.0",
+  "fixtureRevision": "139664bd5667",
+  "run": 2,
+  "verdict": {
+    "passed": true,
+    "metrics": {
+      "withinOne": 1
+    },
+    "floors": [
+      {
+        "name": "tone within 1",
+        "value": 1,
+        "floor": 0.9,
+        "op": ">=",
+        "ok": true
+      }
+    ]
+  },
+  "latencyP50Ms": 228,
+  "actualCalls": 20,
+  "calls": [
+    {
+      "id": "T1",
+      "state": {
+        "intent": "A sober account of grief, with restrained language.",
+        "reply": "The bereaved family stood silently beside the empty chair."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.96
+          }
+        }
+      },
+      "latencyMs": 280,
+      "inputTokens": 368
+    },
+    {
+      "id": "T2",
+      "state": {
+        "intent": "A sober account of grief, with restrained language.",
+        "reply": "The narrator made a fart joke at the funeral and called grief hilarious."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.97,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.96,
+            "1": 0.04,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 281,
+      "inputTokens": 371
+    },
+    {
+      "id": "T3",
+      "state": {
+        "intent": "A playful comedy of harmless misunderstandings.",
+        "reply": "They swapped identical hats and argued cheerfully over whose ears were warmer."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.99,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.99
+          }
+        }
+      },
+      "latencyMs": 228,
+      "inputTokens": 372
+    },
+    {
+      "id": "T4",
+      "state": {
+        "intent": "A playful comedy of harmless misunderstandings.",
+        "reply": "The narrator dwelt on mutilation and hopeless torture."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 255,
+      "inputTokens": 369
+    },
+    {
+      "id": "T5",
+      "state": {
+        "intent": "A tense espionage scene with suspicion and secrecy.",
+        "reply": "She checked the corridor before sliding the coded note beneath the door."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.99,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.99
+          }
+        }
+      },
+      "latencyMs": 214,
+      "inputTokens": 371
+    },
+    {
+      "id": "T6",
+      "state": {
+        "intent": "A tense espionage scene with suspicion and secrecy.",
+        "reply": "Everyone sang a nursery rhyme and forgot there had ever been a secret."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.45,
+          "confidence": 0.64,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.61,
+            "1": 0.36,
+            "2": 0.02,
+            "3": 0.01,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 204,
+      "inputTokens": 372
+    },
+    {
+      "id": "T7",
+      "state": {
+        "intent": "A gentle domestic story about caring for one another.",
+        "reply": "He warmed the soup and left a blanket where she could reach it."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 4,
+          "confidence": 1,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 1
+          }
+        }
+      },
+      "latencyMs": 231,
+      "inputTokens": 371
+    },
+    {
+      "id": "T8",
+      "state": {
+        "intent": "A gentle domestic story about caring for one another.",
+        "reply": "The narrator praised cruelty and mocked everyone for offering help."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 216,
+      "inputTokens": 368
+    },
+    {
+      "id": "T9",
+      "state": {
+        "intent": "A wonder-filled exploration of unfamiliar landscapes.",
+        "reply": "Blue light drifted through the crystal grove as they traced its branching paths."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.95,
+          "confidence": 0.96,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.05,
+            "4": 0.95
+          }
+        }
+      },
+      "latencyMs": 259,
+      "inputTokens": 372
+    },
+    {
+      "id": "T10",
+      "state": {
+        "intent": "A wonder-filled exploration of unfamiliar landscapes.",
+        "reply": "The narrator dismissed the entire landscape as boring and refused to describe it."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.98,
+            "1": 0.02,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 200,
+      "inputTokens": 369
+    },
+    {
+      "id": "T11",
+      "state": {
+        "intent": "A restrained mystery, patient observation over spectacle.",
+        "reply": "A faint watermark offered the first quiet clue."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.99,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.99
+          }
+        }
+      },
+      "latencyMs": 248,
+      "inputTokens": 365
+    },
+    {
+      "id": "T12",
+      "state": {
+        "intent": "A restrained mystery, patient observation over spectacle.",
+        "reply": "An explosion solved every mystery while the narrator shouted jokes."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.01,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 224,
+      "inputTokens": 367
+    },
+    {
+      "id": "T13",
+      "state": {
+        "intent": "A hopeful adventure about cooperation.",
+        "reply": "They shared their tools and found a route together."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.89,
+          "confidence": 0.92,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.1,
+            "4": 0.9
+          }
+        }
+      },
+      "latencyMs": 233,
+      "inputTokens": 363
+    },
+    {
+      "id": "T14",
+      "state": {
+        "intent": "A hopeful adventure about cooperation.",
+        "reply": "Cooperation was pointless, the narrator declared; betrayal was the only virtue."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0,
+          "confidence": 1,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 226,
+      "inputTokens": 369
+    },
+    {
+      "id": "T15",
+      "state": {
+        "intent": "A melancholic recollection of a lost friendship.",
+        "reply": "The faded letter still carried the shape of an old kindness."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.98,
+          "confidence": 0.98,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.98
+          }
+        }
+      },
+      "latencyMs": 217,
+      "inputTokens": 372
+    },
+    {
+      "id": "T16",
+      "state": {
+        "intent": "A melancholic recollection of a lost friendship.",
+        "reply": "The lost friendship was turned into a loud advertisement for cheap boots."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.85,
+          "confidence": 0.31,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.44,
+            "1": 0.42,
+            "2": 0.03,
+            "3": 0.09,
+            "4": 0.02
+          }
+        }
+      },
+      "latencyMs": 229,
+      "inputTokens": 373
+    },
+    {
+      "id": "T17",
+      "state": {
+        "intent": "A grounded survival scene without slapstick.",
+        "reply": "They rationed the remaining water and repaired the shelter before dark."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 4,
+          "confidence": 1,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 1
+          }
+        }
+      },
+      "latencyMs": 304,
+      "inputTokens": 370
+    },
+    {
+      "id": "T18",
+      "state": {
+        "intent": "A grounded survival scene without slapstick.",
+        "reply": "The shelter bounced away on cartoon legs while everyone laughed."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.99,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 227,
+      "inputTokens": 367
+    },
+    {
+      "id": "T19",
+      "state": {
+        "intent": "A tender reunion after a long separation.",
+        "reply": "She took his hand and waited until he could speak."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 3.96,
+          "confidence": 0.97,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.96
+          }
+        }
+      },
+      "latencyMs": 215,
+      "inputTokens": 366
+    },
+    {
+      "id": "T20",
+      "state": {
+        "intent": "A tender reunion after a long separation.",
+        "reply": "The narrator sneered at affection and turned the reunion into a sales pitch."
+      },
+      "questions": {
+        "tone": {
+          "type": "score",
+          "instructions": "How well does `reply` match the tone and themes of `intent`?",
+          "criteria": [
+            "opposes the intent",
+            "mostly at odds with the intent",
+            "mixed or neutral",
+            "mostly matches the intent",
+            "fully matches the intent"
+          ]
+        }
+      },
+      "answers": {
+        "tone": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.97,
+          "legend": {
+            "0": "opposes the intent",
+            "1": "mostly at odds with the intent",
+            "2": "mixed or neutral",
+            "3": "mostly matches the intent",
+            "4": "fully matches the intent"
+          },
+          "probabilities": {
+            "0": 0.96,
+            "1": 0.04,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      },
+      "latencyMs": 286,
+      "inputTokens": 370
+    }
+  ]
+}

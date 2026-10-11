@@ -46,7 +46,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 | A5 | Lorebook features for the campaign: outlets, regex keys, NOT logic, triggers | D11 |
 | A6 | Open stretches (engine half, then M1/M2) | 19 |
 | A7 | Local judge provider (decider-4b, then Plumb-4B), opt-in per use | 14 — built on `v2.8-local-judge` 2026-10-10 (unmerged); uses refused until calibrated; calibration waits for a 3090 slot and ~6.2 GB free on C: |
-| A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 |
+| A8 | J7 judge ideas, Phase A evaluation per idea (J7.1–J7.7, N1–N8) | 13 — built on `v2.8-judge-ideas` 2026-10-11 (unmerged): Phase A done for every idea with a question (J7.1 fails x2, N4 fails run 1; J7.6, N8 blocked); consumers for canon verify/draft, picture cue, N3/N5/N6/N7 on by default; live browser gate and N5 extractor comparison owed (13 Gate record B4) |
 | A9 | GPU broker in the ST plugin | 28, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI/LT open |
 | A10 | Image workflows in stories | 29, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI open |
 | A11 | Model downloads (Civitai, Hugging Face) | 30, D8 — approved 2026-10-10; built on `v2.8-media-stack` (D gates green), LI open (needs a token; nothing downloaded) |

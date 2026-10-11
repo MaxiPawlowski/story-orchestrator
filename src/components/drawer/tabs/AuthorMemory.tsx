@@ -18,6 +18,12 @@ export const AuthorMemoryControls = ({ snapshot, manager }: { snapshot: RuntimeS
       </label>
       <div className="opacity-70">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
       <div>Scene count {snapshot.memory.sceneCount}</div>
+      <button type="button" className="menu_button" data-so="canon-draft" onClick={() => void manager.draftCanon()}>Draft a checked story-so-far</button>
+      {snapshot.memory.canonDraft && <div data-so="canon-draft-review">
+        <div className="whitespace-pre-wrap">{snapshot.memory.canonDraft.text}</div>
+        <button type="button" className="menu_button" onClick={() => void manager.decideCanonDraft(true)}>Use this draft</button>
+        <button type="button" className="menu_button" onClick={() => void manager.decideCanonDraft(false)}>Discard draft</button>
+      </div>}
       {snapshot.memory.backfill?.lastError && <div data-so="memorize-error-detail" className="so-error-text">{snapshot.memory.backfill.lastError}</div>}
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && <div data-so="pinned-overflow-budget" className="opacity-70">Or raise this tier&apos;s budget.</div>}
       {lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}

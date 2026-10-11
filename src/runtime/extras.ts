@@ -174,6 +174,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       epistemic,
       ledger,
       canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
+      canonDraft: existing.canonDraft && typeof existing.canonDraft === "object" ? existing.canonDraft : null,
       verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter(
         (drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number",
       ).slice(-VERIFY_DROP_LIMIT) : [],
