@@ -937,6 +937,10 @@
       "status": "local",
       "note": "Plan 33: instance-local queue, inventory or captured cleanup only; writes delegate to guarded render. Tests: sprites/poses/bodyRenderer.test.ts."
     },
+    "src/sprites/poses/bodyRenderer.ts#PoseBodies.measureHead": {
+      "status": "checked",
+      "note": "Plan 33: the caller's guard runs right after the head detection awaits, before the box is cached or applied to the body. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
     "src/sprites/poses/bodyRenderer.ts#PoseBodies.render": {
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
