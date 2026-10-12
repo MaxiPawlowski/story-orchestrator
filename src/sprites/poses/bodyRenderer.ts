@@ -96,6 +96,23 @@ export class PoseBodies {
       }
     } finally { this.running = false; }
   }
+  private async measureHead(request: BodyRequest, posed: { path: string; sha256: string }, body: BodyStamp, discovery: ComfyDiscovery, signal: AbortSignal, guard: () => void): Promise<boolean> {
+    let blocked = false;
+    if (request.pose.id !== "stand_relaxed" && this.deps.head) {
+      if (!this.heads.has(posed.sha256)) {
+        const found = await this.deps.head(await this.deps.decode(posed.path), discovery, signal);
+        guard();
+        const box = found && [0, 14, 15, 16, 17].some((at) => found.points[at]) ? poseHead(found, body.head) : found === null ? null : undefined;
+        this.heads.set(posed.sha256, box);
+        if (this.heads.size > 256) this.heads.delete(this.heads.keys().next().value as string);
+      }
+      const measuredHead = this.heads.get(posed.sha256);
+      if (measuredHead) { body.head = measuredHead; body.headSource = "measured"; }
+      else if (measuredHead === null) { blocked = true; body.headSource = "none"; }
+    }
+    body.headSource ??= "target";
+    return blocked;
+  }
   async render(request: BodyRequest): Promise<BodyResult | null> {
     const run = beginRun(this.deps.ownership), builder = this.deps.builder();
     this.active = builder; this.activeRequest = request;
@@ -193,20 +210,7 @@ export class PoseBodies {
         resolved = await bodyFor("p3");
       }
       const { bodyKey, body, posed } = resolved;
-      let expressionBlocked = false;
-      if (request.pose.id !== "stand_relaxed" && this.deps.head) {
-        if (!this.heads.has(posed.sha256)) {
-          const found = await this.deps.head(await this.deps.decode(posed.path), discovery, run.signal);
-          guard();
-          const box = found && [0, 14, 15, 16, 17].some((at) => found.points[at]) ? poseHead(found, body.head) : found === null ? null : undefined;
-          this.heads.set(posed.sha256, box);
-          if (this.heads.size > 256) this.heads.delete(this.heads.keys().next().value as string);
-        }
-        const measuredHead = this.heads.get(posed.sha256);
-        if (measuredHead) { body.head = measuredHead; body.headSource = "measured"; }
-        else if (measuredHead === null) { expressionBlocked = true; body.headSource = "none"; }
-      }
-      body.headSource ??= "target";
+      const expressionBlocked = await this.measureHead(request, posed, body, discovery, run.signal, guard);
       const faceKey = await contentHash(new TextEncoder().encode(stableStringify({ bodyKey, face: request.layers.face, head: body.head, recipe: EDIT_RECIPE })));
       let finalSet = body.set, file: { path: string; sha256: string } = posed;
       if (!expressionBlocked && (request.label !== "neutral" || Object.keys(request.layers.face).length)) {
