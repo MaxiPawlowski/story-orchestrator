@@ -2,6 +2,8 @@ import { draftedCardName, forceActivateEntries, getContext, getScannableEntries,
 import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
 import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
+import { tunnelVisionBooksWith } from "@services/stHost/tunnelVision";
+import { readTunnelVisionWith } from "../tunnelVision";
 import { readExtensionConflictsWith } from "../extensionConflicts";
 import { LoreSelector } from "../loreSelect";
 import { loreSelectTiming, type LoreSelectTrigger } from "../loreSelectTiming";
@@ -110,6 +112,10 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       manifest: context.getExtensionManifest,
       storage: (key) => globalThis.localStorage?.getItem(key) ?? null,
     });
+  }));
+  disposers.push(readTunnelVisionWith(() => {
+    const context = getContext();
+    return tunnelVisionBooksWith({ settings: context.extensionSettings, manifest: context.getExtensionManifest });
   }));
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),

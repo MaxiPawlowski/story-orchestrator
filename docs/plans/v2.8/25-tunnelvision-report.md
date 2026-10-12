@@ -221,3 +221,18 @@ Avoid:
 ## Run record
 
 See plan 25 §Run record.
+
+## A18 gate record — 2026-10-12
+
+- Owner approved implementation in the no-model build-now pass. Branch `v2.8-build-now` from `619078fb`.
+- Pattern: existing `stHost/extensionConflicts.ts` reader, registered runtime reader, snapshot slice and central check registry. No third-party settings writes.
+- `tunnelvision-story-lore`: author-only, story-scoped, dismissable `degrades`; intersects required, curator and lore-select books with TunnelVision's enabled books.
+- Host source pinned above: `tree-store.js:100–102,273–275,313,343,347,370,699–701,749,775`; `index.js:696–733`. Disabled/uninstalled/global-off cases quiet. Native injection and keyword passthrough avoid a scan-suppression claim.
+- Read-only alone is not a universal guard: pinned lifecycle/post-turn/sidecar writers lack `canWriteBook` checks. When any is enabled, keep the write-risk warning even on read-only books. Copy recommends removing TunnelVision's book access; does not promise protected spans constrain a foreign writer.
+- Campaign adoption: automatic host check; no authored campaign fields or asset changes needed.
+- `npm run docs:guide`, `npm run docs:settings`: exit 0. `npm run gates:quick`: exit 0; 115 related suites / 1,390 tests, replay 32/32 killed, both typechecks and changed-file lint green.
+- No-model lane 38 on a separate ST code copy: `st-lanes.mts batch --lanes 38 --repeat 2 --strict test/scenarios/v28-25-tunnelvision-coexistence.json`: 2/2 green, complete evidence. Native/keyword passthrough, permissions, off/disabled/unrelated-book clearing and Setup dismissal control exercised. Real TunnelVision execution is not part of this synthetic scenario; it exercises our shipped host reader, snapshot and Setup UI with a synthetic manifest.
+- First browser attempts failed because the fixture checked unchanged visibility before React updated its detail. Fixed the fixture to await the rendered suppression/write flags. No product failure. One offline `/props` probe returned 500 in the passing batch; no inference was run.
+- Header diff against `run-header-tv-before.json`: exit 0, no undeclared drift. Private archive `v28-a18-tunnelvision`: 64 files, no archive problems; `npm run sessions:archive` exit 0.
+- Full-gate attempts: initial fixture lacked a description and a story was added after the Storybook build began; corrected both. Next run passed Storybook (130 suites / 786 tests) and build (main bundle 1,248,027 B), but the corpus arrival golden lacked the new fixture. Added its empty findings row; final full gate pending.
+- Final `npm run gates -- --jobs=4`: exit 0, all 11 steps green in 192.3 s. Jest 684 suites / 7,880 tests passed (1 suite/test skipped); Storybook 130 suites / 786 tests; replay 32/32 killed. Both typechecks, lint, debug typecheck, plugin/debug/release checks and build passed. A18 accepted with no model dependency; the broader build-now pass remains open.

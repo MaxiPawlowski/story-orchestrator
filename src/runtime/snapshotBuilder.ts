@@ -29,6 +29,7 @@ import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
 import { stylesheetMissing } from "./stylesheet";
 import { extensionConflicts } from "./extensionConflicts";
+import { tunnelVision } from "./tunnelVision";
 import { copierWarning, switchedOnCopiers } from "./transcriptCopiers";
 import { competingScenarios, scenarioFrame, type ScenarioFrame } from "./storyScenario";
 import { harvestWaitsOnThought, repliesCarryNoThought } from "./thinkingSilence";
@@ -268,7 +269,7 @@ const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
   modelCallRing: extras.modelCalls,
 });
 
-type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "contextOverServer" | "competingScenarios" | "extensionConflicts" | "briefing" | "playerSetup";
+type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "contextOverServer" | "competingScenarios" | "extensionConflicts" | "tunnelVisionBooks" | "briefing" | "playerSetup";
 
 const playerSpoke = (chat: readonly unknown[]) => chat.some((row) => isRecord(row) && row.is_user === true && row.is_system !== true);
 
@@ -278,6 +279,7 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
   extensionConflicts: extensionConflicts(sources.loaded?.story ?? null),
+  tunnelVisionBooks: tunnelVision(sources.loaded?.story ?? null),
   briefing: briefingState({
     story: sources.loaded?.story ?? null, storyId: sources.loaded?.record?.id ?? null, record: sources.extras.briefing, enabled: sources.extras.ui?.briefing !== false,
     chatOpen: hasOpenChat(), hash: sources.loaded?.record?.hash,

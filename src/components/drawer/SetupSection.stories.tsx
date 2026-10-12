@@ -110,6 +110,22 @@ export const AuthorViewAddsDetail: Story = {
   },
 };
 
+export const TunnelVisionSharesStoryLore: Story = {
+  args: {
+    authorView: true,
+    findings: setupFindings(snapshot({ ui: { authorView: true }, tunnelVisionBooks: [{ name: "Story Lore", suppressesScan: true, canWrite: true }] })),
+  },
+  play: async ({ canvasElement, args }) => {
+    const row = canvasElement.querySelector<HTMLElement>('[data-so="setup-row"][data-check="tunnelvision-story-lore"]');
+    await expect(row).not.toBeNull();
+    await expect(row?.getAttribute("data-severity")).toBe("degrades");
+    await expect(row?.textContent).toContain("Story Lore");
+    await expect(row?.textContent).toContain("Normal keyword scanning suppressed");
+    await userEvent.click(within(row as HTMLElement).getByRole("button", { name: SETUP_COPY.dismiss }));
+    await expect(args.onDismiss).toHaveBeenCalledWith("tunnelvision-story-lore", true);
+  },
+};
+
 export const DismissedCanComeBack: Story = {
   args: { findings: setupFindings(snapshot({ thinkingSilent: true, dismissedChecks: ["model-not-thinking"] })) },
   play: async ({ canvasElement, args }) => {

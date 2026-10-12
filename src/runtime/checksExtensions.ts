@@ -12,6 +12,23 @@ export const EXTENSION_SETTINGS_SELECTORS = {
 
 export const EXTENSION_DEGRADE_CHECKS: readonly Check[] = [
   {
+    id: "tunnelvision-story-lore", area: "extension", scope: "story", audience: "author", severity: "degrades", feature: "story-lorebooks",
+    detect: (snapshot) => {
+      const books = snapshot.tunnelVisionBooks ?? [];
+      if (!books.length) return null;
+      const suppressed = books.filter((book) => book.suppressesScan).map((book) => book.name);
+      const writable = books.filter((book) => book.canWrite).map((book) => book.name);
+      return {
+        consequence: "TunnelVision manages lorebooks this story uses, so it can hide story lore or change entries outside the story's control.",
+        detail: [
+          ...(suppressed.length ? [`Normal keyword scanning suppressed: ${suppressed.join(", ")}. Enable keyword triggers or native injection in TunnelVision.`] : []),
+          ...(writable.length ? [`Shared write access: ${writable.join(", ")}. TunnelVision does not enforce Story Orchestrator's protected spans; `
+            + "disable TunnelVision for these books to keep its writers out. Read-only permission alone does not stop every background writer."] : []),
+        ].join(" "),
+      };
+    },
+  },
+  {
     id: "stepped-thinking-separated", area: "extension", scope: "story", audience: "player", severity: "degrades", feature: "memory",
     detect: (snapshot) => (has(snapshot, "stepped-thinking-separated") ? {
       consequence: "Stepped Thinking posts each character's thoughts as chat messages, so the story treats a thought as something that happened: it can remember it and move on because of it.",
