@@ -377,3 +377,49 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - **Owed:** the full S0 (8 poses x 2 seeds, run x2) and the LI acceptance. **Quote from the measured times:** 96 bodies x 59.7 s = 95.6 min, 192 head edits x 22.3 s = 71.2 min, about 2 h 47 min per run, about 5 h 34 min for two runs (plus 3 bases, about 1.5 min, and DWPose scoring); a P4 arm adds its own download and render time. An independent second-model identity rater and label rater when the authoring route has headroom; the owner's decision on P4 versus a retarget and head-box fix and re-pilot.
 - Cleanup and idle GPU: lane 37 stopped. ComfyUI input files `so-s0-*` (90) and the 86 `so-sprite*`/`so-s0-base*` output files this run wrote were removed by exact recorded name (462 other files in `output` untouched), 27 DWPose preview temp files removed; installed files left: the two ONNX files and the `scikit-image` packages. Controller `stop` (status refused afterwards), ComfyUI on :8188 closed, `nvidia-smi` 849 MiB used (the desktop's, 755 to 847 MiB before the task). The private evidence: so-sessions commit `23dd59fa`, `evidence/phase-c/v28-poses-s0-pilot-2026-10-11/` (396 files, sha256 in `ARCHIVE.json`; bases, bodies, heads, targets, raw outputs, DWPose scores, contact sheets, `results.jsonl`, `ratings.json`, `summary.json`, `vram.csv`), committed by explicit path.
 - Commands: `git merge master`; `node scripts/debug/st-lanes.mts seed 37 --fresh`; `st-lanes.mts start 37`; `st-lanes.mts run 37 -- scripts/debug/st-eval.mts --file <plan/download snippet>` (plan and download through the plugin routes); `st-lanes.mts stop 37`; `node scripts/local/cli.mjs start|unload|start-comfy`; `node scripts/debug/so-pose-s0.mts vram | bases | body | head | bodies | heads | score | sheets | heads-outbox | summary 18.86`; `node scripts/local/cli.mjs free-images`, `stop`; `node --test scripts/debug/lib/poseS0.test.mts scripts/debug/lib/poseS0Graph.test.mts`: 14 pass, 0 fail.
+
+## Gate record: S0 re-pilot after the retarget and head-crop fixes (2026-10-11, 3090)
+
+- Place: `C:\dev\so-poses`, branch `v2.8-poses` at `ca30e005` (fix) on master `52d50817`. The owner granted the 3090 overnight (until about 23:54); renders ran 16:07 to 16:42 local, then GPU idle. No owner ST, no lane 0, no P4 file, no key read.
+- Cause of the pilot misses, measured on the pilot's own evidence (three standing bases with their DWPose):
+  - the library skeleton has a long torso and short legs (torso 30 percent of the nose-to-ankle span, legs 51 percent) while real figures measure about 23 and 58 percent;
+  - `retargetPose` stretched each pose to the standing alpha box with a separate x and y scale, so seated and kneeling skeletons came out tall and wide;
+  - the expression crop used the requested skeleton's head, not the rendered one.
+- Fix (`src/sprites/poses/retarget.ts`, `bodyRenderer.ts`, `bodyHost.ts`):
+  - bone-length retarget: each bone keeps the library pose's direction and takes the member's own measured length (left and right averaged, foreshortening kept within 0.25 to 1.1 of the library's standing length); without a measurement it falls back to one uniform scale;
+  - sitting, kneeling and lying poses rest their lowest joint on the member's floor line; upright, moving and airborne poses keep the standing hip height;
+  - the whole figure is shrunk uniformly and shifted to stay inside the canvas;
+  - the expression crop is DWPose on the rendered body; a body where DWPose finds no person keeps its neutral render and edits nothing at an unverified head (`headSource: "none"`); an unavailable estimator keeps the old target box (`"target"`);
+  - the cache key carries the member's measured skeleton and `RETARGET_VERSION` 2, so old bodies are never reused.
+- Same scope as the first pilot: 3 synthetic members (same bases), 4 poses, arms P2 and P3, 1024, seed 1234, 2 expressions per body, one run. The full S0 (8 poses x 2 seeds, run x2) is still owed.
+- Results (floors unchanged, not retuned):
+  - P2 PCK@0.1: 0.903 (was 0.472), floor 0.70, met; P3 0.690 (was 0.278); gain +0.213, floor +0.10, met;
+  - body QA: 12 of 12 on each arm (100 percent; P2 was 83.3 percent), floor 90, met;
+  - label visible: 46 of 48 = 95.8 percent (was 77.1), floor 90, met; the 2 misses are the one body where DWPose found no person (P3 kneel, third member), whose edits were skipped, not made;
+  - identity: 24 of 24 same character, PROVISIONAL, scored by the session reading every PNG, not an independent second model;
+  - body render: median 57.7 s, p90 58.8 s (floors 90 and 150), met; head edit median 23.1 s, p90 31.5 s;
+  - peak VRAM about 19.8 GiB (20,242 MiB by `nvidia-smi`, whole GPU), floor 22, met.
+- Decision: P2 passes. P4 is not needed and nothing was downloaded. P3 remains the fallback.
+- Observations: every fight_swing body invents a weapon the base did not carry; DWPose found no person on one P3 kneeling body, so P3 is the less reliable arm.
+- Gates: `npm run gates:quick` green in 90.6 s (typecheck, typecheck:test, lint, related jest, defect replay 32 of 32). Jest: 32 of 32 in `src/sprites/poses`, 8 new. `npm run debug:typecheck` clean; `node --test scripts/debug/lib/poseS0.test.mts` passes. Full `npm run gates` runs at merge.
+- Evidence (private): so-sessions commit `244f7fdb`, `evidence/phase-c/v28-poses-s0-repilot-2026-10-11/`.
+- Commands: `SO_S0_DIR=C:/dev/so-s0-repilot node scripts/debug/so-pose-s0.mts vram | bodies | score | heads | sheets | summary 19.77`; controller `cli.mjs start | unload | start-comfy`.
+- Owed: full S0 x2 on both seeds and 8 poses; an independent identity and label rater; Acceptance through the product path (in progress on lane 40).
+
+## Gate record: full S0 (2026-10-11 to 12, 3090)
+
+- Place: `C:\dev\so-poses`, branch `v2.8-poses` at `3755880a`. 3090 granted by the owner overnight. Driver `scripts/debug/so-pose-s0.mts` with `SO_S0_POSES=full`, run by a chained script, one batch at a time, GPU otherwise idle.
+- Scope, as §6 states it: 3 synthetic members (the pilot's bases), 8 library poses (stand_arms_crossed, sit_chair, kneel_one, fight_swing, cast_two_hands, crouch, walk, lie_side), arms P2 and P3, 1024, 2 seeds (1234, 5678), 2 expressions per body, run twice (r1, r2). That is 192 bodies and 384 head edits; 376 head edits were made and 8 were skipped because DWPose found no person on the rendered body (see below). Text model unloaded through the controller.
+- Automated results, pooled over the four batches (floors unchanged, not retuned):
+  - P2 PCK@0.1: 0.860 (floor 0.70, met); P3 0.642; gain +0.218 (floor +0.10, met). Per batch P2: 0.854, 0.866, 0.854, 0.866;
+  - body QA: 96 of 96 on each arm (floor 90 percent, met);
+  - body render: median 56.5 s, p90 56.7 s (floors 90 and 150, met); head edit median 21.2 s, p90 21.3 s;
+  - peak VRAM 19,944 MiB (19.5 GiB) by `nvidia-smi` every 500 ms across two sampler segments (floor 22 GB, met);
+  - head edits: 376 of 376 changed at least 5 pixels.
+- Weak poses (P2 PCK pooled): lie_side 0.51 and crouch 0.78 and kneel_one 0.81 are the weakest; cast_two_hands 1.00, walk 0.97, sit_chair 0.94, stand_arms_crossed 0.94, fight_swing 0.93. P3 is much worse on lie_side (0.01) and kneel/crouch (0.43, 0.41): P3 turned the lying pose into a seated one on the sampled sheet. The mean passes; lie_side alone is below 0.70.
+- DWPose found no person on 4 bodies in each seed-1234 run (the third member's P2 crouch and P3 kneel_one): 8 expression edits skipped, never made at an unverified head.
+- Not independent and not complete, so NOT claimed as floors: identity and "label visible" are provisional. The session read 17 contact sheets (bodies and heads, covering all three members, lie_side, crouch, kneel, walk, cast_two_hands, fight and sit) and saw the same character in every sampled pose and a readable expression in every sampled edit, including lying and crouching. It did not read all 192 bodies and 376 edits, and it is not a second model. The label rate is bounded above by 376 of 384 (97.9 percent) and has no measured lower bound.
+- Run 2 reproduced run 1 exactly (same PCK per seed) and rendered at half the time (median 28.3 s per body vs 56.6 s); the cause was not investigated. The floors are scored on all four batches pooled. Run 1 batch 1 was interrupted once (the chain process died, restarted, finished items skipped); no render was repeated.
+- Decision: P2 stays (it clears every automated floor on both seeds and both runs). Known limit: a lying pose is not reliable on P2 either (0.51) and is unreliable on P3. P4 not needed, nothing downloaded.
+- Evidence (private): so-sessions commit `fc6a4b4c`, `evidence/phase-c/v28-poses-s0-full-2026-10-12/`.
+- Owed: an independent second-model identity and label rater over all renders; Acceptance through the product path x2 (lane 40 is rendering the showcase through it); fix or de-list lie_side.
