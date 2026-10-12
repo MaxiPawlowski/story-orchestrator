@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, copyFile, access } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, access, cp, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
@@ -128,6 +128,7 @@ async function prepare(page: Page) {
     await ctx.getCharacters();
     return { group: String(group.id), members, liveHeadRigs };
   }, { story, template, cast: CAST, faces: FACES, images, rigs });
+  const restored = process.argv.includes('--restore-cache') ? await cacheFolders(resolve(ART, 'cache'), laneCharacters()) : 0;
   await openGroup(page, created.group);
   await startNewChat(page);
   await closeUnpinnedDrawers(page);
@@ -146,7 +147,35 @@ async function prepare(page: Page) {
   await page.evaluate(async () => { await (globalThis as any).SillyTavern.getContext().saveChat(); });
   await page.waitForFunction(() => (globalThis as any).storyOrchestratorRuntime.getSnapshot()?.schedulerIdle !== false, undefined, { timeout: 60000 });
   await page.waitForTimeout(2500);
-  console.log(JSON.stringify({ group: created.group, members: created.members.map((m) => m.name), story: story.id, builders: Object.keys(builders), rigs: Object.keys(created.liveHeadRigs).length }));
+  console.log(JSON.stringify({ group: created.group, members: created.members.map((m) => m.name), story: story.id, builders: Object.keys(builders), rigs: Object.keys(created.liveHeadRigs).length, cacheFolders: restored }));
+}
+
+const laneCharacters = () => {
+  const folder = resolve(DEBUG_DIR, '..', 'data', 'default-user', 'characters');
+  assert.ok(/so-lanes/.test(folder.replace(/\\/g, '/')), 'The sprite cache only moves in and out of a lane copy: ' + folder);
+  return folder;
+};
+
+async function cacheFolders(from: string, to: string) {
+  let moved = 0;
+  for (const name of await readdir(from).catch(() => [] as string[])) {
+    if (!name.startsWith(MARKER)) continue;
+    await mkdir(resolve(to, name), { recursive: true });
+    for (const entry of await readdir(resolve(from, name), { withFileTypes: true })) {
+      if (entry.isDirectory()) await cp(resolve(from, name, entry.name), resolve(to, name, entry.name), { recursive: true, force: true });
+    }
+    moved += 1;
+  }
+  return moved;
+}
+
+async function cacheCommand() {
+  const direction = process.argv[3];
+  assert.ok(direction === 'save' || direction === 'restore', 'cache save | cache restore');
+  const cache = resolve(ART, 'cache');
+  await mkdir(cache, { recursive: true });
+  const moved = direction === 'save' ? await cacheFolders(laneCharacters(), cache) : await cacheFolders(cache, laneCharacters());
+  console.log(JSON.stringify({ cache: direction, folders: moved }));
 }
 
 async function status(page: Page) {
@@ -197,6 +226,14 @@ async function cleanup(page: Page) {
     rt.notify();
   });
   await saveSettingsNow(page);
+  if (process.argv.includes('--purge-sprites')) {
+    const purged = await page.evaluate(async () => {
+      const context = (globalThis as any).SillyTavern.getContext();
+      const response = await fetch('/api/plugins/story-orchestrator-media/sprites/remove-story', { method: 'POST', headers: context.getRequestHeaders(), body: JSON.stringify({ story: 'so-showcase-lantern-inn' }) });
+      return response.ok ? await response.json() : { error: response.status };
+    });
+    console.log(JSON.stringify({ purged }));
+  }
   console.log(JSON.stringify({ clean: removed.clean, leaked: leakCount(removed.leaked) }));
 }
 
@@ -221,7 +258,8 @@ async function main(page: Page) {
   else if (command === 'shot') await shot(page);
   else if (command === 'render') await render(page);
   else if (command === 'cleanup') await cleanup(page);
-  else console.log('commands: art (no lane) | prepare [--no-render] | render on|off | shot <name> | status | cleanup');
+  else if (command === 'cache') await cacheCommand();
+  else console.log('commands: art (no lane) | prepare [--no-render] [--restore-cache] | cache save|restore | render on|off | shot <name> | status | cleanup [--purge-sprites]');
   return { ok: true };
 }
 

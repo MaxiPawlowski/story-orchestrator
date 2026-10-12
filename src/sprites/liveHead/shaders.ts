@@ -104,7 +104,7 @@ vec4 mouth(vec2 p, vec4 base) {
   if (k <= 0.0) return base;
   float line = uMouthState.z * (1.0 - s * s);
   float hk = pow(k, mix(0.55, 0.85, clamp(form, 0.0, 1.0)));
-  float H = mix(20.0, 26.0, clamp(form, 0.0, 1.0));
+  float H = mix(0.7692, 1.0, clamp(form, 0.0, 1.0)) * uMouthState.w;
   float up = line - 0.6 - open * 2.5 * hk;
   float lo = line + open * H * hk;
   float cov = smoothstep(-0.7, 0.7, t - up) * smoothstep(-0.7, 0.7, lo - t);

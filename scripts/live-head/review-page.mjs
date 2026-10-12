@@ -30,7 +30,8 @@ window.renderReview = async (value, palette) => {
     names.forEach((name, k) => {
       renderer.draw({ ...restHead(), ...POSES[name] });
       const ox = (k % columns) * cw, oy = Math.floor(k / columns) * (ch + 22);
-      ctx.drawImage(canvas, x0 * SCALE, y0 * SCALE, (x1 - x0) * SCALE, (y1 - y0) * SCALE, ox, oy + 22, cw, ch);
+      const px = canvas.width / width;
+      ctx.drawImage(canvas, x0 * px, y0 * px, (x1 - x0) * px, (y1 - y0) * px, ox, oy + 22, cw, ch);
       ctx.fillStyle = "#fff"; ctx.font = "16px sans-serif"; if (label) ctx.fillText(name, ox + 4, oy + 16);
     });
     return sheet.toDataURL("image/png");
