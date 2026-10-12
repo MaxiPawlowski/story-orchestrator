@@ -30,6 +30,7 @@ const startGating = (disposers: Disposers, exclusive: Parameters<typeof startSca
   void settingsReady().then(() => {
     if (scanGatingDisposed || scanGating) return;
     scanGating = startScanGating({
+      settings: () => runtimeManager.getEffectiveSettings().worldInfo,
       chatId,
       ownedChat: () => runtimeManager.getLoadedChatId(),
       story: () => runtimeManager.getStory(),

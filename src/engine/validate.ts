@@ -3,6 +3,7 @@ import {
   type Transition, type ValidationError,
 } from "./schema";
 import { isRecord } from "@utils/guards";
+import { readFeaturePolicies } from "./featurePolicy";
 import { addError, asString } from "./validate/common";
 import { buildReachability, readTransition, validateGate, validateLiteral } from "./validate/gates";
 import { readCheckpoint, readRoster } from "./validate/checkpoints";
@@ -115,6 +116,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const life = layer?.life.readLife(json, errors);
   const qualities = layer ? layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors) : builtin;
   const options = readStoryOptions(json, errors);
+  const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   resolveGuidanceMembers(checkpoints, roster);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
@@ -150,6 +152,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
 
   return {
     format: 2,
+    ...(Object.keys(features).length ? { features } : {}),
     ...(storyId ? { id: storyId } : {}),
     title: json.title as string,
     description: json.description as string,

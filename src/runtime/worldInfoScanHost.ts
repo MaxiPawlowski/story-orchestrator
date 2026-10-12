@@ -23,6 +23,7 @@ import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
 import { ScanGuard, type ScanGuardResult } from "./worldInfoScanGuard";
 
 export interface ScanGatingWiring {
+  settings?: () => import("./settingsModel").WorldInfoSettings;
   chatId: () => string | null;
   ownedChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
@@ -151,7 +152,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastScan = provider.apply(arrays, rows);
     const plan = loreExclusiveFor({ ...deps.exclusive, scanActive: scanGatingActive, story: deps.story, chatId: deps.chatId, vectorsScanWorldInfo });
     lastExclusive = { refusal: plan.refusal, stats: applyLoreExclusive(arrays, plan) };
-    const worldInfo = getGlobalSettings().worldInfo;
+    const worldInfo = deps.settings?.() ?? getGlobalSettings().worldInfo;
     const placement = lorePlacementFor({
       enabled: () => worldInfo.lateLore,
       depth: () => worldInfo.lateLoreDepth,

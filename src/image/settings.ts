@@ -14,15 +14,6 @@ export interface ImageRoute {
   directorMayOverride: boolean;
 }
 export interface LoraUse { file: string; weight: number }
-export interface ImageBinding {
-  appearanceTags: string;
-  appearanceProse: string;
-  checkpoint: string;
-  loras: LoraUse[];
-  alwaysTags: string;
-  neverTags: string;
-  seed: number | null;
-}
 export interface ImageOverride { checkpoint: string; quality: Quality | ""; extraPositive: string; loras: LoraUse[]; paused: boolean }
 export interface ImageChatState { override: ImageOverride; emitted: string[]; automationCount: number }
 export interface ImageSettings {
@@ -39,7 +30,6 @@ export interface ImageSettings {
   purposes: Record<Purpose, ImageRoute>;
   upscalers: Record<string, string>;
   loras: Lora[];
-  characters: Record<string, ImageBinding>;
   retired: RetiredImageChoice[];
 }
 export interface RetiredImageChoice { where: string; was: string }
@@ -81,7 +71,7 @@ export const defaultImageSettings = (): ImageSettings => ({
     background: row({ aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" }),
     free: row({ aspect: "auto", shot: "full", directorMayOverride: true }),
   },
-  upscalers: {}, loras: [], characters: {}, retired: [],
+  upscalers: {}, loras: [], retired: [],
 });
 
 const record = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -126,7 +116,6 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
   const originalPurposes = record(raw.purposes);
   const originalDefaults = record(raw.defaults);
   const originalAutomation = record(raw.automation);
-  const originalCharacters = record(raw.characters);
   const retired = sanitizeRetired(raw.retired);
   const retire = (where: string, was: string) => {
     if (!retired.some((entry) => entry.where === where && entry.was === was)) retired.push({ where, was });
@@ -152,17 +141,6 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
       directorMayOverride: current.directorMayOverride === true,
     }];
   })) as Record<Purpose, ImageRoute>;
-  const characters = Object.fromEntries(Object.entries(originalCharacters).map(([key, item]) => {
-    const binding = record(item);
-    const checkpoint = str(binding.checkpoint);
-    if (isRetiredCheckpoint(checkpoint)) retire(`character ${key}`, checkpoint);
-    return [key, {
-      appearanceTags: str(binding.appearanceTags), appearanceProse: str(binding.appearanceProse),
-      checkpoint: isRetiredCheckpoint(checkpoint) ? "" : checkpoint, loras: sanitizeImageOverride(binding).loras,
-      alwaysTags: str(binding.alwaysTags), neverTags: str(binding.neverTags),
-      seed: typeof binding.seed === "number" && Number.isFinite(binding.seed) ? binding.seed : null,
-    }];
-  })) as Record<string, ImageBinding>;
   const loras = Array.isArray(raw.loras) ? raw.loras.filter((item): item is Lora => {
     const entry = record(item);
     if (entry.base === "flux" && typeof entry.file === "string") retire("LoRA", entry.file);
@@ -186,6 +164,6 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
     },
     safeMode: raw.safeMode === true, purposes: routes,
     upscalers: Object.fromEntries(Object.entries(record(raw.upscalers)).filter((entry): entry is [string, string] => typeof entry[1] === "string")),
-    loras, characters, retired: retired.slice(-20),
+    loras, retired: retired.slice(-20),
   };
 };

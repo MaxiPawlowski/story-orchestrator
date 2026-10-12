@@ -5,6 +5,7 @@ import { GUIDE_TOPICS, PENDING_GUIDE_TOPICS, readGuide, type GuideTopicId } from
 type Covered = GuideTopicId | { none: string };
 
 const STORY: Record<keyof StoryV2, Covered> = {
+  features: "feature-policies",
   format: { none: "always 2, written by the Studio" },
   id: "story-basics", title: "story-basics", description: "story-basics", player_intro: "story-basics", kind: "story-basics",
   player: "player", briefing: "briefing", reasoning: "experimental-effects", illustrations: "presentation", poses: "poses", qualities: "qualities", checkpoints: "checkpoints", transitions: "transitions",

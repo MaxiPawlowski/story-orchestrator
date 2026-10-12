@@ -47,7 +47,8 @@ const readCache = () => {
 function relatedTests(dir, changed) {
   const sources = changed.filter((path) => path.startsWith('src/'));
   if (!sources.length) return new Set();
-  const run = spawnSync(process.execPath, [join(dir, 'node_modules', 'jest', 'bin', 'jest.js'), '--listTests', '--findRelatedTests', ...sources], { cwd: dir, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 });
+  const run = spawnSync(process.execPath, [join(dir, 'node_modules', 'jest', 'bin', 'jest.js'), '--runInBand', '--listTests', '--findRelatedTests', ...sources],
+    { cwd: dir, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 });
   if (run.status !== 0) throw new Error(`jest --listTests failed: ${(run.stderr ?? '').slice(-2000)}`);
   return new Set(run.stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((path) => path.replace(/\\/g, '/')).map((path) => path.slice(path.indexOf('/src/') + 1)));
 }

@@ -15,7 +15,7 @@ const withPlayerNames = (names: Record<string, string>): NormalizedStoryV2 => pa
 });
 
 const directorPrompt = (scene: ImageScene, text: string) => {
-  const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null), null);
+  const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null));
   return imageMessages({ purpose: "scene", text, messageId: null }, scene, route).map((message) => message.content).join("\n");
 };
 

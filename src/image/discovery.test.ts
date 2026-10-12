@@ -83,7 +83,7 @@ describe("plan 32 W2 payload invariance: the image director prompt", () => {
   const purposes = ["scene", "portrait", "background"] as const;
   const messages = (settings: ImageSettings, purpose: typeof purposes[number]) => imageMessages(
     { purpose, text: purpose === "background" ? "a ruined temple" : "", messageId: 1 }, scene,
-    resolveImageRoute(settings, purpose, {}, sanitizeImageOverride(null), null));
+    resolveImageRoute(settings, purpose, {}, sanitizeImageOverride(null)));
   const declared = (content: string) => content
     .replace(/^The checkpoint must be one of: .*$/m, "<MODEL CHOICE>")
     .replace(/AVAILABLE IMAGE MODELS:\n[\s\S]*?\n\n/, "<MODEL MENU>\n\n");

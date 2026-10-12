@@ -370,6 +370,7 @@ const PLAYER_SHELL: PlantedSpec[] = [
   { id: 'so-drawer', children: [{ class: 'drawer-toggle' }] },
   { id: 'drawer-manager', class: 'openDrawer', children: [{ attrs: { role: 'tablist' } }] },
   { id: 'chat', children: [{ class: 'mes', attrs: { mesid: '3' }, text: 'The road bends east.' }] },
+  { id: 'so-workspace-modal', tag: 'dialog', attrs: { open: '', 'data-context': 'story' }, children: [{ tag: 'nav' }] },
 ];
 
 async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSpec[] }) {
@@ -379,9 +380,12 @@ async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSp
   const root = new PlantedElement({ tag: 'body', children: [...shell, { id: 'so-panels-root', children: plant.panels ?? [] }] });
   g.document = { querySelectorAll: (selector: string) => root.querySelectorAll(selector), querySelector: (selector: string) => root.querySelector(selector),
     getElementById: (id: string) => root.querySelector(`#${id}`) };
-  g.storyOrchestratorRuntime = { getSnapshot: () => ({ ui: { authorView: false }, inline: null }), getStory: () => null };
+  const snapshot = () => ({ ui: { authorView: false }, inline: null });
+  g.storyOrchestratorRuntime = { getSnapshot: snapshot, getCachedSnapshot: snapshot, getStory: () => null };
   const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined,
-    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined }) };
+    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
+      waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }),
+      allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) }) };
   try {
     return (await assertPlayerClean(page)).findings.map((finding: { needle: string }) => finding.needle);
   } finally {

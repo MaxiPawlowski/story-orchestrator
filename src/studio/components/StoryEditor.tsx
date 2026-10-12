@@ -21,6 +21,7 @@ import {
 } from "../mutations";
 
 export interface StoryEditorProps {
+  section?: "setup" | "world" | "presentation" | "rules" | "flow";
   personaNames?: string[];
   memberNames?: string[];
   lorebookNames?: string[];
@@ -451,22 +452,20 @@ const ArcBridgesSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
   );
 };
 
-const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberNames = [], lorebookNames = [], idLocked = false }) => {
+const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberNames = [], lorebookNames = [], idLocked = false, section }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
 
   return (
     <div data-so="story" className="flex flex-col gap-4">
-      <StoryIdentitySection draft={draft} mutate={mutate} idLocked={idLocked} />
-      <RequirementsSection draft={draft} mutate={mutate} personaNames={personaNames} memberNames={memberNames} lorebookNames={lorebookNames} />
-      <IllustrationsSection draft={draft} mutate={mutate} />
-      <StagecraftSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
-      <LoreSelectSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
-      <HouseRulesSection draft={draft} mutate={mutate} />
-      <SceneReadSection draft={draft} mutate={mutate} />
-      <ArcBridgesSection draft={draft} mutate={mutate} />
-      <ChaptersEditor />
-      <StoryDisplayEditor />
+      {(!section || section === "setup") && <><StoryIdentitySection draft={draft} mutate={mutate} idLocked={idLocked} />
+        <RequirementsSection draft={draft} mutate={mutate} personaNames={personaNames} memberNames={memberNames} lorebookNames={lorebookNames} /></>}
+      {(!section || section === "presentation") && <><IllustrationsSection draft={draft} mutate={mutate} /><StoryDisplayEditor /></>}
+      {(!section || section === "world") && <><StagecraftSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
+        <LoreSelectSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} /></>}
+      {(!section || section === "rules") && <><HouseRulesSection draft={draft} mutate={mutate} /><SceneReadSection draft={draft} mutate={mutate} />
+        <ArcBridgesSection draft={draft} mutate={mutate} /></>}
+      {(!section || section === "flow") && <ChaptersEditor />}
     </div>
   );
 };

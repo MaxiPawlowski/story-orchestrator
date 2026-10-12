@@ -98,6 +98,7 @@ let judgeAnswers: Record<string, unknown> | null = null;
 let snapshotBuilds = 0;
 
 const manager = {
+  getEffectiveSettings: () => ({ sprites: settings }),
   getGlobalSettings: () => ({
     sprites: settings, judge: { enabled: judgeAnswers !== null, uses: { expressions: judgeAnswers !== null }, timeoutMs: 1000 }, image: { directorProfileId: "" },
   }),

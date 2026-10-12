@@ -10,7 +10,7 @@ export function startCardOverlay(manager: RuntimeManager): () => void {
     const snapshot = manager.getCachedSnapshot();
     const story = manager.getStory();
     const enabled = new Set(manager.getEnabledCharacterIds());
-    const rows = story && snapshot.ready && manager.getGlobalSettings().sprites.cardOverlay
+    const rows = story && snapshot.ready && manager.getEffectiveSettings().sprites.cardOverlay
       ? [...story.roster.filter((member) => enabled.has(member.id)).map((member) => {
         const look = publicLook(cardValues(story, snapshot.blackboard, member.id));
         return look ? `${member.name ?? member.id}: ${look}` : "";

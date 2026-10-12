@@ -21,12 +21,12 @@ import { createModelCall } from "./modelCall";
 import { loadChapterKit } from "./chapterPort";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackKind, RollbackNotice, RollbackUnavailable } from "./narrative";
-import { coordinatorHosts } from "./coordinatorHosts";
+import { coordinatorHosts, featureCoordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
-import { SettingsControl, type UiSettingsPatch } from "./settingsControl";
+import { SettingsControl } from "./settingsControl";
 import { lazyPlayerSetup } from "./playerSetupPort";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
@@ -35,7 +35,7 @@ import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
-import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
+import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
@@ -55,7 +55,7 @@ import {
 } from "./storySelection";
 import type {
   BranchOrigin, CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
-  MemoryMirrorBook, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
+  MemoryMirrorBook, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
   StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
 import { withholds } from "./generationLifecycle";
@@ -63,7 +63,7 @@ import { onEnterRollbackPlan } from "./npcReplyRewind";
 import { stagedPath } from "./worldInfoGates";
 import { chatSettle } from "./chatSettle";
 import type { MutationKind } from "./turnBridge";
-import { CoordinatorDelegates } from "./managerDelegates";
+import { SettingsDelegates } from "./settingsDelegates";
 import { required } from "@utils/guards";
 import { chanceContext, createChanceSeams } from "./chance";
 import { deriveQualities } from "./stretchTurns";
@@ -75,7 +75,7 @@ const boundStoryForOpenChat = () => {
   return boundStoryForEmptyChat(settingsRoot(), ctx.groupId, ctx.chat);
 };
 
-export class RuntimeManager extends CoordinatorDelegates {
+export class RuntimeManager extends SettingsDelegates {
   readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
   private engine = new StoryEngine({ now: () => Date.now(), derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows) });
   private loaded: LoadedStory | null = null;
@@ -112,7 +112,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     recap: (summary, detail) => this.noteRecap(summary, detail),
     rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
-  private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
+  private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null),
+    hosts: featureCoordinatorHosts(() => this.getEffectiveSettings().worldInfo.scanMemory) };
   readonly model = createModelCall({
     settings: () => this.getExtractionSettings(), exists: profileExists, ownership: this.owner.ownership,
     stamp: () => ({ chatId: this.loadedChatId, messageId: this.getBoundaryContext().lastMessageId }),
@@ -163,6 +164,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
 
   notify() {
+    this.refreshFeatureSettings();
     this.snapshotCache.invalidate();
     if (this.journal.observeStatus(this.status, this.journalContext())) this.extras.journal = this.journal.getRecords();
     this.listeners.forEach((listener) => listener());
@@ -372,14 +374,10 @@ export class RuntimeManager extends CoordinatorDelegates {
   getMirrorBook(): MemoryMirrorBook | null { return this.extras.memory.wiBook; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
-  private readonly settingsControl = new SettingsControl({ extras: () => this.extras,
+  protected readonly settingsControl = new SettingsControl({ extras: () => this.extras,
+      story: () => this.getStory(), ownsChat: () => this.owner.ownsOpenChat(),
       updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(),
       clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
-  setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
-  setPacingSettings(settings: Partial<Omit<PacingSettings, "alpha">>) { this.settingsControl.pacing(settings); }
-  setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
-  setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) { this.settingsControl.copilot(settings); }
-  setUiSettings(settings: UiSettingsPatch) { this.settingsControl.ui(settings); }
 
   getActiveTalkControl(): TalkControl | null {
     if (!this.loaded || !this.extras.requirements.ready || !this.extras.talk.enabled) return null;
@@ -388,9 +386,7 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   getTalkState(): TalkRuntimeState { return this.extras.talk; }
 
-  setTalkDirectionEnabled(on: boolean, scope: "chat" | "global" = "chat") { this.settingsControl.talk(on, scope); }
-  getTalkChainConfig() { return { ...getGlobalSettings().talk.chain, ...TALK_CHAIN_FIXED }; }
-  setTalkChainSettings(chain: Partial<TalkChainSettings>) { this.settingsControl.talkChain(chain); }
+  getTalkChainConfig() { return { ...this.getEffectiveSettings().talk.chain, ...TALK_CHAIN_FIXED }; }
 
   private extractionHold = false;
   setExtractionHold(hold: boolean) { this.extractionHold = hold; }
@@ -481,6 +477,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   touch() { this.snapshotCache.invalidate(); }
 
   getSnapshot(elsewhere = false): RuntimeSnapshot {
+    if (!elsewhere) this.refreshFeatureSettings();
     return buildRuntimeSnapshot(snapshotSources({
       ...this.co, loaded: elsewhere ? null : this.loaded, engine: this.engine, extras: elsewhere ? createExtras(getGlobalSettings) : this.extras,
       validationErrors: this.validationErrors, status: elsewhere ? CHAT_LOADING_STATUS : this.status,
@@ -513,6 +510,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.journal.hydrate(this.extras.journal, this.status);
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
     this.loadedChatId = this.owner.claimedChat();
+    this.refreshFeatureSettings();
     // Minted *after* the load names its world: a token taken before it describes the world being replaced.
     const run = beginRun(this.owner.ownership);
     this.engine.loadStory(this.loaded.story);

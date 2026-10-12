@@ -12,15 +12,16 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
   </label>
 );
 
-const TransitionEditor: React.FC = () => {
+const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
   const transitions = draft.transitions;
   const checkpoints = draft.checkpoints;
   const anchors = checkpoints.filter((checkpoint) => checkpoint.type === "anchor");
 
-  const [selectedIndex, setSelectedIndex] = useState<number>(transitions.length ? 0 : -1);
+  const [selectedIndex, setSelectedIndex] = useState<number>(initialIndex ?? (transitions.length ? 0 : -1));
   const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
+  const [editing, setEditing] = useState(initialIndex !== undefined);
   const selected = selectedIndex >= 0 ? transitions[selectedIndex] ?? null : null;
 
   const patch = (change: Partial<Transition>) => {
@@ -31,6 +32,7 @@ const TransitionEditor: React.FC = () => {
   const handleAdd = () => {
     mutate((current) => addTransition(current));
     setSelectedIndex(transitions.length);
+    setEditing(true);
   };
 
   const handleDelete = () => {
@@ -48,8 +50,8 @@ const TransitionEditor: React.FC = () => {
   const progress = selected?.effects?.progress;
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
-      <div className="flex w-full flex-col gap-2 sm:w-56">
+    <div className="so-editor-drilldown flex flex-col gap-3 sm:flex-row" data-editing={editing}>
+      <div className="so-editor-list flex w-full flex-col gap-2 sm:w-56">
         <button type="button" className="st-button primary" onClick={handleAdd} disabled={checkpoints.length === 0}>+ Transition</button>
         <ul className="m-0 flex list-none flex-col gap-1 p-0" aria-label="Transitions">
           {transitions.length === 0 ? <li className="text-sm st-muted">No transitions yet</li> : null}
@@ -59,7 +61,7 @@ const TransitionEditor: React.FC = () => {
                 type="button"
                 aria-pressed={index === selectedIndex}
                 className={`st-chip flex w-full flex-col items-start px-2 py-1 text-left text-sm ${index === selectedIndex ? "st-tab-active" : ""}`}
-                onClick={() => { setConfirmDeleteIndex(null); setSelectedIndex(index); }}
+                onClick={() => { setConfirmDeleteIndex(null); setSelectedIndex(index); setEditing(true); }}
               >
                 <span className="w-full [overflow-wrap:anywhere]">{transition.from} → {transition.to}</span>
                 <span className="w-full text-[10px] st-muted [overflow-wrap:anywhere]">{renderGateText(transition.gate) || "(always)"}</span>
@@ -69,7 +71,8 @@ const TransitionEditor: React.FC = () => {
         </ul>
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="so-editor-detail min-w-0 flex-1">
+        <button className="so-editor-back st-button secondary" onClick={() => setEditing(false)}>Back to transitions</button>
         {!selected ? (
           <div className="st-subpanel p-4 text-sm st-muted">Select or add a transition.</div>
         ) : (

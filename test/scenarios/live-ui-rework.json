@@ -1,0 +1,22 @@
+{
+  "requires": { "lane": "model", "group": "Group: Arin, DM Narrator" },
+  "steps": [
+    { "import_story": {
+      "format": 2, "id": "so-ui-rework-live", "title": "SO-UI-Rework Live", "description": "A public UI and model-routing fixture.",
+      "features": { "reading": { "cadence": 1, "stabilityLag": 0 }, "pacing": "off", "voices": { "max": 1 } },
+      "qualities": [{ "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered replies." }],
+      "checkpoints": [{ "id": "start", "name": "An open gate", "objective": "Describe an open gate and let the player decide where to go.", "type": "anchor", "start": true }],
+      "transitions": [], "roster": []
+    } },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; const s=rt.getSnapshot(); if (!s.features.inner.enabled || !s.features.inner.controls.harvestReasoning.value) throw new Error('inner voice must remain on'); if (s.features.pacing.enabled || !s.features.pacing.declined) throw new Error('story decline was not resolved'); if (!rt.setFeatureOverride('pacing',{enabled:true})) throw new Error('chat override refused'); if (!rt.getSnapshot().features.pacing.reenabled) throw new Error('re-enable warning absent'); if (rt.getStory().features.pacing !== 'off') throw new Error('chat preference changed authored policy'); for (const key of Object.keys(globalThis).filter(k=>k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return {inner:true,storyDecline:true,chatReenabled:true};" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; if(!rt.setFeatureOverride('thinking',{effort:'low'})) throw new Error('thinking override refused'); if(rt.getSnapshot().features.thinking.controls.effort.source!=='chat') throw new Error('thinking source is not chat'); return {thinkingOverride:true};" },
+    { "send_generate": { "text": "I pause at the open gate and look for a sign showing where the road leads. What can I see?", "timeoutMs": 300000, "expectReply": true } },
+    { "eval": "const shots=globalThis.storyOrchestratorSpikes?.reasoningEffect?.shots()??[]; if(!shots.some(s=>s.source==='chat'&&s.level==='low'&&s.budget===128&&s.set.length)) throw new Error('chat thinking budget did not reach a real generation'); return {thinkingBudget:128,source:'chat',shots:shots.length};" },
+    { "extract": { "reason": "ui-rework-real-model" } },
+    { "wait": { "schedulerIdle": true, "timeoutMs": 300000 } },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; const s=rt.getSnapshot(); const audits=s.extraction.audits; if (!audits.length) throw new Error('real read produced no audit'); if (!audits.some(a=>typeof a.rawResponse==='string'&&a.rawResponse.trim())) throw new Error('no real read response'); if(s.boundary<1) throw new Error('no rendered reply boundary'); const c=SillyTavern.getContext(); const replies=c.chat.filter(m=>!m.is_user&&!m.is_system&&String(m.mes??'').trim()); if(!replies.length) throw new Error('no visible reply'); return {boundary:s.boundary,audits:audits.length,replies:replies.length,innerEnabled:s.features.inner.enabled,chatOverride:s.features.pacing.source};" },
+    { "ui": { "action": "open-drawer" } },
+    { "eval": "const modal=document.querySelector('#so-workspace-modal[open]'); if(!modal) throw new Error('workspace failed to open after real generation'); return {workspace:true};" }
+  ]
+}

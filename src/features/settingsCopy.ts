@@ -321,9 +321,6 @@ export const SETTING_COPY = {
   "image.purposes.*.directorMayOverride": copy("Let the image-prompt model pick another model", "The image-prompt model may switch this picture to a different image model when it fits better."),
   "image.purposes.*.extraPositive": copy("Always add", "Words added to every prompt of this kind."),
   "image.purposes.*.extraNegative": copy("Always avoid", "Words added to the avoid list of every prompt of this kind."),
-  "image.characters.*.appearanceTags": copy("Fixed look", "Image tags that describe this character, used when the story has not described them."),
-  "image.characters.*.alwaysTags": copy("Always include", "Tags added to every picture of this character."),
-  "image.characters.*.neverTags": copy("Never include", "Tags kept out of every picture of this character."),
   "sprites.enabled": copy(
     "Show character sprites that change expression as replies stream",
     "Shows the speaking characters on a small stage, and changes their expression with the reply. Needs a sprite pack for each character.",

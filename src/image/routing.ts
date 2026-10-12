@@ -1,5 +1,5 @@
 import { checkpointFor, FAMILIES, familyOf, modelId, type Aspect, type Checkpoint, type Family, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
-import { type ImageBinding, type ImageOverride, type ImageSettings } from "./settings";
+import { type ImageOverride, type ImageSettings } from "./settings";
 
 export interface ImageArgs {
   checkpoint?: string;
@@ -14,7 +14,7 @@ export interface Route {
   purpose: Purpose;
   checkpoint: Checkpoint;
   family: Family;
-  source: "request" | "chat" | "character" | "purpose" | "director";
+  source: "request" | "chat" | "purpose" | "director";
   quality: Quality;
   aspect: Aspect | "auto";
   shot: Shot;
@@ -30,10 +30,10 @@ export interface Route {
 
 const tags = (text: string) => text.split(",").map((tag) => tag.trim()).filter(Boolean);
 
-export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, args: ImageArgs, chat: ImageOverride, binding: ImageBinding | null): Route => {
+export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, args: ImageArgs, chat: ImageOverride): Route => {
   const row = settings.purposes[purpose];
   const candidates = [
-    [args.checkpoint, "request"], [chat.checkpoint, "chat"], [binding?.checkpoint, "character"], [row.checkpoint, "purpose"],
+    [args.checkpoint, "request"], [chat.checkpoint, "chat"], [row.checkpoint, "purpose"],
   ] as const;
   const warnings: string[] = [];
   const chosen = candidates.find(([file]) => Boolean(file));
@@ -41,7 +41,7 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
   const file = chosen?.[0] ?? "";
   const checkpoint = checkpointFor(file, source === "purpose" ? row.family : familyOf(file) ?? row.family);
   const family = FAMILIES[checkpoint.family];
-  const loras = [...chat.loras, ...(binding?.loras ?? [])].flatMap((use) => {
+  const loras = chat.loras.flatMap((use) => {
     const entry = settings.loras.find((item) => item.file === use.file);
     if (!entry) { warnings.push(`Missing LoRA ${use.file}.`); return []; }
     return [{ entry, weight: Math.min(entry.weight.max, Math.max(entry.weight.min, use.weight)) }];
@@ -59,9 +59,9 @@ export const resolveImageRoute = (settings: ImageSettings, purpose: Purpose, arg
     placement: args.placement ?? row.placement,
     candidates: Math.min(4, Math.max(1, Math.round(args.candidates ?? row.candidates))),
     loras: fitting, allowed,
-    positive: [...tags(row.extraPositive), ...tags(chat.extraPositive), ...tags(binding?.alwaysTags ?? ""), ...fitting.flatMap((lora) => lora.entry.triggerWords)],
+    positive: [...tags(row.extraPositive), ...tags(chat.extraPositive), ...fitting.flatMap((lora) => lora.entry.triggerWords)],
     negative: [...tags(row.extraNegative), ...(safe ? tags(checkpoint.safeNegative ?? "nsfw") : [])],
-    seed: args.seed ?? binding?.seed ?? null,
+    seed: args.seed ?? null,
     warnings,
   };
 };

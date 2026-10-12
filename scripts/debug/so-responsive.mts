@@ -56,7 +56,7 @@ export const RESPONSIVE_VIEWPORTS: Array<{ width: number; height: number; label:
 // One measurement, in the page: our roots' overflow, and our controls' boxes against the viewport.
 // `data-so` is the project's own marker for a control worth naming in a report.
 const measure = () => {
-  const roots = ['#drawer-manager', '#story-orchestrator-settings', '#so-hud-root', '#so-studio-modal', '#so-studio-root'];
+  const roots = ['#drawer-manager', '#story-orchestrator-settings', '#so-workspace-modal', '#so-hud-root', '#so-studio-modal', '#so-studio-root'];
   const visible = (node: Element) => {
     const rect = node.getBoundingClientRect();
     const style = getComputedStyle(node as HTMLElement);

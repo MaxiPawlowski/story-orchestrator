@@ -1,4 +1,5 @@
 export { getContext, getPlayerName, parseHostYaml, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
+export { currentUserHandle } from "@services/stHost/userIdentity";
 export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup, askConfirm } from "@services/stHost/popup";
 export { bindNavbarDrawerToggle, openGroupMemberList, toggleNavbarDrawer } from "@services/stHost/drawers";

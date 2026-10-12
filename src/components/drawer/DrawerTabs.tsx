@@ -12,9 +12,7 @@ import { DRAWER_TAB_EVENT } from "@runtime/drawerTab";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
-import { isArcTemplateName } from "@pacing/index";
 import type { InlineActions } from "../inline/InlineDetail";
-import { CheckRow, FieldLabel } from "../settings/Field";
 
 const DriverPanel = lazyRetry(() => import("./DriverPanel"));
 const MessageInspector = lazyRetry(() => import("./MessageInspector"));
@@ -68,7 +66,7 @@ export interface DrawerTabsProps {
   inspect?: { messageId: number; onClose: () => void; actions?: InlineActions } | null;
 }
 
-const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
+export const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
 
@@ -218,21 +216,6 @@ export const DrawerTabs = ({
           setup={{ findings: setupFindings(snapshot), onShowMe, onFix, onDismiss: (check, dismissed) => manager.setCheckDismissed(check, dismissed) }}
         />}
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
-        <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
-          <div className="font-medium">Chat preferences <span className="opacity-70 font-normal">— this chat only</span></div>
-          <CheckRow id="so-talk-direction" setting="talk.enabled" checked={snapshot.talk.enabled} onChange={(on) => manager.setTalkDirectionEnabled(on)} />
-          <div className="flex flex-col gap-1">
-            <FieldLabel htmlFor="so-shape-override" label="Dramatic shape"
-              help="The rise and fall of tension this chat aims for. Use story default unless you want this chat paced differently." />
-            <select id="so-shape-override" value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""}
-              onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
-              <option value="">Use story default</option>
-              <option value="rising">Rising to climax</option>
-              <option value="fall_recovery">Fall then recovery</option>
-              <option value="three_act">Three act</option>
-            </select>
-          </div>
-        </section>
         {imagePanel}
         </div>}
         {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} onDecideMeanwhile={(id, status) => void manager.decideMeanwhile(id, status)} /></AuthorTab>}

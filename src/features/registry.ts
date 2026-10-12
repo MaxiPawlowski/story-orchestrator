@@ -41,6 +41,7 @@ export const NEED_LABELS: Record<FeatureNeed, string> = {
 };
 
 export interface FeatureWhere {
+  workspace?: import("@runtime/workspaceNavigation").WorkspaceIntent;
   selector: string;
   label: string;
   surface: FeatureSurface;
@@ -207,7 +208,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "speaker-direction", name: "Speaker direction", area: "characters", audience: "player",
     oneLine: "In a group, the story picks who should speak next.",
     what: "In a group chat, the story chooses the character the scene calls for instead of rotating through everyone. A story can set who leads each scene.",
-    where: drawerAt("#so-talk-direction", "Overview › Chat preferences"),
+    where: drawerAt("#so-feature-speakers-enabled", "Features › Speaker direction"),
     settings: ["talk.enabled"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
     isOn: (settings) => settings.talk.enabled,
   },
@@ -427,7 +428,24 @@ const CORE_FEATURES: readonly Feature[] = [
   },
 ];
 
-export const FEATURES: readonly Feature[] = [...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature)];
+const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatureId, string]> = {
+  "reply-thinking": ["thinking", "effort"],
+  pacing: ["pacing", "enabled"], chapters: ["chapters", "recap"], "continuity-warden": ["continuity", "enabled"],
+  "speaker-direction": ["speakers", "enabled"], "talk-chain": ["voices", "enabled"], "inner-voice": ["inner", "enabled"],
+  "memory-lore": ["memoryLore", "enabled"], "late-lore": ["lateLore", "enabled"], curator: ["curator", "enabled"],
+  "curator-create": ["curator", "create"], "curator-markers": ["curator", "acceptMode"], sprites: ["sprites", "enabled"],
+  "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
+};
+
+export const FEATURES: readonly Feature[] = [
+  ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
+].map((feature) => {
+  const target = POLICY_TARGETS[feature.id];
+  if (!target) return feature;
+  const [id, control] = target;
+  return { ...feature, where: { surface: "drawer", selector: `#so-feature-${id}-${control}`, label: `This story › Features › ${feature.name}`,
+    workspace: { context: "story", page: "features", feature: id, control: `so-feature-${id}-${control}` } } };
+});
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);
 

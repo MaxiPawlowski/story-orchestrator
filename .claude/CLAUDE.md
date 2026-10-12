@@ -62,6 +62,15 @@ Report exact commands and results at handover. Failing gate = say so plainly.
 
 ## UI entry points
 
+Current workspace routing: Extensions launcher `#so-open-workspace` and navbar drawer open lazy native dialog
+`#so-workspace-modal`. Story: Play, Features, Review, Author; Orchestrator: Library, Defaults, Connections,
+Interface, Help. `workspaceNavigation.open({context,page,feature,control})` owns deep links. Feature controls are
+`#so-feature-<id>-<field>`; changes in Story are chat overrides. Install defaults live in Defaults, authored
+policies in Studio. Device display/motion rows live in Interface. Browser Back traverses details before closing.
+The panels below are reused inside the workspace; the old Extensions settings body is replaced by its launcher.
+Studio groups its editors into Story setup, Flow, State and rules, Characters, World, Presentation,
+Story features, Assistant and Validation. Mobile graph sheets and checkpoint/transition drill-down keep editing enabled.
+
 - **Settings panel** (`#story-orchestrator-settings`): four entry points in `components/settings/EntryPoints.tsx` (`#so-entry-points`) — Start (`#so-new-story-wizard`, import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`); then story select, extraction, display toggles, speaker direction, Stagecraft (`#so-curator-enabled` on by default, `#so-curator-accept-mode` default `review`).
 - **Drawer**: ST top-bar drawer `#so-drawer` (content `#drawer-manager`, toggled via `stHost/drawers.ts`); tabs in `components/drawer/DrawerTabs.tsx`. Player mode: Overview (`PlayerOverview.tsx`, `#so-setup`) + Memory (`#so-memory-search`). "Author view" (per-chat `extras.ui`, confirms first) adds Blackboard/Scheduler/Payload, engine panels, curator review (`#so-stagecraft`), next-turn preview (`#so-next-turn`), DriverPanel, "Fix with wizard" (`#so-fix-with-wizard`). Overview footer: Restart story; author-only Edit story / Update to the latest.
 - **HUD** `#so-hud` above the chat input (`HudStrip.tsx`): checkpoint, tension, pending-delta chip, `#so-hud-pipeline`, `#so-hud-setup` count chip.

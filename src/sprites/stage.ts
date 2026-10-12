@@ -61,7 +61,7 @@ export class SpriteStage {
   }
 
   private settings(): SpriteSettings {
-    return this.manager.getGlobalSettings().sprites;
+    return this.manager.getEffectiveSettings().sprites;
   }
 
   view = (): StageView => this.snapshot;

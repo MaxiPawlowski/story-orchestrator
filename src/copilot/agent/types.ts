@@ -4,6 +4,7 @@ import type { PoseAgentOp } from "./poseOps";
 import type { GameAgentOp } from "./gameOps";
 
 export type AgentOnlyOp =
+  | { kind: "setFeatures"; features: import("@engine/featurePolicy").StoryFeatures }
   | { kind: "setHouseRules"; rules: string[] }
   | { kind: "setPlayer"; player: StoryPlayer }
   | { kind: "setChapters"; chapters: Chapter[]; assign: Record<string, string> }

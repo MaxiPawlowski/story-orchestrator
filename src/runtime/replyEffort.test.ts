@@ -245,6 +245,15 @@ describe("reply effort: the install default and the checkpoint override", () => 
     expect(armFor({ ...target, storyChat: null })).toBeNull();
     expect(armFor({ ...target, story: null })).toBeNull();
   });
+  it("chat effort wins over checkpoint tuning, while install master-off wins over chat", () => {
+    expect(armFor({ ...target, override: "low" })).toMatchObject({ level: "low", source: "chat" });
+    expect(armFor({ ...target, override: "high", masterOff: true })).toMatchObject({ level: "off", source: "install" });
+    const declined = { ...target.story, features: { thinking: "off" as const } };
+    expect(armFor({ ...target, story: declined })).toMatchObject({ level: "off", source: "story" });
+    expect(armFor({ ...target, story: declined, override: "high" })).toMatchObject({ level: "high", source: "chat" });
+    const tuned = { ...target.story, features: { thinking: { effort: "low" } } };
+    expect(armFor({ ...target, story: tuned, checkpointId: "cp1" })).toMatchObject({ level: "low", source: "story" });
+  });
 
   it("the overridden level reaches the request", () => {
     const overlay = new ReplyEffortOverlay();

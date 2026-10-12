@@ -2,8 +2,12 @@ import type { GuideTopicId } from "@copilot/guideTopics";
 import type { StudioTab } from "./StudioModal";
 
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
-  story: ["story-basics", "briefing", "player", "requirements", "arc-template", "arc-bridges", "stagecraft", "lore-select", "lore-entries", "scene-read", "house-rules", "chapters", "presentation",
-    "living-director", "branching"],
+  features: ["feature-policies"],
+  story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "branching"],
+  world: ["stagecraft", "lore-select", "lore-entries"],
+  presentation: ["presentation", "background"],
+  rules: ["arc-bridges", "scene-read", "house-rules"],
+  chapters: ["chapters"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
     "checkpoints", "objective-agency", "open-stretches", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "scenario", "cast-changes",

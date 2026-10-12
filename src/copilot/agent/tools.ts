@@ -1,6 +1,7 @@
 import { readChapters, type ValidationError } from "@engine/index";
 import { readPlayer } from "@engine/validate/player";
 import { isRecord } from "@utils/guards";
+import { readFeaturePolicies } from "@engine/featurePolicy";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
 import type * as CoreMutations from "../../studio/mutations";
@@ -50,6 +51,9 @@ const CHAPTER = "[{id, title, player_title?, kind?: chapter|interlude, final?: b
 type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
 
 export const EDIT_TOOLS = {
+  setFeatures: { backedBy: "setFeatures", composes: ["setFeaturePolicy"],
+    doc: "Replace story feature policies. Absent inherits; off declines; an object tunes. Never put authored content here.",
+    args: { features: req("object", "Complete features block; see readGuide feature-policies") } },
 setPoses: { backedBy: "setPoses", doc: "Set the story pose library. Read poses and pose-skeletons first. No render or download.", args: { poses: req("object",
     "{use?: pose ids or tags[], custom?: PoseEntry[]}") } },
 setMemberPoses: { backedBy: "setMemberPoses", doc: "Set a member's default pose and allowed pose ids.", args: { id: req("string", "roster id"), sprites: req("object",
@@ -366,6 +370,12 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   const text = (key: string) => String(call.args[key]).trim();
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
   if (call.tool === "setAppearance") return { ok: true, spec, op: { kind: "setAppearance", id: text("id"), appearance: text("appearance") } };
+  if (call.tool === "setFeatures") {
+    const issues: string[] = [];
+    const features = readFeaturePolicies(call.args.features, (path, message) => issues.push(`${path}: ${message}`));
+    if (issues.length) return { ok: false, message: issues.join("; ") };
+    return { ok: true, spec, op: { kind: "setFeatures", features } };
+  }
   if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };
   if (call.tool === "setRosterView") {
     const view = text("view");

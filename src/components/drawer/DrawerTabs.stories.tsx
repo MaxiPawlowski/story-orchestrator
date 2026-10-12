@@ -482,7 +482,7 @@ export const BlackboardGateQualitiesAndPending: Story = {
     await expect(row?.textContent).toContain("unset");
     await expect(row?.getAttribute("data-gate")).toBe("true");
     await expect(row?.querySelector('[data-so="blackboard-pending"]')?.textContent).toBe("→ true");
-    await expect(canvasElement.querySelector('[data-so="blackboard-row"][data-key="has_key"] [data-so="blackboard-pending"]')?.textContent).toBe("");
+    await expect(canvasElement.querySelector('[data-so="blackboard-row"][data-key="has_key"] [data-so="blackboard-pending"]')?.textContent).toBe("—");
   },
 };
 

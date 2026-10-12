@@ -48,7 +48,7 @@ export const NarrowStudio: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByRole("button", { name: "+ Checkpoint" });
-    await expect(canvasElement.querySelector('[data-so="graph-narrow-hint"]')).toHaveTextContent("use the Checkpoints and Transitions tabs");
+    await expect(canvasElement.querySelector('[data-so="graph-narrow-hint"]')).toHaveTextContent("tap a checkpoint to edit");
   },
 };
 

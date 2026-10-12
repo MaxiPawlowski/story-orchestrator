@@ -178,3 +178,4 @@ export const modelDownloads = async () => [];
 export const cancelModelDownload = async () => ({ ok: false, reason: "No downloads in Storybook." });
 export const writeModelKey = async () => ({ ok: false, reason: "No secrets in Storybook." });
 export const PROVIDER_SECRET_KEYS = { civitai: "so_civitai_token", huggingface: "api_key_huggingface" };
+export const currentUserHandle = () => "storybook-user";

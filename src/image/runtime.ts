@@ -15,7 +15,7 @@ import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/m
 import { ImageQueue } from "./queue";
 import { pickImageCheckpoint, resolveImageRoute, withCheckpointFile, type ImageArgs, type Route } from "./routing";
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
-import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
+import { setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { firedLoreKeys, visualLore } from "./lore";
 import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
@@ -58,7 +58,7 @@ export class StoryImageDirector {
 
   constructor(private readonly manager: RuntimeManager) { this.queue.subscribe(() => this.notify()); }
 
-  settings(): ImageSettings { return getGlobalSettings().image; }
+  settings(): ImageSettings { return this.manager.getEffectiveSettings().image; }
   updateSettings(patch: Partial<ImageSettings>): ImageSettings { const settings = setGlobalSettings({ image: patch }).image; void this.refreshHealth(); this.notify(); return settings; }
 
   private async storyWorkflowHealth(source: string | null): Promise<ImageHealthView["storyWorkflows"]> {
@@ -222,9 +222,7 @@ export class StoryImageDirector {
       scene.visualDetails = visualLore(entries, [...scoped, ...gates.map((gate) => gate.lorebook)], gates,
         [request.text, ...scene.messages.map((row) => row.text), scene.location ?? ""].join("\n"), firedLoreKeys(snapshot.lore?.fired ?? []));
     }
-    const focus = chat.characters.find((character) => character.key === scene.focus);
-    const binding = focus ? settings.characters[focus.key] ?? null : null;
-    let route = resolveImageRoute(settings, request.purpose, args, this.override(), binding);
+    let route = resolveImageRoute(settings, request.purpose, args, this.override());
     if (settings.backend === "comfy") {
       const resolved = resolveCheckpointFile(route.checkpoint.file, route.family.id, (await comfyDiscover()).checkpoints);
       if (!resolved.ok) throw new Error(`No image was drawn. ${resolutionProblem(request.purpose, resolved)} under Picture types.`);

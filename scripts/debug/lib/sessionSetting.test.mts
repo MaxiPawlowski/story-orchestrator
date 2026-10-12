@@ -10,7 +10,8 @@ test('setting: a section the runtime derives its in-memory view from is refreshe
   assert.equal(refresherFor('memory.chapters.seal'), 'setMemorySettings');
   assert.equal(refresherFor('display.inline.level'), 'setUiSettings');
   assert.equal(refresherFor('judge.uses.loreSelect'), null);
-  const manager = readFileSync(resolve(REPO_ROOT, 'src', 'runtime', 'runtimeManager.ts'), 'utf-8');
+  const manager = ['runtimeManager.ts', 'settingsDelegates.ts']
+    .map((file) => readFileSync(resolve(REPO_ROOT, 'src', 'runtime', file), 'utf-8')).join('\n');
   for (const setter of Object.values(RUNTIME_REFRESHERS)) assert.ok(manager.includes(`  ${setter}(`), `${setter} is a RuntimeManager method`);
 });
 

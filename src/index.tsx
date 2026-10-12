@@ -3,16 +3,16 @@ import { askHost } from "@runtime/askEntry";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
+  currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
   readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
+import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { inlinePresence } from "@runtime/presence";
-import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { createPresenceUi, GameOpeners, openPlay, togglePanel, useOpenPanels } from "./presenceUi";
+import { createPresenceUi, openPlay, togglePanel } from "./presenceUi";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
-import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
+import { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
@@ -29,15 +29,10 @@ import { provisionableMissing, type OneClickFix, type ShowMe } from "@runtime/re
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
-import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
-import BranchNotice from "./components/drawer/BranchNotice";
-import MakeGroupCard from "./components/settings/MakeGroupCard";
 import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/replaySource";
-import { HelpButton } from "./components/help/HelpButton";
-import { BRIEFING_COPY } from "@features/helpCopy";
 import type { FeatureWhere } from "@features/registry";
 import { log } from "@utils/log";
 
@@ -71,6 +66,7 @@ const studioListeners = new Set<() => void>();
 let studioOpen = false;
 let studioIntent: StudioOpenIntent | undefined;
 const setStudioOpen = (next: boolean, intent?: StudioOpenIntent) => {
+  if (next) workspaceNavigation.close();
   studioOpen = next;
   studioIntent = next ? intent : undefined;
   studioListeners.forEach((listener) => listener());
@@ -265,8 +261,13 @@ const settingsHost: SettingsHost = {
 };
 
 const SettingsRoot = () => {
-  const helpOpen = useOpenPanels().includes("help");
-  return <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={{ ...settingsHost, helpOpen }} />;
+  const snapshot = useRuntimeSnapshot();
+  return <div id="story-orchestrator-settings" className="p-3 flex flex-col gap-2">
+    <strong>Story Orchestrator</strong>
+    <span>{snapshot.ready ? "A story is active in this chat." : "Open a story to begin."}</span>
+    <button id="so-open-workspace" className="menu_button" onClick={() => workspaceNavigation.open({ context: "orchestrator" })}>Open Story Orchestrator</button>
+    <button id="so-entry-repair" className="menu_button" onClick={openRepairStep}>Story setup and repair</button>
+  </div>;
 };
 
 // Turning author view on is a one-way look behind the curtain for this chat: gates, future
@@ -284,80 +285,37 @@ const toggleAuthorView = async (next: boolean) => {
 };
 
 // The player's Continue from here, and the author's branch cut at the history floor.
-const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail),
-  markBranch: (origin) => manager.markBranch(origin) });
 const branchAtFloor = async (messageId: number) => {
   const result = await branchFromOldest(messageId);
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
+const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId),
+  note: (summary, detail) => manager.chatSave.note(summary, detail), markBranch: (origin) => manager.markBranch(origin) });
 
-const DrawerPanel = () => {
+const Workspace = lazyRetry(() => import("./components/workspace/Workspace"));
+const WorkspaceHost = () => {
+  const intent = useSyncExternalStore(workspaceNavigation.subscribe, workspaceNavigation.read);
   const snapshot = useRuntimeSnapshot();
   const inspecting = useInspectTarget();
-  const panels = useOpenPanels();
-  const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
-  return (
-    <div className="p-2 text-sm flex flex-col gap-3 text-left">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
-          {!snapshot.ready && !snapshot.noGroup && (
-            <div id="so-drawer-no-story" className="flex flex-col items-start gap-1 text-xs opacity-80">
-              <span>{BRIEFING_COPY.noStory}</span>
-              <button type="button" className="menu_button" onClick={openStorySettings}>{BRIEFING_COPY.openSettings}</button>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {snapshot.ready && (
-            <label className="flex items-center gap-1 text-xs whitespace-nowrap" title="Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.">
-              <input id="so-author-view" type="checkbox" checked={snapshot.ui.authorView} onChange={(event) => void toggleAuthorView(event.target.checked)} />
-              <span>Author view</span>
-            </label>
-          )}
-          {snapshot.ready && snapshot.presence?.shown.suggestions && (
-            <button id="so-open-suggestions" type="button" data-so="open-suggestions" className="menu_button fa-solid fa-lightbulb" aria-expanded={panels.includes("suggestions")}
-              aria-label={PRESENCE_TEXT.suggestionsOpen} title={PRESENCE_TEXT.suggestionsOpen} onClick={() => togglePanel("suggestions")} />
-          )}
-          <GameOpeners snapshot={snapshot} />
-          {snapshot.ready && snapshot.ui.authorView && (
-            <button id="so-open-activity" type="button" data-so="open-activity" className="menu_button fa-solid fa-list-ul" aria-expanded={panels.includes("activity")}
-              aria-label={PRESENCE_TEXT.activityOpen} title={PRESENCE_TEXT.activityOpen} onClick={() => togglePanel("activity")} />
-          )}
-          <HelpButton id="so-help-toggle-drawer" open={panels.includes("help")} onToggle={() => togglePanel("help")} />
-        </div>
-      </div>
-      {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
-      {!snapshot.ready && snapshot.noGroup && (
-        <MakeGroupCard id="so-make-group-drawer" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={makeGroup}
-          onFixWithWizard={(storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId)} />
-      )}
-      {snapshot.ready && (
-        <DrawerTabs
-          snapshot={snapshot}
-          manager={manager}
-          driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired }}
-          onOpenSettings={openStorySettings}
-          onEditStory={launch(() => openStudio({ fromChat: true }))}
-          onFixWithWizard={launch(openWizardForRequirements)}
-          onOpenRepair={openRepairStep}
-          onNewStory={launch(openWizard)}
-          onShowMe={showSetupTarget}
-          onFix={(action) => void fixSetup(action)}
-          onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
-          onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
-          inspect={inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions }}
-          imagePanel={<Lazy fallback={<div className="text-xs">Loading illustrations…</div>}><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>}
-        />
-      )}
-    </div>
-  );
+  if (!intent) return null;
+  return <Lazy quiet><Workspace intent={intent} snapshot={snapshot} manager={manager} settingsHost={settingsHost} onClose={workspaceNavigation.close}
+    onContinueBranch={continueBranch}
+    drawerProps={{ snapshot, manager,
+      driver: { context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired },
+      onOpenSettings: openStorySettings, onEditStory: launch(() => openStudio({ fromChat: true })),
+      onFixWithWizard: launch(openWizardForRequirements), onOpenRepair: openRepairStep, onNewStory: launch(openWizard),
+      onShowMe: showSetupTarget, onFix: (action) => void fixSetup(action),
+      onBranchFromOldest: (messageId) => void branchAtFloor(messageId), onJumpToMessage: (messageId) => void jumpFromDrawer(messageId),
+      inspect: inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions },
+      imagePanel: <Lazy><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>,
+    }} /></Lazy>;
 };
 
 // On a narrow viewport the drawer covers #chat, so it closes before ST scrolls.
 const NARROW_VIEWPORT = 1000;
 
 const jumpFromDrawer = async (messageId: number) => {
+  workspaceNavigation.close();
   const toggle = document.querySelector<HTMLElement>("#so-drawer .drawer-toggle");
   const content = document.getElementById("drawer-manager");
   if (window.innerWidth <= NARROW_VIEWPORT && toggle && content?.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
@@ -365,11 +323,7 @@ const jumpFromDrawer = async (messageId: number) => {
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
 
-const openSoDrawer = () => {
-  const toggle = document.querySelector<HTMLElement>("#so-drawer .drawer-toggle");
-  const content = document.getElementById("drawer-manager");
-  if (toggle && content && !content.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
-};
+const openSoDrawer = () => workspaceNavigation.open({ context: "story" });
 
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
@@ -387,10 +341,7 @@ const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition
   window.setTimeout(() => panel?.scrollIntoView({ block, behavior: "smooth" }), 100);
 };
 
-const openStorySettings = () => {
-  openExtensionsDrawer();
-  openInlinePanel(document.getElementById("story-orchestrator-settings"), "start");
-};
+const openStorySettings = () => workspaceNavigation.open({ context: "orchestrator", page: "connections" });
 
 // Repair names a step; this is how it lands on it. A control that is already in the panel is pointed
 // at, never duplicated — two controls that do the same thing is how one of them goes stale.
@@ -404,6 +355,7 @@ const revealSetting = (id: string) => {
 };
 
 const showFeature = (where: FeatureWhere) => {
+  if (where.workspace) { workspaceNavigation.open(where.workspace); return; }
   const id = where.selector.replace(/^#/, "");
   if (where.surface === "settings") {
     openStorySettings();
@@ -417,8 +369,7 @@ const showFeature = (where: FeatureWhere) => {
 // The HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the
 // panel: the panel opens first, then the row is revealed once it is laid out.
 const openRepairStep = () => {
-  openStorySettings();
-  window.setTimeout(() => revealSetting("so-entry-repair"), 250);
+  workspaceNavigation.open({ context: "story", page: "play", control: "so-setup" });
 };
 
 const HudMount = () => {
@@ -434,20 +385,19 @@ const mountTopBarDrawer = () => {
   drawer.className = "drawer";
   const toggle = document.createElement("div");
   toggle.className = "drawer-toggle drawer-header";
+  toggle.setAttribute("role", "button");
+  toggle.setAttribute("tabindex", "0");
+  toggle.setAttribute("aria-label", "Open Story Orchestrator");
   const icon = document.createElement("div");
   icon.className = "drawer-icon fa-solid fa-route fa-fw closedIcon";
   icon.title = "Story Orchestrator";
   toggle.appendChild(icon);
-  const content = document.createElement("div");
-  content.id = "drawer-manager";
-  content.className = "drawer-content closedDrawer";
   drawer.appendChild(toggle);
-  drawer.appendChild(content);
   const rightNav = document.getElementById("rightNavHolder");
   if (rightNav && rightNav.parentElement === holder) holder.insertBefore(drawer, rightNav);
   else holder.appendChild(drawer);
-  ui.add(bindNavbarDrawerToggle(toggle));
-  ui.root(content, <DrawerPanel />);
+  ui.listen(toggle, "click", openSoDrawer);
+  ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openSoDrawer(); } });
   return true;
 };
 
@@ -523,6 +473,10 @@ const mount = (attempt = 0) => {
 
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
+  if (!document.getElementById("so-workspace-root")) {
+    const root = ui.element(document.createElement("div"));
+    root.id = "so-workspace-root"; document.body.appendChild(root); ui.root(root, <WorkspaceHost />);
+  }
   mountStudioHost();
   mountBriefingHost();
   presenceUi.mountPanels(ui);
@@ -543,6 +497,7 @@ if (document.readyState === "loading") {
 
 const stopExtension = () => {
   setStudioOpen(false);
+  workspaceNavigation.close();
   ui.dispose();
   stopRuntime();
 };

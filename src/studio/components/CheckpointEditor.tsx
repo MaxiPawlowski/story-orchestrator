@@ -143,7 +143,7 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
     </div>
     <div className="grid grid-cols-2 gap-3">
       <Field label="Type">
-        <select className="text_pole st-input" value={selected.type} onChange={(event) => patch({ type: event.target.value as Checkpoint["type"] })}>
+        <select aria-label="Checkpoint type" className="text_pole st-input" value={selected.type} onChange={(event) => patch({ type: event.target.value as Checkpoint["type"] })}>
           <option value="anchor">anchor</option>
           <option value="intermediate">intermediate</option>
         </select>
@@ -268,13 +268,14 @@ const CheckpointDeleteRow = ({ confirming, touchingTransitions, onDelete }: { co
 </div>
 );
 
-const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ backgroundNames = [] }) => {
+const CheckpointEditor: React.FC<{ backgroundNames?: string[]; compact?: boolean }> = ({ backgroundNames = [], compact = false }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
   const checkpoints = draft.checkpoints;
   const selectedId = useDraftStore((state) => state.selectedCheckpointId);
   const setSelectedId = useDraftStore((state) => state.selectCheckpoint);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(Boolean(selectedId));
 
   const selected = checkpoints.find((checkpoint) => checkpoint.id === selectedId) ?? null;
   const isStub = selected ? Boolean(draft.scaffolding?.[selected.id]) : false;
@@ -291,7 +292,7 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ background
       createdId = next.checkpoints[next.checkpoints.length - 1].id;
       return next;
     });
-    if (createdId) setSelectedId(createdId);
+    if (createdId) { setSelectedId(createdId); setEditing(true); }
   };
 
   const touchingTransitions = selected ? draft.transitions.filter((transition) => transition.from === selected.id || transition.to === selected.id).length : 0;
@@ -314,10 +315,12 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ background
   };
 
   return (
-    <div>
+    <div className="so-editor-drilldown" data-editing={editing || compact}>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <CheckpointList checkpoints={checkpoints} selectedId={selectedId} onAdd={handleAdd} onSelect={(id) => { setConfirmDeleteId(null); setSelectedId(id); }} />
-        <div className="flex-1">
+        {!compact && <div className="so-editor-list"><CheckpointList checkpoints={checkpoints} selectedId={selectedId} onAdd={handleAdd}
+          onSelect={(id) => { setConfirmDeleteId(null); setSelectedId(id); setEditing(true); }} /></div>}
+        <div className="so-editor-detail flex-1 min-w-0">
+          {!compact && <button className="so-editor-back st-button secondary" onClick={() => setEditing(false)}>Back to checkpoints</button>}
           {!selected ? (
             <div className="st-subpanel p-4 text-sm st-muted">Select or add a checkpoint.</div>
           ) : (

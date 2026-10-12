@@ -12,6 +12,7 @@ import SpriteBuilder from "./components/SpriteBuilder";
 import RosterEditor from "./components/RosterEditor";
 import GameEditor from "./components/GameEditor";
 import StoryEditor from "./components/StoryEditor";
+import StoryFeaturesEditor from "./components/StoryFeaturesEditor";
 import StudioGraph from "./components/StudioGraph";
 import GuideDisclosure from "./components/GuideDisclosure";
 import StudioGuideDialog from "./components/StudioGuideDialog";
@@ -27,8 +28,10 @@ import { resolveAgentHarness } from "./agentHost";
 import { studioAssist, studioTopicTarget } from "./studioAssist";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import type { StudioAskRunner } from "./components/StudioAsk";
+import "./mobile.css";
 
-export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "game" | "sprites" | "diagnostics" | "copilot";
+export type StudioTab = "graph" | "story" | "features" | "qualities" | "checkpoints" | "transitions" | "roster" | "game"
+  | "sprites" | "diagnostics" | "copilot" | "world" | "presentation" | "rules" | "chapters";
 
 export interface StudioOpenIntent {
   tab?: StudioTab;
@@ -40,6 +43,7 @@ export interface StudioOpenIntent {
 const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "graph", label: "Graph" },
   { id: "story", label: "Story" },
+  { id: "features", label: "Story features" },
   { id: "qualities", label: "Qualities" },
   { id: "checkpoints", label: "Checkpoints" },
   { id: "transitions", label: "Transitions" },
@@ -47,6 +51,22 @@ const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "game", label: "Game" },
   { id: "sprites", label: "Sprites" },
   { id: "diagnostics", label: "Diagnostics" },
+  { id: "world", label: "World" },
+  { id: "presentation", label: "Presentation" },
+  { id: "rules", label: "Story rules" },
+  { id: "chapters", label: "Chapters" },
+];
+
+const TASKS: Array<{ label: string; tabs: StudioTab[] }> = [
+  { label: "Story setup", tabs: ["story"] },
+  { label: "Flow", tabs: ["graph", "checkpoints", "transitions", "chapters"] },
+  { label: "State and rules", tabs: ["qualities", "game", "rules"] },
+  { label: "Characters", tabs: ["roster", "sprites"] },
+  { label: "World", tabs: ["world"] },
+  { label: "Presentation", tabs: ["presentation"] },
+  { label: "Story features", tabs: ["features"] },
+  { label: "Assistant", tabs: ["copilot"] },
+  { label: "Validation", tabs: ["diagnostics"] },
 ];
 
 export const STUDIO_TAB_IDS: StudioTab[] = [...BASE_TABS.map((entry) => entry.id), "copilot"];
@@ -163,21 +183,27 @@ interface TabListProps {
 
 const StudioTabList = ({ tabs, activeTab, onSelect }: TabListProps) => {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const tasks = TASKS.filter((task) => task.tabs.some((id) => tabs.some((tab) => tab.id === id)));
+  const task = tasks.find((entry) => entry.tabs.includes(activeTab)) ?? tasks[0];
+  const sections = tabs.filter((entry) => task.tabs.includes(entry.id));
 
   const onTablistKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const step = TAB_KEYS[event.key] ?? (event.key === "Home" ? -Infinity : event.key === "End" ? Infinity : null);
     if (step === null) return;
     event.preventDefault();
-    const last = tabs.length - 1;
-    const current = tabs.findIndex((entry) => entry.id === activeTab);
-    const next = step === -Infinity ? 0 : step === Infinity ? last : (current + step + tabs.length) % tabs.length;
-    onSelect(tabs[next].id);
+    const last = sections.length - 1;
+    const current = sections.findIndex((entry) => entry.id === activeTab);
+    const next = step === -Infinity ? 0 : step === Infinity ? last : (current + step + sections.length) % sections.length;
+    onSelect(sections[next].id);
     tabRefs.current[next]?.focus();
   };
 
   return (
+    <div><nav className="so-studio-tasks" aria-label="Studio tasks">{tasks.map((entry) => <button type="button" key={entry.label}
+      className={`st-button secondary ${entry === task ? "st-tab-active" : ""}`} aria-current={entry === task ? "page" : undefined}
+      onClick={() => onSelect(entry.tabs[0])}>{entry.label}</button>)}</nav>
     <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections" onKeyDown={onTablistKeyDown}>
-      {tabs.map((entry, index) => (
+      {sections.map((entry, index) => (
         <button
           key={entry.id}
           ref={(node) => { tabRefs.current[index] = node; }}
@@ -193,7 +219,7 @@ const StudioTabList = ({ tabs, activeTab, onSelect }: TabListProps) => {
           {entry.label}
         </button>
       ))}
-    </div>
+    </div></div>
   );
 };
 
@@ -213,7 +239,7 @@ interface TabContentProps {
   onShowTopic?: (target: KnowledgeShowMe) => void;
 }
 
-const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSelect: (tab: StudioTab) => void }) => {
+const GraphTab = ({ copilotEnabled, onSelect, backgroundNames }: { copilotEnabled: boolean; onSelect: (tab: StudioTab) => void; backgroundNames: string[] }) => {
   const draft = useDraftStore((state) => state.draft);
   // An untouched draft is the one moment where "start with the wizard" is unambiguously the right
   // next step, so the empty graph offers it instead of an empty canvas.
@@ -229,7 +255,7 @@ const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSel
           <button id="so-start-wizard" type="button" className="st-button primary" onClick={() => onSelect("copilot")}>Start with the wizard</button>
         </div>
       )}
-      <StudioGraph onOpenCheckpoint={() => onSelect("checkpoints")} />
+      <StudioGraph backgroundNames={backgroundNames} onOpenCheckpoint={() => onSelect("checkpoints")} />
     </div>
   );
 };
@@ -239,9 +265,12 @@ const StudioTabContent = ({
 }: TabContentProps) => {
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
   if (activeTab === "story") {
-    return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
+    return <StoryEditor section="setup" personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
   }
+  if (activeTab === "world" || activeTab === "presentation" || activeTab === "rules" || activeTab === "chapters") return <StoryEditor
+    section={activeTab === "chapters" ? "flow" : activeTab} lorebookNames={options.lorebookNames} />;
   if (activeTab === "qualities") return <QualityEditor />;
+  if (activeTab === "features") return <StoryFeaturesEditor />;
   if (activeTab === "checkpoints") return <CheckpointEditor backgroundNames={options.backgroundNames} />;
   if (activeTab === "transitions") return <TransitionEditor />;
   if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
@@ -265,7 +294,7 @@ const StudioTabContent = ({
       />
     );
   }
-  return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} />;
+  return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} backgroundNames={options.backgroundNames} />;
 };
 
 const StudioFooter = ({ onSaved, onRekeySession }: { onSaved?: StudioSaveHandler; onRekeySession?: (from: string, to: string) => void }) => {
@@ -303,6 +332,15 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       if (opener?.isConnected) opener.focus();
     };
   }, [opener]);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    const resize = () => {
+      dialogRef.current?.style.setProperty("--so-viewport-height", `${viewport?.height ?? window.innerHeight}px`);
+      dialogRef.current?.style.setProperty("--so-viewport-top", `${viewport?.offsetTop ?? 0}px`);
+    };
+    resize(); viewport?.addEventListener("resize", resize); viewport?.addEventListener("scroll", resize);
+    return () => { viewport?.removeEventListener("resize", resize); viewport?.removeEventListener("scroll", resize); };
+  }, []);
 
   const requestClose = async () => {
     if (useDraftStore.getState().dirty && !(await showConfirmPopup("Discard unsaved Studio changes?", { okButton: "Discard", cancelButton: "Keep editing" }))) return;
@@ -332,7 +370,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       // open to everything that only counts the node (live finding run).
       onClose={onClose}
     >
-      <div ref={panelRef} className="st-panel flex h-[85dvh] w-[min(1100px,95dvw)] flex-col overflow-hidden shadow-lg">
+      <div ref={panelRef} className="so-studio-frame st-panel flex flex-col overflow-hidden shadow-lg">
         <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} />
         <StudioTabList tabs={tabs} activeTab={activeTab} onSelect={setTab} />
         <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>

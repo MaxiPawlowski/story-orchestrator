@@ -44,7 +44,7 @@ describe("v2.7 plan 29 settings by area", () => {
   it("places every settings feature in the section of its own area, or names why not", () => {
     const labels = new Map(FEATURE_AREAS.map((area) => [area, SETTINGS_AREA_COPY[area].label]));
     const misplaced = FEATURES.filter((feature) => feature.where.surface === "settings").flatMap((feature) => {
-      const section = feature.where.label.replace(/^Settings › /, "").split(/ [›→] /)[0];
+      const section = feature.where.label.replace(/^(?:Settings|Orchestrator) › /, "").split(/ [›→] /)[0];
       if (ENTRY_POINTS.includes(section)) return [];
       if (feature.id.startsWith("judge-use-")) return section === "Judge" ? [] : [`${feature.id}: ${section}`];
       const expected = SECTION_EXCEPTIONS[feature.id] ?? labels.get(feature.area);

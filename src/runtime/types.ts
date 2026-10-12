@@ -151,6 +151,7 @@ export interface StagecraftRuntimeState {
 }
 
 export interface RuntimeExtras {
+  overrides?: import("@engine/featurePolicy").StoryFeatures;
   firedNpcReplies: Record<string, number>;
   firedNpcRepliesAt: Record<string, number[]>;
   onEnterPosts?: OnEnterPost[];
@@ -440,6 +441,8 @@ export interface LastFiredTransition {
 }
 
 export interface RuntimeSnapshot {
+  features?: import("./featureResolve").ResolvedFeatures;
+  featureOverrides?: import("@engine/featurePolicy").StoryFeatures;
   ready: boolean;
   storyId: string | null;
   storyHash: string | null;

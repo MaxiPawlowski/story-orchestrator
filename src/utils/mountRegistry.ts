@@ -14,7 +14,7 @@ export interface MountCounts {
 export interface MountRegistry {
   root(container: Element, node: ReactNode): Root;
   element<T extends Element>(element: T): T;
-  listen(target: EventTarget, type: string, handler: () => void, options?: AddEventListenerOptions): void;
+  listen(target: EventTarget, type: string, handler: EventListener, options?: AddEventListenerOptions): void;
   timeout(run: () => void, ms: number): void;
   global(name: string, value: unknown): void;
   add(dispose: () => void): void;
@@ -59,9 +59,9 @@ export function createMountRegistry(): MountRegistry {
         target,
         type,
         options,
-        handler: () => {
+        handler: (event) => {
           if (options?.once) listeners.delete(entry);
-          handler();
+          handler(event);
         },
       };
       listeners.add(entry);

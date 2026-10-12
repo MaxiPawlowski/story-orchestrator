@@ -39,6 +39,8 @@ export const LEAK_REPAIRED = "A reply's thinking ran past its budget; the leaked
 export interface ReplyEffortWiring {
   effort: () => ReplyEffort | undefined;
   checkpointOverride: () => boolean;
+  override?: () => ReplyEffort | undefined;
+  masterOff?: () => boolean;
   storyChat: () => string | null;
   openChat: () => string | null;
   checkpointId: () => string | null;
@@ -71,7 +73,8 @@ export function startReplyEffort(deps: ReplyEffortWiring): () => void {
   let budgeted: string | null = null;
   const sync = () => {
     const fallback = deps.effort() ?? DEFAULT_REPLY_EFFORT;
-    overlay.sync(armFor({ storyChat: deps.storyChat(), checkpointId: deps.checkpointId(), story: deps.story(), fallback, checkpointOverride: deps.checkpointOverride() }));
+    overlay.sync(armFor({ storyChat: deps.storyChat(), checkpointId: deps.checkpointId(), story: deps.story(), fallback,
+      checkpointOverride: deps.checkpointOverride(), override: deps.override?.(), masterOff: deps.masterOff?.() }));
     return overlay.view();
   };
   const request = (api: SamplerApi, type: string | null, dryRun: boolean): EffortRequest => {

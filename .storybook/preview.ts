@@ -4,6 +4,7 @@ import "./st-theme.css";
 import "../src/styles.css";
 
 export const mountRootFor = (title: string) => {
+  if (title.startsWith("Workspace/")) return "so-workspace-root";
   if (title === "Drawer/HudStrip") return "so-hud-root";
   if (title.startsWith("Drawer/")) return "drawer-manager";
   if (title.startsWith("Settings/")) return "story-orchestrator-settings";

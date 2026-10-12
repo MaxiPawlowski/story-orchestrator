@@ -36,6 +36,7 @@ const fakeManager = (): RuntimeManager =>
     getStory: () => null,
     getEngineState: () => null,
     getGlobalSettings,
+    getEffectiveSettings: getGlobalSettings,
     ownsImageChat: () => false,
     subscribe: () => () => {},
     onBoundary: () => () => {},

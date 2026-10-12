@@ -19,6 +19,7 @@ import { playerSaveNotice } from "./saveHealth";
 import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersistedRuntime, openChatId, UNREADABLE_NOTICE } from "./persistence";
 import { noGroupView } from "./noGroup";
 import { getGlobalSettings } from "./settingsStore";
+import { resolveFeatures } from "./featureResolve";
 import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
@@ -320,12 +321,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
   };
 };
 
-export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
-  const { loaded, state, extras } = sources;
-  const story = loaded?.story ?? null;
-  const { active, lost } = activeOf(story, state);
-  const blackboard = state?.blackboard.values ?? {};
-  const lastFired = lastFiredTransition(sources.boundaryLog, story, state?.activeCheckpointId);
+const readingEvidence = (extras: RuntimeExtras) => {
   const evidenceByKey = new Map<string, string>();
   const readerByKey = new Map<string, { reader: "judge" | "llm"; at: string; confidence?: number }>();
   const noteReader = (key: string, reader: "judge" | "llm", at: string, confidence?: number) => {
@@ -339,6 +335,16 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     });
   });
   (extras.extraction.judgedReads ?? []).forEach((read) => read.deltas.forEach((delta) => noteReader(delta.q, "judge", read.at, delta.confidence)));
+  return { evidenceByKey, readerByKey };
+};
+
+export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
+  const { loaded, state, extras } = sources;
+  const story = loaded?.story ?? null;
+  const { active, lost } = activeOf(story, state);
+  const blackboard = state?.blackboard.values ?? {};
+  const lastFired = lastFiredTransition(sources.boundaryLog, story, state?.activeCheckpointId);
+  const { evidenceByKey, readerByKey } = readingEvidence(extras);
   const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state, playerTurnIds(sources.chat));
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension, agencyFor(active));
   const agency = agencyFor(active);
@@ -389,6 +395,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
   return {
     ready: Boolean(loaded),
+    features: resolveFeatures(getGlobalSettings(), story, extras.overrides), featureOverrides: extras.overrides ?? {},
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),

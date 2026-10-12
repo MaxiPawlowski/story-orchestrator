@@ -9,6 +9,14 @@ export interface GuideTopic {
 }
 
 export const GUIDE_TOPICS = {
+  "feature-policies": {
+    title: "Story feature policies",
+    fields: "features",
+    text: "features contains switches and policies, never story content. Each feature inherits install defaults when absent; off declines it; an object tunes its controls. "
+      + "A chat override wins over story tuning or a decline, but an install master-off always wins. Decline re-enabling warns the player. Edit these policies in Studio; "
+      + "a running chat receives them only through Update to the latest or Restart. Use setFeatures with the complete block. Keep thinking and the inner voice on. "
+      + "Curator scope, character life, chapters, appearances, reasoning and other authored content stay in their existing fields.",
+  },
   "story-basics": {
     title: "Title, description and id",
     fields: "title, description, id, player_intro, kind",

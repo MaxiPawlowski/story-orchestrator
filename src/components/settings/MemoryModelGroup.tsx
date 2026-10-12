@@ -80,7 +80,9 @@ const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestRepor
   </div>
 );
 
-export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }: {
+  snapshot: RuntimeSnapshot; manager: RuntimeManager; connectionsOnly?: boolean;
+}) => {
   const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
   const [selfTestRunning, setSelfTestRunning] = useState(false);
   const selfTestCancelled = useRef(false);
@@ -154,8 +156,9 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
 
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-      <GroupHeader title="Memory model" scope="install" id="so-memory-model-header" />
-      <CheckRow id="so-extraction-enabled" setting="extraction.enabled" checked={settings.enabled} onChange={(on) => manager.setExtractionSettings({ enabled: on })} />
+      <GroupHeader title={connectionsOnly ? "Models and routing" : "Memory model"} scope="install" id="so-memory-model-header" />
+      {!connectionsOnly && <CheckRow id="so-extraction-enabled" setting="extraction.enabled" checked={settings.enabled}
+        onChange={(on) => manager.setExtractionSettings({ enabled: on })} />}
       <div className="flex flex-col gap-1 text-sm">
         <FieldLabel htmlFor="so-extraction-profile" setting="extraction.profileId" />
         <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
@@ -177,7 +180,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
       </div>
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} authorView={snapshot.ui.authorView} />}
       <Advanced id="so-memory-advanced">
-      <AdvancedReads settings={settings} manager={manager} />
+      {!connectionsOnly && <AdvancedReads settings={settings} manager={manager} />}
       <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
         onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />
       <RoleProfilesGroup
@@ -194,7 +197,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onHarness={setRoleHarness}
         onFallback={setRoleFallback}
         onOpen={() => setAskHarness(true)}
-        authorView={snapshot.ui.authorView}
+        authorView={connectionsOnly || snapshot.ui.authorView}
         measurements={{ lore: loreEligibility() }}
       />
       </Advanced>

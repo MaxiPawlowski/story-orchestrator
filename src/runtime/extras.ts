@@ -28,6 +28,7 @@ import type {
 } from "./types";
 import { defaultTension, sanitizeTension } from "./tensionState";
 import { log } from "@utils/log";
+import { readFeaturePolicies } from "@engine/featurePolicy";
 
 export const TALK_DECISION_LIMIT = 10;
 
@@ -398,17 +399,20 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
 });
 
 export interface RestartCarry {
+  features?: RuntimeExtras["overrides"];
   overrides: ChatOverrides;
   journal: RuntimeExtras["journal"];
   from: string;
 }
 
 export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number): RestartCarry => ({
+  features: readFeaturePolicies(extras.overrides),
   overrides: readChatOverrides(extras), journal: [...extras.journal], from: `${checkpoint ?? "the story"} (boundary ${boundary})`,
 });
 
 export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings): RuntimeExtras => {
   const extras = createExtras(read);
+  extras.overrides = readFeaturePolicies(carry.features);
   extras.journal = sanitizeJournalRecords(carry.journal);
   return applyGlobalSettings(extras, read(), carry.overrides);
 };
@@ -416,6 +420,7 @@ export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings)
 export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {
   const overrides = readChatOverrides(persisted);
   const extras = persisted ?? createExtras(read);
+  extras.overrides = readFeaturePolicies(extras.overrides);
   extras.memory = sanitizeMemory(extras);
   extras.extraction = sanitizeExtraction(extras);
   extras.expansion = sanitizeExpansion(extras);

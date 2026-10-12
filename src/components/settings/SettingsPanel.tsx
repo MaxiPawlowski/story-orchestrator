@@ -64,6 +64,7 @@ export interface SettingsHost {
 }
 
 interface SettingsPanelProps {
+  workspaceSection?: "library" | "connections" | "interface" | "help";
   snapshot: RuntimeSnapshot;
   manager: RuntimeManager;
   host: SettingsHost;
@@ -132,7 +133,7 @@ const useOpenAreas = () => {
   return { open, toggle };
 };
 
-const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
+const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPanelProps) => {
   const [importOpen, setImportOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const judge = useJudgeControls(manager);
@@ -140,6 +141,9 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   const areas = useOpenAreas();
   const openGuide = host.openGuide ?? openGuideDoc;
   const area = (id: FeatureArea) => ({ area: id, open: areas.open.includes(id), onToggle: areas.toggle, onGuide: openGuide });
+  const show = (id: FeatureArea) => !workspaceSection || (workspaceSection === "library" && id === "play")
+    || (workspaceSection === "connections" && ["memory", "world", "images", "judge", "setup"].includes(id))
+    || (workspaceSection === "help" && ["setup", "authoring"].includes(id));
 
   const { recheck } = judge;
   const { probe } = hostProbe;
@@ -167,16 +171,16 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   };
 
   return (
-    <div id="story-orchestrator-settings">
+    <div id={workspaceSection ? "so-workspace-settings" : "story-orchestrator-settings"} data-section={workspaceSection}>
       <div className="inline-drawer">
-        <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
+        {!workspaceSection && <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
           <b>Story Orchestrator</b>
           <HelpButton id="so-help-toggle" open={host.toggleHelp ? host.helpOpen === true : helpOpen} onToggle={toggleHelp} />
-        </div>
+        </div>}
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
           {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)}
             ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>}
-          <EntryPoints
+          {(!workspaceSection || workspaceSection === "library") && <EntryPoints
             snapshot={snapshot}
             busy={busy}
             importOpen={importOpen}
@@ -193,8 +197,9 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onStartLiving={snapshot.stagecraft.settings.livingEnabled === false ? undefined : async (fields) => manager.importStory(JSON.stringify(await manager.livingStory(fields)))}
             gettingStarted={<Lazy fallback={null}><GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} /></Lazy>}
-          />
-          <SettingsArea {...area("play")} advanced={<Lazy fallback={null}><TransitionNoteRow snapshot={snapshot} manager={manager} /></Lazy>}>
+          />}
+          {workspaceSection === "interface" && <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>}
+          {show("play") && <SettingsArea {...area("play")} advanced={<Lazy fallback={null}><TransitionNoteRow snapshot={snapshot} manager={manager} /></Lazy>}>
             <Lazy fallback={null}><StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} /></Lazy>
             {snapshot.noGroup && host.makeGroup && (
               <MakeGroupCard view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled} onMakeGroup={host.makeGroup}
@@ -202,43 +207,43 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             )}
             <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
             <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
-            <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>
-            <Lazy fallback={null}><PacingGroup snapshot={snapshot} manager={manager} /></Lazy>
-          </SettingsArea>
-          <SettingsArea {...area("memory")}>
+            {!workspaceSection && <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>}
+            {!workspaceSection && <Lazy fallback={null}><PacingGroup snapshot={snapshot} manager={manager} /></Lazy>}
+          </SettingsArea>}
+          {show("memory") && <SettingsArea {...area("memory")}>
             <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
-            <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
-            <Lazy fallback={null}><ChapterGroup snapshot={snapshot} manager={manager} /></Lazy>
-            <Lazy fallback={null}><WardenGroup snapshot={snapshot} manager={manager} /></Lazy>
-          </SettingsArea>
-          <SettingsArea {...area("characters")}>
+            <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} connectionsOnly={workspaceSection === "connections"} /></Lazy>
+            {!workspaceSection && <Lazy fallback={null}><ChapterGroup snapshot={snapshot} manager={manager} /></Lazy>}
+            {!workspaceSection && <Lazy fallback={null}><WardenGroup snapshot={snapshot} manager={manager} /></Lazy>}
+          </SettingsArea>}
+          {show("characters") && <SettingsArea {...area("characters")}>
             <Lazy fallback={null}><TalkGroup snapshot={snapshot} manager={manager} /></Lazy>
             <Lazy fallback={null}><InnerVoiceGroup snapshot={snapshot} manager={manager} /></Lazy>
             <Lazy fallback={null}><CharacterStateGroup snapshot={snapshot} manager={manager} /></Lazy>
-          </SettingsArea>
-          <SettingsArea {...area("world")}>
+          </SettingsArea>}
+          {show("world") && <SettingsArea {...area("world")}>
             <Lazy fallback={null}><LorebooksGroup snapshot={snapshot} manager={manager} /></Lazy>
-            <Lazy fallback={null}><StagecraftGroup snapshot={snapshot} manager={manager} /></Lazy>
-          </SettingsArea>
-          <SettingsArea {...area("images")}>
+            {!workspaceSection && <Lazy fallback={null}><StagecraftGroup snapshot={snapshot} manager={manager} /></Lazy>}
+          </SettingsArea>}
+          {show("images") && <SettingsArea {...area("images")}>
             <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
             <Lazy fallback={null}><SpriteGroup manager={manager} /></Lazy>
-          </SettingsArea>
-          <SettingsArea {...area("judge")}>
+          </SettingsArea>}
+          {show("judge") && <SettingsArea {...area("judge")}>
             <Lazy fallback={null}><JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
               wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} /></Lazy>
-          </SettingsArea>
-          {authoringSettings(snapshot) && (
+          </SettingsArea>}
+          {show("authoring") && (workspaceSection || authoringSettings(snapshot)) && (
             <SettingsArea {...area("authoring")}>
               <CheckRow id="so-copilot-enabled" setting="copilot.enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })} />
             </SettingsArea>
           )}
-          <SettingsArea {...area("setup")}>
+          {show("setup") && <SettingsArea {...area("setup")}>
             <CheckRow id="so-copilot-ask" setting="copilot.ask" checked={snapshot.copilot.ask} onChange={(on) => manager.setCopilotSettings({ ask: on })} />
             <Lazy fallback={null}><CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} /></Lazy>
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
-          </SettingsArea>
+          </SettingsArea>}
         </div>
       </div>
     </div>

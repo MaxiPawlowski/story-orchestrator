@@ -12,7 +12,6 @@
     "judge.noticesSeen",
     "image.directorProfileId",
     "image.comfyUrl",
-    "image.characters",
     "image.loras",
     "image.upscalers",
     "image.purposes",

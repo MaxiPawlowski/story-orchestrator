@@ -37,6 +37,7 @@ export type StoryDiffCode =
   | "roster-member-removed"
   | "requirements-changed"
   | "stagecraft-changed"
+  | "features-changed"
   | "story-objective-block-changed"
   | "story-display-changed"
   | "story-presence-changed"
@@ -340,6 +341,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
   // Presentation scope only: widening or narrowing the curator's allowlist never invalidates a run.
   if (!sameValue(previous.stagecraft, next.stagecraft)) push("compatible", "stagecraft-changed", "stagecraft", "Which lorebooks the background curator may edit changed.");
+  if (!sameValue(previous.features, next.features)) push("compatible", "features-changed", "features", "Story feature policies changed; chat overrides remain in force.");
   if (previous.display?.lore_names_public !== next.display?.lore_names_public) push("compatible", "story-display-changed", "display", "Whether players see World Info entry names changed.");
   if (STORY_DISPLAY_TOGGLES.some((key) => previous.display?.[key] !== next.display?.[key])) {
     push("compatible", "story-presence-changed", "display", "Which story panels and cards this story shows changed.");

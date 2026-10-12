@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import { PLAYER_COPY } from "@runtime/narrative";
-import { setGlobalSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import ImageChatPanel from "../../image/ImageChatPanel";
 
@@ -12,6 +12,7 @@ const fakeManager = (): RuntimeManager =>
   ({
     getSnapshot: snapshot,
     getStory: () => null,
+    getEffectiveSettings: getGlobalSettings,
     getEngineState: () => null,
     ownsImageChat: () => false,
     subscribe: () => () => {},

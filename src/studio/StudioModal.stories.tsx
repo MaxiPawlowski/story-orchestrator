@@ -27,6 +27,7 @@ export const Seeded: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await expect(await canvas.findByLabelText("Story title")).toHaveValue("The Ruins Heist");
+    await userEvent.click(await canvas.findByRole("button", { name: "State and rules" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Qualities" }));
     await expect(await canvas.findByText("trust")).toBeInTheDocument();
   },
@@ -73,6 +74,7 @@ export const WizardTabEnabled: Story = {
   args: { copilotEnabled: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await expect(await canvas.findByLabelText("Wizard unavailable")).toBeInTheDocument();
   },
@@ -118,7 +120,7 @@ export const SeededDraftDoesNotOfferTheWizard: Story = {
 type TabCanvas = { findByRole: (role: "tab", options: { name: string }) => Promise<HTMLElement>; getAllByRole: (role: "tab") => HTMLElement[] };
 
 const tablist = async (canvas: TabCanvas): Promise<HTMLElement[]> => {
-  await canvas.findByRole("tab", { name: "Story" });
+  await canvas.findByRole("tab", { name: "Graph" });
   return canvas.getAllByRole("tab");
 };
 
@@ -208,11 +210,11 @@ export const KeyboardOnlyAuthoring: Story = {
       // The graph tab's canvas is walked with real key presses live (so-studio-keyboard.mts); user-event's
       // simulated Tab does not walk it the way a browser does, so this pass moves to the Story tab the
       // way the tablist is meant to be used (APG: one tab stop, arrows move).
-      await step("move to the Story tab with the arrow keys", async () => {
-        await tabTo(doc, (element) => element?.getAttribute("role") === "tab");
-        await userEvent.keyboard("{ArrowRight}");
+      await step("open Story setup from the keyboard", async () => {
+        await tabTo(doc, isButton("Story setup"));
+        await userEvent.keyboard("{Enter}");
         await expect(await body.findByRole("tab", { name: "Story" })).toHaveAttribute("aria-selected", "true");
-        await expect(doc.activeElement?.textContent).toBe("Story");
+        await expect(doc.activeElement?.textContent).toBe("Story setup");
       });
       await step("save with Enter on Save", async () => {
         await tabTo(doc, isButton("Save"));
@@ -247,11 +249,12 @@ export const WizardKeepsItsModeAcrossTabs: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await userEvent.click(await canvas.findByRole("button", { name: "Agent" }));
     await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
-    await userEvent.click(await canvas.findByRole("tab", { name: "Graph" }));
-    await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
+    await userEvent.click(await canvas.findByRole("button", { name: "Flow" }));
+    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
     await expect(await canvas.findByRole("button", { name: "Agent" })).toHaveAttribute("aria-pressed", "true");
     await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
   },
@@ -275,6 +278,8 @@ export const GuideOpensAboveTheStudioFromEveryTab: Story = {
       const topic = required(STUDIO_TAB_GUIDE[tab]?.[0], `${tab} guide topic`);
       const byPointer = index % 2 === 1;
       await step(`${label}: open ${topic} in the guide above the Studio, close it by ${byPointer ? "pointer" : "keyboard"}`, async () => {
+        const task = tab === "story" ? "Story setup" : tab === "qualities" || tab === "game" ? "State and rules" : tab === "roster" ? "Characters" : "Flow";
+        await userEvent.click(await body.findByRole("button", { name: task }));
         await userEvent.click(await body.findByRole("tab", { name: label }));
         const disclosure = required(doc.querySelector<HTMLDetailsElement>("#so-studio-guide"), "guide disclosure");
         disclosure.open = true;

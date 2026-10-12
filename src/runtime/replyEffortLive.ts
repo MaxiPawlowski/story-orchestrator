@@ -3,10 +3,19 @@ import type { GenerationLifecycle } from "./generationLifecycle";
 import { startReplyEffort } from "./replyEffortHost";
 import { runtimeManager } from "./runtimeManager";
 import { getGlobalSettings } from "./settingsStore";
+import { isReplyEffort } from "@utils/reasoningEffort";
 
 export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => void) => startReplyEffort({
   effort: () => getGlobalSettings().extraction.replyEffort,
   checkpointOverride: () => getGlobalSettings().spikes.reasoningEffect,
+  masterOff: () => runtimeManager.getSnapshot().features?.thinking.masterOff ?? false,
+  override: () => {
+    const feature = runtimeManager.getSnapshot().features?.thinking;
+    if (!feature) return undefined;
+    const effort = feature.controls.effort;
+    if (!feature.enabled && feature.source === "chat") return "off";
+    return (effort.source === "chat" || feature.reenabled) && isReplyEffort(effort.value) ? effort.value : undefined;
+  },
   storyChat: () => runtimeManager.getRunContext().chatId,
   openChat: () => getContext().chatId ?? null,
   checkpointId: () => runtimeManager.getActiveCheckpointInfo()?.id ?? null,

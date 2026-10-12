@@ -8,6 +8,7 @@ const fakeManager = (): RuntimeManager =>
   ({
     getSnapshot: () => ({ storyId: null, ready: false }),
     getStory: () => null,
+    getEffectiveSettings: getGlobalSettings,
     getEngineState: () => null,
     ownsImageChat: () => false,
     subscribe: () => () => {},
@@ -48,11 +49,11 @@ export const ChangesInstallSettings: Story = {
   },
 };
 
-export const ListsTheChatCastForFallbackAppearance: Story = {
+export const CharacterLooksBelongToTheStory: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Arin")).toBeInTheDocument();
-    await expect(canvas.getByText("Companion")).toBeInTheDocument();
+    await expect(canvas.getByText(/Character appearances belong to the story/)).toBeInTheDocument();
+    await expect(canvas.queryByText("Fallback character looks")).toBeNull();
     await expect(canvas.getByLabelText("Image-prompt model")).toHaveAttribute("id", "so-image-profile");
     await expect(canvas.getByLabelText("ComfyUI address")).toHaveAttribute("placeholder", "http://127.0.0.1:8188");
   },

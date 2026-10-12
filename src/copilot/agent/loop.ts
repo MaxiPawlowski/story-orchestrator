@@ -5,7 +5,7 @@ import { truncate } from "@utils/string";
 import { runDiagnostics, type DiagnosticsContext } from "../../studio/diagnostics";
 import { briefingSpoilerNames } from "../../studio/briefingDiagnostics";
 import type { ProvisioningOp } from "@wizard/index";
-import { setAppearance, setChapters, setHouseRules, setPlayer } from "../../studio/mutations";
+import { setAppearance, setChapters, setHouseRules, setPlayer, setFeatures } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
 import { applyOp, applyOps, applyOpsChecked, BRIEFING_SPOILER_REFUSAL, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
@@ -30,7 +30,8 @@ const CHECK_LINES = 12;
 const now = () => new Date().toISOString();
 
 const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(
-  ["setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance", ...GAME_AGENT_KINDS, ...POSE_AGENT_KINDS] as AgentOnlyOp["kind"][],
+  ["setFeatures", "setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance",
+    ...GAME_AGENT_KINDS, ...POSE_AGENT_KINDS] as AgentOnlyOp["kind"][],
 );
 
 const isPoseOp = (op: AgentOnlyOp): op is PoseAgentOp => POSE_AGENT_KINDS.has(op.kind);
@@ -50,6 +51,7 @@ const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
     case "setRosterView": return setRosterView(draft, op.id, op.view);
     case "setCheckpointMotive": return setCheckpointMotive(draft, op.id, op.member, op.motive);
     case "setAppearance": return setAppearance(draft, op.id, op.appearance);
+    case "setFeatures": return setFeatures(draft, op.features);
   }
 };
 
@@ -71,6 +73,7 @@ const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
       return { action: "update", entity: `checkpoints.${op.id}.motives.${op.member}`, label };
     }
     case "setAppearance": return { action: "update", entity: "story.illustrations", label: op.appearance ? `Look of ${op.id}: ${op.appearance}` : `Clear ${op.id}'s look` };
+    case "setFeatures": return { action: "update", entity: "story.features", label: "Replace story feature policies" };
   }
 };
 
@@ -86,7 +89,7 @@ const chaptersProblem = (draft: StoryV2, op: Extract<AgentOnlyOp, { kind: "setCh
 const agentOnlyProblem = (draft: StoryV2, op: AgentOnlyOp): string | null => {
   if (isPoseOp(op)) return poseOpProblem(draft, op);
   if (isGameOp(op)) return gameOpProblem(draft, op);
-  if (op.kind === "setHouseRules" || op.kind === "setPlayer") return null;
+  if (op.kind === "setHouseRules" || op.kind === "setPlayer" || op.kind === "setFeatures") return null;
   if (op.kind === "setChapters") return chaptersProblem(draft, op);
   const member = op.kind === "setCheckpointMotive" ? op.member : op.id;
   if (!draft.roster.some((entry) => entry.id === member)) return `'${member}' is not a roster id`;

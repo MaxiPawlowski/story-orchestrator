@@ -13,8 +13,8 @@ interface Root {
 }
 
 const SURFACE_ROOTS: Record<FeatureSurface, readonly Root[]> = {
-  settings: [{ file: "src/index.tsx", component: "SettingsRoot" }],
-  drawer: [{ file: "src/index.tsx", component: "DrawerPanel" }],
+  settings: [{ file: "src/index.tsx", component: "WorkspaceHost" }],
+  drawer: [{ file: "src/index.tsx", component: "WorkspaceHost" }],
   studio: [{ file: "src/index.tsx", component: "StudioHost" }],
   chat: [{ file: "src/index.tsx", component: "HudMount" }, { file: "src/index.tsx", component: "InlineMount" }],
 };
@@ -76,7 +76,7 @@ export const renderedFiles = (roots: readonly Root[], read: Read = diskRead): Ma
   return seen;
 };
 
-const templateRegex = (body: string) => new RegExp(`^${body.split(/\$\{[^}]*\}/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[a-z0-9-]+")}$`);
+const templateRegex = (body: string) => new RegExp(`^${body.split(/\$\{[^}]*\}/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[A-Za-z0-9-]+")}$`);
 
 export const definesSelector = (sources: Iterable<string>, selector: string): boolean => {
   const texts = [...sources];
@@ -84,7 +84,7 @@ export const definesSelector = (sources: Iterable<string>, selector: string): bo
   if (idMatch) {
     const id = idMatch[1];
     return texts.some((text) => [...text.matchAll(/"([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)'/g)].some((match) => (match[1] ?? match[2]) === id)
-      || [...text.matchAll(/`([^`]*\$\{[^`]*)`/g)].some((match) => templateRegex(match[1]).test(id)));
+      || [...text.matchAll(/`(so-[^`]*\$\{[^`]*)`/g)].some((match) => templateRegex(match[1]).test(id)));
   }
   const dataSo = /^\[data-so=\\?"([^"\\]+)\\?"\]$/.exec(selector);
   if (dataSo) return texts.some((text) => text.includes(`data-so="${dataSo[1]}"`));
@@ -104,7 +104,7 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
     expect([...renderedFiles(SURFACE_ROOTS.drawer).keys()]).toEqual(expect.arrayContaining(["src/components/drawer/DrawerTabs.tsx", "src/components/drawer/PlayerOverview.tsx"]));
     expect([...renderedFiles(SURFACE_ROOTS.studio).keys()]).toEqual(expect.arrayContaining(["src/studio/StudioModal.tsx", "src/studio/components/GuideDisclosure.tsx"]));
     expect([...renderedFiles(SURFACE_ROOTS.chat).keys()]).toEqual(expect.arrayContaining(["src/components/drawer/HudStrip.tsx"]));
-    expect(settings).not.toContain("src/components/drawer/DrawerTabs.tsx");
+    expect(settings).toContain("src/components/workspace/WorkspaceShell.tsx");
   });
 
   it("every feature's selector is defined by a component its surface renders", () => {
@@ -122,7 +122,7 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
     const settings = [...renderedFiles(SURFACE_ROOTS.settings).values()];
     expect(definesSelector(settings, "#so-not-a-control")).toBe(false);
     expect(definesSelector(drawer, "#so-memory-search")).toBe(true);
-    expect(definesSelector(settings, "#so-memory-search")).toBe(false);
+    expect(definesSelector(settings, "#so-memory-search")).toBe(true);
     expect(definesSelector(settings, "#so-area-setup")).toBe(true);
     expect(definesSelector(settings, "#so-judge-use-director")).toBe(true);
     expect(definesSelector(drawer, "[data-so=\"repetition\"]")).toBe(true);

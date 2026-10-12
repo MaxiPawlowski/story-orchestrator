@@ -16,7 +16,7 @@
   --so-badge-saga: var(--st-warning);
 }
 
-:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root) {
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) {
   @apply text-base;
 
   @tailwind utilities source(none);
@@ -949,3 +949,9 @@ dialog#so-briefing::backdrop {
   height: auto;
   border-radius: 0.375rem;
 }
+ #so-studio-modal .so-editor-back { display: none; }
+ @media (max-width: 699px) {
+   #so-studio-modal .so-editor-drilldown[data-editing="true"] .so-editor-list { display: none; }
+   #so-studio-modal .so-editor-drilldown[data-editing="false"] .so-editor-detail { display: none; }
+   #so-studio-modal .so-editor-back { display: block; margin-bottom: .75rem; }
+ }

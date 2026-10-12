@@ -3,6 +3,7 @@ import type { ThinkingTemplate } from "@services/stHost/llamaCpp";
 import { foldIncludeBody } from "@services/stHost/reasoningPayload";
 import { isRecord } from "@utils/guards";
 import type { ReplyEffort } from "@utils/reasoningEffort";
+import { isReplyEffort } from "@utils/reasoningEffort";
 import { applyReasoningOverlay, type SamplerApi } from "@utils/samplerKeys";
 import { isLoudRequest, type SamplerRequest } from "./samplerOverlay";
 
@@ -18,7 +19,7 @@ export const LLAMA_TEXTGEN_TYPE = "llamacpp";
 
 export const LLAMA_MODEL_OWNER = "llamacpp";
 
-export type EffortSource = "install" | "story" | "checkpoint";
+export type EffortSource = "install" | "story" | "checkpoint" | "chat";
 
 export interface EffortArm {
   chatId: string;
@@ -33,6 +34,8 @@ export interface EffortTarget {
   story: NormalizedStoryV2 | null;
   fallback: ReplyEffort;
   checkpointOverride: boolean;
+  override?: ReplyEffort;
+  masterOff?: boolean;
 }
 
 export interface EffortRequest extends SamplerRequest {
@@ -79,8 +82,15 @@ const budgetOf = (level: ReplyEffort): number | null => (level === "high" ? null
 
 export const armFor = (target: EffortTarget): EffortArm | null => {
   if (!target.storyChat || !target.story) return null;
+  if (target.masterOff) return { chatId: target.storyChat, checkpointId: target.checkpointId, level: "off", source: "install" };
+  if (target.override) return { chatId: target.storyChat, checkpointId: target.checkpointId, level: target.override, source: "chat" };
   const authored = target.checkpointOverride && target.checkpointId ? target.story.checkpointById[target.checkpointId]?.effects?.reasoning : undefined;
-  const storyLevel = target.checkpointOverride ? target.story.reasoning : undefined;
+  const policy = target.story.features?.thinking;
+  const tuning = policy && policy !== "off" ? policy : null;
+  const declined = policy === "off" || tuning?.enabled === false;
+  if (declined) return { chatId: target.storyChat, checkpointId: target.checkpointId, level: "off", source: "story" };
+  const tuned = isReplyEffort(tuning?.effort) ? tuning.effort : undefined;
+  const storyLevel = declined ? "off" : tuned ?? (target.checkpointOverride ? target.story.reasoning : undefined);
   return { chatId: target.storyChat, checkpointId: target.checkpointId, level: authored ?? storyLevel ?? target.fallback, source: authored ? "checkpoint" : storyLevel ? "story" : "install" };
 };
 

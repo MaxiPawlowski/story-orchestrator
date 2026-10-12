@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { listConnectionProfiles } from "@services/STAPI";
-import { imageChat } from "@services/stHost/image";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { ASPECTS, familyOf, SHOTS, type Aspect, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
-import { type ImageBinding, type ImageRoute, type ImageSettings } from "./settings";
+import { type ImageRoute, type ImageSettings } from "./settings";
 import { startImage } from "./start";
 import { guideUrl } from "@features/guideLinks";
 import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
@@ -36,18 +35,12 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
   const [testing, setTesting] = useState(false);
   const [installed, setInstalled] = useState<string[]>([]);
   const settings = image.settings();
-  const people = imageChat()?.characters ?? [];
   const profiles = listConnectionProfiles();
   const change = (patch: Partial<ImageSettings>) => image.updateSettings(patch);
   const route = (purpose: Purpose, patch: Partial<ImageRoute>) => change({ purposes: { ...settings.purposes, [purpose]: { ...settings.purposes[purpose], ...patch } } });
-  const binding = (key: string, patch: Partial<ImageBinding>) => {
-    const current = settings.characters[key] ?? { appearanceTags: "", appearanceProse: "", checkpoint: "", loras: [], alwaysTags: "", neverTags: "", seed: null };
-    change({ characters: { ...settings.characters, [key]: { ...current, ...patch } } });
-  };
   const option = (values: readonly string[]) => values.map((value) => <option key={value} value={value}>{value}</option>);
   const entry = settings.purposes[selectedPurpose];
   const routeId = (field: string) => `so-image-route-${field}`;
-  const bindingId = (key: string, field: string) => `so-image-cast-${key.replace(/[^a-zA-Z0-9_-]/g, "_")}-${field}`;
   const guide = guideUrl("setup/images.md");
   return (
     <details id="so-image-settings" className="rounded border border-[var(--SmartThemeBorderColor)] p-2 text-sm">
@@ -150,21 +143,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
         <Advanced id="so-image-model-sources" label="Model sources (Civitai, Hugging Face)">
           <ModelSources />
         </Advanced>
-        <Advanced id="so-image-cast" label="Fallback character looks">
-          <p className="text-xs opacity-80">Used when the story has not described how this character looks.</p>
-          {people.map((person) => {
-            const selected = settings.characters[person.key];
-            return <details key={person.key} className="rounded border p-1"><summary>{person.name}</summary>
-              <FieldLabel htmlFor={bindingId(person.key, "tags")} setting="image.characters.*.appearanceTags" />
-              <textarea id={bindingId(person.key, "tags")} className="text_pole" value={selected?.appearanceTags ?? ""}
-                onChange={(event) => binding(person.key, { appearanceTags: event.target.value })} />
-              <FieldLabel htmlFor={bindingId(person.key, "always")} setting="image.characters.*.alwaysTags" />
-              <input id={bindingId(person.key, "always")} className="text_pole" value={selected?.alwaysTags ?? ""} onChange={(event) => binding(person.key, { alwaysTags: event.target.value })} />
-              <FieldLabel htmlFor={bindingId(person.key, "never")} setting="image.characters.*.neverTags" />
-              <input id={bindingId(person.key, "never")} className="text_pole" value={selected?.neverTags ?? ""} onChange={(event) => binding(person.key, { neverTags: event.target.value })} />
-            </details>;
-          })}
-        </Advanced>
+        <p className="text-xs opacity-80">Character appearances belong to the story. Edit them in Studio → Presentation.</p>
       </div>
     </details>
   );

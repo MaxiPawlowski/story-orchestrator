@@ -17,18 +17,19 @@ export const BlackboardTab = ({ snapshot, onDecideMeanwhile }: { snapshot: Runti
         <div className="text-xs opacity-70">No blackboard values yet.</div>
       ) : (
         <div data-so="blackboard-scroll" className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="so-card-table w-full text-xs">
           <thead><tr><th className="text-left">Key</th><th className="text-left">Value</th><th className="text-left">Next turn</th><th className="text-left">Source</th></tr></thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.key} data-so="blackboard-row" data-key={row.key} data-gate={row.gate ? "true" : undefined}>
-                <td>{row.key}{row.gate ? <span className="opacity-70" title="Read by a gate out of the active checkpoint"> · gate</span> : null}</td>
-                <td>{row.set ? String(row.value) : <span className="opacity-70">unset</span>}</td>
-                <td data-so="blackboard-pending">{row.pending ? `→ ${String(row.pending.value)}` : ""}</td>
-                <td title={snapshot.blackboardMeta[row.key]?.evidence ?? ""}>
+                <td data-label="Key">{row.key}{row.gate ? <span className="opacity-70"> · used by a gate</span> : null}</td>
+                <td data-label="Value">{row.set ? String(row.value) : <span className="opacity-70">unset</span>}</td>
+                <td data-label="Next turn" data-so="blackboard-pending">{row.pending ? `→ ${String(row.pending.value)}` : "—"}</td>
+                <td data-label="Source">
                   {snapshot.blackboardMeta[row.key]?.source}
                   {readerLabel(snapshot.blackboardMeta[row.key])}
                   {snapshot.blackboardMeta[row.key]?.latched ? " (locked)" : ""}
+                  {snapshot.blackboardMeta[row.key]?.evidence && <details><summary>Evidence</summary>{snapshot.blackboardMeta[row.key]?.evidence}</details>}
                 </td>
               </tr>
             ))}

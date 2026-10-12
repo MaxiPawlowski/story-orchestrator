@@ -62,6 +62,7 @@ const harness = () => {
   const story = { illustrations: { checkpoints: true, scenes: true, workflows: { portrait: "SO-Portrait.json", scene: "SO-Missing.json" } },
     checkpointById: { cp2: { player_name: "The gate" } }, checkpoints: [], roster: [], requirements: {} };
   const manager = {
+    getEffectiveSettings: () => ({ image: host.settings }),
     getJudge: () => null,
     getSnapshot: () => snapshot, getStory: () => story, getEngineState: () => ({ visitedPath: [] }), ownsImageChat: () => true,
     getOwnership: () => ({ mint: () => ({}), check: () => ({ ok: true }) }), touch: () => undefined,

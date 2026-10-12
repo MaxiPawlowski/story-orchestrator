@@ -462,6 +462,7 @@ export const HOUSE_RULES_MAX = 8;
 export const HOUSE_RULE_MAX_CHARS = 240;
 
 export interface StoryV2 {
+  features?: import("./featurePolicy").StoryFeatures;
   format: 2;
   id?: string;
   title: string;

@@ -57,3 +57,8 @@ export const coordinatorHosts = {
   prompt: promptHost, player: playerHost, provisioning: provisioningHost, curator: curatorHost, chat: chatHost, roster: rosterHost,
   injection: injectionHost, vectors: vectorHost, tokens: tokenHost, mirror: mirrorHost,
 };
+
+export const featureCoordinatorHosts = (scanMemory: () => boolean) => ({
+  ...coordinatorHosts,
+  prompt: scanningPromptHost({ setStoryExtensionPrompt, clearStoryExtensionPrompt }, scanMemory),
+});

@@ -29,6 +29,12 @@ export async function openExtensionSettings(page) {
   // Extensions drawer and this step fails with a timeout that says nothing about its cause
   // (2026-09-21: it made the next run look like a regression in the thing under test).
   if (await page.locator('#so-studio-modal[open]').count()) await closeCheckpointStudio(page);
+  const workspace = page.locator('#so-workspace-modal[open]');
+  if (await workspace.count()) {
+    await workspace.getByRole('button', { name: 'Orchestrator', exact: true }).click();
+    await workspace.locator('#so-workspace-page-connections').click();
+    return { alreadyOpen: true, navWasOpen: true };
+  }
 
   const navToggle = page.locator('#extensions-settings-button .drawer-toggle');
   const navContent = page.locator('#rm_extensions_block');
@@ -38,16 +44,10 @@ export async function openExtensionSettings(page) {
     await navContent.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
   }
 
-  const content = root.locator('.inline-drawer-content');
-  const alreadyOpen = await content.isVisible().catch(() => false);
-  if (!alreadyOpen) {
-    const toggle = root.locator('.inline-drawer-toggle');
-    if (!(await toggle.count())) throw new Error('Settings panel toggle (.inline-drawer-toggle) not found.');
-    await toggle.click();
-    await content.waitFor({ state: 'visible', timeout: 5000 });
-  }
-  await root.scrollIntoViewIfNeeded().catch(() => undefined);
-  return { alreadyOpen, navWasOpen };
+  await root.locator('#so-open-workspace').click();
+  await workspace.waitFor({ state: 'visible', timeout: 10000 });
+  await workspace.locator('#so-workspace-page-connections').click();
+  return { alreadyOpen: false, navWasOpen };
 }
 
 export async function getSettingsPanelState(page) {
@@ -130,10 +130,7 @@ export async function revealSettingsControl(page, selector: string, { timeoutMs 
 
 export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
   const { navWasOpen } = await openExtensionSettings(page);
-  await revealSettingsControl(page, '#so-extraction-enabled');
   await revealSettingsControl(page, '#so-extraction-profile');
-  const enable = page.locator('#so-extraction-enabled');
-  if (!(await enable.count())) throw new Error('Extraction toggle (#so-extraction-enabled) not found in the settings panel.');
   const select = page.locator('#so-extraction-profile');
   if (!(await select.count())) throw new Error('Memory profile select (#so-extraction-profile) not found.');
   const labels = (await select.locator('option').allTextContents()).map((label) => label.trim()).filter((label) => label && label !== 'No profile selected');
@@ -148,11 +145,15 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   const label = search ? labels.find((option) => option.toLowerCase().startsWith(search)) : kept ? current : labels[0];
   if (!label) throw new Error(`No memory profile named "${wanted}" in the settings panel (offered: ${labels.join(', ')}).`);
   if (label !== current) await select.selectOption({ label });
-  if (!(await enable.isChecked())) await enable.check();
   const roles = await assignedRoleProfiles(page);
   const dangling = Object.entries(roles).filter(([, entry]) => entry.label === null);
   if (dangling.length) throw new Error(`Models per task: ${dangling.map(([role, entry]) => `${role} -> ${entry.id}`).join(', ')} is set to a profile the panel does not offer; every assigned role's profile has to be live.`);
+  await page.locator('#so-workspace-page-defaults').click();
+  await page.locator('[data-feature="reading"]').click();
+  const enable = page.locator('#so-feature-reading-enabled');
+  if (!(await enable.isChecked())) await enable.check();
   const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked(), roles };
+  await page.locator('#so-workspace-modal').getByRole('button', { name: 'Close Story Orchestrator' }).click();
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
   if (!navWasOpen) await closeUnpinnedDrawers(page).catch(() => undefined);
@@ -172,10 +173,9 @@ export async function openCheckpointStudio(page) {
 
   // The button can be attached but hidden behind two collapsed drawers — open by visibility.
   await openExtensionSettings(page);
-  const studioBtn = root.locator('#so-open-studio');
-  if (!(await studioBtn.count())) {
-    throw new Error('"Open Studio" button (#so-open-studio) not found.');
-  }
+  await page.locator('#so-workspace-page-library').click();
+  const studioBtn = page.locator('#so-workspace-modal #so-open-studio');
+  await studioBtn.waitFor({ state: 'attached', timeout: 10000 });
   await studioBtn.scrollIntoViewIfNeeded().catch(() => undefined);
   await studioBtn.waitFor({ state: 'visible', timeout: 10000 });
   await studioBtn.click({ noWaitAfter: true });
@@ -772,6 +772,10 @@ export async function getStudioDiagnostics(page) {
 export async function switchStudioTab(page, label) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  const task = { Story: 'Story setup', Graph: 'Flow', Checkpoints: 'Flow', Transitions: 'Flow', Chapters: 'Flow',
+    Qualities: 'State and rules', Game: 'State and rules', 'Story rules': 'State and rules', Roster: 'Characters', Sprites: 'Characters',
+    World: 'World', Presentation: 'Presentation', 'Story features': 'Story features', Wizard: 'Assistant', Diagnostics: 'Validation' }[label];
+  if (task) await modal.locator('nav[aria-label="Studio tasks"]').getByRole('button', { name: task, exact: true }).click();
   const tab = modal.locator('[role="tab"]', { hasText: label });
   if (!(await tab.count())) throw new Error(`Studio tab "${label}" not found.`);
   await tab.first().click();
@@ -1114,7 +1118,8 @@ export const DRAWER_SURFACE = '#drawer-manager';
 export const SETTINGS_SURFACE = '#story-orchestrator-settings';
 export const PANELS_SURFACE = '#so-panels-root';
 export const PRESENCE_SURFACES = ['#so-continue-list', '#chat [data-so="chapter-card"]', '#extensionsMenu [data-so="story-wand"]', '.so-story-badge', '.so-story-card'];
-export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content', 'dialog#so-briefing[open]', PANELS_SURFACE, ...PRESENCE_SURFACES];
+export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-workspace-modal[data-context="story"]', '#so-hud', 'dialog[open] .popup-content',
+  'dialog#so-briefing[open]', PANELS_SURFACE, ...PRESENCE_SURFACES];
 export const PLAYER_SELECTOR_SURFACES = [...PLAYER_TEXT_SURFACES, SETTINGS_SURFACE];
 export const RECORDED_SURFACES = PLAYER_SELECTOR_SURFACES;
 export const AUTHOR_AFFORDANCE_CONTROLS = ['so-author-view'];
@@ -1192,7 +1197,7 @@ export async function assertPlayerClean(page) {
   await openStoryDrawer(page);
   const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
   if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
-  const tabs = await evaluateInST(page, () => Array.from(document.querySelectorAll('#drawer-manager [role="tablist"] button')).map((button) => button.textContent?.trim() ?? ''));
+  const tabs = await page.locator('#so-workspace-modal nav button').allTextContents();
   const findings = [];
   const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
@@ -1214,7 +1219,7 @@ export async function assertPlayerClean(page) {
     return found;
   };
   for (const tab of tabs) {
-    await switchDrawerTab(page, tab);
+    await page.locator('#so-workspace-modal nav').getByRole('button', { name: tab, exact: true }).click();
     const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
     for (const hit of hits ?? []) {
       findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
@@ -1223,6 +1228,16 @@ export async function assertPlayerClean(page) {
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
     records.push(await recordPlayerSurfaces(page, tab));
+    if (tab === 'Features') {
+      const ids = await page.locator('#so-workspace-modal button[data-feature]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-feature')));
+      for (const id of ids) {
+        await page.locator(`#so-workspace-modal button[data-feature="${id}"]`).click();
+        const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+        for (const hit of hits ?? []) findings.push({ tab: `Features/${id}`, needle: `${hit.selector} reachable in ${hit.surface}` });
+        records.push(await recordPlayerSurfaces(page, `Features/${id}`));
+        await page.locator('#so-workspace-modal').getByRole('button', { name: '← All features' }).click();
+      }
+    }
   }
   findings.push(...recoveryControlFindings(recoveryControls));
   const helpOpened = await evaluateInST(page, async () => {
@@ -1264,17 +1279,14 @@ export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
 export async function openStoryDrawer(page) {
   const toggle = page.locator('#so-drawer .drawer-toggle');
   if (!(await toggle.count())) throw new Error('Story drawer toggle (#so-drawer .drawer-toggle) not found.');
-  const alreadyOpen = await evaluateInST(page, () =>
-    document.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false
-  );
-  if (alreadyOpen) return { alreadyOpen: true };
-  await toggle.click();
-  await page.waitForFunction(
-    () => document.getElementById('drawer-manager')?.classList.contains('openDrawer'),
-    null,
-    { timeout: 5000 },
-  );
-  return { alreadyOpen: false };
+  const workspace = page.locator('#so-workspace-modal[open]');
+  const alreadyOpen = await workspace.count() > 0;
+  if (!alreadyOpen) await toggle.click();
+  await workspace.waitFor({ state: 'visible', timeout: 10000 });
+  await workspace.getByRole('button', { name: 'This story', exact: true }).click();
+  const author = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getCachedSnapshot().ui.authorView === true);
+  if (author) await workspace.locator('#so-workspace-page-author').click();
+  return { alreadyOpen };
 }
 
 export const AGENT_MODE_CHOICES = ['step', 'review', 'auto-draft'] as const;

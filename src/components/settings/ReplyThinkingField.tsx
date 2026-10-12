@@ -1,5 +1,6 @@
 import type { ReplyEffort } from "@utils/reasoningEffort";
-import { DEFAULT_REPLY_EFFORT, REPLY_EFFORTS } from "@utils/replyEffort";
+import { REPLY_EFFORTS } from "@utils/replyEffort";
+import { DEFAULT_REPLY_EFFORT } from "@utils/reasoningEffort";
 import { FieldLabel } from "./Field";
 
 export const REPLY_EFFORT_LABELS: Record<ReplyEffort, string> = {

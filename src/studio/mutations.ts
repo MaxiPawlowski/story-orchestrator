@@ -3,6 +3,14 @@ import type {
   StoryBriefing, StoryPlayer, StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
+import type { StoryFeatureId, StoryFeatures, FeatureTuning } from "@engine/featurePolicy";
+
+export const setFeatures = (draft: StoryDraft, features: StoryFeatures): StoryDraft => ({ ...draft, features });
+export const setFeaturePolicy = (draft: StoryDraft, id: StoryFeatureId, policy: "off" | FeatureTuning | null): StoryDraft => {
+  const features = { ...draft.features };
+  if (policy === null) delete features[id]; else features[id] = policy;
+  return setFeatures(draft, features);
+};
 
 export const nextId = (existing: Iterable<string>, base: string): string => {
   const used = new Set(existing);

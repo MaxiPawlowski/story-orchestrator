@@ -19,6 +19,7 @@ type Props = {
   disabled?: boolean;
   canAddTransition: boolean;
   onSelect: (id: string) => void;
+  onLongPress?: (id: string) => void;
   onAddCheckpoint: () => void;
   onAddTransition: () => void;
 };
@@ -27,14 +28,16 @@ type ContainerRef = React.MutableRefObject<HTMLDivElement | null>;
 
 const CHECKPOINT_NODES = "node[type != 'chapter']";
 
-const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void) => {
+const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void, onLongPress?: (id: string) => void) => {
   const [cyReady, setCyReady] = useState(false);
   const cyRef = useRef<Core | null>(null);
   const selectHandlerRef = useRef(onSelect);
+  const longPressRef = useRef(onLongPress);
 
   useEffect(() => {
     selectHandlerRef.current = onSelect;
-  }, [onSelect]);
+    longPressRef.current = onLongPress;
+  }, [onSelect, onLongPress]);
 
   const themeColors = useMemo(resolveGraphThemeColors, []);
 
@@ -77,12 +80,22 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
         if (container) container.title = "";
       };
       cy.on("tap", CHECKPOINT_NODES, handleTap);
+      const handleLongPress = (event: EventObject) => longPressRef.current?.(event.target.id());
+      const refreshPosition = () => cy?.resize();
+      container.addEventListener("mousedown", refreshPosition, true);
+      container.addEventListener("touchstart", refreshPosition, true);
+      cy.on("cxttap", CHECKPOINT_NODES, handleLongPress);
+      cy.on("taphold", CHECKPOINT_NODES, handleLongPress);
       cy.on("mouseover", "edge", handleEdgeOver);
       cy.on("mouseout", "edge", handleEdgeOut);
       cyRef.current = cy;
       setCyReady(true);
 
       cleanup = () => {
+        container.removeEventListener("mousedown", refreshPosition, true);
+        container.removeEventListener("touchstart", refreshPosition, true);
+        cy?.off("cxttap", CHECKPOINT_NODES, handleLongPress);
+        cy?.off("taphold", CHECKPOINT_NODES, handleLongPress);
         try {
           cy?.off("tap", CHECKPOINT_NODES, handleTap);
           cy?.off("mouseover", "edge", handleEdgeOver);
@@ -223,11 +236,11 @@ const GraphToolbar = ({ layout, dagreReady, disabled, canAddTransition, onAddChe
   </div>
 );
 
-const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
+const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, onLongPress, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
   const [layout, setLayout] = useState<LayoutName>("dagre");
   const [layoutTrigger, setLayoutTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { cyRef, cyReady } = useCytoscape(containerRef, onSelect);
+  const { cyRef, cyReady } = useCytoscape(containerRef, onSelect, onLongPress);
   const dagreReady = useDagre();
   useGraphFit(containerRef, cyRef, cyReady);
 
@@ -268,7 +281,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           setLayoutTrigger((prev) => prev + 1);
         }}
       />
-      <div ref={containerRef} className="flex-1 min-h-[20rem] w-full bg-[var(--SmartThemeBlurTintColor)]" />
+      <div ref={containerRef} data-so="graph-canvas" className="flex-1 min-h-[20rem] w-full bg-[var(--SmartThemeBlurTintColor)]" />
     </div>
   );
 };

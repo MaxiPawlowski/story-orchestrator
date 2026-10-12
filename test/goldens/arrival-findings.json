@@ -136,6 +136,7 @@
   "test/scenarios/live-story-workflows.json#0": [],
   "test/scenarios/live-two-ways-bridge.json#0": [],
   "test/scenarios/live-two-ways-ferry.json#0": [],
+  "test/scenarios/live-ui-rework.json#0": [],
   "test/scenarios/live-v10b-uid-revert.json#0": [],
   "test/scenarios/live-v13-refusal.json#0": [],
   "test/scenarios/live-v15b-an-background-ledger.json#0": [],

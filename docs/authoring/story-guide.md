@@ -23,6 +23,20 @@ A player line that is wholly out of character (wrapped in `((…))`, or starting
 
 ## Part 1: the fields
 
+### Story feature policies
+<!-- topic: feature-policies -->
+
+Field: `features` (`engine/featurePolicy.ts`, `runtime/featureResolve.ts`).
+
+- **What it does.** Declares feature switches and behavior that travel with the story. An absent feature inherits the install default, `"off"` declines it, and an object tunes supported controls. Install master-off wins, then a chat override, then the story policy, then the install default. Re-enabling a story decline shows a warning. Player changes affect only that chat; Studio edits the story file. A running chat takes the edited file through **Update to the latest** or **Restart**.
+- **Controls.** `reading` (enabled, cadence, stabilityLag), `memory` (enabled), `chapters` (enabled, recap, storySoFar, fold), `continuity` and `agency` (enabled, acceptMode), `pacing`, `speakers`, `living`, `branching`, `prefetch`, `memoryLore`, `poses`, `cardState` (enabled), `voices` (enabled, max), `inner` (enabled, fanOut, harvestReasoning), `meanwhile` (enabled, acceptMode), `curator` (enabled, acceptMode, create, requireMeasured), `lateLore` (enabled, depth), `illustrations` (enabled, mode, everyN), `sprites` (enabled, stage). Integer limits and choice values are checked by the parser. Studio shows the supported choices.
+- **Content stays authored.** Curator scope/exclusions/cap remain in `stagecraft`; lore selection in `lore_select`; chapters, character life, appearances, poses, and reasoning remain in their existing fields. Policies never carry plot or private character content. Keep thinking and the private inner voice on unless the owner asks otherwise.
+- **Reply thinking.** `thinking` supports `enabled` and `effort` (`off`, `low`, `medium`, `high`). A chat effort overrides checkpoint and story reasoning; the install master switch still wins. Without a chat choice, checkpoint `effects.reasoning` wins over story `features.thinking.effort`, then story `reasoning`, then the install default. A story decline stops thinking regardless of its checkpoint budgets. The backend must already support and enable reasoning; this control never rewrites the connection profile.
+- **Character appearances.** Image appearances belong in `illustrations.appearances` and the story's look layers, edited in Studio → Presentation. There are no install-wide fallback character looks.
+- **Good.** `{"features":{"reading":{"cadence":2},"curator":{"acceptMode":"review"}}}`. The agent can replace the complete block with `setFeatures`.
+- **Bad.** Putting lorebook names, character plans or image appearances in `features`, or treating a model connection as story content.
+- **If wrong.** Unknown feature ids, unknown controls, invalid choices and out-of-range integers fail validation. A missing model or authored scope can prevent an enabled feature from working; the switch alone is not setup. Feature-policy updates are compatible with the running engine state, and chat overrides remain in force.
+
 ### Title, description and id
 <!-- topic: story-basics -->
 

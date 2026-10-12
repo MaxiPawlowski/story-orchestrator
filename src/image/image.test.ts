@@ -35,7 +35,7 @@ describe("Image Director merge", () => {
   });
 
   it("keeps a pinned chat checkpoint and drops a LoRA the install does not list", () => {
-    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, { ...sanitizeImageOverride(null), checkpoint: JANKU, loras: [{ file: "gone.safetensors", weight: 0.8 }] }, null);
+    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, { ...sanitizeImageOverride(null), checkpoint: JANKU, loras: [{ file: "gone.safetensors", weight: 0.8 }] });
     expect(route.checkpoint.file).toBe(JANKU);
     expect(route.loras).toHaveLength(0);
     expect(route.warnings).toEqual(expect.arrayContaining([expect.stringContaining("Missing LoRA")]));
@@ -45,7 +45,7 @@ describe("Image Director merge", () => {
     const settings = defaultImageSettings();
     expect(settings.purposes.background).toMatchObject({ checkpoint: "", family: "sdxl-illustrious", aspect: "wide", shot: "wide", placement: "background", extraPositive: "no humans, scenery" });
     expect(settings.backend).toBe("st");
-    const route = resolveImageRoute(settings, "background", {}, sanitizeImageOverride(null), null);
+    const route = resolveImageRoute(settings, "background", {}, sanitizeImageOverride(null));
     expect(route.family.id).toBe("sdxl-illustrious");
     const { positive, negative } = assembleImagePrompt(route, null, "a ruined temple at dusk");
     expect(positive).toContain("no humans, scenery");
@@ -64,11 +64,10 @@ describe("Image Director merge", () => {
     };
     const settings = sanitizeImageSettings(stored);
     expect(settings.purposes.background).toEqual(defaultImageSettings().purposes.background);
-    expect(settings.characters["belle.png"].checkpoint).toBe("");
+    expect(settings).not.toHaveProperty("characters");
     expect(settings.loras).toEqual([]);
     expect(settings.retired).toEqual([
       { where: "background", was: "flux1-dev-fp8.safetensors" },
-      { where: "character belle.png", was: "flux1-dev-fp8.safetensors" },
       { where: "LoRA", was: "flux-style.safetensors" },
     ]);
     expect(sanitizeImageSettings(settings).retired).toEqual(settings.retired);
@@ -124,7 +123,7 @@ describe("Image Director merge", () => {
     const scene = sceneForImage({ id: "one", groupId: null, folder: "one", userName: "Player", messages: [], characters: [] },
       { purpose: "scene", text: "", messageId: null }, 6);
     scene.visualStyle = "Soft watercolor and candlelight";
-    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null), null);
+    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null));
     expect(imageMessages({ purpose: "scene", text: "", messageId: null }, scene, route)[1].content).toContain("Soft watercolor and candlelight");
     expect(sanitizeImageOverride(null).paused).toBe(false);
     expect(sanitizeImageOverride({ paused: true }).paused).toBe(true);

@@ -7,6 +7,7 @@ export type ReasoningLevel = "low" | "medium" | "high";
 export type ReasoningBudget = Record<ReasoningLevel, number>;
 
 export type ReplyEffort = "off" | "low" | "medium" | "high";
+export const DEFAULT_REPLY_EFFORT: ReplyEffort = "medium";
 
 export const isReplyEffort = (value: unknown): value is ReplyEffort => /^(off|low|medium|high)$/.test(String(value));
 
