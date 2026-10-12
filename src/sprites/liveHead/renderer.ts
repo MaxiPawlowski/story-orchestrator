@@ -121,7 +121,7 @@ export class HeadRenderer {
     state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = p.gazeX * 5.95; state[7] = -p.gazeY * 4.2;
     gl.uniform4fv(this.uniform("uEyeState"), state);
     gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
-    gl.uniform4f(this.uniform("uMouthState"), p.mouthOpen, p.mouthForm, rig.mouth.bow, 0);
+    gl.uniform4f(this.uniform("uMouthState"), p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
     gl.activeTexture(gl.TEXTURE0);
     for (const resource of this.layers) {

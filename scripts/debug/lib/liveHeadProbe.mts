@@ -60,6 +60,16 @@ export function installLiveHeadProbe() {
     }
   });
   observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-live-head-ready'] });
+  root.__lhWhy = () => ({
+    staleConnected: !!state.staleCanvas?.isConnected,
+    sprites: [...document.querySelectorAll<HTMLElement>('#so-vn-stage .so-sprite')].map((sprite) => ({
+      canvas: !!sprite.querySelector('canvas'),
+      images: [...sprite.querySelectorAll<HTMLImageElement>('img.so-sprite-top, img.so-sprite-under')].map((image) => {
+        const box = image.getBoundingClientRect(), style = getComputedStyle(image);
+        return { complete: image.complete, natural: image.naturalWidth, box: [Math.round(box.width), Math.round(box.height)], visibility: style.visibility, opacity: style.opacity, cls: image.className };
+      }),
+    })),
+  });
   root.__lhStatic = (switching = false) => {
     const sprites = [...document.querySelectorAll<HTMLElement>('#so-vn-stage .so-sprite')];
     return sprites.length === 3 && sprites.every((sprite) => {

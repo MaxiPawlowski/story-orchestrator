@@ -219,7 +219,7 @@ async function main(page: Page, connection: ConnectResult) {
           const state = (globalThis as any).__lh;
           return switching ? state.publications.filter((canvas: HTMLCanvasElement) => canvas === state.staleCanvas).length : state.publications.length;
         }, switching);
-        check(`LI3/${failure}`, { staticWithinOneFrame: visible, stalePublications: stale }, visible && stale === 0);
+        check(`LI3/${failure}`, { staticWithinOneFrame: visible, stalePublications: stale, ...(visible ? {} : { why: await page.evaluate(() => (globalThis as any).__lhWhy()) }) }, visible && stale === 0);
         await page.screenshot({ path: resolve(out, `LI3-${failure}-after.png`) });
         fault = ''; for (const manifest of manifests.values()) manifest.artHash = rig.artHash;
         await page.evaluate(async ({ refs, story }) => {
@@ -280,6 +280,16 @@ async function main(page: Page, connection: ConnectResult) {
         const author = document.getElementById('so-live-head-author');
         for (let parent = author?.parentElement; parent; parent = parent.parentElement) if (parent instanceof HTMLDetailsElement) parent.open = true;
       });
+      await page.waitForSelector('#so-live-head-author', { state: 'attached' });
+      const sections = await page.evaluate(() => {
+        const ids: string[] = [];
+        for (let parent = document.getElementById('so-live-head-author')?.parentElement; parent; parent = parent.parentElement) if (parent instanceof HTMLDetailsElement && parent.id) ids.unshift(parent.id);
+        return ids;
+      });
+      for (const id of sections) {
+        const section = page.locator('details#' + id);
+        if (!(await section.evaluate((element) => (element as HTMLDetailsElement).open))) await section.locator('> summary').click();
+      }
       const summary = page.locator('#so-live-head-author summary');
       await summary.focus(); await page.keyboard.press('Enter');
       await page.keyboard.press('Tab');
