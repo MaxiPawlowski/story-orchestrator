@@ -423,3 +423,14 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - Decision: P2 stays (it clears every automated floor on both seeds and both runs). Known limit: a lying pose is not reliable on P2 either (0.51) and is unreliable on P3. P4 not needed, nothing downloaded.
 - Evidence (private): so-sessions commit `fc6a4b4c`, `evidence/phase-c/v28-poses-s0-full-2026-10-12/`.
 - Owed: an independent second-model identity and label rater over all renders; Acceptance through the product path x2 (lane 40 is rendering the showcase through it); fix or de-list lie_side.
+
+## Gate record: independent rating and the LLM leg (2026-10-12)
+
+- Rater: opencode `openai/gpt-6.1-sol`, one call per contact sheet with the image attached and a JSON-only prompt. 96 sheets: the 48 body sheets and 48 head sheets of run 1, seeds 1234 and 5678. Run 2's sheets are byte-identical to run 1's (cached renders), so they are not rated twice. 96 of 96 answers parsed; none retried to a different answer.
+- Identity (same character as the base panel): P2 48 of 48, P3 48 of 48. Floor 90 percent, met.
+- Expression label readable: 186 of 190 crops (97.9 percent; P2 92 of 94, P3 94 of 96). Floor 90 percent, met. Not readable: the first member's lie_side P2 happy and angry, and the third member's kneel_one P3 happy and angry. Same face across the four crops of a sheet: 47 of 48.
+- Pose follows the skeleton (informational, PCK stays the metric): P2 yes 38, partly 9, no 1; P3 yes 8, partly 32, no 8.
+- Defects the rater named: invented prop 6 on each arm (the fight poses), extra limb 1 (P3).
+- Result: every S0 floor now has an automated and a second-model result and all are met, on both seeds and both runs. The rater is a model reading contact sheets; no human re-checked it.
+- CL LLM leg: NOT exercised. Arm llm on lane 36: 40 harness calls, 40 failures of kind auth, 0 answered (accuracy 0.2 is only the labelled-none rows). Cause: the harness plugin reads only `~/.local/share/opencode/auth.json`, and opencode v2.0.6 does not rewrite that file; its OpenAI OAuth access token expired 2026-10-12 05:29 local. `opencode run` itself works. Needs the owner (a fresh login, or a decision on how the harness finds it). Nothing was changed or retuned.
+- Owed: product Acceptance twice (3090, Artemis unloaded), plan 28 and 29 LI (3090).

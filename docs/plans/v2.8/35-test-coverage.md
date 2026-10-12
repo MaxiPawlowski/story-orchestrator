@@ -126,3 +126,9 @@ Next gaps, original risk order retained:
 
 - None open. A15 near-duplicate advice stays a warning: v2.8 11's A15 record, approved 2026-10-10, says "Still a warning, never a refusal".
   The architecture invariant said "refused" and was corrected to match on 2026-10-11; no product code changed.
+
+## Gate record: combined build (2026-10-12)
+
+- Lane 35, `st-lanes.mts batch --lanes 35 --repeat 2 --strict` on the three B6 scenarios: living-rollback, curator-create and lore-placement all GREEN on both runs (6 of 6). Lane 33, `so-open-stretch-check.mts`: the open-stretch curve scenario `ok` on both runs, 39 of 39 steps each.
+- Payload goldens, all six cases captured twice on one served build: `payload invariance: identical`. A comparison against an older master was not made: the capture tool records the staged build, and staging an older build means overwriting the owner's install. Owed with a baseline taken before the owner's next restage.
+- Not run: B4 judge consumer scenarios (none written), B2 provisioning roundtrips and real wizard run, B1 chain voice (all need a model route).

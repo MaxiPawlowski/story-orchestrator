@@ -160,7 +160,10 @@ async function cacheFolders(from: string, to: string) {
   let moved = 0;
   for (const name of await readdir(from).catch(() => [] as string[])) {
     if (!name.startsWith(MARKER)) continue;
-    await cp(resolve(from, name), resolve(to, name), { recursive: true, force: true });
+    await mkdir(resolve(to, name), { recursive: true });
+    for (const entry of await readdir(resolve(from, name), { withFileTypes: true })) {
+      if (entry.isDirectory()) await cp(resolve(from, name, entry.name), resolve(to, name, entry.name), { recursive: true, force: true });
+    }
     moved += 1;
   }
   return moved;
