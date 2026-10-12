@@ -405,3 +405,21 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - Evidence (private): so-sessions commit `244f7fdb`, `evidence/phase-c/v28-poses-s0-repilot-2026-10-11/`.
 - Commands: `SO_S0_DIR=C:/dev/so-s0-repilot node scripts/debug/so-pose-s0.mts vram | bodies | score | heads | sheets | summary 19.77`; controller `cli.mjs start | unload | start-comfy`.
 - Owed: full S0 x2 on both seeds and 8 poses; an independent identity and label rater; Acceptance through the product path (in progress on lane 40).
+
+## Gate record: full S0 (2026-10-11 to 12, 3090)
+
+- Place: `C:\dev\so-poses`, branch `v2.8-poses` at `3755880a`. 3090 granted by the owner overnight. Driver `scripts/debug/so-pose-s0.mts` with `SO_S0_POSES=full`, run by a chained script, one batch at a time, GPU otherwise idle.
+- Scope, as §6 states it: 3 synthetic members (the pilot's bases), 8 library poses (stand_arms_crossed, sit_chair, kneel_one, fight_swing, cast_two_hands, crouch, walk, lie_side), arms P2 and P3, 1024, 2 seeds (1234, 5678), 2 expressions per body, run twice (r1, r2). That is 192 bodies and 384 head edits; 376 head edits were made and 8 were skipped because DWPose found no person on the rendered body (see below). Text model unloaded through the controller.
+- Automated results, pooled over the four batches (floors unchanged, not retuned):
+  - P2 PCK@0.1: 0.860 (floor 0.70, met); P3 0.642; gain +0.218 (floor +0.10, met). Per batch P2: 0.854, 0.866, 0.854, 0.866;
+  - body QA: 96 of 96 on each arm (floor 90 percent, met);
+  - body render: median 56.5 s, p90 56.7 s (floors 90 and 150, met); head edit median 21.2 s, p90 21.3 s;
+  - peak VRAM 19,944 MiB (19.5 GiB) by `nvidia-smi` every 500 ms across two sampler segments (floor 22 GB, met);
+  - head edits: 376 of 376 changed at least 5 pixels.
+- Weak poses (P2 PCK pooled): lie_side 0.51 and crouch 0.78 and kneel_one 0.81 are the weakest; cast_two_hands 1.00, walk 0.97, sit_chair 0.94, stand_arms_crossed 0.94, fight_swing 0.93. P3 is much worse on lie_side (0.01) and kneel/crouch (0.43, 0.41): P3 turned the lying pose into a seated one on the sampled sheet. The mean passes; lie_side alone is below 0.70.
+- DWPose found no person on 4 bodies in each seed-1234 run (the third member's P2 crouch and P3 kneel_one): 8 expression edits skipped, never made at an unverified head.
+- Not independent and not complete, so NOT claimed as floors: identity and "label visible" are provisional. The session read 17 contact sheets (bodies and heads, covering all three members, lie_side, crouch, kneel, walk, cast_two_hands, fight and sit) and saw the same character in every sampled pose and a readable expression in every sampled edit, including lying and crouching. It did not read all 192 bodies and 376 edits, and it is not a second model. The label rate is bounded above by 376 of 384 (97.9 percent) and has no measured lower bound.
+- Run 2 reproduced run 1 exactly (same PCK per seed) and rendered at half the time (median 28.3 s per body vs 56.6 s); the cause was not investigated. The floors are scored on all four batches pooled. Run 1 batch 1 was interrupted once (the chain process died, restarted, finished items skipped); no render was repeated.
+- Decision: P2 stays (it clears every automated floor on both seeds and both runs). Known limit: a lying pose is not reliable on P2 either (0.51) and is unreliable on P3. P4 not needed, nothing downloaded.
+- Evidence (private): so-sessions commit `fc6a4b4c`, `evidence/phase-c/v28-poses-s0-full-2026-10-12/`.
+- Owed: an independent second-model identity and label rater over all renders; Acceptance through the product path x2 (lane 40 is rendering the showcase through it); fix or de-list lie_side.
