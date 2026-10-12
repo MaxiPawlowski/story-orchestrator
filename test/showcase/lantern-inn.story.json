@@ -16,12 +16,12 @@
       "name": "SO-Show Wren",
       "role": "A cheerful adventurer who talks first and thinks second",
       "sprites": {
-        "pose": "stand_relaxed",
+        "pose": "stand_hands_hips",
         "poses": [
+          "wave",
           "sit_chair",
           "fight_swing",
-          "sit_cross_legged",
-          "wave"
+          "sit_cross_legged"
         ]
       },
       "card": {
@@ -66,7 +66,7 @@
       "name": "SO-Show Pim",
       "role": "A nervous young mage who knows more than she admits",
       "sprites": {
-        "pose": "stand_relaxed",
+        "pose": "stand_attention",
         "poses": [
           "sit_floor",
           "cast_two_hands",
@@ -129,7 +129,7 @@
           "spotlight": "wren",
           "cast": {
             "wren": {
-              "pose": "stand_relaxed",
+              "pose": "wave",
               "face": "happy"
             },
             "garrick": {
@@ -137,7 +137,7 @@
               "face": "neutral"
             },
             "pim": {
-              "pose": "stand_relaxed",
+              "pose": "stand_attention",
               "face": "worried"
             }
           }

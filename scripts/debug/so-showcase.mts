@@ -142,6 +142,10 @@ async function prepare(page: Page) {
     rt.setUiSettings({ briefingSeen: true });
   }, { story, builders, onDemand, liveHeadRigs: created.liveHeadRigs });
   await saveSettingsNow(page);
+  await page.waitForFunction(() => (globalThis as any).SillyTavern.getContext().chat.length > 0, undefined, { timeout: 60000 });
+  await page.evaluate(async () => { await (globalThis as any).SillyTavern.getContext().saveChat(); });
+  await page.waitForFunction(() => (globalThis as any).storyOrchestratorRuntime.getSnapshot()?.schedulerIdle !== false, undefined, { timeout: 60000 });
+  await page.waitForTimeout(2500);
   console.log(JSON.stringify({ group: created.group, members: created.members.map((m) => m.name), story: story.id, builders: Object.keys(builders), rigs: Object.keys(created.liveHeadRigs).length }));
 }
 
