@@ -18,6 +18,7 @@
       "sprites": {
         "pose": "stand_hands_hips",
         "poses": [
+          "stand_relaxed",
           "wave",
           "sit_chair",
           "fight_swing",
@@ -40,6 +41,7 @@
       "sprites": {
         "pose": "stand_arms_crossed",
         "poses": [
+          "stand_relaxed",
           "sit_edge",
           "fight_guard",
           "kneel_pray"
@@ -68,6 +70,7 @@
       "sprites": {
         "pose": "stand_attention",
         "poses": [
+          "stand_relaxed",
           "sit_floor",
           "cast_two_hands",
           "sit_knees_hug"
@@ -126,19 +129,18 @@
       "effects": {
         "stage": {
           "framing": "close",
-          "spotlight": "wren",
           "cast": {
             "wren": {
-              "pose": "wave",
-              "face": "happy"
+              "pose": "stand_relaxed",
+              "face": "neutral"
             },
             "garrick": {
-              "pose": "stand_arms_crossed",
+              "pose": "stand_relaxed",
               "face": "neutral"
             },
             "pim": {
-              "pose": "stand_attention",
-              "face": "worried"
+              "pose": "stand_relaxed",
+              "face": "neutral"
             }
           }
         },
@@ -147,7 +149,7 @@
             "trigger": "onEnter",
             "kind": "scripted",
             "member": "SO-Show Wren",
-            "text": "*shakes the rain out of her hair and waves at you from the doorway* Oh, there you are! Come in, come in, the fire's still going.",
+            "text": "*shakes the rain out of her hair in the doorway* Oh, there you are! Come in, come in, the fire's still going.",
             "new_chat_only": true
           }
         ]
