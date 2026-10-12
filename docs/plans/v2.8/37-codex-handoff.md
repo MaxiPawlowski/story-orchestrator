@@ -99,6 +99,8 @@ Work the tasks **in order**: part A (sprites, poses, live head) first, then part
 
 # Part A — sprites, poses and the live head, fully working
 
+**Status 2026-10-12:** A3 done on the 3090 (retarget and head-crop fix, re-pilot, full S0: P2 stays, plan 33 Gate record). Live-head deformation cost reduced; LI1 not claimed fixed. A6 deferred (synthetic art only). A4 Acceptance x2, the CL LLM leg and A5 LI are still owed. Part B code is on master; its live checks are owed per each plan's Gate record.
+
 Current state (2026-10-10, master `f81261c2`, pushed and installed): the pose library (plan 33, B1–B3) and the live
 head (plan 36) are on master and green, including the full Storybook suite. Nothing in part A has run yet on a real
 GPU, on real art, or against a real browser frame clock.

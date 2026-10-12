@@ -468,3 +468,11 @@ rig store, never this repo; no campaign member was touched); a Sol-through-bridg
 of calibration and the vision steps if the owner wants LI5 accepted on the authoring role;
 Author-view import of these three packaged rigs in a browser; measured token cost per look;
 optional drawn variants (GPU, plan 30). LI1 laptop and LI2 network capture stay owed.
+
+## Gate record: deformation cost and the showcase rig (2026-10-12)
+
+- Place: `C:\dev\so-live-head`, branch `v2.8-live-head` at `0740c3b7`, merged into master through `v2.8-showcase`.
+- Change: `deformInto` and `eyeVertexY` in `src/sprites/liveHead/geometry.ts` write into reused buffers instead of allocating per frame. `geometryEquivalence.test.ts` checks the output is identical to the previous implementation. Measured CPU gain about 10 percent.
+- LI1 is NOT claimed fixed. The desktop interval misses recorded in the A1 Gate record stay as recorded; the mid-laptop run is unmeasured because the owner has no laptop.
+- Showcase rig: one original illustrated bust (the showcase's first member) was rigged with the CPU pipeline, calibration median 0.51 px (PASS), bust crop 130,0,500,640, mounted on a lane with `head: true`. Vision steps were run by the executing session, not Sol over the bridge.
+- Owed: rigs for the showcase's other two members, LI2 network capture, Sol-bridge calibration, LI1 laptop, a repeat of LI3/LI4/LI6 on the final build.
