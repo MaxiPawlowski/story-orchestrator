@@ -23,7 +23,9 @@ export const MEMBERS: Record<string, string> = {
     m2: 'Full-body anime character sprite, a tall man knight with short black hair, silver plate armour and a blue cape, steel boots, standing relaxed, front view, whole body visible from head to feet, plain white background',
     m3: 'Full-body anime character sprite, a small girl mage with long silver hair and violet eyes, purple robe with gold trim, pointed hat, standing relaxed, front view, whole body visible from head to feet, plain white background',
 };
-export const POSES = ['stand_arms_crossed', 'sit_chair', 'kneel_one', 'fight_swing'];
+const PILOT_POSES = ['stand_arms_crossed', 'sit_chair', 'kneel_one', 'fight_swing'];
+const FULL_POSES = ['stand_arms_crossed', 'sit_chair', 'kneel_one', 'fight_swing', 'cast_two_hands', 'crouch', 'walk', 'lie_side'];
+export const POSES = process.env.SO_S0_POSES === 'full' ? FULL_POSES : process.env.SO_S0_POSES ? process.env.SO_S0_POSES.split(',') : PILOT_POSES;
 export const EXPRESSIONS = ['happy', 'angry'];
 const ARMS = ['p2', 'p3'] as const;
 type Arm = typeof ARMS[number];
@@ -129,7 +131,9 @@ async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ sec
     const pose = await loadPose(poseId);
     const base = dir('bases', `${member}.png`);
     const info = JSON.parse(await fs.readFile(dir('bases', `${member}.dwpose.json`), 'utf8'));
-    const keypoints = retarget(pose, { canvas: info.box.canvas, box: { x: info.box.x, y: info.box.y, width: info.box.width, height: info.box.height }, headToHip: info.ratio });
+    const standing = (await loadPose('stand_relaxed')).keypoints;
+    const measured: Keypoints | undefined = info.keypoints ? { ...info.keypoints, points: info.keypoints.points.map((p: [number, number] | null) => p ? [Math.round(p[0]), Math.round(p[1])] : null) } : undefined;
+    const keypoints = retarget(pose, { canvas: info.box.canvas, box: { x: info.box.x, y: info.box.y, width: info.box.width, height: info.box.height }, headToHip: info.ratio, member: measured }, standing);
     const target = dir('targets', `${member}-${poseId}.json`);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, JSON.stringify(keypoints));
@@ -156,27 +160,39 @@ async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ sec
     return row;
 }
 
-async function makeHead(member: string, poseId: string, arm: Arm, expression: string, boxFrom: 'target' | 'output' = 'target'): Promise<void> {
+async function makeHead(member: string, poseId: string, arm: Arm, expression: string, boxFrom: 'target' | 'output' = 'output'): Promise<void> {
     const stem = `${member}-${poseId}-${arm}`;
-    const folder = boxFrom === 'output' ? 'heads-outbox' : 'heads';
+    const folder = boxFrom === 'output' ? 'heads' : 'heads-target';
     const out = dir(folder, `${stem}-${expression}.png`);
     const metaFile = out.replace(/\.png$/, '.json');
     if (await exists(metaFile)) return;
     const body = dir('bodies', `${stem}.png`);
     const target = JSON.parse(await fs.readFile(dir('targets', `${member}-${poseId}.json`), 'utf8')) as Keypoints;
-    const found = boxFrom === 'output' ? (JSON.parse(await fs.readFile(dir('scores', `${stem}.json`), 'utf8')).found as Keypoints | null) : null;
-    const box = (found ? poseHead(found) : poseHead(target)) as Box;
-    const cropFile = dir(folder, `${stem}-${expression}.crop.png`);
+    let found: Keypoints | null = null;
+    if (boxFrom === 'output') {
+        const scoreFile = dir('scores', `${stem}.json`);
+        if (!await exists(scoreFile)) await scoreBodies();
+        found = JSON.parse(await fs.readFile(scoreFile, 'utf8')).found as Keypoints | null;
+    }
+    const box = (boxFrom === 'output' ? (found ? poseHead(found) : null) : poseHead(target)) as Box | null;
     await fs.mkdir(path.dirname(out), { recursive: true });
+    if (!box) {
+        const skipped = { kind: 'head-skipped', member, pose: poseId, arm, expression, reason: found ? 'no head joints' : 'no person found' };
+        await fs.writeFile(metaFile, JSON.stringify(skipped));
+        await appendResult(skipped);
+        log('head skipped', stem, expression, skipped.reason);
+        return;
+    }
+    const cropFile = dir(folder, `${stem}-${expression}.crop.png`);
     py('crop', { image: body, box, out: cropFile });
     const reference = await upload(cropFile, `${PREFIX}-${stem}-${expression}-crop.png`);
     const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('expression', `facial expression: ${expression}`), resolution: 1024 });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
-    const raw = dir('raw', `${stem}-${expression}${boxFrom === 'output' ? '-outbox' : ''}.png`);
+    const raw = dir('raw', `${stem}-${expression}${boxFrom === 'output' ? '' : '-target'}.png`);
     await fetchImage(image, raw);
     const pasted = py('paste', { base: body, edit: raw, box, out });
-    const row = { kind: boxFrom === 'output' ? 'head-outbox' : 'head', member, pose: poseId, arm, expression, seconds, box, changed: pasted.changed, qaOk: pasted.changed >= 5, comfyFile: image.filename };
+    const row = { kind: 'head', member, pose: poseId, arm, expression, seconds, box, boxFrom, changed: pasted.changed, qaOk: pasted.changed >= 5, comfyFile: image.filename };
     await fs.writeFile(metaFile, JSON.stringify(row));
     await appendResult(row);
     log('head', stem, expression, `${seconds.toFixed(1)}s`, `changed ${pasted.changed}`);
@@ -221,7 +237,7 @@ async function summary(vram: number | null): Promise<void> {
         bodies: bodies.length, heads: heads.length, bodySeconds: { median: median(bodyS), p90: percentile(bodyS, 0.9), min: Math.min(...bodyS), max: Math.max(...bodyS) },
         headSeconds: { median: median(headS), p90: percentile(headS, 0.9) }, peakVramGb: vram, pckMean: { p2: mean(byArm('p2')), p3: mean(byArm('p3')) }, shapePckMean: { p2: mean(shape('p2')), p3: mean(shape('p3')) },
         qaRate: { p2: rates('p2').filter((b) => b.qa.ok).length / Math.max(1, rates('p2').length), p3: rates('p3').filter((b) => b.qa.ok).length / Math.max(1, rates('p3').length) },
-        headQaRate: heads.filter((h) => h.qaOk).length / Math.max(1, heads.length), identity: { p2: idRate('p2'), p3: idRate('p3') }, labelVisible: labelRate, labelVisibleOutputBox: labelOutboxRate,
+        headQaRate: heads.filter((h) => h.qaOk).length / Math.max(1, heads.length), headsSkipped: all.filter((r) => r.kind === 'head-skipped').length, identity: { p2: idRate('p2'), p3: idRate('p3') }, labelVisible: labelRate, labelVisibleOutputBox: labelOutboxRate,
     };
     const v = verdict({ identity2: result.identity.p2, identity3: result.identity.p3, pck2: result.pckMean.p2, pck3: result.pckMean.p3, qa2: result.qaRate.p2, qa3: result.qaRate.p3,
         medianBody: result.bodySeconds.median, p90Body: result.bodySeconds.p90, peakVramGb: vram, labelVisible: labelRate });
@@ -269,15 +285,7 @@ async function main(): Promise<void> {
         for (const poseId of POSES) for (const member of Object.keys(MEMBERS)) for (const arm of ARMS) await makeBody(member, poseId, arm);
         return;
     }
-    if (command === 'heads-outbox') {
-        const ratings = JSON.parse(await fs.readFile(dir('ratings.json'), 'utf8')).labels as Record<string, { visible: boolean }>;
-        for (const [key, value] of Object.entries(ratings)) if (!value.visible) {
-            const [member, poseId, arm, expression] = key.split('-');
-            await makeHead(member, poseId, arm as Arm, expression, 'output');
-        }
-        return;
-    }
-    if (command === 'head') { await makeHead(rest[0], rest[1], rest[2] as Arm, rest[3]); return; }
+    if (command === 'head') { await makeHead(rest[0], rest[1], rest[2] as Arm, rest[3], (rest[4] as 'target' | 'output' | undefined) ?? 'output'); return; }
     if (command === 'heads') {
         const limit = Number(rest[0] ?? Infinity);
         let n = 0;

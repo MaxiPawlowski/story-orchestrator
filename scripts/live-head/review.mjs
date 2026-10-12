@@ -5,9 +5,9 @@ import { build } from "esbuild";
 import { chromium } from "playwright";
 import { contained, root } from "./rig.mjs";
 
-export async function reviewRig(projectArg, round, truthArg) {
+export async function reviewRig(projectArg, round, truthArg, manifestName = "live-head.json") {
   if (!/^[A-Za-z0-9_-]+$/.test(round ?? "")) throw new Error("Name the review round with letters, digits, underscore and hyphen.");
-  const project = contained(projectArg), manifestFile = contained(join(project, "live-head.json")), output = contained(join(project, `review-${round}`));
+  const project = contained(projectArg), manifestFile = contained(join(project, manifestName)), output = contained(join(project, `review-${round}`));
   if (!existsSync(manifestFile)) throw new Error("Build and package the project first.");
   if (existsSync(output)) throw new Error("Review round exists; choose a new round name.");
   const bundle = join(root, ".build/live-head-review-page.js");
@@ -28,6 +28,7 @@ export async function reviewRig(projectArg, round, truthArg) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  try { console.log(JSON.stringify(await reviewRig(process.argv[2], process.argv[3], process.argv[4]), null, 1)); }
+  const args = process.argv.slice(2), at = args.indexOf("--manifest"), manifest = at < 0 ? undefined : args.splice(at, 2)[1];
+  try { console.log(JSON.stringify(await reviewRig(args[0], args[1], args[2], manifest), null, 1)); }
   catch (error) { console.error(error.message); process.exitCode = 1; }
 }

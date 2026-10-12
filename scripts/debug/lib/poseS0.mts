@@ -1,3 +1,4 @@
+import { retargetPose, RETARGET_VERSION } from '../../../src/sprites/poses/retarget.ts';
 export type Point = [number, number] | null;
 export interface Keypoints { format: 'openpose-body18'; canvas: [number, number]; points: Point[] }
 export interface PoseLike { id: string; text: string; tags: string[]; keypoints: Keypoints; version?: number }
@@ -49,28 +50,10 @@ export function poseHead(keypoints: Keypoints): Box | null {
     return { x, y, width: Math.min(keypoints.canvas[0] - x, Math.ceil(span * 2)), height: Math.min(keypoints.canvas[1] - y, Math.ceil(span * 2.2)) };
 }
 
-export interface Retarget { canvas: [number, number]; box: Box; headToHip?: number }
+export interface Retarget { canvas: [number, number]; box: Box; headToHip?: number; member?: Keypoints }
 
-export function retarget(pose: PoseLike, target: Retarget): Keypoints {
-    const { box, canvas } = target;
-    if (![...canvas, box.width, box.height].every((n) => Number.isFinite(n) && n > 0) || ![box.x, box.y].every((n) => Number.isFinite(n) && n >= 0)
-        || box.x + box.width > canvas[0] || box.y + box.height > canvas[1]) throw new Error('Retarget needs an alpha box inside the sprite canvas.');
-    const visible = pose.keypoints.points.filter((point): point is [number, number] => point !== null);
-    const minX = Math.min(...visible.map((p) => p[0])), maxX = Math.max(...visible.map((p) => p[0]));
-    const minY = Math.min(...visible.map((p) => p[1])), maxY = Math.max(...visible.map((p) => p[1]));
-    const sx = box.width / Math.max(1, maxX - minX), sy = box.height / Math.max(1, maxY - minY);
-    const ratio = target.headToHip;
-    const neck = pose.keypoints.points[1], hip = pose.keypoints.points[8], otherHip = pose.keypoints.points[11];
-    const torso = neck && hip && otherHip ? Math.abs((hip[1] + otherHip[1]) / 2 - neck[1]) : 0;
-    const head = neck && pose.keypoints.points[0] ? Math.abs(neck[1] - pose.keypoints.points[0][1]) : 0;
-    const points: Point[] = pose.keypoints.points.map((point, at) => {
-        if (!point) return null;
-        let y = point[1];
-        if (ratio && neck && torso && head && [0, 14, 15, 16, 17].includes(at)) y = neck[1] + (y - neck[1]) * torso * ratio / head;
-        return [Math.max(0, Math.min(canvas[0] - 1, box.x + (point[0] - minX) * sx)), Math.max(0, Math.min(canvas[1] - 1, box.y + (y - minY) * sy))];
-    });
-    return { format: 'openpose-body18', canvas, points };
-}
+export const retarget = (pose: PoseLike, target: Retarget, reference?: Keypoints): Keypoints =>
+    retargetPose({ keypoints: pose.keypoints, tags: pose.tags }, { ...target, version: RETARGET_VERSION }, reference) as Keypoints;
 
 export function percentile(values: number[], fraction: number): number {
     if (!values.length) return NaN;

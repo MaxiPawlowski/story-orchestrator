@@ -35,51 +35,70 @@ const sampled = (values: number[], u: number): number => {
   return values[i] + (values[i + 1] - values[i]) * (f - i);
 };
 
+const TAP_STEPS = [-2, -1, 0, 1, 2], TAP_WEIGHTS = [1, 2, 3, 2, 1];
+
 export function eyeVertexY(eye: Eye, part: string, x: number, y: number, open: number, smile: number): number {
-  const raw = (u: number): Point => {
-    u = Math.min(1, Math.max(0, u));
-    const top = sampled(eye.top, u), bot = sampled(eye.bot, u), b = 1 - open;
-    const height = sampled(eye.bot, 0.5) - sampled(eye.top, 0.5);
-    const arc = eye.top[0] + (eye.top[23] - eye.top[0]) * u - 0.3 * height * 4 * u * (1 - u);
+  if (part !== "lash" && part !== "low" && part !== "crease") return y;
+  const span = eye.x1 - eye.x0, u = (x - eye.x0) / span;
+  const b = 1 - open, height = sampled(eye.bot, 0.5) - sampled(eye.top, 0.5), lead = Math.max(b, -0.07);
+  const first = eye.top[0], slope = eye.top[23] - eye.top[0];
+  let lift = 0, drop = 0;
+  for (let k = 0; k < 5; k++) {
+    const t = Math.min(1, Math.max(0, u + TAP_STEPS[k] * 5 / span));
+    const top = sampled(eye.top, t), bot = sampled(eye.bot, t);
+    const arc = first + slope * t - 0.3 * height * 4 * t * (1 - t);
     const closed = Math.max(top, bot + 1 + (arc - bot - 1) * smile);
-    return [(closed - top) * Math.max(b, -0.07), b > 0 ? (closed - bot) * b * smile : 0];
-  };
-  const u = (x - eye.x0) / (eye.x1 - eye.x0);
-  const moves: Point = [0, 0];
-  for (const [tap, weight] of [[-2, 1], [-1, 2], [0, 3], [1, 2], [2, 1]]) {
-    const step = raw(u + tap * 5 / (eye.x1 - eye.x0));
-    moves[0] += step[0] * weight / 9; moves[1] += step[1] * weight / 9;
+    lift += (closed - top) * lead * TAP_WEIGHTS[k] / 9;
+    drop += (b > 0 ? (closed - bot) * b * smile : 0) * TAP_WEIGHTS[k] / 9;
   }
-  if (part === "lash") return sampled(eye.top, u) + moves[0] - (sampled(eye.top, u) - y) * (1 - 0.3 * Math.min(1, Math.max(0, 1 - open)));
-  if (part === "low") return y + moves[1];
-  if (part === "crease") return y + moves[0] * 0.22;
-  return y;
+  if (part === "lash") return sampled(eye.top, u) + lift - (sampled(eye.top, u) - y) * (1 - 0.3 * Math.min(1, Math.max(0, 1 - open)));
+  if (part === "low") return y + drop;
+  return y + lift * 0.22;
+}
+
+export function deformInto(rig: Rig, x: number, y: number, p: HeadParameters, out: { [index: number]: number }, at = 0): void {
+  const head = rig.head, body = rig.body, face = rig.face;
+  const ax = p.angleX / 30, ay = p.angleY / 30;
+  let px = x, py = y;
+  if (p.browY !== 0 || p.browAngle !== 0) {
+    const brow = gaussian(x, y, face.brow) * (1 - smooth(face.brow.band[0], face.brow.band[1], y));
+    py -= p.browY * 7 * brow;
+    py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
+  }
+  if (p.mouthOpen !== 0) py += p.mouthOpen * 3.5 * gaussian(x, y, face.jaw) * smooth(face.jaw.band[0], face.jaw.band[1], y);
+  if (ax !== 0) {
+    px += ax * (8 * gaussian(x, y, face.nose) + 5 * gaussian(x, y, face.mouth))
+      + (x - face.eyeA.cx) * 0.12 * ax * gaussian(x, y, face.eyeA) - (x - face.eyeB.cx) * 0.12 * ax * gaussian(x, y, face.eyeB)
+      - ax * 9 * gaussian(x, y, face.earR) + ax * 4 * gaussian(x, y, face.earL);
+  }
+  if (ay !== 0) {
+    py -= ay * (6 * gaussian(x, y, face.nose) + 3 * gaussian(x, y, face.mouth));
+    py += (y - face.eyeA.cy) * -0.06 * Math.abs(ay) * gaussian(x, y, face.eyeA) + (y - face.eyeB.cy) * -0.06 * Math.abs(ay) * gaussian(x, y, face.eyeB);
+  }
+  if (ax !== 0 || ay !== 0) {
+    const bump = 1 - ((px - head.cx) / head.rx) ** 2 - ((py - head.cy) / head.ry) ** 2;
+    const turn = smooth(0, 0.84, bump) * (1 - smooth(head.turnBand[0], head.turnBand[1], y));
+    px += ax * head.shiftX * turn; py -= ay * head.shiftY * turn;
+  }
+  if (p.angleZ !== 0) {
+    const angle = -p.angleZ / 30 * head.maxRoll * (1 - smooth(head.weightBand[0], head.weightBand[1], y));
+    const dx = px - head.pivotX, dy = py - head.pivotY;
+    px = head.pivotX + dx * Math.cos(angle) - dy * Math.sin(angle);
+    py = head.pivotY + dx * Math.sin(angle) + dy * Math.cos(angle);
+  }
+  if (p.breath !== 0) {
+    let shoulders = 0;
+    for (const shoulder of body.shoulders) shoulders += gaussian(x, y, shoulder);
+    py -= p.breath * (5 * (1 - smooth(body.breathBand[0], body.breathBand[1], y)) + 4 * shoulders);
+    px += (px - body.chest.cx) * 0.012 * p.breath * gaussian(x, y, body.chest);
+  }
+  out[at] = px; out[at + 1] = py;
 }
 
 export function deformVertex(rig: Rig, x: number, y: number, p: HeadParameters): Point {
-  const head = rig.head, body = rig.body, face = rig.face;
-  const weight = (e: Ellipse) => gaussian(x, y, e);
-  const ax = p.angleX / 30, ay = p.angleY / 30;
-  let px = x, py = y;
-  const brow = weight(face.brow) * (1 - smooth(...face.brow.band, y));
-  py -= p.browY * 7 * brow;
-  py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
-  py += p.mouthOpen * 3.5 * weight(face.jaw) * smooth(...face.jaw.band, y);
-  px += ax * (8 * weight(face.nose) + 5 * weight(face.mouth))
-    + (x - face.eyeA.cx) * 0.12 * ax * weight(face.eyeA) - (x - face.eyeB.cx) * 0.12 * ax * weight(face.eyeB)
-    - ax * 9 * weight(face.earR) + ax * 4 * weight(face.earL);
-  py -= ay * (6 * weight(face.nose) + 3 * weight(face.mouth));
-  py += (y - face.eyeA.cy) * -0.06 * Math.abs(ay) * weight(face.eyeA) + (y - face.eyeB.cy) * -0.06 * Math.abs(ay) * weight(face.eyeB);
-  const bump = 1 - ((px - head.cx) / head.rx) ** 2 - ((py - head.cy) / head.ry) ** 2;
-  const turn = smooth(0, 0.84, bump) * (1 - smooth(...head.turnBand, y));
-  px += ax * head.shiftX * turn; py -= ay * head.shiftY * turn;
-  const angle = -p.angleZ / 30 * head.maxRoll * (1 - smooth(...head.weightBand, y));
-  const dx = px - head.pivotX, dy = py - head.pivotY;
-  px = head.pivotX + dx * Math.cos(angle) - dy * Math.sin(angle);
-  py = head.pivotY + dx * Math.sin(angle) + dy * Math.cos(angle);
-  py -= p.breath * (5 * (1 - smooth(...body.breathBand, y)) + 4 * body.shoulders.reduce((sum, e) => sum + weight(e), 0));
-  px += (px - body.chest.cx) * 0.012 * p.breath * weight(body.chest);
-  return [px, py];
+  const out: [number, number] = [0, 0];
+  deformInto(rig, x, y, p, out);
+  return out;
 }
 
 export interface HeadMesh { rest: Float32Array; pos: Float32Array; uv: Float32Array; triangles: Uint32Array }
