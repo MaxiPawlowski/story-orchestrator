@@ -1,4 +1,4 @@
-import { retargetPose, RETARGET_VERSION } from '../../../src/sprites/poses/retarget.ts';
+import { retargetPose, retargetVersion } from '../../../src/sprites/poses/retarget.ts';
 export type Point = [number, number] | null;
 export interface Keypoints { format: 'openpose-body18'; canvas: [number, number]; points: Point[] }
 export interface PoseLike { id: string; text: string; tags: string[]; keypoints: Keypoints; version?: number }
@@ -53,7 +53,7 @@ export function poseHead(keypoints: Keypoints): Box | null {
 export interface Retarget { canvas: [number, number]; box: Box; headToHip?: number; member?: Keypoints }
 
 export const retarget = (pose: PoseLike, target: Retarget, reference?: Keypoints): Keypoints =>
-    retargetPose({ keypoints: pose.keypoints, tags: pose.tags }, { ...target, version: RETARGET_VERSION }, reference) as Keypoints;
+    retargetPose({ keypoints: pose.keypoints, tags: pose.tags }, { ...target, version: retargetVersion(pose) }, reference) as Keypoints;
 
 export function percentile(values: number[], fraction: number): number {
     if (!values.length) return NaN;

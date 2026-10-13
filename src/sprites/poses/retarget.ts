@@ -3,7 +3,9 @@ export interface Keypoints { format: "openpose-body18"; canvas: [number, number]
 export interface RetargetBox { x: number; y: number; width: number; height: number }
 export interface Retarget { canvas: [number, number]; box: RetargetBox; headToHip?: number; member?: Keypoints; version?: number }
 
-export const RETARGET_VERSION = 3;
+export const RETARGET_VERSION = 2;
+export const LYING_RETARGET_VERSION = 3;
+export const retargetVersion = (pose: { tags: readonly string[] }): number => pose.tags.includes("lying") ? LYING_RETARGET_VERSION : RETARGET_VERSION;
 
 const BONES: ReadonlyArray<readonly [number, number]> = [[1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [1, 8], [8, 9], [9, 10], [1, 11], [11, 12], [12, 13], [1, 0],
   [0, 14], [14, 16], [0, 15], [15, 17]];

@@ -2,7 +2,10 @@ import { webcrypto } from "node:crypto";
 import type { RunOwnership } from "@runtime/runToken";
 import { PoseBodies, poseHead, type BodyDeps, type BodyRequest } from "./bodyRenderer";
 import { shippedPoses } from "./library";
-import { lookLayers, renderAllowed } from "./layers";
+import { lookLayers, renderAllowed, poseCacheKey, poseSet } from "./layers";
+import { RETARGET_VERSION, LYING_RETARGET_VERSION } from "./retarget";
+import { builderRender } from "../settings";
+import { POSE_RECIPE } from "../builder/recipes";
 import type { SpriteBuildRequest, SpriteCandidate } from "../builder/builder";
 
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
@@ -118,4 +121,20 @@ test("the member's measured skeleton changes the skeleton sent to the model and 
   const first = plain.calls.find((call) => call.kind === "pose"), second = measured.calls.find((call) => call.kind === "pose");
   expect(second?.pose).not.toEqual(first?.pose);
   expect(second?.set).not.toBe(first?.set);
+});
+
+test("the rendered body set is keyed by the pose-sensitive retarget version: non-lying poses keep version 2, lying poses use 3", async () => {
+  const sets: Record<string, string> = {};
+  for (const [id, version, other] of [["sit_chair", RETARGET_VERSION, LYING_RETARGET_VERSION], ["lie_back", LYING_RETARGET_VERSION, RETARGET_VERSION]] as const) {
+    const { deps, request, calls } = setup(), chosen = shippedPoses().find((entry) => entry.id === id)!;
+    await new PoseBodies(deps).render({ ...request, pose: chosen });
+    const built = calls.find((call) => call.kind === "pose")!, render = builderRender(request.config);
+    const keyed = (retargetVersion: number) => poseCacheKey({ story: "s", member: "a", fields: {}, pose: chosen, retarget: { canvas: [128, 192], box: { x: 24, y: 8, width: 80, height: 176 },
+      headToHip: undefined, member: undefined, version: retargetVersion }, recipe: POSE_RECIPE, models: { diffusion: fingerprint, encoder: fingerprint, vae: fingerprint },
+      base: fingerprint.sha256, steps: render.steps, resolution: render.resolution, cutout: { id: "alpha", node: "RMBG", model: "b", files: [fingerprint] }, secondReference: true });
+    expect(built.set).toBe(poseSet(await keyed(version)));
+    expect(built.set).not.toBe(poseSet(await keyed(other)));
+    sets[id] = built.set;
+  }
+  expect(sets.sit_chair).not.toBe(sets.lie_back);
 });

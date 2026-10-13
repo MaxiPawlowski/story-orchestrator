@@ -11,7 +11,7 @@ import type { HeadBox, PixelImage } from "../builder/pixels";
 import { poseCacheKey, poseSet, type CachedBody, type LookLayers } from "./layers";
 import type { AnimationFrames } from "../animation";
 import { completeLookFrames } from "../builder/lookFrames";
-import { retargetPose, RETARGET_VERSION, type Retarget } from "./skeleton";
+import { retargetPose, retargetVersion, type Retarget } from "./skeleton";
 import { headToHipRatio } from "./import";
 import { shippedPoses } from "./library";
 
@@ -178,7 +178,7 @@ export class PoseBodies {
       }
       const member = this.proportions.get(base.sha256);
       const target: Retarget = { canvas: [image.width, image.height], box: alphaBox(image), headToHip: member ? headToHipRatio(member) : undefined,
-        member: member ? { ...member, points: member.points.map((point) => point ? [Math.round(point[0]), Math.round(point[1])] : null) } : undefined, version: RETARGET_VERSION };
+        member: member ? { ...member, points: member.points.map((point) => point ? [Math.round(point[0]), Math.round(point[1])] : null) } : undefined, version: retargetVersion(request.pose) };
       const keypoints = retargetPose(request.pose, target, standingReference());
       const look = stableStringify(request.layers.base), stamp = stableStringify([request.pose, request.layers, request.config]);
       const secondReference = Boolean(discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]

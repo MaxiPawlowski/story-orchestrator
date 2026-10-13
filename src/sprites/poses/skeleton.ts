@@ -1,6 +1,6 @@
 import type { PoseEntry } from "@engine/poseSchema";
 
-export { retargetPose, RETARGET_VERSION, type Retarget } from "./retarget";
+export { retargetPose, retargetVersion, RETARGET_VERSION, LYING_RETARGET_VERSION, type Retarget } from "./retarget";
 
 export const BODY_EDGES: ReadonlyArray<readonly [number, number]> = [[1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [1, 8], [8, 9], [9, 10], [1, 11], [11, 12], [12, 13], [1,
   0], [0, 14], [14, 16], [0, 15], [15, 17]];

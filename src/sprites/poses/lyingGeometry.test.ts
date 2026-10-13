@@ -4,7 +4,7 @@ import { shippedPoses } from "./library";
 import { poseCacheKey } from "./layers";
 import { poseHead } from "./bodyRenderer";
 import { BODY_EDGES } from "./skeleton";
-import { retargetPose, RETARGET_VERSION, type Retarget } from "./retarget";
+import { retargetPose, retargetVersion, RETARGET_VERSION, LYING_RETARGET_VERSION, type Retarget } from "./retarget";
 
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
@@ -72,15 +72,50 @@ test("lie_side is authored as a horizontal side-lying figure with one proportion
   expect(Math.max(...points.map((p) => p![1]))).toBeLessThanOrEqual(Math.max(points[10]![1], points[13]![1], points[6]![1]));
 });
 
-test("a changed lie_side carries a new pose version and a different body cache identity", async () => {
-  expect(lieSide.version).toBeGreaterThan(1);
-  const fingerprint = { name: "model", sha256: "a".repeat(64), size: 1 };
-  const input = { story: "s", member: "a", fields: {}, pose: lieSide, retarget: { canvas, box: { x: 216, y: 25, width: 318, height: 1088 }, version: RETARGET_VERSION },
-    recipe: { id: "p2", version: 1 }, models: { diffusion: fingerprint, encoder: fingerprint, vae: fingerprint }, base: "a", steps: 25, resolution: 1024 };
-  const legacy = { ...lieSide, version: 1, keypoints: { ...lieSide.keypoints, points: LEGACY_LIE_SIDE_V1 } };
-  expect(await poseCacheKey({ ...input, pose: legacy })).not.toBe(await poseCacheKey(input));
-  expect(await poseCacheKey({ ...input, retarget: { ...input.retarget, version: RETARGET_VERSION - 1 } })).not.toBe(await poseCacheKey(input));
-  expect(RETARGET_VERSION).toBeGreaterThan(2);
+const fingerprint = { name: "model", sha256: "a".repeat(64), size: 1 };
+const keyInput = (pose: PoseEntry, version: number) => ({ story: "s", member: "a", fields: {}, pose, retarget: { canvas, box: { x: 216, y: 25, width: 318, height: 1088 }, version },
+  recipe: { id: "p2", version: 1 }, models: { diffusion: fingerprint, encoder: fingerprint, vae: fingerprint }, base: "a", steps: 25, resolution: 1024 });
+const keyFor = (pose: PoseEntry) => poseCacheKey(keyInput(pose, retargetVersion(pose)));
+const keyAt = (pose: PoseEntry, version: number) => poseCacheKey(keyInput(pose, version));
+const customLying: PoseEntry = { ...byId("sit_chair"), id: "lie_custom", tags: ["lying"], version: 1 };
+const PREVIOUS_SIT_CHAIR_KEY = "1559bb7c88c5d394aa9b2a1cda3fb52a63fb4f3f78e93a9f4605ae61d6d71b87";
+
+describe("body cache identity", () => {
+  test("a changed lie_side carries a new pose version and a new body key", async () => {
+    expect(lieSide.version).toBeGreaterThan(1);
+    const legacy = { ...lieSide, version: 1, keypoints: { ...lieSide.keypoints, points: LEGACY_LIE_SIDE_V1 } };
+    expect(await keyAt(legacy, 2)).not.toBe(await keyFor(lieSide));
+    expect(await keyAt(lieSide, 2)).not.toBe(await keyFor(lieSide));
+    expect(await keyAt({ ...lieSide, version: 1 }, retargetVersion(lieSide))).not.toBe(await keyFor(lieSide));
+  });
+
+  test("only lying tags select the newer retarget version", () => {
+    expect(RETARGET_VERSION).toBe(2);
+    expect(LYING_RETARGET_VERSION).toBe(3);
+    for (const pose of poses) expect(retargetVersion(pose)).toBe(pose.tags.includes("lying") ? LYING_RETARGET_VERSION : RETARGET_VERSION);
+    expect(retargetVersion(customLying)).toBe(LYING_RETARGET_VERSION);
+    expect(retargetVersion({ tags: ["gesture", "lying"] })).toBe(LYING_RETARGET_VERSION);
+    expect(retargetVersion({ tags: [] })).toBe(RETARGET_VERSION);
+  });
+
+  test("every non-lying pose keeps the exact body key it had before the lying repair", async () => {
+    const stable = poses.filter((pose) => !pose.tags.includes("lying"));
+    expect(stable).toHaveLength(37);
+    for (const pose of stable) expect(await keyFor(pose)).toBe(await keyAt(pose, 2));
+    expect(await keyFor(byId("sit_chair"))).toBe(PREVIOUS_SIT_CHAIR_KEY);
+    expect(await keyFor(byId("kneel_one"))).toBe(await keyAt(byId("kneel_one"), 2));
+  });
+
+  test("both shipped lying poses that were not re-authored and a custom lying pose change body key", async () => {
+    for (const pose of [byId("lie_back"), byId("lie_rest"), lieSide, customLying]) expect(await keyFor(pose)).not.toBe(await keyAt(pose, 2));
+    expect(new Set(await Promise.all([lieSide, byId("lie_back"), byId("lie_rest"), customLying].map(keyFor))).size).toBe(4);
+  });
+
+  test("an explicit retarget version is used as given", async () => {
+    expect(await keyAt(byId("sit_chair"), 9)).not.toBe(await keyFor(byId("sit_chair")));
+    expect(await keyAt(lieSide, 9)).not.toBe(await keyFor(lieSide));
+    expect(await keyAt(lieSide, 2)).not.toBe(await keyAt(lieSide, 9));
+  });
 });
 
 describe.each(PROPORTIONS)("lying poses on a %s member", (_name, sx, sy) => {
