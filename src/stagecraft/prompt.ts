@@ -1,8 +1,13 @@
-import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart, type CuratorEntryView, type CuratorScope } from "./types";
+import {
+  CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart,
+  type CuratorDigest, type CuratorEntryView, type CuratorScope,
+} from "./types";
 import { entryRef } from "./scope";
 import { truncate } from "@utils/string";
 
 export const NO_CURATOR_ENTRIES = "(this story's lorebooks have no entries yet)";
+export const DIGEST_NO_MATCH = "(no entry matches what has happened; see the index below)";
+export const DIGEST_TITLE_HINT = "OTHER ENTRIES (title only: you have not seen their content, so you may only [disable] the ones [currently on], or [enable] one [currently off]):";
 
 export const renderCuratorEntry = (entry: CuratorEntryView, entries: CuratorEntryView[]): string => [
   `- ${[
@@ -13,13 +18,31 @@ export const renderCuratorEntry = (entry: CuratorEntryView, entries: CuratorEntr
   `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
 ].join("\n");
 
+const digestLine = (entry: CuratorEntryView, entries: CuratorEntryView[]): string =>
+  `${[entryRef(entry, entries), `"${entry.comment}"`].filter(Boolean).join(" ")} [currently ${entry.disabled ? "off" : "on"}]`;
+
+export function renderDigestListing(digest: CuratorDigest, entries: CuratorEntryView[]): string {
+  const groups = new Map<string, string[]>();
+  for (const entry of digest.titleOnly) {
+    const initial = entry.comment.trim().charAt(0).toUpperCase();
+    const group = /[A-Z]/.test(initial) ? initial : "#";
+    groups.set(group, [...(groups.get(group) ?? []), digestLine(entry, entries)]);
+  }
+  const index = [...groups].sort(([left], [right]) => left.localeCompare(right)).map(([initial, lines]) => `${initial}: ${lines.join("; ")}`).join("\n");
+  const unlisted = digest.unlisted.length ? `\n(${String(digest.unlisted.length)} more entries are not listed, so you may not touch them)` : "";
+  const body = digest.full.map((entry) => renderCuratorEntry(entry, entries)).join("\n") || DIGEST_NO_MATCH;
+  return `${body}\n\n${DIGEST_TITLE_HINT}\n${index}${unlisted}`;
+}
+
 // Same discipline as the extractor contract: a closed vocabulary (only the entry titles listed here
 // may be named), an explicit evidence expectation, and one line per change so a small model cannot
 // drift into prose. The prompt never receives a lorebook the story did not put on its allowlist.
-export function buildWiCuratorPrompt(scope: CuratorScope): string {
-  const entries = scope.entries.length
-    ? scope.entries.map((entry) => renderCuratorEntry(entry, scope.entries)).join("\n")
-    : NO_CURATOR_ENTRIES;
+export function buildWiCuratorPrompt(scope: CuratorScope, digest?: CuratorDigest | null): string {
+  const entries = digest
+    ? renderDigestListing(digest, scope.entries)
+    : scope.entries.length
+      ? scope.entries.map((entry) => renderCuratorEntry(entry, scope.entries)).join("\n")
+      : NO_CURATOR_ENTRIES;
   const declined = (scope.declined ?? []).slice(0, CURATOR_MAX_OPS).map((op) => `- [${op.kind}] ${op.comment}`);
 
   return [

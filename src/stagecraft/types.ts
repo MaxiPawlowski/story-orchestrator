@@ -95,6 +95,16 @@ export interface CuratorScope {
   declined?: WiCuratorOp[];
 }
 
+export const CURATOR_DIGEST_MIN_ENTRIES = 40;
+export const CURATOR_DIGEST_FULL_LIMIT = 16;
+export const CURATOR_DIGEST_INDEX_LIMIT = 300;
+
+export interface CuratorDigest {
+  full: CuratorEntryView[];
+  titleOnly: CuratorEntryView[];
+  unlisted: CuratorEntryView[];
+}
+
 export interface CuratorProposal {
   summary: string;
   ops: WiCuratorOp[];
@@ -128,6 +138,7 @@ export interface CuratorOpRecord {
    * Apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate. */
   writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
+  seen?: "title";
   nearDups?: NearDup[];
   created?: { keys: string[] };
 }
@@ -160,6 +171,7 @@ export interface CuratorPassAudit {
   proposed: number;
   dropped: string[];
   focus?: { shown: number; total: number };
+  digest?: { full: number; titleOnly: number; unlisted: number };
 }
 
 /**

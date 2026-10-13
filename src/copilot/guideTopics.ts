@@ -238,10 +238,11 @@ export const GUIDE_TOPICS = {
     title: "Curator scope",
     fields: "stagecraft.lorebooks, stagecraft.exclude, stagecraft.createCap",
     text: "The only lorebooks the World Info curator may edit. It edits entries and proposes a new one only for what two live facts name "
-      + "(each waits for the author; createCap 0-20, default 5, per chat; the card names a likely duplicate to patch instead). It never touches an entry a beat's world_info gates. "
+      + "(each waits for the author; createCap 0-20, default 5; the card names a likely duplicate). It never touches a beat-gated entry. "
       + "Empty list: no curator writes. exclude [{lorebook, comments}] names entries it is never shown or writes. "
       + "{{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; {{// so:auto}} lets its changes apply unreviewed in auto mode. "
-      + "A new entry carries {{// so:created <chat>}}; deleting that chat asks whether to delete it. SillyTavern drops these markers before the prompt.",
+      + "A new entry carries {{// so:created <chat>}}; deleting that chat asks whether to delete it. SillyTavern drops these markers before the prompt. "
+      + "40+ entries: best 16 in full, the rest by title, never edited unseen.",
   },
   "lore-select": {
     title: "Lore select",

@@ -23,6 +23,8 @@ there. This plan keeps the work that a 39 result unlocks, built after v2.7 freez
 
 A row here closes only with its acceptance tier green.
 
+**C13-b was built on 2026-10-13 under the owner's override of the B1-C13b condition** ([40](40-build-now-no-gpu.md)); its record is "C13-b curator digest: Gate record" below. Its real curator calibration is still owed.
+
 ## A. Owed acceptance of merged v2.7 work
 
 **Absorbed (2026-10-07): every row below runs in v2.7 39 C5 (O-rows) from zero; kept here as history.** A row 39 records
@@ -185,6 +187,48 @@ Owed (each with its protocol; none run, no lane, no model, no GPU used):
 - **C3:** the second `so-judge timeouts` ×2 leg on one build.
 - **LI:** nothing in this plan is image work.
 - **§D, §F (M1–M5), §G run, §H (H1 recorder first, then H2), §A rows:** unchanged, still owed.
+
+### C13-b curator digest: Gate record (2026-10-13, branch `v2.8-build-digest`)
+
+Built under the owner's override of the measure-first condition ([40](40-build-now-no-gpu.md)). The old condition, an index arm passing x2 against the SP8 floors, is not met and not claimed. Real curator calibration stays deferred and the floors are unchanged.
+
+**What ships (default on, no flag, no setting).**
+
+- **Trigger.** A curator pass whose shown entries number 40 or more (`CURATOR_DIGEST_MIN_ENTRIES`). Below that the request is byte-identical to before (`curatorTiers.review.test.ts` keeps its SHA-256 pin untouched).
+- **Selection** (`stagecraft/digest.ts`, the measured arm's selection moved into the product). A whole-word match of an entry's title (before " - ") or keys against the checkpoint name, objective, canon and open threads; the best 16 by hits (ties by authored order) keep their text, shown in authored order.
+- **Index.** Every other entry is one title line grouped by initial with its on/off state, at most 300 (`CURATOR_DIGEST_INDEX_LIMIT`). Entries past the cap are not listed, a line says how many, and they cannot be named.
+- **One code path.** `runtime/curatorIndexArm.ts` is now a thin adapter over the same functions, for `so-role-calibration --curator-index`. A test pins the digest's prompt to the arm's pre-build prompt by SHA-256, so the measured text and the shipped text are the same.
+- **Where it applies.** `StagecraftCoordinator.runCuratorPass`, after the judge pre-filter (`curatorFilter`): a failing or off filter leaves the whole scope, which the digest then bounds; a filter that narrows below 40 leaves the plain prompt. Parse, plan, protected-span refusal and tier routing all read the digest's vocabulary (full + listed titles), so a title the prompt did not list cannot be named.
+
+**Guards.**
+
+- **Proposal edge.** `refuseTitleOnlyEdits`: a rewrite or patch of a title-only entry is dropped ("only the title of this entry was shown") and joins `refused`, so the next prompt's DECLINED block carries it. An on/off flip of a title-only entry stays allowed (as measured) and its card gets `seen: "title"`.
+- **Write edge.** `CuratorWriter.writeOp` refuses any rewrite or patch whose record is marked `seen: "title"`, before it reads the host. An author who edits a title-only flip into a rewrite on the card is refused the same way. `reopened()` keeps the mark when a rollback sends an op back to review.
+- **Unchanged and now covered under a digest:** protected spans (a title-only entry with a span cannot be switched off), constant-entry review (a constant title-only entry waits even in auto, even with `so:auto`), checkpoint-gated and author-excluded entries (never in the prompt, index or vocabulary; refused at the write edge), create semantics (the create pass keeps its full-text prompt, create ops pass the digest untouched), stale ownership (a chat switch during the model call discards the pass), rollback (before-image restore of title-only flips).
+- Audit: `lastPass.digest {full, titleOnly, unlisted}` and a line in the curator panel.
+
+**Intentional request and payload changes (declared).**
+
+- **Curator request, only for 40+ shown entries.** The `ENTRIES YOU MAY TOUCH` list becomes: up to 16 full entries (same rendering as before), then `OTHER ENTRIES (title only: you have not seen their content, so you may only [disable] the ones [currently on], or [enable] one [currently off]):`, then initial-grouped title lines. On the 50-entry synthetic scope the prompt is 19 % of the full-text prompt (floor ratio 0.40 unchanged). The RULES and output lines are unchanged.
+- **Over 300 shown entries:** one extra line, `(N more entries are not listed, so you may not touch them)`.
+- **Unchanged:** every request for fewer than 40 shown entries; the create-pass request; the continuity warden, judge and every other prompt; no golden or pinned hash was edited.
+- **Wizard guide text.** Compact topic `stagecraft` in `copilot/guideTopics.ts` gains one sentence and loses two clauses of wording (it must stay under 800 characters); this is read by the wizard's `readGuide`.
+- **Stored state.** Optional `seen` on a proposal op record and optional `digest` on `lastPass`; no blob version change, nothing migrates.
+
+**Deterministic checks run (worktree `so-build-digest`; no model, TypeSafe, GPU, browser, lane or ST involved).**
+
+- New: `stagecraft/digest.test.ts` (10: threshold, whole-word matching, ranking and cap, 300-title bound, extra context, prompt rendering, plan-edge marking, create ops untouched, create prompt unchanged), `runtime/coordinators/curatorDigest.review.test.ts` (18: below-threshold request unchanged, relevant selection, nothing relevant, very large scope, empty and fully hidden scope, title-only rewrite/patch refusal and decline memory, flip card/apply/rollback, write-edge refusal with a control, author conversion, protected span, auto tier, constant, gated/excluded, stale chat, filter failure and narrowing, reopen keeps the mark), the arm-prompt SHA pin in `curatorIndexArm.test.ts`. Mutation check: removing the write-edge guard fails 2 of the 18.
+- `npm run typecheck`, `npm run typecheck:test`, `npm run lint` (0 errors, 2 existing warnings), `npm test`: 686 suites passed, 1 skipped; 7,912 tests passed, 1 skipped. `npm run build`: main bundle `dist/index.js` 1,250,477 B (budget 1,300,000).
+- `npm run gates:quick`: green in 97.4 s (typecheck, typecheck:test, lint changed, jest related 138 suites / 1,676 tests, defect replay `--cached`). Storybook for `StagecraftPanel.stories.tsx` not run; owed to the full gates.
+- `npm run docs:guide` run (guide source and `docs/guide/author/fields/lore-and-memory.md`, `src/guide/pages.generated.ts` changed; the other regenerated files differed only by line endings and were not kept). `docs:settings` not needed: no setting or settings copy changed.
+
+**Tooling note.** `scripts/suite/defect-replay.mjs --cached` fails with an empty `jest --listTests` error in a worktree that has no `.build/defect-replay-cache.json` (it passes every tracked file as an argument), and `trackedFiles` ignores untracked new files. Here the cache was seeded from another worktree's copy and the new files were staged; 32 of 32 mutants were killed.
+
+**Deferred (not run, not claimed).**
+
+- **CL:** the real curator calibration of the digest, `so-role-calibration --role curator --curator-index-pad <private pad of 40+ entries>` with and without `--curator-index`, x2, against the SP8 floors (validity 0.9, opShape 0.85, decision 0.7, ratio 0.40). A miss is recorded, the digest stays on, the floors are not retuned.
+- **Browser/lane:** a real curator pass over a 40+ entry synthetic book on a lane (digest line in the panel, title-only flip applied and rolled back); the parent's staging.
+- **Campaign:** no change and no pin bump. The digest is not authored content, adds no story field and no setting; the campaign's current curator book is under 40 entries, so its curator request is unchanged. Revisit if that book grows past 40.
 
 ## C. SP2 re-commit after edit, v2 — option A (approved)
 

@@ -1,6 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
-  CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, type CreatedStampOwner,
+  CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, titleOnlyEditRefusal, type CreatedStampOwner,
   isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
   type CreatedEntry, type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
@@ -19,7 +19,7 @@ const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
 
 const reopened = (entry: CuratorOpRecord): CuratorOpRecord => ({
   op: entry.op, status: "pending", message: CURATOR_OP_REVERTED,
-  ...(entry.before ? { before: entry.before } : {}), ...(entry.fuzzy ? { fuzzy: entry.fuzzy } : {}),
+  ...(entry.before ? { before: entry.before } : {}), ...(entry.fuzzy ? { fuzzy: entry.fuzzy } : {}), ...(entry.seen ? { seen: entry.seen } : {}),
   ...(entry.nearDups ? { nearDups: entry.nearDups } : {}), ...(entry.created ? { created: entry.created } : {}),
 });
 
@@ -67,6 +67,8 @@ export class CuratorWriter {
     if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) return { ok: false, record: { ...entry, status: "failed", message: scopeRefusal(story, op) } };
     if (isCreateOp(op)) return this.writeCreate(entry, run, messageId, beforeHostWrite);
+    const unseen = titleOnlyEditRefusal(entry);
+    if (unseen) return { ok: false, record: { ...entry, status: "failed", message: unseen } };
     // The before-image is read at the write edge. by uid, and
     // an entry that is gone is a failed op, never a created one.
     const fileId = lorebookFileId(op.lorebook);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
-  CURATOR_OP_REVERTED, decidedOp, isCreateOp, isNoteOp, previewCuratorOp, repetitionText, wardenFamilyMode, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord,
+  CURATOR_OP_REVERTED, decidedOp, isCreateOp, isNoteOp, previewCuratorOp, repetitionText, wardenFamilyMode, wardenFamilyOf,
+  type CuratorOp, type CuratorOpRecord, type CuratorPassAudit, type CuratorProposalRecord,
 } from "@stagecraft/index";
 import { wordDiff } from "@utils/wordDiff";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -48,6 +49,9 @@ const withText = (op: CuratorOp, text: string): CuratorOp => {
   if (op.kind === "patch") return { ...op, replace: text };
   return op;
 };
+
+const digestText = (digest: NonNullable<CuratorPassAudit["digest"]>): string =>
+  ` · ${String(digest.full)} entries in full, ${String(digest.titleOnly)} by title${digest.unlisted ? `, ${String(digest.unlisted)} not listed` : ""}`;
 
 const AGENCY_STATUS = { auto: "go in on their own", review: "wait for you", off: "not checking" } as const;
 
@@ -207,6 +211,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
           Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}
           {lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}
           {lastPass.focus ? ` · focused on ${lastPass.focus.shown} of ${lastPass.focus.total} entries` : ""}
+          {lastPass.digest ? digestText(lastPass.digest) : ""}
         </div>
       )}
       {records.length === 0 ? (

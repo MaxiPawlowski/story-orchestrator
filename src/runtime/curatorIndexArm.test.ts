@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import type { CuratorScope } from "@stagecraft/types";
 import { parseCuratorResponse, planCuratorProposal } from "@stagecraft/index";
 import { curatorIndexArm, INDEX_FULL_LIMIT, refuseIndexEdits } from "./curatorIndexArm";
@@ -13,6 +14,15 @@ const scored = (raw: string, indexed: boolean) => {
   const plan = planCuratorProposal(proposal, input.entries, { mode: "review" });
   return indexed ? refuseIndexEdits(plan, curatorIndexArm(input)) : plan;
 };
+
+describe("C13-b the product digest is the measured index arm", () => {
+  it("renders the byte-identical prompt the measurement arm rendered before the digest was built in", () => {
+    const entries = Array.from({ length: 50 }, (_, index) => ({ lorebook: "SO-Index", uid: index, comment: index === 0 ? "Ferry" : `Entry ${index}`, keys: [index === 0 ? "ferry" : `key${index}`], content: `Private body ${index} ${"x".repeat(300)}`, disabled: index % 7 === 0 }));
+    const arm = curatorIndexArm({ storyTitle: "Synthetic index test", checkpointName: "Harbour", objective: "Keep the harbour open", canon: "The ferry arrived.", openArcs: [], entries });
+    expect(createHash("sha256").update(arm.prompt).digest("hex")).toBe("d40364d7dc3f79c92e9431dbc695474c293a58f45d244cf581ee467595dbde85");
+    expect(arm.ratio).toBeCloseTo(0.18999608457321848, 12);
+  });
+});
 
 describe("C13-b calibration-only title index", () => {
   it("keeps matching content, hides other content, and records the unchanged ratio floor", () => {

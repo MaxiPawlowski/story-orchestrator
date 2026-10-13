@@ -8,6 +8,7 @@ export * from "./fuzzy";
 export * from "./writeAhead";
 export * from "./declines";
 export * from "./curatorTiers";
+export * from "./digest";
 export * from "./repetition";
 export * from "./createCandidate";
 export * from "./createPlan";

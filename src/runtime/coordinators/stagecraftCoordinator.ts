@@ -4,8 +4,8 @@ import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { cleanWindowMessage } from "@extraction/windowHygiene";
 import {
-  buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCuratorHidden,
-  isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
+  buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, digestVocabulary, entriesForScope, isCuratorHidden,
+  refuseTitleOnlyEdits, selectCuratorDigest, isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
   forgetDecline, mergeDeclined, refuseProtected, rememberDecline, routeByTier, standingDeclines,
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
@@ -188,7 +188,10 @@ export class StagecraftCoordinator {
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
       const declined = mergeDeclined(declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0, { rejected: false }),
           standingDeclines(this.state.declines ?? [], entries, state.boundary));
-      const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
+      const scope = { storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined };
+      const digest = selectCuratorDigest(shown, scope);
+      const vocabulary = digest ? digestVocabulary(digest) : shown;
+      const prompt = buildWiCuratorPrompt(scope, digest);
       const response = await askText(this.deps.model, prompt, {
         role: "curator", pass: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
@@ -203,15 +206,16 @@ export class StagecraftCoordinator {
         this.deps.journal(`World Info curator result discarded (${owned.reason})`, owned.detail);
         return { ran: true, record: null, discarded: owned.reason };
       }
-      const proposal = parseCuratorResponse(response, shown);
-      const planned = planCuratorProposal(proposal, shown, { mode: this.state.settings.acceptMode, declined });
-      const plan = refuseProtected(planned, shown);
+      const proposal = parseCuratorResponse(response, vocabulary);
+      const planned = planCuratorProposal(proposal, vocabulary, { mode: this.state.settings.acceptMode, declined });
+      const plan = refuseProtected(digest ? refuseTitleOnlyEdits(planned, digest) : planned, vocabulary);
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
         lastPass: { at: new Date().toISOString(), reason, prompt, rawResponse: response,
             proposed: plan.records.length, dropped: plan.dropped,
-            ...(shown.length < entries.length ? { focus: { shown: shown.length, total: entries.length } } : {}) },
+            ...(shown.length < entries.length ? { focus: { shown: shown.length, total: entries.length } } : {}),
+            ...(digest ? { digest: { full: digest.full.length, titleOnly: digest.titleOnly.length, unlisted: digest.unlisted.length } } : {}) },
       });
       if (!plan.records.length && !plan.dropped.length) {
         await this.save();
@@ -230,11 +234,11 @@ export class StagecraftCoordinator {
         mode,
         // "auto" accepts on the spot so the next boundary writes it; "review" and "off" wait, and
         // "off" never leaves the ring at all.
-        ops: routeByTier(plan.records, shown, mode),
+        ops: routeByTier(plan.records, vocabulary, mode),
         dropped: plan.dropped,
         refused: plan.refused,
         provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary,
-            pass: `wi-curator:${reason}`, inputs: shown.map((entry) => ({ store: "memory" as const,
+            pass: `wi-curator:${reason}`, inputs: vocabulary.map((entry) => ({ store: "memory" as const,
             id: `${entry.lorebook}#${entry.comment}` })), validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
