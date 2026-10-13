@@ -207,4 +207,23 @@ Product integration and image model selection, including the Qwen fast-model POC
   missing-method regression and distinct-alias availability checks.
 - Real transport smoke: service 2.0.6, OpenAI state ok; `openai/gpt-6.1-sol` returned PONG, tool-denied owned session,
   effort applied, input 316 / output 6 tokens. One non-rating Sol call. Browser Ask/wizard/vision acceptance still owed.
-- Full combined gates and lane staging remain pending after these fixes; no master merge or owner installation yet.
+- `npm run gates -- --jobs=2`: all 11 green in 294.6 s, Storybook included; Jest 698 suites / 8,098 tests,
+  plugin 263 passed / 4 skipped. Bundle `77b6d3e5c144`, 1,258,176 B. Follow-up `npm run gates:quick`: green in 87.7 s.
+- Staged to isolated `st-v28-build-now`, installed harness dependency and restarted lane 38 only. Its browser
+  reports OpenCode offered, OAuth ok, image input supported. Images/sprites off during this non-GPU browser batch.
+- Initial wizard call failed on the lane's inherited offline profile. Explicit authoring route to Sol then completed
+  a real plan, `readGuide` and title-edit tools, author review/Accept and Finished state. Draft stayed unsaved; no assets created.
+- Real Studio Ask answered how to save the synthetic draft and cited `guide/author/studio#saving` through the harness.
+- Browser vision transport identified red left / blue right from an attached synthetic PNG. HTTP 200, Sol,
+  input 337 / output 13, effort applied, 9,314 ms. First vision driver attempt used `Response.status()` instead of
+  its property after sending; retained as a driver failure, corrected rerun passed. This proves image transport,
+  not a calibrated rig or complete product journey.
+- Fixed live harness `openWizard(newStory)`: navigate Connections to Library before locating the wizard button,
+  matching `openCheckpointStudio`. `node --test scripts/debug/so-ui.test.mts`: 34 passed; subsequent
+  `npm run gates:quick`: green in 89.9 s, Jest 8,098 passed, replay 32/32.
+- Synthetic draft reset after the check; library contains no synthetic record. Lane 38 stopped. Its explicit
+  Sol authoring route and image-off test settings are retained for the next isolated acceptance run.
+- `so-evidence.mts archive --label plan41-harness-review --lanes 38 --pods none --since 2026-10-13T18:32:00Z`:
+  25 files / 330,274 B; archive verification ok. Private evidence commit `a1df3e4`, not pushed. Includes failures,
+  scripts and successful browser records. Full plan-41 end-user acceptance remains pending.
+- No master merge or owner installation yet.
